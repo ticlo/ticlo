@@ -286,6 +286,12 @@ export function checkEditPolicy(
         if (error) return error;
       }
       return null;
+    case 'moveOrdered': {
+      if (typeof request.to !== 'string') return 'invalid path';
+      const error = checkProp(`${path}.#order`) || checkProp(`${request.to}.#order`);
+      if (error || path === request.to) return error;
+    }
+    // Moving between parents also changes their child blocks.
     case 'move':
       if (typeof request.to !== 'string') return 'invalid path';
       if (policy.allowCreateBlock === false) return 'restricted block creation';

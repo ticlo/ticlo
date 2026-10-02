@@ -63,8 +63,9 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   order: unknown;
   ordered = false;
 
-  // updated by the renderer
   functionId: string;
+  funcLib: string;
+  desc: FunctionDesc = blankFuncDesc;
 
   max: number = 32;
 
@@ -91,7 +92,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
         this.name = 'Root';
       }
     }
-    this.subscribeOrder();
+    this.subscribe();
   }
 
   addToList(list: NodeTreeItem[]) {
@@ -185,11 +186,43 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     },
   });
 
-  subscribeOrder() {
+  subscribe() {
     if (this.connection && this.key != null) {
       this.orderListener.subscribe(this.connection, this.key ? `${this.key}.#order` : '#order', true);
+      this.functionListener.subscribe(this.connection, this.key ? `${this.key}.#is` : '#is', true);
+      this.scopeListener.subscribe(this.connection, this.key ? `${this.key}.#lib` : '#lib', true);
     }
   }
+
+  watchDesc() {
+    this.connection.unwatchDesc(this.descCallback);
+    this.descCallback(blankFuncDesc);
+    if (typeof this.functionId === 'string') {
+      this.connection.watchDesc(this.functionId, getDescLib(this.functionId, this.funcLib), this.descCallback);
+    }
+  }
+
+  functionListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      this.functionId = response.cache.value;
+      this.watchDesc();
+    },
+  });
+
+  scopeListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      const nextScope = getFuncLibPath(response.cache.value);
+      if (nextScope !== this.funcLib) {
+        this.funcLib = nextScope;
+        this.watchDesc();
+      }
+    },
+  });
+
+  descCallback = (desc: FunctionDesc) => {
+    this.desc = desc || blankFuncDesc;
+    for (const renderer of this._renderers) renderer.descCallback(this.desc);
+  };
 
   applyOrder() {
     if (!this.children) {
@@ -240,6 +273,9 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   destroy() {
     this.cancelLoad();
     this.orderListener.unsubscribe();
+    this.functionListener.unsubscribe();
+    this.scopeListener.unsubscribe();
+    this.connection?.unwatchDesc(this.descCallback);
     super.destroy();
   }
 }
@@ -249,11 +285,15 @@ interface Props {
   style: React.CSSProperties;
   selected: boolean;
   onClick: (item: NodeTreeItem, event: React.MouseEvent) => void;
+  getOrderedDrag?: (item: NodeTreeItem) => NodeTreeItem[];
+  canDropOrdered?: (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => boolean;
+  onDropOrdered?: (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => void;
 }
 
 interface State {
   desc: FunctionDesc;
   error?: string;
+  dropPosition?: 'before' | 'after' | 'inside';
 }
 
 export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
@@ -261,7 +301,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   declare context: TicloLayoutContext;
 
   state: State = {desc: blankFuncDesc};
-  funcLib: string;
+  dropRef = React.createRef<HTMLDivElement>();
 
   onExpandClicked = () => {
     const {item} = this.props;
@@ -359,41 +399,42 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (getOutputDesc(desc)) {
       data = {...data, fields: [`${item.key}.#output`]};
     }
+    const orderedItems = this.props.getOrderedDrag?.(item);
+    if (orderedItems) data.orderedItems = orderedItems;
     e.setData(data, item.getBaseConn());
     e.startDrag(undefined, undefined, {opacity: 0.9});
   };
 
-  watchDesc() {
-    const {item} = this.props;
-    item.connection.unwatchDesc(this.descCallback);
-    if (typeof item.functionId === 'string') {
-      item.connection.watchDesc(item.functionId, getDescLib(item.functionId, this.funcLib), this.descCallback);
+  getOrderedDrop(e: DragState) {
+    const {item, canDropOrdered} = this.props;
+    const items: NodeTreeItem[] = DragState.getData('orderedItems', item.getBaseConn());
+    if (!items?.length || !canDropOrdered) return;
+    const rect = this.dropRef.current.getBoundingClientRect();
+    const offset = (e.clientY - rect.top) / rect.height;
+    let position: State['dropPosition'] = 'inside';
+    let target = item;
+    let index: number;
+    if (item.ordered && item.parent && (offset < 0.25 || offset > 0.75)) {
+      position = offset < 0.25 ? 'before' : 'after';
+      target = item.parent;
+      index = (target.order as string[]).indexOf(item.name) + (position === 'after' ? 1 : 0);
     }
+    if (canDropOrdered(items, target, index)) return {items, target, index, position};
   }
 
-  subscriptionListener = new ValueSubscriber({
-    onUpdate: (response: ValueUpdate) => {
-      const {item} = this.props;
-      item.functionId = response.cache.value;
-      if (typeof item.functionId === 'string') {
-        this.watchDesc();
-      } else {
-        item.connection.unwatchDesc(this.descCallback);
-        this.safeSetState({desc: blankFuncDesc});
-      }
-    },
-  });
+  onDragOver = (e: DragState) => {
+    const drop = this.getOrderedDrop(e);
+    if (drop) e.accept('tico-fas-exchange-alt');
+    this.safeSetState({dropPosition: drop?.position});
+  };
 
-  scopeListener = new ValueSubscriber({
-    onUpdate: (response: ValueUpdate) => {
-      const {item} = this.props;
-      const nextScope = getFuncLibPath(response.cache.value);
-      if (nextScope !== this.funcLib) {
-        this.funcLib = nextScope;
-        this.watchDesc();
-      }
-    },
-  });
+  onDragLeave = () => this.safeSetState({dropPosition: undefined});
+
+  onDrop = (e: DragState) => {
+    const drop = this.getOrderedDrop(e);
+    this.onDragLeave();
+    if (drop) this.props.onDropOrdered?.(drop.items, drop.target, drop.index);
+  };
 
   disabledListener = new LazyUpdateSubscriber(this);
   hasChangeListener = new LazyUpdateSubscriber(this);
@@ -403,8 +444,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   constructor(props: Props) {
     super(props);
     const {item} = props;
-    this.subscriptionListener.subscribe(item.connection, `${item.key}.#is`, true);
-    this.scopeListener.subscribe(item.connection, `${item.key}.#lib`, true);
+    this.descCallback(item.desc);
     this.disabledListener.subscribe(item.connection, `${item.key}.#disabled`, true);
     this.nameListener.subscribe(item.connection, `${item.key}.@b-name`);
     if (item.canApply) {
@@ -441,6 +481,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (selected) {
       contentClassName += ' ticl-tree-node-selected';
     }
+    if (this.state.dropPosition === 'inside') contentClassName += ' ticl-tree-drop-inside';
     let icon: React.ReactElement;
 
     let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
@@ -500,6 +541,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (item.ordered) {
       nodeClassName += ' ticl-tree-node-ordered';
     }
+    if (this.state.dropPosition === 'before' || this.state.dropPosition === 'after') {
+      nodeClassName += ` ticl-tree-drop-${this.state.dropPosition}`;
+    }
     return (
       <div style={{...style, marginLeft}} className={nodeClassName}>
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
@@ -511,12 +555,16 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
           canApply={item.canApply}
           getMenu={this.getMenu}
           disabled={disabled}
-          funcLib={this.funcLib}
+          funcLib={item.funcLib}
         >
           <DragDrop
+            ref={this.dropRef}
             className={contentClassName}
             onClick={this.onClickContent}
             onDragStartT={this.onDragStart}
+            onDragOverT={this.onDragOver}
+            onDragLeaveT={this.onDragLeave}
+            onDropT={this.onDrop}
             onDoubleClick={onDoubleClick}
           >
             {icon}
@@ -529,14 +577,10 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   }
 
   componentWillUnmount() {
-    const {item} = this.props;
-    this.subscriptionListener.unsubscribe();
-    this.scopeListener.unsubscribe();
     this.disabledListener.unsubscribe();
     this.nameListener.unsubscribe();
     this.hasChangeListener.unsubscribe();
     this.styleListener.unsubscribe();
-    item.connection.unwatchDesc(this.descCallback);
     super.componentWillUnmount();
   }
 }

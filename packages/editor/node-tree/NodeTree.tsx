@@ -4,6 +4,7 @@ import VirtualList from '../component/Virtual.tsx';
 import {ClientConn} from '@ticlo/core/editor.ts';
 import {NodeTreeItem, NodeTreeRenderer} from './NodeRenderer.tsx';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
+import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
 interface Props {
   conn: ClientConn;
@@ -72,6 +73,54 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     onSelect(keys);
   };
 
+  getOrderedDrag = (item: NodeTreeItem): NodeTreeItem[] => {
+    const {selectedKeys} = this.props;
+    if (!item.parent || !item.ordered) return;
+    if (!selectedKeys.includes(item.key)) return [item];
+    const items = item.parent.children.filter((child) => selectedKeys.includes(child.key));
+    if (items.length === selectedKeys.length && items.every((child) => child.ordered)) return items;
+  };
+
+  canDropOrdered = (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => {
+    const current = this.getOrderedDrag(items[0]);
+    if (!current || current.length !== items.length || current.some((item, i) => item !== items[i])) return false;
+    for (const item of items) {
+      if (!target.desc.childrenTags?.some((tag) => item.desc.tags?.includes(tag))) return false;
+      for (let parent = target; parent; parent = parent.parent) {
+        if (parent === item) return false;
+      }
+    }
+    return this.props.conn.getEditPolicyView().can({
+      cmd: 'moveOrdered',
+      path: items[0].parent.key,
+      props: items.map((item) => item.name),
+      to: target.key,
+      index,
+    });
+  };
+
+  onDropOrdered = (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => {
+    if (!this.canDropOrdered(items, target, index)) return;
+    const {conn, onSelect} = this.props;
+    const source = items[0].parent;
+    conn.moveOrdered(
+      source.key,
+      items.map((item) => item.name),
+      target.key,
+      index,
+      {
+        ...requestCallbacks,
+        onUpdate: ({moved}) => {
+          if (source !== target) {
+            conn.childrenChangeStream().dispatch({path: source.key});
+            conn.childrenChangeStream().dispatch({path: target.key, showNode: true});
+          }
+          onSelect?.((moved as string[]).map((name) => `${target.childPrefix}${name}`));
+        },
+      }
+    );
+  };
+
   renderChild = (idx: number, style: React.CSSProperties) => {
     const {selectedKeys} = this.props;
     const item = this.list[idx];
@@ -82,6 +131,9 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
         style={style}
         selected={selectedKeys.includes(item.key)}
         onClick={this.onItemClick}
+        getOrderedDrag={this.getOrderedDrag}
+        canDropOrdered={this.canDropOrdered}
+        onDropOrdered={this.onDropOrdered}
       />
     );
   };
@@ -122,6 +174,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
       const rootNode = new NodeTreeItem(basePath, '');
       rootNode.connection = this.props.conn;
       rootNode.onListChange = this.forceUpdateLambda;
+      rootNode.subscribe();
       this.rootList.push(rootNode);
     }
     if (hideRoot && basePaths.length === 1) {

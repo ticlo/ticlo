@@ -449,6 +449,17 @@ export abstract class ClientConn {
     return this.simpleRequest({cmd: 'move', path, props, to, resolve}, callbacks);
   }
 
+  /** Inserts ordered children before index in the destination's current #order, or appends if omitted. */
+  moveOrdered(
+    path: string,
+    props: string[],
+    to: string,
+    index?: number,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string {
+    return this.simpleRequest({cmd: 'moveOrdered', path, props, to, index}, callbacks);
+  }
+
   /**
    * Relays a generic block-specific command (`command` parameter) payload down to the Component/Block implementation for executing bespoke logics.
    * @param path path of Block

@@ -1403,6 +1403,71 @@ export class ServerConnection extends ServerConnectionCore {
     return {moved: result};
   }
 
+  /** Moves #order children, keeping their source order and renaming destination conflicts. */
+  moveOrdered({path, props, to, index}: {path: string; props: string[]; to: string; index?: number}) {
+    if (typeof to !== 'string') return 'invalid path';
+    const source = this.root.queryProperty(path)?._value;
+    const target = this.root.queryProperty(to)?._value;
+    if (!(source instanceof Block) || !(target instanceof Block)) return 'invalid path';
+    const error = this.checkRequestPolicy({
+      cmd: 'moveOrdered',
+      path: source.getFullPath(),
+      props,
+      to: target.getFullPath(),
+    });
+    if (error) return error;
+    const sourceOrder = source.getValue('#order');
+    const targetOrder = target.getValue('#order') ?? [];
+    if (
+      !Array.isArray(props) ||
+      !props.length ||
+      new Set(props).size !== props.length ||
+      !Array.isArray(sourceOrder) ||
+      !sourceOrder.every((name) => typeof name === 'string') ||
+      !Array.isArray(targetOrder) ||
+      !targetOrder.every((name) => typeof name === 'string') ||
+      !props.every((name) => typeof name === 'string' && sourceOrder.includes(name))
+    )
+      return 'invalid ordered children';
+    const ordered = sourceOrder.filter((name) => props.includes(name)) as string[];
+    if (ordered.length !== props.length) return 'invalid ordered children';
+    const childrenTags = target._funcSrc?.getValue()?.desc.childrenTags;
+    for (const name of ordered) {
+      const prop = source.getProperty(name, false);
+      const block = prop?._saved;
+      if (!(block instanceof Block) || block._prop !== prop || block instanceof Flow) return 'invalid block';
+      if (!childrenTags?.some((tag) => block._funcSrc?.getValue()?.desc.tags?.includes(tag))) {
+        return 'incompatible children tags';
+      }
+    }
+    let insertion = index ?? targetOrder.length;
+    if (!Number.isInteger(insertion) || insertion < 0 || insertion > targetOrder.length) return 'invalid index';
+    const remaining = sourceOrder.filter((name) => !props.includes(name));
+    let moved = ordered;
+    let newOrder: string[];
+    if (source === target) {
+      // index is a boundary in the original order, before removing the selected children.
+      insertion -= sourceOrder.slice(0, insertion).filter((name) => props.includes(name)).length;
+      newOrder = remaining;
+    } else {
+      const copied = this.copy({path, props: ordered, cut: false});
+      if (typeof copied === 'string') return copied;
+      const renames = new Map<string, string>();
+      const result = moveBlocks(source, target, ordered, 'rename', renames);
+      if (typeof result === 'string') return result;
+      moved = ordered.map((name) => renames.get(name) ?? name);
+      // Remove stale order entries with the incoming names so each child is inserted once.
+      insertion -= targetOrder.slice(0, insertion).filter((name) => moved.includes(name)).length;
+      newOrder = targetOrder.filter((name) => !moved.includes(name));
+      source.setValue('#order', remaining);
+    }
+    newOrder.splice(insertion, 0, ...moved);
+    target.setValue('#order', newOrder);
+    getTrackedFlow(source, path, this.root).trackChange();
+    if (source !== target) getTrackedFlow(target, to, this.root).trackChange();
+    return {moved};
+  }
+
   /**
    * Directly triggers the function of a Block, like the default `onCall` hook behavior
    */

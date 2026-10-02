@@ -36,16 +36,19 @@ describe('editor component lifecycle', function () {
     expect(subscriptions.size).toBe(0);
   });
 
-  it('unsubscribes every node renderer value on unmount', function () {
+  it('unsubscribes renderer values on unmount and node values on destruction', function () {
     const {conn, subscriptions} = createConnection();
     const item = new NodeTreeItem('node', '1');
     item.connection = conn;
+    item.subscribe();
     const renderer = new NodeTreeRenderer({item, style: {}, selected: false, onClick() {}});
     renderer.attachedItem = item;
     renderer.descCallback({...blankFuncDesc, dynamicStyle: true});
 
-    expect(subscriptions.size).toBe(5);
+    expect(subscriptions.size).toBe(6);
     renderer.componentWillUnmount();
+    expect(Array.from(subscriptions.values()).sort()).toEqual(['node.#is', 'node.#lib', 'node.#order']);
+    item.destroy();
     expect(subscriptions.size).toBe(0);
   });
 

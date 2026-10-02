@@ -82,7 +82,8 @@ export function moveBlocks(
   source: Block,
   target: Block,
   fields: string[],
-  resolve?: 'overwrite' | 'rename'
+  resolve?: 'overwrite' | 'rename',
+  renames?: Map<string, string>
 ): string | string[] {
   if (source === target) return 'source and target parents must be different';
   for (const field of fields) {
@@ -96,14 +97,15 @@ export function moveBlocks(
   }
   const data = copyProperties(source, fields);
   if (typeof data === 'string') return data;
-  return pastePropertiesImpl(target, data, resolve, () => deleteProperties(source, fields));
+  return pastePropertiesImpl(target, data, resolve, () => deleteProperties(source, fields), renames);
 }
 
 function pastePropertiesImpl(
   parent: Block,
   data: DataMap,
   resolve?: 'overwrite' | 'rename',
-  beforePaste?: () => void
+  beforePaste?: () => void,
+  renames?: Map<string, string>
 ): string | string[] {
   if (!data || typeof data !== 'object' || data.constructor !== Object) {
     return 'invalid data';
@@ -141,7 +143,7 @@ function pastePropertiesImpl(
     if (existingBlocks.length || existingStaticBlocks.length) {
       if (resolve === 'rename') {
         if (existingBlocks.length) {
-          renameBlocks(parent, others, existingBlocks);
+          renameBlocks(parent, others, existingBlocks, renames);
         }
         if (existingStaticBlocks.length) {
           renameBlocks(staticBlock, staticData, existingStaticBlocks);
@@ -230,9 +232,8 @@ function isParentBinding(str: string) {
   return str === '##';
 }
 
-function renameBlocks(parent: Block, data: DataMap, fields: string[]) {
-  const map: Map<string, string> = new Map();
-  const reservedNames: string[] = [];
+function renameBlocks(parent: Block, data: DataMap, fields: string[], map = new Map<string, string>()) {
+  const reservedNames: string[] = Object.keys(data);
   // move blocks
   for (const field of fields) {
     const newField = findPropertyForNewBlock(parent, field, reservedNames)._name;

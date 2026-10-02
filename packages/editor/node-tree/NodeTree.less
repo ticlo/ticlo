@@ -42,6 +42,35 @@
   background: @primary-fade-10;
 }
 
+.ticl-tree-node.ticl-tree-drop-before,
+.ticl-tree-node.ticl-tree-drop-after {
+  position: relative;
+  overflow: visible;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 24px;
+    right: 0;
+    height: 2px;
+    background: @primary-color;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+.ticl-tree-drop-before::after {
+  top: -1px;
+}
+
+.ticl-tree-drop-after::after {
+  bottom: -1px;
+}
+
+.ticl-tree-drop-inside {
+  box-shadow: inset 0 0 0 2px @primary-color;
+}
+
 .ticl-tree-node-text {
   white-space: nowrap;
   margin: 1px 4px 3px 4px;
