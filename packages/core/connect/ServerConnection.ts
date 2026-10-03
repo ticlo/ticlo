@@ -758,9 +758,20 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Creates a new child Block. The server extracts the parent block and the new block's name from `path`.
    */
-  addBlock({path, data, findName}: {path: string; data?: DataMap; findName?: boolean}): string | DataMap {
+  addBlock({
+    path,
+    data,
+    findName,
+    orderIndex,
+  }: {
+    path: string;
+    data?: DataMap;
+    findName?: boolean;
+    orderIndex?: number;
+  }): string | DataMap {
     let [parentBlock, blockName, parentProp] = this.root.queryBlockField(path);
     if (!parentBlock) {
+      if (orderIndex !== undefined) return 'invalid path';
       if (!parentProp) {
         const parentPath = path.substring(0, path.lastIndexOf('.'));
         if (parentPath.endsWith('.#static')) {
@@ -782,6 +793,23 @@ export class ServerConnection extends ServerConnectionCore {
       } else {
         return 'invalid path';
       }
+    }
+    let order: string[];
+    if (orderIndex !== undefined) {
+      const value = parentBlock.getValue('#order') ?? [];
+      if (!Array.isArray(value) || !value.every((name) => typeof name === 'string')) return 'invalid order';
+      order = value;
+      if (!Number.isInteger(orderIndex) || orderIndex < 0 || orderIndex > order.length) return 'invalid index';
+      const funcId = data?.['#is'];
+      const desc =
+        typeof funcId === 'string'
+          ? Namespace.getFunctions(funcId, parentBlock._flow)?.getDescToSend(funcId)[0]
+          : undefined;
+      const parentId = parentBlock._funcId;
+      const childrenTags = parentId
+        ? Namespace.getFunctions(parentId, parentBlock._flow)?.getDescToSend(parentId)[0]?.childrenTags
+        : undefined;
+      if (!childrenTags?.some((tag) => desc?.tags?.includes(tag))) return 'incompatible children tags';
     }
     let property: BlockProperty;
 
@@ -870,6 +898,12 @@ export class ServerConnection extends ServerConnectionCore {
             (property._value as Block).setBinding(desc.recipient, keepBinding);
           }
         }
+      }
+      if (order) {
+        const insertion = orderIndex - order.slice(0, orderIndex).filter((name) => name === property._name).length;
+        const newOrder = order.filter((name) => name !== property._name);
+        newOrder.splice(insertion, 0, property._name);
+        parentBlock.setValue('#order', newOrder);
       }
       trackChange(property, path, this.root);
       return {name: property._name};

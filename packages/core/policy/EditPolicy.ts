@@ -263,6 +263,11 @@ export function checkEditPolicy(
         return 'restricted block type';
       return checkValue(path, undefined, false) || (lookup?.(path) ? checkWhole(path) : null);
     case 'addBlock':
+      if (request.orderIndex !== undefined) {
+        const parent = splitPathName(path)[0];
+        const error = checkProp(parent ? `${parent}.#order` : '#order');
+        if (error) return error;
+      }
       if (autoName) {
         // The name is unknown until execution, so every descendant path must be writable.
         const error = checkDescendants(splitPathName(path)[0]);

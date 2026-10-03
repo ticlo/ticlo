@@ -110,10 +110,17 @@ export abstract class ClientConn {
    * @param path path for the new block
    * @param data initial data to load into the newly created block
    * @param findName if true, the server auto-generates a unique name if a block with that name already exists
+   * @param orderIndex inserts into the parent's #order when supplied
    * @param callbacks request callbacks
    */
-  addBlock(path: string, data?: DataMap, findName = false, callbacks?: ClientCallbacks): Promise<any> | string {
-    const result = this.simpleRequest({cmd: 'addBlock', path, data, findName}, callbacks);
+  addBlock(
+    path: string,
+    data?: DataMap,
+    findName = false,
+    orderIndex?: number,
+    callbacks?: ClientCallbacks
+  ): Promise<any> | string {
+    const result = this.simpleRequest({cmd: 'addBlock', path, data, findName, orderIndex}, callbacks);
     this.childrenChangeStream().dispatch({path: path.substring(0, path.lastIndexOf('.'))});
     return result;
   }

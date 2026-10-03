@@ -280,6 +280,12 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   }
 }
 
+export interface NodeTreeFunctionDrag {
+  data: DataMap;
+  desc: FunctionDesc;
+  name: string;
+}
+
 interface Props {
   item: NodeTreeItem;
   style: React.CSSProperties;
@@ -288,6 +294,8 @@ interface Props {
   getOrderedDrag?: (item: NodeTreeItem) => NodeTreeItem[];
   canDropOrdered?: (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => boolean;
   onDropOrdered?: (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => void;
+  canDropFunction?: (drag: NodeTreeFunctionDrag, target: NodeTreeItem, index?: number) => boolean;
+  onDropFunction?: (drag: NodeTreeFunctionDrag, target: NodeTreeItem, index?: number) => void;
 }
 
 interface State {
@@ -408,10 +416,12 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     e.startDrag(undefined, preview, {opacity: 0.9});
   };
 
-  getOrderedDrop(e: DragState) {
-    const {item, canDropOrdered} = this.props;
+  getDrop(e: DragState) {
+    const {item, canDropOrdered, canDropFunction} = this.props;
     const items: NodeTreeItem[] = DragState.getData('orderedItems', item.getBaseConn());
-    if (!items?.length || !canDropOrdered) return;
+    const data: DataMap = DragState.getData('blockData', item.getBaseConn());
+    const desc: FunctionDesc = DragState.getData('functionDesc', item.getBaseConn());
+    if (!items?.length && !(data && desc)) return;
     const rect = this.dropRef.current.getBoundingClientRect();
     const offset = (e.clientY - rect.top) / rect.height;
     let position: State['dropPosition'] = 'inside';
@@ -422,21 +432,27 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       target = item.parent;
       index = (target.order as string[]).indexOf(item.name) + (position === 'after' ? 1 : 0);
     }
-    if (canDropOrdered(items, target, index)) return {items, target, index, position};
+    if (items?.length && canDropOrdered?.(items, target, index)) return {items, target, index, position};
+    if (data && desc) {
+      const name = (DragState.getData('blockName', item.getBaseConn()) || desc.name || desc.id).split('.').pop();
+      const functionDrag = {data, desc, name};
+      if (canDropFunction?.(functionDrag, target, index)) return {functionDrag, target, index, position};
+    }
   }
 
   onDragOver = (e: DragState) => {
-    const drop = this.getOrderedDrop(e);
-    if (drop) e.accept('tico-fas-exchange-alt');
+    const drop = this.getDrop(e);
+    if (drop) e.accept(drop.functionDrag ? 'tico-fas-plus' : 'tico-fas-exchange-alt');
     this.safeSetState({dropPosition: drop?.position});
   };
 
   onDragLeave = () => this.safeSetState({dropPosition: undefined});
 
   onDrop = (e: DragState) => {
-    const drop = this.getOrderedDrop(e);
+    const drop = this.getDrop(e);
     this.onDragLeave();
-    if (drop) this.props.onDropOrdered?.(drop.items, drop.target, drop.index);
+    if (drop?.functionDrag) this.props.onDropFunction?.(drop.functionDrag, drop.target, drop.index);
+    else if (drop) this.props.onDropOrdered?.(drop.items, drop.target, drop.index);
   };
 
   disabledListener = new LazyUpdateSubscriber(this);

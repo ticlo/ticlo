@@ -1,7 +1,8 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {simulate} from 'simulate-event';
 import React, {useState} from 'react';
-import {NodeTree} from '../../index.ts';
+import {NodeTree, initEditor} from '../../index.ts';
+import {FunctionTree} from '../../function-selector/FunctionTree.tsx';
 import {Block, Root, globalFunctions} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
@@ -61,11 +62,12 @@ describe('node tree ordered drag/drop', () => {
     await shouldHappen(() => row(child)?.classList.contains('drag-initiator'));
   }
 
-  async function render(keys: string[], basePath = flowPath, hideRoot = false) {
+  async function render(keys: string[], basePath = flowPath, hideRoot = false, showFunctions = false) {
+    if (showFunctions) await initEditor();
     function ControlledTree() {
       const [selectedKeys, setSelectedKeys] = useState(keys);
       selected = selectedKeys;
-      return (
+      const nodeTree = (
         <NodeTree
           ref={(value) => {
             tree = value;
@@ -77,6 +79,18 @@ describe('node tree ordered drag/drop', () => {
           onSelect={setSelectedKeys}
           style={{width: 600, height: 600}}
         />
+      );
+      return showFunctions ? (
+        <div style={{display: 'flex'}}>
+          {nodeTree}
+          <FunctionTree
+            conn={client}
+            filter={(desc) => desc.id === childId || desc.id === wrongId}
+            style={{width: 300, height: 600}}
+          />
+        </div>
+      ) : (
+        nodeTree
       );
     }
     [, div] = loadTemplate(<ControlledTree />, 'editor');
@@ -90,6 +104,36 @@ describe('node tree ordered drag/drop', () => {
     }
     await shouldHappen(() => tree.list.find((item) => item.name === 'a')?.desc.id === childId);
     await shouldHappen(() => tree.rootList[0].desc.id);
+    if (showFunctions) {
+      const expand = await shouldHappen(() => div.querySelector('.ticl-func-tree .ticl-tree-arr-expand'));
+      simulate(expand, 'click');
+      await shouldHappen(() => functionRow(childId)?.classList.contains('drag-initiator'));
+    }
+  }
+
+  function functionRow(id: string) {
+    return querySingle(`//div.ticl-func-view/span[text()='${id}']/..`, div) as HTMLElement;
+  }
+
+  async function dragFunction(id: string, to: string, offset = 0.5, accepted = true) {
+    const source = functionRow(id);
+    const target = row(to);
+    const a = source.getBoundingClientRect();
+    const b = target.getBoundingClientRect();
+    const down = {button: 0, buttons: 1, clientX: a.left + a.width / 2, clientY: a.top + a.height / 2};
+    const move = {button: 0, buttons: 1, clientX: b.left + b.width / 2, clientY: b.top + b.height * offset};
+    simulate(source, 'mousedown', down);
+    simulate(document, 'mousemove', {...down, clientX: down.clientX + 3});
+    simulate(target, 'mousemove', move);
+    if (accepted) {
+      await shouldHappen(
+        () => target.className.includes('ticl-tree-drop-') || target.parentElement.className.includes('ticl-tree-drop-')
+      );
+    } else {
+      expect(target.className).not.toContain('ticl-tree-drop-');
+      expect(target.parentElement.className).not.toContain('ticl-tree-drop-');
+    }
+    simulate(target, 'mouseup', {...move, buttons: 0});
   }
 
   async function drag(from: string, to: string, offset = 0.5) {
@@ -204,5 +248,42 @@ describe('node tree ordered drag/drop', () => {
         .map((node) => node.textContent)
         .slice(0, 3)
     ).toEqual(['a', 'b', 'c']);
+  });
+
+  it('creates a function dragged from the function tree at the end of a component', async () => {
+    await render([], flowPath, false, true);
+    await dragFunction(childId, 'target');
+    const path = `${flowPath}.target.${childId}`;
+    await shouldHappen(() => Root.instance.queryValue(path) instanceof Block);
+    expect(Root.instance.queryValue(`${flowPath}.target.#order`)).toEqual(['x', 'y', childId]);
+    expect(Root.instance.queryValue(`${path}.#is`)).toBe(childId);
+    expect((Root.instance.queryValue(path) as Block)._save()).not.toHaveProperty('@b-xyw');
+    await shouldHappen(() => selected.join(',') === path);
+    await shouldHappen(() => row(childId)?.classList.contains('ticl-tree-node-selected'));
+  });
+
+  it('inserts dragged functions before and after children, using unique names', async () => {
+    await render([], flowPath, false, true);
+    await dragFunction(childId, 'x', 0.9);
+    await shouldHappen(() => row(childId)?.classList.contains('ticl-tree-node-selected'));
+    expect(Root.instance.queryValue(`${flowPath}.target.#order`)).toEqual(['x', childId, 'y']);
+    await dragFunction(childId, 'x', 0.1);
+    const newName = `${childId}1`;
+    await shouldHappen(() => Root.instance.queryValue(`${flowPath}.target.${newName}`) instanceof Block);
+    expect(Root.instance.queryValue(`${flowPath}.target.#order`)).toEqual([newName, 'x', childId, 'y']);
+    await shouldHappen(() => selected.join(',') === `${flowPath}.target.${newName}`);
+  });
+
+  it('rejects function drops with incompatible tags, unsupported parents or denied #order edits', async () => {
+    await render([], flowPath, false, true);
+    const create = vi.spyOn(client, 'addBlock');
+    await dragFunction(wrongId, 'target', 0.5, false);
+    await dragFunction(childId, 'x', 0.5, false);
+    server.setEditPolicy({denyProps: ['#order']});
+    await shouldHappen(() => client.getEditPolicyView().policy?.denyProps?.includes('#order'));
+    await dragFunction(childId, 'target', 0.5, false);
+    expect(create).not.toHaveBeenCalled();
+    expect(Root.instance.queryValue(`${flowPath}.target.#order`)).toEqual(['x', 'y']);
+    expect(Root.instance.queryValue(`${flowPath}.target.${childId}`)).toBeUndefined();
   });
 });

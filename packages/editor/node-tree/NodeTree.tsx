@@ -2,7 +2,7 @@ import React from 'react';
 import {ExpandState} from '../component/Tree.tsx';
 import VirtualList from '../component/Virtual.tsx';
 import {ClientConn} from '@ticlo/core/editor.ts';
-import {NodeTreeItem, NodeTreeRenderer} from './NodeRenderer.tsx';
+import {NodeTreeItem, NodeTreeRenderer, type NodeTreeFunctionDrag} from './NodeRenderer.tsx';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
@@ -121,6 +121,36 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     );
   };
 
+  canDropFunction = (drag: NodeTreeFunctionDrag, target: NodeTreeItem, index?: number) => {
+    if (!drag.name || drag.data['#is'] !== drag.desc.id) return false;
+    if (!target.desc.childrenTags?.some((tag) => drag.desc.tags?.includes(tag))) return false;
+    return this.props.conn.getEditPolicyView().can({
+      cmd: 'addBlock',
+      path: `${target.childPrefix}${drag.name}`,
+      data: drag.data,
+      findName: true,
+      orderIndex: index ?? (Array.isArray(target.order) ? target.order.length : 0),
+    });
+  };
+
+  onDropFunction = (drag: NodeTreeFunctionDrag, target: NodeTreeItem, index?: number) => {
+    if (!this.canDropFunction(drag, target, index)) return;
+    const {conn, onSelect} = this.props;
+    conn.addBlock(
+      `${target.childPrefix}${drag.name}`,
+      drag.data,
+      true,
+      index ?? (Array.isArray(target.order) ? target.order.length : 0),
+      {
+        ...requestCallbacks,
+        onUpdate: ({name}) => {
+          conn.childrenChangeStream().dispatch({path: target.key, showNode: true});
+          onSelect?.([`${target.childPrefix}${name}`]);
+        },
+      }
+    );
+  };
+
   renderChild = (idx: number, style: React.CSSProperties) => {
     const {selectedKeys} = this.props;
     const item = this.list[idx];
@@ -134,6 +164,8 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
         getOrderedDrag={this.getOrderedDrag}
         canDropOrdered={this.canDropOrdered}
         onDropOrdered={this.onDropOrdered}
+        canDropFunction={this.canDropFunction}
+        onDropFunction={this.onDropFunction}
       />
     );
   };
