@@ -28,7 +28,8 @@ export class TestFunctionRunner extends PureFunction {
 }
 const TestFunctionApi = {
   commands: {
-    test: (block: Block, params: unknown) => {
+    test: (block: Block, params: unknown, readonly: boolean) => {
+      if (readonly) return;
       block.setValue('#-log', 'command');
     },
   },

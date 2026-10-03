@@ -87,17 +87,19 @@ describe('Add block with orderIndex', () => {
     expect(root.queryValue('Main.parent.new')).toBeUndefined();
   });
 
-  it('checks #order permissions, including the owner behind a reference', async () => {
+  it('checks client #order permissions, including paths through a reference', async () => {
     const parent = root.queryValue('Main.parent') as Block;
     const properties = [...parent._props.keys()];
     for (const policy of [{denyProps: ['#order']}, {denyPaths: ['Main.parent.#order']}, {allowCreateBlock: false}]) {
-      server.setEditPolicy(policy);
-      await expect(client.addBlock('Main.parent.new', {'#is': childId}, true, 1)).rejects.toBeTypeOf('string');
+      await expect(client.withPolicy(policy).addBlock('Main.parent.new', {'#is': childId}, true, 1)).rejects.toBeTypeOf(
+        'string'
+      );
       expect([...parent._props.keys()]).toEqual(properties);
     }
     (root.queryValue('Main') as Block).setValue('reference', parent);
-    server.setEditPolicy({denyProps: ['#order']});
-    await expect(client.addBlock('Main.reference.new', {'#is': childId}, false, 1)).rejects.toBe('restricted property');
+    await expect(
+      client.withPolicy({denyProps: ['#order']}).addBlock('Main.reference.new', {'#is': childId}, false, 1)
+    ).rejects.toBe('restricted property');
     expect(root.queryValue('Main.parent.new')).toBeUndefined();
     server.setEditPolicy({allowCmds: ['addBlock'], allowProps: ['#is', '#order']});
     await client.addBlock('Main.parent.new', {'#is': childId}, true, 1);

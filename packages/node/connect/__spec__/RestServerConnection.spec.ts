@@ -49,7 +49,7 @@ describe('RestServerConnection', () => {
       root.destroy();
     }
   });
-  it('enforces editing policy on HTTP requests', async () => {
+  it('bypasses fine-grained editing limits on writable HTTP requests', async () => {
     const root = new Root();
     const flow = root.addFlow('Main');
     const connection = new RestServerConnection(root, {allowProps: ['value']});
@@ -67,9 +67,13 @@ describe('RestServerConnection', () => {
     };
     try {
       await connection.onHttpPost({body: {cmd: 'set', path: 'Main.other', value: 1}}, response);
-      expect(result).toEqual({cmd: 'error', msg: 'restricted property'});
-      expect(flow.getValue('other')).toBeUndefined();
+      expect(result).toBe('');
+      expect(flow.getValue('other')).toBe(1);
       await connection.onHttpPost({body: {cmd: 'set', path: 'Main.value', value: 2}}, response);
+      expect(flow.getValue('value')).toBe(2);
+      connection.setEditPolicy({readonly: true, allowProps: ['value']});
+      await connection.onHttpPost({body: {cmd: 'set', path: 'Main.value', value: 3}}, response);
+      expect(result).toEqual({cmd: 'error', msg: 'readonly'});
       expect(flow.getValue('value')).toBe(2);
     } finally {
       connection.destroy();
@@ -107,6 +111,7 @@ describe('RestServerConnection', () => {
     root.addFlow('Main', {value: 1});
     root.addFlow('Other', {value: 2});
     const connection = new RestServerConnection(root, {
+      readonly: true,
       allowPaths: ['Main.**'],
       readonlyPaths: ['Other.value'],
     });
@@ -128,9 +133,9 @@ describe('RestServerConnection', () => {
       await connection.onHttpPost({body: {cmd: 'get', path: 'Other'}}, response);
       expect(result).toEqual({cmd: 'error', msg: 'restricted path'});
       await connection.onHttpPost({body: {cmd: 'set', path: 'Other.value', value: 3}}, response);
-      expect(result).toEqual({cmd: 'error', msg: 'restricted path'});
+      expect(result).toEqual({cmd: 'error', msg: 'readonly'});
       await connection.onHttpPost({body: {cmd: 'set', path: 'Main', value: 3}}, response);
-      expect(result).toEqual({cmd: 'error', msg: 'restricted path'});
+      expect(result).toEqual({cmd: 'error', msg: 'readonly'});
       expect(root.queryValue('Main.value')).toBe(1);
     } finally {
       connection.destroy();

@@ -127,8 +127,9 @@ export interface FunctionFactory {
 
 export interface FunctionApi {
   getDefaultWorker?(block: Block, field: string, blockStack: Map<any, any>): DataMap;
+  /** Commands must skip writes when readonly is true, including property-specific commands. */
   commands?: {
-    [key: string]: (block: Block, params: {[key: string]: unknown; property?: string}) => unknown;
+    [key: string]: (block: Block, params: {[key: string]: unknown; property?: string}, readonly: boolean) => unknown;
   };
 }
 

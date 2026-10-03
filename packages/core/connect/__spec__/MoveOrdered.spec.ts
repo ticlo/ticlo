@@ -133,7 +133,7 @@ describe('Move ordered command', () => {
     expect(target.getValue('#order')).toEqual(['x', 'y']);
   });
 
-  it('enforces moveOrdered permissions and permits order-only edits in one parent', async () => {
+  it('enforces client moveOrdered permissions and permits order-only edits in one parent', async () => {
     const original = root.queryValue('Main.source.a');
     const policies: EditPolicy[] = [
       {denyCmds: ['moveOrdered']},
@@ -143,8 +143,9 @@ describe('Move ordered command', () => {
       {denyPaths: ['Main.target.#order']},
     ];
     for (const policy of policies) {
-      server.setEditPolicy(policy);
-      await expect(client.moveOrdered('Main.source', ['a'], 'Main.target')).rejects.toBeTypeOf('string');
+      await expect(client.withPolicy(policy).moveOrdered('Main.source', ['a'], 'Main.target')).rejects.toBeTypeOf(
+        'string'
+      );
       expect(root.queryValue('Main.source.a')).toBe(original);
     }
     server.setEditPolicy({
@@ -157,8 +158,8 @@ describe('Move ordered command', () => {
     expect(root.queryValue('Main.source.#order')).toEqual(['a', 'b', 'a1']);
     (original as Block).setValue('reference', root.queryValue('Other'));
     server.setEditPolicy({allowCmds: ['moveOrdered'], allowPaths: ['Main', 'Main.**']});
-    await expect(client.moveOrdered('Main.source', ['a'], 'Main.target')).rejects.toBe('restricted path');
-    (original as Block).deleteValue('reference');
     expect((await client.moveOrdered('Main.source', ['a'], 'Main.target')).moved).toEqual(['a']);
+    expect(root.queryValue('Main.source.a')).toBeUndefined();
+    expect(root.queryValue('Main.target.a')).toBeInstanceOf(Block);
   });
 });

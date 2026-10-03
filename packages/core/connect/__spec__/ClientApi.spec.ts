@@ -38,14 +38,15 @@ describe('Connection Client API', function () {
       await client.unloadFlow('entry');
       await client.loadFlow('entry');
       expect(await client.getFlowState('entry')).toMatchObject({state: 'disabled'});
-      server.setEditPolicy({allowCmds: []});
-      await expect(client.enableFlow('entry')).rejects.toBe('restricted command');
+      server.setEditPolicy({readonly: true});
+      await expect(client.enableFlow('entry')).rejects.toBe('readonly');
       expect(await client.getFlowState('entry')).toMatchObject({state: 'disabled'});
       server.setEditPolicy({});
       await client.enableFlow('entry');
       expect(await client.getFlowState('entry')).toMatchObject({state: 'enabled'});
       server.setEditPolicy({denyPaths: ['entry', 'entry.**']});
       await expect(client.disableFlow('+#root.entry')).rejects.toContain('unqualified');
+      server.setEditPolicy({readonly: true, denyPaths: ['entry', 'entry.**']});
       await expect(client.getFlowState('entry')).rejects.toBe('restricted path');
       expect(root.getFlowState({namespace: '#root', kind: 'flow', name: 'entry'})).toBe('enabled');
     } finally {

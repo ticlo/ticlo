@@ -122,7 +122,8 @@ export class AssertFunction extends BaseFunction<Block> {
 
 const API = {
   commands: {
-    copyFromActual: (block: Block, params: {[key: string]: any; property?: string}) => {
+    copyFromActual: (block: Block, params: {[key: string]: any; property?: string}, readonly: boolean) => {
+      if (readonly) return;
       const property = params?.property;
       if (typeof property === 'string' && property.startsWith(EXPECT)) {
         const copyFrom = block.getProperty(`${ACTUAL}${property.substring(EXPECT.length)}`, false);

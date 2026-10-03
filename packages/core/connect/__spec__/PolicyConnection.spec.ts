@@ -91,13 +91,13 @@ describe('PolicyConnection', () => {
     const changed = vi.fn();
     view.editPolicyChanges().listen(changed);
     expect(view.getEditPolicyView().ready).toBe(true);
-    server.setEditPolicy({allowCmds: []});
+    server.setEditPolicy({readonly: true});
     await base.getValue('Main.value');
     expect(changed).not.toHaveBeenCalled();
     expect(view.getEditPolicyView().canWriteField('Main.value')).toBe(true);
     expect(base.getEditPolicyView().canWriteField('Main.value')).toBe(false);
     expect(base.checkEditRequest({cmd: 'set', path: 'Main.value'})).toBeNull();
-    await expect(view.setValue('Main.value', 1, true)).rejects.toBe('restricted command');
+    await expect(view.setValue('Main.value', 1, true)).rejects.toBe('readonly');
     server.setEditPolicy({allowProps: ['other']});
     await base.getValue('Main.value');
     expect(view.withPolicy().getEditPolicyView().canWriteField('Main.other')).toBe(true);
@@ -112,10 +112,10 @@ describe('PolicyConnection', () => {
   });
 
   for (const mode of ['client', 'server'] as const) {
-    it(`${mode} preserves binding overrides and promise/callback errors`, async () => {
+    it(`${mode} preserves binding overrides and promise/callback errors on the client`, async () => {
       const policy: EditPolicy = {allowBinding: ['value'], allowProps: ['other'], denyProps: ['value']};
       if (mode === 'server') server.setEditPolicy(policy);
-      const client = mode === 'client' ? base.withPolicy(policy) : base;
+      const client = base.withPolicy(mode === 'client' ? policy : server.getEditPolicy());
       const received = vi.spyOn(server, 'onData');
       await client.setBinding('Main.value', 'source', false, true);
       expect(root.queryProperty('Main.value')._bindingPath).toBe('source');
@@ -132,7 +132,7 @@ describe('PolicyConnection', () => {
         });
       });
       expect(received.mock.calls.some(([request]) => request.cmd === 'set' && request.path === 'Main.value')).toBe(
-        mode === 'server'
+        false
       );
       await client.setValue('Main.other', 4, true);
       expect(root.queryValue('Main.other')).toBe(4);

@@ -6,14 +6,16 @@ import {splitPathName} from '../util/Path.ts';
  * Deny lists take priority within each dimension, and all dimensions must allow the edit.
  * For bindings, allowBinding replaces allowProps/denyProps when supplied.
  * Paths, field names and block types support `*`, `**` and numeric `?`; commands use exact names.
- * Client reads, subscriptions, undo and redo are not restricted. The server checks their paths;
- * query additionally requires command permission and read access to the whole subtree.
+ * Fine-grained limits apply on the client. Writable policies bypass server policy checks.
+ * Readonly policies reject server edits and check read paths; commands receive the readonly flag.
  */
 export interface EditPolicy {
-  /** Writable paths. A trailing `.**` permits descendants, not replacing the parent itself. */
+  /** The server's only write restriction. Defaults to false. */
+  readonly readonly?: boolean;
+  /** Client writable paths; also readable paths for readonly servers. `.**` matches descendants only. */
   readonly allowPaths?: readonly string[];
-  /** Additional readable paths on the server. Does not narrow allowPaths; denyPaths takes priority.
-   * For example, allowPaths: ['Main.**'], readonlyPaths: ['Main'] permits watching Main without replacing it.
+  /** Additional read paths for readonly servers. Does not narrow allowPaths; denyPaths takes priority.
+   * For example, allowPaths: ['Main.**'], readonlyPaths: ['Main'] also permits watching Main itself.
    */
   readonly readonlyPaths?: readonly string[];
   readonly denyPaths?: readonly string[];
@@ -75,7 +77,66 @@ function allowed(allow: readonly string[], deny: readonly string[], value: strin
   return !deny?.some((p) => matchEditPath(p, value)) && (!allow || allow.some((p) => matchEditPath(p, value)));
 }
 
-/** A read-only lookup. The server supplies authoritative state; the client may use its caches. */
+function checkDescendants(paths: readonly string[], denyPaths: readonly string[], target: string): string | null {
+  if (
+    paths &&
+    !paths.some(
+      (p) => p === '**' || (p.endsWith('.**') && (matchEditPath(p, target) || matchEditPath(p.slice(0, -3), target)))
+    )
+  )
+    return 'restricted path';
+  if (
+    denyPaths?.some((p) => {
+      const wildcard = p.search(/[*?]/);
+      const prefix = wildcard < 0 ? p : p.slice(0, wildcard);
+      return (
+        !target ||
+        !prefix ||
+        prefix === target ||
+        prefix.startsWith(`${target}.`) ||
+        (wildcard < 0 ? target.startsWith(`${prefix}.`) : target.startsWith(prefix))
+      );
+    })
+  )
+    return 'restricted path';
+  return null;
+}
+
+/** Readonly server checks never inspect edit payloads or field/type limits. */
+function checkReadonlyPolicy(policy: EditPolicy, request: DataMap, lookup?: EditPolicyLookup): string | null {
+  if (!policy?.readonly || !request) return null;
+  const {cmd, path} = request as {cmd: string; path: string};
+  if (cmd === 'close') return null;
+  if (
+    cmd === 'undo' ||
+    cmd === 'redo' ||
+    (cmd === 'copy' && request.cut) ||
+    (!unrestrictedCommands.has(cmd) && cmd !== 'copy' && cmd !== 'executeCommand')
+  )
+    return 'readonly';
+  if (
+    (cmd === 'query' || cmd === 'executeCommand') &&
+    (policy.denyCmds?.includes(cmd) || (policy.allowCmds && !policy.allowCmds.includes(cmd)))
+  )
+    return 'restricted command';
+  if (typeof path !== 'string') return 'invalid path';
+  const paths =
+    policy.allowPaths && policy.readonlyPaths ? [...policy.allowPaths, ...policy.readonlyPaths] : policy.allowPaths;
+  const checkPath = (target: string) => (allowed(paths, policy.denyPaths, target) ? null : 'restricted path');
+  const checkWhole = (target: string) => checkDescendants(paths, policy.denyPaths, target) || checkPath(target);
+  const error = cmd === 'query' ? checkWhole(path) : checkPath(cmd === 'getSettings' ? '' : path);
+  if (error) return error;
+  if (cmd === 'copy') {
+    for (const name of (request.props as string[]) ?? []) {
+      const target = path ? `${path}.${name}` : name;
+      const error = lookup?.(target) ? checkWhole(target) : checkPath(target);
+      if (error) return error;
+    }
+  }
+  return null;
+}
+
+/** A read-only lookup. The client may use its caches; readonly server copies use authoritative state. */
 export type EditPolicyLookup = (path: string) => boolean;
 
 export function checkEditPolicy(
@@ -84,25 +145,20 @@ export function checkEditPolicy(
   lookup?: EditPolicyLookup,
   mode: 'client' | 'server' | 'preview' = 'client'
 ): string | null {
+  if (mode === 'server') return checkReadonlyPolicy(policy, request, lookup);
   if (!policy || !request) return null;
   const {cmd, path} = request as {cmd: string; path: string};
   const unrestricted = unrestrictedCommands.has(cmd) || (cmd === 'copy' && !request.cut);
-  if (cmd === 'close' || (unrestricted && mode !== 'server')) return null;
-  if (
-    (!unrestricted || cmd === 'query') &&
-    (policy.denyCmds?.includes(cmd) || (policy.allowCmds && !policy.allowCmds.includes(cmd)))
-  ) {
+  if (cmd === 'close') return null;
+  if (policy.readonly && (!unrestricted || cmd === 'undo' || cmd === 'redo')) return 'readonly';
+  if (unrestricted) return null;
+  if (policy.denyCmds?.includes(cmd) || (policy.allowCmds && !policy.allowCmds.includes(cmd))) {
     return 'restricted command';
   }
   if (typeof path !== 'string') return 'invalid path';
   const preview = mode === 'preview';
   const autoName = cmd === 'addBlock' && Boolean(request.findName);
-  const history = cmd === 'undo' || cmd === 'redo';
-  const reading = unrestricted && !history;
-  const paths =
-    reading && policy.allowPaths && policy.readonlyPaths
-      ? [...policy.allowPaths, ...policy.readonlyPaths]
-      : policy.allowPaths;
+  const paths = policy.allowPaths;
 
   const checkPath = (target: string) => (allowed(paths, policy.denyPaths, target) ? null : 'restricted path');
   const checkProp = (target: string) => {
@@ -129,52 +185,12 @@ export function checkEditPolicy(
     policy.allowBlockTypes != null ||
     Boolean(policy.denyBlockTypes?.length);
 
-  const checkDescendants = (target: string): string | null => {
-    if (
-      paths &&
-      !paths.some(
-        (p) => p === '**' || (p.endsWith('.**') && (matchEditPath(p, target) || matchEditPath(p.slice(0, -3), target)))
-      )
-    )
-      return 'restricted path';
-    if (
-      policy.denyPaths?.some((p) => {
-        const wildcard = p.search(/[*?]/);
-        const prefix = wildcard < 0 ? p : p.slice(0, wildcard);
-        return (
-          !target ||
-          !prefix ||
-          prefix === target ||
-          prefix.startsWith(`${target}.`) ||
-          (wildcard < 0 ? target.startsWith(`${prefix}.`) : target.startsWith(prefix))
-        );
-      })
-    )
-      return 'restricted path';
-    return null;
-  };
-
   // Commands with broad or opaque effects require an unrestricted subtree.
   // Schema changes can affect fields beyond those explicitly named in a request.
   const checkWhole = (target: string, checkStructure = true): string | null => {
-    if (!unrestricted && (hasFieldLimits || (checkStructure && hasStructureLimits))) return 'restricted operation';
-    // History acts on the contents of a flow, without replacing the flow itself.
-    return checkDescendants(target) || (history ? null : checkPath(target));
+    if (hasFieldLimits || (checkStructure && hasStructureLimits)) return 'restricted operation';
+    return checkDescendants(paths, policy.denyPaths, target) || checkPath(target);
   };
-
-  if (unrestricted) {
-    if (history || cmd === 'query') return checkWhole(path);
-    const error = checkPath(path);
-    if (error) return error;
-    if (cmd === 'copy') {
-      for (const name of (request.props as string[]) ?? []) {
-        const target = path ? `${path}.${name}` : name;
-        const error = lookup?.(target) ? checkWhole(target) : checkPath(target);
-        if (error) return error;
-      }
-    }
-    return null;
-  }
 
   const checkData = (target: string, data: DataMap, creating = false): string | null => {
     for (const [name, value] of Object.entries(data)) {
@@ -274,7 +290,7 @@ export function checkEditPolicy(
       }
       if (autoName) {
         // The name is unknown until execution, so every descendant path must be writable.
-        const error = checkDescendants(splitPathName(path)[0]);
+        const error = checkDescendants(paths, policy.denyPaths, splitPathName(path)[0]);
         return error || checkCreate(path, request.data as DataMap);
       }
     // Explicit names only require permission for the target.

@@ -196,11 +196,11 @@ export class FunctionLib {
     return null;
   }
 
-  executeCommand(id: string, block: Block, command: string, params: DataMap): unknown {
+  executeCommand(id: string, block: Block, command: string, params: DataMap, readonly = false): unknown {
     if (id) {
       const dispatcher = this._functions[id];
       if (dispatcher) {
-        return dispatcher.getValue()?.functionApi?.commands?.[command]?.(block, params);
+        return dispatcher.getValue()?.functionApi?.commands?.[command]?.(block, params, readonly);
       }
     }
     return null;

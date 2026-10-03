@@ -407,18 +407,7 @@ class ServerConnectionCore extends Connection {
     if (!Object.hasOwn(ServerConnection.prototype, cmd)) return 'invalid command';
     const func: Function = (this as any)[cmd];
     if (typeof func !== 'function' || func.length !== 1 || cmd.startsWith('on')) return 'invalid command';
-    if (this._editPolicy) {
-      if (cmd === 'addBlock') {
-        const type = (request.data as DataMap)?.['#is'];
-        // These block types have fixed names, regardless of the requested name.
-        if (type === 'flow:inputs' || type === 'flow:outputs') {
-          request = {
-            ...request,
-            path: `${request.path.slice(0, request.path.lastIndexOf('.') + 1)}#${type.slice(5)}`,
-            findName: false,
-          };
-        }
-      }
+    if (this._editPolicy?.readonly) {
       const error = this.checkRequestPolicy(request);
       if (error) return error;
     }
@@ -428,10 +417,7 @@ class ServerConnectionCore extends Connection {
   }
 
   protected checkRequestPolicy(request: DataMap): string | null {
-    if (this._editPolicy) {
-      const cmd = request.cmd as string;
-      // Settings are global, regardless of a caller-supplied path.
-      if (cmd === 'getSettings') return checkEditPolicy(this._editPolicy, {...request, path: ''}, undefined, 'server');
+    if (this._editPolicy?.readonly) {
       const lookup = (path: string) => {
         const prop = this.root.queryProperty(path, false);
         return (
@@ -443,6 +429,7 @@ class ServerConnectionCore extends Connection {
       const checkAt = (path: string) => checkEditPolicy(this._editPolicy, {...request, path}, lookup, 'server');
       const error = checkAt(request.path as string);
       if (error) return error;
+      if (request.cmd === 'getSettings') return null;
       // A path through a block-valued reference must also be allowed at its owner.
       const [parent, name] = this.root.queryBlockField(request.path as string);
       if (parent && parent !== this.root) {
@@ -452,28 +439,17 @@ class ServerConnectionCore extends Connection {
           if (ownerError) return ownerError;
         }
       }
-      // Block commands can follow references to a different owner.
-      if (
-        !['set', 'update', 'bind', 'restoreSaved', 'addBlock', 'deleteBlock', 'addFlow', 'addFlowFolder'].includes(cmd)
-      ) {
-        const block = this.root.queryProperty(request.path as string, false)?._value;
-        if (block instanceof Block) {
-          const scope =
-            cmd === 'applyFlowChange' && block instanceof FlowEditor
-              ? ''
-              : cmd === 'undo' || cmd === 'redo'
-                ? getTrackedFlow(block, request.path as string, this.root).getFullPath()
-                : block.getFullPath();
-          const scopeError = checkAt(scope);
-          if (scopeError) return scopeError;
-        }
+      const block = this.root.queryProperty(request.path as string, false)?._value;
+      if (block instanceof Block) {
+        const ownerError = checkAt(block.getFullPath());
+        if (ownerError) return ownerError;
       }
     }
     return null;
   }
 
   protected checkPolicyBeforeSend(data: ConnectionSendingData): boolean {
-    if (data instanceof ServerRequest) {
+    if (this._editPolicy?.readonly && data instanceof ServerRequest) {
       const error = this.checkRequestPolicy(data.request);
       if (error) {
         this.close(data.id);
@@ -1018,11 +994,12 @@ export class ServerConnection extends ServerConnectionCore {
     const property = this.root.queryProperty(path);
 
     if (property && property._value instanceof Block) {
-      const result = property._value.executeCommand(command, params);
+      const readonly = this.getEditPolicy()?.readonly === true;
+      const result = property._value.executeCommand(command, params, readonly);
       if (result != null) {
         return {result};
       }
-      trackChange(property, path, this.root);
+      if (!readonly) trackChange(property, path, this.root);
       return null;
     } else {
       return 'invalid path';
@@ -1382,7 +1359,7 @@ export class ServerConnection extends ServerConnectionCore {
   copy({path, props, cut}: {path: string; props: string[]; cut: boolean}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
-      if (this.getEditPolicy()) {
+      if (this.getEditPolicy()?.readonly) {
         const blocks = new Set<Block>();
         const collectBlock = (prop: BlockProperty) => {
           const saved = prop?._bindingPath ? prop._helperProperty?._saved : prop?._saved;
@@ -1439,17 +1416,6 @@ export class ServerConnection extends ServerConnectionCore {
     const source = this.root.queryProperty(path)?._value;
     const target = this.root.queryProperty(to)?._value;
     if (!(source instanceof Block) || !(target instanceof Block)) return 'invalid path';
-    const error = this.checkRequestPolicy({
-      cmd: 'move',
-      path: source.getFullPath(),
-      props,
-      to: target.getFullPath(),
-      resolve,
-    });
-    if (error) return error;
-    // Apply the same read checks as copy, including saved references inside the blocks.
-    const copied = this.copy({path, props, cut: false});
-    if (typeof copied === 'string') return copied;
     const result = moveBlocks(source, target, props, resolve);
     if (typeof result === 'string') return result;
     getTrackedFlow(source, path, this.root).trackChange();
@@ -1463,13 +1429,6 @@ export class ServerConnection extends ServerConnectionCore {
     const source = this.root.queryProperty(path)?._value;
     const target = this.root.queryProperty(to)?._value;
     if (!(source instanceof Block) || !(target instanceof Block)) return 'invalid path';
-    const error = this.checkRequestPolicy({
-      cmd: 'moveOrdered',
-      path: source.getFullPath(),
-      props,
-      to: target.getFullPath(),
-    });
-    if (error) return error;
     const sourceOrder = source.getValue('#order');
     const targetOrder = target.getValue('#order') ?? [];
     if (
@@ -1504,8 +1463,6 @@ export class ServerConnection extends ServerConnectionCore {
       insertion -= sourceOrder.slice(0, insertion).filter((name) => props.includes(name)).length;
       newOrder = remaining;
     } else {
-      const copied = this.copy({path, props: ordered, cut: false});
-      if (typeof copied === 'string') return copied;
       const renames = new Map<string, string>();
       const result = moveBlocks(source, target, ordered, 'rename', renames);
       if (typeof result === 'string') return result;

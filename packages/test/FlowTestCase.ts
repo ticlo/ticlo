@@ -172,7 +172,8 @@ export class FlowTestCase extends Flow implements TestsRunner {
     this.updateValue('@b-name', `${this._prop._name}-${stat}-#`);
   }
 
-  executeCommand(command: string, params: DataMap): DataMap {
+  executeCommand(command: string, params: DataMap, readonly = false): DataMap {
+    if (readonly) return null;
     switch (command) {
       case 'start': {
         this.start();

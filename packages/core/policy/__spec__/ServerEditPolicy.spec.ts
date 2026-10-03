@@ -1,11 +1,13 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {Root} from '../../block/Flow.ts';
+import {Root, Flow} from '../../block/Flow.ts';
 import {Block} from '../../block/Block.ts';
+import {globalFunctions} from '../../block/FunctionLib.ts';
+import type {DataMap} from '../../util/DataTypes.ts';
 import {makeLocalConnection} from '../../connect/LocalConnection.ts';
 import {shouldHappen} from '../../util/test-util.ts';
-import {checkEditPolicy, type EditPolicy, EditPolicyView} from '../EditPolicy.ts';
+import {checkEditPolicy, type EditPolicy} from '../EditPolicy.ts';
 
-describe('Server edit policy paths', () => {
+describe('Readonly server edit policy', () => {
   let root: Root;
   let server: ReturnType<typeof makeLocalConnection>[0];
   let client: ReturnType<typeof makeLocalConnection>[1];
@@ -29,60 +31,88 @@ describe('Server edit policy paths', () => {
     for (const cmd of ['get', 'list', 'query', 'subscribe', 'watch', 'watchDesc', 'getSettings', 'copy']) {
       const request = {cmd, path: 'Other', id: cmd, props: ['value'], query: {}};
       expect(checkEditPolicy(policy, request)).toBeNull();
-      server.setEditPolicy(policy);
+      server.setEditPolicy({readonly: true, ...policy});
       expect(server.executeRequest(request)).toBe('restricted path');
     }
     // Simple read commands still ignore command/field limits on the server.
-    server.setEditPolicy({...policy, denyCmds: ['get'], allowProps: []});
+    server.setEditPolicy({readonly: true, ...policy, denyCmds: ['get'], allowProps: []});
     expect((await client.getValue('Main.value')).value).toBe(1);
     await expect(client.getValue('Other.value')).rejects.toBe('restricted path');
     await expect(client.getValue('Main')).rejects.toBe('restricted path');
   });
 
-  it('adds readonly access without reducing writable paths, while denyPaths wins', async () => {
-    const policy = {
+  it('combines read paths and readonly paths while denying every edit', async () => {
+    server.setEditPolicy({
+      readonly: true,
       allowPaths: ['Main.**'],
-      readonlyPaths: ['Main', 'Main.**', 'Other', 'Other.**'],
+      readonlyPaths: ['Main', 'Other', 'Other.**'],
       denyPaths: ['Other.child.**'],
-    };
-    server.setEditPolicy(policy);
+    });
     expect((await client.getValue('Other.value')).value).toBe(5);
     expect((await client.list('Main')).children.child).toBeDefined();
-    await client.setValue('Main.value', 7, true);
-    expect((await client.getValue('Main.value')).value).toBe(7);
-    await expect(client.setValue('Other.value', 7, true)).rejects.toBe('restricted path');
+    await expect(client.setValue('Main.value', 7, true)).rejects.toBe('readonly');
+    await expect(client.setValue('Other.value', 7, true)).rejects.toBe('readonly');
     await expect(client.getValue('Other.child.value')).rejects.toBe('restricted path');
-    await expect(client.setValue('Other.child.value', 7, true)).rejects.toBe('restricted path');
-    const view = client.getEditPolicyView();
-    expect(view.canWriteField('Main.value')).toBe(true);
-    expect(view.canWriteField('Other.value')).toBe(false);
-    expect(view.canDeleteBlock('Main')).toBe(false);
-    // With no allowPaths list, the existing default still permits all paths.
-    expect(new EditPolicyView({readonlyPaths: ['Main.**']}).canWriteField('Main.value')).toBe(true);
-    server.setEditPolicy({...policy, denyPaths: ['Main.value']});
-    await expect(client.getValue('Main.value')).rejects.toBe('restricted path');
+    expect(client.getEditPolicyView().canWriteField('Main.value')).toBe(false);
+    expect(client.getEditPolicyView().canWriteField('Other.value')).toBe(false);
+    server.setEditPolicy({readonly: true, readonlyPaths: ['Main.**']});
+    expect((await client.getValue('Other.value')).value).toBe(5);
   });
 
   it('does not grant ancestor reads or let settings use a spoofed allowed path', async () => {
-    server.setEditPolicy({allowPaths: ['Main.**']});
+    server.setEditPolicy({readonly: true, allowPaths: ['Main.**']});
     await expect(client.list('')).rejects.toBe('restricted path');
     expect(server.executeRequest({cmd: 'getSettings', path: 'Main.value'})).toBe('restricted path');
-    server.setEditPolicy({allowPaths: ['Main.**'], readonlyPaths: ['']});
+    server.setEditPolicy({readonly: true, allowPaths: ['Main.**'], readonlyPaths: ['']});
     expect(typeof server.executeRequest({cmd: 'getSettings', path: ''})).toBe('object');
   });
 
-  it('protects the flow node while allowing edits and deletions inside it', async () => {
-    server.setEditPolicy({allowPaths: ['Main.**'], readonlyPaths: ['Main']});
-    const flow = root.queryValue('Main');
-    for (const cmd of ['set', 'update', 'bind', 'restoreSaved', 'addFlow', 'addFlowFolder', 'applyFlowChange']) {
-      expect(server.executeRequest({cmd, path: 'Main', value: 123})).toBe('restricted path');
+  it('rejects all editing commands before resolving paths or inspecting payloads', () => {
+    server.setEditPolicy({readonly: true, allowPaths: ['**']});
+    const query = vi.spyOn(root, 'queryBlockField');
+    for (const cmd of [
+      'set',
+      'update',
+      'bind',
+      'restoreSaved',
+      'addBlock',
+      'deleteBlock',
+      'addFlow',
+      'addFlowFolder',
+      'paste',
+      'move',
+      'moveOrdered',
+      'renameProp',
+      'showProps',
+      'hideProps',
+      'moveShownProp',
+      'setLen',
+      'addCustomProp',
+      'removeCustomProp',
+      'moveCustomProp',
+      'addOptionalProp',
+      'removeOptionalProp',
+      'moveOptionalProp',
+      'insertGroupProp',
+      'removeGroupProp',
+      'moveGroupProp',
+      'editWorker',
+      'applyFlowChange',
+      'deleteFunction',
+      'callFunction',
+      'loadFlow',
+      'unloadFlow',
+      'enableFlow',
+      'disableFlow',
+      'undo',
+      'redo',
+    ]) {
+      expect(server.executeRequest({cmd, path: 'Main', value: 123})).toBe('readonly');
     }
-    await expect(client.setValue('Main', undefined, true)).rejects.toBe('restricted path');
-    expect(root.queryValue('Main')).toBe(flow);
-    await client.setValue('Main.value', 9, true);
-    await client.setValue('Main.child', undefined, true);
-    expect(root.queryValue('Main.value')).toBe(9);
-    expect(root.queryValue('Main.child')).toBeUndefined();
+    expect(server.executeRequest({cmd: 'copy', path: 'Main', props: ['value'], cut: true})).toBe('readonly');
+    expect(query).not.toHaveBeenCalled();
+    query.mockRestore();
+    expect(root.queryValue('Main.value')).toBe(1);
   });
 
   it('requires query command permission only on the server', async () => {
@@ -95,10 +125,10 @@ describe('Server edit policy paths', () => {
       {allowCmds: ['query'], denyCmds: ['query']},
     ];
     for (const policy of policies) {
-      server.setEditPolicy(policy);
+      server.setEditPolicy({readonly: true, ...policy});
       await expect(client.query('Main', query)).rejects.toBe('restricted command');
     }
-    server.setEditPolicy({allowCmds: ['query']});
+    server.setEditPolicy({readonly: true, allowCmds: ['query']});
     expect((await client.query('Main', query)).value).toEqual({value: 1});
   });
 
@@ -115,7 +145,7 @@ describe('Server edit policy paths', () => {
       {allowPaths: ['Main', 'Main.**'], denyPaths: ['**.hidden']},
     ];
     for (const policy of policies) {
-      server.setEditPolicy(policy);
+      server.setEditPolicy({readonly: true, ...policy});
       // Even a query that only selects readable fields requires the whole subtree.
       await expect(client.query('Main', {'?values': ['value']})).rejects.toBe('restricted path');
     }
@@ -133,6 +163,7 @@ describe('Server edit policy paths', () => {
     ];
     for (const policy of paths) {
       server.setEditPolicy({
+        readonly: true,
         ...policy,
         denyPaths: ['Other.**'],
         allowCmds: ['query'],
@@ -151,14 +182,14 @@ describe('Server edit policy paths', () => {
     const main = root.queryValue('Main') as Block;
     main.setValue('reference', root.queryValue('Other.child'));
     const policy: EditPolicy = {allowPaths: [], readonlyPaths: ['Main', 'Main.**']};
-    server.setEditPolicy(policy);
+    server.setEditPolicy({readonly: true, ...policy});
     await expect(client.query('Main.reference', {'?values': ['value']})).rejects.toBe('restricted path');
     await expect(client.getValue('Main.reference.value')).rejects.toBe('restricted path');
-    server.setEditPolicy({...policy, readonlyPaths: ['**'], denyPaths: ['Main.reference.value']});
+    server.setEditPolicy({readonly: true, ...policy, readonlyPaths: ['**'], denyPaths: ['Main.reference.value']});
     await expect(client.query('Main.reference', {'?values': ['value']})).rejects.toBe('restricted path');
-    server.setEditPolicy({...policy, readonlyPaths: ['**'], denyPaths: ['Other.child.value']});
+    server.setEditPolicy({readonly: true, ...policy, readonlyPaths: ['**'], denyPaths: ['Other.child.value']});
     await expect(client.query('Main.reference', {'?values': ['value']})).rejects.toBe('restricted path');
-    server.setEditPolicy({...policy, readonlyPaths: ['**']});
+    server.setEditPolicy({readonly: true, ...policy, readonlyPaths: ['**']});
     expect((await client.query('Main.reference', {'?values': ['value']})).value).toEqual({value: 6});
   });
 
@@ -169,7 +200,7 @@ describe('Server edit policy paths', () => {
     main.setValue('reference', outside);
     child.setValue('reference', outside);
     main.setValue('inside', child);
-    server.setEditPolicy({allowPaths: [], readonlyPaths: ['Main', 'Main.**']});
+    server.setEditPolicy({readonly: true, allowPaths: [], readonlyPaths: ['Main', 'Main.**']});
     const values = {'?values': ['value']};
     expect(
       (
@@ -185,20 +216,25 @@ describe('Server edit policy paths', () => {
   });
 
   it('checks the full copied subtree and does not let readonly access authorize cutting', async () => {
-    server.setEditPolicy({allowPaths: [], readonlyPaths: ['Main', 'Main.**'], denyPaths: ['Main.child.hidden']});
+    server.setEditPolicy({
+      readonly: true,
+      allowPaths: [],
+      readonlyPaths: ['Main', 'Main.**'],
+      denyPaths: ['Main.child.hidden'],
+    });
     expect((await client.copy('Main', ['value'])).value).toEqual({
       'value': 1,
       '#_copy_from': 'Main',
     });
     await expect(client.copy('Main', ['child'])).rejects.toBe('restricted path');
-    await expect(client.copy('Main', ['value'], true)).rejects.toBe('restricted path');
+    await expect(client.copy('Main', ['value'], true)).rejects.toBe('readonly');
     expect(root.queryValue('Main.value')).toBe(1);
-    server.setEditPolicy({allowPaths: [], readonlyPaths: ['Main', 'Main.**']});
+    server.setEditPolicy({readonly: true, allowPaths: [], readonlyPaths: ['Main', 'Main.**']});
     expect((await client.copy('Main', ['child'])).value.child.value).toBe(3);
   });
 
   it('revokes existing subscriptions and drops queued values when policy changes', async () => {
-    server.setEditPolicy({allowPaths: [], readonlyPaths: ['Main', 'Main.**']});
+    server.setEditPolicy({readonly: true, allowPaths: [], readonlyPaths: ['Main', 'Main.**']});
     const onUpdate = vi.fn();
     const onError = vi.fn();
     client.subscribe('Main.value', {onUpdate, onError});
@@ -206,7 +242,7 @@ describe('Server edit policy paths', () => {
     await shouldHappen(() => onUpdate.mock.calls.length > 0 && Object.keys(server.requests).length === 2);
     onUpdate.mockClear();
     (root.queryValue('Main') as Block).setValue('value', 10);
-    server.setEditPolicy({allowPaths: []});
+    server.setEditPolicy({readonly: true, allowPaths: []});
     await shouldHappen(() => onError.mock.calls.length === 2);
     expect(onError.mock.calls.every(([error]) => error === 'restricted path')).toBe(true);
     expect(onUpdate).not.toHaveBeenCalled();
@@ -219,119 +255,100 @@ describe('Server edit policy paths', () => {
     const main = root.queryValue('Main') as Block;
     main.setValue('reference', root.queryValue('Other.child'));
     main.createHelperBlock('value').setValue('hidden', 10);
-    server.setEditPolicy({allowPaths: [], readonlyPaths: ['Main', 'Main.**'], denyPaths: ['Main.~value.hidden']});
+    server.setEditPolicy({
+      readonly: true,
+      allowPaths: [],
+      readonlyPaths: ['Main', 'Main.**'],
+      denyPaths: ['Main.~value.hidden'],
+    });
     await expect(client.copy('Main', ['value'])).rejects.toBe('restricted path');
     await expect(client.copy('Main', ['reference'])).rejects.toBe('restricted path');
     (main.getValue('child') as Block).setValue('reference', root.queryValue('Other.child'));
     await expect(client.copy('Main', ['child'])).rejects.toBe('restricted path');
   });
 
-  it('checks the actual flow history and refuses undo/redo when any descendants are restricted', async () => {
-    root.deleteFlow('Main');
-    const flow = root.addFlow('Main');
-    flow.load({value: 1, child: {'#is': '', 'value': 3}}, null, () => flow.save());
-    client.watch('Main', {});
-    await client.setValue('Main.value', 2, true);
-    await client.applyFlowChange('Main');
-    const policy: EditPolicy = {allowPaths: ['Main.**'], readonlyPaths: ['Main'], allowCmds: []};
-    server.setEditPolicy({...policy, denyPaths: ['Main.child.value']});
-    await expect(client.undo('Main')).rejects.toBe('restricted path');
-    expect(flow.getValue('value')).toBe(2);
-    server.setEditPolicy({...policy, allowPaths: ['Main.child.**']});
-    await expect(client.undo('Main.child')).rejects.toBe('restricted path');
-    expect(flow.getValue('value')).toBe(2);
-    server.setEditPolicy(policy);
-    await client.undo('Main');
-    expect(flow.getValue('value')).toBe(1);
-    server.setEditPolicy({...policy, allowPaths: [], readonlyPaths: ['Main', 'Main.**']});
-    await expect(client.redo('Main')).rejects.toBe('restricted path');
-    expect(flow.getValue('value')).toBe(1);
-    server.setEditPolicy(policy);
-    await client.redo('Main');
-    expect(flow.getValue('value')).toBe(2);
-  });
-  it('checks the parent namespace before generating a name, even if the requested name is free', async () => {
-    const main = root.queryValue('Main') as Block;
-    const properties = [...main._props.keys()];
-    const policies: EditPolicy[] = [
-      {allowPaths: ['Main.add', 'Main.add.**']},
-      {allowPaths: ['Main.add*', 'Main.add*.**']},
-      {allowPaths: ['Main', 'Main.*']},
-      {allowPaths: [], readonlyPaths: ['Main', 'Main.**']},
-      {allowPaths: ['Main.**'], denyPaths: ['Main.unrelated.**']},
-    ];
-    for (const policy of policies) {
-      server.setEditPolicy(policy);
-      await expect(client.addBlock('Main.add', {'#is': 'add'}, true)).rejects.toBe('restricted path');
-      expect([...main._props.keys()]).toEqual(properties);
-    }
-    // An explicitly chosen name does not require access to its siblings.
-    server.setEditPolicy(policies[0]);
-    await client.addBlock('Main.add', {'#is': 'add'});
-    expect(root.queryValue('Main.add')).toBeInstanceOf(Block);
-  });
-
-  it('generates names after permission checks without treating the existing block as a replacement', async () => {
-    const main = root.queryValue('Main') as Block;
-    const original = main.createBlock('add');
-    const nested = original.createBlock('nested');
-    server.setEditPolicy({
-      allowPaths: ['Main.**'],
-      allowBlockTypes: ['add'],
+  it('skips server policy checks for writable policies, including subscriptions and copies', async () => {
+    const policy: EditPolicy = {
+      readonly: false,
+      allowPaths: [],
+      readonlyPaths: [],
+      denyPaths: ['**'],
+      allowCmds: [],
+      allowProps: [],
+      allowBinding: [],
+      allowBlockTypes: [],
+      allowCreateBlock: false,
       allowDeleteBlock: false,
-      allowProps: ['#is', 'nested'],
+      allowChangeBlockType: false,
+    };
+    server.setEditPolicy(policy);
+    const check = vi.spyOn(server as any, 'checkRequestPolicy');
+    expect((await client.getValue('Other.value')).value).toBe(5);
+    await client.setValue('Other.value', 7, true);
+    await client.paste('Main', {hidden: 8});
+    expect((await client.copy('Main', ['child'])).value.child.value).toBe(3);
+    await client.addBlock('Main.new', {'#is': 'add'}, true);
+    await client.deleteBlock('Main.child');
+    const onUpdate = vi.fn();
+    client.subscribe('Other.value', {onUpdate});
+    await shouldHappen(() => onUpdate.mock.calls.length > 0);
+    server.setEditPolicy({...policy, readonly: undefined});
+    await client.setValue('Other.value', 9, true);
+    await shouldHappen(() => onUpdate.mock.calls.length > 1);
+    expect(check).not.toHaveBeenCalled();
+    expect(root.queryValue('Other.value')).toBe(9);
+    expect(root.queryValue('Main.hidden')).toBe(8);
+    expect(root.queryValue('Main.child')).toBeUndefined();
+    expect(client.getEditPolicyView().canWriteField('Other.value')).toBe(false);
+  });
+
+  it('passes the authoritative readonly flag to function and property commands', async () => {
+    const inspect = vi.fn((block: Block, params: DataMap, readonly: boolean) => ({
+      readonly,
+      property: params?.property,
+      value: block.getValue('value'),
+    }));
+    const write = vi.fn((block: Block, params: DataMap, readonly: boolean) => {
+      if (readonly) return;
+      block.setValue('value', params.value);
     });
-    expect((await client.addBlock('Main.add', {'#is': 'add', 'nested': 1}, true)).name).toBe('add1');
-    expect(original.getValue('nested')).toBe(nested);
-    expect(root.queryValue('Main.add1.nested')).toBe(1);
-  });
-
-  it('rejects automatic naming and compound writes before any mutation', async () => {
-    const root = new Root();
-    const flow = root.addFlow('Main');
-    flow.createBlock('add');
-    const [, client] = makeLocalConnection(root, false, {allowPaths: ['Main.add.**']});
+    const id = 'readonly-command-test';
+    globalFunctions.addFactory(
+      null,
+      {
+        name: id,
+        properties: [{name: 'value', type: 'number', commands: {inspect: {parameters: []}, write: {parameters: []}}}],
+        commands: {inspect: {parameters: []}, write: {parameters: []}},
+      },
+      undefined,
+      {commands: {inspect, write}}
+    );
     try {
-      await expect(client.addBlock('Main.add', {'#is': 'add'}, true)).rejects.toBe('restricted path');
-      expect(flow.getProperty('add1', false)).toBeFalsy();
-      await expect(client.paste('Main', {allowed: 1, forbidden: 2})).rejects.toBe('restricted path');
-      expect(flow.getProperty('allowed', false)).toBeFalsy();
-      expect(flow.getProperty('forbidden', false)).toBeFalsy();
+      await client.addBlock('Main.command', {'#is': id, 'value': 1});
+      server.setEditPolicy({readonly: true, allowPaths: ['Main', 'Main.**']});
+      expect((await client.executeCommand('Main.command', 'inspect')).result).toEqual({readonly: true, value: 1});
+      expect(
+        (await client.executeCommand('Main.command', 'inspect', {property: 'value', readonly: false})).result
+      ).toEqual({readonly: true, property: 'value', value: 1});
+      expect(
+        server.executeRequest({cmd: 'executeCommand', path: 'Main.command', command: 'inspect', readonly: false})
+      ).toEqual({result: {readonly: true, property: undefined, value: 1}});
+      const track = vi.spyOn(root.queryValue('Main') as Flow, 'trackChange');
+      await client.executeCommand('Main.command', 'write', {property: 'value', value: 2});
+      expect(write).toHaveBeenLastCalledWith(root.queryValue('Main.command'), {property: 'value', value: 2}, true);
+      expect(root.queryValue('Main.command.value')).toBe(1);
+      expect(track).not.toHaveBeenCalled();
+      server.setEditPolicy({allowCmds: [], allowProps: [], denyPaths: ['Main.**']});
+      await client.executeCommand('Main.command', 'write', {property: 'value', value: 3});
+      expect(write).toHaveBeenLastCalledWith(root.queryValue('Main.command'), {property: 'value', value: 3}, false);
+      expect(root.queryValue('Main.command.value')).toBe(3);
+      expect(track).toHaveBeenCalled();
+      track.mockRestore();
+      server.setEditPolicy({readonly: true, allowPaths: ['Other.**']});
+      await expect(client.executeCommand('Main.command', 'inspect')).rejects.toBe('restricted path');
+      expect(inspect).toHaveBeenCalledTimes(3);
     } finally {
-      client.destroy();
-      root.destroy();
-    }
-  });
-
-  it('checks the owner of a referenced block before changing its contents', async () => {
-    const root = new Root();
-    const flow = root.addFlow('Main');
-    const other = root.addFlow('Other');
-    const block = other.createBlock('add');
-    flow.setValue('reference', block);
-    const [, client] = makeLocalConnection(root, false, {allowPaths: ['Main.**']});
-    try {
-      await expect(client.setValue('Main.reference.value', 1, true)).rejects.toBe('restricted path');
-      await expect(client.paste('Main.reference', {value: 2})).rejects.toBe('restricted path');
-      expect(block.getValue('value')).toBeUndefined();
-    } finally {
-      client.destroy();
-      root.destroy();
-    }
-  });
-
-  it('allows paste with renamed blocks when deletion is disabled', async () => {
-    const root = new Root();
-    const flow = root.addFlow('Main');
-    const original = flow.createBlock('add');
-    const [, client] = makeLocalConnection(root, false, {allowDeleteBlock: false});
-    try {
-      await client.paste('Main', {add: {'#is': 'add'}}, 'rename');
-      expect(flow.getValue('add')).toBe(original);
-      expect(flow.getValue('add1')).toBeDefined();
-    } finally {
-      client.destroy();
-      root.destroy();
+      globalFunctions.delete(id);
     }
   });
 });

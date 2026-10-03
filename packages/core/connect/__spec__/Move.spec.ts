@@ -74,7 +74,7 @@ describe('Move command', () => {
     expect((await client.move('Main.source', ['a'], 'Main.target', 'rename')).moved).toEqual(['a1']);
   });
 
-  it('checks command, deletion, creation, destination paths and referenced owners before moving', async () => {
+  it('checks client command, deletion, creation and destination permissions before moving', async () => {
     const original = root.queryValue('Main.source.a');
     const policies: EditPolicy[] = [
       {denyCmds: ['move']},
@@ -84,16 +84,14 @@ describe('Move command', () => {
       {allowPaths: ['Main.source', 'Main.source.**']},
     ];
     for (const policy of policies) {
-      server.setEditPolicy(policy);
-      await expect(client.move('Main.source', ['a'], 'Main.target')).rejects.toBeTypeOf('string');
+      await expect(client.withPolicy(policy).move('Main.source', ['a'], 'Main.target')).rejects.toBeTypeOf('string');
       expect(root.queryValue('Main.source.a')).toBe(original);
       expect(root.queryValue('Main.target.a')).toBeUndefined();
     }
     (original as Block).setValue('reference', root.queryValue('Other'));
     server.setEditPolicy({allowPaths: ['Main', 'Main.**']});
-    await expect(client.move('Main.source', ['a'], 'Main.target')).rejects.toBe('restricted path');
-    (original as Block).deleteValue('reference');
-    server.setEditPolicy({allowCmds: ['move'], allowPaths: ['Main', 'Main.**']});
     expect((await client.move('Main.source', ['a'], 'Main.target')).moved).toEqual(['a']);
+    expect(root.queryValue('Main.source.a')).toBeUndefined();
+    expect(root.queryValue('Main.target.a')).toBeInstanceOf(Block);
   });
 });

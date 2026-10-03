@@ -64,7 +64,8 @@ export class StateFunction extends BaseFunction<Block> {
 
 const API = {
   commands: {
-    saveSnapshot: (block: Block, params: {[key: string]: any}) => {
+    saveSnapshot: (block: Block, params: {[key: string]: any}, readonly: boolean) => {
+      if (readonly) return;
       const property = params?.property;
       const states = getInputsArray(block, '', 1, ['input', 'target']);
       const len = states.length;

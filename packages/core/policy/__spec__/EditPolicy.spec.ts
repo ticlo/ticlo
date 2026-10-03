@@ -127,9 +127,9 @@ describe('EditPolicy', () => {
     expect(new EditPolicyView({allowPaths: ['Main.**']}).canDeleteBlock('Main.a')).toBe(true);
   });
 
-  it('requires the parent subtree for automatic names in clients, servers and previews', () => {
+  it('requires the parent subtree for automatic names in clients and previews', () => {
     const request = {cmd: 'addBlock', path: 'Main.add', data: {'#is': 'add'}, findName: true};
-    for (const mode of ['client', 'server', 'preview'] as const) {
+    for (const mode of ['client', 'preview'] as const) {
       expect(checkEditPolicy({allowPaths: ['Main.add', 'Main.add.**']}, request, undefined, mode)).toBe(
         'restricted path'
       );
@@ -144,6 +144,28 @@ describe('EditPolicy', () => {
     const limited = new EditPolicyView({allowPaths: ['Main.add', 'Main.add.**']});
     expect(limited.can(request)).toBe(false);
     expect(limited.canCreateBlock('Main.add', 'add')).toBe(true);
+  });
+
+  it('uses readonly as the server write switch while retaining client limits', () => {
+    const policy: EditPolicy = {allowPaths: [], allowCmds: [], allowCreateBlock: false};
+    const lookup = () => {
+      throw new Error('writable server policies must not resolve edit paths');
+    };
+    for (const cmd of ['set', 'paste', 'addBlock', 'query', 'copy', 'undo', 'redo', 'executeCommand']) {
+      const request = {cmd, path: 'Main', props: ['child']};
+      expect(checkEditPolicy(policy, request, lookup, 'server')).toBeNull();
+      expect(checkEditPolicy({...policy, readonly: false}, request, lookup, 'server')).toBeNull();
+    }
+    for (const mode of ['client', 'preview'] as const) {
+      for (const cmd of ['set', 'bind', 'paste', 'addBlock', 'undo', 'redo', 'executeCommand']) {
+        expect(checkEditPolicy({readonly: true}, {cmd, path: 'Main'}, lookup, mode)).toBe('readonly');
+      }
+      for (const cmd of ['get', 'query', 'subscribe', 'watch', 'copy']) {
+        expect(checkEditPolicy({readonly: true, allowPaths: []}, {cmd, path: 'Main'}, lookup, mode)).toBeNull();
+      }
+    }
+    expect(new EditPolicyView({readonly: true}).canWriteField('Main.value')).toBe(false);
+    expect(checkEditPolicy(policy, {cmd: 'set', path: 'Main'})).toBe('restricted command');
   });
 
   it('requires all binding names when automatically naming a helper block', () => {
