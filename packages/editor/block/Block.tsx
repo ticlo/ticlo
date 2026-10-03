@@ -136,21 +136,6 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     e.startDrag(null, null, {opacity: 0.9});
   };
 
-  startDragSelf = (e: DragState) => {
-    const {item} = this.props;
-    e.setData({fields: [item.path]}, item.conn.getBaseConn());
-    const source = e.component.element;
-    const style = window.getComputedStyle(source);
-    const preview = source.ownerDocument.createElement('div');
-    Object.assign(preview.style, {
-      width: style.width,
-      height: style.height,
-      borderRadius: style.borderRadius,
-      backgroundColor: style.backgroundColor,
-    });
-    e.startDrag(source, preview, {opacity: 0.9});
-  };
-
   onDragWMove = (e: DragState) => {
     let {item} = this.props;
     let newW = snapW(this._baseW + e.dx);
@@ -319,9 +304,6 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               onDragLeaveT={this.onDragLeaveFoot}
             >
               {item.selfField?.cache.hasListener ? <div className="ticl-outbound" /> : null}
-              {item.selfField ? (
-                <DragDropDiv className="ticl-block-self-drag ticl-block-prbg" onDragStartT={this.startDragSelf} />
-              ) : null}
               <DragDropDiv
                 className="ticl-width-drag"
                 style={this.context.canWriteField(`${item.path}.@b-xyw`) ? undefined : {display: 'none'}}

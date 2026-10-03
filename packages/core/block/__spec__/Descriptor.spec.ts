@@ -6,7 +6,6 @@ import {
   blankPropDesc,
   buildPropDescCache,
   configDescs,
-  attributeDescs,
   findPropDesc,
   getDefaultDataFromCustom,
   getDefaultFuncData,
@@ -24,10 +23,6 @@ describe('Descriptor', function () {
     const mapped = mapConfigDesc(['#is', '#invalidConfig', abcconfig]);
     expect([...mapped]).toEqual([configDescs['#is'], abcconfig]);
     expect(mapped).toBe(mapConfigDesc(mapped));
-  });
-
-  it('block self property attribute desc', function () {
-    expect(attributeDescs['@b-pself']).toEqual({name: '@b-pself', type: 'toggle', default: false});
   });
 
   it('desc cache', function () {

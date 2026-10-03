@@ -231,66 +231,68 @@ describe('editor BlockStage', function () {
     simulate(document.body, 'mouseup');
   });
 
-  it('shows and drags block self property handle', async function () {
-    flow = Root.instance.addFlow('BlockStageSelfProperty');
+  it('shows block binding source by default and binds by dragging the header', async function () {
+    flow = Root.instance.addFlow('BlockStageSelfBinding');
     flow.load({
       add: {
         '#is': 'add',
-        '@b-pself': true,
         '@b-xyw': [100, 100, 143],
         '@b-p': ['0'],
       },
-      subtract: {
-        '#is': 'subtract',
-        '~0': '##.add',
+      target: {
+        '#is': '',
+        '#custom': [{name: 'source', type: 'block'}],
+        '~source': '##.add',
         '@b-xyw': [300, 100, 143],
-        '@b-p': ['0'],
+        '@b-p': ['source'],
       },
     });
 
-    const [server, client] = makeLocalConnection(Root.instance);
+    const [, client] = makeLocalConnection(Root.instance);
 
-    const [component, div] = loadTemplate(
-      <BlockStage conn={client} basePath="BlockStageSelfProperty" style={{width: '800px', height: '800px'}} />,
+    const [, div] = loadTemplate(
+      <BlockStage conn={client} basePath="BlockStageSelfBinding" style={{width: '800px', height: '800px'}} />,
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-block-self-drag'));
-
-    const selfDrag = div.querySelector('.ticl-block-self-drag') as HTMLDivElement;
-    expect(selfDrag.classList.contains('ticl-block-prbg')).toBe(true);
-    expect(selfDrag.nextElementSibling.classList.contains('ticl-width-drag')).toBe(true);
     await shouldHappen(() => div.querySelector('.ticl-block-wire'));
-    await shouldHappen(() => div.querySelector('.ticl-block-foot > .ticl-outbound'));
+    const source = await shouldHappen(() => div.querySelector('.ticl-block-foot > .ticl-outbound'));
+    const block = source.closest('.ticl-block') as HTMLDivElement;
+    expect(div.querySelector('.ticl-block-self-drag')).toBeNull();
+    await shouldHappen(() => block.offsetLeft === 100 && block.offsetTop === 100);
 
-    await shouldHappen(() => selfDrag.offsetWidth === 14);
-    const sourceStyle = window.getComputedStyle(selfDrag);
-    const color = sourceStyle.backgroundColor;
-    const borderRadius = sourceStyle.borderRadius;
-    expect(color).not.toBe('rgba(0, 0, 0, 0)');
-    const rect = selfDrag.getBoundingClientRect();
+    const rect = source.getBoundingClientRect();
     const x = rect.x + rect.width / 2;
     const y = rect.y + rect.height / 2;
-    simulate(selfDrag, 'mousedown', fakeMouseEvent(x, y));
+    simulate(source, 'mousedown', fakeMouseEvent(x, y));
     try {
       simulate(document.body, 'mousemove', fakeMouseEvent(x + 40, y + 30));
-      const preview = document.querySelector('.dragging-layer > :first-child') as HTMLElement;
-      expect(preview).not.toBeNull();
-      const previewStyle = window.getComputedStyle(preview);
-      expect(previewStyle.backgroundColor).toBe(color);
-      expect(previewStyle.borderRadius).toBe(borderRadius);
-      const previewRect = preview.getBoundingClientRect();
-      expect(previewRect.width).toBe(selfDrag.offsetWidth);
-      expect(previewRect.height).toBe(selfDrag.offsetHeight);
-      expect(previewRect.x + previewRect.width / 2).toBeCloseTo(x + 40);
-      expect(previewRect.y + previewRect.height / 2).toBeCloseTo(y + 30);
+      expect(document.querySelector('.dragging-layer')).toBeNull();
+      expect(block.offsetLeft).toBe(100);
+      expect(block.offsetTop).toBe(100);
     } finally {
       simulate(document.body, 'mouseup');
     }
-    expect(document.querySelector('.dragging-layer')).toBeNull();
 
-    flow.queryProperty('add.@b-pself').setValue(undefined);
-    await shouldHappen(() => !div.querySelector('.ticl-block-self-drag'));
+    flow.queryProperty('target.source').setValue(undefined);
+    await shouldHappen(() => !div.querySelector('.ticl-block-wire'));
+
+    const head = block.querySelector('.ticl-block-head');
+    const target = querySingle("//div.ticl-field-name/span[text()='source']/../..", div);
+    const from = head.getBoundingClientRect();
+    const to = target.getBoundingClientRect();
+    const move = fakeMouseEvent(to.x + to.width / 2, to.y + to.height / 2);
+    simulate(head, 'mousedown', fakeMouseEvent(from.x + from.width / 2, from.y + from.height / 2));
+    try {
+      simulate(target, 'mousemove', move);
+      simulate(target, 'mouseup', move);
+      await shouldHappen(() => (flow as Flow).queryValue('target.source') === (flow as Flow).queryValue('add'));
+      await shouldHappen(() => div.querySelector('.ticl-block-wire'));
+      expect(div.querySelector('.ticl-block-foot > .ticl-outbound')).not.toBeNull();
+      expect(flow.queryValue('add.@b-xyw')).toEqual([100, 100, 143]);
+    } finally {
+      simulate(document.body, 'mouseup');
+    }
   });
 
   it('shows static blocks created after stage mounts', async function () {
