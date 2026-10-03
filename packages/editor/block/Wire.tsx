@@ -3,6 +3,44 @@ import {DataRendererItem, PureDataRenderer} from '../component/DataRenderer.ts';
 import {FieldItem} from './Field.tsx';
 import {cssNumber} from '../util/Types.tsx';
 
+export class DragWire {
+  private element: SVGSVGElement;
+  private path: SVGPathElement;
+  private clientX = 0;
+  private clientY = 0;
+
+  constructor(private source: FieldItem) {
+    const doc = source.block.stage.getRefElement().ownerDocument;
+    this.element = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    this.element.classList.add('ticl-block-wire', 'ticl-drag-wire');
+    this.path = doc.createElementNS('http://www.w3.org/2000/svg', 'path');
+    this.element.appendChild(this.path);
+    doc.body.appendChild(this.element);
+    doc.addEventListener('scroll', this.onScroll, true);
+  }
+
+  update(pointer: {clientX: number; clientY: number}) {
+    this.clientX = pointer.clientX;
+    this.clientY = pointer.clientY;
+    this.onScroll();
+  }
+
+  private onScroll = () => {
+    const {source, clientX, clientY} = this;
+    const stage = source.block.stage.getRefElement();
+    const rect = stage.getBoundingClientRect();
+    const x = rect.left + ((source.x + source.w + 4) * rect.width) / stage.offsetWidth;
+    const y = rect.top + (source.y * rect.height) / stage.offsetHeight;
+    const gap = Math.max(25, Math.abs(clientX - x) / 2);
+    this.path.setAttribute('d', `M ${x} ${y} C ${x + gap} ${y} ${clientX - gap} ${clientY} ${clientX} ${clientY}`);
+  };
+
+  destroy() {
+    this.element.ownerDocument.removeEventListener('scroll', this.onScroll, true);
+    this.element.remove();
+  }
+}
+
 export class WireItem extends DataRendererItem {
   source: FieldItem;
   target: FieldItem;
@@ -29,10 +67,12 @@ export class WireItem extends DataRendererItem {
     if (source !== this.source) {
       if (this.source) {
         this.source.outWires.delete(this);
+        this.source.forceUpdate();
       }
       this.source = source;
       if (source) {
         source.outWires.add(this);
+        source.forceUpdate();
       }
     }
     // it's possible an indirect binding change to direct binding while source remains the same
@@ -53,12 +93,14 @@ export class WireItem extends DataRendererItem {
     this.target = target;
     this.source = souce;
     this.source.outWires.add(this);
+    this.source.forceUpdate();
     this.checkIsRightSide();
   }
 
   destroy() {
     if (this.source) {
       this.source.outWires.delete(this);
+      this.source.forceUpdate();
       this.source = null;
     }
     this.target.forceUpdate();

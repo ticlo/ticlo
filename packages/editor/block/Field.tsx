@@ -1,5 +1,5 @@
 import React, {MouseEventHandler} from 'react';
-import {WireItem} from './Wire.tsx';
+import {DragWire, WireItem} from './Wire.tsx';
 import {DataRendererItem, PureDataRenderer} from '../component/DataRenderer.ts';
 import {
   resolvePath,
@@ -389,6 +389,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
 export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   static contextType = EditPolicyContext;
   declare context: React.ContextType<typeof EditPolicyContext>;
+  private dragWire: DragWire;
   getDraggingFields() {
     return DragState.getData('fields', this.props.item.getBaseConn());
   }
@@ -412,6 +413,19 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     }
 
     e.startDrag(undefined, undefined, {opacity: 0.9});
+    if (e.dragType !== 'right') {
+      this.dragWire = new DragWire(item);
+      this.dragWire.update(e);
+      this.forceUpdate();
+    }
+  };
+  onDragMove = (e: DragState) => {
+    this.dragWire?.update(e);
+  };
+  onDragEnd = () => {
+    this.dragWire?.destroy();
+    this.dragWire = null;
+    this.forceUpdate();
   };
   onDragOver = (e: DragState) => {
     const {item} = this.props;
@@ -535,6 +549,8 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       <DragDropDiv
         className={fieldClass}
         onDragStartT={this.onDragStart}
+        onDragMoveT={this.onDragMove}
+        onDragEndT={this.onDragEnd}
         useRightButtonDragT={true}
         onDragOverT={this.onDragOver}
         onDropT={this.onDrop}
@@ -544,7 +560,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
             {inBoundText}
           </div>
         ) : null}
-        {showOutBound ? <div className="ticl-outbound" /> : null}
+        {showOutBound || this.dragWire ? <div className="ticl-outbound" /> : null}
         {indentChildren}
         <div className="ticl-field-name" onDoubleClick={this.onNameDoubleClick}>
           {item.subBlock ? (
@@ -557,6 +573,11 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         <FieldValue conn={item.getConn()} path={item.path} />
       </DragDropDiv>
     );
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    this.onDragEnd();
   }
 }
 

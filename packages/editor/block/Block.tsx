@@ -303,7 +303,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               onDropT={this.onDropFoot}
               onDragLeaveT={this.onDragLeaveFoot}
             >
-              {item.selfField?.cache.hasListener ? <div className="ticl-outbound" /> : null}
+              {item.selfField?.outWires.size ? <div className="ticl-outbound" /> : null}
               <DragDropDiv
                 className="ticl-width-drag"
                 style={this.context.canWriteField(`${item.path}.@b-xyw`) ? undefined : {display: 'none'}}

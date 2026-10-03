@@ -246,6 +246,12 @@ describe('editor BlockStage', function () {
         '@b-xyw': [300, 100, 143],
         '@b-p': ['source'],
       },
+      hidden: {
+        '#is': '',
+        '~source': '##.add',
+        '@b-xyw': [500, 100, 143],
+        '@b-p': [],
+      },
     });
 
     const [, client] = makeLocalConnection(Root.instance);
@@ -276,6 +282,7 @@ describe('editor BlockStage', function () {
 
     flow.queryProperty('target.source').setValue(undefined);
     await shouldHappen(() => !div.querySelector('.ticl-block-wire'));
+    await shouldHappen(() => !div.querySelector('.ticl-block-foot > .ticl-outbound'));
 
     const head = block.querySelector('.ticl-block-head');
     const target = querySingle("//div.ticl-field-name/span[text()='source']/../..", div);

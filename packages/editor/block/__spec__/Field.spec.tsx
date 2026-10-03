@@ -190,6 +190,7 @@ describe('editor Block Field', function () {
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
       expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
       simulate(target, 'mousemove', move);
+      expect(document.querySelector('.ticl-drag-wire')).toBeNull();
       simulate(target, 'mouseup', {...move, buttons: 0});
       simulate(target, 'contextmenu', {...move, buttons: 0});
       await shouldHappen(() => (flow.queryValue('block.@b-p') as string[])[0] === 'b');
