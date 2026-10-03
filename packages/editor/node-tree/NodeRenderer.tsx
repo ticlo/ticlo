@@ -402,7 +402,10 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     const orderedItems = this.props.getOrderedDrag?.(item);
     if (orderedItems) data.orderedItems = orderedItems;
     e.setData(data, item.getBaseConn());
-    e.startDrag(undefined, undefined, {opacity: 0.9});
+    const preview = e.component.element.cloneNode(true) as HTMLElement;
+    preview.style.width = 'max-content';
+    preview.style.maxWidth = `${Math.min(e.component.element.offsetWidth, 400)}px`;
+    e.startDrag(undefined, preview, {opacity: 0.9});
   };
 
   getOrderedDrop(e: DragState) {
