@@ -55,6 +55,7 @@ export * from './functions/web-server/RouteFunction.ts';
 export * from './functions/data/CreateObject.ts';
 export * from './property-api/ObjectValue.ts';
 export {moveBlocks} from './property-api/CopyPaste.ts';
+export {deleteBlock} from './property-api/DeleteBlock.ts';
 
 // register functions
 import './functions/core/Group.ts';

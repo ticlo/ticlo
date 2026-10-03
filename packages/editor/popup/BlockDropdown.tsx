@@ -75,7 +75,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   onDeleteClicked = () => {
     if (!this.can('delete')) return;
     const {conn, path} = this.props;
-    conn.setValue(path, undefined, {
+    conn.deleteBlock(path, {
       ...requestCallbacks,
       onDone: () => conn.childrenChangeStream().dispatch({path: splitPathName(path)[0]}),
     });

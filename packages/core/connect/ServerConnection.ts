@@ -39,6 +39,7 @@ import {
   pasteProperties,
 } from '../property-api/CopyPaste.ts';
 import {moveProperty, PropertyMover} from '../property-api/PropertyMover.ts';
+import {deleteBlock} from '../property-api/DeleteBlock.ts';
 import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs.ts';
 import {WorkerFlow} from '../worker/WorkerFlow.ts';
 import {Query, queryBlock} from './Query.ts';
@@ -452,7 +453,9 @@ class ServerConnectionCore extends Connection {
         }
       }
       // Block commands can follow references to a different owner.
-      if (!['set', 'update', 'bind', 'restoreSaved', 'addBlock', 'addFlow', 'addFlowFolder'].includes(cmd)) {
+      if (
+        !['set', 'update', 'bind', 'restoreSaved', 'addBlock', 'deleteBlock', 'addFlow', 'addFlowFolder'].includes(cmd)
+      ) {
         const block = this.root.queryProperty(request.path as string, false)?._value;
         if (block instanceof Block) {
           const scope =
@@ -586,6 +589,23 @@ export class ServerConnection extends ServerConnectionCore {
     } else if (value !== undefined) {
       return 'invalid path';
     }
+  }
+
+  /** Deletes a block through the editor helper, including its parent's #order entry. */
+  deleteBlock({path}: {path: string}): string | Promise<string> {
+    const property = this.root.queryProperty(path, false);
+    if (!property) return 'invalid path';
+    if (!(property._value instanceof Block)) return 'invalid block';
+    const remove = (): string => {
+      deleteBlock(property._block, property._name);
+      trackChange(property, path, this.root);
+      return null;
+    };
+    if (property._value instanceof Flow) {
+      const deleted = this.root.deleteFlow(path);
+      if (deleted instanceof Promise) return deleted.then(remove);
+    }
+    return remove();
   }
 
   /**

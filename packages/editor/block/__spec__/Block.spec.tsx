@@ -127,6 +127,33 @@ describe('editor BlockStage', function () {
     await shouldHappen(() => !document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)'));
   });
 
+  it('removes selected blocks from #order when deleting from the stage', async () => {
+    flow = Root.instance.addFlow('BlockStageDelete', {
+      '#order': ['a', 'b', 'missing'],
+      'a': {'#is': 'add', '@b-xyw': [100, 100, 200]},
+      'b': {'#is': 'add', '@b-xyw': [400, 100, 200]},
+    });
+    const [, client] = makeLocalConnection(Root.instance);
+    let stage: BlockStage;
+    const [, div] = loadTemplate(
+      <BlockStage
+        ref={(value) => {
+          stage = value;
+        }}
+        conn={client}
+        basePath="BlockStageDelete"
+        style={{width: 800, height: 800}}
+      />,
+      'editor'
+    );
+    await shouldHappen(() => div.querySelectorAll('.ticl-block-head-label').length === 2);
+    stage.selectBlock('BlockStageDelete.a', false);
+    expect(stage.deleteSelection()).toBe(true);
+    await shouldHappen(() => flow.getValue('a') === undefined);
+    expect(flow.getValue('#order')).toEqual(['b', 'missing']);
+    await shouldHappen(() => div.querySelectorAll('.ticl-block').length === 1);
+  });
+
   it.each([undefined, {allowCreateBlock: false}])('drag block cursor with policy %j', async function (policy) {
     flow = Root.instance.addFlow('BlockStage2');
     flow.load({

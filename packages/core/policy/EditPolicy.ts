@@ -252,6 +252,10 @@ export function checkEditPolicy(
   };
 
   switch (cmd) {
+    case 'deleteBlock': {
+      const parent = splitPathName(path)[0];
+      return checkDelete(path) || checkProp(parent ? `${parent}.#order` : '#order');
+    }
     case 'set':
     case 'update':
       return checkValue(path, request.value, !preview || Object.hasOwn(request, 'value'));
@@ -387,6 +391,6 @@ export class EditPolicyView {
   }
 
   canDeleteBlock(path: string): boolean {
-    return this.can({cmd: 'set', path, value: undefined}, () => true);
+    return this.can({cmd: 'deleteBlock', path});
   }
 }

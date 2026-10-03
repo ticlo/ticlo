@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
-import {NodeTree} from '../../index.ts';
+import {NodeTree, initEditor} from '../../index.ts';
 import type {Block} from '@ticlo/core';
 import {Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -146,5 +146,34 @@ describe('editor NodeTree', function () {
     expect(querySingle("//div.ticl-tree-node-text[text()='29']/../..", div).classList).toContain(
       'ticl-tree-node-ordered'
     );
+  });
+
+  it('removes an ordered child through the node context menu', async () => {
+    await initEditor();
+    const flow = Root.instance.addFlow('NodeTree', {
+      '#order': ['a', 'b', 'missing'],
+      'a': {'#is': 'add'},
+      'b': {'#is': 'add'},
+    });
+    [server, client] = makeLocalConnection(Root.instance);
+    const [, div] = loadTemplate(
+      <NodeTree conn={client} basePaths={['NodeTree']} hideRoot style={{width: 600, height: 600}} />,
+      'editor'
+    );
+    const node = await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='a']/..", div));
+    await shouldHappen(() => node.querySelector('.tico-fas-plus'));
+    simulate(node, 'contextmenu', {button: 2, clientX: 50, clientY: 15});
+    const menu = (await shouldHappen(() =>
+      document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')
+    )) as HTMLElement;
+    const remove = Array.from(menu.querySelectorAll('.ticl-dropdown-menu-item')).find(
+      (item) => item.textContent === 'Delete'
+    );
+    expect(remove).toBeDefined();
+    simulate(remove, 'click');
+    await shouldHappen(() => flow.getValue('a') === undefined);
+    expect(flow.getValue('#order')).toEqual(['b', 'missing']);
+    await shouldHappen(() => !querySingle("//div.ticl-tree-node-text[text()='a']", div));
+    await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='b']", div));
   });
 });

@@ -5,6 +5,7 @@ import {BlockItem, FieldItem, Stage} from './Field.tsx';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
 import {TicloCurrentFlowContext} from '../component/LayoutContext.ts';
 import {getFuncLibPath} from '../util/FunctionLib.ts';
+import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
 export interface StagePropsBase {
   conn: ClientConn;
@@ -456,10 +457,12 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
       return false;
     for (const [blockPath, blockItem] of this._blocks) {
       if (blockItem.selected) {
-        conn.setValue(blockPath, undefined);
+        conn.deleteBlock(blockPath, {
+          ...requestCallbacks,
+          onDone: () => conn.childrenChangeStream().dispatch({path: basePath}),
+        });
       }
     }
-    conn.childrenChangeStream().dispatch({path: basePath});
     return true;
   }
 

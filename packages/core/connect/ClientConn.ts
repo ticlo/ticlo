@@ -125,6 +125,11 @@ export abstract class ClientConn {
     return result;
   }
 
+  /** Deletes a block and removes it from its parent's #order. */
+  deleteBlock(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'deleteBlock', path}, callbacks);
+  }
+
   /**
    * Creates a new Flow.
    * @param path path for the new Flow
