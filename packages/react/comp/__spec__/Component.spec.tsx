@@ -1,9 +1,11 @@
 import React from 'react';
-import {Event as TicloEvent, Flow, globalFunctions, type Block} from '@ticlo/core';
+import {Event as TicloEvent, Flow, Root, globalFunctions, type Block} from '@ticlo/core';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 import {metaKey, TicloComp} from '../Component.tsx';
 import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.ts';
 import '../../elements/CommonElements.tsx';
+import '../../functions/ToComponent.tsx';
 
 function MetaComponent({block}: {block: Block}) {
   return <span>{block.getValue('label') as string}</span>;
@@ -27,8 +29,8 @@ globalFunctions.addFactory(
 globalFunctions.addFactory(
   null,
   {
-    name: 'dynamic-output',
-    properties: [{name: '#output', type: 'any', readonly: true, pinned: true}],
+    name: 'dynamic-main',
+    properties: [{name: '#main', type: 'any', readonly: true, pinned: true}],
   },
   'react-test'
 );
@@ -36,8 +38,8 @@ globalFunctions.addFactory(
 globalFunctions.addFactory(
   null,
   {
-    name: 'fixed-output',
-    properties: [{name: '#output', type: 'string', readonly: true, pinned: true}],
+    name: 'dynamic-output',
+    properties: [{name: '#output', type: 'any', readonly: true, pinned: true}],
   },
   'react-test'
 );
@@ -53,42 +55,125 @@ describe('TicloComp', function () {
     root.remove();
   });
 
-  it('renders dynamic #output react elements', async function () {
+  it('renders dynamic #main react elements', async function () {
     const flow = new Flow();
     const block = flow.createBlock('a');
-    block.setValue('#is', 'react-test:dynamic-output');
+    block.setValue('#is', 'react-test:dynamic-main');
 
     await root.waitRender(<TicloComp block={block} />);
     expect(root.div.children.length).toBe(0);
 
-    block.updateValue('#output', <span>output</span>);
+    block.updateValue('#main', <span>output</span>);
     await root.waitRender();
     expect(root.div.children[0]).toBeInstanceOf(HTMLSpanElement);
     expect(root.div.textContent).toBe('output');
   });
 
-  it('renders dynamic #output blocks', async function () {
+  it('renders dynamic #main blocks', async function () {
     const flow = new Flow();
     const block = flow.createBlock('a');
     const output = flow.createBlock('b');
-    block.setValue('#is', 'react-test:dynamic-output');
-    output.setValue('#is', 'react-test:dynamic-output');
-    output.updateValue('#output', <span>nested output</span>);
-    block.updateValue('#output', output);
+    block.setValue('#is', 'react-test:dynamic-main');
+    output.setValue('#is', 'react-test:dynamic-main');
+    output.updateValue('#main', <span>nested output</span>);
+    block.updateValue('#main', output);
 
     await root.waitRender(<TicloComp block={block} />);
     expect(root.div.children[0]).toBeInstanceOf(HTMLSpanElement);
     expect(root.div.textContent).toBe('nested output');
   });
 
-  it('does not render non-dynamic outputs', async function () {
+  it('does not use #output as a component entry', async function () {
     const flow = new Flow();
     const block = flow.createBlock('a');
-    block.setValue('#is', 'react-test:fixed-output');
+    block.setValue('#is', 'react-test:dynamic-output');
     block.updateValue('#output', <span>hidden</span>);
 
     await root.waitRender(<TicloComp block={block} />);
     expect(root.div.children.length).toBe(0);
+  });
+
+  it('renders a flow through its #main component tree', async function () {
+    const flow = new Flow();
+    await root.waitRender(<TicloComp block={flow} />);
+    expect(root.div.children.length).toBe(0);
+
+    flow.load({
+      '#is': '',
+      '#main': {
+        '#is': 'react:div',
+        '#order': ['title'],
+        'title': {'#is': 'react:span', 'content': 'Hello'},
+      },
+    });
+    await root.waitRender();
+    expect(root.div.firstElementChild).toBeInstanceOf(HTMLDivElement);
+    expect(root.div.firstElementChild.firstElementChild).toBeInstanceOf(HTMLSpanElement);
+    expect(root.div.textContent).toBe('Hello');
+
+    flow.deleteValue('#main');
+    await root.waitRender();
+    expect(root.div.children.length).toBe(0);
+    flow.destroy();
+  });
+
+  it('renders a worker #main block output alongside a data #output', async function () {
+    const flow = new Flow();
+    WorkerFunctionGen.registerType(
+      {
+        '#is': '',
+        '#inputs': {'#is': '', '#custom': [{name: 'label', type: 'string'}]},
+        '#main': {'#is': 'react:div', '~content': '##.#inputs.label'},
+        '#outputs': {
+          '#is': '',
+          '#custom': [
+            {name: '#main', type: 'block'},
+            {name: '#output', type: 'number'},
+          ],
+          '~#main': '##.#main',
+          '#output': 17,
+        },
+      },
+      {id: ':component', name: 'component'},
+      undefined,
+      flow.getFuncLib()
+    );
+    const block = flow.createBlock('component');
+    block.setValue('#is', ':component');
+    block.setValue('label', 'Worker');
+    Root.run();
+
+    const worker = block.getValue('#worker') as Flow;
+    expect(block.getValue('#main')).toBe(worker.getValue('#main'));
+    expect(block.getValue('#output')).toBe(17);
+    await root.waitRender(<TicloComp block={block} />);
+    expect(root.div.textContent).toBe('Worker');
+
+    block.setValue('label', 'Updated');
+    Root.run();
+    await root.waitRender();
+    expect(root.div.textContent).toBe('Updated');
+
+    await root.waitRender(<TicloComp block={worker} />);
+    expect(root.div.textContent).toBe('Updated');
+    flow.destroy();
+  });
+
+  it('renders the #main result of react:to-component', async function () {
+    const flow = new Flow();
+    const component = flow.createBlock('component');
+    component.setValue('#is', 'react:span');
+    component.setValue('content', 'Converted');
+    const block = flow.createBlock('convert');
+    block.setValue('#is', 'react:to-component');
+    block.setValue('input', component);
+    Root.run();
+
+    expect(React.isValidElement(block.getValue('#main'))).toBe(true);
+    expect(block.getValue('#output')).toBeUndefined();
+    await root.waitRender(<TicloComp block={block} />);
+    expect(root.div.textContent).toBe('Converted');
+    flow.destroy();
   });
 
   it('renders components registered in global function metadata', async function () {

@@ -6,14 +6,14 @@ class ToReactComponentFunction extends PureFunction {
   run() {
     const block = this._data.getValue('input');
     if (block instanceof Block) {
-      this._data.output(<TicloComp block={block} key={block._blockId} />);
+      this._data.output(<TicloComp block={block} key={block._blockId} />, '#main');
       return;
     }
     if (typeof block === 'string' || typeof block === 'number') {
-      this._data.output(block);
+      this._data.output(block, '#main');
       return;
     }
-    this._data.output(null);
+    this._data.output(null, '#main');
   }
 }
 
@@ -24,7 +24,7 @@ globalFunctions.addFactory(
     tags: ['react-comp'],
     properties: [
       {name: 'input', type: 'block', pinned: true},
-      {name: '#output', type: 'any', readonly: true, pinned: true},
+      {name: '#main', type: 'any', readonly: true, pinned: true},
     ],
   },
   'react'

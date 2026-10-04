@@ -57,25 +57,15 @@ function isPropsEqual(a: Record<string, unknown>, b: Record<string, unknown>) {
   return true;
 }
 
-function hasDynamicOutput(block: Block, functionId: string) {
-  if (!functionId) {
-    return false;
-  }
-  const desc = Namespace.getFunctions(functionId, block._flow)?.getDescToSend(functionId)[0];
-  return desc?.properties?.some((prop) => {
-    return prop.type === 'any' && prop.name === '#output' && prop.readonly;
-  });
-}
-
-export function TicloOutputComp<T extends BaseProps = BaseProps>(props: T) {
+export function TicloMainComp<T extends BaseProps = BaseProps>(props: T) {
   const {block} = props;
-  const output = useBlockValue(block, '#output');
+  const main = useBlockValue(block, '#main');
 
-  if (output instanceof Block) {
-    return <TicloComp {...props} block={output} key={output._blockId} />;
+  if (main instanceof Block) {
+    return <TicloComp {...props} block={main} key={main._blockId} />;
   }
-  if (isValidElement(output)) {
-    return output;
+  if (isValidElement(main)) {
+    return main;
   }
   return null;
 }
@@ -94,10 +84,7 @@ export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
     if (C) {
       return <C {...propsRef.current} key={block._blockId} />;
     }
-    if (hasDynamicOutput(block, functionId)) {
-      return <TicloOutputComp {...propsRef.current} key={block._blockId} />;
-    }
-    return null;
+    return <TicloMainComp {...propsRef.current} key={block._blockId} />;
   }, [functionId, C, propsRef.current]);
 }
 

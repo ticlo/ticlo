@@ -1,4 +1,4 @@
-import {Block, BlockChildWatch, InputsBlock, Runnable} from './Block.ts';
+import {Block, BlockChildWatch, InputsBlock, OutputsBlock, Runnable} from './Block.ts';
 import {BlockConfig, BlockIO, BlockProperty, ContextProperty} from './BlockProperty.ts';
 import {Resolver} from './Resolver.ts';
 import {
@@ -182,7 +182,24 @@ export class Flow extends Block {
   }
 
   save(): DataMap {
-    return super._save();
+    const data = super._save();
+    const main = this._props.get('#main');
+    const outputs = data['#outputs'] as DataMap;
+    if (
+      main?._saved instanceof Block &&
+      main._saved._prop === main &&
+      this._props.get('#outputs')?._saved instanceof OutputsBlock &&
+      outputs &&
+      !Object.hasOwn(outputs, '#main') &&
+      !Object.hasOwn(outputs, '~#main')
+    ) {
+      outputs['~#main'] = '##.#main';
+      const custom = outputs['#custom'];
+      if (!Array.isArray(custom) || !custom.some((prop) => prop.name === '#main')) {
+        outputs['#custom'] = [...(Array.isArray(custom) ? custom : []), {name: '#main', type: 'block'}];
+      }
+    }
+    return data;
   }
 
   _applyChange: FlowLoader['applyChange'];

@@ -246,6 +246,7 @@ export const FlowConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#is': ConstTypeConfig('flow:main'),
   '#inputs': BlockInputsConfig,
   '#outputs': BlockOutputsConfig,
+  '#main': BlockIO,
   '#functions': BlockFunctionsConfig,
   '#shared': BlockConstConfig,
 };

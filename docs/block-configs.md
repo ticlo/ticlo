@@ -46,10 +46,40 @@ Read-only; never write these into flow files:
 | `#name` | Block name |
 | `#+` | Namespace root |
 
-## Worker data and readiness
+## Worker data
 
 Workers receive inputs through `#inputs` and publish through `#outputs`.
 `#input` and `#output` are conventional default names; named IO is supported.
+
+## Component root
+
+`#main` is a flow's UI root Block and is included in its node tree. `TicloComp`
+uses a registered React renderer when available; otherwise it renders the Block
+or React element in `#main`. `#output` remains the default data output.
+
+A reusable UI worker publishes its root as a named `#main` output:
+
+```json
+{
+  "#is": "",
+  "#main": {"#is": "react:div", "content": "Hello"},
+  "#outputs": {
+    "#is": "",
+    "#custom": [{"name": "#main", "type": "block"}],
+    "~#main": "##.#main"
+  }
+}
+```
+
+The worker instance's `#main` references the same root Block. `react:to-component`
+also publishes its render result through `#main`.
+
+When saving a flow with an owned `#main` Block and an existing `#outputs` Block,
+Ticlo adds the binding above if the output has no saved `#main` value or binding.
+It also adds the `block` custom property if missing, so the worker descriptor
+exposes the output. Existing output definitions and descriptors are preserved.
+
+## Worker readiness
 
 `#wait` signals pending work. Clearing it lets `WorkerFlow` report readiness
 after resolution; setting it on `#outputs` forwards readiness to the flow.

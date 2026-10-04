@@ -39,4 +39,25 @@ describe('BlockConfig', function () {
     expect(block.getValue('#is')).toBe('');
     expect(flow.save()).toEqual({'#is': '', 'obj': {'@is': 'add', '#is': ''}});
   });
+
+  it('saves and enumerates the #main component tree', function () {
+    const data = {
+      '#is': '',
+      '#main': {'#is': '', 'title': {'#is': '', 'content': 'Hello'}},
+    };
+    const flow = new Flow();
+    flow.load(data);
+
+    const fields: string[] = [];
+    flow.forEach((field) => fields.push(field));
+    expect(fields).toEqual(['#main']);
+    expect(flow.queryValue('#main.title.content')).toBe('Hello');
+    expect(flow.save()).toEqual(data);
+
+    const reloaded = new Flow();
+    reloaded.load(flow.save());
+    expect(reloaded.queryValue('#main.title.content')).toBe('Hello');
+    reloaded.destroy();
+    flow.destroy();
+  });
 });
