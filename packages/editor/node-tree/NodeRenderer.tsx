@@ -473,16 +473,12 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   descCallback = (desc: FunctionDesc) => {
     desc = desc || blankFuncDesc;
-    if (desc !== this.state.desc) {
-      this.safeSetState({desc});
-      if (desc.dynamicStyle) {
-        const {item} = this.props;
-        this.styleListener.subscribe(item.connection, `${item.key}.@b-style`, true);
-      } else {
-        this.styleListener.unsubscribe();
-      }
+    this.safeSetState({desc});
+    if (desc.dynamicStyle) {
+      const {item} = this.props;
+      this.styleListener.subscribe(item.connection, `${item.key}.@b-style`, true);
     } else {
-      this.forceUpdate();
+      this.styleListener.unsubscribe();
     }
   };
 

@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
-import {NodeTree, initEditor} from '../../index.ts';
+import {BlockStage, NodeTree, initEditor} from '../../index.ts';
 import type {Block} from '@ticlo/core';
 import {Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -117,6 +117,36 @@ describe('editor NodeTree', function () {
 
     // Test is complete, no additional cleanup needed here
     // The flow will be cleaned up in afterEach
+  });
+
+  it('keeps icons on first expansion when the flow is already open in the stage', async function () {
+    Root.instance.addFlow('NodeTree', {child: {'#is': 'add', '@b-xyw': [0, 0, 150]}});
+    [server, client] = makeLocalConnection(Root.instance);
+    let tree: NodeTree;
+    const [, div] = loadTemplate(
+      <>
+        <BlockStage conn={client} basePath="NodeTree" style={{width: 600, height: 300}} />
+        <NodeTree
+          ref={(value) => {
+            tree = value;
+          }}
+          conn={client}
+          basePaths={['NodeTree']}
+          style={{width: 600, height: 300}}
+        />
+      </>,
+      'editor'
+    );
+    await shouldHappen(() => div.querySelector('.ticl-block .tico-fas-plus'));
+    const expand = await shouldHappen(() =>
+      querySingle("//div.ticl-tree-node-text[text()='NodeTree']/../../div.ticl-tree-arr", div)
+    );
+    simulate(expand, 'click');
+    await shouldHappen(() => tree.list.find((item) => item.name === 'child')?.funcLib);
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const row = querySingle("//div.ticl-tree-node-text[text()='child']/..", div);
+    expect(row.querySelector('.tico-fas-plus')).not.toBeNull();
+    expect(row.querySelector('.tico-fas-question')).toBeNull();
   });
 
   it('uses #order config for child order', async function () {
