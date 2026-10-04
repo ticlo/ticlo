@@ -80,8 +80,8 @@ describe('Move command', () => {
       {denyCmds: ['move']},
       {allowDeleteBlock: false},
       {allowCreateBlock: false},
-      {denyPaths: ['Main.target.**']},
-      {allowPaths: ['Main.source', 'Main.source.**']},
+      {allowPaths: ['Main.target']},
+      {allowPaths: ['Main.source']},
     ];
     for (const policy of policies) {
       await expect(client.withPolicy(policy).move('Main.source', ['a'], 'Main.target')).rejects.toBeTypeOf('string');
@@ -90,7 +90,13 @@ describe('Move command', () => {
     }
     (original as Block).setValue('reference', root.queryValue('Other'));
     server.setEditPolicy({allowPaths: ['Main', 'Main.**']});
-    expect((await client.move('Main.source', ['a'], 'Main.target')).moved).toEqual(['a']);
+    expect(
+      (
+        await client
+          .withPolicy({allowPaths: ['Main'], denyPaths: ['Main.target.**']})
+          .move('Main.source', ['a'], 'Main.target')
+      ).moved
+    ).toEqual(['a']);
     expect(root.queryValue('Main.source.a')).toBeUndefined();
     expect(root.queryValue('Main.target.a')).toBeInstanceOf(Block);
   });

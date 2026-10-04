@@ -7,7 +7,7 @@ describe('EditPolicy', () => {
     for (const cmd of ['loadFlow', 'unloadFlow', 'enableFlow', 'disableFlow']) {
       expect(checkEditPolicy({allowPaths: ['+main.**']}, {cmd, path: '+main.entry'})).toBeNull();
       expect(checkEditPolicy({allowPaths: ['+main.**']}, {cmd, path: '+shared.:tools'})).toBe('restricted path');
-      expect(checkEditPolicy({denyPaths: ['+main.entry.secret']}, {cmd, path: '+main.entry'})).toBe('restricted path');
+      expect(checkEditPolicy({denyPaths: ['+main.entry.secret']}, {cmd, path: '+main.entry'})).toBeNull();
       expect(checkEditPolicy({denyCmds: [cmd]}, {cmd, path: '+main.entry'})).toBe('restricted command');
     }
     expect(checkEditPolicy({allowCmds: [], allowPaths: []}, {cmd: 'getFlowState', path: '+main.entry'})).toBeNull();
@@ -64,21 +64,31 @@ describe('EditPolicy', () => {
     expect(view.canBindField('Main.block0.value1')).toBe(false);
   });
 
-  it('protects denied numeric descendants during whole-block operations', () => {
+  it('inherits writable paths without allowing denied descendants to revoke a grant', () => {
     const view = new EditPolicyView({denyPaths: ['Main.block?.hidden']});
-    expect(view.canDeleteBlock('Main.block12')).toBe(false);
-    expect(view.canDeleteBlock('Main')).toBe(false);
+    expect(view.canDeleteBlock('Main.block12')).toBe(true);
+    expect(view.canDeleteBlock('Main')).toBe(true);
     expect(view.canDeleteBlock('Main.other')).toBe(true);
     expect(new EditPolicyView({allowPaths: ['Main.block?.**']}).canDeleteBlock('Main.block12')).toBe(false);
     expect(new EditPolicyView({allowPaths: ['Main.**']}).canDeleteBlock('Main.block12')).toBe(true);
     expect(new EditPolicyView({denyPaths: ['Main.a']}).canDeleteBlock('Main.ab')).toBe(true);
+    const policy = {allowPaths: ['Main'], denyPaths: ['Main.block?', 'Main.block?.**']};
+    for (const mode of ['client', 'preview'] as const) {
+      for (const cmd of ['set', 'bind', 'deleteBlock', 'setLen', 'applyFlowChange']) {
+        expect(checkEditPolicy(policy, {cmd, path: 'Main.block12.hidden'}, undefined, mode)).toBeNull();
+        expect(checkEditPolicy(policy, {cmd, path: 'Other.block12.hidden'}, undefined, mode)).toBe('restricted path');
+      }
+      expect(checkEditPolicy({...policy, denyPaths: ['Main']}, {cmd: 'set', path: 'Main.value'}, undefined, mode)).toBe(
+        'restricted path'
+      );
+    }
   });
 
   it('applies all top-level limits while leaving reads and subscriptions available', () => {
     const policy = {allowPaths: ['Main.**'], denyPaths: ['Main.secret.**'], allowProps: ['value'], denyCmds: ['bind']};
     expect(checkEditPolicy(policy, {cmd: 'set', path: 'Main.a.value', value: 1})).toBeNull();
     expect(checkEditPolicy(policy, {cmd: 'set', path: 'Other.a.value'})).toBe('restricted path');
-    expect(checkEditPolicy(policy, {cmd: 'set', path: 'Main.secret.value'})).toBe('restricted path');
+    expect(checkEditPolicy(policy, {cmd: 'set', path: 'Main.secret.value'})).toBeNull();
     expect(checkEditPolicy(policy, {cmd: 'set', path: 'Main.a.other'})).toBe('restricted property');
     expect(checkEditPolicy(policy, {cmd: 'bind', path: 'Main.a.value'})).toBe('restricted command');
     for (const cmd of ['get', 'watch', 'subscribe', 'watchDesc', 'getSettings', 'copy', 'undo', 'redo']) {
@@ -91,8 +101,72 @@ describe('EditPolicy', () => {
     expect(view.canWriteField('Main.a.other')).toBe(false);
   });
 
+  it('retains property and binding limits throughout a writable subtree', () => {
+    const policy = {allowPaths: ['Main'], denyPaths: ['Main.child.**'], denyProps: ['secret']};
+    for (const mode of ['client', 'preview'] as const) {
+      for (const cmd of ['set', 'bind']) {
+        expect(checkEditPolicy(policy, {cmd, path: 'Main.child.value'}, undefined, mode)).toBeNull();
+        expect(checkEditPolicy(policy, {cmd, path: 'Main.child.secret'}, undefined, mode)).toBe('restricted property');
+      }
+      expect(
+        checkEditPolicy(policy, {cmd: 'set', path: 'Main.child', value: {'#is': 'add', 'secret': 1}}, undefined, mode)
+      ).toBe('restricted property');
+      expect(
+        checkEditPolicy(
+          policy,
+          {cmd: 'paste', path: 'Main', data: {child: {'#is': 'add', 'secret': 1}}},
+          undefined,
+          mode
+        )
+      ).toBe('restricted property');
+      expect(
+        checkEditPolicy(
+          {...policy, allowBinding: ['secret']},
+          {cmd: 'bind', path: 'Main.child.secret'},
+          undefined,
+          mode
+        )
+      ).toBeNull();
+      expect(
+        checkEditPolicy({...policy, allowBinding: ['secret']}, {cmd: 'bind', path: 'Main.child.value'}, undefined, mode)
+      ).toBe('restricted binding');
+    }
+  });
+
+  it('skips payload traversal and block lookups when the target subtree has no extra write limits', () => {
+    const data = Object.defineProperty({'#is': 'add'}, 'child', {
+      enumerable: true,
+      get() {
+        throw new Error('the writable subtree must not be traversed');
+      },
+    });
+    const lookup = () => {
+      throw new Error('the writable subtree must not be looked up');
+    };
+    for (const mode of ['client', 'preview'] as const) {
+      for (const cmd of ['set', 'bind', 'restoreSaved', 'addBlock', 'paste', 'copy']) {
+        expect(
+          checkEditPolicy(
+            {allowPaths: ['Main'], denyPaths: ['Main.child.**']},
+            {cmd, path: 'Main', value: data, data, cut: true, props: ['child']},
+            lookup,
+            mode
+          )
+        ).toBeNull();
+      }
+    }
+  });
+
+  it('permits selected child edits without granting their parent', () => {
+    const policy = {allowPaths: ['Main.child']};
+    expect(checkEditPolicy(policy, {cmd: 'paste', path: 'Main', data: {child: {'#is': 'add', 'value': 1}}})).toBeNull();
+    expect(checkEditPolicy(policy, {cmd: 'copy', path: 'Main', cut: true, props: ['child']})).toBeNull();
+    expect(checkEditPolicy(policy, {cmd: 'paste', path: 'Main', data: {other: 1}})).toBe('restricted path');
+    expect(checkEditPolicy(policy, {cmd: 'copy', path: 'Main', cut: true, props: ['other']})).toBe('restricted path');
+  });
+
   it('checks creation through set and nested paste, and separates creation from type changes', () => {
-    const policy = {allowCreateBlock: false};
+    const policy = {allowPaths: ['Main'], allowCreateBlock: false};
     expect(checkEditPolicy(policy, {cmd: 'set', path: 'Main.a', value: {'#is': 'add'}})).toBe(
       'restricted block creation'
     );
@@ -133,11 +207,12 @@ describe('EditPolicy', () => {
       expect(checkEditPolicy({allowPaths: ['Main.add', 'Main.add.**']}, request, undefined, mode)).toBe(
         'restricted path'
       );
-      expect(checkEditPolicy({allowPaths: ['Main.**']}, request, undefined, mode)).toBeNull();
+      expect(checkEditPolicy({allowPaths: ['Main']}, request, undefined, mode)).toBeNull();
+      expect(checkEditPolicy({allowPaths: ['Main.**']}, request, undefined, mode)).toBe('restricted path');
       expect(checkEditPolicy({allowPaths: [], readonlyPaths: ['Main', 'Main.**']}, request, undefined, mode)).toBe(
         'restricted path'
       );
-      expect(checkEditPolicy({denyPaths: ['Main.other.**']}, request, undefined, mode)).toBe('restricted path');
+      expect(checkEditPolicy({denyPaths: ['Main.other.**']}, request, undefined, mode)).toBeNull();
       expect(checkEditPolicy({allowBlockTypes: ['subtract']}, request, undefined, mode)).toBe('restricted block type');
       expect(checkEditPolicy({allowCreateBlock: false}, request, undefined, mode)).toBe('restricted block creation');
     }
@@ -205,7 +280,7 @@ describe('EditPolicy', () => {
       expect(view.canBindField('Main.value')).toBe(true);
       expect(view.canWriteField('Main.value')).toBe(false);
       expect(checkEditPolicy(policy, {cmd: 'paste', path: 'Main', data: {'~value': 'source'}})).toBeNull();
-      expect(new EditPolicyView({...policy, denyPaths: ['Main.**']}).canBindField('Main.value')).toBe(false);
+      expect(new EditPolicyView({...policy, allowPaths: ['Other']}).canBindField('Main.value')).toBe(false);
       expect(new EditPolicyView({...policy, denyCmds: ['bind']}).canBindField('Main.value')).toBe(false);
     }
   });

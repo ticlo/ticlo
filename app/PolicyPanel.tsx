@@ -34,7 +34,7 @@ const editCommands = [
 ] as const;
 
 const listFields = [
-  ['allowPaths', 'Allowed paths', 'example.**'],
+  ['allowPaths', 'Allowed paths', 'example'],
   ['denyPaths', 'Denied paths', 'example.locked.**'],
   ['allowProps', 'Allowed fields', 'value?, title'],
   ['denyProps', 'Denied fields', '#is, @b-*'],
@@ -88,7 +88,7 @@ export function PolicyPanel({onChange}: {onChange: (policy?: EditPolicy) => void
           <Button size="small" onClick={() => preset({allowCmds: []})}>
             Read only
           </Button>
-          <Button size="small" onClick={() => preset({allowPaths: ['example.**']})}>
+          <Button size="small" onClick={() => preset({allowPaths: ['example']})}>
             Example flow
           </Button>
           <Button size="small" onClick={() => preset({allowProps: ['value*']})}>
@@ -101,6 +101,8 @@ export function PolicyPanel({onChange}: {onChange: (policy?: EditPolicy) => void
         <div style={{fontSize: 12}}>
           Enable a list to apply it. An empty allow list permits nothing. Separate entries with commas or newlines. *
           matches within one level; .** matches descendants, excluding the parent; ? matches one or more digits (0-9).
+          Allowed paths grant all descendants. Denied descendants cannot revoke an allowed parent. Other restrictions
+          still apply.
         </div>
         {listFields.map(([key, label, placeholder]) => (
           <div key={key}>

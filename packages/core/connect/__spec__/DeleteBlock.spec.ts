@@ -117,8 +117,8 @@ describe('Delete block command', () => {
     const policies: EditPolicy[] = [
       {denyCmds: ['deleteBlock']},
       {allowDeleteBlock: false},
-      {denyPaths: ['Main.parent.a.nested']},
-      {denyPaths: ['Main.parent.#order']},
+      {allowPaths: ['Main.other']},
+      {allowPaths: ['Main.parent.a']},
       {denyProps: ['#order']},
     ];
     const original = parent.getValue('a');
@@ -128,14 +128,16 @@ describe('Delete block command', () => {
       expect(parent.getValue('#order')).toEqual(['a', 'b', 'missing', 'a']);
     }
     flow.setValue('reference', parent);
-    await expect(
-      client.withPolicy({denyPaths: ['Main.reference.#order']}).deleteBlock('Main.reference.a')
-    ).rejects.toBe('restricted path');
+    await expect(client.withPolicy({allowPaths: ['Main.reference.a']}).deleteBlock('Main.reference.a')).rejects.toBe(
+      'restricted path'
+    );
     expect(parent.getValue('a')).toBe(original);
     expect(new EditPolicyView({denyCmds: ['deleteBlock']}).canDeleteBlock('Main.parent.a')).toBe(false);
     expect(new EditPolicyView({allowCmds: ['deleteBlock']}).canDeleteBlock('Main.parent.a')).toBe(true);
     server.setEditPolicy({allowCmds: ['deleteBlock'], allowPaths: ['Main.**']});
-    await client.deleteBlock('Main.parent.a');
+    await client
+      .withPolicy({allowPaths: ['Main.parent'], denyPaths: ['Main.parent.a.nested', 'Main.parent.#order']})
+      .deleteBlock('Main.parent.a');
     expect(parent.getValue('#order')).toEqual(['b', 'missing']);
   });
 

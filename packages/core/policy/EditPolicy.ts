@@ -3,7 +3,8 @@ import {splitPathName} from '../util/Path.ts';
 
 /**
  * Serializable editing limits. Omitted allow lists permit all; empty ones permit none.
- * Deny lists take priority within each dimension, and all dimensions must allow the edit.
+ * Client path grants include the complete subtree; denied descendants cannot revoke an ancestor grant.
+ * Command, property, binding and block restrictions still apply independently.
  * For bindings, allowBinding replaces allowProps/denyProps when supplied.
  * Paths, field names and block types support `*`, `**` and numeric `?`; commands use exact names.
  * Fine-grained limits apply on the client. Writable policies bypass server policy checks.
@@ -12,12 +13,13 @@ import {splitPathName} from '../util/Path.ts';
 export interface EditPolicy {
   /** The server's only write restriction. Defaults to false. */
   readonly readonly?: boolean;
-  /** Client writable paths; also readable paths for readonly servers. `.**` matches descendants only. */
+  /** Client writable paths grant every descendant. Readonly server reads do not inherit grants. */
   readonly allowPaths?: readonly string[];
   /** Additional read paths for readonly servers. Does not narrow allowPaths; denyPaths takes priority.
    * For example, allowPaths: ['Main.**'], readonlyPaths: ['Main'] also permits watching Main itself.
    */
   readonly readonlyPaths?: readonly string[];
+  /** Cancels matching client grants, but cannot revoke an ancestor grant. Readonly server denies take priority. */
   readonly denyPaths?: readonly string[];
   readonly allowCmds?: readonly string[];
   readonly denyCmds?: readonly string[];
@@ -160,39 +162,39 @@ export function checkEditPolicy(
   const autoName = cmd === 'addBlock' && Boolean(request.findName);
   const paths = policy.allowPaths;
 
-  const checkPath = (target: string) => (allowed(paths, policy.denyPaths, target) ? null : 'restricted path');
-  const checkProp = (target: string) => {
+  const checkPath = (target: string): string | null =>
+    allowed(paths, policy.denyPaths, target) ? null : target ? checkPath(splitPathName(target)[0]) : 'restricted path';
+  const checkProp = (target: string, binding = false) => {
+    const error = checkPath(target);
+    if (error) return error;
     const name = splitPathName(target)[1];
-    return checkPath(target) || (allowed(policy.allowProps, policy.denyProps, name) ? null : 'restricted property');
+    if (binding && policy.allowBinding != null)
+      return allowed(policy.allowBinding, undefined, name) ? null : 'restricted binding';
+    return allowed(policy.allowProps, policy.denyProps, name) ? null : 'restricted property';
   };
-  const checkBinding = (target: string) =>
-    policy.allowBinding == null
-      ? checkProp(target)
-      : checkPath(target) ||
-        (allowed(policy.allowBinding, undefined, splitPathName(target)[1]) ? null : 'restricted binding');
   const checkType = (type: unknown) => {
-    if (type === undefined) return null; // UI capability query, before choosing a type
+    if (type === undefined && policy.allowBlockTypes?.length !== 0) return null; // UI capability query
     return typeof type === 'string' && allowed(policy.allowBlockTypes, policy.denyBlockTypes, type)
       ? null
       : 'restricted block type';
   };
   const hasFieldLimits = policy.allowProps != null || Boolean(policy.denyProps?.length);
+  const hasTypeLimits = policy.allowBlockTypes != null || Boolean(policy.denyBlockTypes?.length);
   const hasStructureLimits =
     policy.allowBinding != null ||
     policy.allowCreateBlock === false ||
     policy.allowDeleteBlock === false ||
     policy.allowChangeBlockType === false ||
-    policy.allowBlockTypes != null ||
-    Boolean(policy.denyBlockTypes?.length);
+    hasTypeLimits;
+  const hasWriteLimits = hasFieldLimits || hasStructureLimits;
+  if (!hasWriteLimits) lookup = undefined;
 
-  // Commands with broad or opaque effects require an unrestricted subtree.
   // Schema changes can affect fields beyond those explicitly named in a request.
-  const checkWhole = (target: string, checkStructure = true): string | null => {
-    if (hasFieldLimits || (checkStructure && hasStructureLimits)) return 'restricted operation';
-    return checkDescendants(paths, policy.denyPaths, target) || checkPath(target);
-  };
+  const checkWhole = (target: string, checkStructure = true): string | null =>
+    hasFieldLimits || (checkStructure && hasStructureLimits) ? 'restricted operation' : checkPath(target);
 
   const checkData = (target: string, data: DataMap, creating = false): string | null => {
+    if (!hasWriteLimits && !checkPath(target)) return null;
     for (const [name, value] of Object.entries(data)) {
       if (!creating && name === '#_copy_from') continue; // Clipboard metadata is not written to the block.
       const field = name.startsWith('~') && typeof value === 'string' ? name.slice(1) : name;
@@ -226,45 +228,36 @@ export function checkEditPolicy(
         )
           return 'restricted binding';
       }
-      const bindingError = checkBinding(`${parent}.${name.slice(1)}`);
+      const bindingError = checkProp(`${parent}.${name.slice(1)}`, true);
       if (bindingError) return bindingError;
     }
     return data ? checkData(target, data, true) : null;
   };
-  const checkDelete = (target: string): string | null => {
-    if (policy.allowDeleteBlock === false) return 'restricted block deletion';
-    return checkWhole(target, false);
-  };
+  const checkDelete = (target: string): string | null =>
+    policy.allowDeleteBlock === false ? 'restricted block deletion' : checkWhole(target, false);
   const checkValue = (target: string, value: unknown, hasValue: boolean, binding = false): string | null => {
+    if (!hasWriteLimits) return checkPath(target);
     // Automatically named blocks do not replace the requested name's existing subtree.
-    const existing = !autoName && !(cmd === 'paste' && request.resolve === 'rename') && lookup?.(target);
-    if (hasValue && existing) {
+    const existing = hasValue && !autoName && !(cmd === 'paste' && request.resolve === 'rename') && lookup?.(target);
+    if (existing) {
       // Replacing a block can remove children omitted from the payload.
       const error = checkDelete(target);
       if (error) return error;
     }
     if (isSavedBlock(value) && typeof value['#is'] !== 'object') {
       if (existing && policy.allowChangeBlockType === false) return 'restricted block type change';
-      if (
-        typeof value['~#is'] === 'string' &&
-        (policy.allowBlockTypes || policy.denyBlockTypes?.length || policy.allowChangeBlockType === false)
-      )
+      if (typeof value['~#is'] === 'string' && (hasTypeLimits || policy.allowChangeBlockType === false))
         return 'restricted block type';
       return checkCreate(target, value);
     }
-    const error = binding || cmd === 'bind' ? checkBinding(target) : checkProp(target);
+    binding ||= cmd === 'bind';
+    const error = checkProp(target, binding);
     if (error) return error;
     const field = splitPathName(target)[1];
-    if (field === '#is' || field === '~#is') {
-      if (policy.allowChangeBlockType === false) return 'restricted block type change';
-      if (policy.allowBlockTypes?.length === 0) return 'restricted block type';
-      if (binding || cmd === 'bind' || field === '~#is') {
-        if (policy.allowBlockTypes || policy.denyBlockTypes?.length) return 'restricted block type';
-      } else if (hasValue) {
-        return checkType(value ?? '');
-      }
-    }
-    return null;
+    if (field !== '#is' && field !== '~#is') return null;
+    if (policy.allowChangeBlockType === false) return 'restricted block type change';
+    if (binding || field === '~#is') return hasTypeLimits ? 'restricted block type' : null;
+    return checkType(hasValue ? (value ?? '') : undefined);
   };
 
   switch (cmd) {
@@ -279,8 +272,7 @@ export function checkEditPolicy(
       return checkValue(path, undefined, false) || (lookup?.(path) ? checkDelete(path) : null);
     case 'restoreSaved':
       // The saved type is not present in the request, so it cannot be checked against a type list.
-      if (splitPathName(path)[1] === '#is' && (policy.allowBlockTypes || policy.denyBlockTypes?.length))
-        return 'restricted block type';
+      if (splitPathName(path)[1] === '#is' && hasTypeLimits) return 'restricted block type';
       return checkValue(path, undefined, false) || (lookup?.(path) ? checkWhole(path) : null);
     case 'addBlock':
       if (request.orderIndex !== undefined) {
@@ -288,11 +280,7 @@ export function checkEditPolicy(
         const error = checkProp(parent ? `${parent}.#order` : '#order');
         if (error) return error;
       }
-      if (autoName) {
-        // The name is unknown until execution, so every descendant path must be writable.
-        const error = checkDescendants(paths, policy.denyPaths, splitPathName(path)[0]);
-        return error || checkCreate(path, request.data as DataMap);
-      }
+      if (autoName) return checkPath(splitPathName(path)[0]) || checkCreate(path, request.data as DataMap);
     // Explicit names only require permission for the target.
     case 'addFlow':
     case 'addFlowFolder':
@@ -341,16 +329,6 @@ export function checkEditPolicy(
     case 'insertGroupProp':
     case 'removeGroupProp':
     case 'moveGroupProp':
-      return checkWhole(path);
-    case 'renameProp': {
-      // Renaming may rewrite inbound links anywhere in the root.
-      const error = checkWhole('');
-      return (
-        error ||
-        checkProp(path) ||
-        (request.newName == null ? null : checkProp(`${splitPathName(path)[0]}.${request.newName}`))
-      );
-    }
     case 'loadFlow':
     case 'unloadFlow':
     case 'enableFlow':
@@ -362,7 +340,8 @@ export function checkEditPolicy(
     case 'executeCommand':
     case 'editWorker':
     case 'deleteFunction':
-      // Opaque commands can affect other flows or function libraries.
+    case 'renameProp':
+      // Opaque commands and inbound link rewrites can affect the whole root.
       return checkWhole('');
     default:
       return 'restricted command';

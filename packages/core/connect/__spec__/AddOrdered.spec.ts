@@ -90,7 +90,7 @@ describe('Add block with orderIndex', () => {
   it('checks client #order permissions, including paths through a reference', async () => {
     const parent = root.queryValue('Main.parent') as Block;
     const properties = [...parent._props.keys()];
-    for (const policy of [{denyProps: ['#order']}, {denyPaths: ['Main.parent.#order']}, {allowCreateBlock: false}]) {
+    for (const policy of [{denyProps: ['#order']}, {allowPaths: ['Main.parent.new']}, {allowCreateBlock: false}]) {
       await expect(client.withPolicy(policy).addBlock('Main.parent.new', {'#is': childId}, true, 1)).rejects.toBeTypeOf(
         'string'
       );

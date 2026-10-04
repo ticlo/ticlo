@@ -139,8 +139,8 @@ describe('Move ordered command', () => {
       {denyCmds: ['moveOrdered']},
       {allowDeleteBlock: false},
       {allowCreateBlock: false},
-      {denyPaths: ['Main.source.#order']},
-      {denyPaths: ['Main.target.#order']},
+      {allowPaths: ['Main.target']},
+      {allowPaths: ['Main.source']},
     ];
     for (const policy of policies) {
       await expect(client.withPolicy(policy).moveOrdered('Main.source', ['a'], 'Main.target')).rejects.toBeTypeOf(
