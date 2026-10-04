@@ -139,6 +139,9 @@ importers:
       '@ticlo/core':
         specifier: workspace:*
         version: link:packages/core
+      '@ticlo/designer':
+        specifier: workspace:*
+        version: link:packages/designer
       '@ticlo/editor':
         specifier: workspace:*
         version: link:packages/editor
@@ -316,6 +319,9 @@ importers:
       '@ticlo/core':
         specifier: workspace:*
         version: link:../packages/core
+      '@ticlo/designer':
+        specifier: workspace:*
+        version: link:../packages/designer
       '@ticlo/editor':
         specifier: workspace:*
         version: link:../packages/editor
@@ -398,6 +404,24 @@ importers:
       qs:
         specifier: ^6.16.0
         version: 6.16.0
+
+  packages/designer:
+    dependencies:
+      '@ticlo/core':
+        specifier: workspace:*
+        version: link:../core
+      '@ticlo/editor':
+        specifier: workspace:*
+        version: link:../editor
+      '@ticlo/react':
+        specifier: workspace:*
+        version: link:../react
+      react:
+        specifier: ^19.2.8
+        version: 19.2.8
+      react-dom:
+        specifier: ^19.2.8
+        version: 19.2.8(react@19.2.8)
 
   packages/editor:
     dependencies:

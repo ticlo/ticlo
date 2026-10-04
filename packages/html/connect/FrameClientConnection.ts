@@ -14,6 +14,7 @@ export class FrameClientConnection extends ClientConnection {
 
   reconnect() {
     window.addEventListener('message', this.onMessage);
+    this.remote.postMessage(encode({ticloReady: true}), '*');
     this.onConnect();
   }
 

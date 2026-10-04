@@ -23,6 +23,7 @@
     "@hono/node-ws": "^1.3.1",
     "@rc-component/picker": "^1.13.0",
     "@ticlo/core": "workspace:*",
+    "@ticlo/designer": "workspace:*",
     "@ticlo/editor": "workspace:*",
     "@ticlo/remote-storage": "workspace:*",
     "@ticlo/file-server": "^0.1.2",

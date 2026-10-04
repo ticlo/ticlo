@@ -1,0 +1,24 @@
+{
+  "name": "@ticlo/designer",
+  "version": "0.0.14",
+  "description": "Ticlo React page designer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ticlo/ticlo.git"
+  },
+  "author": "Rick Zhou",
+  "license": "MPL-2.0",
+  "type": "module",
+  "main": "./index.ts",
+  "module": "./index.ts",
+  "types": "./index.ts",
+  "dependencies": {
+    "@ticlo/core": "workspace:*",
+    "@ticlo/editor": "workspace:*",
+    "@ticlo/react": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}

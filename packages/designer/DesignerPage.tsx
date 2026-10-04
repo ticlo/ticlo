@@ -1,0 +1,20 @@
+import React from 'react';
+import {Block} from '@ticlo/core';
+import {TicloComp, useBlockValue} from '@ticlo/react';
+
+export function DesignerPage({block}: {block: Block}) {
+  const main = useBlockValue(block, '#main');
+  let page: React.ReactNode;
+  if (main instanceof Block) {
+    page = <TicloComp block={main} key={main._blockId} />;
+  } else if (React.isValidElement(main)) {
+    page = main;
+  } else {
+    page = <div style={{padding: 24}}>This flow has no #main component.</div>;
+  }
+  return (
+    <div className="ticl-designer-page" style={{height: '100%', overflow: 'auto', background: '#fff'}}>
+      {page}
+    </div>
+  );
+}

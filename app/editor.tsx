@@ -72,6 +72,7 @@ const antdLanMap: Record<string, Locale> = {
 
 interface Props {
   conn: ClientConnection;
+  initialFlow?: string;
 }
 
 interface State {
@@ -85,7 +86,7 @@ class App extends React.PureComponent<Props, State> {
   defaultDockLayout: any;
   constructor(props: Props) {
     super(props);
-    const {conn} = props;
+    const {conn, initialFlow} = props;
     this.defaultDockLayout = {
       dockbox: {
         mode: 'horizontal',
@@ -173,7 +174,7 @@ class App extends React.PureComponent<Props, State> {
           },
           {
             size: 800,
-            tabs: [/*this.createBlockEditorTab('test')*/],
+            tabs: initialFlow ? [this.createBlockEditorTab(initialFlow, () => conn.applyFlowChange(initialFlow))] : [],
             id: 'main',
             panelLock: {panelStyle: 'main'},
           },
@@ -276,7 +277,8 @@ class App extends React.PureComponent<Props, State> {
   const client = window.opener
     ? new FrameClientConnection(window.opener) // used by server-window.html
     : new MixedBrowserConnection(`http://127.0.0.1:8010/ticlo`); // used by ticlo-server
-  createRoot(document.getElementById('app')).render(<App conn={client} />);
+  const initialFlow = new URLSearchParams(location.search).get('flow') || undefined;
+  createRoot(document.getElementById('app')).render(<App conn={client} initialFlow={initialFlow} />);
 })();
 
 (window as any).Logger = Logger;

@@ -13,7 +13,6 @@ export class FrameServerConnection extends ServerConnection {
     super(root);
     this.checkClosedTimer = setInterval(this.checkClosed, 1000);
     window.addEventListener('message', this.onMessage);
-    this.onConnect();
   }
 
   checkClosed = () => {
@@ -32,7 +31,11 @@ export class FrameServerConnection extends ServerConnection {
     if (typeof e.data === 'string' && e.source === this.remote) {
       Logger.trace(() => 'server receive ' + e.data, this);
       const decoded = decode(e.data);
-      if (decoded && Array.isArray(decoded.ticloRequests)) {
+      if (decoded?.ticloReady) {
+        // The editor must be listening before we send its initial edit policy.
+        this.onConnect();
+        this.onReceive([]);
+      } else if (decoded && Array.isArray(decoded.ticloRequests)) {
         this.onReceive(decoded.ticloRequests);
       }
     }

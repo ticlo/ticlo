@@ -94,6 +94,7 @@ export default defineConfig({
       'packages/html/**/*.spec.ts',
       'packages/react/**/*.spec.(ts|tsx)',
       'packages/editor/**/*.spec.(ts|tsx)',
+      'packages/designer/**/*.spec.(ts|tsx)',
     ],
     setupFiles: ['packages/html/vitest.setup.ts'],
 

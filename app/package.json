@@ -22,6 +22,7 @@
   "dependencies": {
     "@hono/node-server": "^2.1.1",
     "@ticlo/core": "workspace:*",
+    "@ticlo/designer": "workspace:*",
     "@ticlo/editor": "workspace:*",
     "@ticlo/remote-storage": "workspace:*",
     "@ticlo/file-server": "^0.1.2",
