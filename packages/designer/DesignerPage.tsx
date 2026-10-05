@@ -1,9 +1,9 @@
 import React from 'react';
-import {Block} from '@ticlo/core';
+import {Block, type Flow} from '@ticlo/core';
 import {TicloComp, useBlockValue} from '@ticlo/react';
 
-export function DesignerPage({block}: {block: Block}) {
-  const main = useBlockValue(block, '#main');
+export function DesignerPage({flow}: {flow: Flow}) {
+  const main = useBlockValue(flow, '#main');
   let page: React.ReactNode;
   if (main instanceof Block) {
     page = <TicloComp block={main} key={main._blockId} />;

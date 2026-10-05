@@ -119,9 +119,9 @@ describe('editor NodeTree', function () {
     // The flow will be cleaned up in afterEach
   });
 
-  it('keeps icons on first expansion when the flow is already open in the stage', async function () {
+  it.each([true, false])('keeps icons on first expansion with serialize=%s', async function (serialize) {
     Root.instance.addFlow('NodeTree', {child: {'#is': 'add', '@b-xyw': [0, 0, 150]}});
-    [server, client] = makeLocalConnection(Root.instance);
+    [server, client] = makeLocalConnection(Root.instance, true, undefined, serialize);
     let tree: NodeTree;
     const [, div] = loadTemplate(
       <>

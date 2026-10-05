@@ -9,23 +9,34 @@ import type {EditPolicy} from '../policy/EditPolicy.ts';
 class LocalServerConnection extends ServerConnection {
   _client: LocalClientConnection;
 
-  constructor(root: Root, policy?: EditPolicy) {
+  constructor(
+    root: Root,
+    policy?: EditPolicy,
+    private readonly serialize = true
+  ) {
     super(root, policy);
     this.onConnect();
   }
 
   doSend(datas: DataMap[]): void {
-    const str = encode(datas);
-    Logger.trace(() => 'server send ' + str, this);
-    const decoded = decode(str);
-    this._client.onReceive(decoded);
+    if (this.serialize) {
+      const str = encode(datas);
+      Logger.trace(() => 'server send ' + str, this);
+      datas = decode(str);
+    } else {
+      Logger.trace(() => `server send ${datas.length} messages`, this);
+    }
+    this._client.onReceive(datas);
   }
 }
 
 class LocalClientConnection extends ClientConnection {
   _server: LocalServerConnection;
 
-  constructor(editorListeners: boolean) {
+  constructor(
+    editorListeners: boolean,
+    private readonly serialize = true
+  ) {
     super(editorListeners);
     this.onConnect();
   }
@@ -36,16 +47,20 @@ class LocalClientConnection extends ClientConnection {
   }
 
   reconnect(): void {
-    this._server = new LocalServerConnection(this._server.root, this._server.getEditPolicy());
+    this._server = new LocalServerConnection(this._server.root, this._server.getEditPolicy(), this.serialize);
     this._server._client = this;
     this.onConnect();
   }
 
   doSend(datas: DataMap[]): void {
-    const str = encode(datas);
-    Logger.trace(() => 'client send ' + str, this);
-    const decoded = decode(str);
-    this._server.onReceive(decoded);
+    if (this.serialize) {
+      const str = encode(datas);
+      Logger.trace(() => 'client send ' + str, this);
+      datas = decode(str);
+    } else {
+      Logger.trace(() => `client send ${datas.length} messages`, this);
+    }
+    this._server.onReceive(datas);
   }
 
   destroy() {
@@ -59,10 +74,12 @@ let _lastClientConnection: ClientConnection;
 export function makeLocalConnection(
   root: Root,
   editorListeners: boolean = true,
-  serverPolicy?: EditPolicy
+  serverPolicy?: EditPolicy,
+  // Match remote transport behavior by default; false passes values by reference.
+  serialize: boolean = true
 ): [ServerConnection, ClientConnection] {
-  const server = new LocalServerConnection(root, serverPolicy);
-  const client = new LocalClientConnection(editorListeners);
+  const server = new LocalServerConnection(root, serverPolicy, serialize);
+  const client = new LocalClientConnection(editorListeners, serialize);
   server._client = client;
   client._server = server;
   _lastClientConnection = client;

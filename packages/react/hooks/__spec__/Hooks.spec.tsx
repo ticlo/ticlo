@@ -6,6 +6,12 @@ import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.ts
 import {FlowRoot, useFlow} from '../useFlow.tsx';
 import {useFilteredBlocks} from '../useFilteredBlocks.tsx';
 import {useMemoUpdate, useRefState} from '../../util/react-tools.ts';
+import {useValue} from '../../index.ts';
+
+function ValueProbe({block, path, capture}: {block: Block; path: string; capture: {current?: unknown}}) {
+  capture.current = useValue(block, path);
+  return <span>{typeof capture.current}</span>;
+}
 
 function FlowName({capture}: {capture: {current?: Flow}}) {
   const flow = useFlow();
@@ -40,6 +46,78 @@ describe('react hooks', function () {
 
   afterEach(function () {
     root.remove();
+  });
+
+  it('subscribes to arbitrary runtime values without invoking function values', async () => {
+    const block = new Flow();
+    const capture: {current?: unknown} = {};
+    try {
+      await root.waitRender(<ValueProbe block={block} path="value" capture={capture} />);
+      expect(capture.current).toBeUndefined();
+      const callback = vi.fn();
+      const child = block.createBlock('child');
+      for (const value of [
+        1,
+        'text',
+        false,
+        null,
+        {nested: true},
+        [1, 2],
+        child,
+        <span>React</span>,
+        callback,
+        undefined,
+      ]) {
+        block.updateValue('value', value);
+        await root.waitRender();
+        expect(capture.current).toBe(value);
+      }
+      expect(callback).not.toHaveBeenCalled();
+      await root.waitRender(<></>);
+      expect(block.getProperty('value')._listeners.size).toBe(0);
+    } finally {
+      block.destroy();
+    }
+  });
+
+  it('follows path creation and replacement and releases subscriptions when switching sources', async () => {
+    const first = new Flow();
+    const second = new Flow();
+    const capture: {current?: unknown} = {};
+    try {
+      await root.waitRender(
+        <React.StrictMode>
+          <ValueProbe block={first} path="parent.value" capture={capture} />
+        </React.StrictMode>
+      );
+      expect(capture.current).toBeUndefined();
+      first.createBlock('parent').setValue('value', 1);
+      await root.waitRender();
+      expect(capture.current).toBe(1);
+      first.deleteValue('parent');
+      await root.waitRender();
+      expect(capture.current).toBeUndefined();
+      first.setValue('parent', {value: 2});
+      await root.waitRender();
+      expect(capture.current).toBe(2);
+
+      first.setValue('other', 'first');
+      second.setValue('other', 'second');
+      await root.waitRender(<ValueProbe block={first} path="other" capture={capture} />);
+      expect(capture.current).toBe('first');
+      expect(first._bindings.size).toBe(0);
+      await root.waitRender(<ValueProbe block={second} path="other" capture={capture} />);
+      expect(capture.current).toBe('second');
+      expect(first.getProperty('other')._listeners.size).toBe(0);
+      first.setValue('other', 'old source');
+      await root.waitRender();
+      expect(capture.current).toBe('second');
+      await root.waitRender(<></>);
+      expect(second.getProperty('other')._listeners.size).toBe(0);
+    } finally {
+      first.destroy();
+      second.destroy();
+    }
   });
 
   it('uses a provided Flow as the context value', async function () {

@@ -1,13 +1,17 @@
-import React, {StrictMode} from 'react';
+import React, {StrictMode, useContext, useEffect, useRef} from 'react';
 import {Button, Checkbox, ConfigProvider, Radio, type RadioChangeEvent} from 'antd';
 import {Root, Flow, Logger, PropDispatcher, TicloI18nSettings, addConsoleLogger} from '@ticlo/core';
 import type {ClientConn, EditPolicy, PropDesc} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
-import {DesignerStage} from '@ticlo/designer';
+import {DesignerContext, DesignerProvider, DesignerStage} from '@ticlo/designer';
 import {initEditor} from '@ticlo/editor';
 import {TicloApp} from '@ticlo/editor/component/TicloApp.tsx';
-import {TicloCurrentFlowConsumer, type TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.ts';
+import {
+  TicloCurrentFlowConsumer,
+  TicloCurrentFlowContext,
+  type TicloLayoutContext,
+} from '@ticlo/editor/component/LayoutContext.ts';
 import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.tsx';
 import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.tsx';
@@ -19,7 +23,7 @@ import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
 import {FrameServerConnection} from '@ticlo/html';
 import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.ts';
 import {FileServerFlowStorage, TicloFileClient} from '@ticlo/remote-storage';
-import {DockLayout, type TabData} from 'rc-dock';
+import {DockLayout, type PanelData, type TabData} from 'rc-dock';
 import {createRoot} from 'react-dom/client';
 import i18next from 'i18next';
 import '@ticlo/react';
@@ -46,11 +50,23 @@ import enAntd from 'antd/es/locale/en_US.js';
 import frAntd from 'antd/es/locale/fr_FR.js';
 import type {Locale} from 'antd/es/locale/index.js';
 
+function DesignerPanelFocus({panel}: {panel: PanelData}): null {
+  const context = useContext(TicloCurrentFlowContext);
+  const contextRef = useRef(context);
+  contextRef.current = context;
+  const path = panel.activeId?.slice('designer:'.length);
+  useEffect(() => {
+    if (path) contextRef.current.onFlowFocus(path);
+  }, [path]);
+  return null;
+}
+
 const layoutGroups = {
   designerStage: {
     animated: false,
     floatable: true,
     maximizable: true,
+    panelExtra: (panel: PanelData) => <DesignerPanelFocus panel={panel} />,
   },
   tool: {
     floatable: true,
@@ -215,13 +231,11 @@ class App extends React.PureComponent<Props, State> {
                 cached: true,
                 content: (
                   <div style={{padding: 12}}>
-                    <TicloCurrentFlowConsumer>
-                      {({currentPath}) => (
-                        <Button onClick={() => this.openEditor(currentPath || this.props.initialFlow)}>
-                          Open Editor
-                        </Button>
+                    <DesignerContext.Consumer>
+                      {(designer) => (
+                        <Button onClick={() => this.openEditor(designer?.activeStage?.basePath)}>Open Editor</Button>
                       )}
-                    </TicloCurrentFlowConsumer>
+                    </DesignerContext.Consumer>
                   </div>
                 ),
               },
@@ -335,13 +349,15 @@ class App extends React.PureComponent<Props, State> {
       <PlaygroundConnectionContext.Provider value={conn}>
         <EditPolicyProvider conn={conn}>
           <TicloApp value={this.ticloContext}>
-            <DockLayout
-              defaultLayout={this.defaultDockLayout}
-              ref={this.getLayout}
-              groups={layoutGroups}
-              style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
-            />
-            {modal}
+            <DesignerProvider>
+              <DockLayout
+                defaultLayout={this.defaultDockLayout}
+                ref={this.getLayout}
+                groups={layoutGroups}
+                style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
+              />
+              {modal}
+            </DesignerProvider>
           </TicloApp>
         </EditPolicyProvider>
       </PlaygroundConnectionContext.Provider>
@@ -410,7 +426,7 @@ window.addEventListener('hashchange', () => location.reload());
     initialFlow = params.get('flow') || 'designer-example';
   }
 
-  const [server, client] = makeLocalConnection(root);
+  const [server, client] = makeLocalConnection(root, true, undefined, false);
   createRoot(document.getElementById('app')).render(<App root={root} conn={client} initialFlow={initialFlow} />);
 })().catch((error) => {
   console.error(error);

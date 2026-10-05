@@ -1,8 +1,11 @@
+import {Block} from '@ticlo/core';
+
 export function getDescLib(funcId: unknown, funcLib?: string): string | undefined {
   return typeof funcId === 'string' && funcId.startsWith(':') ? funcLib : undefined;
 }
 
 export function getFuncLibPath(value: unknown, fallback?: string): string | undefined {
+  if (value instanceof Block) return value.getFullPath();
   if (typeof value === 'string') {
     return value;
   }

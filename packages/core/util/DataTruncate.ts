@@ -1,5 +1,5 @@
 import {DataMap, isBaseObject, TRUNCATED} from './DataTypes.ts';
-import {decode, encodeRaw} from './Serialize.ts';
+import {decode, decodeReviver, encodeRaw} from './Serialize.ts';
 import QS from 'qs';
 import {DateTime} from 'luxon';
 
@@ -65,7 +65,8 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
     }
     const encoded = encodeRaw(val);
     if (typeof encoded === 'string' && encoded.length < 100) {
-      return [encoded, encoded.length, false];
+      // Keep preview values usable without decoding the whole transport frame.
+      return [decodeReviver('', encoded), encoded.length, false];
     }
     // TODO binary ?
     return [TRUNCATED, 4, true];

@@ -7,8 +7,10 @@ through a `FrameServerConnection`, so the editor changes the same live runtime.
 The current stage is a page viewer. Canvas selection and WYSIWYG editing will
 be added later. Dock layout and editor-window management belong to the app.
 
-Each flow's `#main` is its React entry point. It can be an owned component block,
-a binding to a component block, or a runtime React element. A flow without
+Only `#main` directly under the opened Flow is its React entry point. Nested
+`#main` properties are not searched, and an ordinary Block is not a page Flow.
+The flow's `#main` can be an owned component block, a binding to a component
+block, or a runtime React element. A flow without
 `#main` shows an empty state. Ordinary `#output` values are not page roots.
 
 ```json
@@ -29,3 +31,13 @@ or double-click it in Navigation. File-server storage accepts the same `host`,
 Components use the existing `@ticlo/react` renderer registration. Future
 `@ticlo/ui` components can use the same registration without a separate
 designer renderer.
+
+`DesignerStageContext` exposes that stage's `flow`, `basePath`, `conn`,
+`selectedComponents: Block[]`, and `setSelectedComponents`. Each stage keeps its
+own selection; replacing or removing its Flow clears it.
+
+Wrap the dock and outside panels with `DesignerProvider` inside `TicloApp`.
+`DesignerContext.activeStage` exposes the active stage and its current selection,
+following `TicloCurrentFlowContext`. Closing a stage unregisters it. The app
+updates focus when another designer tab becomes active, and ToolBox uses this
+context to open the active stage's editor.
