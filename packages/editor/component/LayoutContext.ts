@@ -10,15 +10,26 @@ export interface TicloStageCommands {
   deleteSelection(): boolean;
 }
 
-export interface TicloCurrentFlow {
-  currentPath?: string | null;
-  onFlowFocus: (path: string) => void;
-  onFlowClosed: (path: string) => void;
-  registerStage: (path: string, stage: TicloStageCommands) => void;
-  unregisterStage: (path: string, stage: TicloStageCommands) => void;
+export interface TicloSelection {
+  paths: string[];
 }
 
-export interface TicloLayoutContext extends Partial<TicloCurrentFlow> {
+export interface TicloStage<Selection extends TicloSelection = TicloSelection> extends Partial<TicloStageCommands> {
+  kind: string;
+  selection: Selection;
+  select: (paths: string[]) => void;
+}
+
+export interface TicloCurrentFlow<Stage extends TicloStage = TicloStage> {
+  currentPath?: string | null;
+  activeStage: Stage | null;
+  onFlowFocus: (path: string) => void;
+  onFlowClosed: (path: string) => void;
+  registerStage: (path: string, stage: Stage) => void;
+  unregisterStage: (path: string, stage: Stage) => void;
+}
+
+export interface TicloLayoutContext<Stage extends TicloStage = TicloStage> extends Partial<TicloCurrentFlow<Stage>> {
   editFlow?(path: string, onSave: () => void): void;
 
   editProperty?(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void;
@@ -35,6 +46,7 @@ export interface TicloLayoutContext extends Partial<TicloCurrentFlow> {
 }
 
 export const TicloCurrentFlowContext = createContext<TicloCurrentFlow>({
+  activeStage: null,
   onFlowFocus: voidFunction,
   onFlowClosed: voidFunction,
   registerStage: voidFunction,

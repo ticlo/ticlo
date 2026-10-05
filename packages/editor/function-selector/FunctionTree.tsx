@@ -22,8 +22,8 @@ export class FunctionTree extends React.PureComponent<Props, State> {
   rootNode: FunctionTreeRoot;
   list: FunctionTreeItem[] = [];
 
-  constructor(props: Props) {
-    super(props);
+  buildRoot() {
+    const props = this.props;
     this.rootNode = new FunctionTreeRoot(
       props.conn,
       this.forceUpdateImmediate,
@@ -35,6 +35,11 @@ export class FunctionTree extends React.PureComponent<Props, State> {
     );
   }
 
+  componentDidMount() {
+    this.buildRoot();
+    this.forceUpdate();
+  }
+
   componentDidUpdate(prevProps: Props) {
     if (
       prevProps.funcLib !== this.props.funcLib ||
@@ -42,15 +47,7 @@ export class FunctionTree extends React.PureComponent<Props, State> {
       prevProps.onAddFunction !== this.props.onAddFunction
     ) {
       this.rootNode.destroy();
-      this.rootNode = new FunctionTreeRoot(
-        this.props.conn,
-        this.forceUpdateImmediate,
-        this.props.onFunctionClick,
-        this.props.showPreset,
-        this.props.filter,
-        this.props.funcLib,
-        this.props.onAddFunction
-      );
+      this.buildRoot();
       this.forceUpdate();
     }
   }
@@ -71,7 +68,7 @@ export class FunctionTree extends React.PureComponent<Props, State> {
     let {search} = this.props;
     search = (search ?? '').trim().toLowerCase();
     this.list.length = 0;
-    for (const item of this.rootNode.children) {
+    for (const item of this.rootNode?.children ?? []) {
       item.addToList(this.list, search);
     }
   }
@@ -94,6 +91,8 @@ export class FunctionTree extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount(): void {
+    this.rendered = false;
     this.rootNode.destroy();
+    this.rootNode = null;
   }
 }

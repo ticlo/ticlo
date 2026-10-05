@@ -1,42 +1,25 @@
-import React, {createContext, useCallback, useContext, useMemo, useState} from 'react';
+import {createContext, useContext} from 'react';
 import type {Block, ClientConn, Flow} from '@ticlo/core';
-import {TicloCurrentFlowContext} from '@ticlo/editor/component/LayoutContext.ts';
+import {TicloCurrentFlowContext, type TicloSelection, type TicloStage} from '@ticlo/editor/component/LayoutContext.ts';
 
-export interface DesignerStageContextValue {
+export interface DesignerSelection extends TicloSelection {
+  blocks: Block[];
+}
+
+export interface DesignerStageContextValue extends TicloStage<DesignerSelection> {
+  kind: 'designer';
   basePath: string;
   flow: Flow | null;
+  main: Block | null;
   conn: ClientConn;
-  selectedComponents: Block[];
-  setSelectedComponents: React.Dispatch<React.SetStateAction<Block[]>>;
+  selection: DesignerSelection;
+  select: (items: (Block | string)[]) => void;
 }
 
 export const DesignerStageContext = createContext<DesignerStageContextValue | null>(null);
 
-export interface DesignerContextValue {
-  activeStage: DesignerStageContextValue | null;
-  registerStage: (stage: DesignerStageContextValue) => () => void;
-}
-
-export const DesignerContext = createContext<DesignerContextValue | null>(null);
-
-/** Place inside TicloApp so stage activation follows the app's active flow. */
-export function DesignerProvider({children}: {children: React.ReactNode}) {
-  const {currentPath} = useContext(TicloCurrentFlowContext);
-  const [stages, setStages] = useState(() => new Map<string, DesignerStageContextValue>());
-  const registerStage = useCallback((stage: DesignerStageContextValue) => {
-    setStages((previous) => new Map(previous).set(stage.basePath, stage));
-    return () => {
-      setStages((previous) => {
-        if (previous.get(stage.basePath) !== stage) return previous;
-        const next = new Map(previous);
-        next.delete(stage.basePath);
-        return next;
-      });
-    };
-  }, []);
-  const value = useMemo(
-    () => ({activeStage: stages.get(currentPath) ?? null, registerStage}),
-    [stages, currentPath, registerStage]
-  );
-  return <DesignerContext.Provider value={value}>{children}</DesignerContext.Provider>;
+/** Outside panels use the same active-stage registry as the dataflow editor. */
+export function useActiveDesignerStage(): DesignerStageContextValue | null {
+  const {activeStage} = useContext(TicloCurrentFlowContext);
+  return activeStage?.kind === 'designer' ? (activeStage as DesignerStageContextValue) : null;
 }

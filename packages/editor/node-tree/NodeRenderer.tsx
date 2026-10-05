@@ -101,12 +101,24 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   }
 
   listingId: string;
+  private watchingChildren = false;
+  private childrenReady = false;
+  private childrenListener = {
+    onUpdate: () => {
+      if (this.childrenReady && this.opened !== 'closed') this.open();
+      this.childrenReady = true;
+    },
+  };
 
   open() {
     if (this.opened === 'loading') {
       return;
     }
     this.opened = 'loading';
+    if (!this.watchingChildren) {
+      this.watchingChildren = true;
+      this.connection.watch(this.key, this.childrenListener);
+    }
     this.listingId = this.connection.list(this.key, null, this.max, this) as string;
     this.forceUpdate();
   }
@@ -272,6 +284,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
   destroy() {
     this.cancelLoad();
+    if (this.watchingChildren) this.connection.unwatch(this.key, this.childrenListener);
     this.orderListener.unsubscribe();
     this.functionListener.unsubscribe();
     this.scopeListener.unsubscribe();
@@ -460,9 +473,21 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   nameListener = new LazyUpdateSubscriber(this);
   styleListener = new LazyUpdateSubscriber(this);
 
-  constructor(props: Props) {
-    super(props);
-    const {item} = props;
+  componentDidMount() {
+    super.componentDidMount();
+    this.subscribeValues();
+  }
+
+  componentDidUpdate(previous: Props) {
+    super.componentDidUpdate(previous);
+    if (previous.item !== this.props.item) {
+      this.unsubscribeValues();
+      this.subscribeValues();
+    }
+  }
+
+  subscribeValues() {
+    const {item} = this.props;
     this.descCallback(item.desc);
     this.disabledListener.subscribe(item.connection, `${item.key}.#disabled`, true);
     this.nameListener.subscribe(item.connection, `${item.key}.@b-name`);
@@ -591,11 +616,15 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     );
   }
 
-  componentWillUnmount() {
+  unsubscribeValues() {
     this.disabledListener.unsubscribe();
     this.nameListener.unsubscribe();
     this.hasChangeListener.unsubscribe();
     this.styleListener.unsubscribe();
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeValues();
     super.componentWillUnmount();
   }
 }

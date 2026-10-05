@@ -103,23 +103,20 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   }
 
   onSelect() {
-    const {onSelect} = this.props;
-    if (onSelect) {
-      const selectedPaths: string[] = [];
-      for (const [, blockItem] of this._blocks) {
-        if (blockItem.selected) {
-          selectedPaths.push(blockItem.path);
-        }
+    const selectedPaths: string[] = [];
+    for (const [, blockItem] of this._blocks) {
+      if (blockItem.selected) {
+        selectedPaths.push(blockItem.path);
       }
-      onSelect(selectedPaths);
     }
-    this.selectionChanged = false;
+    this.onSelectionChange(selectedPaths);
   }
   onSelectBase() {
-    const {onSelect, basePath} = this.props;
-    if (onSelect) {
-      onSelect([basePath]);
-    }
+    this.onSelectionChange([this.props.basePath]);
+  }
+
+  protected onSelectionChange(paths: string[]) {
+    this.props.onSelect?.(paths);
     this.selectionChanged = false;
   }
 

@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import React from 'react';
+import React, {StrictMode} from 'react';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {Root} from '@ticlo/core';
@@ -8,10 +8,41 @@ import {DescRequest} from '@ticlo/core/connect/ClientRequests.ts';
 import {FunctionTreeRoot} from '../FunctionTreeItem.ts';
 import {FunctionTreeRenderer} from '../FunctionTreeRenderer.tsx';
 import {FunctionSelect} from '../FunctionSelect.tsx';
+import {FunctionTree} from '../FunctionTree.tsx';
 import {FunctionView} from '../FunctionView.tsx';
 import {loadTemplate, querySingle, removeLastTemplate} from '../../util/test-util.ts';
 
 describe('FunctionTree', function () {
+  it('restores descriptor listeners after StrictMode remounts', async () => {
+    const root = new Root();
+    const [, conn] = makeLocalConnection(root);
+    let tree: FunctionTree;
+    try {
+      loadTemplate(
+        <StrictMode>
+          <FunctionTree
+            conn={conn}
+            ref={(value) => {
+              tree = value;
+            }}
+          />
+        </StrictMode>,
+        'editor'
+      );
+      await shouldHappen(() => tree?.rootNode?.children?.length > 0);
+      tree.forceUpdate();
+      await shouldHappen(() => tree.list.length > 0);
+      expect(conn.descListenerPaths.has(tree.rootNode.onDesc)).toBe(true);
+      const listener = tree.rootNode.onDesc;
+      removeLastTemplate();
+      expect(conn.descListenerPaths.has(listener)).toBe(false);
+    } finally {
+      removeLastTemplate();
+      conn.destroy();
+      root.destroy();
+    }
+  });
+
   const scopeSuffixes = ['', '.#lib', '.child.#lib', '.child.nested.#lib'];
 
   function findElements(node: any, predicate: (element: any) => boolean): any[] {

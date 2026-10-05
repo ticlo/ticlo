@@ -1,10 +1,5 @@
 import React, {useCallback, useMemo, useRef, useState, ReactNode} from 'react';
-import {
-  TicloCurrentFlowContext,
-  TicloLayoutContext,
-  TicloLayoutContextType,
-  TicloStageCommands,
-} from './LayoutContext.ts';
+import {TicloCurrentFlowContext, TicloLayoutContext, TicloLayoutContextType, TicloStage} from './LayoutContext.ts';
 
 interface TicloAppProps {
   value: TicloLayoutContext;
@@ -16,36 +11,35 @@ interface TicloAppProps {
 function useTicloContext(value: TicloLayoutContext) {
   const [currentPath, setCurrentPath] = useState<string | null>(null);
   const currentPathRef = useRef<string | null>(null);
-  const stagesRef = useRef(new Map<string, TicloStageCommands[]>());
+  const [stages, setStages] = useState(() => new Map<string, TicloStage[]>());
+  const stagesRef = useRef(stages);
+  stagesRef.current = stages;
   currentPathRef.current = currentPath;
 
-  const registerStage = useCallback((path: string, stage: TicloStageCommands) => {
-    let stages = stagesRef.current.get(path);
-    if (!stages) {
-      stages = [];
-      stagesRef.current.set(path, stages);
-    }
-    if (!stages.includes(stage)) {
-      stages.push(stage);
-    }
+  const registerStage = useCallback((path: string, stage: TicloStage) => {
+    setStages((previous) => {
+      const registered = previous.get(path) ?? [];
+      if (registered.includes(stage)) return previous;
+      return new Map(previous).set(path, [...registered, stage]);
+    });
   }, []);
 
-  const unregisterStage = useCallback((path: string, stage: TicloStageCommands) => {
-    const stages = stagesRef.current.get(path);
-    if (stages) {
-      const index = stages.indexOf(stage);
-      if (index >= 0) {
-        stages.splice(index, 1);
-        if (!stages.length) {
-          stagesRef.current.delete(path);
-        }
-      }
-    }
+  const unregisterStage = useCallback((path: string, stage: TicloStage) => {
+    setStages((previous) => {
+      const registered = previous.get(path);
+      if (!registered?.includes(stage)) return previous;
+      const next = new Map(previous);
+      const remaining = registered.filter((item) => item !== stage);
+      if (remaining.length) next.set(path, remaining);
+      else next.delete(path);
+      return next;
+    });
   }, []);
 
   const currentFlow = useMemo(
     () => ({
       currentPath,
+      activeStage: stages.get(currentPath)?.at(-1) ?? null,
       onFlowFocus: (path: string) => {
         setCurrentPath((prev) => {
           if (prev === path) {
@@ -67,7 +61,7 @@ function useTicloContext(value: TicloLayoutContext) {
       registerStage,
       unregisterStage,
     }),
-    [currentPath, registerStage, unregisterStage, value]
+    [currentPath, stages, registerStage, unregisterStage, value]
   );
 
   const wrappedLayoutContext: TicloLayoutContext = useMemo(
@@ -84,7 +78,7 @@ function useTicloContext(value: TicloLayoutContext) {
     [value, currentFlow]
   );
 
-  const forEachCurrentStage = useCallback((callback: (stage: TicloStageCommands) => boolean) => {
+  const forEachCurrentStage = useCallback((callback: (stage: TicloStage) => boolean) => {
     const currentPath = currentPathRef.current;
     if (!currentPath) {
       return false;
@@ -114,33 +108,33 @@ function useTicloContext(value: TicloLayoutContext) {
       switch (key) {
         case 's': {
           if (event.ctrlKey || event.metaKey) {
-            handled = forEachCurrentStage((stage) => stage.save());
+            handled = forEachCurrentStage((stage) => stage.save?.() ?? false);
           }
           break;
         }
         case 'c': {
           if (!isEditable && (event.ctrlKey || event.metaKey)) {
-            handled = forEachCurrentStage((stage) => stage.copy());
+            handled = forEachCurrentStage((stage) => stage.copy?.() ?? false);
           }
           break;
         }
         case 'z': {
           if (!isEditable && (event.ctrlKey || event.metaKey) && event.shiftKey) {
-            handled = forEachCurrentStage((stage) => stage.redo());
+            handled = forEachCurrentStage((stage) => stage.redo?.() ?? false);
           } else if (!isEditable && (event.ctrlKey || event.metaKey)) {
-            handled = forEachCurrentStage((stage) => stage.undo());
+            handled = forEachCurrentStage((stage) => stage.undo?.() ?? false);
           }
           break;
         }
         case 'y': {
           if (!isEditable && (event.ctrlKey || event.metaKey)) {
-            handled = forEachCurrentStage((stage) => stage.redo());
+            handled = forEachCurrentStage((stage) => stage.redo?.() ?? false);
           }
           break;
         }
         case 'delete': {
           if (!isEditable) {
-            handled = forEachCurrentStage((stage) => stage.deleteSelection());
+            handled = forEachCurrentStage((stage) => stage.deleteSelection?.() ?? false);
           }
           break;
         }
@@ -162,7 +156,7 @@ function useTicloContext(value: TicloLayoutContext) {
       const isEditable =
         event.target instanceof HTMLElement &&
         event.target.closest('input, textarea, [contenteditable="true"], [contenteditable="plaintext-only"]') != null;
-      if (!isEditable && forEachCurrentStage((stage) => stage.paste(event))) {
+      if (!isEditable && forEachCurrentStage((stage) => stage.paste?.(event) ?? false)) {
         event.preventDefault();
         event.stopPropagation();
       }

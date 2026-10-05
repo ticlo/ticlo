@@ -48,27 +48,30 @@ export abstract class PureDataRenderer<P extends DataRendererProps<any>, S> exte
   // value is undefined when not mounted
   _rendering: boolean = undefined;
 
-  constructor(props: P) {
-    super(props);
-    if (props.item) {
-      props.item.attachedRenderer(this);
+  componentDidMount() {
+    this._rendering = false;
+    this.attachedItem = this.props.item;
+    this.attachedItem?.attachedRenderer(this);
+  }
+
+  componentDidUpdate(_previous: P) {
+    const {item} = this.props;
+    if (item !== this.attachedItem) {
+      this.attachedItem?.detachRenderer(this);
+      this.attachedItem = item;
+      item?.attachedRenderer(this);
     }
   }
 
   componentWillUnmount() {
     this.attachedItem?.detachRenderer(this);
+    this.attachedItem = null;
     this._rendering = undefined;
   }
 
   attachedItem: DataRendererItem;
   render(): React.ReactNode {
-    const {item} = this.props;
     this._rendering = true;
-    if (item !== this.attachedItem) {
-      item?.attachedRenderer(this);
-      this.attachedItem?.detachRenderer(this);
-      this.attachedItem = item;
-    }
     const result = this.renderImpl();
     this._rendering = false;
     return result;

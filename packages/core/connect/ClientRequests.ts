@@ -221,11 +221,17 @@ export class SubscribeRequest extends MergedClientRequest {
   loadFullValue() {
     if (!this._getValuePromise) {
       this._getValuePromise = this.conn.getValue(this.path);
-      this._getValuePromise.then((response) => {
-        this._getValuePromise = null;
-        this._cachedFullValue = response.value;
-        this.updateFullValue();
-      });
+      this._getValuePromise.then(
+        (response) => {
+          this._getValuePromise = null;
+          this._cachedFullValue = response.value;
+          this.updateFullValue();
+        },
+        (error) => {
+          this._getValuePromise = null;
+          for (const callbacks of this._fullCallbackSet) callbacks.onError?.(error, this._data);
+        }
+      );
     }
   }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import {ExpandState} from '../component/Tree.tsx';
 import VirtualList from '../component/Virtual.tsx';
-import {ClientConn} from '@ticlo/core/editor.ts';
+import {ClientConn, arrayEqual} from '@ticlo/core/editor.ts';
 import {NodeTreeItem, NodeTreeRenderer, type NodeTreeFunctionDrag} from './NodeRenderer.tsx';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
@@ -194,6 +194,17 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     this.buildRoot();
   }
 
+  componentDidUpdate(previous: Props) {
+    if (
+      previous.conn !== this.props.conn ||
+      !arrayEqual(previous.basePaths, this.props.basePaths) ||
+      previous.hideRoot !== this.props.hideRoot
+    ) {
+      this.clearRoot(previous.conn);
+      this.buildRoot();
+    }
+  }
+
   reload() {
     for (const node of this.rootList) {
       node.open();
@@ -230,12 +241,17 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     );
   }
 
-  componentWillUnmount(): void {
-    super.componentWillUnmount();
-    this.props.conn.childrenChangeStream().unlisten(this.onChildrenChange);
+  clearRoot(conn: ClientConn) {
+    conn.childrenChangeStream().unlisten(this.onChildrenChange);
     for (const node of this.rootList) {
       node.destroy();
     }
     this.rootList = [];
+    this.lastClickedItem = null;
+  }
+
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    this.clearRoot(this.props.conn);
   }
 }

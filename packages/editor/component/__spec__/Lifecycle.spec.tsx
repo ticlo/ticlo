@@ -42,7 +42,7 @@ describe('editor component lifecycle', function () {
     item.connection = conn;
     item.subscribe();
     const renderer = new NodeTreeRenderer({item, style: {}, selected: false, onClick() {}});
-    renderer.attachedItem = item;
+    renderer.componentDidMount();
     renderer.descCallback({...blankFuncDesc, dynamicStyle: true});
 
     expect(subscriptions.size).toBe(6);

@@ -21,6 +21,22 @@ import {ConnectionSend} from '../Connection.ts';
 import {DescRequest, GlobalWatch, SetRequest, type ValueState} from '../ClientRequests.ts';
 
 describe('Connection', function () {
+  it('reports a failed full-value load without leaving an unhandled promise', async () => {
+    const root = new Root();
+    root.addFlow('Main', {value: 1});
+    const [, client] = makeLocalConnection(root, false);
+    const callbacks = new AsyncClientPromise();
+    try {
+      client.subscribe('Main.value', callbacks, true);
+      const failed = expect(callbacks.promise).rejects.toBe('disconnected');
+      client.destroy();
+      await failed;
+    } finally {
+      callbacks.cancel();
+      root.destroy();
+    }
+  });
+
   it('removes deleted categories from the descriptor cache', function () {
     const request = new DescRequest({cmd: 'watchDesc', id: 'category-cache', path: ''});
     const category = {id: 'temporary-category:', name: 'temporary-category'};

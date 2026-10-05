@@ -1,17 +1,14 @@
 import React, {StrictMode, useContext, useState} from 'react';
+import {expectTypeOf} from 'vitest';
 import {Block, Root} from '@ticlo/core';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
-import {loadTemplate, removeLastTemplate} from '@ticlo/editor/util/test-util.ts';
+import {loadTemplate, removeLastTemplate, querySingle} from '@ticlo/editor/util/test-util.ts';
 import {DesignerStage} from '../DesignerStage.tsx';
-import {
-  DesignerContext,
-  DesignerProvider,
-  DesignerStageContext,
-  type DesignerContextValue,
-  type DesignerStageContextValue,
-} from '../DesignerContext.tsx';
+import {useActiveDesignerStage, DesignerStageContext, type DesignerStageContextValue} from '../DesignerContext.tsx';
 import {TicloApp} from '@ticlo/editor/component/TicloApp.tsx';
+import {DesignerNodeTree} from '../DesignerNodeTree.tsx';
+import {TicloCurrentFlowContext, type TicloCurrentFlow} from '@ticlo/editor/component/LayoutContext.ts';
 
 describe('DesignerStage', () => {
   const path = 'DesignerStageTest';
@@ -99,7 +96,7 @@ describe('DesignerStage', () => {
     const firstMain = firstFlow.getValue('#main') as Block;
     const secondMain = secondFlow.getValue('#main') as Block;
     const stages = new Map<string, DesignerStageContextValue>();
-    let designer: DesignerContextValue;
+    let activeStage: DesignerStageContextValue;
     let closeFirst: () => void;
     function StageProbe() {
       const stage = useContext(DesignerStageContext);
@@ -107,8 +104,8 @@ describe('DesignerStage', () => {
       return <span>{stage.basePath}</span>;
     }
     function OutsidePanel() {
-      designer = useContext(DesignerContext);
-      return <span data-testid="active-stage">{designer.activeStage?.basePath}</span>;
+      activeStage = useActiveDesignerStage();
+      return <span data-testid="active-stage">{activeStage?.basePath}</span>;
     }
     firstMain.updateValue('content', <StageProbe />);
     secondMain.updateValue('content', <StageProbe />);
@@ -118,11 +115,9 @@ describe('DesignerStage', () => {
       closeFirst = () => setShowFirst(false);
       return (
         <TicloApp value={{}}>
-          <DesignerProvider>
-            <OutsidePanel />
-            {showFirst && <DesignerStage root={Root.instance} conn={conn} basePath={path} />}
-            <DesignerStage root={Root.instance} conn={conn} basePath={secondPath} />
-          </DesignerProvider>
+          <OutsidePanel />
+          {showFirst && <DesignerStage root={Root.instance} conn={conn} basePath={path} />}
+          <DesignerStage root={Root.instance} conn={conn} basePath={secondPath} />
         </TicloApp>
       );
     }
@@ -131,35 +126,135 @@ describe('DesignerStage', () => {
         <App />
       </StrictMode>
     );
-    await shouldHappen(() => stages.size === 2 && designer?.activeStage?.basePath === secondPath);
-    stages.get(path).setSelectedComponents([firstMain]);
-    await shouldHappen(() => stages.get(path).selectedComponents[0] === firstMain);
-    expect(designer.activeStage.selectedComponents).toEqual([]);
+    await shouldHappen(() => stages.size === 2 && activeStage?.basePath === secondPath);
+    stages.get(path).select([firstMain]);
+    await shouldHappen(() => stages.get(path).selection.blocks[0] === firstMain);
+    expect(activeStage.selection.blocks).toEqual([]);
 
     const firstStage = div.querySelectorAll('.ticl-designer-stage')[0];
     firstStage.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
-    await shouldHappen(() => designer.activeStage?.basePath === path);
-    expect(designer.activeStage.flow).toBe(firstFlow);
-    expect(designer.activeStage.conn).toBe(conn);
-    expect(designer.activeStage.selectedComponents).toEqual([firstMain]);
-    designer.activeStage.setSelectedComponents([]);
-    await shouldHappen(() => stages.get(path).selectedComponents.length === 0);
+    await shouldHappen(() => activeStage?.basePath === path);
+    expect(activeStage.flow).toBe(firstFlow);
+    expect(activeStage.conn).toBe(conn);
+    expect(activeStage.selection.blocks).toEqual([firstMain]);
+    expect(activeStage.selection.paths).toEqual([`${path}.#main`]);
+    activeStage.select([]);
+    await shouldHappen(() => stages.get(path).selection.blocks.length === 0);
 
     div.querySelectorAll('.ticl-designer-stage')[1].dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
-    await shouldHappen(() => designer.activeStage?.basePath === secondPath);
-    designer.activeStage.setSelectedComponents([secondMain]);
-    await shouldHappen(() => stages.get(secondPath).selectedComponents[0] === secondMain);
+    await shouldHappen(() => activeStage?.basePath === secondPath);
+    activeStage.select([secondMain]);
+    await shouldHappen(() => stages.get(secondPath).selection.blocks[0] === secondMain);
     Root.instance.deleteValue(secondPath);
-    await shouldHappen(
-      () => designer.activeStage?.flow === null && designer.activeStage.selectedComponents.length === 0
-    );
+    await shouldHappen(() => activeStage?.flow === null && activeStage.selection.blocks.length === 0);
     Root.instance.addFlow(secondPath, {'#main': {'#is': 'react:p', 'content': 'Replacement'}});
-    await shouldHappen(() => designer.activeStage.flow === Root.instance.getValue(secondPath));
-    expect(designer.activeStage.selectedComponents).toEqual([]);
+    await shouldHappen(() => activeStage.flow === Root.instance.getValue(secondPath));
+    expect(activeStage.selection.blocks).toEqual([]);
 
     firstStage.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
-    await shouldHappen(() => designer.activeStage?.basePath === path);
+    await shouldHappen(() => activeStage?.basePath === path);
     closeFirst();
-    await shouldHappen(() => designer.activeStage === null);
+    await shouldHappen(() => activeStage === null);
+  });
+
+  it('synchronizes the main node tree with both selection caches and the active stage', async () => {
+    expectTypeOf<TicloCurrentFlow<DesignerStageContextValue>['activeStage']['selection']['blocks']>().toEqualTypeOf<
+      Block[]
+    >();
+    const flow = Root.instance.addFlow(path, {
+      '#main': {
+        '#is': 'react:div',
+        '#order': ['a', 'b'],
+        'a': {'#is': 'react:p', 'content': 'First'},
+        'b': {'#is': 'react:p', 'content': 'Second'},
+      },
+      'outside': {'#is': 'react:p', 'content': 'Not in page'},
+    });
+    const secondPath = `${path}Second`;
+    Root.instance.addFlow(secondPath, {'#main': {'#is': 'react:p', 'content': 'Other page'}});
+    const main = flow.getValue('#main') as Block;
+    const a = main.getValue('a') as Block;
+    const b = main.getValue('b') as Block;
+    const [, conn] = makeLocalConnection(Root.instance, true, undefined, false);
+    let activeStage: DesignerStageContextValue;
+    let context: TicloCurrentFlow;
+    function PanelProbe() {
+      activeStage = useActiveDesignerStage();
+      context = useContext(TicloCurrentFlowContext);
+      return <DesignerNodeTree />;
+    }
+    const [, div] = loadTemplate(
+      <StrictMode>
+        <TicloApp value={{}}>
+          <DesignerStage root={Root.instance} conn={conn} basePath={path} />
+          <DesignerStage root={Root.instance} conn={conn} basePath={secondPath} />
+          <div style={{height: 300}}>
+            <PanelProbe />
+          </div>
+        </TicloApp>
+      </StrictMode>,
+      'editor'
+    );
+    const tree = () => div.querySelector('.ticl-designer-node-tree') as HTMLElement;
+    const selected = () =>
+      Array.from(tree().querySelectorAll('.ticl-tree-node-selected .ticl-tree-node-text')).map(
+        (node) => node.textContent
+      );
+    await shouldHappen(() => activeStage?.basePath === secondPath && tree().querySelector('.ticl-tree-node'));
+    context.onFlowFocus(path);
+    await shouldHappen(() => activeStage?.main === main && tree().querySelectorAll('.ticl-tree-node').length === 1);
+    await shouldHappen(() => tree().querySelector('.tico-fab-react'));
+    main.setValue('#is', 'add');
+    await shouldHappen(() => tree().querySelector('.tico-fas-plus'));
+    main.setValue('#is', 'react:div');
+    await shouldHappen(() => tree().querySelector('.tico-fab-react'));
+    (tree().querySelector('.ticl-tree-arr') as HTMLElement).click();
+    await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='b']", tree()));
+    expect(querySingle("//div.ticl-tree-node-text[text()='outside']", tree())).toBeNull();
+
+    context.activeStage.select([`${path}.#main.a`]);
+    await shouldHappen(() => selected().includes('a'));
+    expect(activeStage.selection).toEqual({blocks: [a], paths: [`${path}.#main.a`]});
+    querySingle("//div.ticl-tree-node-text[text()='b']", tree()).click();
+    await shouldHappen(() => activeStage.selection.blocks[0] === b);
+    expect(activeStage.selection.paths).toEqual([`${path}.#main.b`]);
+    querySingle("//div.ticl-tree-node-text[text()='a']", tree()).dispatchEvent(
+      new MouseEvent('click', {bubbles: true, ctrlKey: true})
+    );
+    await shouldHappen(() => activeStage.selection.blocks.length === 2);
+    expect(activeStage.selection).toEqual({blocks: [b, a], paths: [`${path}.#main.b`, `${path}.#main.a`]});
+
+    main.deleteValue('b');
+    await shouldHappen(() => activeStage.selection.blocks.length === 1 && activeStage.selection.blocks[0] === a);
+    expect(activeStage.selection.paths).toEqual([`${path}.#main.a`]);
+    await shouldHappen(() => !querySingle("//div.ticl-tree-node-text[text()='b']", tree()));
+    main.deleteValue('a');
+    const replacementChild = main.createBlock('a');
+    replacementChild.setValue('#is', 'react:span');
+    replacementChild.setValue('@b-name', 'Replacement A');
+    await shouldHappen(() => tree().textContent.includes('Replacement A'));
+    expect(activeStage.selection).toEqual({blocks: [], paths: []});
+    activeStage.select([`${path}.outside`, `${path}.missing`]);
+    await shouldHappen(() => activeStage.selection.paths.length === 0);
+    activeStage.select([main, main]);
+    await shouldHappen(() => activeStage.selection.blocks.length === 1);
+    context.onFlowFocus(secondPath);
+    await shouldHappen(() => activeStage?.basePath === secondPath && selected().length === 0);
+    expect(querySingle("//div.ticl-tree-node-text[text()='a']", tree())).toBeNull();
+    activeStage.select([`${secondPath}.#main`]);
+    await shouldHappen(() => activeStage.selection.paths.length === 1);
+    context.onFlowFocus(path);
+    await shouldHappen(() => activeStage?.main === main && selected().length === 1);
+    expect(activeStage.selection).toEqual({blocks: [main], paths: [`${path}.#main`]});
+
+    flow.deleteValue('#main');
+    await shouldHappen(() => activeStage.main === null && activeStage.selection.paths.length === 0);
+    expect(tree().querySelector('.ticl-tree-node')).toBeNull();
+    const replacement = flow.createBlock('#main');
+    replacement.setValue('#is', 'react:p');
+    await shouldHappen(
+      () => activeStage.main === replacement && tree().querySelectorAll('.ticl-tree-node').length === 1
+    );
+    expect(activeStage.selection.blocks).toEqual([]);
   });
 });

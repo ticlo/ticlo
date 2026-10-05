@@ -15,8 +15,9 @@ import debounce from 'lodash/debounce.js';
 import clamp from 'lodash/clamp.js';
 import {TooltipIconButton} from '../component/TooltipIconButton.tsx';
 import {DataMap, decode, encode} from '@ticlo/core';
+import {arrayEqual} from '@ticlo/core/editor.ts';
 import {t} from '../component/LocalizedLabel.tsx';
-import {TicloCurrentFlowContext, TicloStageCommands} from '../component/LayoutContext.ts';
+import {TicloCurrentFlowContext, TicloStage, TicloStageCommands} from '../component/LayoutContext.ts';
 
 const MINI_WINDOW_SIZE = 128;
 
@@ -57,7 +58,25 @@ interface BlockStageProps extends StagePropsBase {
 }
 
 export class BlockStage extends BlockStageBase<BlockStageProps, StageState> implements TicloStageCommands {
+  readonly kind = 'dataflow';
   static contextType = TicloCurrentFlowContext;
+
+  private stageContext: TicloStage | null = null;
+
+  select = (paths: string[]) => {
+    for (const block of this._blocks.values()) block.setSelected(paths.includes(block.path));
+    if (paths.length === 1 && paths[0] === this.props.basePath) this.onSelectBase();
+    else this.onSelect();
+  };
+
+  protected onSelectionChange(paths: string[]) {
+    if (this.stageContext && !arrayEqual(paths, this.stageContext.selection.paths)) {
+      this.context.unregisterStage(this.props.basePath, this.stageContext);
+      this.stageContext = {...this.stageContext, selection: {paths}};
+      this.context.registerStage(this.props.basePath, this.stageContext);
+    }
+    super.onSelectionChange(paths);
+  }
 
   private _rootNode!: HTMLElement;
   private getRootRef = (node: HTMLDivElement): void => {
@@ -128,7 +147,18 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
 
   componentDidMount() {
     super.componentDidMount();
-    this.context.registerStage(this.props.basePath, this);
+    this.stageContext = {
+      kind: this.kind,
+      selection: {paths: []},
+      select: this.select,
+      save: this.save,
+      copy: this.copy,
+      paste: this.paste,
+      undo: this.undo,
+      redo: this.redo,
+      deleteSelection: this.deleteSelection,
+    };
+    this.context.registerStage(this.props.basePath, this.stageContext);
     this.resizeObserver = new ResizeObserver(this.handleResize);
     this.resizeObserver.observe(this._rootNode);
   }
@@ -266,8 +296,8 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   componentDidUpdate(prevProps: Readonly<StagePropsBase>, prevState: Readonly<StageState>, snapshot?: any): void {
     super.componentDidUpdate(prevProps, prevState);
     if (prevProps.basePath !== this.props.basePath) {
-      this.context.unregisterStage(prevProps.basePath, this);
-      this.context.registerStage(this.props.basePath, this);
+      this.context.unregisterStage(prevProps.basePath, this.stageContext);
+      this.context.registerStage(this.props.basePath, this.stageContext);
     }
     if (this._pendingScroll) {
       this._scrollX = this._pendingScroll[0];
@@ -835,7 +865,8 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   };
 
   componentWillUnmount() {
-    this.context.unregisterStage(this.props.basePath, this);
+    this.context.unregisterStage(this.props.basePath, this.stageContext);
+    this.stageContext = null;
 
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();

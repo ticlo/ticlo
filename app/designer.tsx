@@ -4,7 +4,7 @@ import {Root, Flow, Logger, PropDispatcher, TicloI18nSettings, addConsoleLogger}
 import type {ClientConn, EditPolicy, PropDesc} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
-import {DesignerContext, DesignerProvider, DesignerStage} from '@ticlo/designer';
+import {DesignerNodeTree, DesignerStage, useActiveDesignerStage} from '@ticlo/designer';
 import {initEditor} from '@ticlo/editor';
 import {TicloApp} from '@ticlo/editor/component/TicloApp.tsx';
 import {
@@ -59,6 +59,24 @@ function DesignerPanelFocus({panel}: {panel: PanelData}): null {
     if (path) contextRef.current.onFlowFocus(path);
   }, [path]);
   return null;
+}
+
+function DesignerSelectionSync({onSelect}: {onSelect: (paths: string[]) => void}): null {
+  const stage = useActiveDesignerStage();
+  const paths = stage?.selection.paths;
+  useEffect(() => onSelect(paths ?? []), [onSelect, paths]);
+  return null;
+}
+
+function ToolBox({openEditor}: {openEditor: (path: string) => void}) {
+  const stage = useActiveDesignerStage();
+  return (
+    <div style={{padding: 12}}>
+      <Button disabled={!stage?.flow} onClick={() => openEditor(stage.basePath)}>
+        Open Editor
+      </Button>
+    </div>
+  );
 }
 
 const layoutGroups = {
@@ -213,31 +231,33 @@ class App extends React.PureComponent<Props, State> {
             id: 'main',
             panelLock: {panelStyle: 'main'},
           },
-        ],
-      },
-      floatbox: {
-        mode: 'float',
-        children: [
           {
-            w: 400,
-            h: 400,
-            // DockLayout is inset 10px, so these anchors leave a 16px viewport gap.
-            floatAnchor: {right: 6, bottom: 6},
-            tabs: [
+            mode: 'vertical',
+            size: 280,
+            children: [
               {
-                group: 'tool',
-                id: 'ToolBox',
-                title: 'ToolBox',
-                cached: true,
-                content: (
-                  <div style={{padding: 12}}>
-                    <DesignerContext.Consumer>
-                      {(designer) => (
-                        <Button onClick={() => this.openEditor(designer?.activeStage?.basePath)}>Open Editor</Button>
-                      )}
-                    </DesignerContext.Consumer>
-                  </div>
-                ),
+                size: 150,
+                tabs: [
+                  {
+                    group: 'tool',
+                    id: 'ToolBox',
+                    title: 'ToolBox',
+                    cached: true,
+                    content: <ToolBox openEditor={this.openEditor} />,
+                  },
+                ],
+              },
+              {
+                size: 600,
+                tabs: [
+                  {
+                    group: 'tool',
+                    id: 'Components',
+                    title: 'Components',
+                    cached: true,
+                    content: <DesignerNodeTree />,
+                  },
+                ],
               },
             ],
           },
@@ -349,15 +369,14 @@ class App extends React.PureComponent<Props, State> {
       <PlaygroundConnectionContext.Provider value={conn}>
         <EditPolicyProvider conn={conn}>
           <TicloApp value={this.ticloContext}>
-            <DesignerProvider>
-              <DockLayout
-                defaultLayout={this.defaultDockLayout}
-                ref={this.getLayout}
-                groups={layoutGroups}
-                style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
-              />
-              {modal}
-            </DesignerProvider>
+            <DesignerSelectionSync onSelect={this.onSelect} />
+            <DockLayout
+              defaultLayout={this.defaultDockLayout}
+              ref={this.getLayout}
+              groups={layoutGroups}
+              style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
+            />
+            {modal}
           </TicloApp>
         </EditPolicyProvider>
       </PlaygroundConnectionContext.Provider>

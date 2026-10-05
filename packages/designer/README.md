@@ -1,7 +1,8 @@
 # Ticlo Designer
 
 `designer.html` uses the playground's navigation and tool panels, and renders
-React pages in `DesignerStage` tabs. The floating ToolBox opens `editor.html`
+React pages in `DesignerStage` tabs. The right column contains ToolBox above
+the active stage's component tree. ToolBox opens `editor.html`
 through a `FrameServerConnection`, so the editor changes the same live runtime.
 
 The current stage is a page viewer. Canvas selection and WYSIWYG editing will
@@ -32,12 +33,25 @@ Components use the existing `@ticlo/react` renderer registration. Future
 `@ticlo/ui` components can use the same registration without a separate
 designer renderer.
 
-`DesignerStageContext` exposes that stage's `flow`, `basePath`, `conn`,
-`selectedComponents: Block[]`, and `setSelectedComponents`. Each stage keeps its
-own selection; replacing or removing its Flow clears it.
+`DesignerStageContext` exposes that stage's `flow`, `main`, `basePath`, `conn`,
+and `selection: {blocks: Block[], paths: string[]}`. `select()` accepts Blocks
+or full paths and updates both arrays together. Each stage keeps its own
+selection. Removing selected nodes drops them; replacing the page root clears it.
 
-Wrap the dock and outside panels with `DesignerProvider` inside `TicloApp`.
-`DesignerContext.activeStage` exposes the active stage and its current selection,
-following `TicloCurrentFlowContext`. Closing a stage unregisters it. The app
-updates focus when another designer tab becomes active, and ToolBox uses this
-context to open the active stage's editor.
+Designer and dataflow stages share `TicloApp`'s stage registry.
+The editor's public context uses `TicloStage<TicloSelection>` by default:
+`selection` contains only `paths`, and `select()` accepts paths. Its generic
+selection type is extended by `TicloStage<DesignerSelection>` in the designer
+package, adding `blocks` without introducing the runtime Block type into the
+editor context. `TicloCurrentFlow` and `TicloLayoutContext` also accept a stage
+type parameter; these types all describe the same shared provider.
+`TicloCurrentFlowContext.activeStage` follows the active flow, and
+`useActiveDesignerStage()` returns its designer state to outside panels.
+There is no separate Designer provider or active-stage registry.
+Closing a stage unregisters it. The app updates focus when another designer
+tab becomes active, and ToolBox opens the active stage's editor.
+
+`DesignerNodeTree` reuses the editor's controlled `NodeTree` with the page's
+main Block as its only root. It reads `selection.paths` and calls `select()`;
+changes through the stage context update the same tree selection. The app also
+forwards these paths to the existing navigation and property panels.

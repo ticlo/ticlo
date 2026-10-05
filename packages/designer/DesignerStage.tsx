@@ -1,9 +1,10 @@
-import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {Block, Flow, type ClientConn} from '@ticlo/core';
 import {TicloCurrentFlowContext} from '@ticlo/editor/component/LayoutContext.ts';
 import {useValue} from '@ticlo/react';
 import {DesignerPage} from './DesignerPage.tsx';
-import {DesignerContext, DesignerStageContext} from './DesignerContext.tsx';
+import {DesignerStageContext, type DesignerStageContextValue} from './DesignerContext.tsx';
+import {useSelection} from './useSelection.ts';
 
 interface Props {
   root: Block;
@@ -14,19 +15,21 @@ interface Props {
 export function DesignerStage({root, conn, basePath}: Props) {
   const block = useValue(root, basePath);
   const flow = block instanceof Flow ? block : null;
-  const [selectedComponents, setSelectedComponents] = useState<Block[]>([]);
-  const stage = useMemo(
-    () => ({basePath, flow, conn, selectedComponents, setSelectedComponents}),
-    [basePath, flow, conn, selectedComponents]
+  const value = useValue(root, `${basePath}.#main`);
+  const main = flow && value instanceof Block ? value : null;
+  const {selection, select} = useSelection(root, main);
+  const stage = useMemo<DesignerStageContextValue>(
+    () => ({kind: 'designer', basePath, flow, main, conn, selection, select}),
+    [basePath, flow, main, conn, selection, select]
   );
-  const registerStage = useContext(DesignerContext)?.registerStage;
   const context = useContext(TicloCurrentFlowContext);
+  const {registerStage, unregisterStage} = context;
   const contextRef = useRef(context);
   contextRef.current = context;
   useEffect(() => {
-    setSelectedComponents((previous) => (previous.length ? [] : previous));
-  }, [flow]);
-  useEffect(() => registerStage?.(stage), [registerStage, stage]);
+    registerStage(basePath, stage);
+    return () => unregisterStage(basePath, stage);
+  }, [basePath, registerStage, unregisterStage, stage]);
   useEffect(() => {
     contextRef.current.onFlowFocus(basePath);
     return () => contextRef.current.onFlowClosed(basePath);
