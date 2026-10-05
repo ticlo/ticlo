@@ -224,8 +224,11 @@ describe('DesignerStage', () => {
     const componentContext = components.first;
     expect(div.querySelector('[data-testid="outside"]').textContent).toBe('false');
 
-    componentContext.select([a]);
-    componentContext.addSelection([b, a, `${path}.outside`]);
+    expect(componentContext.select([a])).toBe(true);
+    expect(componentContext.select([a])).toBe(false);
+    expect(componentContext.addSelection([b, a, `${path}.outside`])).toBe(true);
+    expect(componentContext.addSelection([a, b])).toBe(false);
+    expect(componentContext.addSelection([`${path}.outside`, `${path}.missing`])).toBe(false);
     await shouldHappen(() => activeStage.selection.blocks.length === 2);
     expect(activeStage.selection).toEqual({blocks: [a, b], paths: [`${path}.#main.a`, `${path}.#main.b`]});
     expect(div.querySelector('[data-testid="selection"]').textContent).toBe(`${path}.#main.a,${path}.#main.b`);
@@ -238,7 +241,7 @@ describe('DesignerStage', () => {
     await shouldHappen(() => language === 'zh');
     context.onFlowFocus(path);
     await shouldHappen(() => activeStage?.basePath === path);
-    activeStage.select([`${path}.#main.a`]);
+    expect(activeStage.select([`${path}.#main.a`])).toBe(false);
     await shouldHappen(() => activeStage.selection.paths.length === 1);
     expect(renders).toEqual(initialRenders);
     expect(activeStage.select).toBe(componentContext.select);
@@ -342,6 +345,22 @@ describe('DesignerStage', () => {
     (tree().querySelector('.ticl-tree-arr') as HTMLElement).click();
     await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='b']", tree()));
     expect(querySingle("//div.ticl-tree-node-text[text()='outside']", tree())).toBeNull();
+
+    const page = div.querySelector('.ticl-designer-page');
+    const [first, second] = page.querySelectorAll('p');
+    first.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+    second.dispatchEvent(new MouseEvent('mousedown', {bubbles: true, ctrlKey: true}));
+    await shouldHappen(() => activeStage.selection.blocks.length === 2 && selected().length === 2);
+    expect(activeStage.selection).toEqual({blocks: [a, b], paths: [`${path}.#main.a`, `${path}.#main.b`]});
+    first.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+    await shouldHappen(() => activeStage.selection.blocks.length === 1 && selected().length === 1);
+    expect(activeStage.selection.blocks).toEqual([a]);
+    page.querySelector('div').dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+    await shouldHappen(
+      () =>
+        activeStage.selection.blocks[0] === main &&
+        tree().querySelector('.ticl-tree-node-selected .ticl-tree-node-text[title="#main"]')
+    );
 
     context.activeStage.select([`${path}.#main.a`]);
     await shouldHappen(() => selected().includes('a'));

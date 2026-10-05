@@ -72,10 +72,17 @@ function DesignerProperties({conn}: {conn: ClientConnection}) {
   );
 }
 
-function ToolBox({switchLan}: {switchLan: (e?: RadioChangeEvent) => void}) {
+function ToolBox({
+  switchLan,
+  openEditor,
+}: {
+  switchLan: (e?: RadioChangeEvent) => void;
+  openEditor: (path: string) => void;
+}) {
   const {language} = useContext(TicloLayoutContextType);
   return (
-    <div style={{padding: 8, height: '100%', overflow: 'auto', boxSizing: 'border-box'}}>
+    <div style={{position: 'relative', padding: 8, height: '100%', overflow: 'auto', boxSizing: 'border-box'}}>
+      <OpenEditorButton openEditor={openEditor} />
       <Radio.Group
         options={languages}
         onChange={switchLan}
@@ -112,7 +119,7 @@ function OpenEditorButton({openEditor}: {openEditor: (path: string) => void}) {
   return (
     <Button
       size="small"
-      style={{position: 'absolute', top: 14, right: 42, zIndex: 10}}
+      style={{position: 'absolute', top: 8, right: 8, zIndex: 1}}
       disabled={!stage?.flow}
       onClick={() => openEditor(stage.basePath)}
     >
@@ -178,7 +185,7 @@ class App extends React.PureComponent<Props, State> {
                     title: 'ToolBox',
                     minHeight: 120,
                     cached: true,
-                    content: <ToolBox switchLan={this.switchLan} />,
+                    content: <ToolBox switchLan={this.switchLan} openEditor={this.openEditor} />,
                   },
                 ],
               },
@@ -374,7 +381,6 @@ class App extends React.PureComponent<Props, State> {
               groups={layoutGroups}
               style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
             />
-            <OpenEditorButton openEditor={this.openEditor} />
             {modal}
           </TicloApp>
         </EditPolicyProvider>

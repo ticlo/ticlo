@@ -1,5 +1,6 @@
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect} from 'react';
 import {Block} from '@ticlo/core';
+import {useRefState} from '@ticlo/react/util/react-tools.ts';
 import type {DesignerSelection} from './DesignerContext.tsx';
 
 function resolveSelection(root: Block, main: Block | null, items: (Block | string)[]): DesignerSelection {
@@ -21,22 +22,27 @@ function resolveSelection(root: Block, main: Block | null, items: (Block | strin
 }
 
 export function useSelection(root: Block, main: Block | null) {
-  const [selection, setSelection] = useState<DesignerSelection>({blocks: [], paths: []});
+  const [selection, setSelection, selectionRef] = useRefState<DesignerSelection>(() => ({blocks: [], paths: []}));
   const updateSelection = useCallback(
     (items?: (Block | string)[], append = false) => {
-      setSelection((previous) => {
-        const next = resolveSelection(root, main, append ? [...previous.blocks, ...items] : (items ?? previous.blocks));
-        return next.blocks.length === previous.blocks.length &&
-          next.blocks.every((block, i) => block === previous.blocks[i] && next.paths[i] === previous.paths[i])
-          ? previous
-          : next;
-      });
+      const previous = selectionRef.current;
+      const next = resolveSelection(root, main, append ? [...previous.blocks, ...items] : (items ?? previous.blocks));
+      const added = next.blocks.some((block) => !previous.blocks.includes(block));
+      if (
+        next.blocks.length !== previous.blocks.length ||
+        next.blocks.some((block, i) => block !== previous.blocks[i] || next.paths[i] !== previous.paths[i])
+      ) {
+        setSelection(next);
+      }
+      return added;
     },
     [root, main]
   );
   const select = useCallback((items: (Block | string)[]) => updateSelection(items), [updateSelection]);
   const addSelection = useCallback((items: (Block | string)[]) => updateSelection(items, true), [updateSelection]);
-  useEffect(() => select([]), [select]);
+  useEffect(() => {
+    select([]);
+  }, [select]);
   useEffect(() => {
     const listener = {onChange: () => updateSelection(), onSourceChange: () => updateSelection()};
     const bindings = selection.paths.map((path) => root.createBinding(path, listener));

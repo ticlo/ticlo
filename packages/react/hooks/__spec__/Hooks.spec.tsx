@@ -6,7 +6,8 @@ import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.ts
 import {FlowRoot, useFlow} from '../useFlow.tsx';
 import {useFilteredBlocks} from '../useFilteredBlocks.tsx';
 import {useMemoUpdate, useRefState} from '../../util/react-tools.ts';
-import {useValue} from '../../index.ts';
+import {ComponentContext, useSelection, useValue} from '../../index.ts';
+import {useTicloComp} from '../useTicloComp.ts';
 
 function ValueProbe({block, path, capture}: {block: Block; path: string; capture: {current?: unknown}}) {
   capture.current = useValue(block, path);
@@ -46,6 +47,141 @@ describe('react hooks', function () {
 
   afterEach(function () {
     root.remove();
+  });
+
+  it('selects on mousedown only in design mode and returns the selection command result', async () => {
+    const flow = new Flow();
+    const block = flow.createBlock('component');
+    const select = vi.fn(() => true);
+    const addSelection = vi.fn(() => false);
+    const parentMouseDown = vi.fn();
+    let result: boolean | undefined;
+    function Probe() {
+      const context = React.useContext(ComponentContext);
+      const onMouseDown = useSelection(block, context);
+      return (
+        <div onMouseDown={parentMouseDown}>
+          <span onMouseDown={onMouseDown && ((event) => (result = onMouseDown(event)))}>component</span>
+        </div>
+      );
+    }
+    try {
+      await root.waitRender(
+        <ComponentContext.Provider value={{designMode: true, select, addSelection}}>
+          <Probe />
+        </ComponentContext.Provider>
+      );
+      const span = root.div.querySelector('span');
+      span.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+      expect(select).toHaveBeenCalledWith([block]);
+      expect(addSelection).not.toHaveBeenCalled();
+      expect(result).toBe(true);
+      span.dispatchEvent(new MouseEvent('mousedown', {bubbles: true, ctrlKey: true}));
+      expect(addSelection).toHaveBeenCalledWith([block]);
+      expect(result).toBe(false);
+      expect(parentMouseDown).not.toHaveBeenCalled();
+
+      await root.waitRender(
+        <ComponentContext.Provider value={{designMode: false, select, addSelection}}>
+          <Probe />
+        </ComponentContext.Provider>
+      );
+      root.div.querySelector('span').dispatchEvent(new MouseEvent('mousedown', {bubbles: true, ctrlKey: true}));
+      expect(select).toHaveBeenCalledTimes(1);
+      expect(addSelection).toHaveBeenCalledTimes(1);
+      expect(parentMouseDown).toHaveBeenCalledTimes(1);
+    } finally {
+      flow.destroy();
+    }
+  });
+
+  it('skips all optional event handlers in design mode and restores them in preview', async () => {
+    const flow = new Flow();
+    const block = flow.createBlock('component');
+    const eventHandlers = [
+      'onMouseDown',
+      'onMouseDownCapture',
+      'onMouseMove',
+      'onPointerDown',
+      'onDragStart',
+      'onWheel',
+      'onKeyDown',
+      'onFocus',
+      'onInput',
+      'onPaste',
+      'onCompositionStart',
+      'onTouchStart',
+      'onLoad',
+      'onPlay',
+      'onScroll',
+      'onAnimationEnd',
+      'onTransitionEnd',
+    ];
+    block.setValue('#optional', ['id', 'ref', 'onClick', ...eventHandlers]);
+    block.setValue('id', 'selection-test');
+    const onClick = vi.fn();
+    const select = vi.fn(() => true);
+    const addSelection = vi.fn(() => true);
+    const options = {optionalHandler: (_block: Block, name: string) => (name === 'onClick' ? onClick : undefined)};
+    function Probe() {
+      const {optionalHandlers} = useTicloComp(block, options);
+      return (
+        <>
+          <button {...optionalHandlers}>component</button>
+          <img onLoad={optionalHandlers?.onLoad as React.ReactEventHandler<HTMLImageElement>} />
+          <video onPlay={optionalHandlers?.onPlay as React.ReactEventHandler<HTMLVideoElement>} />
+        </>
+      );
+    }
+    async function render(designMode: boolean) {
+      await root.waitRender(
+        <ComponentContext.Provider value={{designMode, select, addSelection}}>
+          <Probe />
+        </ComponentContext.Provider>
+      );
+      return root.div.querySelector('button');
+    }
+    function fireEvents(button: HTMLButtonElement) {
+      for (const name of ['mousedown', 'mousemove', 'dragstart', 'wheel']) {
+        button.dispatchEvent(new MouseEvent(name, {bubbles: true}));
+      }
+      button.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
+      button.dispatchEvent(new KeyboardEvent('keydown', {bubbles: true, key: 'a'}));
+      button.dispatchEvent(new FocusEvent('focusin', {bubbles: true}));
+      button.dispatchEvent(new CompositionEvent('compositionstart', {bubbles: true}));
+      for (const name of ['input', 'paste', 'touchstart', 'scroll', 'animationend', 'transitionend']) {
+        button.dispatchEvent(new Event(name, {bubbles: true}));
+      }
+      root.div.querySelector('img').dispatchEvent(new Event('load'));
+      root.div.querySelector('video').dispatchEvent(new Event('play'));
+      button.click();
+    }
+    try {
+      // Warm the handler cache before switching modes.
+      const preview = await render(false);
+      fireEvents(preview);
+      expect(onClick).toHaveBeenCalledTimes(1);
+      expect(select).not.toHaveBeenCalled();
+      for (const name of eventHandlers) {
+        expect(block.getValue(name), name).toBeDefined();
+        block.updateValue(name, undefined);
+      }
+
+      const design = await render(true);
+      expect(design.id).toBe('selection-test');
+      expect(block.getValue('ref')).toBe(design);
+      fireEvents(design);
+      expect(select).toHaveBeenCalledWith([block]);
+      expect(onClick).toHaveBeenCalledTimes(1);
+      for (const name of eventHandlers) expect(block.getValue(name), name).toBeUndefined();
+
+      fireEvents(await render(false));
+      expect(select).toHaveBeenCalledTimes(1);
+      expect(onClick).toHaveBeenCalledTimes(2);
+      for (const name of eventHandlers) expect(block.getValue(name), name).toBeDefined();
+    } finally {
+      flow.destroy();
+    }
   });
 
   it('subscribes to arbitrary runtime values without invoking function values', async () => {

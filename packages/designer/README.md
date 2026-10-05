@@ -4,7 +4,7 @@
 React pages in `DesignerStage` tabs. The left column contains a compact
 ToolBox for language settings above Navigation and Functions. The right column
 contains Properties above Outline, the active stage's component tree.
-The floating Open Editor button at the top right opens `editor.html`
+The floating Open Editor button inside ToolBox's upper-right corner opens `editor.html`
 through a `FrameServerConnection`, so the editor changes the same live runtime.
 
 The current stage is a page viewer. Canvas selection and WYSIWYG editing will
@@ -52,8 +52,19 @@ snapshots through the existing stage registry; there is no second local panel
 provider wrapping the page.
 
 `select()` replaces selection; `addSelection()` appends and deduplicates it.
+Both return `true` when they select a new block, or `false` when every block was
+already selected (or no valid blocks were supplied).
 Both arrays update together, and each stage keeps its own selection and mode.
 Removing selected nodes drops them; replacing the page root clears selection.
+
+`useSelection(block, componentContext)` from `@ticlo/react` provides a mousedown handler only in
+design mode. It selects the block, or adds it when Ctrl is pressed, and stops
+bubbling so parent components do not select themselves. `useTicloComp` installs
+this handler and skips all of the component's optional handlers whose names
+start with `on` in design mode. Attributes and `ref` callbacks remain active.
+It reads `ComponentContext` once and passes its value
+to the selection hook, and `designMode` to the optional handlers hook. Preview
+mode uses the original handlers.
 
 Designer and dataflow stages share `TicloApp`'s stage registry.
 The editor's public context uses `TicloStage<TicloSelection>` by default:

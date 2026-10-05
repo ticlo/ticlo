@@ -15,8 +15,8 @@ export interface DesignerStageContextValue extends TicloStage<DesignerSelection>
   designMode: boolean;
   setDesignMode: (designMode: boolean) => void;
   selection: DesignerSelection;
-  select: (items: (Block | string)[]) => void;
-  addSelection: (items: (Block | string)[]) => void;
+  select: (items: (Block | string)[]) => boolean;
+  addSelection: (items: (Block | string)[]) => boolean;
   undo: () => boolean;
   redo: () => boolean;
 }

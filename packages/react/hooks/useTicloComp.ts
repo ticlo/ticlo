@@ -1,9 +1,21 @@
-import {isValidElement, ReactNode, SyntheticEvent, useCallback, useEffect, useRef, useState} from 'react';
+import {
+  isValidElement,
+  ReactNode,
+  SyntheticEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {Block, BlockProperty, Event} from '@ticlo/core';
 import {PropMap} from '../comp/PropType.ts';
 import {Values} from '../comp/Values.ts';
+import {ComponentContext} from '../ComponentContext.ts';
 import {useBlockConfigs} from './useBlockConfigs.ts';
-import {useMemoUpdate, useRefState, useValueRef} from '../util/react-tools.ts';
+import {useSelection} from './useSelection.ts';
+import {useMemoUpdate, useValueRef} from '../util/react-tools.ts';
 
 const configsMap: PropMap = {
   '#order': {value: Values.arrayOptional, pinned: true},
@@ -48,14 +60,19 @@ class ReactEvent extends Event<SyntheticEvent> {
 function useOptionalHandlers(
   block: Block,
   optionalList: string[],
-  optionalHandler?: (block: Block, name: string) => unknown
+  optionalHandler: ((block: Block, name: string) => unknown) | undefined,
+  designMode: boolean
 ) {
   // cache handlers
   const cache = useRef<Record<string, Function>>({});
   return useMemoUpdate(() => {
+    const result: Record<string, unknown> = {};
     if (Array.isArray(optionalList)) {
-      const result: Record<string, unknown> = {};
       for (const name of optionalList) {
+        const isEvent = name.startsWith('on');
+        if (designMode && isEvent) {
+          continue;
+        }
         if (cache.current[name]) {
           result[name] = cache.current[name];
           continue;
@@ -74,7 +91,7 @@ function useOptionalHandlers(
           }
         }
 
-        if (/^on[A-Z]/.test(name)) {
+        if (isEvent) {
           // build event handlers
           cache.current[name] = (event: SyntheticEvent) => {
             block.updateValue(name, new ReactEvent(event));
@@ -92,13 +109,15 @@ function useOptionalHandlers(
       return result;
     }
     return undefined;
-  }, [block, optionalList, optionalHandler]);
+  }, [block, optionalList, optionalHandler, designMode]);
 }
 
 export function useTicloComp(
   block: Block,
   {optionalHandler, noChildren}: {optionalHandler?: (block: Block, name: string) => unknown; noChildren?: boolean} = {}
 ) {
+  const componentContext = useContext(ComponentContext);
+  const {designMode} = componentContext;
   // put the noChildren option in a ref so it can never change
   const needChildren = useRef(noChildren !== true).current;
   const [style, setStyle] = useState(() => block.getValue('style'));
@@ -118,8 +137,18 @@ export function useTicloComp(
   );
 
   // resolve optional properties
+  const onMouseDown = useSelection(block, componentContext);
   const optionalRef = useValueRef(optionalList);
-  const [optionalHandlers, updateOptionalHandlers] = useOptionalHandlers(block, optionalList, optionalHandler);
+  const [optionalHandlers, updateOptionalHandlers] = useOptionalHandlers(
+    block,
+    optionalList,
+    optionalHandler,
+    designMode
+  );
+  const handlers = useMemo(
+    () => (designMode ? {...optionalHandlers, onMouseDown} : optionalHandlers),
+    [designMode, optionalHandlers, onMouseDown]
+  );
 
   const onPropertyChange = useCallback((property: BlockProperty, saved?: boolean) => {
     switch (property._name) {
@@ -154,6 +183,6 @@ export function useTicloComp(
     className,
     style,
     children: resolvedChildren,
-    optionalHandlers,
+    optionalHandlers: handlers,
   };
 }
