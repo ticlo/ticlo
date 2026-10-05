@@ -22,10 +22,10 @@ function resolveSelection(root: Block, main: Block | null, items: (Block | strin
 
 export function useSelection(root: Block, main: Block | null) {
   const [selection, setSelection] = useState<DesignerSelection>({blocks: [], paths: []});
-  const select = useCallback(
-    (items?: (Block | string)[]) => {
+  const updateSelection = useCallback(
+    (items?: (Block | string)[], append = false) => {
       setSelection((previous) => {
-        const next = resolveSelection(root, main, items ?? previous.blocks);
+        const next = resolveSelection(root, main, append ? [...previous.blocks, ...items] : (items ?? previous.blocks));
         return next.blocks.length === previous.blocks.length &&
           next.blocks.every((block, i) => block === previous.blocks[i] && next.paths[i] === previous.paths[i])
           ? previous
@@ -34,15 +34,17 @@ export function useSelection(root: Block, main: Block | null) {
     },
     [root, main]
   );
+  const select = useCallback((items: (Block | string)[]) => updateSelection(items), [updateSelection]);
+  const addSelection = useCallback((items: (Block | string)[]) => updateSelection(items, true), [updateSelection]);
   useEffect(() => select([]), [select]);
   useEffect(() => {
-    const listener = {onChange: () => select(), onSourceChange: () => select()};
+    const listener = {onChange: () => updateSelection(), onSourceChange: () => updateSelection()};
     const bindings = selection.paths.map((path) => root.createBinding(path, listener));
     return () => {
       for (const binding of bindings) {
         if (!binding.isDestroyed()) binding.unlisten(listener);
       }
     };
-  }, [root, selection.paths, select]);
-  return {selection, select};
+  }, [root, selection.paths, updateSelection]);
+  return {selection, select, addSelection};
 }

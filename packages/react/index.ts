@@ -1,6 +1,8 @@
 export {useBlockProps} from './hooks/useBlockProps.tsx';
 export {useBlockValue} from './hooks/useBlockValue.ts';
 export {useValue} from './hooks/useValue.ts';
+export {ComponentContext} from './ComponentContext.ts';
+export type {ComponentContextValue} from './ComponentContext.ts';
 export {useFilteredBlocks} from './hooks/useFilteredBlocks.tsx';
 export {useWatchBlock} from './hooks/useWatchBlock.tsx';
 export {Values} from './comp/Values.ts';

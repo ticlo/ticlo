@@ -1,8 +1,8 @@
-import React from 'react';
+import React, {memo} from 'react';
 import {Block, type Flow} from '@ticlo/core';
 import {TicloComp, useBlockValue} from '@ticlo/react';
 
-export function DesignerPage({flow}: {flow: Flow}) {
+export const DesignerPage = memo(function DesignerPage({flow}: {flow: Flow}) {
   const main = useBlockValue(flow, '#main');
   let page: React.ReactNode;
   if (main instanceof Block) {
@@ -17,4 +17,4 @@ export function DesignerPage({flow}: {flow: Flow}) {
       {page}
     </div>
   );
-}
+});

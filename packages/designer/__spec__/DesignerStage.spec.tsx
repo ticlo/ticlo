@@ -1,14 +1,19 @@
 import React, {StrictMode, useContext, useState} from 'react';
 import {expectTypeOf} from 'vitest';
 import {Block, Root} from '@ticlo/core';
+import {ComponentContext, type ComponentContextValue} from '@ticlo/react';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {loadTemplate, removeLastTemplate, querySingle} from '@ticlo/editor/util/test-util.ts';
 import {DesignerStage} from '../DesignerStage.tsx';
-import {useActiveDesignerStage, DesignerStageContext, type DesignerStageContextValue} from '../DesignerContext.tsx';
+import {useActiveDesignerStage, type DesignerStageContextValue} from '../DesignerContext.tsx';
 import {TicloApp} from '@ticlo/editor/component/TicloApp.tsx';
 import {DesignerNodeTree} from '../DesignerNodeTree.tsx';
-import {TicloCurrentFlowContext, type TicloCurrentFlow} from '@ticlo/editor/component/LayoutContext.ts';
+import {
+  TicloCurrentFlowContext,
+  TicloLayoutContextType,
+  type TicloCurrentFlow,
+} from '@ticlo/editor/component/LayoutContext.ts';
 
 describe('DesignerStage', () => {
   const path = 'DesignerStageTest';
@@ -95,20 +100,12 @@ describe('DesignerStage', () => {
     const secondFlow = Root.instance.addFlow(secondPath, {'#main': {'#is': 'react:div'}});
     const firstMain = firstFlow.getValue('#main') as Block;
     const secondMain = secondFlow.getValue('#main') as Block;
-    const stages = new Map<string, DesignerStageContextValue>();
     let activeStage: DesignerStageContextValue;
     let closeFirst: () => void;
-    function StageProbe() {
-      const stage = useContext(DesignerStageContext);
-      stages.set(stage.basePath, stage);
-      return <span>{stage.basePath}</span>;
-    }
     function OutsidePanel() {
       activeStage = useActiveDesignerStage();
       return <span data-testid="active-stage">{activeStage?.basePath}</span>;
     }
-    firstMain.updateValue('content', <StageProbe />);
-    secondMain.updateValue('content', <StageProbe />);
     const [, conn] = makeLocalConnection(Root.instance);
     function App() {
       const [showFirst, setShowFirst] = useState(true);
@@ -126,9 +123,7 @@ describe('DesignerStage', () => {
         <App />
       </StrictMode>
     );
-    await shouldHappen(() => stages.size === 2 && activeStage?.basePath === secondPath);
-    stages.get(path).select([firstMain]);
-    await shouldHappen(() => stages.get(path).selection.blocks[0] === firstMain);
+    await shouldHappen(() => activeStage?.basePath === secondPath);
     expect(activeStage.selection.blocks).toEqual([]);
 
     const firstStage = div.querySelectorAll('.ticl-designer-stage')[0];
@@ -136,15 +131,15 @@ describe('DesignerStage', () => {
     await shouldHappen(() => activeStage?.basePath === path);
     expect(activeStage.flow).toBe(firstFlow);
     expect(activeStage.conn).toBe(conn);
+    activeStage.select([firstMain]);
+    await shouldHappen(() => activeStage.selection.blocks[0] === firstMain);
     expect(activeStage.selection.blocks).toEqual([firstMain]);
     expect(activeStage.selection.paths).toEqual([`${path}.#main`]);
-    activeStage.select([]);
-    await shouldHappen(() => stages.get(path).selection.blocks.length === 0);
 
     div.querySelectorAll('.ticl-designer-stage')[1].dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
     await shouldHappen(() => activeStage?.basePath === secondPath);
     activeStage.select([secondMain]);
-    await shouldHappen(() => stages.get(secondPath).selection.blocks[0] === secondMain);
+    await shouldHappen(() => activeStage.selection.blocks[0] === secondMain);
     Root.instance.deleteValue(secondPath);
     await shouldHappen(() => activeStage?.flow === null && activeStage.selection.blocks.length === 0);
     Root.instance.addFlow(secondPath, {'#main': {'#is': 'react:p', 'content': 'Replacement'}});
@@ -153,8 +148,144 @@ describe('DesignerStage', () => {
 
     firstStage.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
     await shouldHappen(() => activeStage?.basePath === path);
+    expect(activeStage.selection.blocks).toEqual([firstMain]);
+    activeStage.select([]);
+    await shouldHappen(() => activeStage.selection.blocks.length === 0);
     closeFirst();
     await shouldHappen(() => activeStage === null);
+  });
+
+  it('keeps page components stable across selection and panel updates, and updates mode consumers', async () => {
+    expectTypeOf<keyof ComponentContextValue>().toEqualTypeOf<'designMode' | 'select' | 'addSelection'>();
+    const secondPath = `${path}Second`;
+    const firstFlow = Root.instance.addFlow(path, {
+      '#main': {'#is': 'react:div', 'a': {'#is': 'react:p'}, 'b': {'#is': 'react:p'}},
+    });
+    const secondFlow = Root.instance.addFlow(secondPath, {'#main': {'#is': 'react:div'}});
+    const main = firstFlow.getValue('#main') as Block;
+    const a = main.getValue('a') as Block;
+    const b = main.getValue('b') as Block;
+    const renders = {first: 0, second: 0, plain: 0};
+    const components: Record<string, ComponentContextValue<Block | string>> = {};
+    let activeStage: DesignerStageContextValue;
+    let context: TicloCurrentFlow;
+    let language: string;
+    let refreshApp: () => void;
+    function ComponentProbe({name}: {name: 'first' | 'second'}) {
+      const component = useContext(ComponentContext);
+      components[name] = component;
+      ++renders[name];
+      return <span data-testid={name}>{String(component.designMode)}</span>;
+    }
+    function PlainComponent() {
+      ++renders.plain;
+      return <span>ordinary component</span>;
+    }
+    function OutsideComponent() {
+      const component = useContext(ComponentContext);
+      return <span data-testid="outside">{String(component.designMode)}</span>;
+    }
+    function Panel() {
+      activeStage = useActiveDesignerStage();
+      context = useContext(TicloCurrentFlowContext);
+      language = useContext(TicloLayoutContextType).language;
+      return <span data-testid="selection">{activeStage?.selection.paths.join(',')}</span>;
+    }
+    main.updateValue(
+      'content',
+      <>
+        <ComponentProbe name="first" />
+        <PlainComponent />
+      </>
+    );
+    (secondFlow.getValue('#main') as Block).updateValue('content', <ComponentProbe name="second" />);
+    const [, conn] = makeLocalConnection(Root.instance, true, undefined, false);
+    function App() {
+      const [version, setVersion] = useState(0);
+      refreshApp = () => setVersion((value) => value + 1);
+      return (
+        <TicloApp value={{language: version ? 'zh' : 'en'}}>
+          <DesignerStage root={Root.instance} conn={conn} basePath={path} />
+          <DesignerStage root={Root.instance} conn={conn} basePath={secondPath} />
+          <OutsideComponent />
+          <Panel />
+        </TicloApp>
+      );
+    }
+    const [, div] = loadTemplate(
+      <StrictMode>
+        <App />
+      </StrictMode>
+    );
+    await shouldHappen(() => components.first && components.second && activeStage?.basePath === secondPath);
+    context.onFlowFocus(path);
+    await shouldHappen(() => activeStage?.basePath === path);
+    const initialRenders = {...renders};
+    const componentContext = components.first;
+    expect(div.querySelector('[data-testid="outside"]').textContent).toBe('false');
+
+    componentContext.select([a]);
+    componentContext.addSelection([b, a, `${path}.outside`]);
+    await shouldHappen(() => activeStage.selection.blocks.length === 2);
+    expect(activeStage.selection).toEqual({blocks: [a, b], paths: [`${path}.#main.a`, `${path}.#main.b`]});
+    expect(div.querySelector('[data-testid="selection"]').textContent).toBe(`${path}.#main.a,${path}.#main.b`);
+    expect(components.first).toBe(componentContext);
+    expect(renders).toEqual(initialRenders);
+
+    context.onFlowFocus(secondPath);
+    await shouldHappen(() => activeStage?.basePath === secondPath);
+    refreshApp();
+    await shouldHappen(() => language === 'zh');
+    context.onFlowFocus(path);
+    await shouldHappen(() => activeStage?.basePath === path);
+    activeStage.select([`${path}.#main.a`]);
+    await shouldHappen(() => activeStage.selection.paths.length === 1);
+    expect(renders).toEqual(initialRenders);
+    expect(activeStage.select).toBe(componentContext.select);
+    expect(activeStage.addSelection).toBe(componentContext.addSelection);
+
+    activeStage.setDesignMode(false);
+    await shouldHappen(() => div.querySelector('[data-testid="first"]').textContent === 'false');
+    expect(activeStage.designMode).toBe(false);
+    expect(renders.first).toBeGreaterThan(initialRenders.first);
+    expect(renders.second).toBe(initialRenders.second);
+    expect(renders.plain).toBe(initialRenders.plain);
+    expect(div.querySelector('[data-testid="outside"]').textContent).toBe('false');
+    expect(components.first.select).toBe(componentContext.select);
+    expect(components.first.addSelection).toBe(componentContext.addSelection);
+    activeStage.setDesignMode(true);
+    await shouldHappen(() => div.querySelector('[data-testid="first"]').textContent === 'true');
+  });
+
+  it('exposes undo and redo through panels and keyboard commands', async () => {
+    const flow = Root.instance.addFlow(
+      path,
+      {'#main': {'#is': 'react:p', 'content': 'Original'}},
+      {applyChange: (flow) => flow.save()}
+    );
+    const [, conn] = makeLocalConnection(Root.instance, true, undefined, false);
+    let stage: DesignerStageContextValue;
+    function Panel(): null {
+      stage = useActiveDesignerStage();
+      return null;
+    }
+    const [, div] = loadTemplate(
+      <TicloApp value={{}}>
+        <DesignerStage root={Root.instance} conn={conn} basePath={path} />
+        <Panel />
+      </TicloApp>
+    );
+    await shouldHappen(() => stage?.flow === flow && div.textContent === 'Original');
+    await conn.setValue(`${path}.#main.content`, 'Changed', true);
+    await shouldHappen(() => div.textContent === 'Changed');
+    div
+      .querySelector('.ticl-app')
+      .dispatchEvent(new KeyboardEvent('keydown', {key: 'z', ctrlKey: true, bubbles: true}));
+    await shouldHappen(() => div.textContent === 'Original');
+    expect(stage.redo()).toBe(true);
+    await shouldHappen(() => div.textContent === 'Changed');
+    expect(stage.undo()).toBe(true);
+    await shouldHappen(() => div.textContent === 'Original');
   });
 
   it('synchronizes the main node tree with both selection caches and the active stage', async () => {

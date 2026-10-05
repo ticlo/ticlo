@@ -1,20 +1,20 @@
 import React, {StrictMode, useContext, useEffect, useRef} from 'react';
 import {Button, Checkbox, ConfigProvider, Radio, type RadioChangeEvent} from 'antd';
 import {Root, Flow, Logger, PropDispatcher, TicloI18nSettings, addConsoleLogger} from '@ticlo/core';
-import type {ClientConn, EditPolicy, PropDesc} from '@ticlo/core';
+import type {PropDesc} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {DesignerNodeTree, DesignerStage, useActiveDesignerStage} from '@ticlo/designer';
-import {initEditor} from '@ticlo/editor';
+import {initEditor, PropertyList} from '@ticlo/editor';
 import {TicloApp} from '@ticlo/editor/component/TicloApp.tsx';
 import {
   TicloCurrentFlowConsumer,
   TicloCurrentFlowContext,
+  TicloLayoutContextType,
   type TicloLayoutContext,
 } from '@ticlo/editor/component/LayoutContext.ts';
 import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.tsx';
-import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.tsx';
 import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.tsx';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.tsx';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
@@ -29,7 +29,6 @@ import i18next from 'i18next';
 import '@ticlo/react';
 import '@ticlo/test';
 import './sample-blocks.ts';
-import {PolicyPanel} from './PolicyPanel.tsx';
 import {PlaygroundConnection, PlaygroundConnectionContext} from './PlaygroundConnection.tsx';
 import {designerData} from './sample-data/designer.ts';
 
@@ -61,21 +60,64 @@ function DesignerPanelFocus({panel}: {panel: PanelData}): null {
   return null;
 }
 
-function DesignerSelectionSync({onSelect}: {onSelect: (paths: string[]) => void}): null {
-  const stage = useActiveDesignerStage();
-  const paths = stage?.selection.paths;
-  useEffect(() => onSelect(paths ?? []), [onSelect, paths]);
-  return null;
-}
-
-function ToolBox({openEditor}: {openEditor: (path: string) => void}) {
+function DesignerProperties({conn}: {conn: ClientConnection}) {
   const stage = useActiveDesignerStage();
   return (
-    <div style={{padding: 12}}>
-      <Button disabled={!stage?.flow} onClick={() => openEditor(stage.basePath)}>
-        Open Editor
-      </Button>
+    <PropertyList
+      conn={stage?.conn ?? conn}
+      paths={stage?.selection.paths ?? []}
+      funcLib={stage?.basePath}
+      style={{width: '100%', height: '100%', padding: 8}}
+    />
+  );
+}
+
+function ToolBox({switchLan}: {switchLan: (e?: RadioChangeEvent) => void}) {
+  const {language} = useContext(TicloLayoutContextType);
+  return (
+    <div style={{padding: 8, height: '100%', overflow: 'auto', boxSizing: 'border-box'}}>
+      <Radio.Group
+        options={languages}
+        onChange={switchLan}
+        value={language}
+        optionType="button"
+        buttonStyle="solid"
+        size="small"
+      />
+      <br />
+      <Checkbox
+        defaultChecked={TicloI18nSettings.shouldTranslateFunction}
+        onChange={(e) => {
+          TicloI18nSettings.shouldTranslateFunction = e.target.checked;
+          switchLan();
+        }}
+      >
+        translate function
+      </Checkbox>
+      <br />
+      <Checkbox
+        defaultChecked={TicloI18nSettings.useLocalizedBlockName}
+        onChange={(e) => {
+          TicloI18nSettings.useLocalizedBlockName = e.target.checked;
+        }}
+      >
+        localize block name
+      </Checkbox>
     </div>
+  );
+}
+
+function OpenEditorButton({openEditor}: {openEditor: (path: string) => void}) {
+  const stage = useActiveDesignerStage();
+  return (
+    <Button
+      size="small"
+      style={{position: 'absolute', top: 14, right: 42, zIndex: 10}}
+      disabled={!stage?.flow}
+      onClick={() => openEditor(stage.basePath)}
+    >
+      Open Editor
+    </Button>
   );
 }
 
@@ -107,18 +149,14 @@ interface Props {
 }
 
 interface State {
-  conn: ClientConn;
   modal?: React.ReactElement;
 }
 
 class App extends React.PureComponent<Props, State> {
-  state: State = {conn: this.props.conn};
+  state: State = {};
   get conn() {
-    return this.state.conn;
+    return this.props.conn;
   }
-  changePolicy = (policy?: EditPolicy) => {
-    this.setState({conn: this.props.conn.withPolicy(policy)});
-  };
   defaultDockLayout: any;
   constructor(props: Props) {
     super(props);
@@ -132,6 +170,20 @@ class App extends React.PureComponent<Props, State> {
             size: 200,
             children: [
               {
+                size: 120,
+                tabs: [
+                  {
+                    group: 'tool',
+                    id: 'ToolBox',
+                    title: 'ToolBox',
+                    minHeight: 120,
+                    cached: true,
+                    content: <ToolBox switchLan={this.switchLan} />,
+                  },
+                ],
+              },
+              {
+                size: 400,
                 tabs: [
                   {
                     group: 'tool',
@@ -148,52 +200,10 @@ class App extends React.PureComponent<Props, State> {
                       />
                     ),
                   },
-                  {
-                    group: 'tool',
-                    id: 'Policy',
-                    title: 'Policy',
-                    cached: true,
-                    content: <PolicyPanel onChange={this.changePolicy} />,
-                  },
-                  {
-                    group: 'tool',
-                    id: 'Test Language',
-                    title: 'Test Language',
-                    content: (
-                      <div style={{margin: 12}}>
-                        <Radio.Group
-                          options={languages}
-                          onChange={this.switchLan}
-                          defaultValue={this.lng}
-                          optionType="button"
-                          buttonStyle="solid"
-                          size="small"
-                        />
-                        <br />
-                        <Checkbox
-                          defaultChecked={TicloI18nSettings.shouldTranslateFunction}
-                          onChange={(e) => {
-                            TicloI18nSettings.shouldTranslateFunction = e.target.checked;
-                            this.switchLan();
-                          }}
-                        >
-                          translate function
-                        </Checkbox>
-                        <br />
-                        <Checkbox
-                          defaultChecked={TicloI18nSettings.useLocalizedBlockName}
-                          onChange={(e) => {
-                            TicloI18nSettings.useLocalizedBlockName = e.target.checked;
-                          }}
-                        >
-                          localize block name
-                        </Checkbox>
-                      </div>
-                    ),
-                  },
                 ],
               },
               {
+                size: 300,
                 tabs: [
                   {
                     group: 'tool',
@@ -208,17 +218,6 @@ class App extends React.PureComponent<Props, State> {
                           );
                         }}
                       </TicloCurrentFlowConsumer>
-                    ),
-                  },
-                  {
-                    group: 'tool',
-                    id: 'Properties',
-                    title: t('Properties'),
-                    cached: true,
-                    content: (
-                      <PlaygroundConnection>
-                        <PropertyListPane conn={conn} />
-                      </PlaygroundConnection>
                     ),
                   },
                 ],
@@ -236,24 +235,24 @@ class App extends React.PureComponent<Props, State> {
             size: 280,
             children: [
               {
-                size: 150,
+                size: 400,
                 tabs: [
                   {
                     group: 'tool',
-                    id: 'ToolBox',
-                    title: 'ToolBox',
+                    id: 'Properties',
+                    title: t('Properties'),
                     cached: true,
-                    content: <ToolBox openEditor={this.openEditor} />,
+                    content: <DesignerProperties conn={conn} />,
                   },
                 ],
               },
               {
-                size: 600,
+                size: 300,
                 tabs: [
                   {
                     group: 'tool',
-                    id: 'Components',
-                    title: 'Components',
+                    id: 'Outline',
+                    title: 'Outline',
                     cached: true,
                     content: <DesignerNodeTree />,
                   },
@@ -369,13 +368,13 @@ class App extends React.PureComponent<Props, State> {
       <PlaygroundConnectionContext.Provider value={conn}>
         <EditPolicyProvider conn={conn}>
           <TicloApp value={this.ticloContext}>
-            <DesignerSelectionSync onSelect={this.onSelect} />
             <DockLayout
               defaultLayout={this.defaultDockLayout}
               ref={this.getLayout}
               groups={layoutGroups}
               style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
             />
+            <OpenEditorButton openEditor={this.openEditor} />
             {modal}
           </TicloApp>
         </EditPolicyProvider>
