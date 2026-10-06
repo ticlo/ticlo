@@ -6,3 +6,4 @@
 - Editor must not depend on designer; use generics for shared types and keep designer behavior in designer.
 - `packages/editor` and `packages/designer` do not need a11y support; avoid ARIA and a11y-only roles.
 - React components must work without designer styles.
+- Document concepts, contracts, and setup; omit incidental UI choices and implementation walkthroughs.

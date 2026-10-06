@@ -7,7 +7,7 @@
 | Directory | Responsibility |
 | --- | --- |
 | `block/` | Blocks, flows, properties, bindings, function libraries, namespaces, resolver |
-| `connect/` | Batched client/server protocol; `LocalConnection` serializes both sides for tests/local UI |
+| `connect/` | Batched client/server protocol and in-process local connections |
 | `functions/` | Built-ins registered through `packages/core/index.ts` |
 | `worker/` | Flow-backed functions; see [workers](./worker-architecture.md) |
 | `policy/` | Client restrictions and independent server enforcement; editor restrictions do not secure a server |
@@ -62,6 +62,9 @@ in `html` (IndexedDB/static HTTP), `node` (filesystem), and `remote-storage`
 (writable HTTP). Their layouts differ; use the adapter's reference.
 
 ## Connection layer
+
+`makeLocalConnection()` serializes by default to match remote transport;
+its `serialize` option can pass values by reference instead.
 
 `Connection` batches `ConnectionSendingData` until estimated size reaches
 `WS_FRAME_SIZE`; a single message may exceed it. Nonempty frames require an

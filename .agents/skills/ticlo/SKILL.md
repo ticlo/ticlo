@@ -13,6 +13,7 @@ build and translation tools in `tool/`.
 | --- | --- |
 | `core` | Blocks, bindings, functions, scheduling, persistence, client/server sync |
 | `editor` | React/Ant Design editor, property panels, function selectors |
+| `designer` | React page stages, design input, and selection; reuses editor tools |
 | `html` | Browser connections, IndexedDB, static HTTP storage |
 | `node` | Filesystem storage, WebSocket/REST connections, secrets, flow test loading |
 | `remote-storage` | Writable HTTP storage via `@ticlo/file-client`; host: `@ticlo/file-server` |

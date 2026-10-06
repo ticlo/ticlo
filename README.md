@@ -8,19 +8,16 @@ A general purpose visual programming language.
 [![Discord](https://img.shields.io/discord/434106806503997445.svg?color=7289DA&logo=discord&logoColor=white
 )](https://discord.gg/d3NcyAw)
 
-Use Node.js 24.11.0 or newer and the pnpm version specified in [package.json](package.json).
+Use the Node.js and pnpm versions specified in [package.json](package.json).
 Run `pnpm install` to install dependencies, including the published file-server
 and file-client packages. See [local setup](docs/remote-storage.md#local-development)
 to try remote storage.
 
-`pnpm build-pages` regenerates CSS, icons, and translations, then builds the
-browser app into `dist/`. The [Pages workflow](.github/workflows/pages.yml) builds and deploys
-that output from `master`.
+`pnpm build-pages` builds the browser apps and their assets into `dist/`.
+See the [Pages workflow](.github/workflows/pages.yml) for deployment.
 
-`pnpm build-scss` compiles the SCSS sources into `css/react.css`,
-`css/editor.css`, and `css/designer.css`. React component styles are independent
-of editor and designer styles; standalone React pages only need `react.css`.
-The editor uses rc-dock's published CSS with Ticlo's color overrides.
+`pnpm build-scss` builds package styles. React component styles are independent
+of editor and designer styles; see [style imports](packages/react/README.md).
 
 Read the reference for the task:
 
@@ -30,6 +27,7 @@ Read the reference for the task:
 - [Workers and subflows](.agents/skills/ticlo/worker-architecture.md)
 - [Block configuration](docs/block-configs.md)
 - [Property editors](docs/editor.md)
+- [React page designer](packages/designer/README.md)
 - [Static storage](docs/static-storage.md)
 - [Remote storage](docs/remote-storage.md)
 - [Translations](.agents/skills/ticlo-translation/SKILL.md)

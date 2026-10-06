@@ -18,7 +18,7 @@ defined in [DynamicEditor.tsx](../packages/editor/property/value/DynamicEditor.t
 | `date-range` | Date range picker |
 | `time` | Time picker |
 | `object`, `array` | Structured value editor |
-| `table` | Button opening a dialog for arrays of objects or arrays |
+| `table` | Structured editor for arrays of objects or arrays |
 | `type` | Function selector |
 | `worker` | Worker source selector and flow editor |
 | `event` | Event controls |
@@ -55,21 +55,14 @@ integer indices. Column titles are optional and default to the key.
 }
 ```
 
-The dialog supports adding, copying, deleting, and moving rows. It preserves
-fields outside the column list. New rows use column `init` values; `default`
-does not initialize saved data. OK submits the entire array through the parent
-property's change handler; Cancel discards the draft. Connected properties load
-their complete value before editing. If the property changes while the dialog
-is open, Reload starts a new draft from its current value.
-The expand icon opens the same raw JSON/YAML editor used by object and array
-properties.
+Edits use a draft and submit the entire array through the parent property's
+change handler. Unlisted fields are preserved; new rows use column `init`
+values, while `default` only affects display. Connected properties load their
+complete value before editing. External changes require reloading the draft
+before submitting it.
 
-Cells reuse value editors for strings, numbers, toggles, selections, colors,
-dates, times, passwords, and dynamic values. Connected worker cells support
-function selection and a nested flow editor. Inline worker edits stay in the
-table draft until OK; named workers save to their function library, as in the
-regular worker editor. Local function lookup uses the table's `funcLib`.
-Other editors requiring their own Block
-path, including nested object/array editing, are displayed read-only. Locked
-and read-only properties cannot open the editor; individual columns may also
-be read-only. `type: 'array'` continues to select its existing editor.
+Cells reuse value editors. Connected worker cells support function selection
+and flow editing: inline workers stay in the draft until submission; named
+workers save to their function library. Local function lookup uses `funcLib`.
+Editors requiring a separate Block property path, including nested object/array
+editing, remain read-only. Property and column edit restrictions apply.
