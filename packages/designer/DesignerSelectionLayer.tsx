@@ -14,7 +14,7 @@ export function DesignerSelectionLayer({
 }) {
   const rects = useSelectionRects(stageRef, elementMap, blocks);
   return (
-    <div className="ticl-designer-selection-layer" aria-hidden="true">
+    <div className="ticl-designer-selection-layer">
       {rects.map(({selected, left, top, width, height}, i) => (
         <div
           key={i}

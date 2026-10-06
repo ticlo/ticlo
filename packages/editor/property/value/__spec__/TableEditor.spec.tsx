@@ -185,7 +185,7 @@ describe('TableEditor', () => {
     expect(original).toEqual([{label: 'Keep', count: 0, enabled: false}]);
     await open();
     expect(rows()).toHaveLength(1);
-    expect(rows()[0].querySelector('.ant-switch').getAttribute('aria-checked')).toBe('false');
+    expect(rows()[0].querySelector('.ant-switch').classList.contains('ant-switch-checked')).toBe(false);
   });
 
   it('edits a named worker in its original local function library', async () => {
@@ -240,11 +240,11 @@ describe('TableEditor', () => {
     });
     await open();
     await userEvent.fill(rows()[0].querySelector('textarea'), 'edited');
-    await userEvent.click(rows()[0].querySelector('[aria-label="Move down"]'));
+    await userEvent.click(rows()[0].querySelector('[title="Move down"]'));
     expect(rows().map((row) => row.querySelector('textarea').value)).toEqual(['two', 'edited']);
-    await userEvent.click(rows()[1].querySelector('[aria-label="Duplicate row"]'));
+    await userEvent.click(rows()[1].querySelector('[title="Duplicate row"]'));
     await userEvent.fill(rows()[2].querySelector('textarea'), 'copy');
-    await userEvent.click(rows()[0].querySelector('[aria-label="Delete row"]'));
+    await userEvent.click(rows()[0].querySelector('[title="Delete row"]'));
     await button('Add row').click();
     await button('OK').click();
     expect(onChange).toHaveBeenCalledExactlyOnceWith(
@@ -308,7 +308,7 @@ describe('TableEditor', () => {
     await userEvent.fill(rows()[0].querySelector('textarea'), 'Draft');
     update({value: [{label: 'New'}]});
     expect(confirm().disabled).toBe(true);
-    expect(document.querySelector('[role="alert"]').textContent).toContain('Value changed');
+    expect(document.querySelector('.ticl-error-message').textContent).toContain('Value changed');
     await button('Reload').click();
     expect(rows()[0].querySelector('textarea').value).toBe('New');
     await button('OK').click();
@@ -319,12 +319,12 @@ describe('TableEditor', () => {
     const onChange = vi.fn();
     const update = mount({value: [[1, 2]], onChange});
     await open();
-    expect(document.querySelector('[role="alert"]').textContent).toContain('Invalid table rows');
+    expect(document.querySelector('.ticl-error-message').textContent).toContain('Invalid table rows');
     expect(confirm().disabled).toBe(true);
     await button('Cancel').click();
     update({desc: {...objectDesc, rowType: 'array'}});
     await open();
-    expect(document.querySelector('[role="alert"]').textContent).toContain('Invalid table columns');
+    expect(document.querySelector('.ticl-error-message').textContent).toContain('Invalid table columns');
     expect(confirm().disabled).toBe(true);
     expect(onChange).not.toHaveBeenCalled();
   });

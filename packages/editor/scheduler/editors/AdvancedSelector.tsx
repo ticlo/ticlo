@@ -47,7 +47,6 @@ function DayTag({value, onClose}: {value: number | string; onClose: (e: React.Mo
       <span
         className="ant-select-selection-item-remove"
         unselectable="on"
-        aria-hidden="true"
         style={{userSelect: 'none'}}
         onMouseDown={stopPropagation}
         onClick={onClose}

@@ -247,9 +247,7 @@ export class TableEditor extends React.PureComponent<ValueEditorProps, State> {
           >
             <div onKeyDown={(event) => event.stopPropagation()} onPaste={(event) => event.stopPropagation()}>
               {error || changed ? (
-                <div role="alert" className="ticl-error-message">
-                  {error || t('Value changed. Reload to continue.')}
-                </div>
+                <div className="ticl-error-message">{error || t('Value changed. Reload to continue.')}</div>
               ) : null}
               <div className="ticl-table-toolbar">
                 <Button size="small" disabled={disabled} onClick={this.addRow}>
@@ -278,28 +276,28 @@ export class TableEditor extends React.PureComponent<ValueEditorProps, State> {
                         <div className="ticl-table-actions">
                           <Button
                             size="small"
-                            aria-label={translateEditor('Move up')}
+                            title={translateEditor('Move up')}
                             icon={<ArrowUpOutlined />}
                             disabled={disabled || index === 0}
                             onClick={() => this.rowAction(row.id, 'up')}
                           />
                           <Button
                             size="small"
-                            aria-label={translateEditor('Move down')}
+                            title={translateEditor('Move down')}
                             icon={<ArrowDownOutlined />}
                             disabled={disabled || index === rows.length - 1}
                             onClick={() => this.rowAction(row.id, 'down')}
                           />
                           <Button
                             size="small"
-                            aria-label={translateEditor('Duplicate row')}
+                            title={translateEditor('Duplicate row')}
                             icon={<CopyOutlined />}
                             disabled={disabled}
                             onClick={() => this.rowAction(row.id, 'copy')}
                           />
                           <Button
                             size="small"
-                            aria-label={translateEditor('Delete row')}
+                            title={translateEditor('Delete row')}
                             icon={<DeleteOutlined />}
                             disabled={disabled}
                             onClick={() => this.rowAction(row.id, 'delete')}
