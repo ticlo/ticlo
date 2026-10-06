@@ -15,6 +15,7 @@
   "main": "./index.ts",
   "module": "./index.ts",
   "types": "./index.ts",
+  "style": "./style/index.css",
   "dependencies": {
     "@ant-design/icons": "^6.3.4",
     "@codemirror/lang-javascript": "^6.2.5",

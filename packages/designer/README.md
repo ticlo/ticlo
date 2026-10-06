@@ -10,6 +10,11 @@ through a `FrameServerConnection`, so the editor changes the same live runtime.
 The canvas supports selection and hover outlines. WYSIWYG editing will be
 added later. Dock layout and editor-window management belong to the app.
 
+Styles live in `style/index.scss` and compile to `css/designer.css` for the apps.
+Load this alongside `css/react.css` for the page's component styles. The app also
+loads editor, Ant Design, and icon styles for its tool panels. Designer styles
+only target designer classes; ordinary React pages do not need them.
+
 Only `#main` directly under the opened Flow is its React entry point. Nested
 `#main` properties are not searched, and an ordinary Block is not a page Flow.
 The flow's `#main` can be an owned component block, a binding to a component

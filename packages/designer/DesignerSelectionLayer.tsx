@@ -14,23 +14,16 @@ export function DesignerSelectionLayer({
 }) {
   const rects = useSelectionRects(stageRef, elementMap, blocks);
   return (
-    <div
-      className="ticl-designer-selection-layer"
-      aria-hidden="true"
-      style={{position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none', overflow: 'hidden'}}
-    >
+    <div className="ticl-designer-selection-layer" aria-hidden="true">
       {rects.map(({selected, left, top, width, height}, i) => (
         <div
           key={i}
           className={selected ? 'ticl-designer-selection-rect' : 'ticl-designer-hover-rect'}
           style={{
-            position: 'absolute',
             left,
             top,
             width,
             height,
-            boxSizing: 'border-box',
-            border: `1px solid ${selected ? '#808080' : 'rgba(128, 128, 128, 0.35)'}`,
           }}
         />
       ))}

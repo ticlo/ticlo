@@ -2,6 +2,7 @@ packages:
   - 'packages/*'
   - 'app'
 allowBuilds:
+  '@parcel/watcher': false
   esbuild: true
 # These upstream peer ranges lag behind versions covered by our integration tests and lint checks.
 peerDependencyRules:

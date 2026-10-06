@@ -21,7 +21,7 @@
     "isolatedModules": true,
     "useDefineForClassFields": true,
     "resolveJsonModule": true,
-    "types": ["node", "vitest/globals"]
+    "types": ["node", "vitest/globals", "vite/client"]
   },
   "compileOnSave": true,
   "include": [

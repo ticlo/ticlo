@@ -1,22 +1,4 @@
-.ticl-comment-view {
-  padding: 0 4px;
-  max-height: 512px;
-}
-
-.ticl-block-note {
-  border: 1px solid mix(@yellow-7, white, 30%);
-  background: mix(@yellow-1, white, 30%);
-  padding: 6px 10px;
-  max-height: 1024px;
-  overflow-y: auto;
-
-  transition-property: border;
-  transition-duration: 0.2s;
-}
-
-.ticl-block-note:hover {
-  border-color: fade(@yellow-8, 50%);
-}
+@use 'sass:color';
 
 .ticl-markdown {
   line-height: 1.5;
@@ -359,7 +341,7 @@
     padding: 0 5px;
     white-space: pre;
     border: 1px solid #eaeaea;
-    background-color: fade(#eee, 50%);
+    background-color: color.change(#eee, $alpha: 0.5);
     border-radius: 3px;
   }
 
@@ -374,7 +356,7 @@
   }
 
   .highlight pre {
-    background-color: fade(#eee, 50%);
+    background-color: color.change(#eee, $alpha: 0.5);
     border: 1px solid #cccccc;
     font-size: 13px;
     line-height: 19px;
@@ -384,7 +366,7 @@
   }
 
   pre {
-    background-color: fade(#eee, 50%);
+    background-color: color.change(#eee, $alpha: 0.5);
     border: 1px solid #cccccc;
     font-size: 13px;
     line-height: 19px;

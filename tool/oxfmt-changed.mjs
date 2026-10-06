@@ -1,7 +1,7 @@
 import {spawnSync} from 'node:child_process';
 import {existsSync} from 'node:fs';
 
-const formatPattern = /^(packages|tool|app)\/.*\.(ts|tsx|less)$/;
+const formatPattern = /^(packages|tool|app)\/.*\.(ts|tsx|scss)$/;
 const formatterScript = 'node_modules/oxfmt/bin/oxfmt';
 
 function run(command, args) {

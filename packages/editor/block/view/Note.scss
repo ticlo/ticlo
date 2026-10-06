@@ -1,0 +1,22 @@
+@use 'sass:color';
+@use '../../style/variables' as *;
+
+.ticl-comment-view {
+  padding: 0 4px;
+  max-height: 512px;
+}
+
+.ticl-block-note {
+  border: 1px solid color.mix($yellow-7, white, 30%);
+  background: color.mix($yellow-1, white, 30%);
+  padding: 6px 10px;
+  max-height: 1024px;
+  overflow-y: auto;
+
+  transition-property: border;
+  transition-duration: 0.2s;
+}
+
+.ticl-block-note:hover {
+  border-color: color.change($yellow-8, $alpha: 0.5);
+}

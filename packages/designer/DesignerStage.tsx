@@ -75,17 +75,12 @@ export function DesignerStage({root, conn, basePath}: Props) {
     return () => contextRef.current.onFlowClosed(basePath);
   }, [basePath]);
   return (
-    <div
-      className="ticl-designer-stage"
-      ref={stageRef}
-      style={{height: '100%', position: 'relative', isolation: 'isolate', overflow: 'hidden'}}
-      onPointerDownCapture={() => context.onFlowFocus(basePath)}
-    >
+    <div className="ticl-designer-stage" ref={stageRef} onPointerDownCapture={() => context.onFlowFocus(basePath)}>
       <ComponentContext.Provider value={componentContext}>
         {flow ? (
           <DesignerPage flow={flow} key={flow._blockId} />
         ) : (
-          <div style={{padding: 24}}>This flow is not available.</div>
+          <div className="ticl-designer-empty">This flow is not available.</div>
         )}
       </ComponentContext.Provider>
       {flow && designMode && (

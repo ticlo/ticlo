@@ -1,4 +1,5 @@
 import React from 'react';
+import '../style/index.scss';
 import {vi} from 'vitest';
 import {Block, Root} from '@ticlo/core';
 import {ComponentContext, TicloComp, type ElementMap} from '@ticlo/react';

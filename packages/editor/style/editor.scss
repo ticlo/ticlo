@@ -1,42 +1,24 @@
-// no priority
-@ticl-color-prn: #a0a0a0;
-@ticl-color-prn-light: #ddd;
+@use '../component/component';
+@use '../component/DockDialogPane';
 
-@ticl-color-pr0: #40a9ff;
-@ticl-color-pr0-light: #91d5ff;
-@ticl-color-pr1: #13c2c2;
-@ticl-color-pr1-light: #87e8de;
-@ticl-color-pr2: #8ec60b;
-@ticl-color-pr2-light: #d3f261;
-@ticl-color-pr3: #fb872e;
-@ticl-color-pr3-light: #ffbfa2;
-// repeater
-@ticl-color-prr: #efa210;
-@ticl-color-prr-light: #ffe58f;
-
-@import 'rc-dock/style/index-light';
-
-@import '../component/component';
-@import '../component/DockDialogPane';
-
-@import '../block/BlockStage';
-@import '../block/Block';
-@import '../block/view/Note';
-@import '../block/view/Slider';
-@import '../block/Field';
-@import '../icon/Icon';
-@import '../node-tree/NodeTree';
-@import '../property/Property';
-@import '../property/value/TableEditor';
-@import '../function-selector/FunctionView';
-@import '../component/ClickPopup';
-@import '../object-tree/ObjectTree';
-@import '../scheduler/Calendar';
-@import './antd-extra';
-@import './dock-extra';
-@import '../dock/text-editor/TextEditorPane';
-@import '../dock/block/BlockStagePane';
-@import '../dock/node-tree/NodeTreePane';
+@use '../block/BlockStage';
+@use '../block/Block';
+@use '../block/view/Note';
+@use '../block/view/Slider';
+@use '../block/Field';
+@use '../icon/Icon';
+@use '../node-tree/NodeTree';
+@use '../property/Property';
+@use '../property/value/TableEditor';
+@use '../function-selector/FunctionView';
+@use '../component/ClickPopup';
+@use '../object-tree/ObjectTree';
+@use '../scheduler/Calendar';
+@use './antd-extra';
+@use './dock-extra';
+@use '../dock/text-editor/TextEditorPane';
+@use '../dock/block/BlockStagePane';
+@use '../dock/node-tree/NodeTreePane';
 
 body {
   font-family: var(--ant-font-family);

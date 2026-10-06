@@ -1,4 +1,5 @@
 import React, {StrictMode, useContext, useState} from 'react';
+import '../style/index.scss';
 import {expectTypeOf} from 'vitest';
 import {Block, Root} from '@ticlo/core';
 import {ComponentContext, type ComponentContextValue} from '@ticlo/react';

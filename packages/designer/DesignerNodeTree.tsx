@@ -5,7 +5,7 @@ import {useActiveDesignerStage} from './DesignerContext.tsx';
 export function DesignerNodeTree() {
   const stage = useActiveDesignerStage();
   return (
-    <div className="ticl-designer-node-tree" style={{height: '100%'}}>
+    <div className="ticl-designer-node-tree">
       {stage?.main ? (
         <NodeTree
           key={`${stage.basePath}:${stage.main._blockId}`}
@@ -16,7 +16,9 @@ export function DesignerNodeTree() {
           style={{height: '100%'}}
         />
       ) : (
-        <div style={{padding: 12}}>{stage ? 'This stage has no component tree.' : 'No active designer stage.'}</div>
+        <div className="ticl-designer-outline-empty">
+          {stage ? 'This stage has no component tree.' : 'No active designer stage.'}
+        </div>
       )}
     </div>
   );

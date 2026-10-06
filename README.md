@@ -17,6 +17,11 @@ to try remote storage.
 browser app into `dist/`. The [Pages workflow](.github/workflows/pages.yml) builds and deploys
 that output from `master`.
 
+`pnpm build-scss` compiles the SCSS sources into `css/react.css`,
+`css/editor.css`, and `css/designer.css`. React component styles are independent
+of editor and designer styles; standalone React pages only need `react.css`.
+The editor uses rc-dock's published CSS with Ticlo's color overrides.
+
 Read the reference for the task:
 
 - [Architecture and packages](.agents/skills/ticlo/SKILL.md)

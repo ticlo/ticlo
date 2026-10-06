@@ -1,0 +1,45 @@
+.ticl-designer-stage {
+  height: 100%;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.ticl-designer-page {
+  height: 100%;
+  overflow: auto;
+  background: #fff;
+  position: relative;
+  z-index: 0;
+}
+
+.ticl-designer-empty {
+  padding: 24px;
+}
+
+.ticl-designer-node-tree {
+  height: 100%;
+}
+
+.ticl-designer-outline-empty {
+  padding: 12px;
+}
+
+.ticl-designer-selection-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ticl-designer-selection-rect,
+.ticl-designer-hover-rect {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid #808080;
+}
+
+.ticl-designer-hover-rect {
+  border-color: rgba(128, 128, 128, 0.35);
+}

@@ -1,0 +1,52 @@
+@use 'sass:color';
+@use './variables' as *;
+
+// Keep the editor palette when using rc-dock's precompiled light theme.
+.dock-ink-bar {
+  background-color: $primary-color;
+}
+
+.dock-tab > div {
+  outline-color: $primary-color;
+}
+
+.dock-tab:hover {
+  color: color.mix(#fff, $primary-color, 15%);
+}
+
+.dock-tab-active,
+.dock-tab-active:hover {
+  color: $primary-color;
+}
+
+.dock-tab-btn-disabled,
+.dock-tab-disabled,
+.dock-tab-disabled:hover,
+.dock-dropdown-menu-item-disabled,
+.dock-dropdown-menu-item-disabled:hover {
+  color: $disabled-color;
+}
+
+.dock-nav-more,
+.dock-dropdown,
+.dock-dropdown-menu-item,
+.dock-panel {
+  color: $text-color;
+}
+
+.dock-layout > .dock-drop-indicator,
+.dock-drop-layer .dock-drop-square-dropping {
+  background: color.mix($background-color, $primary-color, 50%);
+}
+
+body > .dragging-layer {
+  & > div:last-child[class^='tico-fa'] {
+    filter: brightness(0.3);
+    top: 14px;
+    width: 14px;
+    height: 14px;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+}

@@ -1,4 +1,5 @@
 import React, {useLayoutEffect, useState} from 'react';
+import '../../style/index.scss';
 import {Flow, FlowFolder} from '@ticlo/core';
 import {
   MarkdownElement,
@@ -26,6 +27,18 @@ describe('MarkdownElement', () => {
   afterEach(() => {
     root.remove();
     flow.destroy();
+  });
+
+  it('styles standalone Markdown with the React stylesheet', async () => {
+    document.body.appendChild(root.div);
+    const block = flow.createBlock('markdown');
+    block.setValue('source', '# Title\n\nRead `code`.\n\n> Quoted text\n\n| A | B |\n| - | - |\n| 1 | 2 |');
+    await root.waitRender(<MarkdownElement block={block} />);
+
+    expect(getComputedStyle(root.div.querySelector('h1')).fontSize).toBe('28px');
+    expect(getComputedStyle(root.div.querySelector('p code')).backgroundColor).toBe('rgba(238, 238, 238, 0.5)');
+    expect(getComputedStyle(root.div.querySelector('blockquote')).borderLeftWidth).toBe('4px');
+    expect(getComputedStyle(root.div.querySelector('td')).padding).toBe('6px 13px');
   });
 
   it('mounts a component for every heading, code block and intervening content run', async () => {

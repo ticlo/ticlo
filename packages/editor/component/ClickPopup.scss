@@ -1,3 +1,5 @@
+@use '../style/variables' as *;
+
 .ticl-dropdown {
   box-shadow: 0 0.5px 3px 1px rgba(0, 0, 0, 0.15);
   margin: 0;
@@ -30,11 +32,11 @@
 .ticl-dropdown-menu-item {
   clear: both;
   margin: 0;
-  padding: @dropdown-vertical-padding @control-padding-horizontal;
-  color: @text-color;
+  padding: $dropdown-vertical-padding $control-padding-horizontal;
+  color: $text-color;
   font-weight: normal;
-  font-size: @dropdown-font-size;
-  line-height: @dropdown-line-height;
+  font-size: $dropdown-font-size;
+  line-height: $dropdown-line-height;
   white-space: nowrap;
   position: relative;
   cursor: pointer;
@@ -47,15 +49,15 @@
 
   > a {
     display: block;
-    margin: -5px -@control-padding-horizontal;
-    padding: 5px @control-padding-horizontal;
-    color: @text-color;
+    margin: -5px (-$control-padding-horizontal);
+    padding: 5px $control-padding-horizontal;
+    color: $text-color;
     transition: all 0.3s;
   }
 
   &:hover,
   &-active {
-    background-color: @item-hover-bg;
+    background-color: $item-hover-bg;
   }
 
   & > .ant-btn {
@@ -69,6 +71,6 @@
     top: 0;
     bottom: 0;
     height: 14px;
-    color: @text-color-light;
+    color: $text-color-light;
   }
 }

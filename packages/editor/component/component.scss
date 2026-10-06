@@ -1,5 +1,5 @@
-@import 'Virtual.less';
-@import 'Tree.less';
+@use 'Virtual';
+@use 'Tree';
 
 .ticl-full {
   position: absolute;

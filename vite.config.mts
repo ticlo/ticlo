@@ -28,9 +28,9 @@ async function checkFiles() {
   if (!fs.existsSync('css')) {
     fs.mkdirSync('css', {recursive: true});
   }
-  if (!fs.existsSync('css/editor.css')) {
-    console.log('Building editor css...');
-    await runNpmScript('build-less');
+  if (['editor', 'react', 'designer'].some((name) => !fs.existsSync(`css/${name}.css`))) {
+    console.log('Building styles...');
+    await runNpmScript('build-scss');
   }
   if (!fs.existsSync('css/antd.css')) {
     console.log('Building antd css...');
@@ -99,7 +99,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         'playground': fileURLToPath(new URL('./app/playground.html', import.meta.url)),
-        'designer': fileURLToPath(new URL('./app/designer.html', import.meta.url)),
+        'designer-app': fileURLToPath(new URL('./app/designer.html', import.meta.url)),
         'stage-test': fileURLToPath(new URL('./app/stage-test.html', import.meta.url)),
         'index': fileURLToPath(new URL('./app/editor.html', import.meta.url)),
         'server': fileURLToPath(new URL('./app/server.html', import.meta.url)),

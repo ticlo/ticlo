@@ -2,6 +2,7 @@ import fs from 'fs';
 import {normalize} from 'path';
 import shelljs from 'shelljs';
 import * as glob from 'glob';
+import {compile} from 'sass';
 
 const dirHistory = new Set<string>();
 const temporaryPaths: string[] = [];
@@ -84,6 +85,13 @@ async function buildPackage(name: string) {
   const packageJson: any = JSON.parse(fs.readFileSync(`${fromDir}/package.json`, {encoding: 'utf8'}));
   resolveWorkspaceDependencies(packageJson);
   fs.writeFileSync(`${targetDir}/package.json`, JSON.stringify(packageJson, null, 2));
+
+  const styleEntry = `${fromDir}/style/index.scss`;
+  if (fs.existsSync(styleEntry)) {
+    const cssFile = `${targetDir}/style/index.css`;
+    makeDir(cssFile);
+    fs.writeFileSync(cssFile, compile(styleEntry, {loadPaths: ['node_modules']}).css);
+  }
 
   // pnpm keeps dependencies under each workspace package. Make them available
   // while compiling the copied sources, then remove the temporary link.

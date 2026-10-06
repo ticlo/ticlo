@@ -1,3 +1,5 @@
+@use '../style/variables' as *;
+
 .ticl-block {
   box-sizing: border-box;
   margin: 0;
@@ -58,7 +60,7 @@
   border-top-right-radius: 10px;
   height: 24px;
   padding: 2px 16px;
-  background: @ticl-color-prn;
+  background: $ticl-color-prn;
   color: white;
 
   & > .tico {
@@ -71,7 +73,7 @@
   transition-duration: 0.2s;
 
   & > .ticl-inbound-path {
-    color: @text-color;
+    color: $text-color;
   }
 
   & > .ticl-field-subicon {
@@ -192,7 +194,7 @@ body:not(.dock-dragging) {
   height: 15px;
   border-radius: 3px;
   position: absolute;
-  border: 1px solid @ticl-color-prn;
+  border: 1px solid $ticl-color-prn;
   background: #f8f8f8;
 }
 
@@ -217,7 +219,7 @@ body:not(.dock-dragging) {
 .ticl-block-select-rect {
   position: absolute;
   border: solid 1px white;
-  background: @blue-3;
+  background: $blue-3;
   opacity: 0.5;
   pointer-events: none;
   display: none;

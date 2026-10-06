@@ -12,6 +12,7 @@
   "main": "./index.ts",
   "module": "./index.ts",
   "types": "./index.ts",
+  "style": "./style/index.css",
   "dependencies": {
     "@ticlo/core": "workspace:*",
     "@ticlo/editor": "workspace:*",
