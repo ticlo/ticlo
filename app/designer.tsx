@@ -358,7 +358,7 @@ class App extends React.PureComponent<Props, State> {
   openEditor = (path?: string) => {
     const url = new URL('editor.html', location.href);
     if (path) url.searchParams.set('flow', path);
-    const editor = window.open(url.href, '_blank');
+    const editor = window.open(url.href, '_blank', 'popup,width=1200,height=800');
     if (editor) this.editors.push({window: editor, connection: new FrameServerConnection(editor, this.props.root)});
   };
   closeEditors = () => {
