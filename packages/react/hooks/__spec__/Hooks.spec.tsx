@@ -6,7 +6,7 @@ import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.ts
 import {FlowRoot, useFlow} from '../useFlow.tsx';
 import {useFilteredBlocks} from '../useFilteredBlocks.tsx';
 import {useMemoUpdate, useRefState} from '../../util/react-tools.ts';
-import {ComponentContext, useSelection, useValue} from '../../index.ts';
+import {ComponentContext, ElementMap, useSelection, useValue} from '../../index.ts';
 import {useTicloComp} from '../useTicloComp.ts';
 
 function ValueProbe({block, path, capture}: {block: Block; path: string; capture: {current?: unknown}}) {
@@ -47,6 +47,66 @@ describe('react hooks', function () {
 
   afterEach(function () {
     root.remove();
+  });
+
+  it('shares a stable root ref with the page, local object ref, and optional callback in both modes', async () => {
+    const flow = new Flow();
+    const block = flow.createBlock('component');
+    block.setValue('#optional', ['ref']);
+    const elementMap = new ElementMap();
+    const ref = React.createRef<HTMLDivElement>();
+    const cleanup = vi.fn();
+    const optionalRef = vi.fn(() => cleanup);
+    const options = {ref, optionalHandler: (_block: Block, name: string) => (name === 'ref' ? optionalRef : undefined)};
+    function Probe() {
+      const {optionalHandlers} = useTicloComp(block, options);
+      return <div {...optionalHandlers} />;
+    }
+    async function render(designMode: boolean) {
+      await root.waitRender(
+        <ComponentContext.Provider value={{designMode, elementMap, select: () => false, addSelection: () => false}}>
+          <Probe />
+        </ComponentContext.Provider>
+      );
+    }
+    try {
+      await render(true);
+      const element = root.div.firstElementChild;
+      expect(ref.current).toBe(element);
+      expect(elementMap.getBlock(element)).toBe(block);
+      expect(optionalRef).toHaveBeenCalledWith(element);
+      expect(block.getValue('ref')).toBeUndefined();
+      await render(false);
+      expect(ref.current).toBe(element);
+      expect(elementMap.getBlock(element)).toBe(block);
+      expect(optionalRef).toHaveBeenCalledTimes(1);
+      expect(cleanup).not.toHaveBeenCalled();
+      await root.waitRender(<></>);
+      expect(ref.current).toBeNull();
+      expect(elementMap.getElements(block).length).toBe(0);
+      expect(elementMap.getBlock(element)).toBeUndefined();
+      expect(cleanup).toHaveBeenCalledTimes(1);
+    } finally {
+      flow.destroy();
+    }
+  });
+
+  it('provides a root ref outside the designer without requiring an optional ref property', async () => {
+    const flow = new Flow();
+    const ref = vi.fn();
+    function Probe() {
+      const {optionalHandlers} = useTicloComp(flow, {ref});
+      return <div {...optionalHandlers} />;
+    }
+    try {
+      await root.waitRender(<Probe />);
+      expect(ref).toHaveBeenCalledWith(root.div.firstElementChild);
+      expect(flow.getValue('ref')).toBeUndefined();
+      await root.waitRender(<></>);
+      expect(ref).toHaveBeenLastCalledWith(null);
+    } finally {
+      flow.destroy();
+    }
   });
 
   it('selects on mousedown only in design mode and returns the selection command result', async () => {

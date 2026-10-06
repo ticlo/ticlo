@@ -13,7 +13,10 @@ export const DesignerPage = memo(function DesignerPage({flow}: {flow: Flow}) {
     page = <div style={{padding: 24}}>This flow has no #main component.</div>;
   }
   return (
-    <div className="ticl-designer-page" style={{height: '100%', overflow: 'auto', background: '#fff'}}>
+    <div
+      className="ticl-designer-page"
+      style={{height: '100%', overflow: 'auto', background: '#fff', position: 'relative', zIndex: 0}}
+    >
       {page}
     </div>
   );

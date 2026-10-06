@@ -4,6 +4,8 @@ export {useValue} from './hooks/useValue.ts';
 export {useSelection} from './hooks/useSelection.ts';
 export {ComponentContext} from './ComponentContext.ts';
 export type {ComponentContextValue} from './ComponentContext.ts';
+export {ElementMap} from './util/ElementMap.ts';
+export {useTicloComp} from './hooks/useTicloComp.ts';
 export {useFilteredBlocks} from './hooks/useFilteredBlocks.tsx';
 export {useWatchBlock} from './hooks/useWatchBlock.tsx';
 export {Values} from './comp/Values.ts';

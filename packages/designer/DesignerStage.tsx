@@ -2,8 +2,9 @@ import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Block, Flow, type ClientConn} from '@ticlo/core';
 import {TicloCurrentFlowContext} from '@ticlo/editor/component/LayoutContext.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
-import {ComponentContext, useValue, type ComponentContextValue} from '@ticlo/react';
+import {ComponentContext, ElementMap, useValue} from '@ticlo/react';
 import {DesignerPage} from './DesignerPage.tsx';
+import {DesignerSelectionLayer} from './DesignerSelectionLayer.tsx';
 import type {DesignerStageContextValue} from './DesignerContext.tsx';
 import {useSelection} from './useSelection.ts';
 
@@ -14,6 +15,8 @@ interface Props {
 }
 
 export function DesignerStage({root, conn, basePath}: Props) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [elementMap] = useState(() => new ElementMap());
   const block = useValue(root, basePath);
   const flow = block instanceof Flow ? block : null;
   const value = useValue(root, `${basePath}.#main`);
@@ -26,9 +29,9 @@ export function DesignerStage({root, conn, basePath}: Props) {
   }, [flow]);
   const {selection, select, addSelection} = useSelection(root, main);
   const [designMode, setDesignMode] = useState(true);
-  const componentContext = useMemo<ComponentContextValue<Block | string>>(
-    () => ({designMode, select, addSelection}),
-    [designMode, select, addSelection]
+  const componentContext = useMemo(
+    () => ({designMode, elementMap, select, addSelection}),
+    [designMode, elementMap, select, addSelection]
   );
   const historyCommands = useMemo(
     () => ({
@@ -74,7 +77,8 @@ export function DesignerStage({root, conn, basePath}: Props) {
   return (
     <div
       className="ticl-designer-stage"
-      style={{height: '100%'}}
+      ref={stageRef}
+      style={{height: '100%', position: 'relative', isolation: 'isolate', overflow: 'hidden'}}
       onPointerDownCapture={() => context.onFlowFocus(basePath)}
     >
       <ComponentContext.Provider value={componentContext}>
@@ -84,6 +88,9 @@ export function DesignerStage({root, conn, basePath}: Props) {
           <div style={{padding: 24}}>This flow is not available.</div>
         )}
       </ComponentContext.Provider>
+      {flow && designMode && (
+        <DesignerSelectionLayer stageRef={stageRef} elementMap={elementMap} blocks={selection.blocks} />
+      )}
     </div>
   );
 }

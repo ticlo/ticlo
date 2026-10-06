@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type Ref,
 } from 'react';
 import {Block, BlockProperty, Event} from '@ticlo/core';
 import {PropMap} from '../comp/PropType.ts';
@@ -15,6 +16,7 @@ import {Values} from '../comp/Values.ts';
 import {ComponentContext} from '../ComponentContext.ts';
 import {useBlockConfigs} from './useBlockConfigs.ts';
 import {useSelection} from './useSelection.ts';
+import {useComponentRef} from './useComponentRef.ts';
 import {useMemoUpdate, useValueRef} from '../util/react-tools.ts';
 
 const configsMap: PropMap = {
@@ -114,10 +116,18 @@ function useOptionalHandlers(
 
 export function useTicloComp(
   block: Block,
-  {optionalHandler, noChildren}: {optionalHandler?: (block: Block, name: string) => unknown; noChildren?: boolean} = {}
+  {
+    optionalHandler,
+    noChildren,
+    ref,
+  }: {
+    optionalHandler?: (block: Block, name: string) => unknown;
+    noChildren?: boolean;
+    ref?: Ref<Element>;
+  } = {}
 ) {
   const componentContext = useContext(ComponentContext);
-  const {designMode} = componentContext;
+  const {designMode, elementMap} = componentContext;
   // put the noChildren option in a ref so it can never change
   const needChildren = useRef(noChildren !== true).current;
   const [style, setStyle] = useState(() => block.getValue('style'));
@@ -145,9 +155,10 @@ export function useTicloComp(
     optionalHandler,
     designMode
   );
-  const handlers = useMemo(
-    () => (designMode ? {...optionalHandlers, onMouseDown} : optionalHandlers),
-    [designMode, optionalHandlers, onMouseDown]
+  const componentRef = useComponentRef(block, elementMap, ref, optionalHandlers?.ref as Ref<Element> | undefined);
+  const handlers = useMemo<Record<string, unknown>>(
+    () => ({...optionalHandlers, ref: componentRef, ...(designMode ? {onMouseDown} : undefined)}),
+    [designMode, optionalHandlers, componentRef, onMouseDown]
   );
 
   const onPropertyChange = useCallback((property: BlockProperty, saved?: boolean) => {

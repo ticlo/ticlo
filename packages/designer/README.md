@@ -7,8 +7,8 @@ contains Properties above Outline, the active stage's component tree.
 The floating Open Editor button inside ToolBox's upper-right corner opens `editor.html`
 through a `FrameServerConnection`, so the editor changes the same live runtime.
 
-The current stage is a page viewer. Canvas selection and WYSIWYG editing will
-be added later. Dock layout and editor-window management belong to the app.
+The canvas supports selection and hover outlines. WYSIWYG editing will be
+added later. Dock layout and editor-window management belong to the app.
 
 Only `#main` directly under the opened Flow is its React entry point. Nested
 `#main` properties are not searched, and an ordinary Block is not a page Flow.
@@ -38,7 +38,7 @@ designer renderer.
 Stage context has two audiences:
 
 - Components import `ComponentContext` from `@ticlo/react`. It exposes `designMode`
-  (`true` for design, `false` for preview), `select()` and `addSelection()`. Both commands accept
+  (`true` for design, `false` for preview), the stage's stable `elementMap`, `select()` and `addSelection()`. Both commands accept
   Blocks or full paths. Outside a designer, `designMode` defaults to `false` and
   selection commands do nothing.
 - Panels use `useActiveDesignerStage()` from `@ticlo/designer`. Its value adds
@@ -65,6 +65,26 @@ start with `on` in design mode. Attributes and `ref` callbacks remain active.
 It reads `ComponentContext` once and passes its value
 to the selection hook, and `designMode` to the optional handlers hook. Preview
 mode uses the original handlers.
+
+Each stage owns an `ElementMap` with Block-to-Element and Element-to-Block
+registrations. Multiple rendered instances of a Block are supported, and refs
+remove their registrations on unmount. The map remains available in preview.
+`useTicloComp` always supplies a root ref in `optionalHandlers`, merging it with
+the optional `ref` handler and a component's own `useTicloComp(block, {ref})`.
+Callback refs (including cleanup functions) and object refs are supported.
+Automatic registration does not write DOM nodes into Block properties; the
+existing optional `ref` output remains opt-in. Custom components attach these
+handlers to their actual root DOM Element.
+
+`DesignerSelectionLayer` is a sibling of `DesignerPage` managed by the stage.
+It draws selected instances and a lighter outline around the hovered component
+only in design mode. Outlines pass pointer events through to the page. Selection
+is retained when an Element is temporarily hidden or absent.
+Measurement is scheduled on target or ref changes, scroll, and stage/target
+resize, with updates coalesced into one animation frame. Mouse movement within
+the same component does not measure again. Position-only changes and animations
+may leave outlines temporarily stale until the next measurement trigger.
+There are no drag targets or resize handles yet.
 
 Designer and dataflow stages share `TicloApp`'s stage registry.
 The editor's public context uses `TicloStage<TicloSelection>` by default:

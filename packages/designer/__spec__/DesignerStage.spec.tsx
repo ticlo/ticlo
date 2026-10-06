@@ -156,7 +156,9 @@ describe('DesignerStage', () => {
   });
 
   it('keeps page components stable across selection and panel updates, and updates mode consumers', async () => {
-    expectTypeOf<keyof ComponentContextValue>().toEqualTypeOf<'designMode' | 'select' | 'addSelection'>();
+    expectTypeOf<keyof ComponentContextValue>().toEqualTypeOf<
+      'designMode' | 'elementMap' | 'select' | 'addSelection'
+    >();
     const secondPath = `${path}Second`;
     const firstFlow = Root.instance.addFlow(path, {
       '#main': {'#is': 'react:div', 'a': {'#is': 'react:p'}, 'b': {'#is': 'react:p'}},
