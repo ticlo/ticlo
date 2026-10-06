@@ -4,7 +4,13 @@ import {Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {BlockStage} from '../../block/BlockStage.tsx';
 import {TicloApp} from '../TicloApp.tsx';
-import {TicloCurrentFlowContext, type TicloCurrentFlow, type TicloStage} from '../LayoutContext.ts';
+import {
+  TicloCurrentFlowContext,
+  TicloLayoutContextType,
+  type TicloCurrentFlow,
+  type TicloLayoutContext,
+  type TicloStage,
+} from '../LayoutContext.ts';
 import {loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 
@@ -18,8 +24,13 @@ describe('TicloApp stage registry', () => {
   it('shares active stages and preserves keyboard commands when stages change or close', async () => {
     const save = vi.fn(() => true);
     const first: TicloStage = {kind: 'dataflow', selection: {paths: []}, select: vi.fn(), save};
-    const second: TicloStage = {kind: 'designer', selection: {paths: []}, select: vi.fn()};
+    const second: TicloStage = {kind: 'custom', selection: {paths: []}, select: vi.fn()};
+    interface CustomLayoutContext extends TicloLayoutContext {
+      workspaceName: string;
+    }
+    const CustomLayoutContextType = TicloLayoutContextType as React.Context<CustomLayoutContext>;
     let context: TicloCurrentFlow;
+    let layoutContext: CustomLayoutContext;
     let replaceSecond: (stage: TicloStage) => void;
     let closeSecond: () => void;
     function Register({path, stage}: {path: string; stage: TicloStage}): null {
@@ -32,6 +43,7 @@ describe('TicloApp stage registry', () => {
     }
     function Contents() {
       context = useContext(TicloCurrentFlowContext);
+      layoutContext = useContext(CustomLayoutContextType);
       const [stage, setStage] = useState(second);
       const [open, setOpen] = useState(true);
       replaceSecond = setStage;
@@ -46,12 +58,13 @@ describe('TicloApp stage registry', () => {
     }
     const [, div] = loadTemplate(
       <StrictMode>
-        <TicloApp value={{}}>
+        <TicloApp<CustomLayoutContext> value={{workspaceName: 'Example'}}>
           <Contents />
         </TicloApp>
       </StrictMode>
     );
     await shouldHappen(() => context != null);
+    expect(layoutContext.workspaceName).toBe('Example');
     context.onFlowFocus('first');
     await shouldHappen(() => context.activeStage === first);
     const saveKey = new KeyboardEvent('keydown', {key: 's', ctrlKey: true, bubbles: true, cancelable: true});

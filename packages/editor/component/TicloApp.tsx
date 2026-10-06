@@ -1,8 +1,8 @@
 import React, {useCallback, useMemo, useRef, useState, ReactNode} from 'react';
 import {TicloCurrentFlowContext, TicloLayoutContext, TicloLayoutContextType, TicloStage} from './LayoutContext.ts';
 
-interface TicloAppProps {
-  value: TicloLayoutContext;
+export interface TicloAppProps<Context extends TicloLayoutContext = TicloLayoutContext> {
+  value: Context;
   children?: ReactNode;
   className?: string;
   style?: React.CSSProperties;
@@ -167,7 +167,12 @@ function useTicloContext(value: TicloLayoutContext) {
   return {currentFlow, wrappedLayoutContext, onKeyDown, onPaste};
 }
 
-export function TicloApp({value, children, className = 'ticl-app', style}: TicloAppProps) {
+export function TicloApp<Context extends TicloLayoutContext>({
+  value,
+  children,
+  className = 'ticl-app',
+  style,
+}: TicloAppProps<Context>) {
   const {currentFlow, wrappedLayoutContext, onKeyDown, onPaste} = useTicloContext(value);
   const rootStyle: React.CSSProperties = useMemo(
     () => ({

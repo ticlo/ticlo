@@ -1,12 +1,13 @@
-import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
-import {Block, Flow, type ClientConn} from '@ticlo/core';
+import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {Block, Flow, voidFunction, type ClientConn} from '@ticlo/core';
 import {TicloCurrentFlowContext} from '@ticlo/editor/component/LayoutContext.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {ComponentContext, ElementMap, useValue} from '@ticlo/react';
 import {DesignerPage} from './DesignerPage.tsx';
 import {DesignerSelectionLayer} from './DesignerSelectionLayer.tsx';
-import type {DesignerStageContextValue} from './DesignerContext.tsx';
+import {DesignerLayoutContextType, type DesignerStageContextValue} from './DesignerContext.tsx';
 import {useSelection} from './useSelection.ts';
+import {useStageInput} from './useStageInput.ts';
 
 interface Props {
   root: Block;
@@ -28,7 +29,7 @@ export function DesignerStage({root, conn, basePath}: Props) {
     return () => flow.unwatch(watcher);
   }, [flow]);
   const {selection, select, addSelection} = useSelection(root, main);
-  const [designMode, setDesignMode] = useState(true);
+  const {designMode = true, setDesignMode = voidFunction} = useContext(DesignerLayoutContextType);
   const componentContext = useMemo(
     () => ({designMode, elementMap, select, addSelection}),
     [designMode, elementMap, select, addSelection]
@@ -60,12 +61,14 @@ export function DesignerStage({root, conn, basePath}: Props) {
       setDesignMode,
       ...historyCommands,
     }),
-    [basePath, flow, main, conn, selection, componentContext, historyCommands]
+    [basePath, flow, main, conn, selection, componentContext, setDesignMode, historyCommands]
   );
   const context = useContext(TicloCurrentFlowContext);
   const {registerStage, unregisterStage} = context;
   const contextRef = useRef(context);
   contextRef.current = context;
+  const activate = useCallback(() => contextRef.current.onFlowFocus(basePath), [basePath]);
+  const hover = useStageInput(stageRef, componentContext, activate);
   useEffect(() => {
     registerStage(basePath, stage);
     return () => unregisterStage(basePath, stage);
@@ -75,7 +78,12 @@ export function DesignerStage({root, conn, basePath}: Props) {
     return () => contextRef.current.onFlowClosed(basePath);
   }, [basePath]);
   return (
-    <div className="ticl-designer-stage" ref={stageRef} onPointerDownCapture={() => context.onFlowFocus(basePath)}>
+    <div
+      className={designMode ? 'ticl-designer-stage ticl-designer-stage-design' : 'ticl-designer-stage'}
+      ref={stageRef}
+      tabIndex={designMode ? 0 : undefined}
+      onPointerDownCapture={activate}
+    >
       <ComponentContext.Provider value={componentContext}>
         {flow ? (
           <DesignerPage flow={flow} key={flow._blockId} />
@@ -84,7 +92,7 @@ export function DesignerStage({root, conn, basePath}: Props) {
         )}
       </ComponentContext.Provider>
       {flow && designMode && (
-        <DesignerSelectionLayer stageRef={stageRef} elementMap={elementMap} blocks={selection.blocks} />
+        <DesignerSelectionLayer stageRef={stageRef} elementMap={elementMap} blocks={selection.blocks} hover={hover} />
       )}
     </div>
   );

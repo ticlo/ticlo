@@ -7,13 +7,18 @@ import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/conne
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {loadTemplate, removeLastTemplate, querySingle} from '@ticlo/editor/util/test-util.ts';
 import {DesignerStage} from '../DesignerStage.tsx';
-import {useActiveDesignerStage, type DesignerStageContextValue} from '../DesignerContext.tsx';
-import {TicloApp} from '@ticlo/editor/component/TicloApp.tsx';
+import {
+  DesignerLayoutContextType,
+  useActiveDesignerStage,
+  type DesignerStageContextValue,
+} from '../DesignerContext.tsx';
+import {DesignerApp} from '../DesignerApp.tsx';
 import {DesignerNodeTree} from '../DesignerNodeTree.tsx';
 import {
   TicloCurrentFlowContext,
   TicloLayoutContextType,
   type TicloCurrentFlow,
+  type TicloLayoutContext,
 } from '@ticlo/editor/component/LayoutContext.ts';
 
 describe('DesignerStage', () => {
@@ -112,11 +117,11 @@ describe('DesignerStage', () => {
       const [showFirst, setShowFirst] = useState(true);
       closeFirst = () => setShowFirst(false);
       return (
-        <TicloApp value={{}}>
+        <DesignerApp value={{}}>
           <OutsidePanel />
           {showFirst && <DesignerStage root={Root.instance} conn={conn} basePath={path} />}
           <DesignerStage root={Root.instance} conn={conn} basePath={secondPath} />
-        </TicloApp>
+        </DesignerApp>
       );
     }
     const [, div] = loadTemplate(
@@ -207,12 +212,12 @@ describe('DesignerStage', () => {
       const [version, setVersion] = useState(0);
       refreshApp = () => setVersion((value) => value + 1);
       return (
-        <TicloApp value={{language: version ? 'zh' : 'en'}}>
+        <DesignerApp value={{language: version ? 'zh' : 'en'}}>
           <DesignerStage root={Root.instance} conn={conn} basePath={path} />
           <DesignerStage root={Root.instance} conn={conn} basePath={secondPath} />
           <OutsideComponent />
           <Panel />
-        </TicloApp>
+        </DesignerApp>
       );
     }
     const [, div] = loadTemplate(
@@ -254,13 +259,61 @@ describe('DesignerStage', () => {
     await shouldHappen(() => div.querySelector('[data-testid="first"]').textContent === 'false');
     expect(activeStage.designMode).toBe(false);
     expect(renders.first).toBeGreaterThan(initialRenders.first);
-    expect(renders.second).toBe(initialRenders.second);
+    expect(renders.second).toBeGreaterThan(initialRenders.second);
+    expect(div.querySelector('[data-testid="second"]').textContent).toBe('false');
     expect(renders.plain).toBe(initialRenders.plain);
     expect(div.querySelector('[data-testid="outside"]').textContent).toBe('false');
     expect(components.first.select).toBe(componentContext.select);
     expect(components.first.addSelection).toBe(componentContext.addSelection);
     activeStage.setDesignMode(true);
     await shouldHappen(() => div.querySelector('[data-testid="first"]').textContent === 'true');
+  });
+
+  it('shares global design mode with panels and stages opened later while retaining stage selection', async () => {
+    expectTypeOf<Extract<keyof TicloLayoutContext, 'designMode' | 'setDesignMode'>>().toEqualTypeOf<never>();
+    const flow = Root.instance.addFlow(path, {'#main': {'#is': 'react:p', 'content': 'First'}});
+    const secondPath = `${path}Second`;
+    Root.instance.addFlow(secondPath, {'#main': {'#is': 'react:p', 'content': 'Second'}});
+    const main = flow.getValue('#main') as Block;
+    const [, conn] = makeLocalConnection(Root.instance, true, undefined, false);
+    let stage: DesignerStageContextValue;
+    let openSecond: () => void;
+    function ToolBox() {
+      const {designMode, setDesignMode} = useContext(DesignerLayoutContextType);
+      stage = useActiveDesignerStage();
+      return <button onClick={() => setDesignMode(!designMode)}>{designMode ? 'Design' : 'Preview'}</button>;
+    }
+    function App() {
+      const [showSecond, setShowSecond] = useState(false);
+      openSecond = () => setShowSecond(true);
+      return (
+        <DesignerApp value={{}}>
+          <ToolBox />
+          <DesignerStage root={Root.instance} conn={conn} basePath={path} />
+          {showSecond && <DesignerStage root={Root.instance} conn={conn} basePath={secondPath} />}
+        </DesignerApp>
+      );
+    }
+    const [, div] = loadTemplate(<App />);
+    await shouldHappen(() => stage?.main === main);
+    stage.select([main]);
+    await shouldHappen(() => stage.selection.blocks[0] === main);
+    const toggle = div.querySelector('button');
+    toggle.click();
+    await shouldHappen(() => toggle.textContent === 'Preview' && !stage.designMode);
+    expect(div.querySelector('.ticl-designer-stage-design')).toBeNull();
+    expect(stage.selection.blocks).toEqual([main]);
+    openSecond();
+    await shouldHappen(
+      () => stage.basePath === secondPath && div.querySelectorAll('.ticl-designer-stage').length === 2
+    );
+    expect(stage.designMode).toBe(false);
+    expect(div.querySelector('.ticl-designer-stage-design')).toBeNull();
+    toggle.click();
+    await shouldHappen(() => div.querySelectorAll('.ticl-designer-stage-design').length === 2);
+    expect(toggle.textContent).toBe('Design');
+    expect(stage.designMode).toBe(true);
+    await shouldHappen(() => div.querySelectorAll('.ticl-designer-selection-rect').length === 1);
   });
 
   it('exposes undo and redo through panels and keyboard commands', async () => {
@@ -276,17 +329,17 @@ describe('DesignerStage', () => {
       return null;
     }
     const [, div] = loadTemplate(
-      <TicloApp value={{}}>
+      <DesignerApp value={{}}>
         <DesignerStage root={Root.instance} conn={conn} basePath={path} />
         <Panel />
-      </TicloApp>
+      </DesignerApp>
     );
     await shouldHappen(() => stage?.flow === flow && div.textContent === 'Original');
     await conn.setValue(`${path}.#main.content`, 'Changed', true);
     await shouldHappen(() => div.textContent === 'Changed');
-    div
-      .querySelector('.ticl-app')
-      .dispatchEvent(new KeyboardEvent('keydown', {key: 'z', ctrlKey: true, bubbles: true}));
+    const host = div.querySelector<HTMLElement>('.ticl-designer-stage');
+    host.focus();
+    host.dispatchEvent(new KeyboardEvent('keydown', {key: 'z', ctrlKey: true, bubbles: true}));
     await shouldHappen(() => div.textContent === 'Original');
     expect(stage.redo()).toBe(true);
     await shouldHappen(() => div.textContent === 'Changed');
@@ -322,13 +375,13 @@ describe('DesignerStage', () => {
     }
     const [, div] = loadTemplate(
       <StrictMode>
-        <TicloApp value={{}}>
+        <DesignerApp value={{}}>
           <DesignerStage root={Root.instance} conn={conn} basePath={path} />
           <DesignerStage root={Root.instance} conn={conn} basePath={secondPath} />
           <div style={{height: 300}}>
             <PanelProbe />
           </div>
-        </TicloApp>
+        </DesignerApp>
       </StrictMode>,
       'editor'
     );

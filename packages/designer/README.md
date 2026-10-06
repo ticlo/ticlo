@@ -2,8 +2,9 @@
 
 `designer.html` uses the playground's navigation and tool panels, and renders
 React pages in `DesignerStage` tabs. The left column contains a compact
-ToolBox for language settings above Navigation and Functions. The right column
-contains Properties above Outline, the active stage's component tree.
+ToolBox for language settings and the Design mode toggle above Navigation and
+Functions. The right column contains Properties above Outline, the active
+stage's component tree.
 The floating Open Editor button inside ToolBox's upper-right corner opens `editor.html`
 through a `FrameServerConnection`, so the editor changes the same live runtime.
 
@@ -59,17 +60,38 @@ provider wrapping the page.
 `select()` replaces selection; `addSelection()` appends and deduplicates it.
 Both return `true` when they select a new block, or `false` when every block was
 already selected (or no valid blocks were supplied).
-Both arrays update together, and each stage keeps its own selection and mode.
+Both arrays update together, and each stage keeps its own selection.
 Removing selected nodes drops them; replacing the page root clears selection.
 
-`useSelection(block, componentContext)` from `@ticlo/react` provides a mousedown handler only in
-design mode. It selects the block, or adds it when Ctrl is pressed, and stops
-bubbling so parent components do not select themselves. `useTicloComp` installs
-this handler and skips all of the component's optional handlers whose names
-start with `on` in design mode. Attributes and `ref` callbacks remain active.
-It reads `ComponentContext` once and passes its value
-to the selection hook, and `designMode` to the optional handlers hook. Preview
-mode uses the original handlers.
+`DesignerApp` owns global design mode and passes it through the generic
+`TicloApp` layout context. `DesignerLayoutContextType` is a typed view of that
+same context, adding `designMode` and `setDesignMode()` only in the designer
+package. ToolBox uses these to switch all stages between design and preview.
+Newly opened stages inherit that mode. The stage's `setDesignMode()` forwards
+to the same global command; mode is not stored per stage. Editor types and
+implementation do not contain designer settings or behavior.
+
+`useStageInput` owns selection, hover, and input interception. In design mode it
+captures document events inside its stage before React's root listeners, so
+component capture handlers and native DOM listeners do not receive input.
+Pointer down selects the nearest registered component, or adds it with Ctrl;
+mousedown is also supported. Focus stays on the stage, where keyboard and
+clipboard events can reach the app's designer commands. Tab does not enter
+page components. Native canvas wheel scrolling remains available.
+Selection-layer controls are outside this input boundary. Preview removes the
+listeners and restores ordinary input. Designer styles prevent text selection
+and touch gestures; iframe content does not receive pointers in design mode.
+The boundary intercepts direct input and external drops. It does not separately
+intercept editing, composition, selection, form, clipboard, or drag-source events:
+focus and pointer-down defaults prevent ordinary component interaction from
+producing them. Clipboard commands on the stage reach the app normally.
+
+`useTicloComp` registers refs and skips optional properties whose names start
+with `on` in design mode. This also suppresses non-input callbacks such as
+load and media events, which do not require focus. Attributes and `ref` callbacks
+remain active, and preview uses the original handlers. Components no longer
+install their own designer selection handlers. Popup components should render
+their portal containers inside the stage to share its input boundary.
 
 Each stage owns an `ElementMap` with Block-to-Element and Element-to-Block
 registrations. Multiple rendered instances of a Block are supported, and refs
@@ -100,7 +122,7 @@ editor context. `TicloCurrentFlow` and `TicloLayoutContext` also accept a stage
 type parameter; these types all describe the same shared provider.
 `TicloCurrentFlowContext.activeStage` follows the active flow, and
 `useActiveDesignerStage()` returns its designer state to outside panels.
-There is no separate Designer provider or active-stage registry.
+`DesignerApp` reuses those providers and the active-stage registry.
 Closing a stage unregisters it. The app updates focus when another designer
 tab becomes active, and Open Editor opens the active stage's editor.
 

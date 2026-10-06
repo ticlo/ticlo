@@ -1,7 +1,6 @@
 export {useBlockProps} from './hooks/useBlockProps.tsx';
 export {useBlockValue} from './hooks/useBlockValue.ts';
 export {useValue} from './hooks/useValue.ts';
-export {useSelection} from './hooks/useSelection.ts';
 export {ComponentContext} from './ComponentContext.ts';
 export type {ComponentContextValue} from './ComponentContext.ts';
 export {ElementMap} from './util/ElementMap.ts';

@@ -13,6 +13,21 @@
   z-index: 0;
 }
 
+.ticl-designer-stage-design {
+  outline: none;
+
+  .ticl-designer-page,
+  .ticl-designer-page * {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    touch-action: none;
+  }
+
+  .ticl-designer-page iframe {
+    pointer-events: none;
+  }
+}
+
 .ticl-designer-empty {
   padding: 24px;
 }

@@ -7,12 +7,14 @@ export function DesignerSelectionLayer({
   stageRef,
   elementMap,
   blocks,
+  hover,
 }: {
   stageRef: RefObject<HTMLDivElement | null>;
   elementMap: ElementMap;
   blocks: Block[];
+  hover: Element | null;
 }) {
-  const rects = useSelectionRects(stageRef, elementMap, blocks);
+  const rects = useSelectionRects(stageRef, elementMap, blocks, hover);
   return (
     <div className="ticl-designer-selection-layer">
       {rects.map(({selected, left, top, width, height}, i) => (

@@ -11,24 +11,13 @@ interface SelectionRect {
   height: number;
 }
 
-export function useSelectionRects(stageRef: RefObject<HTMLDivElement | null>, elementMap: ElementMap, blocks: Block[]) {
-  const [hover, setHover] = useState<Element | null>(null);
+export function useSelectionRects(
+  stageRef: RefObject<HTMLDivElement | null>,
+  elementMap: ElementMap,
+  blocks: Block[],
+  hover: Element | null
+) {
   const [rects, setRects] = useState<SelectionRect[]>([]);
-
-  useEffect(() => {
-    const stage = stageRef.current;
-    const onPointerOver = (event: PointerEvent) => {
-      const target = event.target;
-      setHover(target instanceof Element ? elementMap.findElementFromParent(target, stage) : null);
-    };
-    const onPointerLeave = () => setHover(null);
-    stage.addEventListener('pointerover', onPointerOver, true);
-    stage.addEventListener('pointerleave', onPointerLeave);
-    return () => {
-      stage.removeEventListener('pointerover', onPointerOver, true);
-      stage.removeEventListener('pointerleave', onPointerLeave);
-    };
-  }, [stageRef, elementMap]);
 
   useEffect(() => {
     const stage = stageRef.current;

@@ -4,13 +4,17 @@ import {Root, Flow, Logger, PropDispatcher, TicloI18nSettings, addConsoleLogger}
 import type {PropDesc} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
-import {DesignerNodeTree, DesignerStage, useActiveDesignerStage} from '@ticlo/designer';
+import {
+  DesignerApp,
+  DesignerLayoutContextType,
+  DesignerNodeTree,
+  DesignerStage,
+  useActiveDesignerStage,
+} from '@ticlo/designer';
 import {initEditor, PropertyList} from '@ticlo/editor';
-import {TicloApp} from '@ticlo/editor/component/TicloApp.tsx';
 import {
   TicloCurrentFlowConsumer,
   TicloCurrentFlowContext,
-  TicloLayoutContextType,
   type TicloLayoutContext,
 } from '@ticlo/editor/component/LayoutContext.ts';
 import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
@@ -79,7 +83,7 @@ function ToolBox({
   switchLan: (e?: RadioChangeEvent) => void;
   openEditor: (path: string) => void;
 }) {
-  const {language} = useContext(TicloLayoutContextType);
+  const {language, designMode, setDesignMode} = useContext(DesignerLayoutContextType);
   return (
     <div style={{position: 'relative', padding: 8, height: '100%', overflow: 'auto', boxSizing: 'border-box'}}>
       <OpenEditorButton openEditor={openEditor} />
@@ -109,6 +113,10 @@ function ToolBox({
         }}
       >
         localize block name
+      </Checkbox>
+      <br />
+      <Checkbox checked={designMode} onChange={(e) => setDesignMode?.(e.target.checked)}>
+        Design mode
       </Checkbox>
     </div>
   );
@@ -177,13 +185,13 @@ class App extends React.PureComponent<Props, State> {
             size: 200,
             children: [
               {
-                size: 120,
+                size: 140,
                 tabs: [
                   {
                     group: 'tool',
                     id: 'ToolBox',
                     title: 'ToolBox',
-                    minHeight: 120,
+                    minHeight: 140,
                     cached: true,
                     content: <ToolBox switchLan={this.switchLan} openEditor={this.openEditor} />,
                   },
@@ -374,7 +382,7 @@ class App extends React.PureComponent<Props, State> {
     const appContent = (
       <PlaygroundConnectionContext.Provider value={conn}>
         <EditPolicyProvider conn={conn}>
-          <TicloApp value={this.ticloContext}>
+          <DesignerApp value={this.ticloContext}>
             <DockLayout
               defaultLayout={this.defaultDockLayout}
               ref={this.getLayout}
@@ -382,7 +390,7 @@ class App extends React.PureComponent<Props, State> {
               style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
             />
             {modal}
-          </TicloApp>
+          </DesignerApp>
         </EditPolicyProvider>
       </PlaygroundConnectionContext.Provider>
     );

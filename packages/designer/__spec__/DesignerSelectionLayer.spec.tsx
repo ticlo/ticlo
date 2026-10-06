@@ -5,7 +5,7 @@ import {Block, Root} from '@ticlo/core';
 import {ComponentContext, TicloComp, type ElementMap} from '@ticlo/react';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
-import {TicloApp} from '@ticlo/editor/component/TicloApp.tsx';
+import {DesignerApp} from '../DesignerApp.tsx';
 import {loadTemplate, removeLastTemplate} from '@ticlo/editor/util/test-util.ts';
 import {DesignerStage} from '../DesignerStage.tsx';
 import {useActiveDesignerStage, type DesignerStageContextValue} from '../DesignerContext.tsx';
@@ -50,12 +50,12 @@ describe('DesignerSelectionLayer', () => {
     }
     const [, conn] = makeLocalConnection(Root.instance, true, undefined, false);
     const [, div] = loadTemplate(
-      <TicloApp value={{}}>
+      <DesignerApp value={{}}>
         <div style={{width: 320, height: 180}}>
           <DesignerStage root={Root.instance} conn={conn} basePath={path} />
         </div>
         <Panel />
-      </TicloApp>
+      </DesignerApp>
     );
     await shouldHappen(() => stage?.main === main && div.querySelector('#first'));
     const page = div.querySelector('.ticl-designer-page') as HTMLElement;

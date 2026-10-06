@@ -15,7 +15,6 @@ import {PropMap} from '../comp/PropType.ts';
 import {Values} from '../comp/Values.ts';
 import {ComponentContext} from '../ComponentContext.ts';
 import {useBlockConfigs} from './useBlockConfigs.ts';
-import {useSelection} from './useSelection.ts';
 import {useComponentRef} from './useComponentRef.ts';
 import {useMemoUpdate, useValueRef} from '../util/react-tools.ts';
 
@@ -71,10 +70,6 @@ function useOptionalHandlers(
     const result: Record<string, unknown> = {};
     if (Array.isArray(optionalList)) {
       for (const name of optionalList) {
-        const isEvent = name.startsWith('on');
-        if (designMode && isEvent) {
-          continue;
-        }
         if (cache.current[name]) {
           result[name] = cache.current[name];
           continue;
@@ -93,6 +88,7 @@ function useOptionalHandlers(
           }
         }
 
+        const isEvent = name.startsWith('on');
         if (isEvent) {
           // build event handlers
           cache.current[name] = (event: SyntheticEvent) => {
@@ -147,7 +143,6 @@ export function useTicloComp(
   );
 
   // resolve optional properties
-  const onMouseDown = useSelection(block, componentContext);
   const optionalRef = useValueRef(optionalList);
   const [optionalHandlers, updateOptionalHandlers] = useOptionalHandlers(
     block,
@@ -157,8 +152,8 @@ export function useTicloComp(
   );
   const componentRef = useComponentRef(block, elementMap, ref, optionalHandlers?.ref as Ref<Element> | undefined);
   const handlers = useMemo<Record<string, unknown>>(
-    () => ({...optionalHandlers, ref: componentRef, ...(designMode ? {onMouseDown} : undefined)}),
-    [designMode, optionalHandlers, componentRef, onMouseDown]
+    () => ({...optionalHandlers, ref: componentRef}),
+    [optionalHandlers, componentRef]
   );
 
   const onPropertyChange = useCallback((property: BlockProperty, saved?: boolean) => {
