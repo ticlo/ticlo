@@ -275,8 +275,8 @@ importers:
         specifier: ^30.5.1
         version: 30.5.1
       rc-dock:
-        specifier: ^4.1.0
-        version: 4.1.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^5.0.0-alpha
+        version: 5.0.0-alpha(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       react:
         specifier: ^19.2.8
         version: 19.2.8
@@ -356,8 +356,8 @@ importers:
         specifier: ^26.4.2
         version: 26.4.2(typescript@6.0.3)
       rc-dock:
-        specifier: ^4.1.0
-        version: 4.1.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^5.0.0-alpha
+        version: 5.0.0-alpha(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       react:
         specifier: ^19.2.8
         version: 19.2.8
@@ -483,8 +483,8 @@ importers:
         specifier: ^18.0.12
         version: 18.0.12
       rc-dock:
-        specifier: ^4.1.0
-        version: 4.1.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^5.0.0-alpha
+        version: 5.0.0-alpha(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       rc-trigger:
         specifier: ^5.3.4
         version: 5.3.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -3840,8 +3840,8 @@ packages:
       react: '>=16.9.0'
       react-dom: '>=16.9.0'
 
-  rc-dock@4.1.0:
-    resolution: {integrity: sha512-LbffHQZ/OIcw6dg9OT+SKNWno7lbSbZNP595C83G3gQUOsFrv4wKoOtFCMAtp0gZL1irUKZ333TljeXNPLc7fg==}
+  rc-dock@5.0.0-alpha:
+    resolution: {integrity: sha512-argLHYHaglRzWoqpldFKDNu9dWd9AdqYVkaHHHEYKtrte3h26sUqn2i3j4kvCjRl6Tp5IvcTQAwe7zHgtxTxNA==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
@@ -7846,7 +7846,7 @@ snapshots:
       react-dom: 19.2.8(react@19.2.8)
       resize-observer-polyfill: 1.5.1
 
-  rc-dock@4.1.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
+  rc-dock@5.0.0-alpha(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
     dependencies:
       '@rc-component/dropdown': 1.0.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@rc-component/menu': 1.5.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)

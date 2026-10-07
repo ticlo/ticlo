@@ -15,7 +15,9 @@
 }
 
 .dock-tab-active,
-.dock-tab-active:hover {
+.dock-tab-active:hover,
+.dock-column-tab-active,
+.dock-column-accordion-active {
   color: $primary-color;
 }
 
@@ -30,7 +32,8 @@
 .dock-nav-more,
 .dock-dropdown,
 .dock-dropdown-menu-item,
-.dock-panel {
+.dock-panel,
+.dock-column-rail {
   color: $text-color;
 }
 

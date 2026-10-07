@@ -1,7 +1,6 @@
 import React, {StrictMode, useContext, useEffect, useRef} from 'react';
-import {Button, Checkbox, ConfigProvider, Radio, type RadioChangeEvent} from 'antd';
-import {Root, Flow, Logger, PropDispatcher, TicloI18nSettings, addConsoleLogger} from '@ticlo/core';
-import type {PropDesc} from '@ticlo/core';
+import {Button, Checkbox, ConfigProvider, type RadioChangeEvent} from 'antd';
+import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {
@@ -19,15 +18,15 @@ import {
 } from '@ticlo/editor/component/LayoutContext.ts';
 import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.tsx';
-import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.tsx';
-import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.tsx';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
 import {theme} from '@ticlo/editor/style/theme.ts';
 import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
 import {FrameServerConnection} from '@ticlo/html';
 import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.ts';
 import {FileServerFlowStorage, TicloFileClient} from '@ticlo/remote-storage';
-import {DockLayout, type PanelData, type TabData} from 'rc-dock';
+import {DockLayout, type LayoutBase, type TabDefinitions, type PanelData, type TabData} from 'rc-dock';
+import {sideColumns, stageGroup, toolGroup, createLayoutActions} from './AppLayout.ts';
+import {antdLocales, initAppI18n, LanguageSettings} from './AppI18n.tsx';
 import {createRoot} from 'react-dom/client';
 import i18next from 'i18next';
 import '@ticlo/react';
@@ -35,23 +34,6 @@ import '@ticlo/test';
 import './sample-blocks.ts';
 import {PlaygroundConnection, PlaygroundConnectionContext} from './PlaygroundConnection.tsx';
 import {designerData} from './sample-data/designer.ts';
-
-import zhLocal from '../i18n/editor/zh.json' with {type: 'json'};
-import enLocal from '../i18n/editor/en.json' with {type: 'json'};
-import frLocal from '../i18n/editor/fr.json' with {type: 'json'};
-import zhMathLocal from '../i18n/core/zh.json' with {type: 'json'};
-import enMathLocal from '../i18n/core/en.json' with {type: 'json'};
-import frMathLocal from '../i18n/core/fr.json' with {type: 'json'};
-import zhReactLocal from '../i18n/react/zh.json' with {type: 'json'};
-import enReactLocal from '../i18n/react/en.json' with {type: 'json'};
-import frReactLocal from '../i18n/react/fr.json' with {type: 'json'};
-import zhTestLocal from '../i18n/test/zh.json' with {type: 'json'};
-import enTestLocal from '../i18n/test/en.json' with {type: 'json'};
-import frTestLocal from '../i18n/test/fr.json' with {type: 'json'};
-import zhAntd from 'antd/es/locale/zh_CN.js';
-import enAntd from 'antd/es/locale/en_US.js';
-import frAntd from 'antd/es/locale/fr_FR.js';
-import type {Locale} from 'antd/es/locale/index.js';
 
 function DesignerPanelFocus({panel}: {panel: PanelData}): null {
   const context = useContext(TicloCurrentFlowContext);
@@ -83,37 +65,11 @@ function ToolBox({
   switchLan: (e?: RadioChangeEvent) => void;
   openEditor: (path: string) => void;
 }) {
-  const {language, designMode, setDesignMode} = useContext(DesignerLayoutContextType);
+  const {designMode, setDesignMode} = useContext(DesignerLayoutContextType);
   return (
     <div style={{position: 'relative', padding: 8, height: '100%', overflow: 'auto', boxSizing: 'border-box'}}>
       <OpenEditorButton openEditor={openEditor} />
-      <Radio.Group
-        options={languages}
-        onChange={switchLan}
-        value={language}
-        optionType="button"
-        buttonStyle="solid"
-        size="small"
-      />
-      <br />
-      <Checkbox
-        defaultChecked={TicloI18nSettings.shouldTranslateFunction}
-        onChange={(e) => {
-          TicloI18nSettings.shouldTranslateFunction = e.target.checked;
-          switchLan();
-        }}
-      >
-        translate function
-      </Checkbox>
-      <br />
-      <Checkbox
-        defaultChecked={TicloI18nSettings.useLocalizedBlockName}
-        onChange={(e) => {
-          TicloI18nSettings.useLocalizedBlockName = e.target.checked;
-        }}
-      >
-        localize block name
-      </Checkbox>
+      <LanguageSettings onChange={switchLan} />
       <br />
       <Checkbox checked={designMode} onChange={(e) => setDesignMode?.(e.target.checked)}>
         Design mode
@@ -138,23 +94,10 @@ function OpenEditorButton({openEditor}: {openEditor: (path: string) => void}) {
 
 const layoutGroups = {
   designerStage: {
-    animated: false,
-    floatable: true,
-    maximizable: true,
+    ...stageGroup,
     panelExtra: (panel: PanelData) => <DesignerPanelFocus panel={panel} />,
   },
-  tool: {
-    floatable: true,
-    maximizable: true,
-    newWindow: true,
-  },
-};
-
-const languages = ['en', 'fr', 'zh'];
-const antdLanMap: Record<string, Locale> = {
-  en: enAntd as unknown as Locale,
-  fr: frAntd as unknown as Locale,
-  zh: zhAntd as unknown as Locale,
+  tool: toolGroup,
 };
 
 interface Props {
@@ -172,106 +115,92 @@ class App extends React.PureComponent<Props, State> {
   get conn() {
     return this.props.conn;
   }
-  defaultDockLayout: any;
+  defaultDockLayout: LayoutBase;
+  tabs: TabDefinitions;
   constructor(props: Props) {
     super(props);
     const {conn, initialFlow} = props;
+    const initialTab = initialFlow ? this.createDesignerTab(initialFlow) : undefined;
+    this.tabs = {
+      ToolBox: {
+        group: 'tool',
+        title: 'ToolBox',
+        minHeight: 140,
+        cached: true,
+        content: <ToolBox switchLan={this.switchLan} openEditor={this.openEditor} />,
+      },
+      Navigation: {
+        group: 'tool',
+        title: t('Navigation'),
+        cached: true,
+        content: <NodeTreePane conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} showMenu={true} />,
+      },
+      Functions: {
+        group: 'tool',
+        title: t('Functions'),
+        cached: true,
+        content: (
+          <TicloCurrentFlowConsumer>
+            {({currentPath}) => {
+              return <FunctionSelect conn={conn} funcLib={currentPath ? `${currentPath}.#lib` : undefined} />;
+            }}
+          </TicloCurrentFlowConsumer>
+        ),
+      },
+      Properties: {
+        group: 'tool',
+        title: t('Properties'),
+        cached: true,
+        content: <DesignerProperties conn={conn} />,
+      },
+      Outline: {
+        group: 'tool',
+        title: 'Outline',
+        cached: true,
+        content: <DesignerNodeTree />,
+      },
+    };
     this.defaultDockLayout = {
       dockbox: {
         mode: 'horizontal',
         children: [
           {
+            id: 'left',
             mode: 'vertical',
             size: 200,
             children: [
               {
                 size: 140,
-                tabs: [
-                  {
-                    group: 'tool',
-                    id: 'ToolBox',
-                    title: 'ToolBox',
-                    minHeight: 140,
-                    cached: true,
-                    content: <ToolBox switchLan={this.switchLan} openEditor={this.openEditor} />,
-                  },
-                ],
+                tabs: [{id: 'ToolBox'}],
               },
               {
                 size: 400,
-                tabs: [
-                  {
-                    group: 'tool',
-                    id: 'Navigation',
-                    title: t('Navigation'),
-                    cached: true,
-                    content: (
-                      <NodeTreePane
-                        conn={conn}
-                        basePaths={['']}
-                        hideRoot={true}
-                        onSelect={this.onSelect}
-                        showMenu={true}
-                      />
-                    ),
-                  },
-                ],
+                tabs: [{id: 'Navigation'}],
               },
               {
                 size: 300,
-                tabs: [
-                  {
-                    group: 'tool',
-                    id: 'Functions',
-                    title: t('Functions'),
-                    cached: true,
-                    content: (
-                      <TicloCurrentFlowConsumer>
-                        {({currentPath}) => {
-                          return (
-                            <FunctionSelect conn={conn} funcLib={currentPath ? `${currentPath}.#lib` : undefined} />
-                          );
-                        }}
-                      </TicloCurrentFlowConsumer>
-                    ),
-                  },
-                ],
+                tabs: [{id: 'Functions'}],
               },
             ],
           },
           {
             size: 800,
-            tabs: initialFlow ? [this.createDesignerTab(initialFlow)] : [],
+            tabs: initialTab ? [initialTab] : [],
             id: 'main',
             panelLock: {panelStyle: 'main'},
           },
           {
+            id: 'right',
             mode: 'vertical',
             size: 280,
             children: [
               {
                 size: 400,
-                tabs: [
-                  {
-                    group: 'tool',
-                    id: 'Properties',
-                    title: t('Properties'),
-                    cached: true,
-                    content: <DesignerProperties conn={conn} />,
-                  },
-                ],
+                tabs: [{id: 'Properties'}],
               },
               {
                 size: 300,
-                tabs: [
-                  {
-                    group: 'tool',
-                    id: 'Outline',
-                    title: 'Outline',
-                    cached: true,
-                    content: <DesignerNodeTree />,
-                  },
-                ],
+                tabs: [{id: 'Outline'}],
               },
             ],
           },
@@ -281,10 +210,10 @@ class App extends React.PureComponent<Props, State> {
   }
 
   lng: string = 'en';
-  lngConfig = antdLanMap['en'];
+  lngConfig = antdLocales['en'];
   switchLan = (e?: RadioChangeEvent) => {
     this.lng = e?.target.value || this.lng;
-    this.lngConfig = antdLanMap[this.lng];
+    this.lngConfig = antdLocales[this.lng];
     // force a reload of the context
     this.ticloContext = {...this.ticloContext, language: this.lng};
     i18next.changeLanguage(this.lng, this.forceUpdateImmediate);
@@ -305,25 +234,14 @@ class App extends React.PureComponent<Props, State> {
     language: this.lng,
     editFlow: (path: string, onSave: () => void) => {
       if (!this.layout.updateTab(`designer:${path}`, null, true)) {
-        this.layout.dockMove(this.createDesignerTab(path), this.layout.find('main'), 'middle');
+        this.layout.dockMove(this.createDesignerTab(path), 'main', 'middle');
       }
     },
 
-    editProperty: (paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean) => {
-      const conn = this.conn;
-      if (!mime) {
-        if (propDesc.mime) {
-          mime = propDesc.mime;
-        } else if (propDesc.type === 'object' || propDesc.type === 'array') {
-          mime = 'application/json';
-        }
-      }
-      TextEditorPane.openFloatPanel(this.layout, conn, paths, defaultValue, mime, readonly);
-    },
-    editSchedule: (path: string, scheduleName?: string, index?: number) => {
-      const conn = this.conn;
-      SchedulePane.openFloatPanel(this.layout, conn, path, scheduleName, index);
-    },
+    ...createLayoutActions(
+      () => this.layout,
+      () => this.conn
+    ),
     getSelectedPaths: () => this.selectedPaths,
     showModal: (modal: React.ReactElement) => this.setState({modal}),
   };
@@ -385,9 +303,11 @@ class App extends React.PureComponent<Props, State> {
           <DesignerApp value={this.ticloContext}>
             <DockLayout
               defaultLayout={this.defaultDockLayout}
+              tabs={this.tabs}
+              sideColumns={sideColumns}
               ref={this.getLayout}
               groups={layoutGroups}
-              style={{position: 'absolute', left: 10, top: 10, right: 10, bottom: 10}}
+              style={{position: 'absolute', left: 0, top: 10, right: 0, bottom: 10}}
             />
             {modal}
           </DesignerApp>
@@ -417,22 +337,7 @@ window.addEventListener('hashchange', () => location.reload());
   addConsoleLogger();
   await initEditor();
 
-  await i18next.init({lng: 'en'});
-  i18next.addResourceBundle('zh', 'ticlo-editor', zhLocal);
-  i18next.addResourceBundle('en', 'ticlo-editor', enLocal);
-  i18next.addResourceBundle('fr', 'ticlo-editor', frLocal);
-
-  i18next.addResourceBundle('zh', 'ticlo-core', zhMathLocal);
-  i18next.addResourceBundle('en', 'ticlo-core', enMathLocal);
-  i18next.addResourceBundle('fr', 'ticlo-core', frMathLocal);
-
-  i18next.addResourceBundle('zh', 'ticlo-react', zhReactLocal);
-  i18next.addResourceBundle('en', 'ticlo-react', enReactLocal);
-  i18next.addResourceBundle('fr', 'ticlo-react', frReactLocal);
-
-  i18next.addResourceBundle('zh', 'ticlo-test', zhTestLocal);
-  i18next.addResourceBundle('en', 'ticlo-test', enTestLocal);
-  i18next.addResourceBundle('fr', 'ticlo-test', frTestLocal);
+  await initAppI18n();
 
   const params = new URLSearchParams(location.hash.slice(1));
   const host = params.get('host');
