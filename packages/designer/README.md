@@ -25,6 +25,11 @@ Stage context serves two audiences:
 - Panels use `useActiveDesignerStage()` for the active stage, selected Blocks
   and paths, and editing commands. Each stage keeps its own selection.
 
+Outline selection can span different parents. `addSelection` keeps only siblings
+of the added component; for a batch, the last valid component determines the
+parent. Adding an already-selected component still removes selections from
+other parents, while the return value remains false unless a new item is selected.
+
 In design mode, the stage intercepts component input for designer interactions.
 Preview restores normal component input. Components that use portals should
 render their popup containers inside the stage.

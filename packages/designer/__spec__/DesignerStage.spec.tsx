@@ -273,6 +273,76 @@ describe('DesignerStage', () => {
     );
   });
 
+  it('limits added selections to siblings after a cross-parent outline selection', async () => {
+    const flow = Root.instance.addFlow(path, {
+      '#main': {
+        '#is': 'react:div',
+        '#order': ['a', 'b'],
+        'a': {
+          '#is': 'react:div',
+          '#order': ['c', 'd'],
+          'c': {'#is': 'react:p', 'content': 'C'},
+          'd': {'#is': 'react:p', 'content': 'D'},
+        },
+        'b': {'#is': 'react:p', 'content': 'B'},
+      },
+    });
+    const main = flow.getValue('#main') as Block;
+    const a = main.getValue('a') as Block;
+    const b = main.getValue('b') as Block;
+    const c = a.getValue('c') as Block;
+    const d = a.getValue('d') as Block;
+    const [, conn] = makeLocalConnection(Root.instance, true, undefined, false);
+    let stage: DesignerStageContextValue;
+    function Panel(): null {
+      stage = useActiveDesignerStage();
+      return null;
+    }
+    const [, div] = loadTemplate(
+      <DesignerApp value={{}}>
+        <DesignerStage root={Root.instance} conn={conn} basePath={path} />
+        <Panel />
+      </DesignerApp>
+    );
+    await shouldHappen(() => stage?.main === main && div.querySelectorAll('p').length === 3);
+
+    stage.select([b, c]);
+    await shouldHappen(() => stage.selection.blocks.length === 2);
+    expect(stage.selection.blocks).toEqual([b, c]);
+    expect(stage.addSelection([`${path}.missing`])).toBe(false);
+    expect(stage.addSelection([c])).toBe(false);
+    await shouldHappen(() => stage.selection.blocks.length === 1);
+    expect(stage.selection).toEqual({blocks: [c], paths: [`${path}.#main.a.c`]});
+
+    stage.select([b, c]);
+    expect(stage.addSelection([`${path}.missing`])).toBe(false);
+    await shouldHappen(() => stage.selection.blocks.length === 2);
+    expect(stage.selection.blocks).toEqual([b, c]);
+
+    stage.select([b, c]);
+    expect(stage.addSelection([`${path}.#main.a.d`])).toBe(true);
+    await shouldHappen(() => stage.selection.blocks[1] === d);
+    expect(stage.selection).toEqual({
+      blocks: [c, d],
+      paths: [`${path}.#main.a.c`, `${path}.#main.a.d`],
+    });
+    expect(stage.addSelection([d])).toBe(false);
+
+    const parent = div.querySelector('.ticl-d-page > div > div');
+    parent.dispatchEvent(new MouseEvent('mousedown', {bubbles: true, ctrlKey: true}));
+    await shouldHappen(() => stage.selection.blocks.length === 1 && stage.selection.blocks[0] === a);
+    expect(stage.selection.paths).toEqual([`${path}.#main.a`]);
+    div
+      .querySelector('.ticl-d-page > div > p')
+      .dispatchEvent(new MouseEvent('mousedown', {bubbles: true, ctrlKey: true}));
+    await shouldHappen(() => stage.selection.blocks.length === 2);
+    expect(stage.selection.blocks).toEqual([a, b]);
+
+    expect(stage.addSelection([c, b, `${path}.missing`, c])).toBe(true);
+    await shouldHappen(() => stage.selection.blocks.length === 1 && stage.selection.blocks[0] === c);
+    expect(stage.selection.paths).toEqual([`${path}.#main.a.c`]);
+  });
+
   it('shares global design mode with panels and stages opened later while retaining stage selection', async () => {
     expectTypeOf<Extract<keyof TicloLayoutContext, 'designMode' | 'setDesignMode'>>().toEqualTypeOf<never>();
     const flow = Root.instance.addFlow(path, {'#main': {'#is': 'react:p', 'content': 'First'}});
