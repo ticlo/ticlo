@@ -20,6 +20,7 @@ build
 /app/**/*.ticlo
 /app/server/files/
 /css/*.css
+/packages/*/style/index.css
 en.base.yaml
 /i18n/*
 /icons/font-awesome/solid/removed

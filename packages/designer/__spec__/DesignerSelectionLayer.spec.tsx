@@ -1,5 +1,5 @@
 import React from 'react';
-import '../style/index.scss';
+import '../style/index.css';
 import {vi} from 'vitest';
 import {userEvent} from 'vitest/browser';
 import {Block, Root} from '@ticlo/core';

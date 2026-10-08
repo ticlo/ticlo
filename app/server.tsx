@@ -1,3 +1,4 @@
+import './styles.ts';
 import {Block, FunctionDesc, Root} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {data} from './sample-data/data.ts';

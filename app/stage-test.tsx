@@ -1,3 +1,4 @@
+import './styles.ts';
 import React, {useEffect, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Button, ConfigProvider, message} from 'antd';

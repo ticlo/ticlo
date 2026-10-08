@@ -48,7 +48,7 @@ jobs:
         run: pnpm exec playwright install chromium --with-deps
       - run: mkdir -p coverage css
       - run: pnpm run build-icons
-      - run: pnpm run build-scss
+      - run: pnpm run build-css
       - run: pnpm run build-antd-style
       - name: Vitest Browser
         run: pnpm run test-browser-coverage

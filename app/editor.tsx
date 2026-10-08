@@ -1,3 +1,4 @@
+import './styles.ts';
 import * as React from 'react';
 import {ConfigProvider, Switch, type RadioChangeEvent} from 'antd';
 import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, Root, addConsoleLogger} from '@ticlo/core';

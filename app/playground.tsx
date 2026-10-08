@@ -1,3 +1,4 @@
+import './styles.ts';
 import * as React from 'react';
 import {StrictMode} from 'react';
 import {ConfigProvider, Switch, type RadioChangeEvent} from 'antd';

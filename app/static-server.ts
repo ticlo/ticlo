@@ -1,3 +1,4 @@
+import './styles.ts';
 import {Root} from '@ticlo/core';
 import {FrameServerConnection, StaticFlowStorage} from '@ticlo/html';
 import '@ticlo/react';

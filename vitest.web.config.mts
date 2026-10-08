@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react';
 import {nodePolyfills} from 'vite-plugin-node-polyfills';
 import {playwright} from '@vitest/browser-playwright';
 import {fileURLToPath} from 'node:url';
+import {buildCss} from './tool/package-styles.ts';
+
+buildCss();
 
 const isHeadless = process.env.HEADLESS !== 'false';
 const coreNodeModules = (name: string) => fileURLToPath(new URL(`./packages/core/node_modules/${name}`, import.meta.url));

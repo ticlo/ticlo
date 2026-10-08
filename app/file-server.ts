@@ -1,3 +1,4 @@
+import './styles.ts';
 import {Root} from '@ticlo/core';
 import {FrameServerConnection} from '@ticlo/html';
 import {FileServerFlowStorage, TicloFileClient} from '@ticlo/remote-storage';

@@ -1,0 +1,21 @@
+.ticl-d-stage {
+  height: 100%;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.ticl-d-stage-design {
+  outline: none;
+
+  .ticl-d-page,
+  .ticl-d-page * {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    touch-action: none;
+  }
+
+  .ticl-d-page iframe {
+    pointer-events: none;
+  }
+}

@@ -16,8 +16,13 @@ to try remote storage.
 `pnpm build-pages` builds the browser apps and their assets into `dist/`.
 See the [Pages workflow](.github/workflows/pages.yml) for deployment.
 
-`pnpm build-scss` builds package styles. React component styles are independent
-of editor and designer styles; see [style imports](packages/react/README.md).
+`pnpm build-css` compiles editor, React, and designer styles to each package's
+`style/index.css`. Component SCSS lives beside its TSX files; shared styles and
+the package entry points live in `style/`. Generated CSS is ignored by Git.
+Apps and consumers import `@ticlo/<package>/style/index.css`; Vite and browser
+tests build these files on startup. Rebuild CSS after editing SCSS.
+React component styles are independent of editor and designer styles;
+see [style imports](packages/react/README.md).
 
 Read the reference for the task:
 

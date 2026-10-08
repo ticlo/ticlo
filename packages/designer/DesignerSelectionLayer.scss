@@ -1,0 +1,18 @@
+.ticl-d-selection-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ticl-d-selection-rect,
+.ticl-d-hover-rect {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid #808080;
+}
+
+.ticl-d-hover-rect {
+  border-color: rgba(128, 128, 128, 0.35);
+}

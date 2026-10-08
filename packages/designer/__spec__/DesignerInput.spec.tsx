@@ -2,7 +2,7 @@ import React, {StrictMode, useEffect, useRef} from 'react';
 import {vi} from 'vitest';
 import {userEvent} from 'vitest/browser';
 import {Switch} from 'antd';
-import '../style/index.scss';
+import '../style/index.css';
 import {Block, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';

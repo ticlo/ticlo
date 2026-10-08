@@ -1,5 +1,5 @@
 import React, {useLayoutEffect, useState} from 'react';
-import '../../style/index.scss';
+import '../../style/index.css';
 import {Flow, FlowFolder} from '@ticlo/core';
 import {
   MarkdownElement,

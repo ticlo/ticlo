@@ -33,5 +33,14 @@ render their popup containers inside the stage.
 `ElementMap` in both modes and merges application refs. Custom components attach
 its `optionalHandlers` to their root DOM element.
 
-Load designer styles separately from React component styles. React pages work
-without designer CSS; see the [React package](../react/README.md) for style imports.
+Load compiled package styles explicitly:
+
+```ts
+import '@ticlo/react/style/index.css';
+import '@ticlo/editor/style/index.css';
+import '@ticlo/designer/style/index.css';
+```
+
+Run `pnpm build-css` to generate workspace CSS. Designer SCSS lives beside its
+components. React pages work without designer CSS; see the
+[React package](../react/README.md) for style imports.

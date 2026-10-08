@@ -1,3 +1,5 @@
+import './styles.ts';
+import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext, useEffect, useRef} from 'react';
 import {Button, Checkbox, ConfigProvider, type RadioChangeEvent} from 'antd';
 import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
