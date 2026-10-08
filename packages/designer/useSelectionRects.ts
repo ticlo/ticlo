@@ -44,16 +44,18 @@ export function useSelectionRects(
       const origin = stage.getBoundingClientRect();
       const next: SelectionRect[] = [];
       if (origin.width && origin.height) {
+        const scaleX = origin.width / stage.offsetWidth || 1;
+        const scaleY = origin.height / stage.offsetHeight || 1;
         for (const [element, selected] of getTargets()) {
           const bounds = element.getBoundingClientRect();
           if (!bounds.width || !bounds.height) continue;
           next.push({
             element,
             selected,
-            left: bounds.left - origin.left,
-            top: bounds.top - origin.top,
-            width: bounds.width,
-            height: bounds.height,
+            left: (bounds.left - origin.left) / scaleX,
+            top: (bounds.top - origin.top) / scaleY,
+            width: bounds.width / scaleX,
+            height: bounds.height / scaleY,
           });
         }
       }
@@ -76,10 +78,15 @@ export function useSelectionRects(
       if (frame === null) frame = requestAnimationFrame(measure);
     };
     const observer = new ResizeObserver(scheduleMeasure);
+    const mutations = new MutationObserver(scheduleMeasure);
     const observeTargets = () => {
       observer.disconnect();
+      mutations.disconnect();
       observer.observe(stage);
-      for (const element of getTargets().keys()) observer.observe(element);
+      for (const element of getTargets().keys()) {
+        observer.observe(element);
+        mutations.observe(element, {attributes: true, attributeFilter: ['style', 'class']});
+      }
     };
     const unsubscribe = elementMap.subscribe((block) => {
       if (blocks.includes(block) || block === hoverBlock) {
@@ -93,6 +100,7 @@ export function useSelectionRects(
     return () => {
       unsubscribe();
       observer.disconnect();
+      mutations.disconnect();
       stage.removeEventListener('scroll', scheduleMeasure, true);
       if (frame !== null) cancelAnimationFrame(frame);
     };

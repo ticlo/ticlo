@@ -4,7 +4,7 @@ import {Values} from '../comp/Values.ts';
 import {useBlockConfigs} from '../hooks/useBlockConfigs.ts';
 import React from 'react';
 import {metaKey, renderChildren} from '../comp/Component.tsx';
-import {elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.ts';
+import {elementAttributes, elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.ts';
 
 const optional: {[key: string]: PropDesc} = {
   output: {name: 'output', type: 'any', types: ['number', 'string'], readonly: true, pinned: true},
@@ -54,6 +54,7 @@ const inputOptions = {
 const inputElementDesc: FunctionDesc = {
   name: 'input',
   base: 'react:element',
+  attributes: elementAttributes,
   tags: ['react-comp'],
   properties: [
     {
@@ -160,6 +161,7 @@ const textareaPropMap = {
 const textareaElementDesc: FunctionDesc = {
   name: 'textarea',
   base: 'react:element',
+  attributes: elementAttributes,
   tags: ['react-comp'],
   childrenTags: ['react-comp'],
   properties: [
@@ -221,6 +223,7 @@ const selectPropMap = {
 const selectElementDesc: FunctionDesc = {
   name: 'select',
   base: 'react:element',
+  attributes: elementAttributes,
   tags: ['react-comp'],
   childrenTags: ['react-comp'],
   properties: [

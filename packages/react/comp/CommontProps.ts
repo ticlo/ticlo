@@ -4,6 +4,8 @@ import {PropMap} from './PropType.ts';
 
 export const elementConfigs = defaultConfigs.concat('#order');
 
+export const elementAttributes = ['@d-lock', '@d-seal'];
+
 export const elementStyleProperty: PropDesc = {
   name: 'style',
   type: 'object',

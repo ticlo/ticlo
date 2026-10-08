@@ -59,7 +59,8 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     if (this._saved !== undefined) {
       val = this._saved;
     } else if (this._bindingSource) {
-      val = this._bindingSource.getProperty()._value;
+      const source = this._bindingSource.getProperty();
+      val = source ? source.getValue() : this._bindingSource.getValue();
     } else {
       return;
     }

@@ -125,6 +125,8 @@ export interface FunctionDesc {
   // whether the function's output purely depends on input values.
   isPure?: boolean;
   properties?: (PropDesc | PropGroupDesc)[];
+  /** Block attributes exposed by this function, in addition to the common attributes. */
+  attributes?: (string | PropDesc)[];
   configs?: (string | PropDesc)[];
   // optional properties defined in base function, base function can be the current function itself
   base?: string;
@@ -223,9 +225,26 @@ export const attributeDescs: {[key: string]: PropDesc} = {
   '@b-name': {name: '@b-name', type: 'string'},
   '@b-p': {name: '@b-p', type: 'array'},
   '@b-xyw': {name: '@b-xyw', type: 'array'},
+  '@d-lock': {name: '@d-lock', type: 'toggle', default: false},
+  '@d-seal': {name: '@d-seal', type: 'toggle', default: false},
 };
 
 export const attributeList: PropDesc[] = [attributeDescs['@b-name'], attributeDescs['@b-p'], attributeDescs['@b-xyw']];
+
+export function mapAttributeDesc(attributes: (string | PropDesc)[]): PropDesc[] {
+  if (attributes == null) return undefined;
+  if ((attributes as any).mappedAttribute) return attributes as PropDesc[];
+  const result: PropDesc[] = [];
+  (result as any).mappedAttribute = true;
+  for (const attribute of attributes) {
+    if (typeof attribute === 'object') {
+      result.push(attribute);
+    } else if (Object.hasOwn(attributeDescs, attribute)) {
+      result.push(attributeDescs[attribute]);
+    }
+  }
+  return result;
+}
 
 export function buildPropDescCache(
   funcDesc: FunctionDesc,
@@ -254,6 +273,7 @@ export function buildPropDescCache(
   addProps(mapConfigDesc(funcDesc.configs));
   addProps(custom);
   addProps(funcDesc.properties);
+  addProps(mapAttributeDesc(funcDesc.attributes));
 
   return result;
 }

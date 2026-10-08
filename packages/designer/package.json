@@ -16,6 +16,7 @@
   "dependencies": {
     "@ticlo/core": "workspace:*",
     "@ticlo/editor": "workspace:*",
+    "@ticlo/html": "workspace:*",
     "@ticlo/react": "workspace:*"
   },
   "peerDependencies": {

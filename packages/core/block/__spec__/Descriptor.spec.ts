@@ -4,6 +4,7 @@ import '../../functions/data/State.ts';
 import type {PropDesc, PropGroupDesc} from '../Descriptor.ts';
 import {
   blankPropDesc,
+  attributeDescs,
   buildPropDescCache,
   configDescs,
   findPropDesc,
@@ -12,6 +13,7 @@ import {
   getOutputDesc,
   getSubBlockFuncData,
   mapConfigDesc,
+  mapAttributeDesc,
 } from '../Descriptor.ts';
 import {globalFunctions} from '../FunctionLib.ts';
 
@@ -32,6 +34,19 @@ describe('Descriptor', function () {
     const cache = buildPropDescCache(globalFunctions.getDescToSend('add')[0], null);
     expect(findPropDesc('', cache)).toBe(blankPropDesc);
     expect(findPropDesc('1', cache)).toBe(cache['0']);
+  });
+
+  it('resolves named attributes and custom descriptors in the property cache', function () {
+    expect(mapAttributeDesc(null)).toBeUndefined();
+    const custom: PropDesc = {name: '@custom', type: 'string'};
+    const attributes = ['@d-lock', '@invalid', '@d-seal', custom];
+    const mapped = mapAttributeDesc(attributes);
+    expect([...mapped]).toEqual([attributeDescs['@d-lock'], attributeDescs['@d-seal'], custom]);
+    expect(mapAttributeDesc(mapped)).toBe(mapped);
+    const cache = buildPropDescCache({name: 'example', attributes}, null);
+    expect(findPropDesc('@d-lock', cache)).toBe(attributeDescs['@d-lock']);
+    expect(findPropDesc('@d-seal', cache)).toBe(attributeDescs['@d-seal']);
+    expect(findPropDesc('@custom', cache)).toBe(custom);
   });
 
   it('getOutputDesc', function () {

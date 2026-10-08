@@ -1,6 +1,7 @@
 import React from 'react';
 import {Block, globalFunctions, PureFunction} from '@ticlo/core';
 import {TicloComp} from '../comp/Component.tsx';
+import {elementAttributes} from '../comp/CommontProps.ts';
 
 class ToReactComponentFunction extends PureFunction {
   run() {
@@ -21,6 +22,7 @@ globalFunctions.addFactory(
   ToReactComponentFunction,
   {
     name: 'to-component',
+    attributes: elementAttributes,
     tags: ['react-comp'],
     properties: [
       {name: 'input', type: 'block', pinned: true},

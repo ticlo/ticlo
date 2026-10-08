@@ -28,6 +28,39 @@ describe('PropertyEditor', function () {
     destroyLastLocalConnection();
   });
 
+  it.each(['@d-lock', '@d-seal', {name: '@test-lock', type: 'toggle', default: false}] as (string | PropDesc)[])(
+    'edits named and custom Block attributes through the generic attribute panel (%j)',
+    async function (attribute) {
+      const id = 'test-attribute';
+      const name = typeof attribute === 'string' ? attribute : attribute.name;
+      globalFunctions.addFactory(null, {
+        name: id,
+        attributes: [attribute],
+      });
+      const flow = Root.instance.addFlow('PropertyAttributeTest', {block: {'#is': id}});
+      const [, conn] = makeLocalConnection(Root.instance);
+      let list: PropertyList;
+      const [, div] = loadTemplate(
+        <PropertyList
+          ref={(value) => {
+            list = value;
+          }}
+          conn={conn}
+          paths={['PropertyAttributeTest.block']}
+        />
+      );
+      await shouldHappen(() => list && div.querySelector('.ticl-e-property-divider'));
+      list.onShowAttributeClick();
+      await shouldHappen(() => div.textContent.includes(name));
+      await shouldHappen(() => div.querySelector('.ant-switch'));
+      const toggle = div.querySelector<HTMLElement>('.ant-switch');
+      toggle.click();
+      await shouldHappen(() => (flow.getValue('block') as Block).getValue(name) === true);
+      globalFunctions.delete(id);
+      Root.instance.deleteValue('PropertyAttributeTest');
+    }
+  );
+
   it('editable', async function () {
     const flow = Root.instance.addFlow('PropertyEditor1');
     flow.load({

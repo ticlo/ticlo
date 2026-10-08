@@ -64,5 +64,5 @@ export function useSelection(root: Block, main: Block | null) {
       }
     };
   }, [root, selection.paths, updateSelection]);
-  return {selection, select, addSelection};
+  return {selection, selectionRef, select, addSelection};
 }

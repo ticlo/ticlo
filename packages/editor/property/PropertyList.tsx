@@ -13,6 +13,7 @@ import {
   PropDesc,
   PropGroupDesc,
   deepEqual,
+  mapAttributeDesc,
   mapConfigDesc,
 } from '@ticlo/core/editor.ts';
 import {PropertyEditor} from './PropertyEditor.tsx';
@@ -509,7 +510,7 @@ class PropertyAttributeList extends LazyUpdateComponent<PropertyAttributeProps, 
     this.updatePaths(paths);
 
     const attributeChildren = [];
-    for (const attributeDesc of attributeList) {
+    for (const attributeDesc of [...attributeList, ...(mapAttributeDesc(funcDesc.attributes) ?? [])]) {
       attributeChildren.push(descToEditor(conn, paths, funcDesc, attributeDesc, funcLib));
     }
     attributeChildren.push(descToEditor(conn, paths, funcDesc, BlockWidget.widgetDesc, funcLib));

@@ -342,8 +342,13 @@ describe('Connection', function () {
     expect(descCustom).toBeNull();
     JsFunction.registerType('this["out"] = 1', {
       name: 'Connection-watchDesc1',
+      attributes: ['@d-lock', '@d-seal'],
     });
     await shouldHappen(() => descCustom != null);
+    expect([...descCustom.attributes]).toEqual([
+      {name: '@d-lock', type: 'toggle', default: false},
+      {name: '@d-seal', type: 'toggle', default: false},
+    ]);
     globalFunctions.delete('Connection-watchDesc1');
     await shouldHappen(() => descCustom == null);
 

@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 import {Block, globalFunctions} from '@ticlo/core';
 import {metaKey} from '../comp/Component.tsx';
-import {elementClassProperty, elementStyleProperty} from '../comp/CommontProps.ts';
+import {elementAttributes, elementClassProperty, elementStyleProperty} from '../comp/CommontProps.ts';
 import {Values} from '../comp/Values.ts';
 import {useBlockConfigs} from '../hooks/useBlockConfigs.ts';
 import {useTicloComp} from '../hooks/useTicloComp.ts';
@@ -29,6 +29,7 @@ globalFunctions.addFactory(
   {
     name: 'markdown',
     base: 'react:element',
+    attributes: elementAttributes,
     tags: ['react-comp'],
     properties: [
       {name: 'source', type: 'string', mime: 'text/x-markdown'},

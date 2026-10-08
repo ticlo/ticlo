@@ -3,7 +3,7 @@ import {Block, DataMap, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/co
 import {useTicloComp} from '../hooks/useTicloComp.ts';
 import {metaKey} from '../comp/Component.tsx';
 import React from 'react';
-import {elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.ts';
+import {elementAttributes, elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.ts';
 import {useBlockConfigs} from '../hooks/useBlockConfigs.ts';
 import {Values} from '../comp/Values.ts';
 
@@ -34,6 +34,7 @@ function ImageElement({block}: {block: Block}) {
 const imgElementDesc: FunctionDesc = {
   name: 'img',
   base: 'react:element',
+  attributes: elementAttributes,
   tags: ['react-comp'],
   properties: [
     {

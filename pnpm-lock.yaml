@@ -413,6 +413,9 @@ importers:
       '@ticlo/editor':
         specifier: workspace:*
         version: link:../editor
+      '@ticlo/html':
+        specifier: workspace:*
+        version: link:../html
       '@ticlo/react':
         specifier: workspace:*
         version: link:../react

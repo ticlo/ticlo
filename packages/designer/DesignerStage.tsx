@@ -1,7 +1,6 @@
 import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Block, Flow, voidFunction, type ClientConn} from '@ticlo/core';
 import {TicloCurrentFlowContext} from '@ticlo/editor/component/LayoutContext.ts';
-import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {ComponentContext, ElementMap, useValue} from '@ticlo/react';
 import {DesignerPage} from './DesignerPage.tsx';
 import {DesignerSelectionLayer} from './DesignerSelectionLayer.tsx';
@@ -28,7 +27,7 @@ export function DesignerStage({root, conn, basePath}: Props) {
     flow.watch(watcher);
     return () => flow.unwatch(watcher);
   }, [flow]);
-  const {selection, select, addSelection} = useSelection(root, main);
+  const {selection, selectionRef, select, addSelection} = useSelection(root, main);
   const {designMode = true, setDesignMode = voidFunction} = useContext(DesignerLayoutContextType);
   const componentContext = useMemo(
     () => ({designMode, elementMap, select, addSelection}),
@@ -38,16 +37,16 @@ export function DesignerStage({root, conn, basePath}: Props) {
     () => ({
       undo: () => {
         if (!flow) return false;
-        conn.undo(basePath, requestCallbacks);
+        flow.undo();
         return true;
       },
       redo: () => {
         if (!flow) return false;
-        conn.redo(basePath, requestCallbacks);
+        flow.redo();
         return true;
       },
     }),
-    [flow, conn, basePath]
+    [flow]
   );
   const stage = useMemo<DesignerStageContextValue>(
     () => ({
@@ -68,7 +67,7 @@ export function DesignerStage({root, conn, basePath}: Props) {
   const contextRef = useRef(context);
   contextRef.current = context;
   const activate = useCallback(() => contextRef.current.onFlowFocus(basePath), [basePath]);
-  const hover = useStageInput(stageRef, componentContext, activate);
+  const {hover, marquee} = useStageInput(stageRef, componentContext, activate, selectionRef, flow);
   useEffect(() => {
     registerStage(basePath, stage);
     return () => unregisterStage(basePath, stage);
@@ -92,7 +91,13 @@ export function DesignerStage({root, conn, basePath}: Props) {
         )}
       </ComponentContext.Provider>
       {flow && designMode && (
-        <DesignerSelectionLayer stageRef={stageRef} elementMap={elementMap} blocks={selection.blocks} hover={hover} />
+        <DesignerSelectionLayer
+          stageRef={stageRef}
+          elementMap={elementMap}
+          blocks={selection.blocks}
+          hover={hover}
+          marquee={marquee}
+        />
       )}
     </div>
   );

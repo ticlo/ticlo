@@ -151,9 +151,10 @@ describe('DesignerSelectionLayer', () => {
     const child = main.createBlock('child');
     child.setValue('#is', 'react:p');
     child.setValue('content', 'Repeated');
-    const maps = new Set<ElementMap>();
+    const contexts = new Map<ElementMap, React.ContextType<typeof ComponentContext>>();
     function Probe() {
-      maps.add(React.useContext(ComponentContext).elementMap);
+      const context = React.useContext(ComponentContext);
+      contexts.set(context.elementMap, context);
       return (
         <>
           <TicloComp block={child} />
@@ -169,13 +170,13 @@ describe('DesignerSelectionLayer', () => {
         <DesignerStage root={Root.instance} conn={conn} basePath={path} />
       </div>
     );
-    await shouldHappen(() => maps.size === 2 && div.querySelectorAll('p').length === 4);
+    await shouldHappen(() => contexts.size === 2 && div.querySelectorAll('p').length === 4);
     await waitFrames();
     const [first, second] = div.querySelectorAll('.ticl-d-stage');
-    first.querySelector('p').dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+    const [firstMap, secondMap] = contexts.keys();
+    contexts.get(firstMap).select([child]);
     await shouldHappen(() => first.querySelectorAll('.ticl-d-selection-rect').length === 2);
     expect(second.querySelectorAll('.ticl-d-selection-rect').length).toBe(0);
-    const [firstMap, secondMap] = maps;
     expect(firstMap.getElements(child).every((element) => first.contains(element))).toBe(true);
     expect(secondMap.getElements(child).every((element) => second.contains(element))).toBe(true);
   });

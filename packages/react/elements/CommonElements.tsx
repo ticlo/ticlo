@@ -1,6 +1,6 @@
 import React from 'react';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '@ticlo/core/block/Descriptor.ts';
-import {elementConfigs, elementProps} from '../comp/CommontProps.ts';
+import {elementAttributes, elementConfigs, elementProps} from '../comp/CommontProps.ts';
 import {Block, globalFunctions} from '@ticlo/core';
 import {useTicloComp} from '../hooks/useTicloComp.ts';
 import {metaKey, renderChildren} from '../comp/Component.tsx';
@@ -8,6 +8,7 @@ import {metaKey, renderChildren} from '../comp/Component.tsx';
 const sharedElementDesc: FunctionDesc = {
   name: '',
   base: 'react:element',
+  attributes: elementAttributes,
   tags: ['react-comp'],
   childrenTags: ['react-comp'],
   configs: elementConfigs,

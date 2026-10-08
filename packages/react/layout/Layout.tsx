@@ -1,7 +1,7 @@
 import React from 'react';
 import {Block, globalFunctions} from '@ticlo/core';
 import {metaKey, renderChildren} from '../comp/Component.tsx';
-import {elementConfigs, elementProps} from '../comp/CommontProps.ts';
+import {elementAttributes, elementConfigs, elementProps} from '../comp/CommontProps.ts';
 import {useTicloComp} from '../hooks/useTicloComp.ts';
 
 function createLayout(name: string) {
@@ -20,6 +20,7 @@ function createLayout(name: string) {
     {
       name,
       base: 'react:element',
+      attributes: elementAttributes,
       tags: ['react-comp'],
       childrenTags: ['react-comp'],
       configs: elementConfigs,

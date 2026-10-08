@@ -25,14 +25,15 @@ Stage context serves two audiences:
 - Panels use `useActiveDesignerStage()` for the active stage, selected Blocks
   and paths, and editing commands. Each stage keeps its own selection.
 
-Outline selection can span different parents. `addSelection` keeps only siblings
-of the added component; for a batch, the last valid component determines the
-parent. Adding an already-selected component still removes selections from
-other parents, while the return value remains false unless a new item is selected.
+Outline selection can span different parents. Stage selection additions and
+group movement retain siblings under one parent.
 
 In design mode, the stage intercepts component input for designer interactions.
 Preview restores normal component input. Components that use portals should
 render their popup containers inside the stage.
+
+See [stage interaction contracts](../../docs/designer.md) for selection,
+designer attributes, movement, and history behavior.
 
 `useTicloComp` registers the component's root Element with the stage's
 `ElementMap` in both modes and merges application refs. Custom components attach

@@ -1,6 +1,6 @@
 import {DataMap, isDataMap, isDataTruncated, measureObjSize, WS_FRAME_SIZE} from '../util/DataTypes.ts';
 import {ConnectionSend} from './Connection.ts';
-import {FunctionDesc, mapConfigDesc} from '../block/Descriptor.ts';
+import {FunctionDesc, mapAttributeDesc, mapConfigDesc} from '../block/Descriptor.ts';
 import {ClientConnection} from './ClientConnection.ts';
 import {clientDescriptors} from './ClientDescriptors.ts';
 
@@ -377,8 +377,9 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
             }
           } else {
             this.cache.set(id, change);
-            // convert string to config descriptor
+            // Resolve named configuration and attribute descriptors.
             (change as FunctionDesc).configs = mapConfigDesc((change as FunctionDesc).configs);
+            (change as FunctionDesc).attributes = mapAttributeDesc((change as FunctionDesc).attributes);
             if (id.endsWith(':')) {
               this.categories.set(id.substring(0, id.length - 1), change);
             }

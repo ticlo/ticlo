@@ -7,10 +7,16 @@
 }
 
 .ticl-d-selection-rect,
-.ticl-d-hover-rect {
+.ticl-d-hover-rect,
+.ticl-d-marquee-rect {
   position: absolute;
   box-sizing: border-box;
   border: 1px solid #808080;
+}
+
+.ticl-d-marquee-rect {
+  border-color: #1677ff;
+  background: rgba(22, 119, 255, 0.1);
 }
 
 .ticl-d-hover-rect {

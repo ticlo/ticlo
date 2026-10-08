@@ -2,7 +2,7 @@ import React, {useMemo, ComponentType} from 'react';
 import {Block, DataMap, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/core';
 import {useTicloComp} from '../hooks/useTicloComp.ts';
 import {metaKey} from '../comp/Component.tsx';
-import {elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.ts';
+import {elementAttributes, elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.ts';
 import {useBlockConfigs} from '../hooks/useBlockConfigs.ts';
 import {useBlockProps} from '../hooks/useBlockProps.tsx';
 import {Values} from '../comp/Values.ts';
@@ -54,6 +54,7 @@ function JsxComponent({block}: {block: Block}) {
 const jsxComponentDesc: FunctionDesc = {
   name: 'jsx',
   base: 'react:element',
+  attributes: elementAttributes,
   tags: ['react-comp'],
   childrenTags: ['react-comp'],
   properties: [

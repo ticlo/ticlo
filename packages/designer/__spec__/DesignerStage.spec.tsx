@@ -330,11 +330,12 @@ describe('DesignerStage', () => {
 
     const parent = div.querySelector('.ticl-d-page > div > div');
     parent.dispatchEvent(new MouseEvent('mousedown', {bubbles: true, ctrlKey: true}));
+    parent.dispatchEvent(new MouseEvent('mouseup', {bubbles: true, ctrlKey: true}));
     await shouldHappen(() => stage.selection.blocks.length === 1 && stage.selection.blocks[0] === a);
     expect(stage.selection.paths).toEqual([`${path}.#main.a`]);
-    div
-      .querySelector('.ticl-d-page > div > p')
-      .dispatchEvent(new MouseEvent('mousedown', {bubbles: true, ctrlKey: true}));
+    const sibling = div.querySelector('.ticl-d-page > div > p');
+    sibling.dispatchEvent(new MouseEvent('mousedown', {bubbles: true, ctrlKey: true}));
+    sibling.dispatchEvent(new MouseEvent('mouseup', {bubbles: true, ctrlKey: true}));
     await shouldHappen(() => stage.selection.blocks.length === 2);
     expect(stage.selection.blocks).toEqual([a, b]);
 
@@ -477,13 +478,17 @@ describe('DesignerStage', () => {
     const page = div.querySelector('.ticl-d-page');
     const [first, second] = page.querySelectorAll('p');
     first.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+    first.dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
     second.dispatchEvent(new MouseEvent('mousedown', {bubbles: true, ctrlKey: true}));
+    second.dispatchEvent(new MouseEvent('mouseup', {bubbles: true, ctrlKey: true}));
     await shouldHappen(() => activeStage.selection.blocks.length === 2 && selected().length === 2);
     expect(activeStage.selection).toEqual({blocks: [a, b], paths: [`${path}.#main.a`, `${path}.#main.b`]});
-    first.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+    second.dispatchEvent(new MouseEvent('mousedown', {bubbles: true, ctrlKey: true}));
+    second.dispatchEvent(new MouseEvent('mouseup', {bubbles: true, ctrlKey: true}));
     await shouldHappen(() => activeStage.selection.blocks.length === 1 && selected().length === 1);
     expect(activeStage.selection.blocks).toEqual([a]);
     page.querySelector('div').dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+    page.querySelector('div').dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
     await shouldHappen(
       () =>
         activeStage.selection.blocks[0] === main &&

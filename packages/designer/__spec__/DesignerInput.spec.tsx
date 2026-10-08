@@ -156,7 +156,16 @@ describe('Designer input', () => {
     label.dispatchEvent(new PointerEvent('pointerover', {bubbles: true}));
     second.dispatchEvent(new PointerEvent('pointerover', {bubbles: true}));
     await shouldHappen(() => host.querySelector('.ticl-d-hover-rect'));
-    second.dispatchEvent(new MouseEvent('mousedown', {bubbles: true, cancelable: true, ctrlKey: true}));
+    const secondRect = second.getBoundingClientRect();
+    const mouseOptions = {
+      bubbles: true,
+      cancelable: true,
+      ctrlKey: true,
+      clientX: secondRect.left + 2,
+      clientY: secondRect.top + 2,
+    };
+    second.dispatchEvent(new MouseEvent('mousedown', mouseOptions));
+    second.dispatchEvent(new MouseEvent('mouseup', mouseOptions));
     await shouldHappen(() => getStage().selection.blocks.length === 2);
     expect(getStage().selection.blocks).toEqual([a, b]);
 
