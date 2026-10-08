@@ -10,6 +10,7 @@ export {useWatchBlock} from './hooks/useWatchBlock.tsx';
 export {Values} from './comp/Values.ts';
 export {metaKey, renderChildren, TicloComp, useComponentUpdate} from './comp/Component.tsx';
 export * from './markdown/index.ts';
+export {Horizontal, Vertical, Absolute} from './layout/Layout.tsx';
 
 import {globalFunctions} from '@ticlo/core';
 import './functions/ToComponent.tsx';

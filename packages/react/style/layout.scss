@@ -1,0 +1,20 @@
+.ticl-horizontal,
+.ticl-vertical {
+  display: flex;
+}
+
+.ticl-horizontal {
+  flex-direction: row;
+}
+
+.ticl-vertical {
+  flex-direction: column;
+}
+
+.ticl-absolute {
+  position: relative;
+
+  & > * {
+    position: absolute;
+  }
+}
