@@ -16,11 +16,11 @@ export function DesignerSelectionLayer({
 }) {
   const rects = useSelectionRects(stageRef, elementMap, blocks, hover);
   return (
-    <div className="ticl-designer-selection-layer">
+    <div className="ticl-d-selection-layer">
       {rects.map(({selected, left, top, width, height}, i) => (
         <div
           key={i}
-          className={selected ? 'ticl-designer-selection-rect' : 'ticl-designer-hover-rect'}
+          className={selected ? 'ticl-d-selection-rect' : 'ticl-d-hover-rect'}
           style={{
             left,
             top,

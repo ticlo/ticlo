@@ -79,7 +79,7 @@ export function DesignerStage({root, conn, basePath}: Props) {
   }, [basePath]);
   return (
     <div
-      className={designMode ? 'ticl-designer-stage ticl-designer-stage-design' : 'ticl-designer-stage'}
+      className={designMode ? 'ticl-d-stage ticl-d-stage-design' : 'ticl-d-stage'}
       ref={stageRef}
       tabIndex={designMode ? 0 : undefined}
       onPointerDownCapture={activate}
@@ -88,7 +88,7 @@ export function DesignerStage({root, conn, basePath}: Props) {
         {flow ? (
           <DesignerPage flow={flow} key={flow._blockId} />
         ) : (
-          <div className="ticl-designer-empty">This flow is not available.</div>
+          <div className="ticl-d-empty">This flow is not available.</div>
         )}
       </ComponentContext.Provider>
       {flow && designMode && (

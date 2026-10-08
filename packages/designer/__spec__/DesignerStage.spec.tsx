@@ -41,10 +41,10 @@ describe('DesignerStage', () => {
     });
     const [, conn] = makeLocalConnection(Root.instance, true, undefined, serialize);
     const [, div] = loadTemplate(<DesignerStage root={Root.instance} conn={conn} basePath={path} />);
-    await shouldHappen(() => div.querySelector('.ticl-designer-page span')?.textContent === 'Original');
+    await shouldHappen(() => div.querySelector('.ticl-d-page span')?.textContent === 'Original');
 
     await conn.setValue(`${path}.#main.title.content`, 'Updated', true);
-    await shouldHappen(() => div.querySelector('.ticl-designer-page span')?.textContent === 'Updated');
+    await shouldHappen(() => div.querySelector('.ticl-d-page span')?.textContent === 'Updated');
 
     const flow = Root.instance.getValue(path) as Block;
     flow.deleteValue('#main');
@@ -52,7 +52,7 @@ describe('DesignerStage', () => {
     const replacement = flow.createBlock('#main');
     replacement.setValue('#is', 'react:p');
     replacement.setValue('content', 'Replacement');
-    await shouldHappen(() => div.querySelector('.ticl-designer-page p')?.textContent === 'Replacement');
+    await shouldHappen(() => div.querySelector('.ticl-d-page p')?.textContent === 'Replacement');
   });
 
   it('shows an empty state instead of rendering #output', async () => {
@@ -132,7 +132,7 @@ describe('DesignerStage', () => {
     await shouldHappen(() => activeStage?.basePath === secondPath);
     expect(activeStage.selection.blocks).toEqual([]);
 
-    const firstStage = div.querySelectorAll('.ticl-designer-stage')[0];
+    const firstStage = div.querySelectorAll('.ticl-d-stage')[0];
     firstStage.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
     await shouldHappen(() => activeStage?.basePath === path);
     expect(activeStage.flow).toBe(firstFlow);
@@ -142,7 +142,7 @@ describe('DesignerStage', () => {
     expect(activeStage.selection.blocks).toEqual([firstMain]);
     expect(activeStage.selection.paths).toEqual([`${path}.#main`]);
 
-    div.querySelectorAll('.ticl-designer-stage')[1].dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
+    div.querySelectorAll('.ticl-d-stage')[1].dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
     await shouldHappen(() => activeStage?.basePath === secondPath);
     activeStage.select([secondMain]);
     await shouldHappen(() => activeStage.selection.blocks[0] === secondMain);
@@ -305,19 +305,17 @@ describe('DesignerStage', () => {
     const toggle = div.querySelector('button');
     toggle.click();
     await shouldHappen(() => toggle.textContent === 'Preview' && !stage.designMode);
-    expect(div.querySelector('.ticl-designer-stage-design')).toBeNull();
+    expect(div.querySelector('.ticl-d-stage-design')).toBeNull();
     expect(stage.selection.blocks).toEqual([main]);
     openSecond();
-    await shouldHappen(
-      () => stage.basePath === secondPath && div.querySelectorAll('.ticl-designer-stage').length === 2
-    );
+    await shouldHappen(() => stage.basePath === secondPath && div.querySelectorAll('.ticl-d-stage').length === 2);
     expect(stage.designMode).toBe(false);
-    expect(div.querySelector('.ticl-designer-stage-design')).toBeNull();
+    expect(div.querySelector('.ticl-d-stage-design')).toBeNull();
     toggle.click();
-    await shouldHappen(() => div.querySelectorAll('.ticl-designer-stage-design').length === 2 && stage.designMode);
+    await shouldHappen(() => div.querySelectorAll('.ticl-d-stage-design').length === 2 && stage.designMode);
     expect(toggle.textContent).toBe('Design');
     expect(stage.designMode).toBe(true);
-    await shouldHappen(() => div.querySelectorAll('.ticl-designer-selection-rect').length === 1);
+    await shouldHappen(() => div.querySelectorAll('.ticl-d-selection-rect').length === 1);
   });
 
   it('exposes undo and redo through panels and keyboard commands', async () => {
@@ -341,7 +339,7 @@ describe('DesignerStage', () => {
     await shouldHappen(() => stage?.flow === flow && div.textContent === 'Original');
     await conn.setValue(`${path}.#main.content`, 'Changed', true);
     await shouldHappen(() => div.textContent === 'Changed');
-    const host = div.querySelector<HTMLElement>('.ticl-designer-stage');
+    const host = div.querySelector<HTMLElement>('.ticl-d-stage');
     host.focus();
     host.dispatchEvent(new KeyboardEvent('keydown', {key: 'z', ctrlKey: true, bubbles: true}));
     await shouldHappen(() => div.textContent === 'Original');
@@ -389,7 +387,7 @@ describe('DesignerStage', () => {
       </StrictMode>,
       'editor'
     );
-    const tree = () => div.querySelector('.ticl-designer-node-tree') as HTMLElement;
+    const tree = () => div.querySelector('.ticl-d-node-tree') as HTMLElement;
     const selected = () =>
       Array.from(tree().querySelectorAll('.ticl-tree-node-selected .ticl-tree-node-text')).map(
         (node) => node.textContent
@@ -406,7 +404,7 @@ describe('DesignerStage', () => {
     await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='b']", tree()));
     expect(querySingle("//div.ticl-tree-node-text[text()='outside']", tree())).toBeNull();
 
-    const page = div.querySelector('.ticl-designer-page');
+    const page = div.querySelector('.ticl-d-page');
     const [first, second] = page.querySelectorAll('p');
     first.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
     second.dispatchEvent(new MouseEvent('mousedown', {bubbles: true, ctrlKey: true}));

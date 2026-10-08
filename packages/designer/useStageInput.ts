@@ -61,7 +61,7 @@ export function useStageInput(
       const target = event.target;
       if (!(target instanceof Element) || !stage.contains(target)) return;
       // Future selection handles own their input; the page never receives it.
-      if (target.closest('.ticl-designer-selection-layer')) return;
+      if (target.closest('.ticl-d-selection-layer')) return;
       // Stage keyboard commands reach the app, but Tab must not focus a page component.
       if (target === stage && event instanceof KeyboardEvent) {
         if (event.key === 'Tab') event.preventDefault();

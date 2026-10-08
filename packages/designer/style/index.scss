@@ -1,11 +1,11 @@
-.ticl-designer-stage {
+.ticl-d-stage {
   height: 100%;
   position: relative;
   isolation: isolate;
   overflow: hidden;
 }
 
-.ticl-designer-page {
+.ticl-d-page {
   height: 100%;
   overflow: auto;
   background: #fff;
@@ -13,34 +13,34 @@
   z-index: 0;
 }
 
-.ticl-designer-stage-design {
+.ticl-d-stage-design {
   outline: none;
 
-  .ticl-designer-page,
-  .ticl-designer-page * {
+  .ticl-d-page,
+  .ticl-d-page * {
     user-select: none !important;
     -webkit-user-select: none !important;
     touch-action: none;
   }
 
-  .ticl-designer-page iframe {
+  .ticl-d-page iframe {
     pointer-events: none;
   }
 }
 
-.ticl-designer-empty {
+.ticl-d-empty {
   padding: 24px;
 }
 
-.ticl-designer-node-tree {
+.ticl-d-node-tree {
   height: 100%;
 }
 
-.ticl-designer-outline-empty {
+.ticl-d-outline-empty {
   padding: 12px;
 }
 
-.ticl-designer-selection-layer {
+.ticl-d-selection-layer {
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -48,13 +48,13 @@
   overflow: hidden;
 }
 
-.ticl-designer-selection-rect,
-.ticl-designer-hover-rect {
+.ticl-d-selection-rect,
+.ticl-d-hover-rect {
   position: absolute;
   box-sizing: border-box;
   border: 1px solid #808080;
 }
 
-.ticl-designer-hover-rect {
+.ticl-d-hover-rect {
   border-color: rgba(128, 128, 128, 0.35);
 }

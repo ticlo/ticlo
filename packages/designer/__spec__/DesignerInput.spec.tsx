@@ -106,11 +106,11 @@ describe('Designer input', () => {
       </StrictMode>
     );
     await shouldHappen(() => stage?.main === main && div.querySelector('input'));
-    const host = div.querySelector<HTMLElement>('.ticl-designer-stage');
+    const host = div.querySelector<HTMLElement>('.ticl-d-stage');
     const label = host.querySelector('span');
     const input = host.querySelector('input');
     const toggle = host.querySelector<HTMLButtonElement>('.ant-switch');
-    const second = host.querySelector<HTMLButtonElement>('.ticl-designer-page > div > button');
+    const second = host.querySelector<HTMLButtonElement>('.ticl-d-page > div > button');
     return {
       a,
       b,
@@ -152,10 +152,10 @@ describe('Designer input', () => {
     expect(toggle.disabled).toBe(false);
     expect(getComputedStyle(host.querySelector('iframe')).pointerEvents).toBe('none');
     expect(getStage().elementMap.getBlock(label.parentElement.parentElement)).toBe(a);
-    await shouldHappen(() => host.querySelector('.ticl-designer-selection-rect'));
+    await shouldHappen(() => host.querySelector('.ticl-d-selection-rect'));
     label.dispatchEvent(new PointerEvent('pointerover', {bubbles: true}));
     second.dispatchEvent(new PointerEvent('pointerover', {bubbles: true}));
-    await shouldHappen(() => host.querySelector('.ticl-designer-hover-rect'));
+    await shouldHappen(() => host.querySelector('.ticl-d-hover-rect'));
     second.dispatchEvent(new MouseEvent('mousedown', {bubbles: true, cancelable: true, ctrlKey: true}));
     await shouldHappen(() => getStage().selection.blocks.length === 2);
     expect(getStage().selection.blocks).toEqual([a, b]);
@@ -195,7 +195,7 @@ describe('Designer input', () => {
     const {a, host, label, input, toggle, reactHandler, nativeHandler, switchChange, getStage} = await createPage();
     getStage().select([a]);
     getStage().setDesignMode(false);
-    await shouldHappen(() => !host.classList.contains('ticl-designer-stage-design'));
+    await shouldHappen(() => !host.classList.contains('ticl-d-stage-design'));
     expect(getComputedStyle(label).userSelect).toBe('text');
     expect(getComputedStyle(host.querySelector('iframe')).pointerEvents).toBe('auto');
     await userEvent.click(toggle);
@@ -208,7 +208,7 @@ describe('Designer input', () => {
     expect(input.value).toBe('preview');
     expect(document.activeElement).toBe(input);
     getStage().setDesignMode(true);
-    await shouldHappen(() => host.classList.contains('ticl-designer-stage-design'));
+    await shouldHappen(() => host.classList.contains('ticl-d-stage-design'));
     expect(document.activeElement).toBe(host);
     expect(getStage().selection.blocks).toEqual([a]);
     reactHandler.mockClear();

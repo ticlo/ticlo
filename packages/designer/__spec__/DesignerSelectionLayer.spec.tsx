@@ -59,10 +59,10 @@ describe('DesignerSelectionLayer', () => {
       </DesignerApp>
     );
     await shouldHappen(() => stage?.main === main && div.querySelector('#first'));
-    const page = div.querySelector('.ticl-designer-page') as HTMLElement;
-    const host = div.querySelector('.ticl-designer-stage') as HTMLElement;
-    const selected = () => div.querySelectorAll<HTMLElement>('.ticl-designer-selection-rect');
-    const hovered = () => div.querySelector<HTMLElement>('.ticl-designer-hover-rect');
+    const page = div.querySelector('.ticl-d-page') as HTMLElement;
+    const host = div.querySelector('.ticl-d-stage') as HTMLElement;
+    const selected = () => div.querySelectorAll<HTMLElement>('.ticl-d-selection-rect');
+    const hovered = () => div.querySelector<HTMLElement>('.ticl-d-hover-rect');
     return {main, a, b, page, host, selected, hovered, getStage: () => stage};
   }
 
@@ -70,7 +70,7 @@ describe('DesignerSelectionLayer', () => {
     const {a, b, page, host, selected, hovered, getStage} = await createPage();
     const first = page.querySelector<HTMLElement>('#first');
     const second = page.querySelector<HTMLElement>('#second');
-    const layer = host.querySelector('.ticl-designer-selection-layer');
+    const layer = host.querySelector('.ticl-d-selection-layer');
     expect(layer.parentElement).toBe(host);
     expect(page.contains(layer)).toBe(false);
     await userEvent.hover(second);
@@ -93,7 +93,7 @@ describe('DesignerSelectionLayer', () => {
     expect(map.getBlock(replacement)).toBe(a);
     expect(getStage().selection.blocks).toEqual([a]);
     getStage().setDesignMode(false);
-    await shouldHappen(() => !host.querySelector('.ticl-designer-selection-layer'));
+    await shouldHappen(() => !host.querySelector('.ticl-d-selection-layer'));
     expect(map.getBlock(replacement)).toBe(a);
     expect(getStage().selection.blocks).toEqual([a]);
     getStage().setDesignMode(true);
@@ -136,7 +136,7 @@ describe('DesignerSelectionLayer', () => {
     first.style.display = '';
     await shouldHappen(() => selected().length === 1);
     getStage().setDesignMode(false);
-    await shouldHappen(() => !host.querySelector('.ticl-designer-selection-layer'));
+    await shouldHappen(() => !host.querySelector('.ticl-d-selection-layer'));
     await waitFrames();
     measure.mockClear();
     page.dispatchEvent(new Event('scroll'));
@@ -171,10 +171,10 @@ describe('DesignerSelectionLayer', () => {
     );
     await shouldHappen(() => maps.size === 2 && div.querySelectorAll('p').length === 4);
     await waitFrames();
-    const [first, second] = div.querySelectorAll('.ticl-designer-stage');
+    const [first, second] = div.querySelectorAll('.ticl-d-stage');
     first.querySelector('p').dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
-    await shouldHappen(() => first.querySelectorAll('.ticl-designer-selection-rect').length === 2);
-    expect(second.querySelectorAll('.ticl-designer-selection-rect').length).toBe(0);
+    await shouldHappen(() => first.querySelectorAll('.ticl-d-selection-rect').length === 2);
+    expect(second.querySelectorAll('.ticl-d-selection-rect').length).toBe(0);
     const [firstMap, secondMap] = maps;
     expect(firstMap.getElements(child).every((element) => first.contains(element))).toBe(true);
     expect(secondMap.getElements(child).every((element) => second.contains(element))).toBe(true);
