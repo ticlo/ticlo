@@ -256,7 +256,9 @@ describe('DesignerStage', () => {
     expect(activeStage.addSelection).toBe(componentContext.addSelection);
 
     activeStage.setDesignMode(false);
-    await shouldHappen(() => div.querySelector('[data-testid="first"]').textContent === 'false');
+    await shouldHappen(
+      () => div.querySelector('[data-testid="first"]').textContent === 'false' && !activeStage.designMode
+    );
     expect(activeStage.designMode).toBe(false);
     expect(renders.first).toBeGreaterThan(initialRenders.first);
     expect(renders.second).toBeGreaterThan(initialRenders.second);
@@ -266,7 +268,9 @@ describe('DesignerStage', () => {
     expect(components.first.select).toBe(componentContext.select);
     expect(components.first.addSelection).toBe(componentContext.addSelection);
     activeStage.setDesignMode(true);
-    await shouldHappen(() => div.querySelector('[data-testid="first"]').textContent === 'true');
+    await shouldHappen(
+      () => div.querySelector('[data-testid="first"]').textContent === 'true' && activeStage.designMode
+    );
   });
 
   it('shares global design mode with panels and stages opened later while retaining stage selection', async () => {
@@ -310,7 +314,7 @@ describe('DesignerStage', () => {
     expect(stage.designMode).toBe(false);
     expect(div.querySelector('.ticl-designer-stage-design')).toBeNull();
     toggle.click();
-    await shouldHappen(() => div.querySelectorAll('.ticl-designer-stage-design').length === 2);
+    await shouldHappen(() => div.querySelectorAll('.ticl-designer-stage-design').length === 2 && stage.designMode);
     expect(toggle.textContent).toBe('Design');
     expect(stage.designMode).toBe(true);
     await shouldHappen(() => div.querySelectorAll('.ticl-designer-selection-rect').length === 1);
