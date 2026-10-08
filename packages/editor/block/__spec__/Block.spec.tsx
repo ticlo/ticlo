@@ -375,7 +375,12 @@ describe('editor BlockStage', function () {
       },
       blocked: true,
     },
-    {policy: {allowPaths: ['BlockStageAltStaticCreate.#edit-func.#static.**']}, blocked: false},
+    {
+      policy: {
+        allowPaths: ['BlockStageAltStaticCreate.#edit-func.#static', 'BlockStageAltStaticCreate.#edit-func.#static.**'],
+      },
+      blocked: false,
+    },
   ])('alt drag creation with policy $policy', async function ({policy, blocked}) {
     flow = Root.instance.addFlow('BlockStageAltStaticCreate');
     FlowEditor.createFromFunction(flow, '#edit-func', ':worker-alt-static-create', {'#is': ''});

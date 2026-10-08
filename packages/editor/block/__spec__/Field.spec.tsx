@@ -2,13 +2,15 @@ import {expect} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage.tsx';
-import {Block, Root} from '@ticlo/core';
+import {type Flow, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.ts';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.ts';
 import {initEditor} from '../../index.ts';
 
 describe('editor Block Field', function () {
+  let flow: Flow;
+
   beforeEach(async function () {
     await initEditor();
   });
@@ -16,10 +18,14 @@ describe('editor Block Field', function () {
   afterEach(function () {
     removeLastTemplate();
     destroyLastLocalConnection();
+    if (flow) {
+      Root.instance.deleteValue(flow.getName());
+      flow = null;
+    }
   });
 
   it('single block', async function () {
-    const flow = Root.instance.addFlow('BlockField1');
+    flow = Root.instance.addFlow('BlockField1');
     flow.load({
       add: {
         '#is': '',
@@ -40,7 +46,7 @@ describe('editor Block Field', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-field'));
+    await shouldHappen(() => div.querySelector('.ticl-field'), 1000, 'find fields');
 
     const block = div.querySelector('.ticl-block') as HTMLDivElement;
 
@@ -76,12 +82,10 @@ describe('editor Block Field', function () {
         div
       )
     );
-
-    Root.instance.deleteValue('BlockField1');
   });
 
   it('sub block', async function () {
-    const flow = Root.instance.addFlow('BlockField2');
+    flow = Root.instance.addFlow('BlockField2');
     flow.load({
       add: {
         '#is': 'add',
@@ -132,8 +136,6 @@ describe('editor Block Field', function () {
     simulate(fieldNames[0], 'dblclick');
 
     await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
-
-    Root.instance.deleteValue('BlockField2');
   });
 
   it.each(['mousedown', 'mouseup'])('opens a field menu on release when contextmenu follows %s', async (timing) => {
@@ -194,6 +196,8 @@ describe('editor Block Field', function () {
       simulate(target, 'mouseup', {...move, buttons: 0});
       simulate(target, 'contextmenu', {...move, buttons: 0});
       await shouldHappen(() => (flow.queryValue('block.@b-p') as string[])[0] === 'b');
+      // Wait for the reorder response before tearing down the connection.
+      await client.getValue('BlockFieldReorderMenu.block.@b-p');
       expect(flow.queryValue('block.@b-p')).toEqual(['b', 'a']);
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
       expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
@@ -203,7 +207,7 @@ describe('editor Block Field', function () {
   });
 
   it('indirect binding', async function () {
-    const flow = Root.instance.addFlow('BlockField3');
+    flow = Root.instance.addFlow('BlockField3');
     flow.load({
       add: {
         '#is': 'add',
@@ -237,7 +241,5 @@ describe('editor Block Field', function () {
     flow.queryProperty('subtract.0').setBinding('##.add.0');
 
     await shouldHappen(() => !wire.classList.contains('ticl-wire-dash'));
-
-    Root.instance.deleteValue('BlockField3');
   });
 });

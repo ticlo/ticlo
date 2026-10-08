@@ -109,7 +109,7 @@ describe('react hooks', function () {
     }
   });
 
-  it('skips all optional event handlers in design mode and restores them in preview', async () => {
+  it('preserves optional event handlers in both modes and leaves selection to the designer stage', async () => {
     const flow = new Flow();
     const block = flow.createBlock('component');
     const eventHandlers = [
@@ -186,12 +186,15 @@ describe('react hooks', function () {
       expect(block.getValue('ref')).toBe(design);
       fireEvents(design);
       expect(select).not.toHaveBeenCalled();
-      expect(onClick).toHaveBeenCalledTimes(1);
-      for (const name of eventHandlers) expect(block.getValue(name), name).toBeUndefined();
+      expect(onClick).toHaveBeenCalledTimes(2);
+      for (const name of eventHandlers) {
+        expect(block.getValue(name), name).toBeDefined();
+        block.updateValue(name, undefined);
+      }
 
       fireEvents(await render(false));
       expect(select).not.toHaveBeenCalled();
-      expect(onClick).toHaveBeenCalledTimes(2);
+      expect(onClick).toHaveBeenCalledTimes(3);
       for (const name of eventHandlers) expect(block.getValue(name), name).toBeDefined();
     } finally {
       flow.destroy();
