@@ -91,9 +91,9 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     const {selectedKeys} = this.state;
 
     return (
-      <div className="ticl-node-tree-pane">
+      <div className="ticl-e-node-tree-pane">
         {showMenu ? (
-          <div className="tlcl-top-menu-box ticl-hbox">
+          <div className="ticl-e-top-menu-box ticl-e-hbox">
             <Tooltip title={t('Reload')}>
               <Button size="small" icon={<ReloadOutlined />} onClick={this.reload} />
             </Tooltip>

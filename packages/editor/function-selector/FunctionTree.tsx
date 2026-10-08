@@ -82,7 +82,7 @@ export class FunctionTree extends React.PureComponent<Props, State> {
     return (
       <VirtualList
         style={style}
-        className="ticl-func-tree"
+        className="ticl-e-func-tree"
         renderer={this.renderChild}
         itemCount={this.list.length}
         itemHeight={30}

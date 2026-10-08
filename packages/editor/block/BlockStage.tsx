@@ -177,7 +177,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
         'body>div:not([id])>div>div.ant-dropdown:not(.ant-dropdown-hidden):not(.slide-up-leave)'
       ) != null ||
       document.querySelector(
-        'body>div:not([id])>div>div.ticl-dropdown:not(.ticl-dropdown-hidden):not(.slide-up-leave)'
+        'body>div:not([id])>div>div.ticl-e-dropdown:not(.ticl-e-dropdown-hidden):not(.slide-up-leave)'
       ) != null
     );
   }
@@ -622,13 +622,13 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
     let miniStage: React.ReactNode;
     if (miniWindowStyle) {
       miniStage = (
-        <div className="ticl-mini-stage-bg" style={minStageBgStyle}>
-          <div className="ticl-mini-stage" style={miniStageStyle}>
+        <div className="ticl-e-mini-stage-bg" style={minStageBgStyle}>
+          <div className="ticl-e-mini-stage" style={miniStageStyle}>
             {miniChildren}
           </div>
           <DragDropDiv
             getRef={this.getMiniWindowRef}
-            className="ticl-mini-stage-window"
+            className="ticl-e-mini-stage-window"
             style={miniWindowStyle}
             onDragStartT={this.onZoomWindowDragStart}
             onDragMoveT={this.onDragMoveScroll}
@@ -641,19 +641,19 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
     return (
       <div
         style={style}
-        className={`ticl-stage${this.context.currentPath === basePath ? ' ticl-selected-stage' : ''}`}
+        className={`ticl-e-stage${this.context.currentPath === basePath ? ' ticl-e-selected-stage' : ''}`}
         ref={this.getRootRef}
         onMouseDown={this.onMouseDown}
         tabIndex={0}
       >
         <DragDropDiv
-          className="ticl-stage-scroll"
+          className="ticl-e-stage-scroll"
           getRef={this.getScrollLayerRef}
           onDragOverT={this.onDragOver}
           onDropT={this.onDrop}
         >
           <DragDropDiv
-            className="ticl-stage-scroll-content"
+            className="ticl-e-stage-scroll-content"
             style={contentLayerStyle}
             onDragStartT={this.onRightDragStart}
             onDragMoveT={this.onRightDragMove}
@@ -661,7 +661,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
             useRightButtonDragT={true}
           >
             <DragDropDiv
-              className="ticl-stage-bg"
+              className="ticl-e-stage-bg"
               getRef={this.getBgRef}
               style={contentBgStyle}
               directDragT={true}
@@ -670,18 +670,18 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
               onDragEndT={this.onDragSelectEnd}
             />
             {children}
-            <div ref={this.getSelectRectRef} className="ticl-block-select-rect" />
+            <div ref={this.getSelectRectRef} className="ticl-e-block-select-rect" />
           </DragDropDiv>
         </DragDropDiv>
-        <div className="ticl-stage-zoom">
-          <div className="ticl-hbox">
-            <Button className="ticl-icon-btn" shape="circle" icon={<ZoomOutOutlined />} onClick={this.zoomOut} />
-            <span className="ticl-stage-zoom-label">{Math.round(zoom * 100)}%</span>
-            <Button className="ticl-icon-btn" shape="circle" icon={<ZoomInOutlined />} onClick={this.zoomIn} />
+        <div className="ticl-e-stage-zoom">
+          <div className="ticl-e-hbox">
+            <Button className="ticl-e-icon-btn" shape="circle" icon={<ZoomOutOutlined />} onClick={this.zoomOut} />
+            <span className="ticl-e-stage-zoom-label">{Math.round(zoom * 100)}%</span>
+            <Button className="ticl-e-icon-btn" shape="circle" icon={<ZoomInOutlined />} onClick={this.zoomIn} />
           </div>
           {miniStage}
         </div>
-        <div className="ticl-stage-toolbar">
+        <div className="ticl-e-stage-toolbar">
           {toolButtons}
           <TooltipIconButton
             conn={conn}

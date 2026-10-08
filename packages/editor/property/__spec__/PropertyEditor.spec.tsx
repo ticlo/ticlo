@@ -54,23 +54,23 @@ describe('PropertyEditor', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-number-input'));
-    const input = div.querySelector('.ticl-number-input');
+    await shouldHappen(() => div.querySelector('.ticl-e-number-input'));
+    const input = div.querySelector('.ticl-e-number-input');
 
     // value is editable when value is same
-    expect(input.classList.contains('ticl-number-input-disabled')).toBe(false);
+    expect(input.classList.contains('ticl-e-number-input-disabled')).toBe(false);
 
     // value is not editable when value is different
     flow.queryProperty('add1.0').setValue(2);
-    await shouldHappen(() => input.classList.contains('ticl-number-input-disabled'));
+    await shouldHappen(() => input.classList.contains('ticl-e-number-input-disabled'));
 
     flow.queryProperty('add1.0').setValue(undefined);
     flow.queryProperty('add2.0').setValue(undefined);
-    await shouldHappen(() => !input.classList.contains('ticl-number-input-disabled'));
+    await shouldHappen(() => !input.classList.contains('ticl-e-number-input-disabled'));
 
     // value is not editable when there is a binding
     flow.queryProperty('add1.0').setBinding('1');
-    await shouldHappen(() => input.classList.contains('ticl-number-input-disabled'));
+    await shouldHappen(() => input.classList.contains('ticl-e-number-input-disabled'));
 
     Root.instance.deleteValue('PropertyEditor1');
   });
@@ -101,19 +101,19 @@ describe('PropertyEditor', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-number-input'));
-    const input = div.querySelector('.ticl-number-input');
+    await shouldHappen(() => div.querySelector('.ticl-e-number-input'));
+    const input = div.querySelector('.ticl-e-number-input');
 
-    const expandIcon = div.querySelector('.ticl-tree-arr-expand');
+    const expandIcon = div.querySelector('.ticl-e-tree-arr-expand');
 
     expect(expandIcon).not.toBeNull();
-    expect(div.querySelector('.ticl-property-list')).toBeNull();
+    expect(div.querySelector('.ticl-e-property-list')).toBeNull();
 
     // subblock should expand
     simulate(expandIcon, 'click');
-    await shouldHappen(() => div.querySelector('.ticl-property-list'));
+    await shouldHappen(() => div.querySelector('.ticl-e-property-list'));
     // find the child property group for [] 0 1
-    await shouldHappen(() => div.querySelector('.ticl-property-group'));
+    await shouldHappen(() => div.querySelector('.ticl-e-property-group'));
 
     Root.instance.deleteValue('PropertyEditor2');
   });
@@ -140,7 +140,7 @@ describe('PropertyEditor', function () {
       'editor'
     );
 
-    await shouldHappen(() => querySingle("//div[contains(@class,'ticl-property-name')]/span[text()='value']", div));
+    await shouldHappen(() => querySingle("//div[contains(@class,'ticl-e-property-name')]/span[text()='value']", div));
 
     Root.instance.deleteValue('PropertyEditorScopedDesc');
   });
@@ -164,10 +164,10 @@ describe('PropertyEditor', function () {
     );
     try {
       const source = await shouldHappen(() =>
-        querySingle("//div.ticl-property-name.drag-initiator/span[text()='a']/..", div)
+        querySingle("//div.ticl-e-property-name.drag-initiator/span[text()='a']/..", div)
       );
       const target = await shouldHappen(() =>
-        querySingle("//div.ticl-property-name.drag-initiator/span[text()='b']/..", div)
+        querySingle("//div.ticl-e-property-name.drag-initiator/span[text()='b']/..", div)
       );
       const from = source.getBoundingClientRect();
       const to = target.getBoundingClientRect();
@@ -176,18 +176,18 @@ describe('PropertyEditor', function () {
       simulate(source, 'mousedown', down);
       simulate(source, 'contextmenu', down);
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
+      expect(document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)')).toBeNull();
       simulate(target, 'mousemove', move);
       simulate(target, 'mouseup', {...move, buttons: 0});
       simulate(target, 'contextmenu', {...move, buttons: 0});
       await shouldHappen(() => (flow.queryValue('block.#custom') as PropDesc[])[0].name === 'b');
       expect((flow.queryValue('block.#custom') as PropDesc[]).map((prop) => prop.name)).toEqual(['b', 'a']);
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
+      expect(document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)')).toBeNull();
 
       // A later context-menu request still opens normally, including keyboard requests.
       simulate(source, 'contextmenu', down);
-      await shouldHappen(() => document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)'));
+      await shouldHappen(() => document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)'));
     } finally {
       Root.instance.deleteValue('PropertyEditorReorderMenu');
     }

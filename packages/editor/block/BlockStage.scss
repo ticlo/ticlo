@@ -1,35 +1,35 @@
-.ticl-stage {
+.ticl-e-stage {
   user-select: none;
   outline: none;
 }
 
-.ticl-stage-scroll {
+.ticl-e-stage-scroll {
   position: absolute;
   width: 100%;
   height: 100%;
   touch-action: none;
 }
 
-.ticl-stage-bg {
+.ticl-e-stage-bg {
   background-size: 24px 24px;
   /* image from assets/stage-bg.gif */
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAAJ0lEQVQ4y2NgGAXDCexuwCXDRKpRLDhMr9/NwMDg2jAQThoFIwUAAPWlBbkMlnfPAAAAAElFTkSuQmCC');
   opacity: 0.3;
 }
 
-.ticl-selected-stage .ticl-stage-bg {
+.ticl-e-selected-stage .ticl-e-stage-bg {
   opacity: 0.8;
 }
 
-.ticl-stage-scroll {
+.ticl-e-stage-scroll {
   overflow: auto;
 }
 
-.ticl-stage-scroll-content {
+.ticl-e-stage-scroll-content {
   transform-origin: 0 0;
 }
 
-.ticl-stage-zoom {
+.ticl-e-stage-zoom {
   pointer-events: none;
   position: absolute;
   top: 4px;
@@ -45,24 +45,24 @@
   }
 }
 
-.ticl-stage-zoom-label {
+.ticl-e-stage-zoom-label {
   margin: 0 4px;
   text-align: center;
   flex-grow: 1;
 }
 
-.ticl-mini-stage-bg {
+.ticl-e-mini-stage-bg {
   box-shadow: 0 0 1px 1px #f8f8f8;
   margin: 0 2px 6px;
   overflow: hidden;
   position: relative;
 }
 
-.ticl-mini-stage {
+.ticl-e-mini-stage {
   transform-origin: 0 0;
 }
 
-.ticl-mini-stage-window {
+.ticl-e-mini-stage-window {
   position: absolute;
   box-sizing: border-box;
   box-shadow: 0 0 0 128px rgba(170, 170, 170, 0.1);
@@ -71,7 +71,7 @@
   cursor: move;
 }
 
-.ticl-stage-toolbar {
+.ticl-e-stage-toolbar {
   pointer-events: none;
   position: absolute;
   top: 4px;

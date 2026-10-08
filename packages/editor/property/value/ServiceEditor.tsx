@@ -116,13 +116,18 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     if (bindingPath) {
       button = (
         <Popup popupVisible={opened} onPopupVisibleChange={this.onPopupClose} popup={this.getPopup}>
-          <Button className="ticl-square-icon-btn" size="small" icon={<EllipsisOutlined />} onClick={this.openPopup} />
+          <Button
+            className="ticl-e-square-icon-btn"
+            size="small"
+            icon={<EllipsisOutlined />}
+            onClick={this.openPopup}
+          />
         </Popup>
       );
     } else if (!locked && create) {
       button = (
         <Button
-          className="ticl-square-icon-btn"
+          className="ticl-e-square-icon-btn"
           size="small"
           icon={<PlusOutlined />}
           onClick={this.onCreate}
@@ -132,7 +137,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className="ticl-hbox ticl-service-editor">
+      <div className="ticl-e-hbox ticl-e-service-editor">
         <Select
           size="small"
           value={selectValue}

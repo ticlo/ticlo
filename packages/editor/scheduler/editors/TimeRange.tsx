@@ -103,13 +103,13 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <div className="ticl-property">
-          <div className="ticl-property-name">
+        <div className="ticl-e-property">
+          <div className="ticl-e-property-name">
             <LocalizedPropertyName desc={funcDesc} name="start" />
           </div>
-          <div className="ticl-property-value">
+          <div className="ticl-e-property-value">
             <TimePicker
-              className="ticl-date-editor"
+              className="ticl-e-date-editor"
               format="HH:mm"
               allowClear={false}
               size="small"
@@ -119,11 +119,11 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
             />
           </div>
         </div>
-        <div className="ticl-property">
-          <div className="ticl-property-name">
+        <div className="ticl-e-property">
+          <div className="ticl-e-property-name">
             <LocalizedPropertyName desc={funcDesc} name="duration" />
           </div>
-          <div className="ticl-property-value">
+          <div className="ticl-e-property-value">
             {unit > 0 ? (
               <InputNumber
                 size="small"

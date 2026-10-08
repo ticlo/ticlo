@@ -389,20 +389,20 @@ describe('DesignerStage', () => {
     );
     const tree = () => div.querySelector('.ticl-d-node-tree') as HTMLElement;
     const selected = () =>
-      Array.from(tree().querySelectorAll('.ticl-tree-node-selected .ticl-tree-node-text')).map(
+      Array.from(tree().querySelectorAll('.ticl-e-tree-node-selected .ticl-e-tree-node-text')).map(
         (node) => node.textContent
       );
-    await shouldHappen(() => activeStage?.basePath === secondPath && tree().querySelector('.ticl-tree-node'));
+    await shouldHappen(() => activeStage?.basePath === secondPath && tree().querySelector('.ticl-e-tree-node'));
     context.onFlowFocus(path);
-    await shouldHappen(() => activeStage?.main === main && tree().querySelectorAll('.ticl-tree-node').length === 1);
+    await shouldHappen(() => activeStage?.main === main && tree().querySelectorAll('.ticl-e-tree-node').length === 1);
     await shouldHappen(() => tree().querySelector('.tico-fab-react'));
     main.setValue('#is', 'add');
     await shouldHappen(() => tree().querySelector('.tico-fas-plus'));
     main.setValue('#is', 'react:div');
     await shouldHappen(() => tree().querySelector('.tico-fab-react'));
-    (tree().querySelector('.ticl-tree-arr') as HTMLElement).click();
-    await shouldHappen(() => querySingle("//div.ticl-tree-node-text[text()='b']", tree()));
-    expect(querySingle("//div.ticl-tree-node-text[text()='outside']", tree())).toBeNull();
+    (tree().querySelector('.ticl-e-tree-arr') as HTMLElement).click();
+    await shouldHappen(() => querySingle("//div.ticl-e-tree-node-text[text()='b']", tree()));
+    expect(querySingle("//div.ticl-e-tree-node-text[text()='outside']", tree())).toBeNull();
 
     const page = div.querySelector('.ticl-d-page');
     const [first, second] = page.querySelectorAll('p');
@@ -417,16 +417,16 @@ describe('DesignerStage', () => {
     await shouldHappen(
       () =>
         activeStage.selection.blocks[0] === main &&
-        tree().querySelector('.ticl-tree-node-selected .ticl-tree-node-text[title="#main"]')
+        tree().querySelector('.ticl-e-tree-node-selected .ticl-e-tree-node-text[title="#main"]')
     );
 
     context.activeStage.select([`${path}.#main.a`]);
     await shouldHappen(() => selected().includes('a'));
     expect(activeStage.selection).toEqual({blocks: [a], paths: [`${path}.#main.a`]});
-    querySingle("//div.ticl-tree-node-text[text()='b']", tree()).click();
+    querySingle("//div.ticl-e-tree-node-text[text()='b']", tree()).click();
     await shouldHappen(() => activeStage.selection.blocks[0] === b);
     expect(activeStage.selection.paths).toEqual([`${path}.#main.b`]);
-    querySingle("//div.ticl-tree-node-text[text()='a']", tree()).dispatchEvent(
+    querySingle("//div.ticl-e-tree-node-text[text()='a']", tree()).dispatchEvent(
       new MouseEvent('click', {bubbles: true, ctrlKey: true})
     );
     await shouldHappen(() => activeStage.selection.blocks.length === 2);
@@ -435,7 +435,7 @@ describe('DesignerStage', () => {
     main.deleteValue('b');
     await shouldHappen(() => activeStage.selection.blocks.length === 1 && activeStage.selection.blocks[0] === a);
     expect(activeStage.selection.paths).toEqual([`${path}.#main.a`]);
-    await shouldHappen(() => !querySingle("//div.ticl-tree-node-text[text()='b']", tree()));
+    await shouldHappen(() => !querySingle("//div.ticl-e-tree-node-text[text()='b']", tree()));
     main.deleteValue('a');
     const replacementChild = main.createBlock('a');
     replacementChild.setValue('#is', 'react:span');
@@ -448,7 +448,7 @@ describe('DesignerStage', () => {
     await shouldHappen(() => activeStage.selection.blocks.length === 1);
     context.onFlowFocus(secondPath);
     await shouldHappen(() => activeStage?.basePath === secondPath && selected().length === 0);
-    expect(querySingle("//div.ticl-tree-node-text[text()='a']", tree())).toBeNull();
+    expect(querySingle("//div.ticl-e-tree-node-text[text()='a']", tree())).toBeNull();
     activeStage.select([`${secondPath}.#main`]);
     await shouldHappen(() => activeStage.selection.paths.length === 1);
     context.onFlowFocus(path);
@@ -457,11 +457,11 @@ describe('DesignerStage', () => {
 
     flow.deleteValue('#main');
     await shouldHappen(() => activeStage.main === null && activeStage.selection.paths.length === 0);
-    expect(tree().querySelector('.ticl-tree-node')).toBeNull();
+    expect(tree().querySelector('.ticl-e-tree-node')).toBeNull();
     const replacement = flow.createBlock('#main');
     replacement.setValue('#is', 'react:p');
     await shouldHappen(
-      () => activeStage.main === replacement && tree().querySelectorAll('.ticl-tree-node').length === 1
+      () => activeStage.main === replacement && tree().querySelectorAll('.ticl-e-tree-node').length === 1
     );
     expect(activeStage.selection.blocks).toEqual([]);
   });

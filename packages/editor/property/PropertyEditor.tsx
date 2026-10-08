@@ -416,24 +416,24 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     if (count === 0) {
       // not ready yet
       return (
-        <div className="ticl-property">
-          <div className="ticl-property-name">{propertyName}</div>
-          <div className="ticl-property-value">
-            <div className="ticl-property-loader" />
+        <div className="ticl-e-property">
+          <div className="ticl-e-property-name">{propertyName}</div>
+          <div className="ticl-e-property-value">
+            <div className="ticl-e-property-loader" />
           </div>
         </div>
       );
     }
     let inBoundClass;
     if (subBlock) {
-      // inBoundClass = 'ticl-prop-inbound';
+      // inBoundClass = 'ticl-e-prop-inbound';
     } else if (bindingPath) {
-      inBoundClass = 'ticl-property-inbound';
+      inBoundClass = 'ticl-e-property-inbound';
       if (!bindingSame) {
         bindingPath = '???';
       }
     } else if (!readonly) {
-      inBoundClass = 'ticl-property-input';
+      inBoundClass = 'ticl-e-property-input';
     }
 
     // lock icon
@@ -509,11 +509,11 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       );
     }
 
-    const nameClass = `ticl-property-name${readonly ? ' ticl-property-readonly' : ''}${
-      display ? ' ticl-property-display' : ''
+    const nameClass = `ticl-e-property-name${readonly ? ' ticl-e-property-readonly' : ''}${
+      display ? ' ticl-e-property-display' : ''
     }`;
     return (
-      <div className="ticl-property">
+      <div className="ticl-e-property">
         {inBoundClass ? <div className={inBoundClass} title={bindingPath} /> : null}
         <PropertyDropdown
           funcDesc={funcDesc}
@@ -542,9 +542,9 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           </DragDrop>
         </PropertyDropdown>
         {renderLockIcon ? (
-          <Tooltip title={locktooltip} overlayClassName="ticl-tooltip">
+          <Tooltip title={locktooltip} overlayClassName="ticl-e-tooltip">
             <Button
-              className="ticl-icon-btn"
+              className="ticl-e-icon-btn"
               shape="circle"
               tabIndex={-1}
               icon={lockIcon}
@@ -553,7 +553,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           </Tooltip>
         ) : null}
         {subBlock ? <ExpandIcon opened={showSubBlock ? 'opened' : 'closed'} onClick={this.expandSubBlock} /> : null}
-        <div className="ticl-property-value">{editor}</div>
+        <div className="ticl-e-property-value">{editor}</div>
         {renderSubBlock ? (
           <PropertyList conn={conn} paths={this.subBlockPaths} mode="subBlock" funcLib={funcLib} />
         ) : null}

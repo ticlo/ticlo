@@ -1,8 +1,8 @@
-.ticl-dynamic-editor {
+.ticl-e-dynamic-editor {
   width: 100%;
   height: 100%;
 
-  & > .ticl-dynamic-type-icon {
+  & > .ticl-e-dynamic-type-icon {
     position: absolute;
     top: 0;
     right: 0;
@@ -17,7 +17,7 @@
   }
 }
 /* used by both the type choose button and the drop down menu */
-.ticl-dynamic-type-icon {
+.ticl-e-dynamic-type-icon {
   width: 11px;
   height: 11px;
   border-radius: 2px;
@@ -39,10 +39,10 @@
   }
 }
 
-.ticl-dynamic-type-menu-item {
+.ticl-e-dynamic-type-menu-item {
   display: flex;
   align-items: center;
-  & > .ticl-dynamic-type-icon {
+  & > .ticl-e-dynamic-type-icon {
     margin-right: 8px;
     transform: scale(1.6363636363636364);
   }

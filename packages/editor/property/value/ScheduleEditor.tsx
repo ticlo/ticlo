@@ -46,8 +46,8 @@ export class ScheduleEditor extends React.PureComponent<ValueEditorProps, any> {
       return (
         <>
           {editor}
-          <div className="ticl-expand-button" title={'Edit'} onClick={this.popup}>
-            <div className="ticl-expand-icon-11" />
+          <div className="ticl-e-expand-button" title={'Edit'} onClick={this.popup}>
+            <div className="ticl-e-expand-icon-11" />
           </div>
         </>
       );

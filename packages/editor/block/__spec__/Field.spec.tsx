@@ -46,39 +46,39 @@ describe('editor Block Field', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-field'), 1000, 'find fields');
+    await shouldHappen(() => div.querySelector('.ticl-e-field'), 1000, 'find fields');
 
-    const block = div.querySelector('.ticl-block') as HTMLDivElement;
+    const block = div.querySelector('.ticl-e-block') as HTMLDivElement;
 
-    await shouldHappen(() => block.querySelectorAll('.ticl-field').length === 6);
+    await shouldHappen(() => block.querySelectorAll('.ticl-e-field').length === 6);
 
     await shouldHappen(() =>
-      querySingle("//div.ticl-field-name/span[text()='a']/..//../../div.ticl-field-value[text()='1']", div)
+      querySingle("//div.ticl-e-field-name/span[text()='a']/..//../../div.ticl-e-field-value[text()='1']", div)
     );
     expect(
-      querySingle("//div.ticl-field-name/span[text()='b']/..//../../div.ticl-field-value[text()='1.333']", div)
+      querySingle("//div.ticl-e-field-name/span[text()='b']/..//../../div.ticl-e-field-value[text()='1.333']", div)
     ).not.toBeNull();
     expect(
       querySingle(
-        "//div.ticl-field-name/span[text()='c']/..//../../div.ticl-field-value/span.ticl-string-value[text()='ccc']",
+        "//div.ticl-e-field-name/span[text()='c']/..//../../div.ticl-e-field-value/span.ticl-e-string-value[text()='ccc']",
         div
       )
     ).not.toBeNull();
     expect(
-      querySingle("//div.ticl-field-name/span[text()='d']/..//../../div.ticl-field-value[text()='true']", div)
+      querySingle("//div.ticl-e-field-name/span[text()='d']/..//../../div.ticl-e-field-value[text()='true']", div)
     ).not.toBeNull();
     expect(
-      querySingle("//div.ticl-field-name/span[text()='e']/..//../../div.ticl-field-value[text()='null']", div)
+      querySingle("//div.ticl-e-field-name/span[text()='e']/..//../../div.ticl-e-field-value[text()='null']", div)
     ).not.toBeNull();
     expect(
-      querySingle("//div.ticl-field-name/span[text()='z']/..//../../div.ticl-field-value[not(text())]", div)
+      querySingle("//div.ticl-e-field-name/span[text()='z']/..//../../div.ticl-e-field-value[not(text())]", div)
     ).not.toBeNull();
 
     flow.queryProperty('add.c').setValue(3);
     // no longer a string value
     await shouldHappen(() =>
       querySingle(
-        "//div.ticl-field-name/span[text()='c']/..//../../div.ticl-field-value[text()='3'][not(contains(@class,'ticl-string-value'))]",
+        "//div.ticl-e-field-name/span[text()='c']/..//../../div.ticl-e-field-value[text()='3'][not(contains(@class,'ticl-e-string-value'))]",
         div
       )
     );
@@ -113,13 +113,13 @@ describe('editor Block Field', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-block'));
+    await shouldHappen(() => div.querySelector('.ticl-e-block'));
 
-    const subtractBlock = querySingle("//div.ticl-block-head.ticl-block-head-label[text()='subtract']/../..", div);
+    const subtractBlock = querySingle("//div.ticl-e-block-head.ticl-e-block-head-label[text()='subtract']/../..", div);
 
-    await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
+    await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-e-field').length === 3);
 
-    const fieldNames = subtractBlock.querySelectorAll('.ticl-field-name');
+    const fieldNames = subtractBlock.querySelectorAll('.ticl-e-field-name');
     expect(fieldNames[0].textContent).toBe('0');
     // property from sub blocks
     expect(fieldNames[1].textContent).toBe('0');
@@ -128,14 +128,14 @@ describe('editor Block Field', function () {
     // hide sub block
     simulate(fieldNames[0], 'dblclick');
 
-    await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 1);
+    await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-e-field').length === 1);
     // wire should still exists
     expect(document.querySelector('svg')).not.toBeNull();
 
     // show sub block again
     simulate(fieldNames[0], 'dblclick');
 
-    await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-field').length === 3);
+    await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-e-field').length === 3);
   });
 
   it.each(['mousedown', 'mouseup'])('opens a field menu on release when contextmenu follows %s', async (timing) => {
@@ -152,23 +152,23 @@ describe('editor Block Field', function () {
     const [, div] = loadTemplate(<BlockStage conn={client} basePath="BlockFieldMenu" />, 'editor');
 
     try {
-      const fieldName = await shouldHappen(() => div.querySelector('.ticl-field-name > span'));
+      const fieldName = await shouldHappen(() => div.querySelector('.ticl-e-field-name > span'));
       const mouse = {button: 2, clientX: 150, clientY: 140};
       simulate(fieldName, 'mousedown', {...mouse, buttons: 2});
       if (timing === 'mousedown') simulate(fieldName, 'contextmenu', mouse);
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
+      expect(document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)')).toBeNull();
       simulate(fieldName, 'mouseup', mouse);
       if (timing === 'mouseup') simulate(fieldName, 'contextmenu', mouse);
 
-      const menu = await shouldHappen(() => document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)'));
+      const menu = await shouldHappen(() => document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)'));
       expect(menu.textContent).toContain('Binding');
       expect(menu.textContent).toContain('Pinned');
-      expect(div.querySelector('.ticl-block')).not.toBeNull();
+      expect(div.querySelector('.ticl-e-block')).not.toBeNull();
 
       simulate(document.body, 'keydown', {key: 'Escape'});
-      await shouldHappen(() => !document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)'));
-      expect(div.querySelector('.ticl-block')).not.toBeNull();
+      await shouldHappen(() => !document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)'));
+      expect(div.querySelector('.ticl-e-block')).not.toBeNull();
     } finally {
       Root.instance.deleteValue('BlockFieldMenu');
     }
@@ -181,8 +181,8 @@ describe('editor Block Field', function () {
     const [, client] = makeLocalConnection(Root.instance);
     const [, div] = loadTemplate(<BlockStage conn={client} basePath="BlockFieldReorderMenu" />, 'editor');
     try {
-      await shouldHappen(() => div.querySelectorAll('.ticl-field-name > span').length === 2);
-      const [source, target] = div.querySelectorAll('.ticl-field-name > span');
+      await shouldHappen(() => div.querySelectorAll('.ticl-e-field-name > span').length === 2);
+      const [source, target] = div.querySelectorAll('.ticl-e-field-name > span');
       const from = source.getBoundingClientRect();
       const to = target.getBoundingClientRect();
       const down = {button: 2, buttons: 2, clientX: from.x + from.width / 2, clientY: from.y + from.height / 2};
@@ -190,9 +190,9 @@ describe('editor Block Field', function () {
       simulate(source, 'mousedown', down);
       simulate(source, 'contextmenu', down);
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
+      expect(document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)')).toBeNull();
       simulate(target, 'mousemove', move);
-      expect(document.querySelector('.ticl-drag-wire')).toBeNull();
+      expect(document.querySelector('.ticl-e-drag-wire')).toBeNull();
       simulate(target, 'mouseup', {...move, buttons: 0});
       simulate(target, 'contextmenu', {...move, buttons: 0});
       await shouldHappen(() => (flow.queryValue('block.@b-p') as string[])[0] === 'b');
@@ -200,7 +200,7 @@ describe('editor Block Field', function () {
       await client.getValue('BlockFieldReorderMenu.block.@b-p');
       expect(flow.queryValue('block.@b-p')).toEqual(['b', 'a']);
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
+      expect(document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)')).toBeNull();
     } finally {
       Root.instance.deleteValue('BlockFieldReorderMenu');
     }
@@ -230,16 +230,16 @@ describe('editor Block Field', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-block-wire'));
+    await shouldHappen(() => div.querySelector('.ticl-e-block-wire'));
 
-    const wire = div.querySelector('.ticl-block-wire');
+    const wire = div.querySelector('.ticl-e-block-wire');
 
     // indirect binding should have dash style
-    expect(wire.classList.contains('ticl-wire-dash')).toBe(true);
+    expect(wire.classList.contains('ticl-e-wire-dash')).toBe(true);
 
     // switch to direct binding
     flow.queryProperty('subtract.0').setBinding('##.add.0');
 
-    await shouldHappen(() => !wire.classList.contains('ticl-wire-dash'));
+    await shouldHappen(() => !wire.classList.contains('ticl-e-wire-dash'));
   });
 });

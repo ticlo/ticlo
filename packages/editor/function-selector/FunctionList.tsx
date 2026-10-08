@@ -61,7 +61,7 @@ export class FunctionList extends React.PureComponent<Props, any> {
       }
     }
     return (
-      <div className="ticl-func-list" style={style}>
+      <div className="ticl-e-func-list" style={style}>
         {children}
       </div>
     );

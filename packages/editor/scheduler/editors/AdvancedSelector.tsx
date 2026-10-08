@@ -197,7 +197,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
     }
     rows.push(<tr key={31}>{row}</tr>);
     return (
-      <div className="ticl-schedule-days-dropdown ant-picker-dropdown css-var-r0 ant-picker-css-var">
+      <div className="ticl-e-schedule-days-dropdown ant-picker-dropdown css-var-r0 ant-picker-css-var">
         <div className="ant-picker-date-panel">
           <div className="ant-picker-body">
             <table className="ant-picker-content">
@@ -227,9 +227,9 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
     );
     return (
       <>
-        <div className="ticl-property">
-          <div className="ticl-property-name">{yearsName}</div>
-          <div className="ticl-property-value">
+        <div className="ticl-e-property">
+          <div className="ticl-e-property-name">{yearsName}</div>
+          <div className="ticl-e-property-value">
             <Select
               size="small"
               mode="tags"
@@ -240,9 +240,9 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
             />
           </div>
         </div>
-        <div className="ticl-property">
-          <div className="ticl-property-name">{monthsName}</div>
-          <div className="ticl-property-value">
+        <div className="ticl-e-property">
+          <div className="ticl-e-property-name">{monthsName}</div>
+          <div className="ticl-e-property-value">
             <Select
               size="small"
               mode="multiple"
@@ -253,9 +253,9 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
             />
           </div>
         </div>
-        <div className="ticl-property">
-          <div className="ticl-property-name">{daysName}</div>
-          <div className="ticl-property-value">
+        <div className="ticl-e-property">
+          <div className="ticl-e-property-name">{daysName}</div>
+          <div className="ticl-e-property-value">
             <Select
               size="small"
               mode="multiple"
@@ -270,18 +270,18 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
           </div>
         </div>
         {isRangeAllowed(days) && (
-          <div className="ticl-property">
-            <div className="ticl-property-name" />
-            <div className="ticl-property-value">
+          <div className="ticl-e-property">
+            <div className="ticl-e-property-name" />
+            <div className="ticl-e-property-value">
               <Checkbox onChange={this.onRangeChange}>
                 <LocalizedPropertyName desc={funcDesc} name="range" />
               </Checkbox>
             </div>
           </div>
         )}
-        <div className="ticl-property">
-          <div className="ticl-property-name" />
-          <div className="ticl-property-value" style={RIGHT_ALIGN_STYLE}>
+        <div className="ticl-e-property">
+          <div className="ticl-e-property-name" />
+          <div className="ticl-e-property-value" style={RIGHT_ALIGN_STYLE}>
             <div style={{width: 0, ...RIGHT_ALIGN_STYLE}}>
               <Tooltip title={t('Add Day')}>
                 <Button

@@ -47,9 +47,9 @@ describe('editor BlockStage', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-block'), 500, 'find block');
+    await shouldHappen(() => div.querySelector('.ticl-e-block'), 500, 'find block');
 
-    const block = div.querySelector('.ticl-block') as HTMLDivElement;
+    const block = div.querySelector('.ticl-e-block') as HTMLDivElement;
 
     // Wait for block to be positioned and CSS to apply
     await shouldHappen(
@@ -67,15 +67,16 @@ describe('editor BlockStage', function () {
 
     // test all fields in the block body
     await shouldHappen(
-      () => querySingle("//div.ticl-field-name/span[text()='0']/..//../../div.ticl-field-value[text()='1']", div),
+      () => querySingle("//div.ticl-e-field-name/span[text()='0']/..//../../div.ticl-e-field-value[text()='1']", div),
       100,
       'find field 1'
     );
     expect(
-      querySingle("//div.ticl-field-name/span[text()='1']/..//../../div.ticl-field-value[text()='2']", div)
+      querySingle("//div.ticl-e-field-name/span[text()='1']/..//../../div.ticl-e-field-value[text()='2']", div)
     ).not.toBeNull();
     await shouldHappen(
-      () => querySingle("//div.ticl-field-name/span[text()='#output']/..//../../div.ticl-field-value[text()='3']", div),
+      () =>
+        querySingle("//div.ticl-e-field-name/span[text()='#output']/..//../../div.ticl-e-field-value[text()='3']", div),
       500,
       'find output 3'
     );
@@ -86,12 +87,13 @@ describe('editor BlockStage', function () {
     // test value update
     flow.queryProperty('add.0').updateValue(5);
     await shouldHappen(
-      () => querySingle("//div.ticl-field-name/span[text()='0']/..//../../div.ticl-field-value[text()='5']", div),
+      () => querySingle("//div.ticl-e-field-name/span[text()='0']/..//../../div.ticl-e-field-value[text()='5']", div),
       100,
       'find field 5'
     );
     await shouldHappen(
-      () => querySingle("//div.ticl-field-name/span[text()='#output']/..//../../div.ticl-field-value[text()='7']", div),
+      () =>
+        querySingle("//div.ticl-e-field-name/span[text()='#output']/..//../../div.ticl-e-field-value[text()='7']", div),
       500,
       'find output 7'
     );
@@ -99,7 +101,8 @@ describe('editor BlockStage', function () {
     // test change type
     flow.queryProperty('add.#is').setValue('subtract');
     await shouldHappen(
-      () => querySingle("//div.ticl-field-name/span[text()='#output']/..//../../div.ticl-field-value[text()='3']", div),
+      () =>
+        querySingle("//div.ticl-e-field-name/span[text()='#output']/..//../../div.ticl-e-field-value[text()='3']", div),
       100,
       'find field 3'
     );
@@ -114,17 +117,17 @@ describe('editor BlockStage', function () {
     const [, client] = makeLocalConnection(Root.instance);
     const [, div] = loadTemplate(<BlockStage conn={client} basePath="BlockStageMenu" />, 'editor');
     await shouldHappen(() => div.querySelector('.tico-fas-plus'));
-    const label = await shouldHappen(() => div.querySelector('.ticl-block-head-label'));
+    const label = await shouldHappen(() => div.querySelector('.ticl-e-block-head-label'));
     const mouse = {button: 2, clientX: 150, clientY: 110};
     simulate(label, 'mousedown', {...mouse, buttons: 2});
     simulate(label, 'contextmenu', mouse);
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-    expect(document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)')).toBeNull();
+    expect(document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)')).toBeNull();
     simulate(label, 'mouseup', mouse);
-    const menu = await shouldHappen(() => document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)'));
+    const menu = await shouldHappen(() => document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)'));
     expect(menu.textContent).toContain('Rename');
     simulate(document.body, 'keydown', {key: 'Escape'});
-    await shouldHappen(() => !document.querySelector('.ticl-dropdown:not(.ticl-dropdown-hidden)'));
+    await shouldHappen(() => !document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)'));
   });
 
   it('removes selected blocks from #order when deleting from the stage', async () => {
@@ -146,12 +149,12 @@ describe('editor BlockStage', function () {
       />,
       'editor'
     );
-    await shouldHappen(() => div.querySelectorAll('.ticl-block-head-label').length === 2);
+    await shouldHappen(() => div.querySelectorAll('.ticl-e-block-head-label').length === 2);
     stage.selectBlock('BlockStageDelete.a', false);
     expect(stage.deleteSelection()).toBe(true);
     await shouldHappen(() => flow.getValue('a') === undefined);
     expect(flow.getValue('#order')).toEqual(['b', 'missing']);
-    await shouldHappen(() => div.querySelectorAll('.ticl-block').length === 1);
+    await shouldHappen(() => div.querySelectorAll('.ticl-e-block').length === 1);
   });
 
   it.each([undefined, {allowCreateBlock: false}])('drag block cursor with policy %j', async function (policy) {
@@ -172,9 +175,9 @@ describe('editor BlockStage', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-block'));
+    await shouldHappen(() => div.querySelector('.ticl-e-block'));
 
-    const block = div.querySelector('.ticl-stage-scroll .ticl-block') as HTMLDivElement;
+    const block = div.querySelector('.ticl-e-stage-scroll .ticl-e-block') as HTMLDivElement;
 
     // Wait for block to be positioned and CSS to apply
     await shouldHappen(
@@ -187,12 +190,12 @@ describe('editor BlockStage', function () {
     );
 
     // mouse down
-    simulate(document.querySelector('.ticl-stage-scroll .ticl-block-head'), 'mousedown', {
+    simulate(document.querySelector('.ticl-e-stage-scroll .ticl-e-block-head'), 'mousedown', {
       clientX: 0,
       clientY: 0,
     });
 
-    await shouldHappen(() => block.classList.contains('ticl-block-selected'));
+    await shouldHappen(() => block.classList.contains('ticl-e-block-selected'));
 
     // mouse move to drag
     expect(block.offsetLeft).toBe(123);
@@ -238,12 +241,12 @@ describe('editor BlockStage', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-block'));
+    await shouldHappen(() => div.querySelector('.ticl-e-block'));
 
-    const block = div.querySelector('.ticl-stage-scroll .ticl-block') as HTMLDivElement;
+    const block = div.querySelector('.ticl-e-stage-scroll .ticl-e-block') as HTMLDivElement;
     await shouldHappen(() => block.offsetWidth === 345);
     // mouse down
-    simulate(document.querySelector('.ticl-width-drag'), 'mousedown', fakeMouseEvent());
+    simulate(document.querySelector('.ticl-e-width-drag'), 'mousedown', fakeMouseEvent());
 
     // mouse move to trigger drag start
     simulate(document.body, 'mousemove', fakeMouseEvent(100, 100));
@@ -288,10 +291,10 @@ describe('editor BlockStage', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-block-wire'));
-    const source = await shouldHappen(() => div.querySelector('.ticl-block-foot > .ticl-outbound'));
-    const block = source.closest('.ticl-block') as HTMLDivElement;
-    expect(div.querySelector('.ticl-block-self-drag')).toBeNull();
+    await shouldHappen(() => div.querySelector('.ticl-e-block-wire'));
+    const source = await shouldHappen(() => div.querySelector('.ticl-e-block-foot > .ticl-e-outbound'));
+    const block = source.closest('.ticl-e-block') as HTMLDivElement;
+    expect(div.querySelector('.ticl-e-block-self-drag')).toBeNull();
     await shouldHappen(() => block.offsetLeft === 100 && block.offsetTop === 100);
 
     const rect = source.getBoundingClientRect();
@@ -308,11 +311,11 @@ describe('editor BlockStage', function () {
     }
 
     flow.queryProperty('target.source').setValue(undefined);
-    await shouldHappen(() => !div.querySelector('.ticl-block-wire'));
-    await shouldHappen(() => !div.querySelector('.ticl-block-foot > .ticl-outbound'));
+    await shouldHappen(() => !div.querySelector('.ticl-e-block-wire'));
+    await shouldHappen(() => !div.querySelector('.ticl-e-block-foot > .ticl-e-outbound'));
 
-    const head = block.querySelector('.ticl-block-head');
-    const target = querySingle("//div.ticl-field-name/span[text()='source']/../..", div);
+    const head = block.querySelector('.ticl-e-block-head');
+    const target = querySingle("//div.ticl-e-field-name/span[text()='source']/../..", div);
     const from = head.getBoundingClientRect();
     const to = target.getBoundingClientRect();
     const move = fakeMouseEvent(to.x + to.width / 2, to.y + to.height / 2);
@@ -321,8 +324,8 @@ describe('editor BlockStage', function () {
       simulate(target, 'mousemove', move);
       simulate(target, 'mouseup', move);
       await shouldHappen(() => (flow as Flow).queryValue('target.source') === (flow as Flow).queryValue('add'));
-      await shouldHappen(() => div.querySelector('.ticl-block-wire'));
-      expect(div.querySelector('.ticl-block-foot > .ticl-outbound')).not.toBeNull();
+      await shouldHappen(() => div.querySelector('.ticl-e-block-wire'));
+      expect(div.querySelector('.ticl-e-block-foot > .ticl-e-outbound')).not.toBeNull();
       expect(flow.queryValue('add.@b-xyw')).toEqual([100, 100, 143]);
     } finally {
       simulate(document.body, 'mouseup');
@@ -351,14 +354,14 @@ describe('editor BlockStage', function () {
 
     await shouldHappen(
       () => {
-        const label = div.querySelector('.ticl-block-head-static .ticl-block-head-label');
-        return label?.textContent === 'add' ? label.closest('.ticl-block') : null;
+        const label = div.querySelector('.ticl-e-block-head-static .ticl-e-block-head-label');
+        return label?.textContent === 'add' ? label.closest('.ticl-e-block') : null;
       },
       1000,
       'find static block'
     );
 
-    const block = div.querySelector('.ticl-block-head-static')?.closest('.ticl-block') as HTMLDivElement;
+    const block = div.querySelector('.ticl-e-block-head-static')?.closest('.ticl-e-block') as HTMLDivElement;
     expect(block.offsetLeft).toBe(100);
     expect(block.offsetTop).toBe(120);
   });
@@ -403,9 +406,9 @@ describe('editor BlockStage', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-func-view') && div.querySelector('.ticl-stage-scroll'));
+    await shouldHappen(() => div.querySelector('.ticl-e-func-view') && div.querySelector('.ticl-e-stage-scroll'));
 
-    const funcView = div.querySelector('.ticl-func-view') as HTMLDivElement;
+    const funcView = div.querySelector('.ticl-e-func-view') as HTMLDivElement;
     simulate(funcView, 'mousedown', fakeMouseEvent(16, 16, {button: 0, altKey: true}));
     simulate(document.body, 'mousemove', fakeMouseEvent(80, 80, {altKey: true}));
     simulate(document.body, 'mousemove', fakeMouseEvent(180, 180, {altKey: true}));
@@ -451,21 +454,21 @@ describe('editor BlockStage', function () {
     );
 
     // wait for the wire
-    await shouldHappen(() => div.querySelector('svg.ticl-block-wire'));
+    await shouldHappen(() => div.querySelector('svg.ticl-e-block-wire'));
 
-    const addBlock = querySingle("//div.ticl-block-head.ticl-block-head-label[text()='add']/../..", div);
+    const addBlock = querySingle("//div.ticl-e-block-head.ticl-e-block-head-label[text()='add']/../..", div);
     expect(addBlock.offsetWidth).toBe(143);
 
-    const wire = div.querySelector('svg.ticl-block-wire') as SVGSVGElement;
+    const wire = div.querySelector('svg.ticl-e-block-wire') as SVGSVGElement;
 
     // mousedown to select
-    simulate(addBlock.querySelector('.ticl-stage-scroll .ticl-block-head'), 'mousedown');
+    simulate(addBlock.querySelector('.ticl-e-stage-scroll .ticl-e-block-head'), 'mousedown');
     simulate(document.body, 'mouseup');
     // wire should have z index
     await shouldHappen(() => wire.style.zIndex === '100');
 
     // minimize the block
-    simulate(addBlock.querySelector('.ticl-block-head'), 'dblclick');
+    simulate(addBlock.querySelector('.ticl-e-block-head'), 'dblclick');
     await shouldHappen(() => addBlock.offsetWidth === 24);
     expect(addBlock.offsetHeight).toBe(24);
 
@@ -473,27 +476,27 @@ describe('editor BlockStage', function () {
     expect(div.querySelector('svg')).toBe(wire);
 
     // click the other block
-    simulate(querySingle("//div.ticl-block-head.ticl-block-head-label[text()='subtract']/..", div), 'mousedown');
+    simulate(querySingle("//div.ticl-e-block-head.ticl-e-block-head-label[text()='subtract']/..", div), 'mousedown');
     // addBlock is no longer selected
-    await shouldHappen(() => !addBlock.classList.contains('ticl-block-selected'));
+    await shouldHappen(() => !addBlock.classList.contains('ticl-e-block-selected'));
     // since subtract block is now selected, wire should still have zindex
     expect(wire.style.zIndex).toBe('100');
 
     // expand block
-    simulate(addBlock.querySelector('.ticl-block-head'), 'dblclick');
+    simulate(addBlock.querySelector('.ticl-e-block-head'), 'dblclick');
     await shouldHappen(() => addBlock.offsetWidth === 143);
 
     // wire should disappear when source not in stage
     flow.queryProperty('subtract.0').setBinding('##.unknown');
-    await shouldHappen(() => div.querySelector('svg.ticl-block-wire') == null);
+    await shouldHappen(() => div.querySelector('svg.ticl-e-block-wire') == null);
 
     // wire should be back when binding is set again
     flow.queryProperty('subtract.0').setBinding('##.add.1');
-    await shouldHappen(() => div.querySelector('svg.ticl-block-wire'));
+    await shouldHappen(() => div.querySelector('svg.ticl-e-block-wire'));
 
     // wire should disappear when unbound
     flow.queryProperty('subtract.0').setValue(1);
-    await shouldHappen(() => div.querySelector('svg.ticl-block-wire') == null);
+    await shouldHappen(() => div.querySelector('svg.ticl-e-block-wire') == null);
   });
 
   it('rect select', async function () {
@@ -525,16 +528,16 @@ describe('editor BlockStage', function () {
     );
 
     // wait for the field
-    await shouldHappen(() => (div.querySelector('.ticl-stage-bg') as HTMLElement)?.offsetWidth);
+    await shouldHappen(() => (div.querySelector('.ticl-e-stage-bg') as HTMLElement)?.offsetWidth);
     // background
-    const rectBg = div.querySelector('.ticl-stage-bg');
+    const rectBg = div.querySelector('.ticl-e-stage-bg');
 
     // select all
     simulate(rectBg, 'mousedown', fakeMouseEvent(90, 90));
     simulate(rectBg, 'mouseup', fakeMouseEvent(310, 310));
 
     // both block are selected
-    await shouldHappen(() => div.querySelectorAll('.ticl-stage-scroll .ticl-block-selected').length === 2);
+    await shouldHappen(() => div.querySelectorAll('.ticl-e-stage-scroll .ticl-e-block-selected').length === 2);
     expect(selectedPaths).toEqual(['BlockStage5.add', 'BlockStage5.subtract']);
 
     // select all
@@ -542,7 +545,7 @@ describe('editor BlockStage', function () {
     simulate(rectBg, 'mouseup', fakeMouseEvent(90, 90));
 
     // one block selected
-    await shouldHappen(() => div.querySelectorAll('.ticl-stage-scroll .ticl-block-selected').length === 1);
+    await shouldHappen(() => div.querySelectorAll('.ticl-e-stage-scroll .ticl-e-block-selected').length === 1);
     expect(selectedPaths).toEqual(['BlockStage5.add']);
 
     // select none
@@ -551,7 +554,7 @@ describe('editor BlockStage', function () {
     simulate(rectBg, 'mouseup', fakeMouseEvent(91, 89));
 
     // one block selected
-    await shouldHappen(() => div.querySelectorAll('.ticl-block-selected').length === 0);
+    await shouldHappen(() => div.querySelectorAll('.ticl-e-block-selected').length === 0);
     expect(selectedPaths).toEqual([]);
   });
 
@@ -568,10 +571,10 @@ describe('editor BlockStage', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-block'));
-    await shouldHappen(() => (div.querySelector('.ticl-block') as HTMLDivElement).offsetLeft > 0);
+    await shouldHappen(() => div.querySelector('.ticl-e-block'));
+    await shouldHappen(() => (div.querySelector('.ticl-e-block') as HTMLDivElement).offsetLeft > 0);
 
-    const blocks = div.querySelectorAll('.ticl-block');
+    const blocks = div.querySelectorAll('.ticl-e-block');
     const xarr = [36, 228, 36, 228, 420, 420, 36, 228, 420, 612];
     const yarr = [36, 36, 228, 228, 36, 228, 420, 420, 420, 36];
     for (let i = 0; i < 10; ++i) {

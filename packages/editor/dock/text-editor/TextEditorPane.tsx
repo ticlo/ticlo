@@ -267,13 +267,13 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
         onKeyDownCapture={this.onKeyDown}
       >
         {loading ? (
-          <div className="ticl-spacer ticl-hbox ticl-center-box">
+          <div className="ticl-e-spacer ticl-e-hbox ticl-e-center-box">
             <Spin tip="Loading..." />
           </div>
         ) : (
           <CodeMirror
             ref={this.getCodeMirror}
-            className={error ? 'ticl-text-codemirror ticl-error-box' : 'ticl-text-codemirror'}
+            className={error ? 'ticl-e-text-codemirror ticl-e-error-box' : 'ticl-e-text-codemirror'}
             value={value}
             readOnly={readonly}
             theme="light"

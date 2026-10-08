@@ -53,11 +53,11 @@ export class ParameterInputDialog extends React.PureComponent<Props, State> {
       const onChange = (val: any) => this.setState((oldState: State) => ({values: {...oldState.values, [name]: val}}));
       const editor = <EditorClass value={value} funcDesc={funcDesc} desc={propDesc} onChange={onChange} />;
       children.push(
-        <div key={name} className="ticl-property">
-          <div className="ticl-property-name">
+        <div key={name} className="ticl-e-property">
+          <div className="ticl-e-property-name">
             <LocalizedPropertyName desc={funcDesc} name={name} />
           </div>
-          <div className="ticl-property-value">{editor}</div>
+          <div className="ticl-e-property-value">{editor}</div>
         </div>
       );
     }

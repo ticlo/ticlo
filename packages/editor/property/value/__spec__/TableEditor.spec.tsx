@@ -31,7 +31,7 @@ function mount(props: Partial<ValueEditorProps>, context: TicloLayoutContext = {
     [, redraw] = React.useReducer((n) => n + 1, 0);
     return (
       <TicloLayoutContextType.Provider value={context}>
-        <div className="ticl-property-value" style={{width: 300, position: 'relative'}}>
+        <div className="ticl-e-property-value" style={{width: 300, position: 'relative'}}>
           <TableEditor value={undefined} name="items" funcDesc={blankFuncDesc} desc={objectDesc} {...current} />
         </div>
       </TicloLayoutContextType.Provider>
@@ -46,14 +46,14 @@ function mount(props: Partial<ValueEditorProps>, context: TicloLayoutContext = {
 }
 
 const button = (name: string) => page.getByRole('button', {name, exact: true});
-const rows = () => Array.from(document.querySelectorAll<HTMLElement>('.ticl-table-editor .ant-table-row'));
+const rows = () => Array.from(document.querySelectorAll<HTMLElement>('.ticl-e-table-editor .ant-table-row'));
 const confirm = () =>
-  document.querySelector<HTMLButtonElement>('.ticl-table-editor .ant-modal-footer .ant-btn-primary');
+  document.querySelector<HTMLButtonElement>('.ticl-e-table-editor .ant-modal-footer .ant-btn-primary');
 
 async function open() {
   await page.getByRole('button', {name: /Edit table/}).click({timeout: 3000});
   await shouldHappen(
-    () => document.querySelector('.ticl-table-editor') && !document.querySelector('.ant-spin-spinning'),
+    () => document.querySelector('.ticl-e-table-editor') && !document.querySelector('.ant-spin-spinning'),
     2000
   );
 }
@@ -74,26 +74,26 @@ describe('TableEditor', () => {
     const original = [{label: 'Before', count: 2, enabled: true, extra: {nested: 'keep'}}];
     const onChange = vi.fn();
     mount({value: original, onChange});
-    expect(document.querySelector('.ticl-table-editor')).toBeNull();
+    expect(document.querySelector('.ticl-e-table-editor')).toBeNull();
     await open();
     await userEvent.fill(rows()[0].querySelector('textarea'), 'After');
     // Clicking OK must commit the last focused cell's pending value too.
     await button('OK').click();
     expect(onChange).toHaveBeenCalledExactlyOnceWith([{...original[0], label: 'After'}], 'items');
     expect(original[0].label).toBe('Before');
-    expect(document.querySelector('.ticl-table-editor')).toBeNull();
+    expect(document.querySelector('.ticl-e-table-editor')).toBeNull();
   });
 
   it('expands raw JSON/YAML using the property paths and read-only state', async () => {
     const value = [{label: 'Raw'}];
     const editProperty = vi.fn();
     const update = mount({keys: ['first', 'second'], value, onChange: vi.fn()}, {editProperty});
-    await shouldHappen(() => document.querySelector('.ticl-expand-button'));
-    await userEvent.click(document.querySelector('.ticl-expand-button'));
+    await shouldHappen(() => document.querySelector('.ticl-e-expand-button'));
+    await userEvent.click(document.querySelector('.ticl-e-expand-button'));
     expect(editProperty).toHaveBeenLastCalledWith(['first.items', 'second.items'], objectDesc, value, 'object', false);
-    expect(document.querySelector('.ticl-table-editor')).toBeNull();
+    expect(document.querySelector('.ticl-e-table-editor')).toBeNull();
     update({locked: true});
-    await userEvent.click(document.querySelector('.ticl-expand-button'));
+    await userEvent.click(document.querySelector('.ticl-e-expand-button'));
     expect(editProperty).toHaveBeenLastCalledWith(['first.items', 'second.items'], objectDesc, value, 'object', true);
   });
 
@@ -111,15 +111,15 @@ describe('TableEditor', () => {
     });
     await open();
     await userEvent.click(rows()[0].querySelector('.anticon-down'));
-    await shouldHappen(() => document.querySelector('.ticl-func-select'));
-    await userEvent.click(document.querySelector('.ticl-func-select .anticon-book'));
+    await shouldHappen(() => document.querySelector('.ticl-e-func-select'));
+    await userEvent.click(document.querySelector('.ticl-e-func-select .anticon-book'));
     await page.getByText('render', {exact: true}).click({timeout: 3000});
-    expect(rows()[0].querySelector('.ticl-worker-editor').textContent).toContain(':render');
+    expect(rows()[0].querySelector('.ticl-e-worker-editor').textContent).toContain(':render');
     expect(onChange).not.toHaveBeenCalled();
     await button('Cancel').click();
     expect(onChange).not.toHaveBeenCalled();
     await open();
-    expect(rows()[0].querySelector('.ticl-object-editor').textContent).toBe('');
+    expect(rows()[0].querySelector('.ticl-e-object-editor').textContent).toBe('');
     await userEvent.click(rows()[0].querySelector('.anticon-down'));
     await page.getByRole('button', {name: /Inline/}).click({timeout: 3000});
     await button('OK').click();
@@ -146,22 +146,22 @@ describe('TableEditor', () => {
     });
     await open();
     await userEvent.click(rows()[0].querySelector('.anticon-edit'));
-    await shouldHappen(() => document.querySelector('.ticl-table-worker-editor .ticl-stage'));
+    await shouldHappen(() => document.querySelector('.ticl-e-table-worker-editor .ticl-e-stage'));
     const path = editWorker.mock.calls[0][0];
     const draft = Root.instance.queryValue(path) as Flow;
     expect(draft.getFuncLib()).toBe(flow.getFuncLib());
     await conn.setValue(`${path}.child.test`, 'draft', true);
-    const workerDialog = document.querySelector('.ticl-table-worker-editor');
+    const workerDialog = document.querySelector('.ticl-e-table-worker-editor');
     await userEvent.click(workerDialog.querySelector('.ant-modal-footer .ant-btn-primary'));
-    await shouldHappen(() => !document.querySelector('.ticl-table-worker-editor'));
+    await shouldHappen(() => !document.querySelector('.ticl-e-table-worker-editor'));
     expect(flow.queryValue('data.items')).toEqual(original);
     expect(onChange).not.toHaveBeenCalled();
     await userEvent.click(rows()[0].querySelector('.anticon-edit'));
-    await shouldHappen(() => document.querySelector('.ticl-table-worker-editor .ticl-stage'));
+    await shouldHappen(() => document.querySelector('.ticl-e-table-worker-editor .ticl-e-stage'));
     expect(Root.instance.queryValue(`${path}.child.test`)).toBe('draft');
     await conn.setValue(`${path}.child.test`, 'discard', true);
-    await userEvent.click(document.querySelector('.ticl-table-worker-editor .ant-modal-footer .ant-btn-default'));
-    await shouldHappen(() => !document.querySelector('.ticl-table-worker-editor'));
+    await userEvent.click(document.querySelector('.ticl-e-table-worker-editor .ant-modal-footer .ant-btn-default'));
+    await shouldHappen(() => !document.querySelector('.ticl-e-table-worker-editor'));
     await button('OK').click();
     expect(onChange).toHaveBeenCalledExactlyOnceWith(
       [{renderer: {...renderer, child: {'#is': ':render', 'test': 'draft'}}}],
@@ -203,12 +203,12 @@ describe('TableEditor', () => {
     });
     await open();
     await userEvent.click(rows()[0].querySelector('.anticon-edit'));
-    await shouldHappen(() => document.querySelector('.ticl-table-worker-editor .ticl-stage'));
+    await shouldHappen(() => document.querySelector('.ticl-e-table-worker-editor .ticl-e-stage'));
     const path = editWorker.mock.calls[0][0];
     expect(editWorker).toHaveBeenCalledWith(path, undefined, ':render', undefined, 'TableEditorTest');
     await conn.addBlock(`${path}.child`, {'#is': '', 'value': 'saved'});
-    await userEvent.click(document.querySelector('.ticl-table-worker-editor .ant-modal-footer .ant-btn-primary'));
-    await shouldHappen(() => !document.querySelector('.ticl-table-worker-editor'));
+    await userEvent.click(document.querySelector('.ticl-e-table-worker-editor .ant-modal-footer .ant-btn-primary'));
+    await shouldHappen(() => !document.querySelector('.ticl-e-table-worker-editor'));
     expect(flow.getFuncLib().getWorkerData(':render')).toEqual({
       ...defaultWorkerData,
       child: {'#is': '', 'value': 'saved'},
@@ -308,7 +308,7 @@ describe('TableEditor', () => {
     await userEvent.fill(rows()[0].querySelector('textarea'), 'Draft');
     update({value: [{label: 'New'}]});
     expect(confirm().disabled).toBe(true);
-    expect(document.querySelector('.ticl-error-message').textContent).toContain('Value changed');
+    expect(document.querySelector('.ticl-e-error-message').textContent).toContain('Value changed');
     await button('Reload').click();
     expect(rows()[0].querySelector('textarea').value).toBe('New');
     await button('OK').click();
@@ -319,12 +319,12 @@ describe('TableEditor', () => {
     const onChange = vi.fn();
     const update = mount({value: [[1, 2]], onChange});
     await open();
-    expect(document.querySelector('.ticl-error-message').textContent).toContain('Invalid table rows');
+    expect(document.querySelector('.ticl-e-error-message').textContent).toContain('Invalid table rows');
     expect(confirm().disabled).toBe(true);
     await button('Cancel').click();
     update({desc: {...objectDesc, rowType: 'array'}});
     await open();
-    expect(document.querySelector('.ticl-error-message').textContent).toContain('Invalid table columns');
+    expect(document.querySelector('.ticl-e-error-message').textContent).toContain('Invalid table columns');
     expect(confirm().disabled).toBe(true);
     expect(onChange).not.toHaveBeenCalled();
   });

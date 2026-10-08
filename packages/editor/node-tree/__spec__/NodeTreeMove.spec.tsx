@@ -54,11 +54,11 @@ describe('node tree ordered drag/drop', () => {
   });
 
   function row(name: string) {
-    return querySingle(`//div.ticl-tree-node-text[text()='${name}']/..`, div) as HTMLElement;
+    return querySingle(`//div.ticl-e-tree-node-text[text()='${name}']/..`, div) as HTMLElement;
   }
 
   async function open(name: string, child: string) {
-    simulate(row(name).parentElement.querySelector('.ticl-tree-arr'), 'click');
+    simulate(row(name).parentElement.querySelector('.ticl-e-tree-arr'), 'click');
     await shouldHappen(() => row(child)?.classList.contains('drag-initiator'));
   }
 
@@ -105,14 +105,14 @@ describe('node tree ordered drag/drop', () => {
     await shouldHappen(() => tree.list.find((item) => item.name === 'a')?.desc.id === childId);
     await shouldHappen(() => tree.rootList[0].desc.id);
     if (showFunctions) {
-      const expand = await shouldHappen(() => div.querySelector('.ticl-func-tree .ticl-tree-arr-expand'));
+      const expand = await shouldHappen(() => div.querySelector('.ticl-e-func-tree .ticl-e-tree-arr-expand'));
       simulate(expand, 'click');
       await shouldHappen(() => functionRow(childId)?.classList.contains('drag-initiator'));
     }
   }
 
   function functionRow(id: string) {
-    return querySingle(`//div.ticl-func-view/span[text()='${id}']/..`, div) as HTMLElement;
+    return querySingle(`//div.ticl-e-func-view/span[text()='${id}']/..`, div) as HTMLElement;
   }
 
   async function dragFunction(id: string, to: string, offset = 0.5, accepted = true) {
@@ -127,11 +127,12 @@ describe('node tree ordered drag/drop', () => {
     simulate(target, 'mousemove', move);
     if (accepted) {
       await shouldHappen(
-        () => target.className.includes('ticl-tree-drop-') || target.parentElement.className.includes('ticl-tree-drop-')
+        () =>
+          target.className.includes('ticl-e-tree-drop-') || target.parentElement.className.includes('ticl-e-tree-drop-')
       );
     } else {
-      expect(target.className).not.toContain('ticl-tree-drop-');
-      expect(target.parentElement.className).not.toContain('ticl-tree-drop-');
+      expect(target.className).not.toContain('ticl-e-tree-drop-');
+      expect(target.parentElement.className).not.toContain('ticl-e-tree-drop-');
     }
     simulate(target, 'mouseup', {...move, buttons: 0});
   }
@@ -147,7 +148,8 @@ describe('node tree ordered drag/drop', () => {
     simulate(document, 'mousemove', {...down, clientX: down.clientX + 3});
     simulate(target, 'mousemove', move);
     await shouldHappen(
-      () => target.className.includes('ticl-tree-drop-') || target.parentElement.className.includes('ticl-tree-drop-')
+      () =>
+        target.className.includes('ticl-e-tree-drop-') || target.parentElement.className.includes('ticl-e-tree-drop-')
     );
     simulate(target, 'mouseup', {...move, buttons: 0});
   }
@@ -201,7 +203,7 @@ describe('node tree ordered drag/drop', () => {
     await shouldHappen(() => Root.instance.queryValue(`${flowPath}.target.a1`) instanceof Block);
     await shouldHappen(() => selected.join(',') === `${flowPath}.target.a1`);
     expect(Root.instance.queryValue(`${flowPath}.target.#order`)).toEqual(['x', 'y', 'a1']);
-    await shouldHappen(() => row('a1')?.classList.contains('ticl-tree-node-selected'));
+    await shouldHappen(() => row('a1')?.classList.contains('ticl-e-tree-node-selected'));
   });
 
   it('rejects mixed parents, unordered children, incompatible tags and denied moves', async () => {
@@ -242,9 +244,9 @@ describe('node tree ordered drag/drop', () => {
     expect(tree.rootList[0].desc.childrenTags).toEqual(['component']);
     await drag('a', 'b', 0.1);
     await shouldHappen(() => (Root.instance.queryValue(`${flowPath}.source.#order`) as string[])[0] === 'a');
-    await shouldHappen(() => Array.from(div.querySelectorAll('.ticl-tree-node-text'))[0]?.textContent === 'a');
+    await shouldHappen(() => Array.from(div.querySelectorAll('.ticl-e-tree-node-text'))[0]?.textContent === 'a');
     expect(
-      Array.from(div.querySelectorAll('.ticl-tree-node-text'))
+      Array.from(div.querySelectorAll('.ticl-e-tree-node-text'))
         .map((node) => node.textContent)
         .slice(0, 3)
     ).toEqual(['a', 'b', 'c']);
@@ -259,13 +261,13 @@ describe('node tree ordered drag/drop', () => {
     expect(Root.instance.queryValue(`${path}.#is`)).toBe(childId);
     expect((Root.instance.queryValue(path) as Block)._save()).not.toHaveProperty('@b-xyw');
     await shouldHappen(() => selected.join(',') === path);
-    await shouldHappen(() => row(childId)?.classList.contains('ticl-tree-node-selected'));
+    await shouldHappen(() => row(childId)?.classList.contains('ticl-e-tree-node-selected'));
   });
 
   it('inserts dragged functions before and after children, using unique names', async () => {
     await render([], flowPath, false, true);
     await dragFunction(childId, 'x', 0.9);
-    await shouldHappen(() => row(childId)?.classList.contains('ticl-tree-node-selected'));
+    await shouldHappen(() => row(childId)?.classList.contains('ticl-e-tree-node-selected'));
     expect(Root.instance.queryValue(`${flowPath}.target.#order`)).toEqual(['x', childId, 'y']);
     await dragFunction(childId, 'x', 0.1);
     const newName = `${childId}1`;

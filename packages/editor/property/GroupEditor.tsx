@@ -126,7 +126,7 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
     }
 
     return (
-      <div className="ticl-property-group">
+      <div className="ticl-e-property-group">
         <LengthPropertyEditor
           key={group}
           name={lenName}

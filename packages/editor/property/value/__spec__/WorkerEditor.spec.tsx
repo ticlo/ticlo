@@ -42,17 +42,17 @@ describe('WorkerEditor', function () {
     await shouldHappen(() => div.querySelector('.anticon-down'));
     simulate(div.querySelector('.anticon-down'), 'click');
 
-    await shouldHappen(() => querySingle("//div.ticl-tree-type/span[text()='+WorkerEditor']", document.body));
+    await shouldHappen(() => querySingle("//div.ticl-e-tree-type/span[text()='+WorkerEditor']", document.body));
 
     window.onerror = function (e) {};
     simulate(
-      querySingle("//div.ticl-tree-type/span[text()='+WorkerEditor']/../div.ticl-tree-arr", document.body),
+      querySingle("//div.ticl-e-tree-type/span[text()='+WorkerEditor']/../div.ticl-e-tree-arr", document.body),
       'click'
     );
 
-    await shouldHappen(() => querySingle("//div.ticl-func-view/span[text()='class1']", document.body));
+    await shouldHappen(() => querySingle("//div.ticl-e-func-view/span[text()='class1']", document.body));
 
-    simulate(querySingle("//div.ticl-func-view/span[text()='class1']/..", document.body), 'click');
+    simulate(querySingle("//div.ticl-e-func-view/span[text()='class1']/..", document.body), 'click');
 
     await shouldHappen(() => value === '+WorkerEditor::class1');
 

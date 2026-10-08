@@ -14,8 +14,8 @@ export class CalendarToolbar extends React.Component<ToolbarProps, State> {
     const {view, label} = this.props;
     const capView = view.replace(/^\w/, (s) => s.toUpperCase());
     return (
-      <div className="ticl-clndr-toolbar">
-        <div className="ticl-clndr-toolbar-group">
+      <div className="ticl-e-clndr-toolbar">
+        <div className="ticl-e-clndr-toolbar-group">
           <Tooltip title={t(`Previous ${capView}`)}>
             <Radio.Button onClick={this.prev}>
               <CaretLeftFilled />
@@ -32,8 +32,8 @@ export class CalendarToolbar extends React.Component<ToolbarProps, State> {
             </Radio.Button>
           </Tooltip>
         </div>
-        <div className="ticl-clndr-toolbar">{label}</div>
-        <div className="ticl-clndr-toolbar">
+        <div className="ticl-e-clndr-toolbar">{label}</div>
+        <div className="ticl-e-clndr-toolbar">
           <Radio.Group value={view} buttonStyle="solid">
             <Radio.Button value="day" onClick={this.day}>
               {t('Day')}

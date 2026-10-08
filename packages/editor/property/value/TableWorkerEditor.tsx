@@ -37,7 +37,7 @@ function WorkerDialog({conn, path, onSave, onClose, disabled}: WorkerDialogProps
       open
       title={t('Edit')}
       width={1100}
-      className="ticl-table-worker-editor"
+      className="ticl-e-table-worker-editor"
       onCancel={onClose}
       onOk={save}
       okText={t('OK')}
@@ -51,7 +51,7 @@ function WorkerDialog({conn, path, onSave, onClose, disabled}: WorkerDialogProps
       <div style={{height: '65vh'}}>
         <BlockStagePane conn={conn} basePath={path} onSave={save} />
       </div>
-      {error ? <div className="ticl-error-message">{error}</div> : null}
+      {error ? <div className="ticl-e-error-message">{error}</div> : null}
     </Modal>
   );
 }
@@ -122,7 +122,7 @@ export function TableWorkerEditor(props: ValueEditorProps) {
   return (
     <TicloLayoutContextType.Provider value={{editFlow}}>
       <WorkerEditor {...props} locked={disabled || loading} onEditWorker={canEdit ? editWorker : undefined} />
-      {error ? <div className="ticl-error-message">{error}</div> : null}
+      {error ? <div className="ticl-e-error-message">{error}</div> : null}
       {dialogs.map((dialog) => (
         <WorkerDialog
           key={dialog.path}

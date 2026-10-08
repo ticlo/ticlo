@@ -235,7 +235,7 @@ describe('connection value subscriptions', () => {
       );
     };
     render('field');
-    const arrow = div.querySelector('.ticl-tree-arr');
+    const arrow = div.querySelector('.ticl-e-tree-arr');
     flushSync(() => arrow.dispatchEvent(new MouseEvent('dblclick', {bubbles: true})));
     expect(showObjectTree).toHaveBeenCalledTimes(1);
     const source = showObjectTree.mock.calls[0][3];
@@ -243,11 +243,11 @@ describe('connection value subscriptions', () => {
     render('field', 'fr');
     expect(closeObjectTree).not.toHaveBeenCalled();
     flushSync(() => update('field', {value: {number: 2}}));
-    flushSync(() => div.querySelector('.ticl-tree-arr').dispatchEvent(new MouseEvent('dblclick', {bubbles: true})));
+    flushSync(() => div.querySelector('.ticl-e-tree-arr').dispatchEvent(new MouseEvent('dblclick', {bubbles: true})));
     expect(showObjectTree.mock.calls[1][3]).toBe(source);
     render('other');
     expect(closeObjectTree).toHaveBeenCalledExactlyOnceWith('field', source);
-    flushSync(() => div.querySelector('.ticl-tree-arr').dispatchEvent(new MouseEvent('dblclick', {bubbles: true})));
+    flushSync(() => div.querySelector('.ticl-e-tree-arr').dispatchEvent(new MouseEvent('dblclick', {bubbles: true})));
     flushSync(() => root.render(null));
     expect(closeObjectTree.mock.calls).toEqual([
       ['field', source],

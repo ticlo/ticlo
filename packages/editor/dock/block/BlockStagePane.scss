@@ -1,4 +1,4 @@
-.ticl-stage-tab-content {
+.ticl-e-stage-tab-content {
   width: 100%;
   height: 100%;
   position: relative;
@@ -9,11 +9,11 @@
     position: relative;
   }
 
-  & > .ticl-stage {
+  & > .ticl-e-stage {
     flex-grow: 1;
   }
 
-  & > .ticl-property-list {
+  & > .ticl-e-property-list {
     min-width: 216px;
   }
 
@@ -30,7 +30,7 @@
     }
   }
 
-  & > .ticl-stage-header {
+  & > .ticl-e-stage-header {
     position: absolute;
     top: 4px;
     left: 8px;
@@ -43,8 +43,8 @@
   }
 }
 
-.ticl-stage-panel-tab {
-  &.ticl-stage-panel-tab-focused > .ticl-stage-panel-tab-title {
+.ticl-e-stage-panel-tab {
+  &.ticl-e-stage-panel-tab-focused > .ticl-e-stage-panel-tab-title {
     font-weight: 600;
   }
 
@@ -54,7 +54,7 @@
   }
 }
 
-.ticl-stage-panel-save {
+.ticl-e-stage-panel-save {
   position: absolute;
   padding: 2px;
   border-radius: 10px;
@@ -75,7 +75,7 @@
     width: 42px;
   }
 
-  & > .ticl-icon-btn {
+  & > .ticl-e-icon-btn {
     opacity: 0.7;
   }
 

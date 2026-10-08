@@ -38,9 +38,9 @@ export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> 
     }
 
     return (
-      <Tooltip title={title} overlayClassName="ticl-tooltip">
+      <Tooltip title={title} overlayClassName="ticl-e-tooltip">
         <RangePicker
-          className="ticl-date-range-editor"
+          className="ticl-e-date-range-editor"
           size="small"
           value={value}
           disabled={locked || onChange == null}

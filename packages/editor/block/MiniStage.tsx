@@ -39,17 +39,17 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
 
     const classNames: string[] = [];
     if (item.selected) {
-      classNames.push('ticl-block-selected');
+      classNames.push('ticl-e-block-selected');
     }
     if (item.synced) {
-      classNames.push('ticl-block-synced');
+      classNames.push('ticl-e-block-synced');
     }
     if (item._syncChild) {
-      classNames.push('ticl-block-sync-parent');
+      classNames.push('ticl-e-block-sync-parent');
     }
 
     if ((SpecialView as DataMap)?.fullView) {
-      classNames.push('ticl-block-full-view-zoom');
+      classNames.push('ticl-e-block-full-view-zoom');
       let width = item.w;
 
       if (!(width > 80)) {
@@ -63,7 +63,7 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
         ></div>
       );
     } else if (item.w) {
-      classNames.push('ticl-block');
+      classNames.push('ticl-e-block');
 
       const [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
       classNames.push(colorClass);
@@ -73,20 +73,20 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
           className={classNames.join(' ')}
           style={{top: item.y, left: item.x, width: item.w, height: item.h}}
         >
-          <div className="ticl-block-head ticl-block-prbg">
+          <div className="ticl-e-block-head ticl-e-block-prbg">
             <TIcon icon={icon} />
             {item.name}
           </div>
         </div>
       );
     } else if (item.descLoaded) {
-      classNames.push('ticl-block');
-      classNames.push('ticl-block-min');
+      classNames.push('ticl-e-block');
+      classNames.push('ticl-e-block-min');
       const [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
       classNames.push(colorClass);
       return (
         <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
-          <div className="ticl-block-head ticl-block-prbg">
+          <div className="ticl-e-block-head ticl-e-block-prbg">
             <TIcon icon={icon} />
           </div>
         </div>
@@ -107,7 +107,7 @@ export class MiniStage extends React.PureComponent<ZoomStageProps, any> {
   render() {
     const {children, style} = this.props;
     return (
-      <div className="ticl-mini-stage" style={style}>
+      <div className="ticl-e-mini-stage" style={style}>
         {children}
       </div>
     );

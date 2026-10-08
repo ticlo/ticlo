@@ -44,8 +44,8 @@ for (const type in dynamicTypeIcon) {
   dynamicTypeMenuItem[type] = {
     key: type,
     label: (
-      <div className="ticl-dynamic-type-menu-item">
-        <div className="ticl-dynamic-type-icon">{dynamicTypeIcon[type]}</div>
+      <div className="ticl-e-dynamic-type-menu-item">
+        <div className="ticl-e-dynamic-type-icon">{dynamicTypeIcon[type]}</div>
         {type}
       </div>
     ),
@@ -154,7 +154,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
       );
     }
     let typeIcon = (
-      <div className="ticl-dynamic-type-icon" title={'Change Type'}>
+      <div className="ticl-e-dynamic-type-icon" title={'Change Type'}>
         {dynamicTypeIcon[currentType]}
       </div>
     );
@@ -168,7 +168,7 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
     }
 
     return (
-      <div className="ticl-dynamic-editor">
+      <div className="ticl-e-dynamic-editor">
         {editor}
         {typeIcon}
       </div>

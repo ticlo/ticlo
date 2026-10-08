@@ -166,7 +166,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
       this.getFormItems(this.context.language);
     const typeValue = type.value;
     return (
-      <Form onClick={onClick} className="ticl-add-custom-prop" labelCol={{span: 9}} wrapperCol={{span: 15}}>
+      <Form onClick={onClick} className="ticl-e-add-custom-prop" labelCol={{span: 9}} wrapperCol={{span: 15}}>
         {name.render(<Input size="small" value={name.value} onChange={name.onInputChange} />)}
         {type.render(
           <Select size="small" value={type.value} onChange={type.onChange}>

@@ -86,7 +86,7 @@ describe('editor EditPolicy', () => {
       const setPolicy = mode === 'client' ? replacePolicy : server.setEditPolicy.bind(server);
       setPolicy({allowPaths: ['PolicyUI.add.**'], readonlyPaths: ['**']});
       await shouldHappen(() => input().disabled);
-      expect(div.querySelector('.ticl-property-readonly')).not.toBeNull();
+      expect(div.querySelector('.ticl-e-property-readonly')).not.toBeNull();
       setPolicy({allowProps: ['0']});
       await shouldHappen(() => !input().disabled);
       setPolicy({allowProps: [], denyProps: ['0'], allowBinding: ['0']});
@@ -160,10 +160,10 @@ describe('editor EditPolicy', () => {
     const blockItem = stage.getBlock('PolicyUI.add');
     let block: HTMLElement;
     await shouldHappen(() => {
-      block = div.querySelector('.ticl-stage-scroll .ticl-block');
+      block = div.querySelector('.ticl-e-stage-scroll .ticl-e-block');
       return block?.offsetLeft === 100;
     });
-    simulate(block.querySelector('.ticl-block-head'), 'mousedown', fakeMouseEvent());
+    simulate(block.querySelector('.ticl-e-block-head'), 'mousedown', fakeMouseEvent());
     simulate(document.body, 'mousemove', fakeMouseEvent(100, 100));
     simulate(document.body, 'mouseup');
     expect(selection).toEqual(['PolicyUI.add']);
@@ -338,9 +338,9 @@ describe('editor EditPolicy', () => {
     );
     const setPolicy = mode === 'client' ? replacePolicy : server.setEditPolicy.bind(server);
     await shouldHappen(() => stage?.getBlock('PolicyUI.add')?.fieldItems.get('1')?._renderers.size);
-    const block = div.querySelector('.ticl-stage-scroll .ticl-block');
-    const rows = block.querySelectorAll('.ticl-field');
-    const slot = (index: number) => rows[index].querySelector('.ticl-slot');
+    const block = div.querySelector('.ticl-e-stage-scroll .ticl-e-block');
+    const rows = block.querySelectorAll('.ticl-e-field');
+    const slot = (index: number) => rows[index].querySelector('.ticl-e-slot');
     await shouldHappen(() => slot(0) && !slot(1));
     const renderer = (name: string) =>
       [...stage.getBlock('PolicyUI.add').fieldItems.get(name)._renderers][0] as FieldView;
@@ -410,8 +410,8 @@ describe('editor EditPolicy', () => {
         'editor'
       );
       await shouldHappen(() => stage?.getBlock('PolicyUI.other')?.fieldItems.get('1')?._renderers.size);
-      const sourceRows = div.querySelector('.ticl-stage-scroll .ticl-block').querySelectorAll('.ticl-field');
-      const outbound = (index: number) => sourceRows[index].querySelector('.ticl-outbound');
+      const sourceRows = div.querySelector('.ticl-e-stage-scroll .ticl-e-block').querySelectorAll('.ticl-e-field');
+      const outbound = (index: number) => sourceRows[index].querySelector('.ticl-e-outbound');
       const target = stage.getBlock('PolicyUI.other').fieldItems.get('0');
       const renderer = [...target._renderers][0] as FieldView;
       const event = new DragState(null, {dragType: 'left'} as any, true);
@@ -563,7 +563,7 @@ describe('editor EditPolicy', () => {
       ),
       'editor'
     );
-    const create = () => div.querySelector('.ticl-service-editor .anticon-plus')?.closest('button');
+    const create = () => div.querySelector('.ticl-e-service-editor .anticon-plus')?.closest('button');
     await shouldHappen(() => create() && !create().disabled);
     replacePolicy({allowBinding: []});
     await shouldHappen(() => create().disabled);

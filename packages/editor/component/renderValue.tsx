@@ -9,13 +9,13 @@ export function renderValue(val: any, getPopup?: (val: any) => React.ReactElemen
       if (val.length > 512) {
         val = `${val.substring(0, 128)}${TRUNCATED}`;
       }
-      return <span className="ticl-string-value">{val}</span>;
+      return <span className="ticl-e-string-value">{val}</span>;
     case 'object':
       const display = encodeDisplay(val);
       if (val && (Array.isArray(val) || val.constructor === Object)) {
         return (
           <>
-            <div className="ticl-object-value">{display}</div>
+            <div className="ticl-e-object-value">{display}</div>
             {getPopup ? getPopup(val) : null}
           </>
         );

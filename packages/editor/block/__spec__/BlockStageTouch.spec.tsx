@@ -47,8 +47,8 @@ describe('BlockStage touch gestures', function () {
       'editor'
     );
     await shouldHappen(() => stage?.state.stageWidth > 0 && stage.state.contentWidth > 2400, 2000, 'stage measured');
-    scroll = div.querySelector('.ticl-stage-scroll');
-    background = div.querySelector('.ticl-stage-bg');
+    scroll = div.querySelector('.ticl-e-stage-scroll');
+    background = div.querySelector('.ticl-e-stage-bg');
     scroll.scrollLeft = 400;
     scroll.scrollTop = 300;
     flushSync(() => scroll.dispatchEvent(new Event('scroll')));
@@ -124,7 +124,7 @@ describe('BlockStage touch gestures', function () {
   });
 
   it('cancels a block drag and does not drag with the remaining finger', async function () {
-    const block = scroll.querySelector('.ticl-block-head-label') as HTMLElement;
+    const block = scroll.querySelector('.ticl-e-block-head-label') as HTMLElement;
     expect(block).toBeTruthy();
     dispatch('touchstart', [touch(1, 200, 100, block)], undefined, block);
     expect(stage.isDraggingBlock()).toBe(true);

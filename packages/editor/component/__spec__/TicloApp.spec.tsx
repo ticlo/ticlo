@@ -68,21 +68,21 @@ describe('TicloApp stage registry', () => {
     context.onFlowFocus('first');
     await shouldHappen(() => context.activeStage === first);
     const saveKey = new KeyboardEvent('keydown', {key: 's', ctrlKey: true, bubbles: true, cancelable: true});
-    div.querySelector('.ticl-app').dispatchEvent(saveKey);
+    div.querySelector('.ticl-e-app').dispatchEvent(saveKey);
     expect(save).toHaveBeenCalledTimes(1);
     expect(saveKey.defaultPrevented).toBe(true);
 
     context.onFlowFocus('second');
     await shouldHappen(() => context.activeStage === second);
     div
-      .querySelector('.ticl-app')
+      .querySelector('.ticl-e-app')
       .dispatchEvent(new KeyboardEvent('keydown', {key: 's', ctrlKey: true, bubbles: true}));
     expect(save).toHaveBeenCalledTimes(1);
     const updated: TicloStage = {...second, copy: vi.fn(() => true)};
     replaceSecond(updated);
     await shouldHappen(() => context.activeStage === updated);
     const copyKey = new KeyboardEvent('keydown', {key: 'c', ctrlKey: true, bubbles: true, cancelable: true});
-    div.querySelector('.ticl-app').dispatchEvent(copyKey);
+    div.querySelector('.ticl-e-app').dispatchEvent(copyKey);
     expect(updated.copy).toHaveBeenCalledTimes(1);
     div.querySelector('input').dispatchEvent(new KeyboardEvent('keydown', {key: 'c', ctrlKey: true, bubbles: true}));
     expect(updated.copy).toHaveBeenCalledTimes(1);
@@ -128,14 +128,16 @@ describe('TicloApp stage registry', () => {
       </StrictMode>,
       'editor'
     );
-    await shouldHappen(() => div.querySelectorAll('.ticl-block-head-label').length === 2);
+    await shouldHappen(() => div.querySelectorAll('.ticl-e-block-head-label').length === 2);
     context.onFlowFocus(path);
     await shouldHappen(() => context.activeStage?.kind === 'dataflow');
     expect(context.activeStage.selection).toEqual({paths: []});
 
     context.activeStage.select([`${path}.a`]);
     await shouldHappen(() => div.querySelector('[data-testid="selection"]').textContent === `${path}.a`);
-    expect(div.querySelector('.ticl-stage-scroll .ticl-block-selected .ticl-block-head-label').textContent).toBe('a');
+    expect(div.querySelector('.ticl-e-stage-scroll .ticl-e-block-selected .ticl-e-block-head-label').textContent).toBe(
+      'a'
+    );
     expect(onSelect).toHaveBeenLastCalledWith([`${path}.a`]);
 
     stage.selectBlock(`${path}.b`);
@@ -147,13 +149,13 @@ describe('TicloApp stage registry', () => {
 
     context.activeStage.select([path]);
     await shouldHappen(() => div.querySelector('[data-testid="selection"]').textContent === path);
-    expect(div.querySelector('.ticl-stage-scroll .ticl-block-selected')).toBeNull();
+    expect(div.querySelector('.ticl-e-stage-scroll .ticl-e-block-selected')).toBeNull();
     expect(onSelect).toHaveBeenLastCalledWith([path]);
     context.activeStage.select([]);
     await shouldHappen(() => div.querySelector('[data-testid="selection"]').textContent === '');
 
     div
-      .querySelector('.ticl-app')
+      .querySelector('.ticl-e-app')
       .dispatchEvent(new KeyboardEvent('keydown', {key: 's', ctrlKey: true, bubbles: true}));
     expect(onSave).toHaveBeenCalledTimes(1);
   });

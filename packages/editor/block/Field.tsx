@@ -231,7 +231,7 @@ export class FieldItem extends DataRendererItem {
   render(): React.ReactNode {
     if (this.subBlock) {
       return (
-        <div key={this.path} className="ticl-field-subblock">
+        <div key={this.path} className="ticl-e-field-subblock">
           <FieldView key={this.path} item={this} />
           {this.subBlock.renderFields()}
         </div>
@@ -316,35 +316,35 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
     if (item) {
       showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
       if (item.cache.bindingPath) {
-        inBoundClass = 'ticl-slot ticl-inbound';
+        inBoundClass = 'ticl-e-slot ticl-e-inbound';
         if (item.subBlock) {
           inBoundClass = null;
         } else if (item.inWire) {
           inBoundTitle = item.cache.bindingPath;
           if (item.inWire.checkIsRightSide()) {
-            inBoundClass = 'ticl-slot ticl-inbound-right';
+            inBoundClass = 'ticl-e-slot ticl-e-inbound-right';
             showOutBound = false;
           }
         } else {
-          inBoundClass += ' ticl-inbound-path';
+          inBoundClass += ' ticl-e-inbound-path';
           inBoundText = item.cache.bindingPath;
         }
       }
     }
-    let className = 'ticl-block-head ticl-block-prbg';
+    let className = 'ticl-e-block-head ticl-e-block-prbg';
     if (isStatic) {
-      className = `${className} ticl-block-head-static`;
+      className = `${className} ticl-e-block-head-static`;
     }
     let nameNode: React.ReactElement;
     const nameLabel = getDisplayName(blockItem.name, displayName);
     if (nameLabel !== blockItem.name) {
       nameNode = (
-        <u className="ticl-block-head-label" title={blockItem.name}>
+        <u className="ticl-e-block-head-label" title={blockItem.name}>
           {nameLabel}
         </u>
       );
     } else {
-      nameNode = <div className="ticl-block-head-label">{nameLabel}</div>;
+      nameNode = <div className="ticl-e-block-head-label">{nameLabel}</div>;
     }
 
     return (
@@ -363,9 +363,9 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
             {inBoundText}
           </div>
         ) : null}
-        {showOutBound ? <div className="ticl-outbound" /> : null}
+        {showOutBound ? <div className="ticl-e-outbound" /> : null}
         {item?.subBlock ? (
-          <div className="ticl-field-subicon ticl-block-prbg">
+          <div className="ticl-e-field-subicon ticl-e-block-prbg">
             <TIcon icon={item.subBlock.desc.icon} />
           </div>
         ) : null}
@@ -496,26 +496,26 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
 
     let showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
 
-    let fieldClass = 'ticl-field';
-    let inBoundClass = 'ticl-slot';
+    let fieldClass = 'ticl-e-field';
+    let inBoundClass = 'ticl-e-slot';
     let inBoundText: string;
     let inBoundTitle: string;
     if (item.cache.bindingPath) {
-      inBoundClass = 'ticl-slot ticl-inbound';
+      inBoundClass = 'ticl-e-slot ticl-e-inbound';
       if (item.subBlock) {
         if (item.subBlock.hidden) {
-          fieldClass = 'ticl-field ticl-field-close';
+          fieldClass = 'ticl-e-field ticl-e-field-close';
         } else {
           inBoundClass = null;
         }
       } else if (item.inWire) {
         inBoundTitle = item.cache.bindingPath;
         if (item.inWire.checkIsRightSide()) {
-          inBoundClass = 'ticl-slot ticl-inbound-right';
+          inBoundClass = 'ticl-e-slot ticl-e-inbound-right';
           showOutBound = false;
         }
       } else {
-        inBoundClass += ' ticl-inbound-path';
+        inBoundClass += ' ticl-e-inbound-path';
         inBoundText = item.cache.bindingPath;
       }
     } else if (item.desc?.readonly || !this.context.canBindField(item.path)) {
@@ -523,7 +523,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     }
     const indentChildren = [];
     for (let i = 0; i < item.indents.length; ++i) {
-      indentChildren.push(<div key={i} className={`ticl-field-indent${item.indents[i]}`} />);
+      indentChildren.push(<div key={i} className={`ticl-e-field-indent${item.indents[i]}`} />);
     }
 
     const propName = (
@@ -560,11 +560,11 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
             {inBoundText}
           </div>
         ) : null}
-        {showOutBound || this.dragWire ? <div className="ticl-outbound" /> : null}
+        {showOutBound || this.dragWire ? <div className="ticl-e-outbound" /> : null}
         {indentChildren}
-        <div className="ticl-field-name" onDoubleClick={this.onNameDoubleClick}>
+        <div className="ticl-e-field-name" onDoubleClick={this.onNameDoubleClick}>
           {item.subBlock ? (
-            <div className="ticl-field-subicon ticl-block-prbg" style={{left: item.indents.length * 18}}>
+            <div className="ticl-e-field-subicon ticl-e-block-prbg" style={{left: item.indents.length * 18}}>
               <TIcon icon={item.subBlock.desc.icon} />
             </div>
           ) : null}
@@ -1085,7 +1085,7 @@ export class BlockItem extends BaseBlockItem {
         y1 = this.fieldItems.get(field).updateFieldPos(x, y1, w, fieldHeight);
       }
       const h = y1 - fieldYOffset + 23 - y; // footer height
-      // Align the synthetic source with .ticl-block-foot's outbound marker.
+      // Align the synthetic source with .ticl-e-block-foot's outbound marker.
       this.selfField?.updateFieldPos(x, y + h - 11, w, 0);
       this.setH(h);
     }

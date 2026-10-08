@@ -35,7 +35,7 @@ describe('DateRangeEditor', function () {
     window.onerror = function (e) {};
 
     // In Antd 6, we need to click the input to open the picker
-    await shouldHappen(() => div.querySelector('.ticl-date-range-editor'), 500);
+    await shouldHappen(() => div.querySelector('.ticl-e-date-range-editor'), 500);
     const startInput = div.querySelector('input');
     simulate(startInput, 'click');
 

@@ -21,7 +21,7 @@ export class TimeEditor extends React.PureComponent<ValueEditorProps, any> {
 
     return (
       <TimePicker
-        className="ticl-date-editor"
+        className="ticl-e-date-editor"
         format="HH:mm"
         allowClear={false}
         size="small"

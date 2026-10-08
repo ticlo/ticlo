@@ -71,7 +71,7 @@ class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
     value = Number(value);
 
     return (
-      <div className="ticl-slider-view">
+      <div className="ticl-e-slider-view">
         <Slider
           value={value}
           min={min}
@@ -82,9 +82,9 @@ class SliderView extends LazyUpdateComponent<BlockWidgetProps, any> {
             this.value.bindingPath != null || !this.context.canWriteField(`${this.props.path}.${this.field.value}`)
           }
         />
-        <div className="ticl-slider-view-markers">
-          <span className="ticl-slider-view-marker">{displayNumber(min)}</span>
-          <span className="ticl-slider-view-marker">{displayNumber(max)}</span>
+        <div className="ticl-e-slider-view-markers">
+          <span className="ticl-e-slider-view-marker">{displayNumber(min)}</span>
+          <span className="ticl-e-slider-view-marker">{displayNumber(max)}</span>
         </div>
       </div>
     );

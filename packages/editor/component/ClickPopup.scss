@@ -1,6 +1,6 @@
 @use '../style/variables' as *;
 
-.ticl-dropdown {
+.ticl-e-dropdown {
   box-shadow: 0 0.5px 3px 1px rgba(0, 0, 0, 0.15);
   margin: 0;
   color: rgba(0, 0, 0, 0.75);
@@ -25,11 +25,11 @@
   }
 }
 
-.ticl-dropdown-hidden {
+.ticl-e-dropdown-hidden {
   display: none;
 }
 
-.ticl-dropdown-menu-item {
+.ticl-e-dropdown-menu-item {
   clear: both;
   margin: 0;
   padding: $dropdown-vertical-padding $control-padding-horizontal;

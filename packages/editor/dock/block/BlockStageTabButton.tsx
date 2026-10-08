@@ -64,11 +64,11 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
     let closeButtun: React.ReactElement;
     if (onSave && hasChange) {
       closeButtun = (
-        <div className="ticl-stage-panel-save">
+        <div className="ticl-e-stage-panel-save">
           <EditPolicyContext.Consumer>
             {(policy) => (
               <Button
-                className="ticl-icon-btn"
+                className="ticl-e-icon-btn"
                 shape="circle"
                 icon={<SaveOutlined />}
                 onClick={this.onSave}
@@ -76,7 +76,7 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
               />
             )}
           </EditPolicyContext.Consumer>
-          <Button className="ticl-icon-btn" shape="circle" icon={<CloseOutlined />} onClick={this.onClose} />
+          <Button className="ticl-e-icon-btn" shape="circle" icon={<CloseOutlined />} onClick={this.onClose} />
         </div>
       );
     } else {
@@ -86,10 +86,10 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
       <TicloCurrentFlowContext.Consumer>
         {(currentFlow) => (
           <span
-            className={`ticl-stage-panel-tab${currentFlow.currentPath === this.props.path ? ' ticl-stage-panel-tab-focused' : ''}`}
+            className={`ticl-e-stage-panel-tab${currentFlow.currentPath === this.props.path ? ' ticl-e-stage-panel-tab-focused' : ''}`}
             onClick={() => currentFlow.onFlowFocus(this.props.path)}
           >
-            <span className="ticl-stage-panel-tab-title">{title}</span>
+            <span className="ticl-e-stage-panel-tab-title">{title}</span>
             {closeButtun}
           </span>
         )}

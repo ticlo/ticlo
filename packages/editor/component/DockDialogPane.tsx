@@ -35,12 +35,12 @@ export function DockDialogPane(props: Props) {
     onCancel?.(false);
   }, [onCancel]);
   return (
-    <div className="ticl-dock-dialog" onKeyDownCapture={onKeyDownCapture}>
+    <div className="ticl-e-dock-dialog" onKeyDownCapture={onKeyDownCapture}>
       {children}
-      {error ? <div className="ticl-error-message">{error}</div> : null}
-      <div className="ticl-box-footer">
+      {error ? <div className="ticl-e-error-message">{error}</div> : null}
+      <div className="ticl-e-box-footer">
         {footerExtra}
-        <div className="ticl-spacer" />
+        <div className="ticl-e-spacer" />
         {onClose && onApply ? (
           <Button size="small" disabled={saveDisabled} onClick={onOK}>
             {t('OK')}

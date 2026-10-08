@@ -1,9 +1,9 @@
-.ticl-dock-dialog {
+.ticl-e-dock-dialog {
   display: flex;
   flex-direction: column;
   height: 100%;
 
-  & > .ticl-text-codemirror {
+  & > .ticl-e-text-codemirror {
     height: 0;
     flex-grow: 1;
 
@@ -12,7 +12,7 @@
     }
   }
 
-  & > .ticl-box-footer {
+  & > .ticl-e-box-footer {
     & > * {
       margin: 0 6px;
     }

@@ -5,7 +5,7 @@ $rbc-event-background: color.change(color.mix($primary-color, $background-color,
 $rbc-today-background: color.mix($primary-color, $background-color, 5%);
 $rbc-event-down-color: color.mix($rbc-event-background, $primary-color, 50%);
 
-.ticl-clndr-toolbar {
+.ticl-e-clndr-toolbar {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -13,7 +13,7 @@ $rbc-event-down-color: color.mix($rbc-event-background, $primary-color, 50%);
   margin: 6px;
 }
 
-.ticl-calendar-box {
+.ticl-e-calendar-box {
   position: relative;
   height: 100%;
   width: 100%;
@@ -22,19 +22,19 @@ $rbc-event-down-color: color.mix($rbc-event-background, $primary-color, 50%);
   flex-direction: row;
 }
 
-.ticl-schedule-side {
+.ticl-e-schedule-side {
   width: 20%;
   min-width: 240px;
   display: flex;
   flex-direction: column;
   height: 100%;
-  & > .ticl-dock-dialog {
+  & > .ticl-e-dock-dialog {
     height: 0;
     flex-grow: 1;
   }
 }
 
-.ticl-schedule-head {
+.ticl-e-schedule-head {
   height: 56px;
   padding: 14px;
   display: flex;
@@ -42,7 +42,7 @@ $rbc-event-down-color: color.mix($rbc-event-background, $primary-color, 50%);
   align-items: center;
 }
 
-.ticl-schedule-list {
+.ticl-e-schedule-list {
   display: flex;
   flex-direction: column;
   padding: 6px;
@@ -54,24 +54,24 @@ $rbc-event-down-color: color.mix($rbc-event-background, $primary-color, 50%);
   border-width: 1px 0;
   margin-bottom: 8px;
 }
-.ticl-schedule-row {
+.ticl-e-schedule-row {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.ticl-calender-selected-cell {
-  & > .ticl-calender-cell-content {
+.ticl-e-calender-selected-cell {
+  & > .ticl-e-calender-cell-content {
     color: $text-color-dark;
     background: $primary-color;
   }
 }
-.ticl-calender-cell-content {
+.ticl-e-calender-cell-content {
   width: 24px;
   margin: auto;
 }
 
-.ticl-schedule-days-dropdown.ant-picker-dropdown {
+.ticl-e-schedule-days-dropdown.ant-picker-dropdown {
   width: 284px;
   margin: -4px -12px;
   pointer-events: all;
@@ -129,7 +129,7 @@ button.rbc-input::-moz-focus-inner {
 .rbc-ellipsis,
 .rbc-show-more,
 .rbc-row-segment .rbc-event-content,
-.ticl-property-list .rbc-event-content {
+.ticl-e-property-list .rbc-event-content {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;

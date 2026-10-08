@@ -1,41 +1,41 @@
 @use 'Virtual';
 @use 'Tree';
 
-.ticl-full {
+.ticl-e-full {
   position: absolute;
   width: 100%;
   height: 100%;
 }
 
-.ticl-hbox {
+.ticl-e-hbox {
   display: flex;
   width: 100%;
   align-items: center;
 }
 
-.ticl-box-header {
+.ticl-e-box-header {
   display: flex;
   border-bottom: 1px solid #e8e8e8;
   padding: 6px;
 }
 
-.ticl-box-footer {
+.ticl-e-box-footer {
   display: flex;
   border-top: 1px solid #e8e8e8;
   padding: 6px;
 }
 
-.ticl-spacer {
+.ticl-e-spacer {
   width: 100%;
   height: 100%;
   flex: 9999 9999 0;
 }
 
-.ticl-center-box {
+.ticl-e-center-box {
   justify-content: center;
 }
 
-.tlcl-top-menu-box {
+.ticl-e-top-menu-box {
   border-bottom: 1px solid #e8e8e8;
   padding: 6px 6px 3px 6px;
 

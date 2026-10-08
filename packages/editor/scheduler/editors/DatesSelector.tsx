@@ -42,9 +42,9 @@ export class DatesSelector extends React.PureComponent<Props, State> {
     const {dates} = this.props;
     return (
       <>
-        <div className="ticl-property">
-          <div className="ticl-property-name">{t('Dates')}</div>
-          <div className="ticl-property-value">
+        <div className="ticl-e-property">
+          <div className="ticl-e-property-name">{t('Dates')}</div>
+          <div className="ticl-e-property-value">
             <Select
               size="small"
               mode="multiple"

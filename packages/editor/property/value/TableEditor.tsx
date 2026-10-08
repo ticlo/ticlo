@@ -195,7 +195,7 @@ export class TableEditor extends React.PureComponent<ValueEditorProps, State> {
           : ReadonlyEditor;
     const value = Object.hasOwn(row.value, column.key) ? Reflect.get(row.value, column.key) : undefined;
     return (
-      <div className="ticl-property-value ticl-table-cell">
+      <div className="ticl-e-property-value ticl-e-table-cell">
         <Editor
           conn={this.props.conn}
           funcLib={this.props.funcLib}
@@ -229,8 +229,8 @@ export class TableEditor extends React.PureComponent<ValueEditorProps, State> {
           {t('Edit table')} {Array.isArray(value) && !isDataTruncated(value) ? `(${value.length})` : null}
         </Button>
         {this.context?.editProperty && this.props.keys?.length ? (
-          <div className="ticl-expand-button" title="Edit" onClick={this.popup}>
-            <div className="ticl-expand-icon-11" />
+          <div className="ticl-e-expand-button" title="Edit" onClick={this.popup}>
+            <div className="ticl-e-expand-icon-11" />
           </div>
         ) : null}
         {open ? (
@@ -243,13 +243,13 @@ export class TableEditor extends React.PureComponent<ValueEditorProps, State> {
             okText={t('OK')}
             cancelText={t('Cancel')}
             okButtonProps={{disabled}}
-            className="ticl-table-editor"
+            className="ticl-e-table-editor"
           >
             <div onKeyDown={(event) => event.stopPropagation()} onPaste={(event) => event.stopPropagation()}>
               {error || changed ? (
-                <div className="ticl-error-message">{error || t('Value changed. Reload to continue.')}</div>
+                <div className="ticl-e-error-message">{error || t('Value changed. Reload to continue.')}</div>
               ) : null}
-              <div className="ticl-table-toolbar">
+              <div className="ticl-e-table-toolbar">
                 <Button size="small" disabled={disabled} onClick={this.addRow}>
                   {t('Add row')}
                 </Button>
@@ -273,7 +273,7 @@ export class TableEditor extends React.PureComponent<ValueEditorProps, State> {
                       width: 150,
                       title: t('Actions'),
                       render: (_, row, index) => (
-                        <div className="ticl-table-actions">
+                        <div className="ticl-e-table-actions">
                           <Button
                             size="small"
                             title={translateEditor('Move up')}

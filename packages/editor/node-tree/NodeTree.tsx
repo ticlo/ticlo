@@ -232,7 +232,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     this.refreshList();
     return (
       <VirtualList
-        className="ticl-node-tree"
+        className="ticl-e-node-tree"
         style={this.props.style}
         renderer={this.renderChild}
         itemCount={this.list.length}

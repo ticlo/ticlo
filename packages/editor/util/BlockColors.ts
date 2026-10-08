@@ -19,16 +19,18 @@ export function addBlockColor(color: string) {
   const rr = brighterColor(color.substring(0, 1));
   const gg = brighterColor(color.substring(1, 2));
   const bb = brighterColor(color.substring(2, 3));
-  globalStyle.addCssText(`.ticl-block--${color}{border-color: #${color};}`);
-  globalStyle.addCssText(`.ticl-block--${color} .ticl-block-prbg, .ticl-bg--${color}{background: #${color};}`);
-  globalStyle.addCssText(`.ticl-block--${color}.ticl-block-selected{box-shadow: 0 0 4px 3px rgb(${rr},${gg},${bb});}`);
+  globalStyle.addCssText(`.ticl-e-block--${color}{border-color: #${color};}`);
+  globalStyle.addCssText(`.ticl-e-block--${color} .ticl-e-block-prbg, .ticl-e-bg--${color}{background: #${color};}`);
+  globalStyle.addCssText(
+    `.ticl-e-block--${color}.ticl-e-block-selected{box-shadow: 0 0 4px 3px rgb(${rr},${gg},${bb});}`
+  );
 }
 
 const priorityColors = ['4af', '1bb', '8c1', 'f72'];
 export function getFuncStyleFromDesc(
   desc: {color?: string; icon?: string; ns?: string; category?: string},
   conn: ClientConn,
-  prefix = 'ticl-block--'
+  prefix = 'ticl-e-block--'
 ): [string, string] {
   let color: string;
   let icon: string;

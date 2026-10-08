@@ -211,9 +211,9 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     if (showCallMenu || commandMenus.length) {
       menuitems.push(
         <MenuItem key="divider">
-          <div className="ticl-property-divider">
+          <div className="ticl-e-property-divider">
             {t('Execute Command')}
-            <div className="ticl-h-line" />
+            <div className="ticl-e-h-line" />
           </div>
         </MenuItem>
       );

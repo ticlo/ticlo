@@ -1,6 +1,6 @@
-.ticl-property-optional-list {
+.ticl-e-property-optional-list {
   width: 100%;
-  & > .ticl-property-divider {
+  & > .ticl-e-property-divider {
     & > .anticon-close-circle {
       position: absolute;
       right: 6px;
@@ -13,13 +13,13 @@
   }
 }
 
-.ticl-property-optional {
+.ticl-e-property-optional {
   width: 100%;
   display: flex;
   & > .ant-checkbox-wrapper {
     margin-right: 8px;
   }
-  & > .ticl-property {
+  & > .ticl-e-property {
     flex: 1 1 auto;
   }
 }

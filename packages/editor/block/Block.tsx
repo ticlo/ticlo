@@ -208,25 +208,25 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
     const classNames: string[] = [];
     if (item.selected) {
-      classNames.push('ticl-block-selected');
+      classNames.push('ticl-e-block-selected');
     }
     if (item.synced) {
-      classNames.push('ticl-block-synced');
+      classNames.push('ticl-e-block-synced');
     }
     if (item._syncChild || footDropping) {
-      classNames.push('ticl-block-sync-parent');
+      classNames.push('ticl-e-block-sync-parent');
     }
     if (moving) {
-      classNames.push('ticl-block-moving');
+      classNames.push('ticl-e-block-moving');
     }
 
     if (FullView) {
-      classNames.push('ticl-block-full-view');
+      classNames.push('ticl-e-block-full-view');
       let width = item.w;
       const widthDrag =
         item._syncParent || !this.context.canWriteField(`${item.path}.@b-xyw`) ? null : (
           <DragDropDiv
-            className="ticl-width-drag"
+            className="ticl-e-width-drag"
             directDragT={true}
             onDragStartT={this.startDragW}
             onDragMoveT={this.onDragWMove}
@@ -258,7 +258,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       return <div ref={this.getRef} />;
     } else {
       let [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
-      classNames.push('ticl-block');
+      classNames.push('ticl-e-block');
       if (item.dynamicStyle) {
         const [dynamicColor, dynamicIcon] = getFuncStyleFromDesc(item.dynamicStyle, null);
         if (dynamicColor) {
@@ -275,7 +275,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         const WidgetType = BlockWidget.get(this.widget.value);
         if (WidgetType) {
           widget = (
-            <div className="ticl-block-view" style={{minHeight: item.viewH}}>
+            <div className="ticl-e-block-view" style={{minHeight: item.viewH}}>
               <WidgetType conn={item.conn} path={item.path} updateViewHeight={item.setViewH} />
             </div>
           );
@@ -294,18 +294,18 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               displayName={this.displayName.value}
             />
             {widget}
-            <div className="ticl-block-body">{item.renderFields()}</div>
+            <div className="ticl-e-block-body">{item.renderFields()}</div>
             <DragDropDiv
-              className="ticl-block-foot"
+              className="ticl-e-block-foot"
               directDragT={true}
               onDragStartT={this.selectAndNotDrag}
               onDragOverT={this.onDragOverFoot}
               onDropT={this.onDropFoot}
               onDragLeaveT={this.onDragLeaveFoot}
             >
-              {item.selfField?.outWires.size ? <div className="ticl-outbound" /> : null}
+              {item.selfField?.outWires.size ? <div className="ticl-e-outbound" /> : null}
               <DragDropDiv
-                className="ticl-width-drag"
+                className="ticl-e-width-drag"
                 style={this.context.canWriteField(`${item.path}.@b-xyw`) ? undefined : {display: 'none'}}
                 onDragStartT={this.startDragW}
                 onDragMoveT={this.onDragWMove}
@@ -316,14 +316,14 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         );
       } else {
         // minimized block
-        classNames.push('ticl-block-min');
-        let headClasses = 'ticl-block-head ticl-block-prbg';
+        classNames.push('ticl-e-block-min');
+        let headClasses = 'ticl-e-block-head ticl-e-block-prbg';
         if (item.isStatic) {
-          headClasses = `${headClasses} ticl-block-head-static`;
+          headClasses = `${headClasses} ticl-e-block-head-static`;
         }
         return (
           <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
-            <div className="ticl-block-min-bound" />
+            <div className="ticl-e-block-min-bound" />
             <BlockDropdown
               checkPolicy
               functionId={item.desc.id}

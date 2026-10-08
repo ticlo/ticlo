@@ -147,16 +147,16 @@ describe('FunctionTree', function () {
     };
 
     let rendered = select.render();
-    expect(findElements(rendered, (element) => element.props.className === 'ticl-func-tree-add-btn')).toHaveLength(0);
+    expect(findElements(rendered, (element) => element.props.className === 'ticl-e-func-tree-add-btn')).toHaveLength(0);
 
     select.state = {...select.state, tab: 'inFlow'};
     rendered = select.render();
 
-    const addButtons = findElements(rendered, (element) => element.props.className === 'ticl-func-tree-add-btn');
-    const treeWrappers = findElements(rendered, (element) => element.props.className === 'ticl-func-tree-wrap');
+    const addButtons = findElements(rendered, (element) => element.props.className === 'ticl-e-func-tree-add-btn');
+    const treeWrappers = findElements(rendered, (element) => element.props.className === 'ticl-e-func-tree-wrap');
     expect(addButtons).toHaveLength(1);
     expect(
-      findElements(treeWrappers[0], (element) => element.props.className === 'ticl-func-tree-add-btn')
+      findElements(treeWrappers[0], (element) => element.props.className === 'ticl-e-func-tree-add-btn')
     ).toHaveLength(1);
   });
 
@@ -191,8 +191,8 @@ describe('FunctionTree', function () {
     expect(root.children[0].desc.properties).toEqual([]);
 
     loadTemplate(<FunctionTreeRenderer item={root.children[0]} />, 'editor');
-    expect(querySingle("//div.ticl-func-view/span[text()='a']", document.body)).toBeDefined();
-    expect(querySingle("//div.ticl-tree-type/span[text()='a']", document.body)).toBeNull();
+    expect(querySingle("//div.ticl-e-func-view/span[text()='a']", document.body)).toBeDefined();
+    expect(querySingle("//div.ticl-e-tree-type/span[text()='a']", document.body)).toBeNull();
 
     root.onFunctionClick(root.children[0].name, root.children[0].desc, root.children[0].data);
     expect(selected).toBe(':a');

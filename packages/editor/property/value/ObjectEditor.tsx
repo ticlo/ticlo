@@ -41,14 +41,14 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
         </Button>
       );
     } else {
-      editor = <div className="ticl-object-editor">{renderValue(this.props.value)}</div>;
+      editor = <div className="ticl-e-object-editor">{renderValue(this.props.value)}</div>;
     }
     if (this.context?.editProperty) {
       return (
         <>
           {editor}
-          <div className="ticl-expand-button" title={'Edit'} onClick={this.popup}>
-            <div className="ticl-expand-icon-11" />
+          <div className="ticl-e-expand-button" title={'Edit'} onClick={this.popup}>
+            <div className="ticl-e-expand-icon-11" />
           </div>
         </>
       );

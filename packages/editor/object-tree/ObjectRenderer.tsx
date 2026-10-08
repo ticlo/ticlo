@@ -110,7 +110,7 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
         if (val.length > 512) {
           val = `${val.substring(0, 128)}${TRUNCATED}`;
         }
-        child = <span className="ticl-string-value">{val}</span>;
+        child = <span className="ticl-e-string-value">{val}</span>;
         break;
       case 'number':
         child = displayNumber(val);
@@ -131,11 +131,11 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
     }
 
     return (
-      <div style={{...style, marginLeft}} className="ticl-tree-node ticl-object-tree-item">
+      <div style={{...style, marginLeft}} className="ticl-e-tree-node ticl-e-object-tree-item">
         <ExpandIcon opened={item.opened} onClick={onClick} />
-        <DragDropDiv onDragStartT={this.onDragStart} className="ticl-hbox">
-          <div className="ticl-object-tree-name">{item.name}</div>
-          <div className="ticl-object-tree-value">{child}</div>
+        <DragDropDiv onDragStartT={this.onDragStart} className="ticl-e-hbox">
+          <div className="ticl-e-object-tree-name">{item.name}</div>
+          <div className="ticl-e-object-tree-value">{child}</div>
         </DragDropDiv>
       </div>
     );

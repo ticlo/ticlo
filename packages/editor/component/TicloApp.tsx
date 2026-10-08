@@ -170,7 +170,7 @@ function useTicloContext(value: TicloLayoutContext) {
 export function TicloApp<Context extends TicloLayoutContext>({
   value,
   children,
-  className = 'ticl-app',
+  className = 'ticl-e-app',
   style,
 }: TicloAppProps<Context>) {
   const {currentFlow, wrappedLayoutContext, onKeyDown, onPaste} = useTicloContext(value);

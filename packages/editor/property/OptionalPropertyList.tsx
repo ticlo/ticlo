@@ -199,12 +199,12 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
     }
 
     return (
-      <div className="ticl-property-optional-list">
-        <div className="ticl-property-divider">
-          <div className="ticl-h-line" style={{maxWidth: '16px'}} />
+      <div className="ticl-e-property-optional-list">
+        <div className="ticl-e-property-divider">
+          <div className="ticl-e-h-line" style={{maxWidth: '16px'}} />
           <Tooltip title="Search Optional Properties">
             <Button
-              className="ticl-icon-btn"
+              className="ticl-e-icon-btn"
               shape="circle"
               size="small"
               icon={<SearchOutlined />}
@@ -214,7 +214,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
           {search == null ? (
             <>
               <span onClick={this.startSearch}>{t('Optional')}</span>
-              <div className="ticl-h-line" />
+              <div className="ticl-e-h-line" />
             </>
           ) : (
             <>

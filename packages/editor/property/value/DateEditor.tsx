@@ -28,9 +28,9 @@ export class DateEditor extends React.PureComponent<ValueEditorProps, any> {
     }
 
     return (
-      <Tooltip title={title} overlayClassName="ticl-tooltip">
+      <Tooltip title={title} overlayClassName="ticl-e-tooltip">
         <DatePicker
-          className="ticl-date-editor"
+          className="ticl-e-date-editor"
           size="small"
           value={value}
           disabled={locked || onChange == null}

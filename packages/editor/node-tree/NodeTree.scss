@@ -1,10 +1,10 @@
 @use '../style/variables' as *;
 
-.ticl-tree-node {
+.ticl-e-tree-node {
   cursor: default;
 }
 
-.ticl-tree-node-content {
+.ticl-e-tree-node-content {
   cursor: pointer;
   display: flex;
   position: relative;
@@ -28,7 +28,7 @@
   }
 }
 
-.ticl-tree-node-ordered > .ticl-tree-node-content::before {
+.ticl-e-tree-node-ordered > .ticl-e-tree-node-content::before {
   content: '';
   position: absolute;
   left: -4px;
@@ -40,12 +40,12 @@
   pointer-events: none;
 }
 
-.ticl-tree-node-selected {
+.ticl-e-tree-node-selected {
   background: $primary-fade-10;
 }
 
-.ticl-tree-node.ticl-tree-drop-before,
-.ticl-tree-node.ticl-tree-drop-after {
+.ticl-e-tree-node.ticl-e-tree-drop-before,
+.ticl-e-tree-node.ticl-e-tree-drop-after {
   position: relative;
   overflow: visible;
 
@@ -61,42 +61,42 @@
   }
 }
 
-.ticl-tree-drop-before::after {
+.ticl-e-tree-drop-before::after {
   top: -1px;
 }
 
-.ticl-tree-drop-after::after {
+.ticl-e-tree-drop-after::after {
   bottom: -1px;
 }
 
-.ticl-tree-drop-inside {
+.ticl-e-tree-drop-inside {
   box-shadow: inset 0 0 0 2px $primary-color;
 }
 
-.ticl-tree-node-text {
+.ticl-e-tree-node-text {
   white-space: nowrap;
   margin: 1px 4px 3px 4px;
 }
 
-.ticl-tree-node-display {
+.ticl-e-tree-node-display {
   text-decoration: underline;
 }
 
-.ticl-tree-node .ticl-iconbtn {
+.ticl-e-tree-node .ticl-e-iconbtn {
   color: $text-color-light;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.75s;
 }
 
-.ticl-tree-node:hover .ticl-iconbtn {
+.ticl-e-tree-node:hover .ticl-e-iconbtn {
   opacity: 1;
   visibility: visible;
 }
 
 .ant-dropdown-menu-item,
 .ant-dropdown-menu-submenu-title {
-  & .ticl-icon {
+  & .ticl-e-icon {
     display: inline-block;
     margin: 0 8px 0 0;
   }

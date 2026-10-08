@@ -42,9 +42,9 @@ export const FieldValue = React.memo(function FieldValue({conn, path}: Props) {
         offset: [-6, 0],
       }}
     >
-      <div className="ticl-tree-arr ticl-tree-arr-expand" onDoubleClick={onExpandObjectTree} />
+      <div className="ticl-e-tree-arr ticl-e-tree-arr-expand" onDoubleClick={onExpandObjectTree} />
     </Popup>
   );
 
-  return <div className="ticl-field-value">{renderValue(value, getObjectPopup)}</div>;
+  return <div className="ticl-e-field-value">{renderValue(value, getObjectPopup)}</div>;
 });

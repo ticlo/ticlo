@@ -1,15 +1,15 @@
-.ticl-table-editor {
-  .ticl-table-toolbar,
-  .ticl-table-actions {
+.ticl-e-table-editor {
+  .ticl-e-table-toolbar,
+  .ticl-e-table-actions {
     display: flex;
     gap: 4px;
   }
 
-  .ticl-table-toolbar {
+  .ticl-e-table-toolbar {
     margin-bottom: 8px;
   }
 
-  .ticl-table-cell {
+  .ticl-e-table-cell {
     min-width: 140px;
     padding: 0;
     overflow: visible;
@@ -20,6 +20,6 @@
   }
 }
 
-.ticl-table-worker-editor .ticl-stage-header {
+.ticl-e-table-worker-editor .ticl-e-stage-header {
   display: none;
 }

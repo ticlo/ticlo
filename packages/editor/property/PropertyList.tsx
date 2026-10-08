@@ -324,7 +324,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     if (isEmpty) {
       // nothing selected
       return (
-        <div className="ticl-property-list" style={style}>
+        <div className="ticl-e-property-list" style={style}>
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
         </div>
       );
@@ -394,7 +394,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
         customExpand = showCustom ? 'opened' : 'closed';
       }
       return (
-        <div className="ticl-property-list" style={style}>
+        <div className="ticl-e-property-list" style={style}>
           <PropertyEditor
             name="#is"
             paths={paths}
@@ -405,36 +405,36 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
           />
 
           {children.length ? (
-            <div className="ticl-property-divider">
-              <div className="ticl-h-line" />
+            <div className="ticl-e-property-divider">
+              <div className="ticl-e-h-line" />
             </div>
           ) : null}
           {children}
 
           {baseDesc ? <OptionalPropertyList conn={conn} paths={paths} funcDesc={baseDesc} funcLib={funcLib} /> : null}
 
-          <div className="ticl-property-divider">
-            <div className="ticl-h-line" style={{maxWidth: '16px'}} />
+          <div className="ticl-e-property-divider">
+            <div className="ticl-e-h-line" style={{maxWidth: '16px'}} />
             <ExpandIcon opened={showConfig ? 'opened' : 'closed'} onClick={this.onShowConfigClick} />
             {t('Config')}
-            <div className="ticl-h-line" />
+            <div className="ticl-e-h-line" />
           </div>
           {configChildren}
 
           {allowAttribute ? (
-            <div className="ticl-property-divider">
-              <div className="ticl-h-line" style={{maxWidth: '16px'}} />
+            <div className="ticl-e-property-divider">
+              <div className="ticl-e-h-line" style={{maxWidth: '16px'}} />
               <ExpandIcon opened={showAttribute ? 'opened' : 'closed'} onClick={this.onShowAttributeClick} />
               {t('Block')}
-              <div className="ticl-h-line" />
+              <div className="ticl-e-h-line" />
             </div>
           ) : null}
           {allowAttribute && showAttribute ? (
             <PropertyAttributeList conn={conn} paths={paths} funcDesc={funcDesc} funcLib={funcLib} />
           ) : null}
 
-          <div className="ticl-property-divider">
-            <div className="ticl-h-line" style={{maxWidth: '16px'}} />
+          <div className="ticl-e-property-divider">
+            <div className="ticl-e-h-line" style={{maxWidth: '16px'}} />
             <ExpandIcon opened={customExpand} onClick={this.onShowCustomClick} />
             {t('Custom')}
             <Popup
@@ -443,7 +443,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
               popup={<AddCustomPropertyMenu conn={conn} onAddProperty={this.onAddCustom} />}
             >
               <Button
-                className="ticl-icon-btn"
+                className="ticl-e-icon-btn"
                 shape="circle"
                 tabIndex={-1}
                 icon={<PlusSquareOutlined />}
@@ -451,7 +451,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
               />
             </Popup>
 
-            <div className="ticl-h-line" />
+            <div className="ticl-e-h-line" />
           </div>
           {customChildren}
         </div>
@@ -459,7 +459,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     } else {
       // minimal block used by Service Editor
       return (
-        <div className="ticl-property-list" style={style}>
+        <div className="ticl-e-property-list" style={style}>
           <PropertyEditor
             name="#is"
             paths={paths}
@@ -468,8 +468,8 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
             propDesc={configDescs['#is(readonly)']}
             funcLib={funcLib}
           />
-          <div className="ticl-property-divider">
-            <div className="ticl-h-line" />
+          <div className="ticl-e-property-divider">
+            <div className="ticl-e-h-line" />
           </div>
 
           {children}

@@ -114,8 +114,8 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
 
   getDividerData = (idx: number) => {
     if (!this._rootNode) return null;
-    const blockStage = this._rootNode.querySelector('.ticl-stage') as HTMLDivElement;
-    const propertyList = this._rootNode.querySelector('.ticl-property-list') as HTMLDivElement;
+    const blockStage = this._rootNode.querySelector('.ticl-e-stage') as HTMLDivElement;
+    const propertyList = this._rootNode.querySelector('.ticl-e-property-list') as HTMLDivElement;
     return {
       element: this._rootNode,
       beforeDivider: [{size: blockStage.offsetWidth}],
@@ -133,7 +133,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     const {showPropertyList, selectedKeys, sizes, blockKey, funcLib = basePath} = this.state;
 
     return (
-      <div className="ticl-hbox ticl-stage-tab-content" ref={this.getRef} tabIndex={0}>
+      <div className="ticl-e-hbox ticl-e-stage-tab-content" ref={this.getRef} tabIndex={0}>
         {blockKey ? (
           <BlockStage
             key={blockKey}
@@ -159,7 +159,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
           <div style={{width: sizes[0], height: '100%'}}>Invalid Input</div>
         )}
 
-        <div className="ticl-stage-header">{basePath}</div>
+        <div className="ticl-e-stage-header">{basePath}</div>
         {showPropertyList && !disablePropertyList ? (
           <>
             <Divider key="divider" idx={1} getDividerData={this.getDividerData} changeSizes={this.changeSizes} />

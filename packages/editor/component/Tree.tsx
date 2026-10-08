@@ -15,18 +15,18 @@ export function ExpandIcon(props: Props) {
       return (
         <div
           onClick={props.onClick}
-          className="ticl-tree-arr ticl-tree-arr-expand"
+          className="ticl-e-tree-arr ticl-e-tree-arr-expand"
           style={{transform: 'rotate(90deg)'}}
         />
       );
     case 'closed':
-      return <div onClick={props.onClick} className="ticl-tree-arr ticl-tree-arr-expand" />;
+      return <div onClick={props.onClick} className="ticl-e-tree-arr ticl-e-tree-arr-expand" />;
     case 'loading':
-      return <div className="ticl-tree-arr ticl-tree-arr-loading" />;
+      return <div className="ticl-e-tree-arr ticl-e-tree-arr-loading" />;
     case 'empty':
-      return <div onClick={props.onClick} className="ticl-tree-arr ticl-tree-arr-empty" />;
+      return <div onClick={props.onClick} className="ticl-e-tree-arr ticl-e-tree-arr-empty" />;
     default:
-      return <div className="ticl-tree-arr" />;
+      return <div className="ticl-e-tree-arr" />;
   }
 }
 

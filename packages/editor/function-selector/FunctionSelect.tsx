@@ -107,8 +107,8 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     }
     const showAddFunction = Boolean(this.context?.editFlow && tab === 'inFlow');
     return (
-      <div className="ticl-func-select" onClick={onClick}>
-        <div className="tlcl-top-menu-box ticl-hbox">
+      <div className="ticl-e-func-select" onClick={onClick}>
+        <div className="ticl-e-top-menu-box ticl-e-hbox">
           <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
             <Tooltip title={t('In-Flow')}>
               <Radio.Button value="inFlow">
@@ -172,11 +172,11 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             {t('Inline')}
           </Button>
         )}
-        <div className="ticl-func-tree-wrap" style={{display: tab === 'inFlow' ? '' : 'none'}}>
+        <div className="ticl-e-func-tree-wrap" style={{display: tab === 'inFlow' ? '' : 'none'}}>
           {showAddFunction ? (
             <Tooltip title={t('Add Function')}>
               <Button
-                className="ticl-func-tree-add-btn"
+                className="ticl-e-func-tree-add-btn"
                 shape="circle"
                 onClick={this.onAddInFlowFunction}
                 icon={<PlusOutlined />}

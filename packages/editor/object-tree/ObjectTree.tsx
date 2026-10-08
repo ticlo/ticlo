@@ -80,7 +80,7 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
       this.refreshList();
       child = (
         <VirtualList
-          className="ticl-node-tree"
+          className="ticl-e-node-tree"
           style={style}
           renderer={this.renderChild}
           itemCount={this.list.length}
@@ -90,7 +90,7 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
     }
 
     return (
-      <div className="ticl-object-tree" style={style}>
+      <div className="ticl-e-object-tree" style={style}>
         {child}
       </div>
     );

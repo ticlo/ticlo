@@ -20,7 +20,7 @@ export class OptionalPropertyEditor extends React.PureComponent<Props, any> {
   render() {
     const {checked, onCheck, reorder, ...others} = this.props;
     return (
-      <div className="ticl-property-optional">
+      <div className="ticl-e-property-optional">
         <Checkbox
           checked={checked}
           onChange={this.onChange}

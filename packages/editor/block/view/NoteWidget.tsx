@@ -56,7 +56,11 @@ class CommentView extends LazyUpdateComponent<BlockWidgetProps, any> {
       }
     }
     return (
-      <div ref={this.getRef} className="ticl-comment-view ticl-markdown" dangerouslySetInnerHTML={{__html: rawHtml}} />
+      <div
+        ref={this.getRef}
+        className="ticl-e-comment-view ticl-markdown"
+        dangerouslySetInnerHTML={{__html: rawHtml}}
+      />
     );
   }
   #lastHeight = -1;

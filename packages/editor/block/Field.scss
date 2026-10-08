@@ -1,6 +1,6 @@
 @use '../style/variables' as *;
 
-.ticl-field {
+.ticl-e-field {
   position: relative;
   border-bottom: 1px solid #d0d0d0;
   height: 24px;
@@ -16,7 +16,7 @@
   }
 }
 
-.ticl-field-name {
+.ticl-e-field-name {
   border-right: 1px solid #f0f0f0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -24,20 +24,20 @@
   margin-left: 2px;
 }
 
-.ticl-field-value {
+.ticl-e-field-value {
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: right;
   flex: 0 0 calc(75% - 30px);
   min-width: calc(100% - 160px);
-  & > .ticl-tree-arr {
+  & > .ticl-e-tree-arr {
     position: absolute;
     top: 0;
     right: 0;
   }
 }
 
-.ticl-string-value {
+.ticl-e-string-value {
   &:before,
   &:after {
     color: #bbb;
@@ -48,21 +48,21 @@
   text-overflow: ellipsis;
 }
 
-.ticl-object-value {
+.ticl-e-object-value {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.ticl-field-value > .ticl-object-value {
+.ticl-e-field-value > .ticl-e-object-value {
   text-align: right;
   width: calc(100% - 8px);
 }
-.ant-btn .ticl-object-value {
+.ant-btn .ticl-e-object-value {
   display: inline;
 }
 
-.ticl-slot {
+.ticl-e-slot {
   position: absolute;
   right: calc(100% - 5px);
   border-radius: 0 5px 5px 0;
@@ -75,22 +75,22 @@
   overflow: hidden;
   transition-property: border-color, height, top;
   transition-duration: 0.2s;
-  &.ticl-inbound {
+  &.ticl-e-inbound {
     width: 10px;
     border: 1px solid $ticl-color-prn;
   }
-  &.ticl-inbound-right {
+  &.ticl-e-inbound-right {
     width: 10px;
     right: -5px;
     border-radius: 5px 0 0 5px;
     border: 1px solid $ticl-color-prn;
   }
-  &.ticl-inbound-path {
+  &.ticl-e-inbound-path {
     border-radius: 0 10px 10px 0;
     padding-left: 12px;
     width: 14px;
   }
-  &.ticl-inbound-path:hover {
+  &.ticl-e-inbound-path:hover {
     width: auto;
     height: 21px;
     top: 2px;
@@ -100,7 +100,7 @@
   }
 }
 
-.ticl-outbound {
+.ticl-e-outbound {
   position: absolute;
   right: -6px;
   border-radius: 0 5px 5px 0;
@@ -111,14 +111,14 @@
   background: #f8f8f8;
 }
 
-.ticl-field-subblock {
+.ticl-e-field-subblock {
   position: relative;
   border-bottom: 1px solid #f0f0f0;
   z-index: 0;
-  & > .ticl-field {
+  & > .ticl-e-field {
     border-bottom-color: #f0f0f0;
   }
-  & > .ticl-field:last-child {
+  & > .ticl-e-field:last-child {
     height: 23px;
   }
   & > *:last-child {
@@ -126,11 +126,11 @@
   }
 }
 
-.ticl-block-body > .ticl-field-subblock {
+.ticl-e-block-body > .ticl-e-field-subblock {
   border-bottom-color: #d0d0d0;
 }
 
-.ticl-field-subicon {
+.ticl-e-field-subicon {
   position: absolute;
   left: 0;
   top: 10px;
@@ -146,8 +146,8 @@
   transition-duration: 0.1s;
 }
 
-.ticl-field-close {
-  & > .ticl-field-name > .ticl-field-subicon {
+.ticl-e-field-close {
+  & > .ticl-e-field-name > .ticl-e-field-subicon {
     width: 16px;
     height: 16px;
     top: 5px;
@@ -157,36 +157,36 @@
       transform: scale(0.6666666667, 0.6666666667);
     }
   }
-  & > .ticl-slot,
-  & > .ticl-outbound {
+  & > .ticl-e-slot,
+  & > .ticl-e-outbound {
     border-radius: 3px;
     height: 16px;
     top: 4px;
   }
-  & > .ticl-outbound {
+  & > .ticl-e-outbound {
     width: 10px;
     right: -5px;
   }
 }
 
-.ticl-field-indent0,
-.ticl-field-indent1,
-.ticl-field-indent2,
-.ticl-field-indent3 {
+.ticl-e-field-indent0,
+.ticl-e-field-indent1,
+.ticl-e-field-indent2,
+.ticl-e-field-indent3 {
   width: 15px;
   height: 24px;
   margin: -3px 5px -2px -2px;
   flex-shrink: 1;
 }
 
-.ticl-field-indent1 {
+.ticl-e-field-indent1 {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='24' viewBox='0 0 10 24'%3E%3Cpath stroke='%23AAA' fill='none' d='M1 0 L 1 24'/%3E%3C/svg%3E");
 }
 
-.ticl-field-indent2 {
+.ticl-e-field-indent2 {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='24' viewBox='0 0 10 24'%3E%3Cpath stroke='%23AAA' fill='none' d='M1 0 L 1 12 L 12 12'/%3E%3C/svg%3E");
 }
 
-.ticl-field-indent3 {
+.ticl-e-field-indent3 {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='24' viewBox='0 0 10 24'%3E%3Cpath stroke='%23AAA' fill='none' d='M1 0 L 1 24 M 1 12 L 12 12'/%3E%3C/svg%3E");
 }

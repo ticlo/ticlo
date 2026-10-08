@@ -42,9 +42,9 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
 
     const {children, popup} = this.props;
 
-    let cls = 'ticl-dropdown-menu-item';
+    let cls = 'ticl-e-dropdown-menu-item';
     if (showPopup) {
-      cls += ' ticl-dropdown-menu-item-active';
+      cls += ' ticl-e-dropdown-menu-item-active';
     }
     return (
       <Trigger
@@ -54,7 +54,7 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
           offset: [3, 0],
           overflow: {adjustX: true, adjustY: true},
         }}
-        prefixCls="ticl-dropdown"
+        prefixCls="ticl-e-dropdown"
         popupVisible={showPopup}
         onPopupVisibleChange={this.showPopup}
         popup={popup}
@@ -92,7 +92,7 @@ export class MenuItem extends React.PureComponent<MenuItemProps, MenuItemState> 
   render() {
     const {children} = this.props;
     return (
-      <div className="ticl-dropdown-menu-item" onMouseOver={this.onHover} onClick={this.onClick}>
+      <div className="ticl-e-dropdown-menu-item" onMouseOver={this.onHover} onClick={this.onClick}>
         {children}
       </div>
     );
@@ -344,7 +344,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
         alignPoint={alignPoint}
         popupPlacement="topLeft"
         builtinPlacements={builtinPlacements}
-        prefixCls="ticl-dropdown"
+        prefixCls="ticl-e-dropdown"
         popupVisible={showPopup && !!fixedPopup}
         onPopupVisibleChange={this.popupVisibleChange}
         popup={fixedPopup}

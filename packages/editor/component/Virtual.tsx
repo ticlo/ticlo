@@ -83,18 +83,18 @@ export default class VirtualList extends React.Component<Props, State> {
       return (
         <div
           ref={this.getRef}
-          className={`ticl-v-scroll ${className}`}
+          className={`ticl-e-v-scroll ${className}`}
           style={style}
           onPointerDown={this.onPointerDown}
         >
-          <div className="ticl-v-scroll-content" style={{height: `${contentHeight}px`, paddingTop}}>
+          <div className="ticl-e-v-scroll-content" style={{height: `${contentHeight}px`, paddingTop}}>
             {children}
           </div>
         </div>
       );
     } else {
       // not mounted or not visible, create dummy div to measure size
-      return <div ref={this.getRef} className={`ticl-v-scroll ${className}`} style={style}></div>;
+      return <div ref={this.getRef} className={`ticl-e-v-scroll ${className}`} style={style}></div>;
     }
   }
 

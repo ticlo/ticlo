@@ -12,7 +12,7 @@ export class DragWire {
   constructor(private source: FieldItem) {
     const doc = source.block.stage.getRefElement().ownerDocument;
     this.element = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    this.element.classList.add('ticl-block-wire', 'ticl-drag-wire');
+    this.element.classList.add('ticl-e-block-wire', 'ticl-e-drag-wire');
     this.path = doc.createElementNS('http://www.w3.org/2000/svg', 'path');
     this.element.appendChild(this.path);
     doc.body.appendChild(this.element);
@@ -124,9 +124,9 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
 
     const zIndex = source.block.selected || target.block.selected ? 100 : undefined;
 
-    let className = 'ticl-block-wire';
+    let className = 'ticl-e-block-wire';
     if (target._bindingTargetPath !== source.path) {
-      className = 'ticl-block-wire ticl-wire-dash';
+      className = 'ticl-e-block-wire ticl-e-wire-dash';
     }
 
     if (item._rightSide) {

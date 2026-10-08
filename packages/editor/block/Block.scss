@@ -1,6 +1,6 @@
 @use '../style/variables' as *;
 
-.ticl-block {
+.ticl-e-block {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -15,7 +15,7 @@
   z-index: 5;
 }
 
-.ticl-block-full-view {
+.ticl-e-block-full-view {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -25,20 +25,20 @@
   transition-duration: 0.2s;
   z-index: 0;
 
-  & > .ticl-width-drag {
+  & > .ticl-e-width-drag {
     opacity: 0;
     transition-property: opacity;
     transition-duration: 0.2s;
     top: 0;
   }
 
-  &.ticl-block-selected > .ticl-width-drag,
-  &:hover > .ticl-width-drag {
+  &.ticl-e-block-selected > .ticl-e-width-drag,
+  &:hover > .ticl-e-width-drag {
     opacity: 1;
   }
 }
 
-.ticl-block-full-view-zoom {
+.ticl-e-block-full-view-zoom {
   box-sizing: border-box;
   border: none;
   background: #eee;
@@ -46,16 +46,16 @@
   z-index: 0;
 }
 
-.ticl-block-selected {
+.ticl-e-block-selected {
   z-index: 20;
 }
 
-.ticl-block-moving {
+.ticl-e-block-moving {
   pointer-events: none;
   opacity: 0.8;
 }
 
-.ticl-block-head {
+.ticl-e-block-head {
   position: relative;
   border-top-right-radius: 10px;
   height: 24px;
@@ -72,11 +72,11 @@
   transition-property: background;
   transition-duration: 0.2s;
 
-  & > .ticl-inbound-path {
+  & > .ticl-e-inbound-path {
     color: $text-color;
   }
 
-  & > .ticl-field-subicon {
+  & > .ticl-e-field-subicon {
     width: 18px;
     height: 18px;
     top: 3px;
@@ -86,7 +86,7 @@
     border: solid 1px white;
   }
 
-  & > .ticl-block-head-label {
+  & > .ticl-e-block-head-label {
     width: 100%;
     display: block;
     text-overflow: ellipsis;
@@ -94,7 +94,7 @@
   }
 }
 
-.ticl-block-head-static {
+.ticl-e-block-head-static {
   font-weight: bold;
 
   &::before {
@@ -109,19 +109,19 @@
   }
 }
 
-.ticl-block-body {
+.ticl-e-block-body {
   width: 100%;
 }
 body:not(.dock-dragging) {
-  .ticl-field {
+  .ticl-e-field {
     cursor: alias;
   }
 
-  .ticl-block-head {
+  .ticl-e-block-head {
     cursor: move;
   }
 }
-.ticl-block-view {
+.ticl-e-block-view {
   width: 100%;
   padding: 1px 4px;
   border: 2px dotted #d0d0d0;
@@ -133,13 +133,13 @@ body:not(.dock-dragging) {
   }
 }
 
-.ticl-block-foot {
+.ticl-e-block-foot {
   position: relative;
   height: 22px;
   padding: 2px 12px;
 }
 
-.ticl-width-drag {
+.ticl-e-width-drag {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -149,7 +149,7 @@ body:not(.dock-dragging) {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='22' viewBox='0 0 16 22'%3E%3Cpath fill='%23DDD' d='M0 12 L6 18 L6 6z M 14 12 L8 18 L8 6'/%3E%3C/svg%3E");
 }
 
-.ticl-block-wire {
+.ticl-e-block-wire {
   pointer-events: none;
   position: absolute;
   fill: none;
@@ -157,7 +157,7 @@ body:not(.dock-dragging) {
   stroke-width: 1.5px;
 }
 
-.ticl-drag-wire {
+.ticl-e-drag-wire {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -166,15 +166,15 @@ body:not(.dock-dragging) {
   z-index: 9998;
 }
 
-.ticl-wire-dash {
+.ticl-e-wire-dash {
   stroke-dasharray: 6 3;
 }
 
-.ticl-block-min {
+.ticl-e-block-min {
   width: 24px;
   height: 24px;
 
-  & > .ticl-block-head {
+  & > .ticl-e-block-head {
     border-radius: 0 10px 0;
     padding: 0;
   }
@@ -182,12 +182,12 @@ body:not(.dock-dragging) {
   border: none;
   z-index: 10;
 
-  &.ticl-block-selected {
+  &.ticl-e-block-selected {
     z-index: 30;
   }
 }
 
-.ticl-block-min-bound {
+.ticl-e-block-min-bound {
   left: -5px;
   right: -5px;
   top: 5px;
@@ -198,25 +198,25 @@ body:not(.dock-dragging) {
   background: #f8f8f8;
 }
 
-.ticl-block-synced {
+.ticl-e-block-synced {
   border-top-right-radius: 0;
 
-  .ticl-block-head {
+  .ticl-e-block-head {
     border-top-right-radius: 0;
   }
 }
 
-.ticl-block-sync-parent {
+.ticl-e-block-sync-parent {
   border-bottom-left-radius: 0;
 
-  &.ticl-block-min {
-    & > .ticl-block-head {
+  &.ticl-e-block-min {
+    & > .ticl-e-block-head {
       border-bottom-left-radius: 0;
     }
   }
 }
 
-.ticl-block-select-rect {
+.ticl-e-block-select-rect {
   position: absolute;
   border: solid 1px white;
   background: $blue-3;

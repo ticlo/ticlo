@@ -19,7 +19,7 @@ describe('binding drag wire', function () {
     const y = rect.top + rect.height / 2;
     simulate(source, 'mousedown', fakeMouseEvent(x, y));
     simulate(document.body, 'mousemove', fakeMouseEvent(x + 30, y + 20));
-    return document.querySelector('.ticl-drag-wire') as SVGSVGElement;
+    return document.querySelector('.ticl-e-drag-wire') as SVGSVGElement;
   }
 
   beforeEach(async function () {
@@ -40,8 +40,8 @@ describe('binding drag wire', function () {
       />,
       'editor'
     );
-    await shouldHappen(() => stage?.state.contentWidth > 700 && div.querySelector('.ticl-block-wire'));
-    source = div.querySelector('.ticl-field');
+    await shouldHappen(() => stage?.state.contentWidth > 700 && div.querySelector('.ticl-e-block-wire'));
+    source = div.querySelector('.ticl-e-field');
   });
 
   afterEach(function () {
@@ -53,21 +53,21 @@ describe('binding drag wire', function () {
 
   it.each([0.5, 1, 2])('tracks the source and pointer outside a stage at zoom %s', async function (zoom) {
     flushSync(() => stage.setState({zoom}));
-    const markers = div.querySelectorAll('.ticl-inbound, .ticl-inbound-right, .ticl-outbound').length;
+    const markers = div.querySelectorAll('.ticl-e-inbound, .ticl-e-inbound-right, .ticl-e-outbound').length;
     const wire = startDrag();
     expect(wire).not.toBeNull();
     expect(wire.parentElement).toBe(document.body);
     const preview = document.querySelector('.dragging-layer');
     expect(Number(getComputedStyle(wire).zIndex)).toBeLessThan(Number(getComputedStyle(preview).zIndex));
     expect(getComputedStyle(wire).pointerEvents).toBe('none');
-    expect(div.querySelectorAll('.ticl-inbound, .ticl-inbound-right, .ticl-outbound').length).toBe(markers);
+    expect(div.querySelectorAll('.ticl-e-inbound, .ticl-e-inbound-right, .ticl-e-outbound').length).toBe(markers);
 
     const rect = stage.getRootElement().getBoundingClientRect();
     const pointer = fakeMouseEvent(rect.right + 60, rect.bottom + 20);
     simulate(document.body, 'mousemove', pointer);
     const path = wire.querySelector('path');
     const checkEndpoints = () => {
-      const existing = div.querySelector('.ticl-block-wire path') as SVGPathElement;
+      const existing = div.querySelector('.ticl-e-block-wire path') as SVGPathElement;
       const sourcePoint = existing.getPointAtLength(0).matrixTransform(existing.getScreenCTM());
       const start = path.getPointAtLength(0);
       const end = path.getPointAtLength(path.getTotalLength());
@@ -78,28 +78,28 @@ describe('binding drag wire', function () {
     };
     checkEndpoints();
 
-    const scroll = div.querySelector('.ticl-stage-scroll');
+    const scroll = div.querySelector('.ticl-e-stage-scroll');
     scroll.scrollLeft = 20;
     scroll.scrollTop = 15;
     flushSync(() => scroll.dispatchEvent(new Event('scroll')));
     checkEndpoints();
 
-    const target = querySingle("//div.ticl-field-name/span[text()='b']/../..", div);
+    const target = querySingle("//div.ticl-e-field-name/span[text()='b']/../..", div);
     const to = target.getBoundingClientRect();
     const drop = fakeMouseEvent(to.left + to.width / 2, to.top + to.height / 2);
     simulate(target, 'mousemove', drop);
     simulate(target, 'mouseup', drop);
-    expect(document.querySelector('.ticl-drag-wire')).toBeNull();
+    expect(document.querySelector('.ticl-e-drag-wire')).toBeNull();
     await shouldHappen(() => Root.instance.queryValue('dragWire.source.b') === 7);
   });
 
   it('shows the outbound marker while dragging an unbound property', async function () {
-    source = querySingle("//div.ticl-field-name/span[text()='b']/../..", div);
-    expect(source.querySelector('.ticl-outbound')).toBeNull();
+    source = querySingle("//div.ticl-e-field-name/span[text()='b']/../..", div);
+    expect(source.querySelector('.ticl-e-outbound')).toBeNull();
     expect(startDrag()).not.toBeNull();
-    await shouldHappen(() => source.querySelector('.ticl-outbound'));
+    await shouldHappen(() => source.querySelector('.ticl-e-outbound'));
     simulate(document.body, 'keydown', {key: 'Escape'});
-    await shouldHappen(() => !source.querySelector('.ticl-outbound'));
+    await shouldHappen(() => !source.querySelector('.ticl-e-outbound'));
   });
 
   it.each(['escape', 'unmount'])('removes the wire on %s', function (end) {
@@ -109,7 +109,7 @@ describe('binding drag wire', function () {
     } else {
       removeLastTemplate();
     }
-    expect(document.querySelector('.ticl-drag-wire')).toBeNull();
+    expect(document.querySelector('.ticl-e-drag-wire')).toBeNull();
     expect(document.querySelector('.dragging-layer')).toBeNull();
     expect(Root.instance.queryValue('dragWire.source.b')).toBe(0);
     document.dispatchEvent(new Event('scroll'));

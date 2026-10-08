@@ -187,7 +187,7 @@ describe('Designer input', () => {
     expect(a.getValue('onMouseDown')).toBeUndefined();
     expect(a.getValue('onClick')).toBeUndefined();
 
-    await userEvent.click(div.querySelector<HTMLButtonElement>('.ticl-app > button'));
+    await userEvent.click(div.querySelector<HTMLButtonElement>('.ticl-e-app > button'));
     expect(outsideClick).toHaveBeenCalledOnce();
   });
 

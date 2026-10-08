@@ -517,17 +517,17 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     const dynamicStyle = this.styleListener.value;
     const displayName = this.nameListener.value;
     const marginLeft = item.level * 20;
-    let contentClassName = 'ticl-tree-node-content';
+    let contentClassName = 'ticl-e-tree-node-content';
     if (selected) {
-      contentClassName += ' ticl-tree-node-selected';
+      contentClassName += ' ticl-e-tree-node-selected';
     }
-    if (this.state.dropPosition === 'inside') contentClassName += ' ticl-tree-drop-inside';
+    if (this.state.dropPosition === 'inside') contentClassName += ' ticl-e-tree-drop-inside';
     let icon: React.ReactElement;
 
-    let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-bg--');
+    let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-e-bg--');
 
     if (dynamicStyle) {
-      const [dynamicColor, dynamicIcon] = getFuncStyleFromDesc(dynamicStyle, null, 'ticl-bg--');
+      const [dynamicColor, dynamicIcon] = getFuncStyleFromDesc(dynamicStyle, null, 'ticl-e-bg--');
       if (dynamicColor) {
         colorClass = dynamicColor;
       }
@@ -561,11 +561,11 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
     let nameNode: React.ReactElement;
     if (nameLabel === item.name) {
-      nameNode = <div className="ticl-tree-node-text">{item.name}</div>;
+      nameNode = <div className="ticl-e-tree-node-text">{item.name}</div>;
     } else {
       // display element title to show the real name
       nameNode = (
-        <div className="ticl-tree-node-text ticl-tree-node-display" title={item.name}>
+        <div className="ticl-e-tree-node-text ticl-e-tree-node-display" title={item.name}>
           {nameLabel}
         </div>
       );
@@ -577,12 +577,12 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       // Force the DropDown to show the disable menu by not giving it null value
       disabled = false;
     }
-    let nodeClassName = 'ticl-tree-node';
+    let nodeClassName = 'ticl-e-tree-node';
     if (item.ordered) {
-      nodeClassName += ' ticl-tree-node-ordered';
+      nodeClassName += ' ticl-e-tree-node-ordered';
     }
     if (this.state.dropPosition === 'before' || this.state.dropPosition === 'after') {
-      nodeClassName += ` ticl-tree-drop-${this.state.dropPosition}`;
+      nodeClassName += ` ticl-e-tree-drop-${this.state.dropPosition}`;
     }
     return (
       <div style={{...style, marginLeft}} className={nodeClassName}>

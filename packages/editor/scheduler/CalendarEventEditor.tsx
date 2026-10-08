@@ -29,11 +29,11 @@ function P({
   const propDesc = descs[field];
   const EditorClass = typeEditorMap[propDesc.type];
   return (
-    <div className="ticl-property">
-      <div className="ticl-property-name">
+    <div className="ticl-e-property">
+      <div className="ticl-e-property-name">
         <LocalizedPropertyName desc={funcDesc} name={field} />
       </div>
-      <div className="ticl-property-value">
+      <div className="ticl-e-property-value">
         <EditorClass
           name={propDesc.name}
           value={current?.[field]}
@@ -163,7 +163,7 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
     const {repeat} = current;
     return (
       <DockDialogPane error={error}>
-        <div className="ticl-property-list">
+        <div className="ticl-e-property-list">
           <PropertyEditor
             key={
               // PropertyEditor can handle paths change internally, but not name change.
@@ -181,11 +181,11 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
           {repeat === 'weekly' ? <P field="wDays" current={current} onChange={this.onValueChange} /> : null}
           {repeat === 'dates' ? <DatesSelector dates={current.dates} onValueChange={this.onValueChange} /> : null}
           {repeat === 'advanced' ? <AdvancedSelector onValueChange={this.onValueChange} current={current} /> : null}
-          <div className="ticl-property-divider">
-            <div className="ticl-h-line" style={{maxWidth: '16px'}} />
+          <div className="ticl-e-property-divider">
+            <div className="ticl-e-h-line" style={{maxWidth: '16px'}} />
             <ExpandIcon opened={showOptional ? 'opened' : 'closed'} onClick={this.onshowOptionalClicked} />
             {t('Optional')}
-            <div className="ticl-h-line" />
+            <div className="ticl-e-h-line" />
           </div>
           {showOptional ? (
             <>

@@ -263,7 +263,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
           <SubMenuItem
             key="addSubBlock"
             popup={
-              // <Menu.Item className='ticl-type-submenu'>
+              // <Menu.Item className='ticl-e-type-submenu'>
               <FunctionSelect
                 onClick={stopPropagation}
                 conn={conn}
@@ -280,11 +280,11 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       }
       if (this.can('bind')) {
         menuItems.push(
-          <div key="deleteBinding" className="ticl-hbox">
+          <div key="deleteBinding" className="ticl-e-hbox">
             <span style={{flex: '0 1 100%'}}>{t('Binding')}:</span>
             {bindingPath ? (
               <Button
-                className="ticl-icon-btn"
+                className="ticl-e-icon-btn"
                 shape="circle"
                 size="small"
                 icon={<DeleteOutlined />}
@@ -292,7 +292,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
               />
             ) : null}
           </div>,
-          <div key="bindingInput" className="ticl-hbox">
+          <div key="bindingInput" className="ticl-e-hbox">
             <StringEditor
               value={bindingPath || ''}
               funcDesc={blankFuncDesc}
@@ -383,9 +383,9 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
 
         if (commandMenus.length) {
           menuItems.push(
-            <div key="divider" className="ticl-property-divider">
+            <div key="divider" className="ticl-e-property-divider">
               {t('Execute Command')}
-              <div className="ticl-h-line" />
+              <div className="ticl-e-h-line" />
             </div>
           );
           menuItems.push(...commandMenus);

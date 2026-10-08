@@ -1,14 +1,14 @@
-.ticl-v-scroll {
+.ticl-e-v-scroll {
   overflow: auto;
 }
 
-.ticl-v-scroll-content {
+.ticl-e-v-scroll-content {
   display: inline-block;
   overflow: hidden;
   min-width: 100%;
 }
 
-.ticl-v-scroll-content > * {
+.ticl-e-v-scroll-content > * {
   display: flex;
   align-items: center;
   overflow: hidden;

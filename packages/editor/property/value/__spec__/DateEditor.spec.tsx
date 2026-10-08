@@ -29,8 +29,8 @@ describe('DateEditor', function () {
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-date-editor > div'));
-    const editorDiv = div.querySelector('.ticl-date-editor > div');
+    await shouldHappen(() => div.querySelector('.ticl-e-date-editor > div'));
+    const editorDiv = div.querySelector('.ticl-e-date-editor > div');
     await waitTick();
     const inputDiv = editorDiv.querySelector('input');
 

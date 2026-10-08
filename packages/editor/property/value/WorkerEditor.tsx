@@ -78,8 +78,8 @@ export class WorkerEditor extends FunctionEditor {
     }
 
     return (
-      <DragDropDiv className="ticl-worker-editor ticl-hbox" onDragOverT={this.onDragOver} onDropT={this.onDrop}>
-        <div className="ticl-object-editor" style={{flexGrow: 1}}>
+      <DragDropDiv className="ticl-e-worker-editor ticl-e-hbox" onDragOverT={this.onDragOver} onDropT={this.onDrop}>
+        <div className="ticl-e-object-editor" style={{flexGrow: 1}}>
           {label}
         </div>
         <Popup
@@ -97,7 +97,7 @@ export class WorkerEditor extends FunctionEditor {
           }
         >
           <Button
-            className="ticl-square-icon-btn"
+            className="ticl-e-square-icon-btn"
             size="small"
             disabled={onChange == null}
             icon={<DownOutlined />}
@@ -107,7 +107,7 @@ export class WorkerEditor extends FunctionEditor {
         <EditPolicyContext.Consumer>
           {(policy) => (
             <Button
-              className="ticl-square-icon-btn"
+              className="ticl-e-square-icon-btn"
               disabled={!this.canEditWorker(policy)}
               size="small"
               icon={<EditOutlined />}

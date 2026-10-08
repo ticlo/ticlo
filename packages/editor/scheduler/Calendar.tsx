@@ -152,9 +152,9 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     const {selectedIdx} = this.state;
 
     return dummyEvents.map((event) => (
-      <div className="ticl-schedule-row" key={event.id}>
+      <div className="ticl-e-schedule-row" key={event.id}>
         <Button
-          className="ticl-icon-btn"
+          className="ticl-e-icon-btn"
           shape="circle"
           icon={event.parent.visible ? <EyeFilled /> : <EyeInvisibleOutlined />}
           onClick={() => event.parent.toggleVisible()}
@@ -192,7 +192,7 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     const selectedEvent = selectedId ? events?.find((e) => e.id === selectedId) : null;
 
     return (
-      <div className="ticl-calendar-box">
+      <div className="ticl-e-calendar-box">
         <CalendarT
           allDayMaxRows={2}
           ref={this.getCalendarRef}
@@ -215,15 +215,15 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
           onView={this.onView}
         />
 
-        <div className="ticl-schedule-side">
-          <div className="ticl-schedule-head">
+        <div className="ticl-e-schedule-side">
+          <div className="ticl-e-schedule-head">
             <Select
               options={scheduleOptions}
               value={selectedSchedule}
               onChange={(value) => this.setState({selectedSchedule: value})}
             />
           </div>
-          <div className="ticl-schedule-list">{this.getEventList(dummyEvents)}</div>
+          <div className="ticl-e-schedule-list">{this.getEventList(dummyEvents)}</div>
           <CalendarEventEditor
             conn={conn}
             path={schedulePath}
