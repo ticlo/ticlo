@@ -32,7 +32,14 @@ export interface TicloCurrentFlow<Stage extends TicloStage = TicloStage> {
 export interface TicloLayoutContext<Stage extends TicloStage = TicloStage> extends Partial<TicloCurrentFlow<Stage>> {
   editFlow?(path: string, onSave: () => void): void;
 
-  editProperty?(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void;
+  editProperty?(
+    paths: string[],
+    propDesc: PropDesc,
+    defaultValue?: any,
+    mime?: string,
+    readonly?: boolean,
+    isOptional?: boolean
+  ): void;
   editSchedule?(path: string, scheduleName?: string, index?: number): void;
 
   showObjectTree?(path: string, value: any, element: HTMLElement, source: any): void;

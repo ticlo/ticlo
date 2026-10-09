@@ -87,14 +87,28 @@ describe('TableEditor', () => {
   it('expands raw JSON/YAML using the property paths and read-only state', async () => {
     const value = [{label: 'Raw'}];
     const editProperty = vi.fn();
-    const update = mount({keys: ['first', 'second'], value, onChange: vi.fn()}, {editProperty});
+    const update = mount({keys: ['first', 'second'], value, onChange: vi.fn(), isOptional: true}, {editProperty});
     await shouldHappen(() => document.querySelector('.ticl-e-expand-button'));
     await userEvent.click(document.querySelector('.ticl-e-expand-button'));
-    expect(editProperty).toHaveBeenLastCalledWith(['first.items', 'second.items'], objectDesc, value, 'object', false);
+    expect(editProperty).toHaveBeenLastCalledWith(
+      ['first.items', 'second.items'],
+      objectDesc,
+      value,
+      'object',
+      false,
+      true
+    );
     expect(document.querySelector('.ticl-e-table-editor')).toBeNull();
     update({locked: true});
     await userEvent.click(document.querySelector('.ticl-e-expand-button'));
-    expect(editProperty).toHaveBeenLastCalledWith(['first.items', 'second.items'], objectDesc, value, 'object', true);
+    expect(editProperty).toHaveBeenLastCalledWith(
+      ['first.items', 'second.items'],
+      objectDesc,
+      value,
+      'object',
+      true,
+      true
+    );
   });
 
   it('selects local workers in the table draft and discards them on cancel', async () => {

@@ -36,6 +36,10 @@ can be edited. For local function descriptors, editor components also need the
 owning function-library flow path; see the
 [connection architecture](../.agents/skills/ticlo/core-package.md#connection-layer).
 
+Assigning an optional property through an inline or expanded editor also adds
+it to `#optional`, so its checkbox becomes checked. This applies to every
+selected Block and preserves the existing optional property order.
+
 ## Table editor
 
 Use `type: 'table'` with an explicit `rowType` and `columns`. A column's `type`

@@ -16,7 +16,8 @@ export class ScheduleEditor extends React.PureComponent<ValueEditorProps, any> {
       desc,
       value,
       'object',
-      desc.readonly
+      desc.readonly,
+      this.props.isOptional
     );
   };
   onClick = () => {

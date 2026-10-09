@@ -28,7 +28,7 @@ export function createLayoutActions(
   getConn: () => ClientConn
 ): Pick<TicloLayoutContext, 'editProperty' | 'editSchedule'> {
   return {
-    editProperty: (paths, propDesc, defaultValue, mime, readonly) => {
+    editProperty: (paths, propDesc, defaultValue, mime, readonly, isOptional) => {
       if (!mime) {
         if (propDesc.mime) {
           mime = propDesc.mime;
@@ -36,7 +36,7 @@ export function createLayoutActions(
           mime = 'application/json';
         }
       }
-      TextEditorPane.openFloatPanel(getLayout(), getConn(), paths, defaultValue, mime, readonly);
+      TextEditorPane.openFloatPanel(getLayout(), getConn(), paths, defaultValue, mime, readonly, isOptional);
     },
     editSchedule: (path, scheduleName, index) => {
       SchedulePane.openFloatPanel(getLayout(), getConn(), path, scheduleName, index);

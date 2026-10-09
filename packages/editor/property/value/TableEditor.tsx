@@ -80,7 +80,7 @@ export class TableEditor extends React.PureComponent<ValueEditorProps, State> {
 
   popup = () => {
     const {desc, value} = this.props;
-    this.context.editProperty(this.paths(), desc, value, 'object', !this.editable());
+    this.context.editProperty(this.paths(), desc, value, 'object', !this.editable(), this.props.isOptional);
   };
 
   private schemaError() {

@@ -1,4 +1,5 @@
 import {expect} from 'vitest';
+import {userEvent} from 'vitest/browser';
 import {simulate} from 'simulate-event';
 import React from 'react';
 import '../../index.ts';
@@ -14,6 +15,8 @@ import type {PropGroupDesc} from '@ticlo/core';
 import {FunctionDesc, PropDesc} from '@ticlo/core';
 import {globalFunctions} from '@ticlo/core/block/FunctionLib.ts';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
+import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.ts';
+import {TextEditorPane} from '../../dock/text-editor/TextEditorPane.tsx';
 
 describe('PropertyEditor', function () {
   const [funcDesc] = globalFunctions.getDescToSend('add');
@@ -106,6 +109,115 @@ describe('PropertyEditor', function () {
     await shouldHappen(() => input.classList.contains('ticl-e-number-input-disabled'));
 
     Root.instance.deleteValue('PropertyEditor1');
+  });
+
+  it('checks optional properties when assigning values across selected blocks, including a default value', async () => {
+    const id = 'property-optional-assignment';
+    globalFunctions.addFactory(null, {
+      name: id,
+      optional: {
+        kept: {name: 'kept', type: 'number'},
+        amount: {name: 'amount', type: 'number', default: 0},
+      },
+    });
+    const path = 'PropertyOptionalAssignment';
+    const flow = Root.instance.addFlow(path, {
+      a: {'#is': id, '#optional': ['kept']},
+      b: {'#is': id, '#optional': ['kept', 'amount']},
+    });
+    const [, conn] = makeLocalConnection(Root.instance);
+    const [, div] = loadTemplate(<PropertyList conn={conn} paths={[`${path}.a`, `${path}.b`]} />, 'editor');
+    const row = () =>
+      Array.from(div.querySelectorAll('.ticl-e-property-optional')).find(
+        (element) => element.querySelector('.ticl-e-property-name')?.textContent === 'amount'
+      );
+    const checkbox = () => row()?.querySelector<HTMLInputElement>('input[type="checkbox"]');
+    const input = () => row()?.querySelector<HTMLInputElement>('.ticl-e-number-input input');
+    try {
+      const searchButton = await shouldHappen(() => div.querySelector('.ticl-e-property-optional-list button'));
+      await userEvent.click(searchButton);
+      await userEvent.fill(
+        div.querySelector('.ticl-e-property-optional-list > .ticl-e-property-divider input'),
+        'amount'
+      );
+      await shouldHappen(() => input());
+      expect(checkbox().checked).toBe(false);
+      await userEvent.fill(input(), '25');
+      await userEvent.keyboard('{Enter}');
+      await shouldHappen(() => checkbox()?.checked);
+      for (const name of ['a', 'b']) {
+        const block = flow.getValue(name) as Block;
+        expect(block.getValue('amount')).toBe(25);
+        expect(block.getValue('#optional')).toEqual(['kept', 'amount']);
+      }
+      checkbox().click();
+      await shouldHappen(() => checkbox() && !checkbox().checked);
+      await userEvent.fill(input(), '0');
+      await userEvent.keyboard('{Enter}');
+      await shouldHappen(() => checkbox()?.checked);
+      for (const name of ['a', 'b']) {
+        const block = flow.getValue(name) as Block;
+        expect(block.getValue('amount')).toBeUndefined();
+        expect(block.getValue('#optional')).toEqual(['kept', 'amount']);
+      }
+    } finally {
+      Root.instance.deleteValue(path);
+      globalFunctions.delete(id);
+    }
+  });
+
+  it('checks an optional property when applying its expanded dynamic editor', async () => {
+    const id = 'property-optional-expanded';
+    globalFunctions.addFactory(null, {
+      name: id,
+      optional: {text: {name: 'text', type: 'any', types: ['string']}},
+    });
+    const path = 'PropertyOptionalExpanded';
+    const flow = Root.instance.addFlow(path, {block: {'#is': id}});
+    const [, conn] = makeLocalConnection(Root.instance);
+    let pane: TextEditorPane;
+    function Template() {
+      const [props, setProps] = React.useState<React.ComponentProps<typeof TextEditorPane>>(null);
+      const context: TicloLayoutContext = {
+        editProperty: (paths, desc, defaultValue, mime, readonly, isOptional) =>
+          setProps({conn, paths, defaultValue, mime: mime || 'text/plain', asObject: false, readonly, isOptional}),
+      };
+      return (
+        <TicloLayoutContextType.Provider value={context}>
+          <PropertyList conn={conn} paths={[`${path}.block`]} />
+          {props && (
+            <TextEditorPane
+              {...props}
+              ref={(value) => {
+                pane = value;
+              }}
+            />
+          )}
+        </TicloLayoutContextType.Provider>
+      );
+    }
+    const [, div] = loadTemplate(<Template />, 'editor');
+    const checkbox = () => div.querySelector<HTMLInputElement>('.ticl-e-property-optional input[type="checkbox"]');
+    try {
+      const searchButton = await shouldHappen(() => div.querySelector('.ticl-e-property-optional-list button'));
+      await userEvent.click(searchButton);
+      await userEvent.fill(
+        div.querySelector('.ticl-e-property-optional-list > .ticl-e-property-divider input'),
+        'text'
+      );
+      const expand = await shouldHappen(() => div.querySelector<HTMLElement>('.ticl-e-expand-button'));
+      expect(checkbox().checked).toBe(false);
+      expand.click();
+      await shouldHappen(() => pane);
+      pane.onChange('expanded text');
+      expect(pane.onApply()).toBe(true);
+      await shouldHappen(() => checkbox()?.checked);
+      expect(flow.queryValue('block.text')).toBe('expanded text');
+      expect(flow.queryValue('block.#optional')).toEqual(['text']);
+    } finally {
+      Root.instance.deleteValue(path);
+      globalFunctions.delete(id);
+    }
   });
 
   it('subblock', async function () {
