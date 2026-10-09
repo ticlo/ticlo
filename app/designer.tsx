@@ -20,6 +20,7 @@ import {
 } from '@ticlo/editor/component/LayoutContext.ts';
 import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.tsx';
+import {BlockStageTabButton} from '@ticlo/editor/dock/block/BlockStageTabButton.tsx';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
 import {theme} from '@ticlo/editor/style/theme.ts';
 import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
@@ -236,7 +237,7 @@ class App extends React.PureComponent<Props, State> {
     language: this.lng,
     editFlow: (path: string, onSave: () => void) => {
       if (!this.layout.updateTab(`designer:${path}`, null, true)) {
-        this.layout.dockMove(this.createDesignerTab(path), 'main', 'middle');
+        this.layout.dockMove(this.createDesignerTab(path, onSave), 'main', 'middle');
       }
     },
 
@@ -256,16 +257,23 @@ class App extends React.PureComponent<Props, State> {
     }
   };
 
-  createDesignerTab(path: string): TabData {
+  createDesignerTab(path: string, onSave?: () => void): TabData {
+    const id = `designer:${path}`;
+    const save =
+      onSave ??
+      (() => {
+        const flow = this.props.root.queryValue(path);
+        if (flow instanceof Flow) flow.applyChange();
+      });
     return {
-      id: `designer:${path}`,
+      id,
       title: (
-        <TicloCurrentFlowConsumer>
-          {({onFlowFocus}) => <span onClick={() => onFlowFocus(path)}>{path}</span>}
-        </TicloCurrentFlowConsumer>
+        <PlaygroundConnection>
+          <BlockStageTabButton conn={this.conn} id={id} path={path} title={path} onSave={save} />
+        </PlaygroundConnection>
       ),
       group: 'designerStage',
-      closable: true,
+      closable: false,
       content: (
         <PlaygroundConnection>
           <DesignerStage root={this.props.root} conn={this.conn} basePath={path} />

@@ -4,6 +4,13 @@ Designer stages operate on local Blocks directly. Outline selection may span
 parents; stage additions and group movement keep selections under one Block
 parent. Component selection snapshots stay out of the React component context.
 
+In design mode, page input is forwarded to the stage as events of the same type,
+with pointer coordinates, keyboard modifiers, and drag/touch data preserved.
+Stage and ancestor listeners receive these events, while page components' native
+and React input handlers do not run. Forwarded events target the stage and
+are synthetic (`isTrusted: false`). Native wheel scrolling remains enabled unless
+a stage or ancestor listener prevents its default. Preview restores page input.
+
 `addSelection` retains siblings of the last valid added component. Adding an
 already selected component still prunes other parents, and returns false unless
 a new component was selected.

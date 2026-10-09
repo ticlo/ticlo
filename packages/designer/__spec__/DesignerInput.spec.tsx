@@ -35,9 +35,15 @@ describe('Designer input', () => {
     const nativeHandler = vi.fn();
     const switchChange = vi.fn();
     const outsideClick = vi.fn();
+    const parentCapture = vi.fn();
+    const parentBubble = vi.fn();
     const eventTypes = [
       'pointerdown',
+      'pointermove',
+      'pointerup',
       'mousedown',
+      'mousemove',
+      'mouseup',
       'mouseover',
       'click',
       'keydown',
@@ -64,7 +70,11 @@ describe('Designer input', () => {
         <div
           ref={ref}
           onPointerDownCapture={reactHandler}
+          onPointerMoveCapture={reactHandler}
+          onPointerUpCapture={reactHandler}
           onMouseDownCapture={reactHandler}
+          onMouseMoveCapture={reactHandler}
+          onMouseUpCapture={reactHandler}
           onMouseOverCapture={reactHandler}
           onClickCapture={reactHandler}
           onClick={reactHandler}
@@ -97,7 +107,15 @@ describe('Designer input', () => {
     const [, div] = loadTemplate(
       <StrictMode>
         <DesignerApp value={{}}>
-          <div style={{width: 600, height: 400}}>
+          <div
+            style={{width: 600, height: 400}}
+            onMouseMoveCapture={parentCapture}
+            onMouseMove={parentBubble}
+            onPointerMoveCapture={parentCapture}
+            onPointerMove={parentBubble}
+            onDragOverCapture={parentCapture}
+            onDragOver={parentBubble}
+          >
             <DesignerStage root={Root.instance} conn={conn} basePath={path} />
           </div>
           <button onClick={outsideClick}>Outside panel</button>
@@ -124,6 +142,8 @@ describe('Designer input', () => {
       nativeHandler,
       switchChange,
       outsideClick,
+      parentCapture,
+      parentBubble,
       getStage: () => stage,
     };
   }
@@ -231,5 +251,101 @@ describe('Designer input', () => {
     const event = new MouseEvent('mousedown', {bubbles: true, cancelable: true});
     host.dispatchEvent(event);
     expect(event.defaultPrevented).toBe(false);
+  });
+
+  it('keeps outside drag listeners on the stage, ancestors, and document working without delivering input to page components', async () => {
+    const {div, host, label, reactHandler, nativeHandler, parentCapture, parentBubble, getStage} = await createPage();
+    const listeners: [EventTarget, string, EventListener, boolean][] = [];
+    let moving = false;
+    const events: Event[] = [];
+    const move = vi.fn((event: Event) => {
+      if (moving) events.push(event);
+    });
+    const down = () => {
+      moving = true;
+    };
+    const up = () => {
+      moving = false;
+    };
+    const listen = (target: EventTarget, type: string, listener: EventListener, capture = false) => {
+      target.addEventListener(type, listener, capture);
+      listeners.push([target, type, listener, capture]);
+    };
+    try {
+      const outside = div.querySelector<HTMLButtonElement>('.ticl-e-app > button');
+      listen(outside, 'mousedown', down);
+      listen(document, 'mouseup', up);
+      for (const target of [host, host.parentElement, document]) {
+        listen(target, 'mousemove', move, true);
+        listen(target, 'mousemove', move);
+      }
+      outside.dispatchEvent(new MouseEvent('mousedown', {bubbles: true, button: 0, buttons: 1}));
+      const mouse = new MouseEvent('mousemove', {
+        bubbles: true,
+        cancelable: true,
+        buttons: 1,
+        clientX: 123,
+        clientY: 45,
+        ctrlKey: true,
+      });
+      label.dispatchEvent(mouse);
+      expect(move).toHaveBeenCalledTimes(6);
+      const stageEvents = events.filter((event) => event.target === host) as MouseEvent[];
+      expect(stageEvents).toHaveLength(6);
+      expect(stageEvents.every((event) => !event.defaultPrevented)).toBe(true);
+      expect(stageEvents[0]).toMatchObject({clientX: 123, clientY: 45, buttons: 1, ctrlKey: true});
+      expect(parentCapture).toHaveBeenCalledOnce();
+      expect(parentBubble).toHaveBeenCalledOnce();
+      label.dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
+      expect(moving).toBe(false);
+      expect(getStage().selection.blocks).toEqual([]);
+      expect(reactHandler).not.toHaveBeenCalled();
+      expect(nativeHandler).not.toHaveBeenCalled();
+    } finally {
+      for (const [target, type, listener, capture] of listeners) target.removeEventListener(type, listener, capture);
+    }
+  });
+
+  it('forwards pointer, native drag, touch, and wheel data to the stage and honors ancestor wheel cancellation', async () => {
+    const {host, label, input, reactHandler, nativeHandler, parentCapture, parentBubble} = await createPage();
+    const events: Event[] = [];
+    const listen = (event: Event) => {
+      events.push(event);
+      if (event.type === 'wheel') event.preventDefault();
+    };
+    const types = ['pointermove', 'dragover', 'touchmove', 'wheel'];
+    for (const type of types) host.addEventListener(type, listen);
+    try {
+      const pointer = new PointerEvent('pointermove', {
+        bubbles: true,
+        pointerId: 7,
+        pointerType: 'pen',
+        isPrimary: true,
+        pressure: 0.5,
+        clientX: 120,
+        clientY: 30,
+      });
+      label.dispatchEvent(pointer);
+      const dataTransfer = new DataTransfer();
+      dataTransfer.setData('text/plain', 'outside drag');
+      input.dispatchEvent(new DragEvent('dragover', {bubbles: true, cancelable: true, dataTransfer, clientX: 80}));
+      const touch = new Touch({identifier: 9, target: input, clientX: 40, clientY: 50});
+      input.dispatchEvent(new TouchEvent('touchmove', {bubbles: true, touches: [touch], changedTouches: [touch]}));
+      const wheel = new WheelEvent('wheel', {bubbles: true, cancelable: true, deltaY: 12, deltaMode: 1});
+      input.dispatchEvent(wheel);
+      expect(events).toHaveLength(4);
+      expect(events.every((event) => event.target === host)).toBe(true);
+      expect(events[0]).toMatchObject({pointerId: 7, pointerType: 'pen', isPrimary: true, pressure: 0.5, clientX: 120});
+      expect((events[1] as DragEvent).dataTransfer).toBe(dataTransfer);
+      expect((events[2] as TouchEvent).touches[0]).toBe(touch);
+      expect(events[3]).toMatchObject({deltaY: 12, deltaMode: 1});
+      expect(wheel.defaultPrevented).toBe(true);
+      expect(parentCapture).toHaveBeenCalledTimes(2);
+      expect(parentBubble).toHaveBeenCalledTimes(2);
+      expect(reactHandler).not.toHaveBeenCalled();
+      expect(nativeHandler).not.toHaveBeenCalled();
+    } finally {
+      for (const type of types) host.removeEventListener(type, listen);
+    }
   });
 });

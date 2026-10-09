@@ -83,7 +83,7 @@ const inputEvents = [
   'drop',
 ];
 
-/** Capture before React's root listeners; only input inside this stage is intercepted. */
+/** Retarget page input to the stage before React dispatches component handlers. */
 export function useStageInput(
   stageRef: RefObject<HTMLDivElement | null>,
   {designMode, elementMap, select, addSelection}: ComponentContextValue<Block | string>,
@@ -103,6 +103,7 @@ export function useStageInput(
     const view = document.defaultView;
     let gesture: Gesture | null = null;
     let frame: number | null = null;
+    const forwardedEvents = new WeakMap<Event, Event>();
     const focusStage = () => stage.focus({preventScroll: true});
     const findHit = (target: EventTarget | null): Hit | null => {
       if (!(target instanceof Element) || !stage.contains(target)) return null;
@@ -229,14 +230,30 @@ export function useStageInput(
       setMarquee(null);
     };
     const handleInput = (event: Event) => {
-      const target = event.target;
+      const source = forwardedEvents.get(event) ?? event;
+      const target = source.target;
+      if (
+        source === event &&
+        target instanceof Element &&
+        target !== stage &&
+        stage.contains(target) &&
+        !target.closest('.ticl-d-selection-layer')
+      ) {
+        event.stopImmediatePropagation();
+        const forwarded = new (event.constructor as typeof Event)(event.type, event);
+        if (event.defaultPrevented) forwarded.preventDefault();
+        forwardedEvents.set(forwarded, event);
+        stage.dispatchEvent(forwarded);
+        // Preserve native scrolling, while preventing page focus and other default input.
+        if (event.type !== 'wheel' || forwarded.defaultPrevented) event.preventDefault();
+        return;
+      }
       if (gesture) {
         if (
           (event.type === 'keydown' && (event as KeyboardEvent).key === 'Escape') ||
           ((event.type === 'pointercancel' || event.type === 'lostpointercapture') &&
             (event as PointerEvent).pointerId === gesture.pointerId)
         ) {
-          event.stopImmediatePropagation();
           event.preventDefault();
           cancel();
           return;
@@ -247,7 +264,6 @@ export function useStageInput(
           (!pointer || mouse.pointerId === gesture.pointerId) &&
           (event.type === (pointer ? 'pointermove' : 'mousemove') || event.type === (pointer ? 'pointerup' : 'mouseup'))
         ) {
-          event.stopImmediatePropagation();
           event.preventDefault();
           if (event.type.endsWith('up')) finish(mouse);
           else {
@@ -285,10 +301,6 @@ export function useStageInput(
         return;
       }
 
-      event.stopImmediatePropagation();
-      // Preserve native canvas scrolling, as DGLux does; component wheel handlers stay blocked.
-      if (event.type !== 'wheel') event.preventDefault();
-
       if (event.type === 'pointerdown' || event.type === 'mousedown') {
         if (gesture) return;
         activate();
@@ -325,7 +337,7 @@ export function useStageInput(
           clientX: mouse.clientX,
           clientY: mouse.clientY,
         };
-        if (event instanceof PointerEvent && event.isTrusted) stage.setPointerCapture(event.pointerId);
+        if (source instanceof PointerEvent && source.isTrusted) stage.setPointerCapture(source.pointerId);
       } else if (event.type === 'focus' || event.type === 'focusin') {
         activate();
         if (target !== stage) focusStage();
