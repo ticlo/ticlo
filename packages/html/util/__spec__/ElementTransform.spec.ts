@@ -118,4 +118,57 @@ describe('getChildrenScreenCTM', () => {
     expect(() => getChildrenScreenCTM(parent)).toThrow(error);
     expect([...parent.childNodes]).toEqual([child]);
   });
+
+  it('keeps all unique parents probed throughout batch measurement', () => {
+    host.style.zoom = '1.5';
+    parent.style.transform = 'scale(2, 3)';
+    const before = [host, parent].map((element) => [...element.childNodes]);
+    const expected = [host, parent].map((element) => getChildrenScreenCTM(element).toString());
+    const getScreenCTM = SVGSVGElement.prototype.getScreenCTM;
+    const read = vi.spyOn(SVGSVGElement.prototype, 'getScreenCTM').mockImplementation(function () {
+      expect(host.querySelectorAll(':scope > svg')).toHaveLength(1);
+      expect(parent.querySelectorAll(':scope > svg')).toHaveLength(1);
+      return getScreenCTM.call(this);
+    });
+    const matrices = getChildrenScreenCTM([host, parent, host] as const);
+    expect([...matrices.keys()]).toEqual([host, parent]);
+    expect(read).toHaveBeenCalledTimes(2);
+    expect([host, parent].map((element) => matrices.get(element).toString())).toEqual(expected);
+    expect([host, parent].map((element) => [...element.childNodes])).toEqual(before);
+  });
+
+  it('keeps unavailable parents in the batch and supports empty input', () => {
+    const detached = document.createElement('div');
+    vi.spyOn(SVGSVGElement.prototype, 'getScreenCTM').mockReturnValue(null);
+    expect(getChildrenScreenCTM([parent, detached])).toEqual(
+      new Map([
+        [parent, null],
+        [detached, null],
+      ])
+    );
+    expect(getChildrenScreenCTM([])).toEqual(new Map());
+    expect([...parent.childNodes]).toEqual([child]);
+  });
+
+  it('removes every probe when a later batch measurement throws', () => {
+    const before = [host, parent].map((element) => [...element.childNodes]);
+    const error = new Error('Matrix unavailable');
+    vi.spyOn(SVGSVGElement.prototype, 'getScreenCTM')
+      .mockReturnValueOnce(new DOMMatrix())
+      .mockImplementationOnce(() => {
+        throw error;
+      });
+    expect(() => getChildrenScreenCTM([host, parent])).toThrow(error);
+    expect([host, parent].map((element) => [...element.childNodes])).toEqual(before);
+  });
+
+  it('removes earlier probes when inserting a later probe throws', () => {
+    const before = [host, parent].map((element) => [...element.childNodes]);
+    const error = new Error('Insertion failed');
+    vi.spyOn(parent, 'appendChild').mockImplementation(() => {
+      throw error;
+    });
+    expect(() => getChildrenScreenCTM([host, parent])).toThrow(error);
+    expect([host, parent].map((element) => [...element.childNodes])).toEqual(before);
+  });
 });
