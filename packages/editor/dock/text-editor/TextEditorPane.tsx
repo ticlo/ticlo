@@ -15,7 +15,6 @@ import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane.t
 import {t} from '../../component/LocalizedLabel.tsx';
 import {arrowReviver} from '@ticlo/core/util/Serialize.ts';
 import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
-import {splitPathName} from '@ticlo/core/util/Path.ts';
 
 interface Props {
   conn: ClientConn;
@@ -24,7 +23,6 @@ interface Props {
   paths: string[];
   defaultValue: any;
   readonly?: boolean;
-  isOptional?: boolean;
 }
 
 interface State {
@@ -42,8 +40,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     paths: string[],
     defaultValue: any,
     mime: string,
-    readonly?: boolean,
-    isOptional?: boolean
+    readonly?: boolean
   ) {
     if (!paths?.length) {
       // invalid paths
@@ -74,7 +71,6 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
         paths={paths}
         defaultValue={defaultValue}
         readonly={readonly}
-        isOptional={isOptional}
       />,
       id,
       {preferredWidth: 400, preferredHeight: 500}
@@ -218,10 +214,6 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     }
     for (const path of paths) {
       conn.setValue(path, value);
-      if (this.props.isOptional) {
-        const [parent, name] = splitPathName(path);
-        if (this.context.can({cmd: 'addOptionalProp', path: parent, name})) conn.addOptionalProp(parent, name);
-      }
     }
     return true;
   };

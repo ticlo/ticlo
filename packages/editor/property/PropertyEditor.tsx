@@ -95,7 +95,6 @@ export interface PropertyEditorProps {
   propDesc: PropDesc;
   isCustom?: boolean;
   isTemp?: boolean;
-  isOptional?: boolean;
   group?: string;
   baseName?: string; // the name used in propDesc.name
   reorder?: PropertyReorder;
@@ -182,7 +181,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
   };
 
   onChange = (value: any) => {
-    const {conn, paths, name, propDesc, isOptional} = this.props;
+    const {conn, paths, name, propDesc} = this.props;
     if (!this.canWrite(value, true)) return;
     if (value === propDesc.default) {
       switch (typeof value) {
@@ -204,7 +203,6 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     }
     for (const path of paths) {
       conn.setValue(`${path}.${name}`, value);
-      if (isOptional && this.context.can({cmd: 'addOptionalProp', path, name})) conn.addOptionalProp(path, name);
     }
   };
 
@@ -507,7 +505,6 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           onChange={onChange}
           addSubBlock={this.onAddSubBlock}
           funcLib={funcLib}
-          isOptional={this.props.isOptional}
         />
       );
     }

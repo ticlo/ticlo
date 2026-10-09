@@ -150,7 +150,6 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
           locked={locked}
           onChange={this.onValueChange}
           addSubBlock={addSubBlock}
-          isOptional={this.props.isOptional}
         />
       );
     }

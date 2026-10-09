@@ -17,8 +17,7 @@ export class StringEditor extends StringEditorBase {
       desc,
       value,
       null,
-      desc.readonly,
-      this.props.isOptional
+      desc.readonly
     );
   };
 

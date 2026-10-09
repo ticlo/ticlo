@@ -30,7 +30,7 @@ export class OptionalPropertyEditor extends React.PureComponent<Props, any> {
             )
           }
         />
-        <PropertyEditor {...others} isOptional={true} reorder={OptionalPropertyReorder} />
+        <PropertyEditor {...others} reorder={OptionalPropertyReorder} />
       </div>
     );
   }

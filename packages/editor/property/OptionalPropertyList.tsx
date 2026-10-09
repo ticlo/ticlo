@@ -88,6 +88,21 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
     this.setState({search: e.target.value});
   };
 
+  getSearchMatches(search: string): string[] {
+    const lsearch = search.toLowerCase();
+    const loaders = [...this.loaders.values()];
+    return Object.keys(this.getProperties() || {})
+      .filter(
+        (name) =>
+          name.toLowerCase().includes(lsearch) && !loaders.every((loader) => loader.optionalProps?.includes(name))
+      )
+      .sort(
+        (a, b) =>
+          Number(b.toLowerCase().startsWith(lsearch)) - Number(a.toLowerCase().startsWith(lsearch)) ||
+          a.localeCompare(b)
+      );
+  }
+
   onPropertyChecked = (name: string, checked: boolean) => {
     const {conn, paths} = this.props;
     if (!paths.every((path) => this.context.can({cmd: checked ? 'addOptionalProp' : 'removeOptionalProp', path, name})))
@@ -108,8 +123,14 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
       this.clearSearch();
     } else if (e.key === 'Enter') {
       const {search} = this.state;
-      if (this.getProperties()?.[search]) {
-        this.onPropertyChecked(search, true);
+      if (!search) return;
+      let name = Object.keys(this.getProperties() || {}).find((name) => name.toLowerCase() === search.toLowerCase());
+      if (!name) {
+        const matches = this.getSearchMatches(search);
+        if (matches.length === 1) name = matches[0];
+      }
+      if (name) {
+        this.onPropertyChecked(name, true);
         this.setState({search: ''});
       }
     }
@@ -123,7 +144,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
       return <div />;
     }
 
-    let children: React.ReactElement[] = [];
+    const children: React.ReactElement[] = [];
 
     let optionalProps: string[];
     for (const [path, loader] of this.loaders) {
@@ -156,46 +177,25 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
     }
     let showMore: React.ReactNode;
     if (search) {
-      const lsearch = search.toLowerCase();
-      const matchFirst: React.ReactElement[] = [];
-      const matchMiddle: React.ReactElement[] = [];
-      for (const name in properties) {
-        if (optionalProps.includes(name)) {
-          continue;
-        }
-        const lowerKey = name.toLowerCase();
-        if (lowerKey.includes(lsearch)) {
-          const optionalPropDesc = properties[name];
-          const editor = (
-            <OptionalPropertyEditor
-              key={name}
-              name={name}
-              paths={paths}
-              conn={conn}
-              funcDesc={funcDesc}
-              propDesc={optionalPropDesc}
-              checked={false}
-              onCheck={this.onPropertyChecked}
-              funcLib={funcLib}
-            />
-          );
-          if (lowerKey.startsWith(lsearch)) {
-            if (lsearch === lowerKey) {
-              matchFirst.unshift(editor);
-            } else {
-              matchFirst.push(editor);
-            }
-          } else {
-            matchMiddle.push(editor);
-          }
-        }
+      const matches = this.getSearchMatches(search);
+      for (const name of matches.slice(0, 10)) {
+        children.push(
+          <OptionalPropertyEditor
+            key={name}
+            name={name}
+            paths={paths}
+            conn={conn}
+            funcDesc={funcDesc}
+            propDesc={properties[name]}
+            checked={false}
+            onCheck={this.onPropertyChecked}
+            funcLib={funcLib}
+          />
+        );
       }
-      matchFirst.push(...matchMiddle);
-      if (matchFirst.length > 10) {
-        matchFirst.length = 10;
+      if (matches.length > 10) {
         showMore = <div style={{marginLeft: 32}}>. . . more . . .</div>;
       }
-      children = children.concat(matchFirst);
     }
 
     return (

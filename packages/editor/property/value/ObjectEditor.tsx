@@ -22,8 +22,7 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
       desc,
       value,
       'object',
-      desc.readonly,
-      this.props.isOptional
+      desc.readonly
     );
   };
 
