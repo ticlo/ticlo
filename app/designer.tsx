@@ -2,6 +2,7 @@ import './styles.ts';
 import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext, useEffect, useRef} from 'react';
 import {Button, Checkbox, ConfigProvider, type RadioChangeEvent} from 'antd';
+import {ReloadOutlined, UndoOutlined} from '@ant-design/icons';
 import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -24,6 +25,7 @@ import {BlockStageTabButton} from '@ticlo/editor/dock/block/BlockStageTabButton.
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
 import {theme} from '@ticlo/editor/style/theme.ts';
 import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
+import {TooltipIconButton} from '@ticlo/editor/component/TooltipIconButton.tsx';
 import {FrameServerConnection} from '@ticlo/html';
 import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.ts';
 import {FileServerFlowStorage, TicloFileClient} from '@ticlo/remote-storage';
@@ -69,6 +71,7 @@ function ToolBox({
   openEditor: (path: string) => void;
 }) {
   const {designMode, setDesignMode} = useContext(DesignerLayoutContextType);
+  const stage = useActiveDesignerStage();
   return (
     <div style={{position: 'relative', padding: 8, height: '100%', overflow: 'auto', boxSizing: 'border-box'}}>
       <OpenEditorButton openEditor={openEditor} />
@@ -77,6 +80,24 @@ function ToolBox({
       <Checkbox checked={designMode} onChange={(e) => setDesignMode?.(e.target.checked)}>
         Design mode
       </Checkbox>
+      {stage?.flow && (
+        <div key={stage.basePath} style={{display: 'flex', gap: 8, marginTop: 8}}>
+          <TooltipIconButton
+            conn={stage.conn}
+            path={`${stage.basePath}.@has-undo`}
+            tooltip={t('Undo')}
+            icon={<UndoOutlined />}
+            onClick={stage.undo}
+          />
+          <TooltipIconButton
+            conn={stage.conn}
+            path={`${stage.basePath}.@has-redo`}
+            tooltip={t('Redo')}
+            icon={<ReloadOutlined />}
+            onClick={stage.redo}
+          />
+        </div>
+      )}
     </div>
   );
 }

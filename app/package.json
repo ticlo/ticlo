@@ -20,6 +20,7 @@
     "test-server": "tsx test/test-server.ts"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.3.4",
     "@hono/node-server": "^2.1.1",
     "@ticlo/core": "workspace:*",
     "@ticlo/designer": "workspace:*",
