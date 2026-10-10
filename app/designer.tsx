@@ -1,8 +1,8 @@
 import './styles.ts';
 import '@ticlo/designer/style/index.css';
-import React, {StrictMode, useContext, useEffect, useRef} from 'react';
-import {Button, Checkbox, ConfigProvider, Switch, type RadioChangeEvent} from 'antd';
-import {ReloadOutlined, UndoOutlined} from '@ant-design/icons';
+import React, {StrictMode, useContext, useEffect, useRef, useState} from 'react';
+import {Button, Checkbox, ConfigProvider, Switch, message, type RadioChangeEvent} from 'antd';
+import {FullscreenExitOutlined, FullscreenOutlined, ReloadOutlined, UndoOutlined} from '@ant-design/icons';
 import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -77,8 +77,16 @@ function ToolBox({
   const darkMode = useContext(DarkModeContext);
   const {designMode, setDesignMode} = useContext(DesignerLayoutContextType);
   const stage = useActiveDesignerStage();
+  const [fullscreen, setFullscreen] = useState(() => Boolean(document.fullscreenElement));
+  const [messageApi, messageHolder] = message.useMessage();
+  useEffect(() => {
+    const onChange = () => setFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
   return (
     <div style={{position: 'relative', padding: 8, height: '100%', overflow: 'auto', boxSizing: 'border-box'}}>
+      {messageHolder}
       <OpenEditorButton openEditor={openEditor} />
       <LanguageSettings onChange={switchLan} />
       <br />
@@ -89,6 +97,20 @@ function ToolBox({
         <Switch size="small" checked={darkMode} onChange={onDarkModeChange} />
         Dark mode
       </label>
+      <Button
+        size="small"
+        style={{marginTop: 8}}
+        icon={fullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+        disabled={!document.fullscreenEnabled}
+        onClick={() => {
+          const change = document.fullscreenElement
+            ? document.exitFullscreen()
+            : document.documentElement.requestFullscreen();
+          void change.catch((error: Error) => messageApi.error(error.message));
+        }}
+      >
+        {fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+      </Button>
       {stage?.flow && (
         <div key={stage.basePath} style={{display: 'flex', gap: 8, marginTop: 8}}>
           <TooltipIconButton
@@ -140,7 +162,6 @@ interface Props {
 }
 
 interface State {
-  modal?: React.ReactElement;
   darkMode: boolean;
 }
 
@@ -279,7 +300,6 @@ class App extends React.PureComponent<Props, State> {
       () => this.conn
     ),
     getSelectedPaths: () => this.selectedPaths,
-    showModal: (modal: React.ReactElement) => this.setState({modal}),
   };
 
   selectedPaths: PropDispatcher<string[]> = new PropDispatcher();
@@ -351,7 +371,7 @@ class App extends React.PureComponent<Props, State> {
 
   render() {
     const conn = this.conn;
-    const {modal, darkMode} = this.state;
+    const {darkMode} = this.state;
     const appContent = (
       <DarkModeContext.Provider value={darkMode}>
         <PlaygroundConnectionContext.Provider value={conn}>
@@ -365,7 +385,6 @@ class App extends React.PureComponent<Props, State> {
                 groups={layoutGroups}
                 style={{position: 'absolute', left: 0, top: 10, right: 0, bottom: 10}}
               />
-              {modal}
             </DesignerApp>
           </EditPolicyProvider>
         </PlaygroundConnectionContext.Provider>

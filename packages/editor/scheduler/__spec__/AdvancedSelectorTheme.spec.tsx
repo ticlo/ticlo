@@ -19,8 +19,10 @@ it('updates an open cached days dropdown when the theme changes', async () => {
   const render = (config: ThemeConfig) => {
     flushSync(() =>
       root.render(
-        <ConfigProvider theme={config}>
-          <AdvancedSelector current={current} onValueChange={onValueChange} />
+        <ConfigProvider theme={darkTheme}>
+          <ConfigProvider theme={config}>
+            <AdvancedSelector current={current} onValueChange={onValueChange} />
+          </ConfigProvider>
         </ConfigProvider>
       )
     );
@@ -36,14 +38,12 @@ it('updates an open cached days dropdown when the theme changes', async () => {
     const lightSelection = getComputedStyle(selected).backgroundColor;
 
     render(darkTheme);
-    await shouldHappen(() => popup.classList.contains('css-var-r0-dark'));
     await expect.poll(() => getComputedStyle(backdrop).backgroundColor).not.toBe(lightBackground);
     await expect.poll(() => getComputedStyle(selected).backgroundColor).not.toBe(lightSelection);
     await userEvent.click(popup.querySelectorAll('.ant-picker-cell')[1]);
     expect(onValueChange).toHaveBeenCalledWith([1, 2], 'days');
 
     render(theme);
-    await shouldHappen(() => popup.classList.contains('css-var-r0'));
     await expect.poll(() => getComputedStyle(backdrop).backgroundColor).toBe(lightBackground);
     await expect.poll(() => getComputedStyle(selected).backgroundColor).toBe(lightSelection);
   } finally {

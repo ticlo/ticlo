@@ -1,6 +1,7 @@
 import React from 'react';
 import {ClientConn} from '@ticlo/core/editor.ts';
-import {Modal, Input} from 'antd';
+import {Input} from 'antd';
+import type {PopupActions} from '../popup/PopupHost.tsx';
 import {DragState} from 'rc-dock';
 
 export function onDragBlockOver(conn: ClientConn, e: DragState) {
@@ -17,7 +18,13 @@ function alignXY(val: number) {
   return Math.floor((val - 12) / 24) * 24 + 12;
 }
 
-export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateBlockCallback, bgElement: HTMLElement) {
+export function onDropBlock(
+  conn: ClientConn,
+  e: DragState,
+  createBlock: CreateBlockCallback,
+  bgElement: HTMLElement,
+  modal: PopupActions['modal']
+) {
   const blockData = DragState.getData('blockData', conn.getBaseConn());
   if (blockData && Object.hasOwn(blockData, '#is')) {
     const rect = bgElement.getBoundingClientRect();
@@ -54,7 +61,7 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
       };
       const onEnter = () => {
         if (blockName) {
-          Modal.destroyAll();
+          dialog.destroy();
           onConfirmedBlockName(blockName);
         }
       };
@@ -63,7 +70,7 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
           ref.select();
         }
       };
-      Modal.confirm({
+      const dialog = modal.confirm({
         title: 'Block Name',
         content: (
           <Input

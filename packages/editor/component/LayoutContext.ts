@@ -38,8 +38,6 @@ export interface TicloLayoutContext<Stage extends TicloStage = TicloStage> exten
   showObjectTree?(path: string, value: any, element: HTMLElement, source: any): void;
   closeObjectTree?(path: string, source: any): void;
 
-  showModal?(model: React.ReactElement): void;
-
   getSelectedPaths?(): PropDispatcher<string[]>;
 
   language?: string;

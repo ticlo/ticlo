@@ -8,7 +8,7 @@ import {FileAddOutlined, FolderAddOutlined, ReloadOutlined} from '@ant-design/ic
 import {AddNewFlowDialog} from '../../popup/AddNewFlowDialog.tsx';
 import {DragDrop, DragState} from 'rc-dock';
 import {t} from '../../component/LocalizedLabel.tsx';
-import {showModal} from '../../popup/ShowModal.tsx';
+import {PopupHost, type PopupActions} from '../../popup/PopupHost.tsx';
 
 interface Props {
   conn: ClientConn;
@@ -27,6 +27,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
   declare context: TicloLayoutContext;
 
   state: State = {selectedKeys: []};
+  popup = React.createRef<PopupActions>();
 
   _nodeTree: NodeTree;
   getNodeTree = (ref: NodeTree) => {
@@ -52,11 +53,11 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
 
   showNewFlowModel = () => {
     const {conn} = this.props;
-    showModal(<AddNewFlowDialog conn={conn} basePath={null} />, this.context.showModal);
+    this.popup.current.showModal(<AddNewFlowDialog conn={conn} basePath={null} />);
   };
   showNewFolderModel = () => {
     const {conn} = this.props;
-    showModal(<AddNewFlowDialog conn={conn} basePath={null} isFolder={true} />, this.context.showModal);
+    this.popup.current.showModal(<AddNewFlowDialog conn={conn} basePath={null} isFolder={true} />);
   };
 
   newFlowOrFolderDragOver = (e: DragState) => {
@@ -76,14 +77,14 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     const {conn} = this.props;
     const path = DragState.getData('path', conn.getBaseConn());
     if (path) {
-      showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} />, this.context.showModal);
+      this.popup.current.showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} />);
     }
   };
   newFolderDrop = (e: DragState) => {
     const {conn} = this.props;
     const path = DragState.getData('path', conn.getBaseConn());
     if (path) {
-      showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} isFolder={true} />, this.context.showModal);
+      this.popup.current.showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} isFolder={true} />);
     }
   };
   render() {
@@ -92,6 +93,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
 
     return (
       <div className="ticl-e-node-tree-pane">
+        <PopupHost ref={this.popup} />
         {showMenu ? (
           <div className="ticl-e-top-menu-box ticl-e-hbox">
             <Tooltip title={t('Reload')}>

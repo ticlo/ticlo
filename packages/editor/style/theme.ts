@@ -2,8 +2,6 @@ import {theme as antdTheme, type ThemeConfig} from 'antd';
 
 export const theme: ThemeConfig = {
   zeroRuntime: true,
-  // Match the static theme scope used by the page body and popup containers.
-  cssVar: {key: 'css-var-r0'},
   inherit: false,
   token: {
     fontFamily:
@@ -33,7 +31,6 @@ export const theme: ThemeConfig = {
 
 export const darkTheme: ThemeConfig = {
   ...theme,
-  cssVar: {key: 'css-var-r0-dark'},
   algorithm: antdTheme.darkAlgorithm,
   token: {
     fontFamily:

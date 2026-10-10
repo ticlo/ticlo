@@ -7,7 +7,7 @@ import {TicloLayoutContextType} from '../../component/LayoutContext.ts';
 import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
 import {BlockStagePane} from '../../dock/block/BlockStagePane.tsx';
 import {t} from '../../component/LocalizedLabel.tsx';
-import {requestCallbacks} from '../../util/RequestCallbacks.ts';
+import {usePopups} from '../../popup/PopupHost.tsx';
 
 interface WorkerDialogProps {
   conn: ClientConn;
@@ -57,6 +57,7 @@ function WorkerDialog({conn, path, onSave, onClose, disabled}: WorkerDialogProps
 }
 
 export function TableWorkerEditor(props: ValueEditorProps) {
+  const [popup, popupHolder] = usePopups();
   const {conn, value, funcLib, locked, desc, onChange} = props;
   const policies = [useContext(EditPolicyContext), conn.getEditPolicyView()];
   const [dialogs, setDialogs] = useState<Omit<WorkerDialogProps, 'conn' | 'disabled' | 'onClose'>[]>([]);
@@ -74,9 +75,9 @@ export function TableWorkerEditor(props: ValueEditorProps) {
     alive.current = true;
     return () => {
       alive.current = false;
-      for (const path of paths) conn.setValue(path, undefined, requestCallbacks);
+      for (const path of paths) conn.setValue(path, undefined, popup.requestCallbacks);
     };
-  }, [conn]);
+  }, [conn, popup.requestCallbacks]);
 
   const editFlow = (path: string, onSave: () => void | Promise<void>) => {
     setDialogs((dialogs) => (dialogs.some((dialog) => dialog.path === path) ? dialogs : [...dialogs, {path, onSave}]));
@@ -95,7 +96,7 @@ export function TableWorkerEditor(props: ValueEditorProps) {
         await conn.editWorker(path, 'value', undefined, undefined, funcLib);
       }
       if (!alive.current) {
-        conn.setValue(typeof value === 'string' ? path : tempPath, undefined, requestCallbacks);
+        conn.setValue(typeof value === 'string' ? path : tempPath, undefined, popup.requestCallbacks);
         return;
       }
       editFlow(path, async () => {
@@ -121,6 +122,7 @@ export function TableWorkerEditor(props: ValueEditorProps) {
     );
   return (
     <TicloLayoutContextType.Provider value={{editFlow}}>
+      {popupHolder}
       <WorkerEditor {...props} locked={disabled || loading} onEditWorker={canEdit ? editWorker : undefined} />
       {error ? <div className="ticl-e-error-message">{error}</div> : null}
       {dialogs.map((dialog) => (

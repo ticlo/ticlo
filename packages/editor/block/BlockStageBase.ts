@@ -5,7 +5,7 @@ import {BlockItem, FieldItem, Stage} from './Field.tsx';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
 import {TicloCurrentFlowContext} from '../component/LayoutContext.ts';
 import {getFuncLibPath} from '../util/FunctionLib.ts';
-import {requestCallbacks} from '../util/RequestCallbacks.ts';
+import type {PopupActions} from '../popup/PopupHost.tsx';
 
 export interface StagePropsBase {
   conn: ClientConn;
@@ -37,6 +37,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
 {
   static contextType = TicloCurrentFlowContext;
   declare context: React.ContextType<typeof TicloCurrentFlowContext>;
+  protected popup = React.createRef<PopupActions>();
 
   get policy() {
     return this.props.conn.getEditPolicyView();
@@ -455,7 +456,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     for (const [blockPath, blockItem] of this._blocks) {
       if (blockItem.selected) {
         conn.deleteBlock(blockPath, {
-          ...requestCallbacks,
+          ...this.popup.current?.requestCallbacks,
           onDone: () => conn.childrenChangeStream().dispatch({path: basePath}),
         });
       }

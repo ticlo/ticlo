@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Input, Modal, Radio, Tooltip, message} from 'antd';
+import {Button, Input, Modal, Radio, Tooltip} from 'antd';
 import {
   AppstoreOutlined,
   BookOutlined,
@@ -17,7 +17,7 @@ import {RadioChangeEvent} from 'antd';
 import {FunctionList} from './FunctionList.tsx';
 import {TicloI18NConsumer, TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {t} from '../component/LocalizedLabel.tsx';
-import {requestCallbacks} from '../util/RequestCallbacks.ts';
+import {PopupHost, type PopupActions} from '../popup/PopupHost.tsx';
 
 interface Props {
   conn: ClientConn;
@@ -41,6 +41,7 @@ interface State {
 export class FunctionSelect extends React.PureComponent<Props, State> {
   static contextType = TicloLayoutContextType;
   declare context: TicloLayoutContext;
+  popup = React.createRef<PopupActions>();
 
   state = {tab: 'tree', search: '', modelVisible: false, newFunctionName: '', addFunctionPrefix: ':'};
 
@@ -80,13 +81,13 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
         isGlobal ? undefined : funcLib
       );
       this.context.editFlow(editPath, () => {
-        conn.applyFlowChange(editPath, undefined, requestCallbacks);
+        conn.applyFlowChange(editPath, undefined, this.popup.current?.requestCallbacks);
       });
 
       this.setState({modelVisible: false, newFunctionName: ''});
       onFunctionClick?.(newFunctionName, {name: newFunctionName, id: funcId, src: 'worker'}, null);
     } else {
-      message.error('Invalid function name.');
+      void this.popup.current.message.error('Invalid function name.');
     }
   };
   onAddFunctionCancel = () => {
@@ -108,6 +109,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     const showAddFunction = Boolean(this.context?.editFlow && tab === 'inFlow');
     return (
       <div className="ticl-e-func-select" onClick={onClick}>
+        <PopupHost ref={this.popup} />
         <div className="ticl-e-top-menu-box ticl-e-hbox">
           <Radio.Group defaultValue="tree" size="small" onChange={this.onToggleChange}>
             <Tooltip title={t('In-Flow')}>

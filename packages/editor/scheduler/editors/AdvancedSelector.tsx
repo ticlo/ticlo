@@ -1,5 +1,6 @@
 import React, {ReactElement} from 'react';
-import {Button, Checkbox, ConfigProvider, Select, Tag, Tooltip} from 'antd';
+import {Button, Checkbox, Select, Tag, Tooltip} from 'antd';
+import * as pickerStyle from 'antd/es/date-picker/style/index.js';
 import {CloseOutlined, PlusOutlined} from '@ant-design/icons';
 import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent.ts';
 import {cacheCall} from '../../util/CachedCallback.ts';
@@ -17,6 +18,19 @@ const YEAR_OPTIONS = Array.from({length: 20}, (_, i) => ({
 }));
 
 const RIGHT_ALIGN_STYLE = {display: 'flex', justifyContent: 'end', overflow: 'visible'};
+const usePickerStyle = pickerStyle.default as unknown as (
+  prefixCls: string,
+  rootCls: string
+) => readonly [string, string];
+
+function DaysDropdown({children}: {children: React.ReactNode}) {
+  const [hashId, scope] = usePickerStyle('ant-picker', 'ant-picker-css-var');
+  return (
+    <div className={`ticl-e-schedule-days-dropdown ant-picker-dropdown ant-picker-css-var ${hashId} ${scope}`}>
+      {children}
+    </div>
+  );
+}
 
 function isRangeAllowed(days: (number | string)[]) {
   return days?.length === 2 && !days.find((v) => typeof v === 'string' && v.startsWith('0>'));
@@ -197,21 +211,15 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
     }
     rows.push(<tr key={31}>{row}</tr>);
     return (
-      <ConfigProvider.ConfigContext.Consumer>
-        {({theme}) => (
-          <div
-            className={`ticl-e-schedule-days-dropdown ant-picker-dropdown ant-picker-css-var ${typeof theme?.cssVar === 'object' ? theme.cssVar.key : 'css-var-root'}`}
-          >
-            <div className="ant-picker-date-panel">
-              <div className="ant-picker-body">
-                <table className="ant-picker-content">
-                  <tbody>{rows}</tbody>
-                </table>
-              </div>
-            </div>
+      <DaysDropdown>
+        <div className="ant-picker-date-panel">
+          <div className="ant-picker-body">
+            <table className="ant-picker-content">
+              <tbody>{rows}</tbody>
+            </table>
           </div>
-        )}
-      </ConfigProvider.ConfigContext.Consumer>
+        </div>
+      </DaysDropdown>
     );
   });
 

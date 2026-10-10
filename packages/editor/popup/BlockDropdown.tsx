@@ -1,4 +1,4 @@
-import {showModal} from './ShowModal.tsx';
+import {PopupHost, type PopupActions} from './PopupHost.tsx';
 import {AddNewFlowDialog} from './AddNewFlowDialog.tsx';
 import {NodeTreeItem} from '../node-tree/NodeRenderer.tsx';
 import React from 'react';
@@ -24,7 +24,6 @@ import {ParameterInputDialog} from './ParameterInputDialog.tsx';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {getDescLib} from '../util/FunctionLib.ts';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
-import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
 const deleteForbidden = new Set<string>(['flow:test-group', 'flow:const']);
 const renameForbidden = new Set<string>(['flow:test-group', 'flow:const']);
@@ -53,6 +52,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   declare context: TicloLayoutContext;
 
   state: State = {visible: false};
+  popup = React.createRef<PopupActions>();
 
   can(cmd: string, data: DataMap = {}) {
     if (!this.props.checkPolicy) return true;
@@ -69,14 +69,14 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   onSaveClicked = () => {
     if (!this.can('applyFlowChange')) return;
     const {conn, path} = this.props;
-    conn.applyFlowChange(path, undefined, requestCallbacks);
+    conn.applyFlowChange(path, undefined, this.popup.current?.requestCallbacks);
   };
 
   onDeleteClicked = () => {
     if (!this.can('delete')) return;
     const {conn, path} = this.props;
     conn.deleteBlock(path, {
-      ...requestCallbacks,
+      ...this.popup.current?.requestCallbacks,
       onDone: () => conn.childrenChangeStream().dispatch({path: splitPathName(path)[0]}),
     });
   };
@@ -84,9 +84,8 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   onRenameClicked = () => {
     if (!this.can('renameProp')) return;
     const {conn, path, displayName} = this.props;
-    showModal(
-      <RenameDialog conn={conn} path={path} displayName={displayName} checkPolicy={this.props.checkPolicy} />,
-      this.context.showModal
+    this.popup.current.showModal(
+      <RenameDialog conn={conn} path={path} displayName={displayName} checkPolicy={this.props.checkPolicy} />
     );
   };
 
@@ -108,7 +107,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   };
   onAddNewFlowClick = (param: any) => {
     const {conn, path} = this.props;
-    showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} />, this.context.showModal);
+    this.popup.current.showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} />);
   };
 
   onCloseCommandModal = () => {
@@ -240,6 +239,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
       <EditPolicyContext.Consumer>
         {() => (
           <>
+            <PopupHost ref={this.popup} />
             <Popup
               popup={visible ? this.getMenu() : null}
               trigger={['contextMenu']}

@@ -15,6 +15,7 @@ import enEditor from '../i18n/editor/en.json' with {type: 'json'};
 import enCore from '../i18n/core/en.json' with {type: 'json'};
 
 function FullscreenButton() {
+  const [messageApi, messageHolder] = message.useMessage();
   const [fullscreen, setFullscreen] = useState(Boolean(document.fullscreenElement));
   useEffect(() => {
     const onChange = () => setFullscreen(Boolean(document.fullscreenElement));
@@ -24,25 +25,28 @@ function FullscreenButton() {
 
   const label = fullscreen ? 'Exit fullscreen' : 'Enter fullscreen';
   return (
-    <Button
-      className="stage-test-fullscreen"
-      size="small"
-      shape="circle"
-      icon={
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
-          <path d={fullscreen ? 'M2 6h4V2m4 0v4h4M6 14v-4H2m12 0h-4v4' : 'M6 2H2v4m8-4h4v4M2 10v4h4m8-4v4h-4'} />
-        </svg>
-      }
-      aria-label={label}
-      title={label}
-      disabled={!document.fullscreenEnabled}
-      onClick={() => {
-        const change = document.fullscreenElement
-          ? document.exitFullscreen()
-          : document.documentElement.requestFullscreen();
-        void change.catch((error: Error) => message.error(error.message));
-      }}
-    />
+    <>
+      {messageHolder}
+      <Button
+        className="stage-test-fullscreen"
+        size="small"
+        shape="circle"
+        icon={
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
+            <path d={fullscreen ? 'M2 6h4V2m4 0v4h4M6 14v-4H2m12 0h-4v4' : 'M6 2H2v4m8-4h4v4M2 10v4h4m8-4v4h-4'} />
+          </svg>
+        }
+        aria-label={label}
+        title={label}
+        disabled={!document.fullscreenEnabled}
+        onClick={() => {
+          const change = document.fullscreenElement
+            ? document.exitFullscreen()
+            : document.documentElement.requestFullscreen();
+          void change.catch((error: Error) => messageApi.error(error.message));
+        }}
+      />
+    </>
   );
 }
 

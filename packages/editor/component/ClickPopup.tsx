@@ -1,7 +1,15 @@
-import React from 'react';
-import Trigger_ from 'rc-trigger';
+import React, {useContext} from 'react';
+import {ConfigProvider} from 'antd';
+import Trigger_, {type TriggerProps} from 'rc-trigger';
 const Trigger = (Trigger_ as any).default || Trigger_;
 import {RightOutlined} from '@ant-design/icons';
+import {useThemeScope} from './useThemeScope.ts';
+
+function ThemedTrigger(props: TriggerProps) {
+  const {getPopupContainer} = useContext(ConfigProvider.ConfigContext);
+  const scope = useThemeScope();
+  return <Trigger {...props} getPopupContainer={getPopupContainer} popupClassName={scope} />;
+}
 
 type ItemEventHandler = (event: 'show' | 'hide' | 'hover' | 'close') => void;
 
@@ -47,7 +55,7 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
       cls += ' ticl-e-dropdown-menu-item-active';
     }
     return (
-      <Trigger
+      <ThemedTrigger
         action={['click']}
         popupAlign={{
           points: ['tl', 'tr'],
@@ -63,7 +71,7 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
           {children}
           {popup ? <RightOutlined /> : null}
         </div>
-      </Trigger>
+      </ThemedTrigger>
     );
   }
 }
@@ -338,7 +346,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
     }
 
     return (
-      <Trigger
+      <ThemedTrigger
         action={trigger}
         popupAlign={popupAlign}
         alignPoint={alignPoint}
@@ -350,7 +358,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
         popup={fixedPopup}
       >
         {child}
-      </Trigger>
+      </ThemedTrigger>
     );
   }
 

@@ -46,14 +46,9 @@ interface Props {
   initialFlow?: string;
 }
 
-interface State {
-  modal?: React.ReactElement;
-}
-
 WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, '+WorkerEditor');
 
-class App extends React.PureComponent<Props, State> {
-  state: State = {};
+class App extends React.PureComponent<Props> {
   defaultDockLayout: LayoutBase;
   tabs: TabDefinitions;
   constructor(props: Props) {
@@ -153,7 +148,6 @@ class App extends React.PureComponent<Props, State> {
       () => this.props.conn
     ),
     getSelectedPaths: () => this.selectedPaths,
-    showModal: (modal: React.ReactElement) => this.setState({modal}),
   };
 
   selectedPaths: PropDispatcher<string[]> = new PropDispatcher();
@@ -171,7 +165,6 @@ class App extends React.PureComponent<Props, State> {
 
   render() {
     const {conn} = this.props;
-    const {modal} = this.state;
     return (
       <ConfigProvider locale={this.lngConfig} theme={theme}>
         <TicloApp value={this.ticloContext}>
@@ -183,7 +176,6 @@ class App extends React.PureComponent<Props, State> {
             groups={layoutGroups}
             style={{position: 'absolute', left: 0, top: 10, right: 10, bottom: 10}}
           />
-          {modal}
         </TicloApp>
       </ConfigProvider>
     );

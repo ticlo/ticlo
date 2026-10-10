@@ -6,13 +6,17 @@ import postcss from 'postcss';
 import {theme, darkTheme} from '../packages/editor/style/theme.ts';
 
 const cssText = extractStyle((node: React.JSX.Element) => (
-  <ConfigProvider theme={{...theme, zeroRuntime: false, hashed: false}}>{node}</ConfigProvider>
+  <ConfigProvider theme={{...theme, cssVar: {key: 'css-var-r0'}, zeroRuntime: false, hashed: false}}>
+    {node}
+  </ConfigProvider>
 ));
 
 // Include dark component variables for custom views that use Ant Design's CSS classes.
 const darkVariables = postcss.parse(
   extractStyle((node: React.JSX.Element) => (
-    <ConfigProvider theme={{...darkTheme, zeroRuntime: false, hashed: false}}>{node}</ConfigProvider>
+    <ConfigProvider theme={{...darkTheme, cssVar: {key: 'css-var-r0-dark'}, zeroRuntime: false, hashed: false}}>
+      {node}
+    </ConfigProvider>
   ))
 );
 for (const node of [...darkVariables.nodes]) {

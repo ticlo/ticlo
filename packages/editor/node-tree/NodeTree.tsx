@@ -4,7 +4,7 @@ import VirtualList from '../component/Virtual.tsx';
 import {ClientConn, arrayEqual} from '@ticlo/core/editor.ts';
 import {NodeTreeItem, NodeTreeRenderer, type NodeTreeFunctionDrag} from './NodeRenderer.tsx';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
-import {requestCallbacks} from '../util/RequestCallbacks.ts';
+import {PopupHost, type PopupActions} from '../popup/PopupHost.tsx';
 
 interface Props {
   conn: ClientConn;
@@ -21,6 +21,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   };
 
   rootList: NodeTreeItem[] = [];
+  popup = React.createRef<PopupActions>();
   list: NodeTreeItem[] = [];
 
   lastClickedItem: NodeTreeItem;
@@ -109,7 +110,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
       target.key,
       index,
       {
-        ...requestCallbacks,
+        ...this.popup.current?.requestCallbacks,
         onUpdate: ({moved}) => {
           if (source !== target) {
             conn.childrenChangeStream().dispatch({path: source.key});
@@ -142,7 +143,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
       true,
       index ?? (Array.isArray(target.order) ? target.order.length : 0),
       {
-        ...requestCallbacks,
+        ...this.popup.current?.requestCallbacks,
         onUpdate: ({name}) => {
           conn.childrenChangeStream().dispatch({path: target.key, showNode: true});
           onSelect?.([`${target.childPrefix}${name}`]);
@@ -231,13 +232,16 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   renderImpl() {
     this.refreshList();
     return (
-      <VirtualList
-        className="ticl-e-node-tree"
-        style={this.props.style}
-        renderer={this.renderChild}
-        itemCount={this.list.length}
-        itemHeight={30}
-      />
+      <>
+        <PopupHost ref={this.popup} />
+        <VirtualList
+          className="ticl-e-node-tree"
+          style={this.props.style}
+          renderer={this.renderChild}
+          itemCount={this.list.length}
+          itemHeight={30}
+        />
+      </>
     );
   }
 

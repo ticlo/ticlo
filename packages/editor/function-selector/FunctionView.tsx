@@ -16,7 +16,7 @@ import {BuildOutlined, DeleteOutlined, EditOutlined} from '@ant-design/icons';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {LocalizedFunctionName, t} from '../component/LocalizedLabel.tsx';
 import {MenuProps} from 'antd';
-import {requestCallbacks} from '../util/RequestCallbacks.ts';
+import {PopupHost, type PopupActions} from '../popup/PopupHost.tsx';
 
 export type OnFunctionClick = (name: string, desc: FunctionDesc, data: any) => void;
 
@@ -32,6 +32,7 @@ interface Props {
 export class FunctionView extends React.PureComponent<Props, any> {
   static contextType = TicloLayoutContextType;
   declare context: TicloLayoutContext;
+  popup = React.createRef<PopupActions>();
 
   onDrag = (e: DragState) => {
     let {conn, data, desc} = this.props;
@@ -70,12 +71,12 @@ export class FunctionView extends React.PureComponent<Props, any> {
     const editPath = `#temp.#edit-${encodeTicloName(desc.id)}`;
     conn.editWorker(editPath, null, desc.id, undefined, desc.id.startsWith(':') ? funcLib : undefined);
     this.context.editFlow(editPath, () => {
-      conn.applyFlowChange(editPath, undefined, requestCallbacks);
+      conn.applyFlowChange(editPath, undefined, this.popup.current?.requestCallbacks);
     });
   };
   onDeleteClicked = () => {
     const {conn, desc, funcLib} = this.props;
-    conn.deleteFunction(desc.id, desc.id.startsWith(':') ? funcLib : undefined, requestCallbacks);
+    conn.deleteFunction(desc.id, desc.id.startsWith(':') ? funcLib : undefined, this.popup.current?.requestCallbacks);
   };
 
   getMenu = (): MenuProps => {
@@ -135,18 +136,23 @@ export class FunctionView extends React.PureComponent<Props, any> {
       </DragDropDiv>
     );
 
+    let content = typeView;
     if (
       (ns?.startsWith('+') || (id.startsWith(':') && this.props.funcLib != null)) &&
       desc.src === 'worker' &&
       this.context?.editFlow
     ) {
-      return (
+      content = (
         <Dropdown menu={this.getMenu()} trigger={['contextMenu']}>
           {typeView}
         </Dropdown>
       );
-    } else {
-      return typeView;
     }
+    return (
+      <>
+        {content}
+        <PopupHost ref={this.popup} />
+      </>
+    );
   }
 }

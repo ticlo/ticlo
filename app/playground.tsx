@@ -67,7 +67,6 @@ interface Props {
 
 interface State {
   conn: ClientConn;
-  modal?: React.ReactElement;
 }
 
 class App extends React.PureComponent<Props, State> {
@@ -209,7 +208,6 @@ class App extends React.PureComponent<Props, State> {
       () => this.conn
     ),
     getSelectedPaths: () => this.selectedPaths,
-    showModal: (modal: React.ReactElement) => this.setState({modal}),
   };
 
   selectedPaths: PropDispatcher<string[]> = new PropDispatcher();
@@ -232,7 +230,6 @@ class App extends React.PureComponent<Props, State> {
 
   render() {
     const conn = this.conn;
-    const {modal} = this.state;
     const appContent = (
       <PlaygroundConnectionContext.Provider value={conn}>
         <EditPolicyProvider conn={conn}>
@@ -245,7 +242,6 @@ class App extends React.PureComponent<Props, State> {
               groups={layoutGroups}
               style={{position: 'absolute', left: 0, top: 10, right: 10, bottom: 10}}
             />
-            {modal}
           </TicloApp>
         </EditPolicyProvider>
       </PlaygroundConnectionContext.Provider>

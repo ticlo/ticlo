@@ -11,11 +11,12 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../../component/Layout
 import {t} from '../../component/LocalizedLabel.tsx';
 import {defaultWorkerData} from '@ticlo/core/defaults/DefaultFlows.ts';
 import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
-import {requestCallbacks} from '../../util/RequestCallbacks.ts';
+import {PopupHost, type PopupActions} from '../../popup/PopupHost.tsx';
 
 export class WorkerEditor extends FunctionEditor {
   static contextType = TicloLayoutContextType;
   declare context: TicloLayoutContext;
+  popup = React.createRef<PopupActions>();
 
   static filterWorkerFunction(desc: FunctionDesc) {
     return desc.src === 'worker';
@@ -43,7 +44,7 @@ export class WorkerEditor extends FunctionEditor {
     const flowEditorPath = `${keys[0]}.#edit-${desc.name}`;
     conn.editWorker(flowEditorPath, desc.name);
     this.context.editFlow(flowEditorPath, () => {
-      conn.applyFlowChange(flowEditorPath, undefined, requestCallbacks);
+      conn.applyFlowChange(flowEditorPath, undefined, this.popup.current?.requestCallbacks);
     });
   };
 
@@ -79,6 +80,7 @@ export class WorkerEditor extends FunctionEditor {
 
     return (
       <DragDropDiv className="ticl-e-worker-editor ticl-e-hbox" onDragOverT={this.onDragOver} onDropT={this.onDrop}>
+        <PopupHost ref={this.popup} />
         <div className="ticl-e-object-editor" style={{flexGrow: 1}}>
           {label}
         </div>

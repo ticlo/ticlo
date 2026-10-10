@@ -1,5 +1,5 @@
 import React, {CSSProperties} from 'react';
-import {Button, notification, Modal} from 'antd';
+import {Button, Modal} from 'antd';
 import {ReloadOutlined, UndoOutlined, ZoomInOutlined, ZoomOutOutlined} from '@ant-design/icons';
 
 import {BlockView} from './Block.tsx';
@@ -18,6 +18,7 @@ import {DataMap, decode, encode} from '@ticlo/core';
 import {arrayEqual} from '@ticlo/core/editor.ts';
 import {t} from '../component/LocalizedLabel.tsx';
 import {TicloCurrentFlowContext, TicloStage, TicloStageCommands} from '../component/LayoutContext.ts';
+import {PopupHost} from '../popup/PopupHost.tsx';
 
 const MINI_WINDOW_SIZE = 128;
 
@@ -263,7 +264,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   onDrop = (e: DragState) => {
     const {conn} = this.props;
     if (!this.canDropBlock(e)) return;
-    onDropBlock(conn, e, this.createBlock, this._bgNode);
+    onDropBlock(conn, e, this.createBlock, this._bgNode, this.popup.current.modal);
   };
 
   canDropBlock(e: DragState) {
@@ -701,6 +702,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
           />
         </div>
         {modal}
+        <PopupHost ref={this.popup} />
       </div>
     );
   }
@@ -741,7 +743,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
       const data = await conn.copy(basePath, props);
       await window.navigator.clipboard.writeText(encode(data.value));
     } catch (e) {
-      notification.error({title: 'Failed to copy', description: String(e)});
+      this.popup.current?.notification.error({title: 'Failed to copy', description: String(e)});
     }
   }
 
@@ -773,10 +775,10 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
       if (data && typeof data === 'object') {
         this.pasteData(data);
       } else {
-        notification.error({title: 'Failed to paste', description: 'Invalid input'});
+        this.popup.current?.notification.error({title: 'Failed to paste', description: 'Invalid input'});
       }
     } catch (e) {
-      notification.error({title: 'Failed to paste', description: String(e)});
+      this.popup.current?.notification.error({title: 'Failed to paste', description: String(e)});
     }
     return true;
   };
@@ -784,7 +786,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
     const {conn, basePath} = this.props;
     const error = this.policy.check({cmd: 'paste', path: basePath, data, resolve}, (path) => this._blocks.has(path));
     if (error) {
-      notification.error({title: 'Failed to paste', description: error});
+      this.popup.current?.notification.error({title: 'Failed to paste', description: error});
       return;
     }
     if (!resolve) {
@@ -829,7 +831,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
         }, 1);
       }
     } catch (e) {
-      notification.error({title: 'Failed to paste', description: String(e)});
+      this.popup.current?.notification.error({title: 'Failed to paste', description: String(e)});
     }
     this.closeModal();
   }

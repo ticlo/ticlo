@@ -1,5 +1,6 @@
 import React, {useCallback, useMemo, useRef, useState, ReactNode} from 'react';
 import {TicloCurrentFlowContext, TicloLayoutContext, TicloLayoutContextType, TicloStage} from './LayoutContext.ts';
+import {useThemeScope} from './useThemeScope.ts';
 
 export interface TicloAppProps<Context extends TicloLayoutContext = TicloLayoutContext> {
   value: Context;
@@ -174,6 +175,7 @@ export function TicloApp<Context extends TicloLayoutContext>({
   style,
 }: TicloAppProps<Context>) {
   const {currentFlow, wrappedLayoutContext, onKeyDown, onPaste} = useTicloContext(value);
+  const themeScope = useThemeScope();
   const rootStyle: React.CSSProperties = useMemo(
     () => ({
       position: 'relative',
@@ -187,7 +189,7 @@ export function TicloApp<Context extends TicloLayoutContext>({
   return (
     <TicloCurrentFlowContext.Provider value={currentFlow}>
       <TicloLayoutContextType.Provider value={wrappedLayoutContext}>
-        <div className={className} style={rootStyle} onKeyDown={onKeyDown} onPaste={onPaste}>
+        <div className={`${className} ${themeScope}`} style={rootStyle} onKeyDown={onKeyDown} onPaste={onPaste}>
           {children}
         </div>
       </TicloLayoutContextType.Provider>

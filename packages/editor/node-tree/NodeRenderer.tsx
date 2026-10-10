@@ -35,10 +35,9 @@ import {DragDrop, DragState} from 'rc-dock';
 import {getFuncStyleFromDesc} from '../util/BlockColors.ts';
 import {LocalizedNodeName, t} from '../component/LocalizedLabel.tsx';
 import {BlockDropdown} from '../popup/BlockDropdown.tsx';
-import {showModal} from '../popup/ShowModal.tsx';
+import {PopupHost, type PopupActions} from '../popup/PopupHost.tsx';
 import {AddNewFlowDialog} from '../popup/AddNewFlowDialog.tsx';
 import {getDescLib, getFuncLibPath} from '../util/FunctionLib.ts';
-import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
 import {MenuItem} from '../component/ClickPopup.tsx';
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent.tsx';
@@ -322,6 +321,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   declare context: TicloLayoutContext;
 
   state: State = {desc: blankFuncDesc};
+  popup = React.createRef<PopupActions>();
   dropRef = React.createRef<HTMLDivElement>();
 
   onExpandClicked = () => {
@@ -344,7 +344,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         item.key,
         item.canApply
           ? () => {
-              item.getConn().applyFlowChange(item.key, undefined, requestCallbacks);
+              item.getConn().applyFlowChange(item.key, undefined, this.popup.current?.requestCallbacks);
             }
           : null
       );
@@ -353,15 +353,15 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   onAddFlowClick = (path: string) => {
     const {item} = this.props;
-    showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.`} />, this.context.showModal);
+    this.popup.current.showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.`} />);
   };
   onAddFolderClick = (path: string) => {
     const {item} = this.props;
-    showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.`} isFolder={true} />, this.context.showModal);
+    this.popup.current.showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.`} isFolder={true} />);
   };
   onAddLibraryClick = (path: string) => {
     const {item} = this.props;
-    showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.:`} />, this.context.showModal);
+    this.popup.current.showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.:`} />);
   };
 
   getMenu = () => {
@@ -586,6 +586,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
     return (
       <div style={{...style, marginLeft}} className={nodeClassName}>
+        <PopupHost ref={this.popup} />
         <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
         <BlockDropdown
           conn={item.getConn()}
