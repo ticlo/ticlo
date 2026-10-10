@@ -15,13 +15,13 @@
 
 .ticl-e-box-header {
   display: flex;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid var(--ant-color-border-secondary, #eee);
   padding: 6px;
 }
 
 .ticl-e-box-footer {
   display: flex;
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid var(--ant-color-border-secondary, #eee);
   padding: 6px;
 }
 
@@ -36,7 +36,7 @@
 }
 
 .ticl-e-top-menu-box {
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid var(--ant-color-border-secondary, #eee);
   padding: 6px 6px 3px 6px;
 
   & > .ant-input-affix-wrapper {

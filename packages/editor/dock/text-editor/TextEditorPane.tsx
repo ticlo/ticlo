@@ -7,6 +7,8 @@ import {parse as ParseYaml} from 'yaml';
 import {javascript} from '@codemirror/lang-javascript';
 import {markdown, markdownLanguage} from '@codemirror/lang-markdown';
 import {yaml} from '@codemirror/lang-yaml';
+import {HighlightStyle, syntaxHighlighting} from '@codemirror/language';
+import {tags} from '@lezer/highlight';
 
 import {DockLayout} from 'rc-dock';
 import {EditorView} from '@codemirror/view';
@@ -15,6 +17,37 @@ import {createDockDialog, DockDialogPane} from '../../component/DockDialogPane.t
 import {t} from '../../component/LocalizedLabel.tsx';
 import {arrowReviver} from '@ticlo/core/util/Serialize.ts';
 import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
+
+const editorTheme = EditorView.theme({
+  '&': {color: 'var(--ant-color-text, #000)', backgroundColor: 'var(--ant-color-bg-container, #fff)'},
+  '.cm-content': {caretColor: 'var(--ant-color-text, #000)'},
+  '.cm-gutters': {
+    color: 'var(--ant-color-text-secondary, #666)',
+    backgroundColor: 'var(--ant-color-bg-layout, #f5f5f5)',
+    borderColor: 'var(--ant-color-border, #ddd)',
+  },
+  '.cm-activeLine, .cm-activeLineGutter': {backgroundColor: 'var(--ant-color-fill-quaternary, #f8f8f8)'},
+  '&.cm-focused .cm-cursor': {borderLeftColor: 'var(--ant-color-text, #000)'},
+  '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': {
+    backgroundColor: 'var(--ant-control-item-bg-active, #e6f4ff)',
+  },
+});
+
+const editorHighlighting = syntaxHighlighting(
+  HighlightStyle.define([
+    {
+      tag: [tags.keyword, tags.propertyName, tags.typeName, tags.tagName],
+      color: 'var(--ticl-code-keyword-color, var(--ant-color-primary, #1677ff))',
+    },
+    {tag: [tags.string, tags.regexp], color: 'var(--ticl-code-string-color, var(--ant-color-success, #389e0d))'},
+    {
+      tag: [tags.number, tags.bool, tags.null],
+      color: 'var(--ticl-code-number-color, var(--ant-color-warning, #d48806))',
+    },
+    {tag: tags.comment, color: 'var(--ant-color-text-secondary, #666)'},
+    {tag: tags.invalid, color: 'var(--ant-color-error, #ff4d4f)'},
+  ])
+);
 
 interface Props {
   conn: ClientConn;
@@ -276,9 +309,9 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
             className={error ? 'ticl-e-text-codemirror ticl-e-error-box' : 'ticl-e-text-codemirror'}
             value={value}
             readOnly={readonly}
-            theme="light"
+            theme={editorTheme}
             autoFocus={true}
-            extensions={extensions}
+            extensions={[editorHighlighting, ...(extensions ?? [])]}
             // options={{
             //   tabSize: 2,
             //   extraKeys: this.codeMirrorExtraKeys,

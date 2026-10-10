@@ -23,9 +23,8 @@
 .ticl-d-marquee-rect {
   position: absolute;
   box-sizing: border-box;
-  border: 1px solid #808080;
-  border-color: #1677ff;
-  background: rgba(22, 119, 255, 0.1);
+  border: 1px solid var(--ant-color-primary, #1677ff);
+  background: var(--ant-control-item-bg-active, rgba(22, 119, 255, 0.1));
 }
 
 .ticl-d-hover-outline {

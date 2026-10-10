@@ -138,11 +138,11 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
                   search ? (
                     <CloseCircleOutlined
                       title={'clear'}
-                      style={{color: 'rgba(0,0,0,.45)'}}
+                      style={{color: 'var(--ant-color-text-tertiary, rgba(0,0,0,.45))'}}
                       onClick={this.onFilterClear}
                     />
                   ) : (
-                    <FilterOutlined style={{color: 'rgba(0,0,0,.45)'}} />
+                    <FilterOutlined style={{color: 'var(--ant-color-text-tertiary, rgba(0,0,0,.45))'}} />
                   )
                 }
               />

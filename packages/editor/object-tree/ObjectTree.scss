@@ -21,7 +21,7 @@
   white-space: nowrap;
 }
 .ticl-e-object-tree-name {
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--ant-color-text-secondary, rgba(0, 0, 0, 0.5));
   &:after {
     padding: 0 5px 0 3px;
     display: inline-block;

@@ -8,7 +8,7 @@
   cursor: pointer;
   display: flex;
   position: relative;
-  background: #ffffff;
+  background: var(--ant-color-bg-container, #fff);
   flex-grow: 1;
 
   & > .tico {

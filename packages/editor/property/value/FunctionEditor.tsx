@@ -93,7 +93,12 @@ export class FunctionEditor extends StringEditorBase {
             onChange={this.onInputChange}
             onBlur={this.onBlur}
             onKeyDown={this.onKeyDown}
-            suffix={<DownOutlined style={{color: 'rgba(0,0,0,.45)'}} onClick={onChange ? this.openPopup : null} />}
+            suffix={
+              <DownOutlined
+                style={{color: 'var(--ant-color-text-tertiary, rgba(0,0,0,.45))'}}
+                onClick={onChange ? this.openPopup : null}
+              />
+            }
           />
         </Popup>
       </DragDropDiv>

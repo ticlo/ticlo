@@ -19,7 +19,7 @@
 
   & > .dock-divider {
     cursor: ew-resize;
-    background: #f8f8f8;
+    background: var(--ant-color-fill-quaternary, #f8f8f8);
 
     &::after {
       content: ' ';
@@ -36,7 +36,7 @@
     left: 8px;
     height: 24px;
     border-radius: 12px;
-    background: #fff;
+    background: var(--ant-color-bg-container, #fff);
     opacity: 0.6;
     pointer-events: none;
     padding: 0 4px;
@@ -70,8 +70,8 @@
   flex-direction: row-reverse;
 
   &:hover {
-    background: #ffffff;
-    border: 1px solid #dddddd;
+    background: var(--ant-color-bg-container, #fff);
+    border: 1px solid var(--ant-color-border, #ddd);
     width: 42px;
   }
 
@@ -80,10 +80,10 @@
   }
 
   & .anticon-save {
-    color: #52c41a;
+    color: var(--ant-color-success, #52c41a);
   }
 
   & .anticon-close {
-    color: #f5222d;
+    color: var(--ant-color-error, #f5222d);
   }
 }

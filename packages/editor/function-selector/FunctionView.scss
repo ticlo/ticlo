@@ -9,7 +9,7 @@
 
   & > .ticl-e-func-ns {
     position: absolute;
-    background: white;
+    background: var(--ant-color-bg-container, #fff);
     padding: 0 2px;
     font-size: 12px;
     line-height: 12px;
@@ -21,7 +21,7 @@
   }
 
   & > .ticl-e-func-name {
-    background: white;
+    background: var(--ant-color-bg-container, #fff);
     height: 22px;
     white-space: nowrap;
     flex-grow: 1;
@@ -90,7 +90,7 @@
   }
 
   & > div {
-    background: white;
+    background: var(--ant-color-bg-container, #fff);
   }
 }
 

@@ -5,9 +5,9 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  background: #fff;
+  background: var(--ant-color-bg-container, #fff);
   border-radius: 0 12px 0;
-  border: 1px solid #999;
+  border: 1px solid var(--ant-color-border, #999);
   position: absolute;
   white-space: nowrap;
   transition-property: border-color, box-shadow;
@@ -41,7 +41,7 @@
 .ticl-e-block-full-view-zoom {
   box-sizing: border-box;
   border: none;
-  background: #eee;
+  background: var(--ant-color-fill-quaternary, #f8f8f8);
   position: absolute;
   z-index: 0;
 }
@@ -124,7 +124,7 @@ body:not(.dock-dragging) {
 .ticl-e-block-view {
   width: 100%;
   padding: 1px 4px;
-  border: 2px dotted #d0d0d0;
+  border: 2px dotted var(--ant-color-border, #ddd);
   border-radius: 0 0 8px 8px;
   display: flex;
   align-items: center;
@@ -153,7 +153,7 @@ body:not(.dock-dragging) {
   pointer-events: none;
   position: absolute;
   fill: none;
-  stroke: rgba(0, 0, 0, 0.33);
+  stroke: var(--ticl-wire-color, var(--ant-color-text-tertiary, rgba(0, 0, 0, 0.33)));
   stroke-width: 1.5px;
 }
 
@@ -195,7 +195,7 @@ body:not(.dock-dragging) {
   border-radius: 3px;
   position: absolute;
   border: 1px solid $ticl-color-prn;
-  background: #f8f8f8;
+  background: var(--ant-color-bg-container, #fff);
 }
 
 .ticl-e-block-synced {

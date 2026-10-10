@@ -1,5 +1,5 @@
 import React, {ReactElement} from 'react';
-import {Button, Checkbox, Select, Tag, Tooltip} from 'antd';
+import {Button, Checkbox, ConfigProvider, Select, Tag, Tooltip} from 'antd';
 import {CloseOutlined, PlusOutlined} from '@ant-design/icons';
 import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent.ts';
 import {cacheCall} from '../../util/CachedCallback.ts';
@@ -197,15 +197,21 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
     }
     rows.push(<tr key={31}>{row}</tr>);
     return (
-      <div className="ticl-e-schedule-days-dropdown ant-picker-dropdown css-var-r0 ant-picker-css-var">
-        <div className="ant-picker-date-panel">
-          <div className="ant-picker-body">
-            <table className="ant-picker-content">
-              <tbody>{rows}</tbody>
-            </table>
+      <ConfigProvider.ConfigContext.Consumer>
+        {({theme}) => (
+          <div
+            className={`ticl-e-schedule-days-dropdown ant-picker-dropdown ant-picker-css-var ${typeof theme?.cssVar === 'object' ? theme.cssVar.key : 'css-var-root'}`}
+          >
+            <div className="ant-picker-date-panel">
+              <div className="ant-picker-body">
+                <table className="ant-picker-content">
+                  <tbody>{rows}</tbody>
+                </table>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        )}
+      </ConfigProvider.ConfigContext.Consumer>
     );
   });
 

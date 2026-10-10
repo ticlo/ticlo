@@ -7,8 +7,8 @@
 }
 
 .ticl-e-block-note {
-  border: 1px solid color.mix($yellow-7, white, 30%);
-  background: color.mix($yellow-1, white, 30%);
+  border: 1px solid var(--ant-color-warning-border, #{color.mix($yellow-7, white, 30%)});
+  background: var(--ant-color-warning-bg, #{color.mix($yellow-1, white, 30%)});
   padding: 6px 10px;
   max-height: 1024px;
   overflow-y: auto;
@@ -18,5 +18,5 @@
 }
 
 .ticl-e-block-note:hover {
-  border-color: color.change($yellow-8, $alpha: 0.5);
+  border-color: var(--ant-color-warning-hover, #{color.change($yellow-8, $alpha: 0.5)});
 }

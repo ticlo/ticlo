@@ -2,7 +2,7 @@
 
 .ticl-e-field {
   position: relative;
-  border-bottom: 1px solid #d0d0d0;
+  border-bottom: 1px solid var(--ant-color-border, #ddd);
   height: 24px;
   line-height: 19px;
   padding: 2px 12px 2px 16px;
@@ -17,7 +17,7 @@
 }
 
 .ticl-e-field-name {
-  border-right: 1px solid #f0f0f0;
+  border-right: 1px solid var(--ant-color-border-secondary, #eee);
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1 512 80px;
@@ -40,7 +40,7 @@
 .ticl-e-string-value {
   &:before,
   &:after {
-    color: #bbb;
+    color: var(--ant-color-text-tertiary, #bbb);
     display: inline-block;
     transform: translate(0, -2px);
     content: "'";
@@ -70,7 +70,7 @@
   height: 10px;
   top: 7px;
   border: 1px solid $ticl-color-prn-light;
-  background: #f8f8f8;
+  background: var(--ant-color-bg-container, #fff);
   border-left: 0 none;
   overflow: hidden;
   transition-property: border-color, height, top;
@@ -108,15 +108,15 @@
   height: 10px;
   top: 7px;
   border: 1px solid $ticl-color-prn;
-  background: #f8f8f8;
+  background: var(--ant-color-bg-container, #fff);
 }
 
 .ticl-e-field-subblock {
   position: relative;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--ant-color-border-secondary, #eee);
   z-index: 0;
   & > .ticl-e-field {
-    border-bottom-color: #f0f0f0;
+    border-bottom-color: var(--ant-color-border-secondary, #eee);
   }
   & > .ticl-e-field:last-child {
     height: 23px;
@@ -127,7 +127,7 @@
 }
 
 .ticl-e-block-body > .ticl-e-field-subblock {
-  border-bottom-color: #d0d0d0;
+  border-bottom-color: var(--ant-color-border, #ddd);
 }
 
 .ticl-e-field-subicon {

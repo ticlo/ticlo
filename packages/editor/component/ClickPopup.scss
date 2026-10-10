@@ -1,9 +1,9 @@
 @use '../style/variables' as *;
 
 .ticl-e-dropdown {
-  box-shadow: 0 0.5px 3px 1px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--ant-box-shadow-secondary, 0 0.5px 3px 1px rgba(0, 0, 0, 0.15));
   margin: 0;
-  color: rgba(0, 0, 0, 0.75);
+  color: $text-color;
   line-height: 1.5715;
   list-style: none;
   font-feature-settings: 'tnum';
@@ -15,7 +15,7 @@
   padding: 4px 0;
   overflow: hidden;
   font-size: 14px;
-  background-color: #fff;
+  background-color: var(--ant-color-bg-elevated, #fff);
   border-radius: 2px;
   outline: none;
 

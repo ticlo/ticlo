@@ -1,5 +1,3 @@
-@use 'sass:color';
-
 .ticl-markdown {
   line-height: 1.5;
   width: 100%;
@@ -71,13 +69,13 @@
 
   h1 {
     font-size: 28px;
-    border-bottom: 1px solid #cccccc;
-    color: black;
+    border-bottom: 1px solid var(--ant-color-border, #ccc);
+    color: var(--ant-color-text-heading, #000);
   }
 
   h2 {
     font-size: 24px;
-    color: black;
+    color: var(--ant-color-text-heading, #000);
   }
 
   h3 {
@@ -113,9 +111,9 @@
 
   hr {
     border: 0 none;
-    color: #cccccc;
+    color: var(--ant-color-border, #ccc);
     height: 2px;
-    background: #cccccc;
+    background: var(--ant-color-border, #ccc);
   }
 
   h1 p,
@@ -185,11 +183,11 @@
   }
 
   blockquote {
-    border-left: 4px solid #dddddd;
+    border-left: 4px solid var(--ant-color-border, #ddd);
     padding: 0 15px;
     -webkit-margin-start: 1em;
     -webkit-margin-end: 1em;
-    color: #777777;
+    color: var(--ant-color-text-secondary, #777);
   }
 
   blockquote > :first-child {
@@ -206,27 +204,27 @@
   }
 
   table tr {
-    border-top: 1px solid #cccccc;
-    background-color: white;
+    border-top: 1px solid var(--ant-color-border, #ccc);
+    background-color: var(--ant-color-bg-container, #fff);
     margin: 0;
     padding: 0;
   }
 
   table tr:nth-child(2n) {
-    background-color: #f8f8f8;
+    background-color: var(--ant-color-fill-quaternary, #f8f8f8);
   }
 
   table tr th {
     font-weight: bold;
-    border: 1px solid #cccccc;
+    border: 1px solid var(--ant-color-border, #ccc);
     text-align: left;
     margin: 0;
     padding: 6px 13px;
-    background-color: #fcfcfc;
+    background-color: var(--ant-color-fill-quaternary, #fcfcfc);
   }
 
   table tr td {
-    border: 1px solid #cccccc;
+    border: 1px solid var(--ant-color-border, #ccc);
     text-align: left;
     margin: 0;
     padding: 6px 13px;
@@ -252,7 +250,7 @@
   }
 
   span.frame > span {
-    border: 1px solid #dddddd;
+    border: 1px solid var(--ant-color-border, #ddd);
     display: block;
     float: left;
     overflow: hidden;
@@ -268,7 +266,7 @@
 
   span.frame span span {
     clear: both;
-    color: #333333;
+    color: var(--ant-color-text-secondary, #333);
     display: block;
     padding: 5px 0 0;
   }
@@ -340,8 +338,8 @@
     margin: 0 2px;
     padding: 0 5px;
     white-space: pre;
-    border: 1px solid #eaeaea;
-    background-color: color.change(#eee, $alpha: 0.5);
+    border: 1px solid var(--ant-color-border-secondary, #eaeaea);
+    background-color: var(--ant-color-fill-quaternary, rgba(238, 238, 238, 0.5));
     border-radius: 3px;
   }
 
@@ -356,8 +354,8 @@
   }
 
   .highlight pre {
-    background-color: color.change(#eee, $alpha: 0.5);
-    border: 1px solid #cccccc;
+    background-color: var(--ant-color-fill-quaternary, rgba(238, 238, 238, 0.5));
+    border: 1px solid var(--ant-color-border, #ccc);
     font-size: 13px;
     line-height: 19px;
     overflow: auto;
@@ -366,8 +364,8 @@
   }
 
   pre {
-    background-color: color.change(#eee, $alpha: 0.5);
-    border: 1px solid #cccccc;
+    background-color: var(--ant-color-fill-quaternary, rgba(238, 238, 238, 0.5));
+    border: 1px solid var(--ant-color-border, #ccc);
     font-size: 13px;
     line-height: 19px;
     overflow: auto;

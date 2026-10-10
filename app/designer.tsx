@@ -1,7 +1,7 @@
 import './styles.ts';
 import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext, useEffect, useRef} from 'react';
-import {Button, Checkbox, ConfigProvider, type RadioChangeEvent} from 'antd';
+import {Button, Checkbox, ConfigProvider, Switch, type RadioChangeEvent} from 'antd';
 import {ReloadOutlined, UndoOutlined} from '@ant-design/icons';
 import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
@@ -23,7 +23,7 @@ import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx'
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.tsx';
 import {BlockStageTabButton} from '@ticlo/editor/dock/block/BlockStageTabButton.tsx';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
-import {theme} from '@ticlo/editor/style/theme.ts';
+import {theme, darkTheme} from '@ticlo/editor/style/theme.ts';
 import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
 import {TooltipIconButton} from '@ticlo/editor/component/TooltipIconButton.tsx';
 import {FrameServerConnection} from '@ticlo/html';
@@ -39,6 +39,8 @@ import '@ticlo/test';
 import './sample-blocks.ts';
 import {PlaygroundConnection, PlaygroundConnectionContext} from './PlaygroundConnection.tsx';
 import {designerData} from './sample-data/designer.ts';
+
+const DarkModeContext = React.createContext(false);
 
 function DesignerPanelFocus({panel}: {panel: PanelData}): null {
   const context = useContext(TicloCurrentFlowContext);
@@ -66,10 +68,13 @@ function DesignerProperties({conn}: {conn: ClientConnection}) {
 function ToolBox({
   switchLan,
   openEditor,
+  onDarkModeChange,
 }: {
   switchLan: (e?: RadioChangeEvent) => void;
   openEditor: (path: string) => void;
+  onDarkModeChange: (checked: boolean) => void;
 }) {
+  const darkMode = useContext(DarkModeContext);
   const {designMode, setDesignMode} = useContext(DesignerLayoutContextType);
   const stage = useActiveDesignerStage();
   return (
@@ -80,6 +85,10 @@ function ToolBox({
       <Checkbox checked={designMode} onChange={(e) => setDesignMode?.(e.target.checked)}>
         Design mode
       </Checkbox>
+      <label style={{display: 'flex', alignItems: 'center', gap: 8, marginTop: 8}}>
+        <Switch size="small" checked={darkMode} onChange={onDarkModeChange} />
+        Dark mode
+      </label>
       {stage?.flow && (
         <div key={stage.basePath} style={{display: 'flex', gap: 8, marginTop: 8}}>
           <TooltipIconButton
@@ -132,10 +141,11 @@ interface Props {
 
 interface State {
   modal?: React.ReactElement;
+  darkMode: boolean;
 }
 
 class App extends React.PureComponent<Props, State> {
-  state: State = {};
+  state: State = {darkMode: false};
   get conn() {
     return this.props.conn;
   }
@@ -149,9 +159,11 @@ class App extends React.PureComponent<Props, State> {
       ToolBox: {
         group: 'tool',
         title: 'ToolBox',
-        minHeight: 140,
+        minHeight: 210,
         cached: true,
-        content: <ToolBox switchLan={this.switchLan} openEditor={this.openEditor} />,
+        content: (
+          <ToolBox switchLan={this.switchLan} openEditor={this.openEditor} onDarkModeChange={this.setDarkMode} />
+        ),
       },
       Navigation: {
         group: 'tool',
@@ -194,7 +206,7 @@ class App extends React.PureComponent<Props, State> {
             size: 200,
             children: [
               {
-                size: 140,
+                size: 210,
                 tabs: [{id: 'ToolBox'}],
               },
               {
@@ -319,42 +331,56 @@ class App extends React.PureComponent<Props, State> {
   };
   componentDidMount() {
     window.addEventListener('beforeunload', this.closeEditors);
+    this.updateThemeScope();
+  }
+  componentDidUpdate() {
+    this.updateThemeScope();
   }
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this.closeEditors);
     this.closeEditors();
   }
 
+  setDarkMode = (darkMode: boolean) => this.setState({darkMode});
+  updateThemeScope() {
+    const {darkMode} = this.state;
+    document.body.classList.toggle('css-var-r0', !darkMode);
+    document.body.classList.toggle('css-var-r0-dark', darkMode);
+    document.body.style.colorScheme = darkMode ? 'dark' : 'light';
+  }
+
   render() {
     const conn = this.conn;
-    const {modal} = this.state;
+    const {modal, darkMode} = this.state;
     const appContent = (
-      <PlaygroundConnectionContext.Provider value={conn}>
-        <EditPolicyProvider conn={conn}>
-          <DesignerApp value={this.ticloContext}>
-            <DockLayout
-              defaultLayout={this.defaultDockLayout}
-              tabs={this.tabs}
-              sideColumns={sideColumns}
-              ref={this.getLayout}
-              groups={layoutGroups}
-              style={{position: 'absolute', left: 0, top: 10, right: 0, bottom: 10}}
-            />
-            {modal}
-          </DesignerApp>
-        </EditPolicyProvider>
-      </PlaygroundConnectionContext.Provider>
+      <DarkModeContext.Provider value={darkMode}>
+        <PlaygroundConnectionContext.Provider value={conn}>
+          <EditPolicyProvider conn={conn}>
+            <DesignerApp value={this.ticloContext}>
+              <DockLayout
+                defaultLayout={this.defaultDockLayout}
+                tabs={this.tabs}
+                sideColumns={sideColumns}
+                ref={this.getLayout}
+                groups={layoutGroups}
+                style={{position: 'absolute', left: 0, top: 10, right: 0, bottom: 10}}
+              />
+              {modal}
+            </DesignerApp>
+          </EditPolicyProvider>
+        </PlaygroundConnectionContext.Provider>
+      </DarkModeContext.Provider>
     );
 
     if (location.hash.includes('strictMode')) {
       return (
-        <ConfigProvider locale={this.lngConfig} theme={theme}>
+        <ConfigProvider locale={this.lngConfig} theme={darkMode ? darkTheme : theme}>
           <StrictMode>{appContent}</StrictMode>
         </ConfigProvider>
       );
     } else {
       return (
-        <ConfigProvider locale={this.lngConfig} theme={theme}>
+        <ConfigProvider locale={this.lngConfig} theme={darkMode ? darkTheme : theme}>
           {appContent}
         </ConfigProvider>
       );

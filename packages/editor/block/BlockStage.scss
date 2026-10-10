@@ -12,8 +12,10 @@
 
 .ticl-e-stage-bg {
   background-size: 24px 24px;
-  /* image from assets/stage-bg.gif */
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAAJ0lEQVQ4y2NgGAXDCexuwCXDRKpRLDhMr9/NwMDg2jAQThoFIwUAAPWlBbkMlnfPAAAAAElFTkSuQmCC');
+  background-image: radial-gradient(
+    var(--ticl-stage-grid-color, var(--ant-color-text-tertiary, #999)) 1px,
+    transparent 1px
+  );
   opacity: 0.3;
 }
 
@@ -34,11 +36,11 @@
   position: absolute;
   top: 4px;
   right: 36px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--ant-color-border, #ddd);
   padding: 0 4px;
   border-radius: 12px;
   min-width: 92px;
-  background: rgba(255, 255, 255, 0.75);
+  background: var(--ant-color-bg-elevated, rgba(255, 255, 255, 0.75));
 
   button {
     pointer-events: visible;
@@ -52,7 +54,7 @@
 }
 
 .ticl-e-mini-stage-bg {
-  box-shadow: 0 0 1px 1px #f8f8f8;
+  box-shadow: 0 0 1px 1px var(--ant-color-border-secondary, #f8f8f8);
   margin: 0 2px 6px;
   overflow: hidden;
   position: relative;

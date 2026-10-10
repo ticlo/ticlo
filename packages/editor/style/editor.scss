@@ -25,24 +25,24 @@ body {
   color: var(--ant-color-text);
   font-size: 14px;
   line-height: 1.5715;
-  background-color: #fff;
+  background-color: var(--ant-color-bg-layout, #fff);
 }
 
 div {
-  scrollbar-color: #eee #fbfbfb;
+  scrollbar-color: var(--ant-color-fill-secondary, #eee) var(--ant-color-bg-layout, #fbfbfb);
   scrollbar-width: thin;
   box-sizing: border-box;
 }
 
 div ::-webkit-scrollbar-track {
   border-radius: 6px;
-  background-color: #fbfbfb;
+  background-color: var(--ant-color-bg-layout, #fbfbfb);
 }
 
 div ::-webkit-scrollbar-thumb {
   border-radius: 6px;
-  border: 1px solid #fbfbfb;
-  background: #eee;
+  border: 1px solid var(--ant-color-bg-layout, #fbfbfb);
+  background: var(--ant-color-fill-secondary, #eee);
 }
 
 div ::-webkit-scrollbar {
@@ -70,7 +70,7 @@ div ::-webkit-scrollbar:horizontal {
 // fix component styles
 .ant-switch {
   // by default it use disabled color, which is too dark
-  background-color: rgba(0, 0, 0, 0.25);
+  background-color: var(--ant-color-text-quaternary, rgba(0, 0, 0, 0.25));
 
   &-checked {
     background-color: var(--ant-color-primary);
@@ -84,7 +84,7 @@ div ::-webkit-scrollbar:horizontal {
 
 .ant-dropdown-menu {
   // make the border clearer
-  box-shadow: 0 0.5px 3px 1px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--ant-box-shadow-secondary, 0 0.5px 3px 1px rgba(0, 0, 0, 0.15));
   // smaller radius
   border-radius: 0 2px 2px;
 }

@@ -1,4 +1,4 @@
-import {ThemeConfig} from 'antd';
+import {theme as antdTheme, type ThemeConfig} from 'antd';
 
 export const theme: ThemeConfig = {
   zeroRuntime: true,
@@ -32,8 +32,9 @@ export const theme: ThemeConfig = {
 };
 
 export const darkTheme: ThemeConfig = {
-  zeroRuntime: true,
-  inherit: false,
+  ...theme,
+  cssVar: {key: 'css-var-r0-dark'},
+  algorithm: antdTheme.darkAlgorithm,
   token: {
     fontFamily:
       "'Nato Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'",
@@ -42,16 +43,8 @@ export const darkTheme: ThemeConfig = {
     colorInfo: '#1890ff',
     colorError: '#ff4d4f',
     colorLink: '#108ee9',
-    colorText: 'rgba(255, 255, 255, 0.75)',
-    colorTextSecondary: 'rgba(255, 255, 255, 0.5)',
-    colorTextTertiary: 'rgba(255, 255, 255, 0.35)',
-    colorTextHeading: 'rgba(255, 255, 255, 1)',
-    colorTextDisabled: 'rgba(255, 255, 255, 0.65)',
-    colorBorder: '#f0f0f0',
-    colorBorderSecondary: '#f0f0f0',
     colorBgContainerDisabled: 'transparent',
     controlItemBgHover: 'rgba(255, 255, 255, 0.08)',
     controlPaddingHorizontal: 12,
   },
-  // algorithm: "dark"
 };
