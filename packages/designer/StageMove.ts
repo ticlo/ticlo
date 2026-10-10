@@ -1,6 +1,7 @@
 import {Block, type BlockProperty} from '@ticlo/core';
-import {getChildrenScreenCTM} from '@ticlo/html';
+import {getElementGeometry} from '@ticlo/html';
 import type {ElementMap} from '@ticlo/react';
+import {getPlaneInverse, projectPoint} from './StageGeometry.ts';
 
 interface MoveTarget {
   block: Block;
@@ -13,7 +14,6 @@ interface MoveTarget {
   top: number;
   optional: string[];
   addOptional: boolean;
-  zoom: number;
 }
 
 function restore(property: BlockProperty | undefined) {
@@ -58,16 +58,51 @@ function getMoveTarget(block: Block, element: Element): MoveTarget | null {
     top: parseFloat(computed[y]) || 0,
     optional,
     addOptional,
-    zoom: parseFloat(computed.zoom) || 1,
   };
 }
 
 /** A gesture previews runtime values, then either saves them or restores their sources. */
-export function createStageMove(block: Block, element: Element, selected: Block[], elementMap: ElementMap) {
+export function createStageMove(
+  block: Block,
+  element: Element,
+  selected: Block[],
+  elementMap: ElementMap,
+  startX: number,
+  startY: number
+) {
   const reference = getMoveTarget(block, element);
   if (!reference || !element.parentElement) return null;
-  const matrix = getChildrenScreenCTM(element.parentElement)?.inverse();
-  if (!matrix || ![matrix.a, matrix.b, matrix.c, matrix.d].every(Number.isFinite)) return null;
+  const geometry = getElementGeometry([element]).get(element);
+  if (!geometry) return null;
+  const inverse = getPlaneInverse(geometry.matrix);
+  const local = inverse && projectPoint(inverse, startX, startY);
+  if (!local) return null;
+  const anchor = geometry.matrix.transformPoint(local);
+  const w = geometry.transform?.transformPoint(local).w ?? 1;
+  const position = geometry.positionMatrix;
+  // CSS inset changes translate the grabbed point before its own transform.
+  // Keeping that point's depth/w makes perspective dragging follow the pointer.
+  const matrix = getPlaneInverse(
+    new DOMMatrix([
+      position.m11 * w,
+      position.m12 * w,
+      0,
+      position.m14 * w,
+      position.m21 * w,
+      position.m22 * w,
+      0,
+      position.m24 * w,
+      0,
+      0,
+      1,
+      0,
+      anchor.x,
+      anchor.y,
+      0,
+      anchor.w,
+    ])
+  );
+  if (!matrix) return null;
   const targets = [reference];
   for (const other of selected) {
     if (other === block) continue;
@@ -95,8 +130,10 @@ export function createStageMove(block: Block, element: Element, selected: Block[
   };
   return {
     update(screenX: number, screenY: number) {
-      dx = (matrix.a * screenX + matrix.c * screenY) / reference.zoom;
-      dy = (matrix.b * screenX + matrix.d * screenY) / reference.zoom;
+      const delta = projectPoint(matrix, startX + screenX, startY + screenY);
+      if (!delta) return;
+      dx = Math.abs(delta.x) < 1e-9 ? 0 : delta.x;
+      dy = Math.abs(delta.y) < 1e-9 ? 0 : delta.y;
       for (const target of targets) {
         const {block, helper, optional, addOptional} = target;
         if (block._destroyed || helper?._destroyed) continue;

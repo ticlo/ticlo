@@ -50,10 +50,23 @@ later returns to its starting point. Escape cancels a pending child click too.
 Movement requires computed `position: absolute` and a directly writable style:
 a set object, a set null/undefined value, or the component's own
 `html:create-style` binding helper. Other style bindings are not moved. The
-pressed element's parent matrix converts viewport movement to CSS coordinates;
-every eligible selected component receives that same delta. Ancestor zoom and
-scale are included, the pressed element's own CSS zoom is accounted for, and its
-own transform does not affect the coordinate delta.
+pressed element's position matrix converts viewport movement to CSS inset
+changes; every eligible selected component receives that same delta. Ancestor
+transforms and the pressed element's own CSS zoom are included. Its own transform
+is excluded from the movement basis, while its grabbed point supplies the depth
+used for perspective movement.
+
+Geometry comes from the HTML package's batch element geometry API. Selection and
+hover outlines follow border-box corners, and marquee selection tests the actual
+quad for partial intersection. Shared ancestors are measured once per batch,
+and ancestor style/layout changes schedule a new measurement. Unsupported
+geometry retains rectangular selection feedback; movement requires an available,
+invertible position mapping.
+
+Dragging caches viewport geometry for the gesture, including transforms above
+the stage. The grabbed point stays under the pointer through perspective as well
+as 2D transforms; eligible siblings receive the same CSS inset delta. Selection
+outlines use stage-relative geometry and exclude transforms above the stage.
 
 Movement changes left/top unless only right/bottom is defined on that axis.
 Existing CSS lengths are resolved to pixel numbers at gesture start. Committing

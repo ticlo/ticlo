@@ -5,6 +5,8 @@ import type {ComponentContextValue} from '@ticlo/react';
 import {getChildren} from '@ticlo/react/hooks/useTicloComp.ts';
 import type {DesignerSelection} from './DesignerContext.tsx';
 import {createStageMove} from './StageMove.ts';
+import {getElementBoxQuads} from '@ticlo/html';
+import {createStagePointMapper, getFallbackQuad, quadIntersectsRect} from './StageGeometry.ts';
 
 export interface MarqueeRect {
   left: number;
@@ -28,6 +30,7 @@ interface Gesture extends Hit {
   clientX: number;
   clientY: number;
   move?: ReturnType<typeof createStageMove>;
+  toStage?: ReturnType<typeof createStagePointMapper>;
 }
 
 function supportsChildren(block: Block) {
@@ -155,12 +158,20 @@ export function useStageInput(
       gesture = null;
       setMarquee(null);
     };
-    const bounds = (current: Gesture) => ({
-      left: Math.min(current.startX, current.clientX),
-      top: Math.min(current.startY, current.clientY),
-      right: Math.max(current.startX, current.clientX),
-      bottom: Math.max(current.startY, current.clientY),
-    });
+    const bounds = (current: Gesture) => {
+      const toStage = (current.toStage ??= createStagePointMapper(stage));
+      const start = toStage(current.startX, current.startY);
+      const end = toStage(current.clientX, current.clientY);
+      return (
+        start &&
+        end && {
+          left: Math.min(start.x, end.x),
+          top: Math.min(start.y, end.y),
+          right: Math.max(start.x, end.x),
+          bottom: Math.max(start.y, end.y),
+        }
+      );
+    };
     const preview = () => {
       frame = null;
       if (!gesture) return;
@@ -172,14 +183,15 @@ export function useStageInput(
         gesture.move.update(gesture.clientX - gesture.startX, gesture.clientY - gesture.startY);
       } else if (gesture.mode === 'marquee') {
         const rect = bounds(gesture);
-        const origin = stage.getBoundingClientRect();
-        const scaleX = origin.width / stage.offsetWidth || 1;
-        const scaleY = origin.height / stage.offsetHeight || 1;
+        if (!rect) {
+          cancel();
+          return;
+        }
         setMarquee({
-          left: (rect.left - origin.left) / scaleX,
-          top: (rect.top - origin.top) / scaleY,
-          width: (rect.right - rect.left) / scaleX,
-          height: (rect.bottom - rect.top) / scaleY,
+          left: rect.left + stage.scrollLeft - stage.clientLeft,
+          top: rect.top + stage.scrollTop - stage.clientTop,
+          width: rect.right - rect.left,
+          height: rect.bottom - rect.top,
         });
       }
     };
@@ -196,24 +208,23 @@ export function useStageInput(
         const rect = bounds(gesture);
         const order = block.getValue('#order');
         const children = getChildren(block, Array.isArray(order) ? order : undefined, block.getValue('content'));
-        const selected = children.filter(
-          (child): child is Block =>
-            child instanceof Block &&
-            child.getParent() === block &&
-            !child.getValue('@d-lock') &&
-            (elementMap.getElements(child) ?? []).some((element) => {
-              if (!gesture.element.contains(element)) return false;
-              const childRect = element.getBoundingClientRect();
-              return (
-                childRect.width > 0 &&
-                childRect.height > 0 &&
-                childRect.right > rect.left &&
-                childRect.left < rect.right &&
-                childRect.bottom > rect.top &&
-                childRect.top < rect.bottom
-              );
+        const targets = new Map<Block, Element[]>();
+        for (const child of children) {
+          if (child instanceof Block && child.getParent() === block && !child.getValue('@d-lock'))
+            targets.set(
+              child,
+              (elementMap.getElements(child) ?? []).filter((element) => gesture.element.contains(element))
+            );
+        }
+        const quads = getElementBoxQuads([...targets.values()].flat(), stage);
+        const selected = [...targets]
+          .filter(([, elements]) =>
+            elements.some((element) => {
+              const quad = quads.get(element) ?? getFallbackQuad(element, gesture.toStage);
+              return quad && quadIntersectsRect(quad, rect);
             })
-        );
+          )
+          .map(([child]) => child);
         if (mouse.ctrlKey) {
           select([...selectionRef.current.blocks.filter((item) => item.getParent() === block), ...selected]);
         } else select(selected);
@@ -279,7 +290,9 @@ export function useStageInput(
                     gesture.block,
                     gesture.element,
                     selectionRef.current.blocks,
-                    elementMap
+                    elementMap,
+                    gesture.startX,
+                    gesture.startY
                   );
                   gesture.mode = gesture.move ? 'moving' : gesture.canMarquee ? 'marquee' : 'blocked';
                 }

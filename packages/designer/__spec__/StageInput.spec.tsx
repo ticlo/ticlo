@@ -412,7 +412,7 @@ describe('designer stage gestures', () => {
     const saved = flow.save();
     const track = vi.spyOn(flow, 'trackChange');
     const connectionSet = vi.spyOn(conn, 'setValue');
-    const ctm = vi.spyOn(SVGSVGElement.prototype, 'getScreenCTM');
+    const append = vi.spyOn(element('a').parentElement, 'appendChild');
     const before = element('a').getBoundingClientRect();
     pointer(element('a'), 'pointerdown', before.left + 2, before.top + 2);
     pointer(document, 'pointermove', before.left + 47, before.top + 32);
@@ -427,17 +427,17 @@ describe('designer stage gestures', () => {
     await shouldHappen(() => Math.abs(element('a').getBoundingClientRect().left - before.left - 45) < 0.1);
     await shouldHappen(() => div.querySelectorAll('.ticl-d-selection-rect').length === 4);
     const host = div.querySelector<HTMLElement>('.ticl-d-stage');
-    const rect = div.querySelector<HTMLElement>('.ticl-d-selection-rect');
+    const rect = div.querySelector<SVGPolygonElement>('.ticl-d-selection-rect');
     await shouldHappen(
       () =>
         Math.abs(
-          parseFloat(rect.style.left) -
+          rect.points.getItem(0).x -
             (element('a').getBoundingClientRect().left - host.getBoundingClientRect().left) / 1.5
         ) < 0.1
     );
     pointer(document, 'pointerup', before.left + 47, before.top + 32);
     expect(track).toHaveBeenCalledTimes(1);
-    expect(ctm).toHaveBeenCalledTimes(1);
+    expect(append).not.toHaveBeenCalled();
     expect(connectionSet).not.toHaveBeenCalled();
     expect((main.getValue('static') as Block).getValue('style')).toBe(staticStyle);
     expect((main.getValue('bound') as Block).getProperty('style')._bindingPath).toBe('##.sharedStyle');
@@ -468,6 +468,69 @@ describe('designer stage gestures', () => {
     await shouldHappen(() => Math.abs(element('a').getBoundingClientRect().left - before.left - 20) < 0.1);
     pointer(document, 'pointerup', before.left + 22, before.top + 17);
     expect(a.getProperty('style')._saved).toMatchObject({left: 50, top: 60});
+  });
+
+  it.each(['rotate(25deg) scale(1.2,.8)', 'perspective(600px) rotateY(25deg)'])(
+    'keeps the grabbed point under the pointer through %s and cancels both selected objects',
+    async (transform) => {
+      const {main, element, getStage} = await mount(
+        {
+          'style': {position: 'relative', width: 300, height: 200, transform, transformStyle: 'preserve-3d'},
+          '#order': ['a', 'b'],
+          'a': child('a', {
+            position: 'absolute',
+            left: 40,
+            top: 50,
+            zoom: 1.25,
+            transform: 'rotateX(20deg) translateZ(30px)',
+          }),
+          'b': child('b', {position: 'absolute', left: 150, top: 100, zoom: 2}),
+        },
+        1.5
+      );
+      const a = main.getValue('a') as Block;
+      const b = main.getValue('b') as Block;
+      const savedA = a.getValue('style');
+      const savedB = b.getValue('style');
+      getStage().select([a, b]);
+      await shouldHappen(() => getStage().selection.blocks.length === 2);
+      const marker = document.createElement('div');
+      marker.style.cssText = 'position:absolute;left:10px;top:7px;width:0;height:0;';
+      element('a').appendChild(marker);
+      const before = marker.getBoundingClientRect();
+      const measure = vi.spyOn(document.documentElement, 'getBoundingClientRect');
+      pointer(element('a'), 'pointerdown', before.left, before.top);
+      pointer(document, 'pointermove', before.left + 37, before.top + 23);
+      await shouldHappen(() => Math.abs(marker.getBoundingClientRect().left - before.left - 37) < 0.02);
+      expect(marker.getBoundingClientRect().top - before.top).toBeCloseTo(23, 1);
+      expect((b.getValue('style') as any).left - 150).toBeCloseTo((a.getValue('style') as any).left - 40, 4);
+      expect((b.getValue('style') as any).top - 100).toBeCloseTo((a.getValue('style') as any).top - 50, 4);
+      pointer(document, 'pointermove', before.left + 45, before.top + 35);
+      await shouldHappen(() => Math.abs(marker.getBoundingClientRect().left - before.left - 45) < 0.02);
+      expect(measure).toHaveBeenCalledTimes(1);
+      element('a')
+        .closest('.ticl-d-stage')
+        .dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
+      expect(a.getValue('style')).toBe(savedA);
+      expect(b.getValue('style')).toBe(savedB);
+      await shouldHappen(() => Math.abs(marker.getBoundingClientRect().left - before.left) < 0.02);
+    }
+  );
+
+  it('marquee tests actual rotated corners instead of the empty part of a bounding rectangle', async () => {
+    const {main, page, element, getStage} = await mount({
+      '#order': ['a'],
+      'a': child('a', {position: 'absolute', left: 100, top: 100, width: 60, height: 60, transform: 'rotate(45deg)'}),
+    });
+    const bounds = element('a').getBoundingClientRect();
+    pointer(page, 'pointerdown', bounds.left + 1, bounds.top + 1);
+    pointer(document, 'pointermove', bounds.left + 8, bounds.top + 8);
+    pointer(document, 'pointerup', bounds.left + 8, bounds.top + 8);
+    expect(getStage().selection.blocks).toEqual([]);
+    pointer(page, 'pointerdown', bounds.left + 25, bounds.top + 1);
+    pointer(document, 'pointermove', bounds.left + 45, bounds.top + 15);
+    pointer(document, 'pointerup', bounds.left + 45, bounds.top + 15);
+    await shouldHappen(() => getStage().selection.blocks[0] === main.getValue('a'));
   });
 
   it.each([{order: undefined}, {order: null}, {order: []}])(
@@ -509,7 +572,10 @@ describe('designer stage gestures', () => {
       const inner = container.getValue('content') as Block;
       pointer(element('inner'), 'pointerover');
       if (!locked)
-        await shouldHappen(() => div.querySelector<HTMLElement>('.ticl-d-hover-rect')?.style.width === '100px');
+        await shouldHappen(() => {
+          const outline = div.querySelector<SVGPolygonElement>('.ticl-d-hover-rect');
+          return outline && outline.points.getItem(1).x - outline.points.getItem(0).x === 100;
+        });
       else expect(div.querySelector('.ticl-d-hover-rect')).toBeNull();
       click(element('inner'));
       if (!locked) await shouldHappen(() => getStage().selection.blocks[0] === container);

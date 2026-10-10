@@ -1,29 +1,28 @@
 import {useEffect, useState, type RefObject} from 'react';
 import type {Block} from '@ticlo/core';
 import type {ElementMap} from '@ticlo/react';
+import {getElementBoxQuads} from '@ticlo/html';
+import {createStagePointMapper, getFallbackQuad} from './StageGeometry.ts';
 
-interface SelectionRect {
+interface SelectionQuad {
   element: Element;
   selected: boolean;
-  left: number;
-  top: number;
-  width: number;
-  height: number;
+  points: string;
 }
 
-export function useSelectionRects(
+export function useSelectionQuads(
   stageRef: RefObject<HTMLDivElement | null>,
   elementMap: ElementMap,
   blocks: Block[],
   hover: Element | null
 ) {
-  const [rects, setRects] = useState<SelectionRect[]>([]);
+  const [quads, setQuads] = useState<SelectionQuad[]>([]);
 
   useEffect(() => {
     const stage = stageRef.current;
     const hoverBlock = hover && elementMap.getBlock(hover);
     if (!blocks.length && !hoverBlock) {
-      setRects([]);
+      setQuads([]);
       return;
     }
 
@@ -41,34 +40,28 @@ export function useSelectionRects(
     let frame: number | null = null;
     const measure = () => {
       frame = null;
-      const origin = stage.getBoundingClientRect();
-      const next: SelectionRect[] = [];
-      if (origin.width && origin.height) {
-        const scaleX = origin.width / stage.offsetWidth || 1;
-        const scaleY = origin.height / stage.offsetHeight || 1;
-        for (const [element, selected] of getTargets()) {
-          const bounds = element.getBoundingClientRect();
-          if (!bounds.width || !bounds.height) continue;
-          next.push({
-            element,
-            selected,
-            left: (bounds.left - origin.left) / scaleX,
-            top: (bounds.top - origin.top) / scaleY,
-            width: bounds.width / scaleX,
-            height: bounds.height / scaleY,
-          });
-        }
+      const targets = getTargets();
+      const measured = getElementBoxQuads([...targets.keys()], stage);
+      let toStage: ReturnType<typeof createStagePointMapper>;
+      const next: SelectionQuad[] = [];
+      const offsetX = stage.scrollLeft - stage.clientLeft;
+      const offsetY = stage.scrollTop - stage.clientTop;
+      for (const [element, selected] of targets) {
+        const quad = measured.get(element) ?? getFallbackQuad(element, (toStage ??= createStagePointMapper(stage)));
+        if (!quad || !quad.getBounds().width || !quad.getBounds().height) continue;
+        next.push({
+          element,
+          selected,
+          points: [quad.p1, quad.p2, quad.p3, quad.p4]
+            .map((point) => `${point.x + offsetX},${point.y + offsetY}`)
+            .join(' '),
+        });
       }
-      setRects((previous) =>
+      setQuads((previous) =>
         previous.length === next.length &&
         previous.every(
           (rect, i) =>
-            rect.element === next[i].element &&
-            rect.selected === next[i].selected &&
-            rect.left === next[i].left &&
-            rect.top === next[i].top &&
-            rect.width === next[i].width &&
-            rect.height === next[i].height
+            rect.element === next[i].element && rect.selected === next[i].selected && rect.points === next[i].points
         )
           ? previous
           : next
@@ -82,10 +75,20 @@ export function useSelectionRects(
     const observeTargets = () => {
       observer.disconnect();
       mutations.disconnect();
-      observer.observe(stage);
-      for (const element of getTargets().keys()) {
+      const observed = new Set<Element>([stage]);
+      for (const target of getTargets().keys()) {
+        for (
+          let element: Element | null = target;
+          element && stage.contains(element);
+          element = element.parentElement
+        ) {
+          if (observed.has(element)) break;
+          observed.add(element);
+        }
+      }
+      for (const element of observed) {
         observer.observe(element);
-        mutations.observe(element, {attributes: true, attributeFilter: ['style', 'class']});
+        mutations.observe(element, {attributes: true, attributeFilter: ['style', 'class'], childList: true});
       }
     };
     const unsubscribe = elementMap.subscribe((block) => {
@@ -106,5 +109,5 @@ export function useSelectionRects(
     };
   }, [stageRef, elementMap, blocks, hover]);
 
-  return rects;
+  return quads;
 }
