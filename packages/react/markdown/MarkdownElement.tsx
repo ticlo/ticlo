@@ -7,6 +7,7 @@ import {useBlockConfigs} from '../hooks/useBlockConfigs.ts';
 import {useTicloComp} from '../hooks/useTicloComp.ts';
 import {MarkdownParts} from './Markdown.tsx';
 import {parseMarkdown} from './parseMarkdown.ts';
+import {optionalHtmlSuggestions} from '../elements/HtmlAttributes.ts';
 
 const props = {
   source: {value: Values.string},
@@ -29,6 +30,7 @@ globalFunctions.addFactory(
   {
     name: 'markdown',
     base: 'react:element',
+    optionalSuggestions: optionalHtmlSuggestions,
     attributes: elementAttributes,
     tags: ['react-comp'],
     properties: [

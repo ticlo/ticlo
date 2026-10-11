@@ -45,6 +45,7 @@ const imgElementDesc: FunctionDesc = {
     elementClassProperty,
   ],
   optional,
+  optionalSuggestions: ['alt', 'width', 'height', 'srcSet', 'crossOrigin', 'decoding', 'onLoad', 'onError'],
   category: 'react:elements',
 };
 globalFunctions.addFactory(null, imgElementDesc, 'react', undefined, {

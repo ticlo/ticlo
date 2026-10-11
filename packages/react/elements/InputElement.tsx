@@ -97,6 +97,18 @@ const inputElementDesc: FunctionDesc = {
     elementStyleProperty,
   ],
   optional,
+  optionalSuggestions: [
+    'output',
+    'placeholder',
+    'disabled',
+    'checked',
+    'onChange',
+    'required',
+    'name',
+    'min',
+    'max',
+    'step',
+  ],
   category: 'react:elements',
 };
 const inputPropMap = {
@@ -171,6 +183,17 @@ const textareaElementDesc: FunctionDesc = {
     elementStyleProperty,
   ],
   optional: textareaOptional,
+  optionalSuggestions: [
+    'output',
+    'placeholder',
+    'disabled',
+    'rows',
+    'cols',
+    'onChange',
+    'required',
+    'maxLength',
+    'name',
+  ],
   category: 'react:elements',
 };
 
@@ -233,6 +256,7 @@ const selectElementDesc: FunctionDesc = {
     elementStyleProperty,
   ],
   optional: selectOptional,
+  optionalSuggestions: ['output', 'disabled', 'multiple', 'onChange', 'required', 'name', 'size'],
   category: 'react:elements',
 };
 

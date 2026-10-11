@@ -11,6 +11,7 @@ import {TicloI18NConsumer} from '../component/LayoutContext.ts';
 import {translateEditor} from '@ticlo/core/util/i18n.ts';
 import {t} from '../component/LocalizedLabel.tsx';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
+import {OptionalPropertyHistory} from './OptionalPropertyHistory.ts';
 
 class OptionalPropertyLoader extends MultiSelectLoader<OptionalPropertyList> {
   optionalProps: string[];
@@ -56,6 +57,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
   cachedProperties: {[key: string]: PropDesc};
   checkedFuncDesc: FunctionDesc;
   checkedFuncLib: string;
+  history: OptionalPropertyHistory;
 
   getProperties(): {[key: string]: PropDesc} {
     const {funcDesc, conn, funcLib} = this.props;
@@ -64,6 +66,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
       this.checkedFuncLib = funcLib;
       if (funcDesc) {
         this.cachedProperties = conn.getOptionalProps(funcDesc, funcLib);
+        this.history = new OptionalPropertyHistory(funcDesc, this.cachedProperties || {}, funcLib);
       } else {
         this.cachedProperties = null;
       }
@@ -89,13 +92,11 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
   };
 
   getSearchMatches(search: string): string[] {
+    const properties = this.getProperties();
+    if (!search) return this.history?.getSuggestions() ?? [];
     const lsearch = search.toLowerCase();
-    const loaders = [...this.loaders.values()];
-    return Object.keys(this.getProperties() || {})
-      .filter(
-        (name) =>
-          name.toLowerCase().includes(lsearch) && !loaders.every((loader) => loader.optionalProps?.includes(name))
-      )
+    return Object.keys(properties || {})
+      .filter((name) => name.toLowerCase().includes(lsearch))
       .sort(
         (a, b) =>
           Number(b.toLowerCase().startsWith(lsearch)) - Number(a.toLowerCase().startsWith(lsearch)) ||
@@ -108,6 +109,10 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
     if (!paths.every((path) => this.context.can({cmd: checked ? 'addOptionalProp' : 'removeOptionalProp', path, name})))
       return;
     if (checked) {
+      if ([...this.loaders.values()].some((loader) => !loader.optionalProps?.includes(name))) {
+        this.getProperties();
+        this.history.record(name);
+      }
       for (const path of paths) {
         conn.addOptionalProp(path, name);
       }
@@ -144,7 +149,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
       return <div />;
     }
 
-    const children: React.ReactElement[] = [];
+    const children: React.ReactNode[] = [];
 
     let optionalProps: string[];
     for (const [path, loader] of this.loaders) {
@@ -159,43 +164,38 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
       }
     }
 
-    for (const name of optionalProps) {
-      const optionalPropDesc = properties[name];
+    const addProperty = (name: string, checked: boolean) => {
       children.push(
         <OptionalPropertyEditor
-          key={name}
+          key={`property:${name}`}
           name={name}
           paths={paths}
           conn={conn}
           funcDesc={funcDesc}
-          propDesc={optionalPropDesc}
-          checked={true}
+          propDesc={properties[name]}
+          checked={checked}
           onCheck={this.onPropertyChecked}
           funcLib={funcLib}
         />
       );
-    }
-    let showMore: React.ReactNode;
-    if (search) {
+    };
+    let matchingEnabled: string[] = [];
+    if (search != null) {
       const matches = this.getSearchMatches(search);
-      for (const name of matches.slice(0, 10)) {
+      matchingEnabled = optionalProps.filter((name) => matches.includes(name));
+      for (const name of matchingEnabled) addProperty(name, true);
+      const available = matches.filter((name) => !optionalProps.includes(name));
+      for (const name of available.slice(0, 10)) addProperty(name, false);
+      if (available.length > 10) {
         children.push(
-          <OptionalPropertyEditor
-            key={name}
-            name={name}
-            paths={paths}
-            conn={conn}
-            funcDesc={funcDesc}
-            propDesc={properties[name]}
-            checked={false}
-            onCheck={this.onPropertyChecked}
-            funcLib={funcLib}
-          />
+          <div key="more" style={{marginLeft: 32}}>
+            . . . more . . .
+          </div>
         );
       }
-      if (matches.length > 10) {
-        showMore = <div style={{marginLeft: 32}}>. . . more . . .</div>;
-      }
+    }
+    for (const name of optionalProps) {
+      if (!matchingEnabled.includes(name)) addProperty(name, true);
     }
 
     return (
@@ -235,7 +235,6 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
           )}
         </div>
         {children}
-        {showMore}
       </div>
     );
   }

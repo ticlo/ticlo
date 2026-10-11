@@ -131,6 +131,8 @@ export interface FunctionDesc {
   // optional properties defined in base function, base function can be the current function itself
   base?: string;
   optional?: {[key: string]: PropDesc};
+  /** Up to ten optional property names used to seed empty search history, each with one use. */
+  optionalSuggestions?: string[];
   commands?: {[key: string]: FunctionCommandDesc};
   /** recipient property will receive value or binding when parent property is converted to subblock of this type */
   recipient?: string;

@@ -36,6 +36,20 @@ can be edited. For local function descriptors, editor components also need the
 owning function-library flow path; see the
 [connection architecture](../.agents/skills/ticlo/core-package.md#connection-layer).
 
+## Optional property suggestions
+
+Functions with optional properties can declare `optionalSuggestions`, an array
+of up to ten property names. An empty search uses these names to seed an empty
+history, in array order, with one use each. Suggestions do not enable properties.
+
+The editor saves search history in localStorage per function type; flow-local
+types also include their function-library path. Each enable action records one
+use, including when multiple blocks are selected. History retains up to 32 names.
+Suggestions show the five most recent names followed by the five most frequently
+used remaining names, with recency breaking frequency ties. When history is full,
+the least frequently used name outside the ten most recent names is removed;
+the oldest name breaks eviction ties.
+
 ## Table editor
 
 Use `type: 'table'` with an explicit `rowType` and `columns`. A column's `type`

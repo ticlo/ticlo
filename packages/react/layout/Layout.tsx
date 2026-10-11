@@ -3,6 +3,7 @@ import {Block, globalFunctions} from '@ticlo/core';
 import {metaKey, renderChildren} from '../comp/Component.tsx';
 import {elementAttributes, elementConfigs, elementProps} from '../comp/CommontProps.ts';
 import {useTicloComp} from '../hooks/useTicloComp.ts';
+import {optionalHtmlSuggestions} from '../elements/HtmlAttributes.ts';
 
 function createLayout(name: string) {
   function Layout({block}: {block: Block}) {
@@ -20,6 +21,7 @@ function createLayout(name: string) {
     {
       name,
       base: 'react:element',
+      optionalSuggestions: optionalHtmlSuggestions,
       attributes: elementAttributes,
       tags: ['react-comp'],
       childrenTags: ['react-comp'],

@@ -4,10 +4,12 @@ import {elementAttributes, elementConfigs, elementProps} from '../comp/CommontPr
 import {Block, globalFunctions} from '@ticlo/core';
 import {useTicloComp} from '../hooks/useTicloComp.ts';
 import {metaKey, renderChildren} from '../comp/Component.tsx';
+import {optionalHtmlSuggestions} from './HtmlAttributes.ts';
 
 const sharedElementDesc: FunctionDesc = {
   name: '',
   base: 'react:element',
+  optionalSuggestions: optionalHtmlSuggestions,
   attributes: elementAttributes,
   tags: ['react-comp'],
   childrenTags: ['react-comp'],

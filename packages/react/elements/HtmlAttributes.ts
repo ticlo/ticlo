@@ -268,6 +268,7 @@ export const optionalHtmlProperties: {[key: string]: PropDesc} = {
   ...htmlAttributes,
   ...htmlEventHandlers,
 };
+export const optionalHtmlSuggestions = ['id', 'title', 'onClick', 'hidden', 'tabIndex', 'onMouseEnter', 'onMouseLeave'];
 globalFunctions.addFactory(
   null,
   {
@@ -275,6 +276,7 @@ globalFunctions.addFactory(
     src: 'hidden',
     properties: [],
     optional: optionalHtmlProperties,
+    optionalSuggestions: optionalHtmlSuggestions,
   },
   'react'
 );

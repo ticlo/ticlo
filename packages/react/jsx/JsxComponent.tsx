@@ -7,6 +7,7 @@ import {useBlockConfigs} from '../hooks/useBlockConfigs.ts';
 import {useBlockProps} from '../hooks/useBlockProps.tsx';
 import {Values} from '../comp/Values.ts';
 import {useBlockValue} from '../hooks/useBlockValue.ts';
+import {optionalHtmlSuggestions} from '../elements/HtmlAttributes.ts';
 
 const PRECODE = `
 const {block, React} = props;
@@ -54,6 +55,7 @@ function JsxComponent({block}: {block: Block}) {
 const jsxComponentDesc: FunctionDesc = {
   name: 'jsx',
   base: 'react:element',
+  optionalSuggestions: optionalHtmlSuggestions,
   attributes: elementAttributes,
   tags: ['react-comp'],
   childrenTags: ['react-comp'],
