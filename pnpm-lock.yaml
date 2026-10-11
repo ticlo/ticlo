@@ -515,6 +515,9 @@ importers:
       '@ticlo/core':
         specifier: workspace:*
         version: link:../core
+      '@ticlo/file-client':
+        specifier: ^0.0.2
+        version: 0.0.2(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
       '@ticlo/html':
         specifier: workspace:*
         version: link:../html

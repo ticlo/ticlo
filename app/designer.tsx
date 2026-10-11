@@ -13,7 +13,7 @@ import {
   DesignerStage,
   useActiveDesignerStage,
 } from '@ticlo/designer';
-import {initEditor, PropertyList} from '@ticlo/editor';
+import {initEditor, PropertyList, FileManager} from '@ticlo/editor';
 import {
   TicloCurrentFlowConsumer,
   TicloCurrentFlowContext,
@@ -137,6 +137,7 @@ interface Props {
   root: Root;
   conn: ClientConnection;
   initialFlow?: string;
+  files?: {client: TicloFileClient; project: string};
 }
 
 interface State {
@@ -196,6 +197,17 @@ class App extends React.PureComponent<Props, State> {
         content: <DesignerNodeTree />,
       },
     };
+    if (props.files) {
+      this.tabs = {
+        ...this.tabs,
+        Files: {
+          group: 'tool',
+          title: t('Files'),
+          cached: true,
+          content: <FileManager {...props.files} />,
+        },
+      };
+    }
     this.defaultDockLayout = {
       dockbox: {
         mode: 'horizontal',
@@ -211,7 +223,7 @@ class App extends React.PureComponent<Props, State> {
               },
               {
                 size: 400,
-                tabs: [{id: 'Navigation'}],
+                tabs: [{id: 'Navigation'}, ...(props.files ? [{id: 'Files'}] : [])],
               },
               {
                 size: 300,
@@ -400,9 +412,11 @@ window.addEventListener('hashchange', () => location.reload());
   const host = params.get('host');
   const root = Root.instance;
   let initialFlow: string;
+  let files: Props['files'];
   if (host) {
     const client = new TicloFileClient({baseURL: host});
     const project = params.get('project') || '#root';
+    files = {client, project};
     await root.setStorage(new FileServerFlowStorage(client));
     await root.start(
       params.has('project') || params.has('flow') ? {[project]: {flows: params.getAll('flow')}} : undefined
@@ -421,7 +435,9 @@ window.addEventListener('hashchange', () => location.reload());
   }
 
   const [server, client] = makeLocalConnection(root, true, undefined, false);
-  createRoot(document.getElementById('app')).render(<App root={root} conn={client} initialFlow={initialFlow} />);
+  createRoot(document.getElementById('app')).render(
+    <App root={root} conn={client} initialFlow={initialFlow} files={files} />
+  );
 })().catch((error) => {
   console.error(error);
   document.getElementById('app').textContent = `Failed to load designer: ${error.message}`;

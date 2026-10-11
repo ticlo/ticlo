@@ -13,6 +13,7 @@ export default defineConfig({
       'packages/test/**/*.spec.ts',
       'packages/web-server/**/*.spec.ts',
       'packages/remote-storage/**/*.spec.ts',
+      'packages/editor/**/*.node.test.ts',
     ],
     coverage: {
       provider: 'v8',
@@ -24,7 +25,8 @@ export default defineConfig({
       '**/dist/**',
       '**/cypress/**',
       '**/.{idea,git,cache,output,temp}/**',
-      'packages/editor/**',
+      'packages/editor/**/*.spec.ts',
+      'packages/editor/**/*.spec.tsx',
       'bin/**',
       'example/**',
       'tool/**',

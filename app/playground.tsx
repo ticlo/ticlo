@@ -20,7 +20,7 @@ import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.tsx';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {data} from './sample-data/data.ts';
 import reactData from './sample-data/react.ts';
-import {initEditor, PropertyList, BlockStage, NodeTree} from '@ticlo/editor';
+import {initEditor, PropertyList, BlockStage, NodeTree, FileManager} from '@ticlo/editor';
 import {DockLayout, type LayoutBase, type TabDefinitions} from 'rc-dock';
 import {leftSideColumns, stageGroup, toolGroup, createLayoutActions} from './AppLayout.ts';
 import {antdLocales, initAppI18n, LanguageSettings} from './AppI18n.tsx';
@@ -63,6 +63,7 @@ const layoutGroups = {
 interface Props {
   conn: ClientConnection;
   initialFlow?: string;
+  files?: {client: TicloFileClient; project: string};
 }
 
 interface State {
@@ -137,6 +138,17 @@ class App extends React.PureComponent<Props, State> {
         content: <div id="main" />,
       },
     };
+    if (props.files) {
+      this.tabs = {
+        ...this.tabs,
+        Files: {
+          group: 'tool',
+          title: t('Files'),
+          cached: true,
+          content: <FileManager {...props.files} />,
+        },
+      };
+    }
     this.defaultDockLayout = {
       dockbox: {
         mode: 'horizontal',
@@ -147,7 +159,12 @@ class App extends React.PureComponent<Props, State> {
             size: 200,
             children: [
               {
-                tabs: [{id: 'Navigation'}, {id: 'Policy'}, {id: 'Test Language'}],
+                tabs: [
+                  {id: 'Navigation'},
+                  ...(props.files ? [{id: 'Files'}] : []),
+                  {id: 'Policy'},
+                  {id: 'Test Language'},
+                ],
               },
               {
                 tabs: [{id: 'Functions'}, {id: 'Properties'}],
@@ -281,9 +298,11 @@ window.addEventListener('hashchange', () => location.reload());
   const host = params.get('host');
   const root = Root.instance;
   let initialFlow: string;
+  let files: Props['files'];
   if (host) {
     const client = new TicloFileClient({baseURL: host});
     const project = params.get('project') || '#root';
+    files = {client, project};
     await root.setStorage(new FileServerFlowStorage(client));
     await root.start(
       params.has('project') || params.has('flow') ? {[project]: {flows: params.getAll('flow')}} : undefined
@@ -308,7 +327,7 @@ window.addEventListener('hashchange', () => location.reload());
   }
 
   const [server, client] = makeLocalConnection(root);
-  createRoot(document.getElementById('app')).render(<App conn={client} initialFlow={initialFlow} />);
+  createRoot(document.getElementById('app')).render(<App conn={client} initialFlow={initialFlow} files={files} />);
 })().catch((error) => {
   console.error(error);
   document.getElementById('app').textContent = `Failed to load playground: ${error.message}`;

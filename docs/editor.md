@@ -81,6 +81,42 @@ workers save to their function library. Local function lookup uses `funcLib`.
 Editors requiring a separate Block property path, including nested object/array
 editing, remain read-only. Property and column edit restrictions apply.
 
+## File manager
+
+`FileManager` manages remote files through `@ticlo/file-client`. Pass a client
+and a project / namespace ID; the panel is confined to `proj/<project>`, and
+cannot rename, copy, move, or delete the project root. Use `#root` for the global
+namespace. Changing either the client or project clears selection and clipboard
+state and cancels outstanding requests and confirmations.
+
+```tsx
+import {FileManager} from '@ticlo/editor';
+import {TicloFileClient} from '@ticlo/file-client';
+import '@ticlo/editor/style/index.css';
+
+const client = new TicloFileClient({baseURL: 'http://127.0.0.1:8010/file'});
+
+<FileManager client={client} project="main" style={{height: 500}} />;
+```
+
+The panel supports file and folder operations, including recursive folder copies
+and uploads that preserve empty folders. Copies include entries exposed by the
+file-server listing API. Same-directory copies receive an unused
+numbered name. Replacing an existing entry requires confirmation; replacing a
+folder also removes its contents. The clipboard belongs to the panel.
+
+Preview supports images and common text, source-code, and configuration formats.
+Supported files smaller than 100,000 bytes load automatically; larger files need
+an explicit request. Text previews are read-only and show source, including HTML
+and JavaScript. Unsupported formats, including Ticlo / designer files, provide
+metadata and download only. `defaultPreview` controls the initial preview state.
+
+`onSelect` receives the selected `FileEntry` objects. `onChange` fires after a
+mutation attempt and directory refresh, including partial failures. These are
+raw file operations; consumers must reload affected runtime flows themselves.
+The playground and designer show a Files panel when configured with remote
+storage, using the project selected by their `project` URL parameter.
+
 ## Themes
 
 Editor styles and rc-dock's `rc-dock-antd.css` consume Ant Design CSS variables.

@@ -2,6 +2,7 @@ export * from './block/BlockStage.tsx';
 export * from './property/PropertyList.tsx';
 export * from './component/EditPolicyContext.tsx';
 export * from './node-tree/NodeTree.tsx';
+export * from './file-manager/FileManager.tsx';
 export {cacheCall} from './util/CachedCallback.ts';
 
 import * as ticloI18n from '@ticlo/core/editor.ts';

@@ -18,7 +18,7 @@ import {t} from '../../component/LocalizedLabel.tsx';
 import {arrowReviver} from '@ticlo/core/util/Serialize.ts';
 import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
 
-const editorTheme = EditorView.theme({
+export const editorTheme = EditorView.theme({
   '&': {color: 'var(--ant-color-text, #000)', backgroundColor: 'var(--ant-color-bg-container, #fff)'},
   '.cm-content': {caretColor: 'var(--ant-color-text, #000)'},
   '.cm-gutters': {
@@ -33,7 +33,7 @@ const editorTheme = EditorView.theme({
   },
 });
 
-const editorHighlighting = syntaxHighlighting(
+export const editorHighlighting = syntaxHighlighting(
   HighlightStyle.define([
     {
       tag: [tags.keyword, tags.propertyName, tags.typeName, tags.tagName],

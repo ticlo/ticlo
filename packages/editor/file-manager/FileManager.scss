@@ -1,0 +1,141 @@
+.ticl-e-file-manager {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  outline: none;
+  color: var(--ant-color-text, #333);
+  background: var(--ant-color-bg-container, #fff);
+}
+
+.ticl-e-file-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-bottom: 1px solid var(--ant-color-border-secondary, #eee);
+
+  > .ant-btn {
+    flex: none;
+  }
+}
+
+.ticl-e-file-project {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticl-e-file-tree-area {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ticl-e-file-tree {
+  flex: 1;
+}
+
+.ticl-e-file-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+  user-select: none;
+
+  > .ticl-e-tree-arr {
+    flex: none;
+  }
+  > .anticon {
+    flex: none;
+  }
+  > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &:hover {
+    background: var(--ant-control-item-bg-hover, #f5f5f5);
+  }
+  &.ticl-e-file-selected {
+    background: var(--ant-control-item-bg-active, #e6f4ff);
+  }
+  &.ticl-e-file-drop {
+    box-shadow: inset 0 0 0 1px var(--ant-color-primary, #40a9ff);
+  }
+}
+
+.ticl-e-file-cut {
+  opacity: 0.5;
+}
+
+.ticl-e-file-preview {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-top: 1px solid var(--ant-color-border-secondary, #eee);
+}
+
+.ticl-e-file-preview-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  > img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
+.ticl-e-file-preview-text {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  .cm-editor {
+    height: 100%;
+  }
+}
+
+.ticl-e-file-info {
+  flex: none;
+  padding: 4px 6px;
+  font-size: 12px;
+  border-top: 1px solid var(--ant-color-border-secondary, #eee);
+  > div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.ticl-e-file-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  color: var(--ant-color-text-secondary, #666);
+}
+
+.ticl-e-file-error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  overflow-wrap: anywhere;
+  color: var(--ant-color-error, #ff4d4f);
+}

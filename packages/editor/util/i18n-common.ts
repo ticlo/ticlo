@@ -16,6 +16,7 @@ t('Navigation');
 t('Properties');
 t('Functions');
 t('Pinned');
+t('Files');
 
 // node names
 
