@@ -15,7 +15,6 @@ function loadOneCss(url: string) {
 
 function loadCssInHeader() {
   if (!(window as any).ticloCssLoaded) {
-    loadOneCss('https://fonts.googleapis.com/css?family=Fredoka+One');
     // For Vite, we need to use the correct paths
     loadOneCss('/css/antd.css');
     loadOneCss('/packages/react/style/index.css');

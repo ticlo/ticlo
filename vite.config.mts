@@ -54,6 +54,11 @@ function preProcess(): Plugin {
     /** Runs once at the very start of `vite build` */
     async buildStart() {
       await checkFiles();
+      this.emitFile({
+        type: 'asset',
+        fileName: 'assets/fredoka-one-OFL.txt',
+        source: fs.readFileSync('packages/editor/style/fonts/OFL.txt'),
+      });
     },
   };
 }

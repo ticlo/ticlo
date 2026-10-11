@@ -13,6 +13,11 @@ export function buildPackageCss(name: string, targetDir = path.join(workspaceDir
   const output = path.join(targetDir, 'style/index.css');
   fs.mkdirSync(path.dirname(output), {recursive: true});
   fs.writeFileSync(output, css);
+  const fontsDir = path.join(path.dirname(entry), 'fonts');
+  const targetFontsDir = path.join(targetDir, 'style/fonts');
+  if (fs.existsSync(fontsDir) && path.resolve(fontsDir) !== path.resolve(targetFontsDir)) {
+    fs.cpSync(fontsDir, targetFontsDir, {recursive: true});
+  }
 }
 
 export function buildCss() {
