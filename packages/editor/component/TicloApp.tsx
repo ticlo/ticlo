@@ -1,4 +1,6 @@
-import React, {useCallback, useMemo, useRef, useState, ReactNode} from 'react';
+import React, {useCallback, useContext, useMemo, useRef, useState, ReactNode} from 'react';
+import {ConfigProvider, theme} from 'antd';
+import {DragLayerContext} from 'rc-dock';
 import {TicloCurrentFlowContext, TicloLayoutContext, TicloLayoutContextType, TicloStage} from './LayoutContext.ts';
 
 export interface TicloAppProps<Context extends TicloLayoutContext = TicloLayoutContext> {
@@ -174,6 +176,17 @@ export function TicloApp<Context extends TicloLayoutContext>({
   style,
 }: TicloAppProps<Context>) {
   const {currentFlow, wrappedLayoutContext, onKeyDown, onPaste} = useTicloContext(value);
+  const cssVar = useContext(ConfigProvider.ConfigContext).theme?.cssVar;
+  const themeClass = typeof cssVar === 'object' ? cssVar.key : 'css-var-root';
+  const {token} = theme.useToken();
+  const initDragLayer = useCallback(
+    (layer: HTMLDivElement) => {
+      layer.classList.add(themeClass);
+      layer.style.fontFamily = token.fontFamily;
+      layer.style.color = 'var(--ant-color-text)';
+    },
+    [themeClass, token.fontFamily]
+  );
   const rootStyle: React.CSSProperties = useMemo(
     () => ({
       position: 'relative',
@@ -185,12 +198,14 @@ export function TicloApp<Context extends TicloLayoutContext>({
   );
 
   return (
-    <TicloCurrentFlowContext.Provider value={currentFlow}>
-      <TicloLayoutContextType.Provider value={wrappedLayoutContext}>
-        <div className={className} style={rootStyle} onKeyDown={onKeyDown} onPaste={onPaste}>
-          {children}
-        </div>
-      </TicloLayoutContextType.Provider>
-    </TicloCurrentFlowContext.Provider>
+    <DragLayerContext.Provider value={initDragLayer}>
+      <TicloCurrentFlowContext.Provider value={currentFlow}>
+        <TicloLayoutContextType.Provider value={wrappedLayoutContext}>
+          <div className={className} style={rootStyle} onKeyDown={onKeyDown} onPaste={onPaste}>
+            {children}
+          </div>
+        </TicloLayoutContextType.Provider>
+      </TicloCurrentFlowContext.Provider>
+    </DragLayerContext.Provider>
   );
 }
