@@ -1,7 +1,7 @@
 import './styles.ts';
 import React, {useEffect, useState} from 'react';
 import {createRoot} from 'react-dom/client';
-import {Button, ConfigProvider, message} from 'antd';
+import {App as AntdApp, Button, ConfigProvider, message} from 'antd';
 import i18next from 'i18next';
 import {Root, addConsoleLogger} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -57,10 +57,12 @@ function FullscreenButton() {
   const [, client] = makeLocalConnection(Root.instance);
   createRoot(document.getElementById('app')).render(
     <ConfigProvider theme={theme}>
-      <TicloApp value={{language: 'en'}}>
-        <BlockStagePane conn={client} basePath="example" disablePropertyList />
-      </TicloApp>
-      <FullscreenButton />
+      <AntdApp style={{height: '100%', backgroundColor: 'var(--ant-color-bg-layout)'}}>
+        <TicloApp value={{language: 'en'}}>
+          <BlockStagePane conn={client} basePath="example" disablePropertyList />
+        </TicloApp>
+        <FullscreenButton />
+      </AntdApp>
     </ConfigProvider>
   );
 })();

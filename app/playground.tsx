@@ -1,7 +1,7 @@
 import './styles.ts';
 import * as React from 'react';
 import {StrictMode} from 'react';
-import {ConfigProvider, Switch, type RadioChangeEvent} from 'antd';
+import {App as AntdApp, ConfigProvider, Switch, type RadioChangeEvent} from 'antd';
 import {
   Block,
   DataMap,
@@ -234,21 +234,23 @@ class App extends React.PureComponent<Props, State> {
     const conn = this.conn;
     const {modal} = this.state;
     const appContent = (
-      <PlaygroundConnectionContext.Provider value={conn}>
-        <EditPolicyProvider conn={conn}>
-          <TicloApp value={this.ticloContext}>
-            <DockLayout
-              defaultLayout={this.defaultDockLayout}
-              tabs={this.tabs}
-              sideColumns={leftSideColumns}
-              ref={this.getLayout}
-              groups={layoutGroups}
-              style={{position: 'absolute', left: 0, top: 10, right: 10, bottom: 10}}
-            />
-            {modal}
-          </TicloApp>
-        </EditPolicyProvider>
-      </PlaygroundConnectionContext.Provider>
+      <AntdApp style={{height: '100%', backgroundColor: 'var(--ant-color-bg-layout)'}}>
+        <PlaygroundConnectionContext.Provider value={conn}>
+          <EditPolicyProvider conn={conn}>
+            <TicloApp value={this.ticloContext}>
+              <DockLayout
+                defaultLayout={this.defaultDockLayout}
+                tabs={this.tabs}
+                sideColumns={leftSideColumns}
+                ref={this.getLayout}
+                groups={layoutGroups}
+                style={{position: 'absolute', left: 0, top: 10, right: 10, bottom: 10}}
+              />
+              {modal}
+            </TicloApp>
+          </EditPolicyProvider>
+        </PlaygroundConnectionContext.Provider>
+      </AntdApp>
     );
 
     if (location.hash.includes('strictMode')) {

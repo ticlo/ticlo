@@ -1,7 +1,7 @@
 import './styles.ts';
 import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext, useEffect, useRef} from 'react';
-import {Button, Checkbox, ConfigProvider, Switch, type RadioChangeEvent} from 'antd';
+import {App as AntdApp, Button, Checkbox, ConfigProvider, Switch, type RadioChangeEvent} from 'antd';
 import {ReloadOutlined, UndoOutlined} from '@ant-design/icons';
 import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
@@ -331,10 +331,10 @@ class App extends React.PureComponent<Props, State> {
   };
   componentDidMount() {
     window.addEventListener('beforeunload', this.closeEditors);
-    this.updateThemeScope();
+    this.updateColorScheme();
   }
   componentDidUpdate() {
-    this.updateThemeScope();
+    this.updateColorScheme();
   }
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this.closeEditors);
@@ -342,10 +342,8 @@ class App extends React.PureComponent<Props, State> {
   }
 
   setDarkMode = (darkMode: boolean) => this.setState({darkMode});
-  updateThemeScope() {
+  updateColorScheme() {
     const {darkMode} = this.state;
-    document.body.classList.toggle('css-var-r0', !darkMode);
-    document.body.classList.toggle('css-var-r0-dark', darkMode);
     document.body.style.colorScheme = darkMode ? 'dark' : 'light';
   }
 
@@ -353,23 +351,25 @@ class App extends React.PureComponent<Props, State> {
     const conn = this.conn;
     const {modal, darkMode} = this.state;
     const appContent = (
-      <DarkModeContext.Provider value={darkMode}>
-        <PlaygroundConnectionContext.Provider value={conn}>
-          <EditPolicyProvider conn={conn}>
-            <DesignerApp value={this.ticloContext}>
-              <DockLayout
-                defaultLayout={this.defaultDockLayout}
-                tabs={this.tabs}
-                sideColumns={sideColumns}
-                ref={this.getLayout}
-                groups={layoutGroups}
-                style={{position: 'absolute', left: 0, top: 10, right: 0, bottom: 10}}
-              />
-              {modal}
-            </DesignerApp>
-          </EditPolicyProvider>
-        </PlaygroundConnectionContext.Provider>
-      </DarkModeContext.Provider>
+      <AntdApp style={{height: '100%', backgroundColor: 'var(--ant-color-bg-layout)'}}>
+        <DarkModeContext.Provider value={darkMode}>
+          <PlaygroundConnectionContext.Provider value={conn}>
+            <EditPolicyProvider conn={conn}>
+              <DesignerApp value={this.ticloContext}>
+                <DockLayout
+                  defaultLayout={this.defaultDockLayout}
+                  tabs={this.tabs}
+                  sideColumns={sideColumns}
+                  ref={this.getLayout}
+                  groups={layoutGroups}
+                  style={{position: 'absolute', left: 0, top: 10, right: 0, bottom: 10}}
+                />
+                {modal}
+              </DesignerApp>
+            </EditPolicyProvider>
+          </PlaygroundConnectionContext.Provider>
+        </DarkModeContext.Provider>
+      </AntdApp>
     );
 
     if (location.hash.includes('strictMode')) {

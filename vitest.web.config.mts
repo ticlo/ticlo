@@ -89,6 +89,7 @@ export default defineConfig({
     },
     testTimeout: 60000,
     hookTimeout: 60000,
+    maxWorkers: 2,
     retry: 2,
     isolate: false,
     globals: true,

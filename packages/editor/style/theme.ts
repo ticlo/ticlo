@@ -2,7 +2,7 @@ import {theme as antdTheme, type ThemeConfig} from 'antd';
 
 export const theme: ThemeConfig = {
   zeroRuntime: true,
-  // Match the static theme scope used by the page body and popup containers.
+  // Match the theme key used by the extracted static styles.
   cssVar: {key: 'css-var-r0'},
   inherit: false,
   token: {
