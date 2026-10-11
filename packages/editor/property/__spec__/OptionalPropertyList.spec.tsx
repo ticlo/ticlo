@@ -41,6 +41,13 @@ describe('OptionalPropertyList search', () => {
       />,
       'editor'
     );
+    await expect
+      .poll(
+        () =>
+          list?.loaders.size === 1 && [...list.loaders.values()].every((loader) => loader.optionalProps !== undefined),
+        {timeout: 5000}
+      )
+      .toBe(true);
     const button = await shouldHappen(() => div.querySelector<HTMLButtonElement>('.ticl-e-property-divider button'));
     button.click();
     input = await shouldHappen(() => div.querySelector<HTMLInputElement>('.ticl-e-property-divider input'));
@@ -116,16 +123,24 @@ describe('OptionalPropertyList search', () => {
   it('records checkbox enables once per action and retains history after disabling', async () => {
     await shouldHappen(() => names().length === 10);
     const checkbox = () => div.querySelector<HTMLInputElement>('.ticl-e-property-optional input[type="checkbox"]');
+    const enabled = () =>
+      (Root.instance.queryValue('OptionalPropertySearch.style.#optional') as string[])?.includes('display') === true;
     checkbox().click();
-    await shouldHappen(() => checkbox()?.checked);
+    await expect
+      .poll(
+        () => ({
+          optional: Root.instance.queryValue('OptionalPropertySearch.style.#optional'),
+          checked: checkbox()?.checked,
+        }),
+        {timeout: 5000}
+      )
+      .toEqual({optional: ['display'], checked: true});
     expect(list.history.entries[0]).toEqual({name: 'display', count: 2});
     checkbox().click();
-    await shouldHappen(() => !checkbox()?.checked);
+    await expect.poll(() => !enabled() && !checkbox()?.checked, {timeout: 5000}).toBe(true);
     expect(list.history.entries[0]).toEqual({name: 'display', count: 2});
     checkbox().click();
-    await shouldHappen(() =>
-      (Root.instance.queryValue('OptionalPropertySearch.style.#optional') as string[])?.includes('display')
-    );
+    await expect.poll(() => enabled() && checkbox()?.checked, {timeout: 5000}).toBe(true);
     expect(list.history.entries[0]).toEqual({name: 'display', count: 3});
   });
 

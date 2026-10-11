@@ -8,6 +8,13 @@ import {VoidListeners} from './TestFunction.ts';
 import {_strictMode} from '../BlockSettings.ts';
 
 describe('VoidProperty', function () {
+  it('reports a destroyed source and permits subscription cleanup', function () {
+    expect(voidProperty.isDestroyed()).toBe(true);
+    expect(() => voidProperty.unlisten(VoidListeners)).not.toThrow();
+    voidProperty.destroy();
+    expect(voidProperty.isDestroyed()).toBe(true);
+  });
+
   it('basic', function () {
     voidProperty.setValue(1);
     expect(voidProperty.getValue()).not.toBeDefined();

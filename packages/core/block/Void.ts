@@ -59,6 +59,10 @@ class VoidProperty extends BlockProperty {
   destroy() {
     // do nothing
   }
+
+  isDestroyed() {
+    return true;
+  }
 }
 
 export const voidProperty = VoidProperty.instance;

@@ -51,7 +51,7 @@ const confirm = () =>
   document.querySelector<HTMLButtonElement>('.ticl-e-table-editor .ant-modal-footer .ant-btn-primary');
 
 async function open() {
-  await page.getByRole('button', {name: /Edit table/}).click({timeout: 3000});
+  await page.getByRole('button', {name: /Edit table/}).click();
   await shouldHappen(
     () => document.querySelector('.ticl-e-table-editor') && !document.querySelector('.ant-spin-spinning'),
     2000
@@ -113,7 +113,7 @@ describe('TableEditor', () => {
     await userEvent.click(rows()[0].querySelector('.anticon-down'));
     await shouldHappen(() => document.querySelector('.ticl-e-func-select'));
     await userEvent.click(document.querySelector('.ticl-e-func-select .anticon-book'));
-    await page.getByText('render', {exact: true}).click({timeout: 3000});
+    await page.getByText('render', {exact: true}).click();
     expect(rows()[0].querySelector('.ticl-e-worker-editor').textContent).toContain(':render');
     expect(onChange).not.toHaveBeenCalled();
     await button('Cancel').click();
@@ -121,7 +121,7 @@ describe('TableEditor', () => {
     await open();
     expect(rows()[0].querySelector('.ticl-e-object-editor').textContent).toBe('');
     await userEvent.click(rows()[0].querySelector('.anticon-down'));
-    await page.getByRole('button', {name: /Inline/}).click({timeout: 3000});
+    await page.getByRole('button', {name: /Inline/}).click();
     await button('OK').click();
     expect(onChange).toHaveBeenCalledExactlyOnceWith([{renderer: defaultWorkerData}], 'items');
   });

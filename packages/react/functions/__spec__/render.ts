@@ -1,5 +1,5 @@
 import {createRoot, Root} from 'react-dom/client';
-import {ReactNode} from 'react';
+import {act, ReactNode} from 'react';
 
 export class ReactRoot {
   constructor(
@@ -7,15 +7,19 @@ export class ReactRoot {
     public root: Root
   ) {}
 
-  waitRender(node?: ReactNode) {
-    if (node) {
-      this.root?.render(node);
-    }
-    return new Promise((resolve) => {
-      setTimeout(function () {
-        requestAnimationFrame(resolve);
+  async waitRender(node?: ReactNode) {
+    const environment = globalThis as {IS_REACT_ACT_ENVIRONMENT?: boolean};
+    const previous = environment.IS_REACT_ACT_ENVIRONMENT;
+    environment.IS_REACT_ACT_ENVIRONMENT = true;
+    try {
+      await act(async () => {
+        if (node) this.root?.render(node);
+        // Allow updates scheduled before act() to enter React's work queue.
+        await new Promise((resolve) => setTimeout(resolve));
       });
-    });
+    } finally {
+      environment.IS_REACT_ACT_ENVIRONMENT = previous;
+    }
   }
   remove() {
     this.root?.unmount();
