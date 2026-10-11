@@ -1,7 +1,21 @@
 import React from 'react';
-import Trigger_ from 'rc-trigger';
-const Trigger = (Trigger_ as any).default || Trigger_;
+import Trigger_, {type TriggerProps} from 'rc-trigger';
+import {ConfigProvider, theme} from 'antd';
 import {RightOutlined} from '@ant-design/icons';
+
+const Trigger = (Trigger_ as any).default || Trigger_;
+
+function PopupTrigger(props: TriggerProps) {
+  const cssVar = React.useContext(ConfigProvider.ConfigContext).theme?.cssVar;
+  const {token} = theme.useToken();
+  return (
+    <Trigger
+      {...props}
+      popupClassName={typeof cssVar === 'object' ? cssVar.key : 'css-var-root'}
+      popupStyle={{fontFamily: token.fontFamily}}
+    />
+  );
+}
 
 type ItemEventHandler = (event: 'show' | 'hide' | 'hover' | 'close') => void;
 
@@ -47,7 +61,7 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
       cls += ' ticl-e-dropdown-menu-item-active';
     }
     return (
-      <Trigger
+      <PopupTrigger
         action={['click']}
         popupAlign={{
           points: ['tl', 'tr'],
@@ -63,7 +77,7 @@ export class SubMenuItem extends React.PureComponent<SubMenuItemProps, SubMenuIt
           {children}
           {popup ? <RightOutlined /> : null}
         </div>
-      </Trigger>
+      </PopupTrigger>
     );
   }
 }
@@ -338,7 +352,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
     }
 
     return (
-      <Trigger
+      <PopupTrigger
         action={trigger}
         popupAlign={popupAlign}
         alignPoint={alignPoint}
@@ -350,7 +364,7 @@ export class Popup extends React.PureComponent<PopupProps, PopupState> {
         popup={fixedPopup}
       >
         {child}
-      </Trigger>
+      </PopupTrigger>
     );
   }
 
