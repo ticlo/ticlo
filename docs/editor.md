@@ -36,6 +36,15 @@ can be edited. For local function descriptors, editor components also need the
 owning function-library flow path; see the
 [connection architecture](../.agents/skills/ticlo/core-package.md#connection-layer).
 
+Object properties with `create` can convert a stored object into a helper of that
+function type, or convert that helper's output back into a stored object. Each
+conversion reads the full current value, then makes one write per selected block.
+Creating the helper also establishes its output binding; setting the object value
+removes both the binding and helper. Each block keeps its own value when several
+blocks are selected. Optional fields become enabled helper properties; custom
+object fields become custom properties, with remaining fields preserved in
+`+extend`. Functions with `recipient` receive the whole object in that property.
+
 ## Optional property suggestions
 
 Functions with optional properties can declare `optionalSuggestions`, an array

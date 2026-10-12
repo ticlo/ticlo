@@ -28,6 +28,9 @@ import {typeEditorMap} from './value/index.ts';
 import {propAcceptsBlock} from '@ticlo/core';
 import {getDescLib} from '../util/FunctionLib.ts';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
+import {getObjectHelperData} from './ObjectHelper.ts';
+import {requestCallbacks} from '../util/RequestCallbacks.ts';
+import {isBaseObject} from '@ticlo/core/util/DataTypes.ts';
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   name: string;
@@ -41,16 +44,38 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   init() {
     this.valueListener.subscribe(this.conn, `${this.path}.${this.name}`);
     this.displayListener.subscribe(this.conn, `${this.path}.@b-p`);
+    const {propDesc, funcLib} = this.parent.props;
+    if (propDesc.type === 'object' && propDesc.create) {
+      this.conn.watchDesc(propDesc.create, getDescLib(propDesc.create, funcLib), this.onCreateDesc);
+    }
   }
 
   cache: ValueState;
   subBlock = false;
+  helperFuncId: string;
+  createDesc: FunctionDesc;
+  onCreateDesc = (desc: FunctionDesc) => {
+    this.createDesc = desc;
+    this.parent.forceUpdate();
+  };
+  helperListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      this.helperFuncId = response.cache.value;
+      this.parent.forceUpdate();
+    },
+  });
   valueListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       let changed = this.cache == null;
       this.cache = response.cache;
       if (Object.hasOwn(response.change, 'value') || Object.hasOwn(response.change, 'bindingPath')) {
         this.subBlock = response.cache.bindingPath === `~${this.name}.#output`;
+        if (this.parent.props.propDesc.type === 'object' && this.parent.props.propDesc.create && this.subBlock) {
+          this.helperListener.subscribe(this.conn, `${this.path}.~${this.name}.#is`);
+        } else {
+          this.helperListener.unsubscribe();
+          this.helperFuncId = undefined;
+        }
         changed = true;
       }
       if (changed) {
@@ -78,6 +103,8 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   destroy() {
     this.valueListener.unsubscribe();
     this.displayListener.unsubscribe();
+    this.helperListener.unsubscribe();
+    this.conn.unwatchDesc(this.onCreateDesc);
   }
 }
 
@@ -105,6 +132,7 @@ interface State {
   unlocked: boolean;
   showSubBlock: boolean;
   showMenu: boolean;
+  converting?: boolean;
 }
 
 interface PropertyState {
@@ -392,6 +420,66 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     this.safeSetState({showSubBlock: true});
   };
 
+  canConvertObject(loader: PropertyLoader, toHelper: boolean) {
+    const {name, propDesc} = this.props;
+    if (propDesc.type !== 'object' || !propDesc.create || propDesc.readonly || !loader.cache) return false;
+    const {value, bindingPath} = loader.cache;
+    if (!value || typeof value !== 'object' || !isBaseObject(value)) return false;
+    if (!this.context.can({cmd: 'get', path: `${loader.path}.${name}`})) return false;
+    if (toHelper) {
+      return (
+        !bindingPath &&
+        loader.createDesc != null &&
+        this.context.canCreateBlock(`${loader.path}.~${name}`, propDesc.create)
+      );
+    }
+    return (
+      loader.subBlock &&
+      loader.helperFuncId === propDesc.create &&
+      this.context.can({cmd: 'set', path: `${loader.path}.${name}`}) &&
+      this.context.canDeleteBlock(`${loader.path}.~${name}`)
+    );
+  }
+
+  convertObject = async (toHelper: boolean) => {
+    if (this.state.converting || ![...this.loaders.values()].every((loader) => this.canConvertObject(loader, toHelper)))
+      return;
+    const {conn, paths, name, propDesc, funcLib} = this.props;
+    this.safeSetState({converting: true, showSubBlock: false});
+    try {
+      for (const path of paths) {
+        const {value} = await conn.getValue(`${path}.${name}`);
+        if (
+          !this._mounted ||
+          this.props.conn !== conn ||
+          this.props.name !== name ||
+          this.props.propDesc !== propDesc ||
+          !arrayEqual(this.props.paths, paths) ||
+          !this.canConvertObject(this.loaders.get(path), toHelper)
+        )
+          return;
+        if (!value || typeof value !== 'object' || !isBaseObject(value)) throw new Error('Expected an object value');
+        if (toHelper) {
+          const desc = this.loaders.get(path).createDesc;
+          const data = getObjectHelperData(desc, value, conn.getOptionalProps(desc, funcLib) || {});
+          if (!this.context.can({cmd: 'addBlock', path: `${path}.~${name}`, data})) return;
+          await conn.addBlock(`${path}.~${name}`, data);
+        } else {
+          if (!this.context.can({cmd: 'set', path: `${path}.${name}`, value})) return;
+          await conn.setValue(`${path}.${name}`, value, true);
+        }
+      }
+      if (toHelper) this.safeSetState({showSubBlock: true});
+    } catch (error) {
+      requestCallbacks.onError(String(error));
+    } finally {
+      this.safeSetState({converting: false});
+    }
+  };
+
+  onConvertToHelper = () => this.convertObject(true);
+  onConvertToObject = () => this.convertObject(false);
+
   cachedPaths: string[] = [];
   renderImpl() {
     const {conn, paths, funcDesc, name, reorder, group, isCustom, baseName, funcLib} = this.props;
@@ -504,6 +592,16 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           locked={locked && !unlocked}
           onChange={onChange}
           addSubBlock={this.onAddSubBlock}
+          onConvertToHelper={
+            !this.state.converting && [...this.loaders.values()].every((loader) => this.canConvertObject(loader, true))
+              ? this.onConvertToHelper
+              : undefined
+          }
+          onConvertToObject={
+            !this.state.converting && [...this.loaders.values()].every((loader) => this.canConvertObject(loader, false))
+              ? this.onConvertToObject
+              : undefined
+          }
           funcLib={funcLib}
         />
       );

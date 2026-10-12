@@ -1,7 +1,10 @@
 .ticl-e-dynamic-editor {
   width: 100%;
   height: 100%;
+}
 
+.ticl-e-dynamic-editor,
+.ticl-e-property-value {
   & > .ticl-e-dynamic-type-icon {
     position: absolute;
     top: 0;
@@ -47,4 +50,18 @@
     margin-right: 8px;
     transform: scale(1.6363636363636364);
   }
+}
+
+.ant-btn.ticl-e-dynamic-type-icon.ticl-e-object-convert-button {
+  min-width: 11px;
+  width: 11px;
+  height: 11px;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  font-size: 11px;
+  line-height: 11px;
+  color: var(--ant-color-text, #000);
+  background: none;
+  box-shadow: none;
 }

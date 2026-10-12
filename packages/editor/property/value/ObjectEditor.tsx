@@ -1,9 +1,8 @@
 import React from 'react';
-import {Button} from 'antd';
-import {PlusSquareOutlined} from '@ant-design/icons';
+import {Button, Dropdown} from 'antd';
+import {CodeOutlined, PlusSquareOutlined, MenuOutlined} from '@ant-design/icons';
 import {ValueEditorProps} from './ValueEditorBase.ts';
 import {renderValue} from '../../component/renderValue.tsx';
-import {getDefaultFuncData} from '@ticlo/core';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.ts';
 
 export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
@@ -11,7 +10,7 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
   declare context: TicloLayoutContext;
 
   createObject = () => {
-    const {conn, keys, desc, addSubBlock} = this.props;
+    const {desc, addSubBlock} = this.props;
     addSubBlock(desc.create, null, null);
   };
 
@@ -27,7 +26,7 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   render() {
-    const {value, desc, onChange} = this.props;
+    const {value, desc, onChange, onConvertToHelper, onConvertToObject} = this.props;
     let editor: React.ReactNode;
     if (value === undefined && onChange && desc.create) {
       let create = desc.create;
@@ -43,16 +42,38 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
     } else {
       editor = <div className="ticl-e-object-editor">{renderValue(this.props.value)}</div>;
     }
-    if (this.context?.editProperty) {
-      return (
-        <>
-          {editor}
+    return (
+      <>
+        {editor}
+        {onConvertToHelper || onConvertToObject ? (
+          <Dropdown
+            trigger={['click']}
+            menu={{
+              items: [
+                {
+                  key: 'convert',
+                  icon: onConvertToHelper ? <PlusSquareOutlined /> : <CodeOutlined />,
+                  label: onConvertToHelper ? `Convert to ${desc.create}` : 'Convert to object value',
+                },
+              ],
+              onClick: onConvertToHelper || onConvertToObject,
+            }}
+          >
+            <Button
+              className="ticl-e-dynamic-type-icon ticl-e-object-convert-button"
+              type="text"
+              size="small"
+              icon={<MenuOutlined />}
+              title="Object tools"
+            />
+          </Dropdown>
+        ) : null}
+        {this.context?.editProperty ? (
           <div className="ticl-e-expand-button" title={'Edit'} onClick={this.popup}>
             <div className="ticl-e-expand-icon-11" />
           </div>
-        </>
-      );
-    }
-    return editor;
+        ) : null}
+      </>
+    );
   }
 }
