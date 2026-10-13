@@ -7,14 +7,17 @@ import {DesignerSelectionLayer} from './DesignerSelectionLayer.tsx';
 import {DesignerLayoutContextType, type DesignerStageContextValue} from './DesignerContext.tsx';
 import {useSelection} from './useSelection.ts';
 import {useStageInput} from './useStageInput.ts';
+import {DragDrop} from 'rc-dock';
+import {useStageDrop} from './useStageDrop.ts';
+import type {DesignerDropHandlers} from './StageDrop.ts';
 
-interface Props {
+interface Props extends DesignerDropHandlers {
   root: Block;
   conn: ClientConn;
   basePath: string;
 }
 
-export function DesignerStage({root, conn, basePath}: Props) {
+export function DesignerStage({root, conn, basePath, onDragOverT, onDropT}: Props) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [elementMap] = useState(() => new ElementMap());
   const block = useValue(root, basePath);
@@ -68,6 +71,7 @@ export function DesignerStage({root, conn, basePath}: Props) {
   contextRef.current = context;
   const activate = useCallback(() => contextRef.current.onFlowFocus(basePath), [basePath]);
   const {hover, marquee} = useStageInput(stageRef, componentContext, activate, selectionRef, flow);
+  const {dropPoints, ...dropHandlers} = useStageDrop(stageRef, stage, activate, {onDragOverT, onDropT});
   useEffect(() => {
     registerStage(basePath, stage);
     return () => unregisterStage(basePath, stage);
@@ -77,11 +81,12 @@ export function DesignerStage({root, conn, basePath}: Props) {
     return () => contextRef.current.onFlowClosed(basePath);
   }, [basePath]);
   return (
-    <div
+    <DragDrop
       className={designMode ? 'ticl-d-stage ticl-d-stage-design' : 'ticl-d-stage'}
       ref={stageRef}
       tabIndex={designMode ? 0 : undefined}
       onPointerDownCapture={activate}
+      {...dropHandlers}
     >
       <ComponentContext.Provider value={componentContext}>
         {flow ? (
@@ -97,8 +102,9 @@ export function DesignerStage({root, conn, basePath}: Props) {
           blocks={selection.blocks}
           hover={hover}
           marquee={marquee}
+          dropPoints={dropPoints}
         />
       )}
-    </div>
+    </DragDrop>
   );
 }

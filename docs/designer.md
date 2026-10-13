@@ -11,6 +11,28 @@ and React input handlers do not run. Forwarded events target the stage and
 are synthetic (`isTrusted: false`). Native wheel scrolling remains enabled unless
 a stage or ancestor listener prevents its default. Preview restores page input.
 
+Function drags use the same connection-scoped payload as the node tree. Child
+insertion resolves the frontmost hit component, then its nearest ancestor whose
+descriptor accepts the function's tags. Release creates a uniquely named Block
+in that container's `#order`, refreshes the outline tree, and selects the new
+component. The connection's edit policy is checked during hover and again at
+release.
+
+Absolute layouts convert the pointer to local child coordinates and default new
+children to 150 by 100 CSS pixels. Horizontal and vertical layouts infer an order
+index from the nearest rendered child; an empty layout appends its first child.
+An unordered `content` component stays before new ordered children. Insertion
+feedback follows container transforms and is an estimate of the new child's
+placement.
+
+`DesignerStage` accepts optional `onDragOverT` and `onDropT` callbacks receiving
+the rc-dock `DragState` and the directly hit component (`DesignerDropTarget`, or
+null). These callbacks run before child insertion and receive leaf components
+as well as containers. Returning true from `onDragOverT` accepts the drag;
+returning true from `onDropT` handles the drop. Returning false lets the default
+child insertion run. This allows other drag payloads, such as data bindings, to
+use the same stage without requiring a child container.
+
 `addSelection` retains siblings of the last valid added component. Adding an
 already selected component still prunes other parents, and returns false unless
 a new component was selected.

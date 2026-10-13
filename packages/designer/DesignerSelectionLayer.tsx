@@ -10,12 +10,14 @@ export function DesignerSelectionLayer({
   blocks,
   hover,
   marquee,
+  dropPoints,
 }: {
   stageRef: RefObject<HTMLDivElement | null>;
   elementMap: ElementMap;
   blocks: Block[];
   hover: Element | null;
   marquee?: MarqueeRect | null;
+  dropPoints?: string | null;
 }) {
   const quads = useSelectionQuads(stageRef, elementMap, blocks, hover);
   return (
@@ -28,6 +30,7 @@ export function DesignerSelectionLayer({
             <polygon className={selected ? 'ticl-d-selection-rect' : 'ticl-d-hover-rect'} points={points} />
           </g>
         ))}
+        {dropPoints && <polygon className="ticl-d-drop-rect" points={dropPoints} />}
       </svg>
     </div>
   );
