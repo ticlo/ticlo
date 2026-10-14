@@ -96,6 +96,19 @@ a helper coordinate replaces that coordinate's binding, while retaining the
 component's binding to its style helper. Newly used helper fields are included
 in `#optional`.
 
+Resize gestures operate in the component's local box coordinates. Ancestor and
+component transforms map pointer movement to dimensions; absolute components
+also adjust their existing insets to retain the opposite corner or edge. When
+both left/right or top/bottom are defined, resizing that axis changes its insets
+without writing width or height. Other axes change their dimensions, and in-flow
+components change dimensions only. Resolved CSS lengths are saved as pixels.
+
+The resize outline and pointer mapping retain the geometry captured at gesture
+start. Layout reflow, wrapping, and scrolling can move the rendered component
+without moving the dragged outline or changing the pointer's sizing basis.
+After release or cancellation, the outline follows the rendered component again.
+Resize edits use the same writable styles, helpers, and history rules as movement.
+
 Dragging changes runtime values only. Release saves the final values and calls
 the flow's existing debounced history tracking, which can merge edits within one
 second. Null/undefined styles preview as objects and create a style helper only

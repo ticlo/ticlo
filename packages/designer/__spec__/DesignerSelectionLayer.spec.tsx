@@ -67,7 +67,7 @@ describe('DesignerSelectionLayer', () => {
   }
 
   it('renders selection and hover outside the page, passes through pointers, and retains selection across root changes', async () => {
-    const {a, b, page, host, selected, hovered, getStage} = await createPage();
+    const {main, a, b, page, host, selected, hovered, getStage} = await createPage();
     const first = page.querySelector<HTMLElement>('#first');
     const second = page.querySelector<HTMLElement>('#second');
     const layer = host.querySelector('.ticl-d-selection-layer');
@@ -78,6 +78,13 @@ describe('DesignerSelectionLayer', () => {
     await userEvent.click(first.querySelector('span'));
     await shouldHappen(() => selected().length === 1 && getStage().selection.blocks[0] === a);
     expect(selected()[0].points.getItem(1).x - selected()[0].points.getItem(0).x).toBe(100);
+    const handles = host.querySelectorAll<SVGRectElement>('.ticl-d-resize-handle');
+    expect(handles.length).toBe(8);
+    for (const handle of handles) {
+      const style = getComputedStyle(handle);
+      expect(style.fill).toBe(handle.dataset.handle === 'top-left' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)');
+      expect(style.stroke).toBe(handle.dataset.handle === 'top-left' ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)');
+    }
     const bounds = first.getBoundingClientRect();
     expect(page.contains(document.elementFromPoint(bounds.left + 5, bounds.top + 5))).toBe(true);
     await userEvent.click(second, {modifiers: ['Control']});
@@ -98,6 +105,10 @@ describe('DesignerSelectionLayer', () => {
     expect(getStage().selection.blocks).toEqual([a]);
     getStage().setDesignMode(true);
     await shouldHappen(() => selected().length === 1);
+    getStage().select([main]);
+    await shouldHappen(() => selected().length === 1 && host.querySelectorAll('.ticl-d-resize-handle').length === 0);
+    getStage().select([main, a]);
+    await shouldHappen(() => selected().length === 2 && host.querySelectorAll('.ticl-d-resize-handle').length === 8);
     removeLastTemplate();
     expect(map.getElements(a).length).toBe(0);
     expect(map.getElements(b).length).toBe(0);
@@ -176,6 +187,9 @@ describe('DesignerSelectionLayer', () => {
       }
     }
     expectCorners(selected()[0], first, 100, 40);
+    const handle = host.querySelector<SVGRectElement>('[data-handle="top-left"]');
+    expect(handle.x.baseVal.value + 3.5).toBeCloseTo(selected()[0].points.getItem(0).x, 2);
+    expect(handle.y.baseVal.value + 3.5).toBeCloseTo(selected()[0].points.getItem(0).y, 2);
     parent.style.transform = 'rotateY(25deg)';
     parent.style.transformStyle = 'preserve-3d';
     parent.style.perspective = '500px';

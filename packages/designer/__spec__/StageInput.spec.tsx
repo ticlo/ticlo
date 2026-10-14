@@ -10,6 +10,9 @@ import {loadTemplate, removeLastTemplate} from '@ticlo/editor/util/test-util.ts'
 import {DesignerApp} from '../DesignerApp.tsx';
 import {DesignerStage} from '../DesignerStage.tsx';
 import {useActiveDesignerStage, type DesignerStageContextValue} from '../DesignerContext.tsx';
+import {getElementGeometry} from '@ticlo/html';
+import {projectPoint} from '../StageGeometry.ts';
+import {resizeHandles} from '../StageResize.ts';
 
 function pointer(target: EventTarget, type: string, x = 0, y = 0, ctrlKey = false) {
   target.dispatchEvent(
@@ -167,18 +170,18 @@ describe('designer stage gestures', () => {
     const inner = parent.getValue('inner') as Block;
     getStage().select([parent]);
     await shouldHappen(() => getStage().selection.blocks[0] === parent);
-    await userEvent.click(element('inner'), {position: {x: 2, y: 2}});
+    await userEvent.click(element('inner'), {position: {x: 10, y: 7}});
     await shouldHappen(() => getStage().selection.blocks[0] === inner);
     expect(getStage().selection.blocks).toEqual([inner]);
     getStage().select([parent, inner]);
     await shouldHappen(() => getStage().selection.blocks.length === 2);
-    await userEvent.click(element('inner'), {position: {x: 2, y: 2}, modifiers: ['Control']});
+    await userEvent.click(element('inner'), {position: {x: 10, y: 7}, modifiers: ['Control']});
     await shouldHappen(() => getStage().selection.blocks.length === 1);
     expect(getStage().selection.blocks).toEqual([parent]);
     parent.setValue('@d-seal', true);
     getStage().select([inner]);
     await shouldHappen(() => getStage().selection.blocks[0] === inner);
-    await userEvent.click(element('inner'), {position: {x: 2, y: 2}});
+    await userEvent.click(element('inner'), {position: {x: 10, y: 7}});
     await shouldHappen(() => getStage().selection.blocks[0] === parent);
     expect(getStage().selection.blocks).toEqual([parent]);
   });
@@ -770,5 +773,189 @@ describe('designer stage gestures', () => {
       expect(flow.getValue('@has-undo')).toBeUndefined();
       if (reason !== 'unmount') await shouldHappen(() => getComputedStyle(element('a')).left === '10px');
     }
+  });
+
+  it.each(['rotate(25deg) scale(1.2,.8)', 'perspective(600px) rotateY(25deg)'])(
+    'resizes all eight handles through %s, own rotation, zoom, and changing transform origins',
+    async (transform) => {
+      const style = {
+        position: 'absolute',
+        left: 40,
+        top: 50,
+        width: 100,
+        height: 60,
+        padding: 6,
+        border: '2px solid',
+        zoom: 1.25,
+        transform: 'rotate(30deg)',
+      };
+      const {main, element, div, getStage} = await mount(
+        {
+          'style': {position: 'relative', width: 300, height: 200, transform, transformStyle: 'preserve-3d'},
+          '#order': ['a'],
+          'a': child('a', style),
+        },
+        1.5
+      );
+      const a = main.getValue('a') as Block;
+      getStage().select([a]);
+      const handles = () => div.querySelectorAll<SVGRectElement>('.ticl-d-resize-handle');
+      await shouldHappen(() => handles().length === 8);
+      for (const handle of resizeHandles) {
+        a.setValue('style', {...style, margin: 0});
+        await shouldHappen(
+          () => getComputedStyle(element('a')).width === '100px' && getComputedStyle(element('a')).height === '60px'
+        );
+        const before = getElementGeometry([element('a')]).get(element('a'));
+        const x = ((handle.x + 1) * 116) / 2;
+        const y = ((handle.y + 1) * 76) / 2;
+        const start = projectPoint(before.matrix, x, y);
+        const end = projectPoint(before.matrix, x + handle.x * 20, y + handle.y * 10);
+        const fixed = projectPoint(before.matrix, ((1 - handle.x) * 116) / 2, ((1 - handle.y) * 76) / 2);
+        pointer(div.querySelector(`[data-handle="${handle.name}"]`), 'pointerdown', start.x, start.y);
+        pointer(document, 'pointermove', end.x, end.y);
+        await expect.poll(() => (a.getValue('style') as any).width).toBeCloseTo(handle.x ? 120 : 100, 4);
+        await expect.poll(() => (a.getValue('style') as any).height).toBeCloseTo(handle.y ? 70 : 60, 4);
+        pointer(document, 'pointerup', end.x, end.y);
+        await shouldHappen(() => parseFloat(getComputedStyle(element('a')).width) === (handle.x ? 120 : 100));
+        const after = getElementGeometry([element('a')]).get(element('a'));
+        const actual = projectPoint(
+          after.matrix,
+          ((1 - handle.x) * (handle.x ? 136 : 116)) / 2,
+          ((1 - handle.y) * (handle.y ? 86 : 76)) / 2
+        );
+        expect(actual.x).toBeCloseTo(fixed.x, 2);
+        expect(actual.y).toBeCloseTo(fixed.y, 2);
+      }
+    }
+  );
+
+  it.each(['left/top', 'right/bottom', 'both', 'neither'])(
+    'resizes absolute components using their defined anchors (%s), without writing stretched dimensions',
+    async (anchors) => {
+      const style = {
+        position: 'absolute',
+        width: anchors === 'both' ? undefined : 100,
+        height: anchors === 'both' ? undefined : 60,
+        ...(anchors === 'left/top' || anchors === 'both' ? {left: 40, top: 50} : {}),
+        ...(anchors === 'right/bottom' || anchors === 'both' ? {right: 30, bottom: 20} : {}),
+      };
+      const {flow, main, element, div, getStage} = await mount({'#order': ['a'], 'a': child('a', style)});
+      const a = main.getValue('a') as Block;
+      getStage().select([a]);
+      await shouldHappen(() => div.querySelector('[data-handle="top-left"]'));
+      const saved = flow.save();
+      const track = vi.spyOn(flow, 'trackChange');
+      const start = element('a').getBoundingClientRect();
+      pointer(div.querySelector('[data-handle="top-left"]'), 'pointerdown', start.left, start.top);
+      pointer(document, 'pointermove', start.left - 20, start.top - 10);
+      await expect.poll(() => (a.getValue('style') as any).width).toBe(anchors === 'both' ? undefined : 120);
+      expect(flow.save()).toEqual(saved);
+      expect(track).not.toHaveBeenCalled();
+      pointer(document, 'pointerup', start.left - 20, start.top - 10);
+      const changed = a.getValue('style') as any;
+      expect(changed.height).toBe(anchors === 'both' ? undefined : 70);
+      expect(changed.left).toBe(anchors === 'left/top' || anchors === 'both' ? 20 : undefined);
+      expect(changed.top).toBe(anchors === 'left/top' || anchors === 'both' ? 40 : undefined);
+      expect(changed.right).toBe(anchors === 'right/bottom' || anchors === 'both' ? 30 : undefined);
+      expect(changed.bottom).toBe(anchors === 'right/bottom' || anchors === 'both' ? 20 : undefined);
+      expect(track).toHaveBeenCalledTimes(1);
+      getStage().undo();
+      await shouldHappen(() => (a.getValue('style') as any).width === style.width);
+      expect(a.getValue('style')).toMatchObject(style);
+      getStage().redo();
+      await shouldHappen(() => (a.getValue('style') as any).height === changed.height);
+    }
+  );
+
+  it('keeps the dragged outline and pointer basis stable through flex wrapping and scrolling', async () => {
+    const {main, page, element, div, getStage} = await mount({
+      'style': {
+        position: 'relative',
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignContent: 'start',
+        width: 180,
+        height: 700,
+      },
+      '#order': ['a', 'b'],
+      'a': child('a', {width: 80, height: 60, flexShrink: 0}),
+      'b': child('b', {width: 80, height: 60, flexShrink: 0}),
+    });
+    const b = main.getValue('b') as Block;
+    getStage().select([b]);
+    const outline = () => div.querySelector<SVGPolygonElement>('.ticl-d-selection-rect');
+    await shouldHappen(() => outline());
+    const before = element('b').getBoundingClientRect();
+    const startX = outline().points.getItem(0).x;
+    const startY = outline().points.getItem(0).y;
+    pointer(div.querySelector('[data-handle="right"]'), 'pointerdown', before.right, before.top + 30);
+    pointer(document, 'pointermove', before.right + 50, before.top + 30);
+    await shouldHappen(() => element('b').getBoundingClientRect().left < before.left - 50);
+    await shouldHappen(() => outline().points.getItem(1).x - outline().points.getItem(0).x === 130);
+    expect(outline().points.getItem(0).x).toBe(startX);
+    expect(outline().points.getItem(0).y).toBe(startY);
+    page.parentElement.scrollTop = 30;
+    await new Promise(requestAnimationFrame);
+    pointer(document, 'pointermove', before.right + 60, before.top + 30);
+    await shouldHappen(() => outline().points.getItem(1).x - outline().points.getItem(0).x === 140);
+    expect((b.getValue('style') as any).width).toBe(140);
+    expect(outline().points.getItem(0).x).toBe(startX);
+    expect(outline().points.getItem(0).y).toBe(startY);
+    pointer(document, 'pointerup', before.right + 60, before.top + 30);
+    await shouldHappen(() => outline().points.getItem(0).x !== startX);
+    const host = div.querySelector<HTMLElement>('.ticl-d-stage');
+    expect(outline().points.getItem(0).y).toBeCloseTo(
+      element('b').getBoundingClientRect().top - host.getBoundingClientRect().top,
+      2
+    );
+  });
+
+  it('previews helper dimensions, restores current bindings on cancel, and retains the style helper on commit', async () => {
+    const {flow, main, element, div, getStage} = await mount({
+      '#order': ['a'],
+      'a': child(
+        'a',
+        {},
+        {
+          'style': undefined,
+          'content': 'Sizing',
+          '~style': {
+            '#is': 'html:create-style',
+            '#optional': ['position', 'left', 'top', 'width'],
+            'position': 'absolute',
+            'left': 40,
+            'top': 50,
+            '~width': 'source',
+            'source': 100,
+          },
+        }
+      ),
+    });
+    const a = main.getValue('a') as Block;
+    const helper = a.getValue('~style') as Block;
+    getStage().select([a]);
+    await shouldHappen(() => div.querySelector('[data-handle="bottom-right"]'));
+    const saved = flow.save();
+    const before = element('a').getBoundingClientRect();
+    pointer(div.querySelector('[data-handle="bottom-right"]'), 'pointerdown', before.right, before.bottom);
+    pointer(document, 'pointermove', before.right + 20, before.bottom + 10);
+    await shouldHappen(() => helper.getValue('width') === 120);
+    expect(flow.save()).toEqual(saved);
+    expect(helper.getValue('#optional')).toContain('height');
+    helper.updateValue('source', 140);
+    document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
+    await shouldHappen(() => (a.getValue('style') as any).width === 140);
+    expect(helper.getValue('height')).toBeUndefined();
+    expect(helper.getValue('#optional')).toEqual(['position', 'left', 'top', 'width']);
+    expect(helper.getProperty('width')._bindingPath).toBe('source');
+    expect(flow.save()).toEqual(saved);
+    await shouldHappen(() => getComputedStyle(element('a')).width === '140px');
+    const next = element('a').getBoundingClientRect();
+    pointer(div.querySelector('[data-handle="bottom-right"]'), 'pointerdown', next.right, next.bottom);
+    pointer(document, 'pointerup', next.right + 20, next.bottom + 10);
+    expect(helper.getProperty('width')._bindingPath).toBeNull();
+    expect(helper.getProperty('width')._saved).toBe(160);
+    expect(a.getProperty('style')._helperProperty.getValue()).toBe(helper);
   });
 });

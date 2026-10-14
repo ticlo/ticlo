@@ -1,10 +1,11 @@
-import {useLayoutEffect, useState, type RefObject} from 'react';
+import {useCallback, useLayoutEffect, useRef, useState, type RefObject} from 'react';
 import {Block, type Flow} from '@ticlo/core';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
 import type {ComponentContextValue} from '@ticlo/react';
 import {getChildren} from '@ticlo/react/hooks/useTicloComp.ts';
 import type {DesignerSelection} from './DesignerContext.tsx';
 import {createStageMove} from './StageMove.ts';
+import {createStageResize, type ResizePreview, type ResizeStart} from './StageResize.ts';
 import {getElementBoxQuads} from '@ticlo/html';
 import {createStagePointMapper, getFallbackQuad, quadIntersectsRect} from './StageGeometry.ts';
 
@@ -21,7 +22,7 @@ interface Hit {
 }
 
 interface Gesture extends Hit {
-  mode: 'pending' | 'ready' | 'marquee' | 'moving' | 'blocked';
+  mode: 'pending' | 'ready' | 'marquee' | 'moving' | 'resizing' | 'blocked';
   canMarquee: boolean;
   clickChild?: Block;
   pointerId: number | null;
@@ -30,6 +31,7 @@ interface Gesture extends Hit {
   clientX: number;
   clientY: number;
   move?: ReturnType<typeof createStageMove>;
+  resize?: ReturnType<typeof createStageResize>;
   toStage?: ReturnType<typeof createStagePointMapper>;
 }
 
@@ -96,10 +98,16 @@ export function useStageInput(
 ) {
   const [hover, setHover] = useState<Element | null>(null);
   const [marquee, setMarquee] = useState<MarqueeRect | null>(null);
+  const [resizePreview, setResizePreview] = useState<ResizePreview | null>(null);
+  const resizeStartRef = useRef<ResizeStart | null>(null);
+  const startResize = useCallback<ResizeStart>((element, handle, event) => {
+    resizeStartRef.current?.(element, handle, event);
+  }, []);
 
   useLayoutEffect(() => {
     setHover(null);
     setMarquee(null);
+    setResizePreview(null);
     if (!designMode) return;
     const stage = stageRef.current;
     const document = stage.ownerDocument;
@@ -153,10 +161,39 @@ export function useStageInput(
     const cancel = () => {
       cancelFrame();
       gesture?.move?.cancel();
+      gesture?.resize?.cancel();
       if (gesture?.pointerId != null && stage.hasPointerCapture(gesture.pointerId))
         stage.releasePointerCapture(gesture.pointerId);
       gesture = null;
       setMarquee(null);
+      setResizePreview(null);
+    };
+    resizeStartRef.current = (element, handle, event) => {
+      if (event.button !== 0 || !event.isPrimary) return;
+      event.preventDefault();
+      event.stopPropagation();
+      cancel();
+      const block = elementMap.getBlock(element);
+      if (!block || !selectionRef.current.blocks.includes(block) || !stage.contains(element)) return;
+      const resize = createStageResize(block, element, stage, handle, event.clientX, event.clientY);
+      if (!resize) return;
+      activate();
+      focusStage();
+      setHover(null);
+      gesture = {
+        element,
+        block,
+        resize,
+        mode: 'resizing',
+        canMarquee: false,
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        clientX: event.clientX,
+        clientY: event.clientY,
+      };
+      setResizePreview(resize.preview());
+      if (event.nativeEvent.isTrusted) stage.setPointerCapture(event.pointerId);
     };
     const bounds = (current: Gesture) => {
       const toStage = (current.toStage ??= createStagePointMapper(stage));
@@ -181,6 +218,10 @@ export function useStageInput(
       }
       if (gesture.mode === 'moving') {
         gesture.move.update(gesture.clientX - gesture.startX, gesture.clientY - gesture.startY);
+      } else if (gesture.mode === 'resizing') {
+        const next = gesture.resize.update(gesture.clientX - gesture.startX, gesture.clientY - gesture.startY);
+        if (!next) cancel();
+        else setResizePreview(next);
       } else if (gesture.mode === 'marquee') {
         const rect = bounds(gesture);
         if (!rect) {
@@ -204,6 +245,8 @@ export function useStageInput(
       const {block, mode} = gesture;
       if (mode === 'moving') {
         if (gesture.move.commit()) flow?.trackChange();
+      } else if (mode === 'resizing') {
+        if (gesture.resize.commit()) flow?.trackChange();
       } else if (mode === 'marquee') {
         const rect = bounds(gesture);
         const order = block.getValue('#order');
@@ -239,6 +282,7 @@ export function useStageInput(
         stage.releasePointerCapture(gesture.pointerId);
       gesture = null;
       setMarquee(null);
+      setResizePreview(null);
     };
     const handleInput = (event: Event) => {
       const source = forwardedEvents.get(event) ?? event;
@@ -298,7 +342,10 @@ export function useStageInput(
                 }
               }
             }
-            if (frame === null && (gesture.mode === 'moving' || gesture.mode === 'marquee')) {
+            if (
+              frame === null &&
+              (gesture.mode === 'moving' || gesture.mode === 'resizing' || gesture.mode === 'marquee')
+            ) {
               frame = view.requestAnimationFrame(preview);
             }
           }
@@ -306,7 +353,7 @@ export function useStageInput(
         }
       }
       if (!(target instanceof Element) || !stage.contains(target)) return;
-      // Future selection handles own their input; the page never receives it.
+      // Selection handles own their input; the page never receives it.
       if (target.closest('.ticl-d-selection-layer')) return;
       // Stage keyboard commands reach the app, but Tab must not focus a page component.
       if (target === stage && event instanceof KeyboardEvent) {
@@ -368,11 +415,12 @@ export function useStageInput(
     // A preview input may still own focus when switching back to design mode.
     if (stage.contains(document.activeElement)) focusStage();
     return () => {
+      resizeStartRef.current = null;
       cancel();
       view.removeEventListener('blur', cancel);
       for (const type of inputEvents) document.removeEventListener(type, handleInput, true);
     };
   }, [stageRef, designMode, elementMap, select, addSelection, activate, selectionRef, flow]);
 
-  return {hover, marquee};
+  return {hover, marquee, resizePreview, startResize};
 }

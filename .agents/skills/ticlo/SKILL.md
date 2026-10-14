@@ -21,6 +21,11 @@ build and translation tools in `tool/`.
 | `test` | Flow assertions and test utilities |
 | `web-server` | Hono HTTP/WebSocket server using `@hono/node-server` and `@hono/node-ws` |
 
+## Documentation
+
+Keep every `README.md` in this project limited to a general introduction to the
+project or package it describes. Put technical details in separate documentation.
+
 ## References
 
 Read only the references relevant to the task:

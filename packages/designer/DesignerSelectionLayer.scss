@@ -37,3 +37,15 @@
   stroke: $selection-color;
   fill: $selection-bg;
 }
+
+.ticl-d-resize-handle {
+  fill: #fff;
+  stroke: #000;
+  pointer-events: all;
+  touch-action: none;
+
+  &[data-handle='top-left'] {
+    fill: #000;
+    stroke: #fff;
+  }
+}

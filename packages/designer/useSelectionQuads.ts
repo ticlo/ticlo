@@ -8,6 +8,7 @@ interface SelectionQuad {
   element: Element;
   selected: boolean;
   points: string;
+  quad: DOMQuad;
 }
 
 export function useSelectionQuads(
@@ -49,12 +50,15 @@ export function useSelectionQuads(
       for (const [element, selected] of targets) {
         const quad = measured.get(element) ?? getFallbackQuad(element, (toStage ??= createStagePointMapper(stage)));
         if (!quad || !quad.getBounds().width || !quad.getBounds().height) continue;
+        const points = [quad.p1, quad.p2, quad.p3, quad.p4].map((point) => ({
+          x: point.x + offsetX,
+          y: point.y + offsetY,
+        }));
         next.push({
           element,
           selected,
-          points: [quad.p1, quad.p2, quad.p3, quad.p4]
-            .map((point) => `${point.x + offsetX},${point.y + offsetY}`)
-            .join(' '),
+          points: points.map(({x, y}) => `${x},${y}`).join(' '),
+          quad: new DOMQuad(points[0], points[1], points[2], points[3]),
         });
       }
       setQuads((previous) =>

@@ -70,7 +70,13 @@ export function DesignerStage({root, conn, basePath, onDragOverT, onDropT}: Prop
   const contextRef = useRef(context);
   contextRef.current = context;
   const activate = useCallback(() => contextRef.current.onFlowFocus(basePath), [basePath]);
-  const {hover, marquee} = useStageInput(stageRef, componentContext, activate, selectionRef, flow);
+  const {hover, marquee, resizePreview, startResize} = useStageInput(
+    stageRef,
+    componentContext,
+    activate,
+    selectionRef,
+    flow
+  );
   const {dropPoints, ...dropHandlers} = useStageDrop(stageRef, stage, activate, {onDragOverT, onDropT});
   useEffect(() => {
     registerStage(basePath, stage);
@@ -99,10 +105,13 @@ export function DesignerStage({root, conn, basePath, onDragOverT, onDropT}: Prop
         <DesignerSelectionLayer
           stageRef={stageRef}
           elementMap={elementMap}
+          main={main}
           blocks={selection.blocks}
           hover={hover}
           marquee={marquee}
           dropPoints={dropPoints}
+          resizePreview={resizePreview}
+          onResizeStart={startResize}
         />
       )}
     </DragDrop>
