@@ -17,6 +17,7 @@
   "types": "./index.ts",
   "style": "./style/index.css",
   "dependencies": {
+    "@ant-design/fast-color": "^3.0.1",
     "@ant-design/icons": "^6.3.4",
     "@codemirror/lang-javascript": "^6.2.5",
     "@codemirror/lang-markdown": "^6.5.2",

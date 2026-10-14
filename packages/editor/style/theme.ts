@@ -1,6 +1,18 @@
 import {theme as antdTheme, type ThemeConfig} from 'antd';
+import type {MappingAlgorithm} from 'antd/es/theme/interface/index.js';
+import {FastColor} from '@ant-design/fast-color';
+
+export const ticloThemeAlgorithm: MappingAlgorithm = (seed, token) => {
+  const mapToken = token ?? antdTheme.defaultAlgorithm(seed);
+  return {
+    ...mapToken,
+    ticlSelectionColor: mapToken.colorPrimary,
+    ticlSelectionBg: new FastColor(mapToken.colorPrimary).setA(0.1).toRgbString(),
+  };
+};
 
 export const theme: ThemeConfig = {
+  algorithm: [antdTheme.defaultAlgorithm, ticloThemeAlgorithm],
   zeroRuntime: true,
   // Match the theme key used by the extracted static styles.
   cssVar: {key: 'css-var-r0'},
@@ -34,7 +46,7 @@ export const theme: ThemeConfig = {
 export const darkTheme: ThemeConfig = {
   ...theme,
   cssVar: {key: 'css-var-r0-dark'},
-  algorithm: antdTheme.darkAlgorithm,
+  algorithm: [antdTheme.darkAlgorithm, ticloThemeAlgorithm],
   token: {
     fontFamily:
       "'Nato Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'",

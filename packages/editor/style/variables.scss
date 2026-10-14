@@ -29,7 +29,10 @@ $dropdown-line-height: 22px;
 $item-hover-bg: var(--ant-control-item-bg-hover, #f5f5f5);
 
 $primary-color: var(--ant-color-primary, #40a9ff);
+$primary-color-light: var(--ant-color-primary-border, #91d5ff);
 $primary-text-color: var(--ant-color-link, #108ee9);
+$selection-color: var(--ant-ticl-selection-color, #{$primary-color});
+$selection-bg: var(--ant-ticl-selection-bg, rgba(64, 169, 255, 0.1));
 $heading-color: var(--ant-color-text-heading, rgba(0, 0, 0, 0.9));
 $text-color: var(--ant-color-text, rgba(0, 0, 0, 0.75));
 $text-color-secondary: var(--ant-color-text-secondary, rgba(0, 0, 0, 0.5));

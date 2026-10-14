@@ -218,9 +218,8 @@ body:not(.dock-dragging) {
 
 .ticl-e-block-select-rect {
   position: absolute;
-  border: solid 1px white;
-  background: $blue-3;
-  opacity: 0.5;
+  border: solid 1px $selection-color;
+  background: $selection-bg;
   pointer-events: none;
   display: none;
   z-index: 200;

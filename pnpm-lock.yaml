@@ -488,6 +488,9 @@ importers:
 
   packages/editor:
     dependencies:
+      '@ant-design/fast-color':
+        specifier: ^3.0.1
+        version: 3.0.1
       '@ant-design/icons':
         specifier: ^6.3.4
         version: 6.3.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8)

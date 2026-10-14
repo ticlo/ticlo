@@ -1,3 +1,5 @@
+@use '../editor/style/variables' as *;
+
 .ticl-d-selection-layer {
   position: absolute;
   inset: 0;
@@ -23,8 +25,8 @@
 .ticl-d-marquee-rect {
   position: absolute;
   box-sizing: border-box;
-  border: 1px solid var(--ant-color-primary, #1677ff);
-  background: var(--ant-control-item-bg-active, rgba(22, 119, 255, 0.1));
+  border: 1px solid $selection-color;
+  background: $selection-bg;
 }
 
 .ticl-d-hover-outline {
@@ -32,6 +34,6 @@
 }
 
 .ticl-d-drop-rect {
-  stroke: #1677ff;
-  fill: rgba(22, 119, 255, 0.1);
+  stroke: $selection-color;
+  fill: $selection-bg;
 }
