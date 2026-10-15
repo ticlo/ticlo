@@ -545,6 +545,83 @@ describe('DesignerStage', () => {
     expect(activeStage.selection.blocks).toEqual([]);
   });
 
+  it.each([true, false])(
+    'expands selected ancestors and restores them on stage switches with serialize=%s',
+    async (serialize) => {
+      const flow = Root.instance.addFlow(path, {
+        '#main': {
+          '#is': 'react:div',
+          '#order': ['outer'],
+          'outer': {
+            '#is': 'react:div',
+            '#order': ['inner', 'other'],
+            'inner': {
+              '#is': 'react:div',
+              '#order': ['first', 'second'],
+              'first': {'#is': 'react:p', 'content': 'First'},
+              'second': {'#is': 'react:p', 'content': 'Second'},
+            },
+            'other': {'#is': 'react:div', '#order': ['unrelated'], 'unrelated': {'#is': 'react:p'}},
+          },
+        },
+      });
+      const secondPath = `${path}Second`;
+      Root.instance.addFlow(secondPath, {'#main': {'#is': 'react:p'}});
+      const firstPath = `${path}.#main.outer.inner.first`;
+      const secondChildPath = `${path}.#main.outer.inner.second`;
+      let stage: DesignerStageContextValue;
+      let context: TicloCurrentFlow;
+      function Panel() {
+        stage = useActiveDesignerStage();
+        context = useContext(TicloCurrentFlowContext);
+        return <DesignerNodeTree />;
+      }
+      const [, conn] = makeLocalConnection(Root.instance, true, undefined, serialize);
+      const [, div] = loadTemplate(
+        <StrictMode>
+          <DesignerApp value={{}}>
+            <DesignerStage root={Root.instance} conn={conn} basePath={path} />
+            <DesignerStage root={Root.instance} conn={conn} basePath={secondPath} />
+            <div style={{height: 300}}>
+              <Panel />
+            </div>
+          </DesignerApp>
+        </StrictMode>,
+        'editor'
+      );
+      const tree = () => div.querySelector<HTMLElement>('.ticl-d-node-tree');
+      const node = (name: string) => querySingle(`//div.ticl-e-tree-node-text[text()='${name}']`, tree());
+      const selected = () =>
+        Array.from(tree().querySelectorAll('.ticl-e-tree-node-selected .ticl-e-tree-node-text')).map(
+          (node) => node.textContent
+        );
+      await shouldHappen(() => stage?.basePath === secondPath);
+      context.onFlowFocus(path);
+      await shouldHappen(() => stage?.basePath === path && tree().querySelectorAll('.ticl-e-tree-node').length === 1);
+      stage.select([firstPath, secondChildPath]);
+      await shouldHappen(() => selected().length === 2);
+      expect(selected()).toEqual(['first', 'second']);
+      expect(node('unrelated')).toBeNull();
+
+      querySingle("//div.ticl-e-tree-node-text[text()='outer']/../../div.ticl-e-tree-arr", tree()).click();
+      await shouldHappen(() => !node('first'));
+      expect(stage.selection.paths).toEqual([firstPath, secondChildPath]);
+      stage.select([firstPath]);
+      await shouldHappen(() => selected().join() === 'first');
+
+      context.onFlowFocus(secondPath);
+      await shouldHappen(() => stage?.basePath === secondPath && !node('first'));
+      context.onFlowFocus(path);
+      await shouldHappen(() => stage?.basePath === path && selected().join() === 'first');
+
+      querySingle("//div.ticl-e-tree-node-text[text()='inner']/../../div.ticl-e-tree-arr", tree()).click();
+      await shouldHappen(() => !node('first'));
+      stage.select([flow.queryValue('#main.outer.inner') as Block]);
+      await shouldHappen(() => selected().join() === 'inner');
+      expect(node('first')).toBeNull();
+    }
+  );
+
   it('filters both trees independently, follows stage focus, and skips hidden nodes in range selection', async () => {
     const functionId = 'designer-filter:function-extra';
     const nodeId = 'designer-filter:node-extra';

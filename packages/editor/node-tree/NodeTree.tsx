@@ -1,7 +1,7 @@
 import React from 'react';
 import {ExpandState} from '../component/Tree.tsx';
 import VirtualList from '../component/Virtual.tsx';
-import {ClientConn, arrayEqual} from '@ticlo/core/editor.ts';
+import {ClientConn, arrayEqual, blankFuncDesc} from '@ticlo/core/editor.ts';
 import {NodeTreeItem, NodeTreeRenderer, type NodeTreeFunctionDrag} from './NodeRenderer.tsx';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
@@ -13,6 +13,7 @@ interface Props {
   hideRoot?: boolean;
   tags?: readonly string[];
   selectedKeys?: string[];
+  autoExpandSelected?: boolean;
   onSelect?: (keys: string[]) => void;
 }
 
@@ -23,6 +24,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
 
   rootList: NodeTreeItem[] = [];
   list: NodeTreeItem[] = [];
+  private pendingExpansion: string[] = [];
 
   lastClickedItem: NodeTreeItem;
   onItemClick = (item: NodeTreeItem, event: React.MouseEvent) => {
@@ -178,7 +180,36 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     }
   };
 
-  forceUpdateLambda = () => this.forceUpdate();
+  forceUpdateLambda = () => {
+    this.expandSelected();
+    this.forceUpdate();
+  };
+
+  private expandSelectedPath(item: NodeTreeItem, path: string): boolean {
+    if (item.key === path) return true;
+    const {tags} = this.props;
+    if (tags && item.level >= 0 && !item.desc.tags?.some((tag) => tags.includes(tag))) {
+      return item.desc !== blankFuncDesc;
+    }
+    if (item.opened === 'closed' || item.opened === 'empty') item.open();
+    if (item.opened !== 'opened') return false;
+    const child = item.children?.find((child) => child.key === path || path.startsWith(child.childPrefix));
+    return !child || this.expandSelectedPath(child, path);
+  }
+
+  private expandSelected() {
+    const paths = this.pendingExpansion;
+    this.pendingExpansion = [];
+    for (const path of paths) {
+      const root = this.rootList.find((item) => item.key === path || path.startsWith(item.childPrefix));
+      if (root && !this.expandSelectedPath(root, path)) this.pendingExpansion.push(path);
+    }
+  }
+
+  private updateSelectedExpansion() {
+    this.pendingExpansion = this.props.autoExpandSelected ? [...this.props.selectedKeys] : [];
+    this.expandSelected();
+  }
 
   refreshList() {
     this.list.length = 0;
@@ -204,6 +235,12 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     ) {
       this.clearRoot(previous.conn);
       this.buildRoot();
+    } else if (
+      previous.autoExpandSelected !== this.props.autoExpandSelected ||
+      previous.tags !== this.props.tags ||
+      !arrayEqual(previous.selectedKeys, this.props.selectedKeys)
+    ) {
+      this.updateSelectedExpansion();
     }
   }
 
@@ -227,6 +264,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
       this.rootList[0].open();
     }
     conn.childrenChangeStream().listen(this.onChildrenChange);
+    this.updateSelectedExpansion();
     this.forceUpdate();
   }
 
@@ -249,6 +287,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
       node.destroy();
     }
     this.rootList = [];
+    this.pendingExpansion = [];
     this.lastClickedItem = null;
   }
 

@@ -13,6 +13,7 @@ export function DesignerNodeTree() {
           basePaths={[stage.main.getFullPath()]}
           tags={stage.nodeTreeTags}
           selectedKeys={stage.selection.paths}
+          autoExpandSelected
           onSelect={stage.select}
           style={{height: '100%'}}
         />
