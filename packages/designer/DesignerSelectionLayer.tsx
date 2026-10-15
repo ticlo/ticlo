@@ -62,8 +62,8 @@ export function DesignerSelectionLayer({
               onResizeStart &&
               resizeHandles.map((handle) => {
                 const point = handlePoint(quad, handle.x, handle.y);
-                const opposite = handlePoint(quad, -handle.x, -handle.y);
-                const angle = Math.round(Math.atan2(point.y - opposite.y, point.x - opposite.x) / (Math.PI / 4));
+                const rotation = (Math.atan2(quad.p2.y - quad.p1.y, quad.p2.x - quad.p1.x) * 180) / Math.PI;
+                const angle = Math.round(rotation / 45 + Math.atan2(handle.y, handle.x) / (Math.PI / 4));
                 const cursor = ['ew-resize', 'nwse-resize', 'ns-resize', 'nesw-resize'][((angle % 4) + 4) % 4];
                 return (
                   <rect
@@ -74,6 +74,7 @@ export function DesignerSelectionLayer({
                     y={point.y - 3.5}
                     width={7}
                     height={7}
+                    transform={`rotate(${rotation} ${point.x} ${point.y})`}
                     style={{cursor}}
                     onPointerDown={(event) => onResizeStart(element, handle, event)}
                   />

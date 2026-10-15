@@ -85,6 +85,8 @@ describe('DesignerSelectionLayer', () => {
       expect(style.fill).toBe(handle.dataset.handle === 'top-left' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)');
       expect(style.stroke).toBe(handle.dataset.handle === 'top-left' ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)');
     }
+    expect(getComputedStyle(handles[0]).cursor).toBe('nwse-resize');
+    expect(getComputedStyle(handles[2]).cursor).toBe('nesw-resize');
     const bounds = first.getBoundingClientRect();
     expect(page.contains(document.elementFromPoint(bounds.left + 5, bounds.top + 5))).toBe(true);
     await userEvent.click(second, {modifiers: ['Control']});
@@ -190,6 +192,8 @@ describe('DesignerSelectionLayer', () => {
     const handle = host.querySelector<SVGRectElement>('[data-handle="top-left"]');
     expect(handle.x.baseVal.value + 3.5).toBeCloseTo(selected()[0].points.getItem(0).x, 2);
     expect(handle.y.baseVal.value + 3.5).toBeCloseTo(selected()[0].points.getItem(0).y, 2);
+    expect(getComputedStyle(handle).cursor).toBe('nwse-resize');
+    expect(getComputedStyle(host.querySelector('[data-handle="top-right"]')).cursor).toBe('nesw-resize');
     parent.style.transform = 'rotateY(25deg)';
     parent.style.transformStyle = 'preserve-3d';
     parent.style.perspective = '500px';
