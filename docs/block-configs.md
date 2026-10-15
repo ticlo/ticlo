@@ -8,11 +8,11 @@ and object wrappers, see the [file format](../.agents/skills/ticlo/file-format.m
 
 `#mode: auto` uses the function's default mode.
 
-| Trigger | `onLoad` | `onChange` | `onCall` |
-| --- | --- | --- | --- |
-| Block loaded | Yes | No | No |
-| Input changed | Yes | Yes | No |
-| Accepted `#call` | Yes | Yes | Yes |
+| Trigger          | `onLoad` | `onChange` | `onCall` |
+| ---------------- | -------- | ---------- | -------- |
+| Block loaded     | Yes      | No         | No       |
+| Input changed    | Yes      | Yes        | No       |
+| Accepted `#call` | Yes      | Yes        | Yes      |
 
 `#disabled: true` disables execution; `disabled` is not a mode.
 Functions can reject calls through `onCall()`.
@@ -49,14 +49,14 @@ editor display only.
 
 Read-only; never write these into flow files:
 
-| Property | Reference |
-| --- | --- |
-| `#` | Current block |
-| `##` | Parent block |
-| `#flow` | Containing flow |
-| `#lib` | Function library's owning flow, when available |
-| `#name` | Block name |
-| `#+` | Namespace root |
+| Property | Reference                                      |
+| -------- | ---------------------------------------------- |
+| `#`      | Current block                                  |
+| `##`     | Parent block                                   |
+| `#flow`  | Containing flow                                |
+| `#lib`   | Function library's owning flow, when available |
+| `#name`  | Block name                                     |
+| `#+`     | Namespace root                                 |
 
 ## Worker data
 
@@ -83,8 +83,7 @@ A reusable UI worker publishes its root as a named `#main` output:
 }
 ```
 
-The worker instance's `#main` references the same root Block. `react:to-component`
-also publishes its render result through `#main`.
+The worker instance's `#main` references the same root Block.
 
 When saving a flow with an owned `#main` Block and an existing `#outputs` Block,
 Ticlo adds the binding above if the output has no saved `#main` value or binding.

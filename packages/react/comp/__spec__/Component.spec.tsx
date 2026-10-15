@@ -159,7 +159,7 @@ describe('TicloComp', function () {
     flow.destroy();
   });
 
-  it('renders the #main result of react:to-component', async function () {
+  it('renders the #output result of react:to-component through a content binding', async function () {
     const flow = new Flow();
     const component = flow.createBlock('component');
     component.setValue('#is', 'react:span');
@@ -167,11 +167,14 @@ describe('TicloComp', function () {
     const block = flow.createBlock('convert');
     block.setValue('#is', 'react:to-component');
     block.setValue('input', component);
+    const container = flow.createBlock('container');
+    container.setValue('#is', 'react:div');
+    container.setBinding('content', '##.convert.#output');
     Root.run();
 
-    expect(React.isValidElement(block.getValue('#main'))).toBe(true);
-    expect(block.getValue('#output')).toBeUndefined();
-    await root.waitRender(<TicloComp block={block} />);
+    expect(React.isValidElement(block.getValue('#output'))).toBe(true);
+    expect(block.getValue('#main')).toBeUndefined();
+    await root.waitRender(<TicloComp block={container} />);
     expect(root.div.textContent).toBe('Converted');
     flow.destroy();
   });
