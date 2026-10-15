@@ -6,9 +6,11 @@ import {BlockIO} from '../block/BlockProperty.ts';
 import {Flow} from '../block/Flow.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {WorkerFlow} from './WorkerFlow.ts';
-import type {Block} from '../block/Block.ts';
+import {Block} from '../block/Block.ts';
 import {Namespace} from '../block/Namespace.ts';
 import {FlowFunctionLib, NsFunctionLib} from '../block/NSFunctionLib.ts';
+
+const inheritedMainOutputTags = ['react-comp'];
 
 export class WorkerFunctionGen extends BaseFunction<Block> {
   declare readonly type: string;
@@ -79,6 +81,21 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     }
     if (!funcId) {
       return null;
+    }
+    // Inherit allowed tags from the block directly bound to #outputs.#main.
+    // A worker exposing a React component also gets the react-comp tag.
+    const outputs = flow.getValue('#outputs');
+    const mainBinding = (data['#outputs'] as DataMap)?.['~#main'];
+    if (outputs instanceof Block && typeof mainBinding === 'string') {
+      const main = outputs.queryProperty(mainBinding)?._saved;
+      if (main instanceof Block) {
+        const sourceTags = main._funcSrc?.getValue()?.desc.tags;
+        const tags = inheritedMainOutputTags.filter((tag) => sourceTags?.includes(tag));
+        if (tags.length) {
+          const desc = data['#desc'] as FunctionDesc;
+          data['#desc'] = {...desc, tags: [...new Set([...(desc?.tags ?? []), ...tags])]};
+        }
+      }
     }
     const namespace = flow._namespace;
     const factory = WorkerFunctionGen.generate(data, funcId, namespace);
