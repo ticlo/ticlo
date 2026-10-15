@@ -16,6 +16,8 @@ export interface TicloSelection {
 
 export interface TicloStage<Selection extends TicloSelection = TicloSelection> extends Partial<TicloStageCommands> {
   kind: string;
+  functionTreeTags?: readonly string[];
+  nodeTreeTags?: readonly string[];
   selection: Selection;
   select: (paths: string[]) => void;
 }

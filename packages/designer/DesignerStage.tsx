@@ -11,13 +11,26 @@ import {DragDrop} from 'rc-dock';
 import {useStageDrop} from './useStageDrop.ts';
 import type {DesignerDropHandlers} from './StageDrop.ts';
 
+const defaultFunctionTreeTags = ['react-comp'];
+const defaultNodeTreeTags = ['react-comp'];
+
 interface Props extends DesignerDropHandlers {
   root: Block;
   conn: ClientConn;
   basePath: string;
+  functionTreeTags?: readonly string[];
+  nodeTreeTags?: readonly string[];
 }
 
-export function DesignerStage({root, conn, basePath, onDragOverT, onDropT}: Props) {
+export function DesignerStage({
+  root,
+  conn,
+  basePath,
+  onDragOverT,
+  onDropT,
+  functionTreeTags = defaultFunctionTreeTags,
+  nodeTreeTags = defaultNodeTreeTags,
+}: Props) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [elementMap] = useState(() => new ElementMap());
   const block = useValue(root, basePath);
@@ -54,6 +67,8 @@ export function DesignerStage({root, conn, basePath, onDragOverT, onDropT}: Prop
   const stage = useMemo<DesignerStageContextValue>(
     () => ({
       kind: 'designer',
+      functionTreeTags,
+      nodeTreeTags,
       basePath,
       flow,
       main,
@@ -63,7 +78,18 @@ export function DesignerStage({root, conn, basePath, onDragOverT, onDropT}: Prop
       setDesignMode,
       ...historyCommands,
     }),
-    [basePath, flow, main, conn, selection, componentContext, setDesignMode, historyCommands]
+    [
+      basePath,
+      flow,
+      main,
+      conn,
+      selection,
+      componentContext,
+      setDesignMode,
+      historyCommands,
+      functionTreeTags,
+      nodeTreeTags,
+    ]
   );
   const context = useContext(TicloCurrentFlowContext);
   const {registerStage, unregisterStage} = context;

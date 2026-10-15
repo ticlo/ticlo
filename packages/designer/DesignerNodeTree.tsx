@@ -11,6 +11,7 @@ export function DesignerNodeTree() {
           key={`${stage.basePath}:${stage.main._blockId}`}
           conn={stage.conn}
           basePaths={[stage.main.getFullPath()]}
+          tags={stage.nodeTreeTags}
           selectedKeys={stage.selection.paths}
           onSelect={stage.select}
           style={{height: '100%'}}

@@ -1,7 +1,7 @@
 import React, {StrictMode, useContext, useState} from 'react';
 import '../style/index.css';
 import {expectTypeOf} from 'vitest';
-import {Block, Root} from '@ticlo/core';
+import {Block, Root, globalFunctions} from '@ticlo/core';
 import {ComponentContext, type ComponentContextValue} from '@ticlo/react';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
@@ -14,6 +14,7 @@ import {
 } from '../DesignerContext.tsx';
 import {DesignerApp} from '../DesignerApp.tsx';
 import {DesignerNodeTree} from '../DesignerNodeTree.tsx';
+import {FunctionTree} from '@ticlo/editor/function-selector/FunctionTree.tsx';
 import {
   TicloCurrentFlowContext,
   TicloLayoutContextType,
@@ -131,6 +132,9 @@ describe('DesignerStage', () => {
     );
     await shouldHappen(() => activeStage?.basePath === secondPath);
     expect(activeStage.selection.blocks).toEqual([]);
+    expect(activeStage.functionTreeTags).toEqual(['react-comp']);
+    expect(activeStage.nodeTreeTags).toEqual(['react-comp']);
+    expect(activeStage.functionTreeTags).not.toBe(activeStage.nodeTreeTags);
 
     const firstStage = div.querySelectorAll('.ticl-d-stage')[0];
     firstStage.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
@@ -466,11 +470,11 @@ describe('DesignerStage', () => {
     await shouldHappen(() => activeStage?.basePath === secondPath && tree().querySelector('.ticl-e-tree-node'));
     context.onFlowFocus(path);
     await shouldHappen(() => activeStage?.main === main && tree().querySelectorAll('.ticl-e-tree-node').length === 1);
-    await shouldHappen(() => tree().querySelector('.tico-fab-react'));
+    await shouldHappen(() => tree().querySelector('.tico-txt')?.textContent === 'div');
     main.setValue('#is', 'add');
-    await shouldHappen(() => tree().querySelector('.tico-fas-plus'));
+    await shouldHappen(() => tree().querySelectorAll('.ticl-e-tree-node').length === 0);
     main.setValue('#is', 'react:div');
-    await shouldHappen(() => tree().querySelector('.tico-fab-react'));
+    await shouldHappen(() => tree().querySelector('.tico-txt')?.textContent === 'div');
     (tree().querySelector('.ticl-e-tree-arr') as HTMLElement).click();
     await shouldHappen(() => querySingle("//div.ticl-e-tree-node-text[text()='b']", tree()));
     expect(querySingle("//div.ticl-e-tree-node-text[text()='outside']", tree())).toBeNull();
@@ -539,5 +543,99 @@ describe('DesignerStage', () => {
       () => activeStage.main === replacement && tree().querySelectorAll('.ticl-e-tree-node').length === 1
     );
     expect(activeStage.selection.blocks).toEqual([]);
+  });
+
+  it('filters both trees independently, follows stage focus, and skips hidden nodes in range selection', async () => {
+    const functionId = 'designer-filter:function-extra';
+    const nodeId = 'designer-filter:node-extra';
+    globalFunctions.addFactory(
+      null,
+      {name: 'function-extra', properties: [], tags: ['function-extra']},
+      'designer-filter'
+    );
+    globalFunctions.addFactory(null, {name: 'node-extra', properties: [], tags: ['node-extra']}, 'designer-filter');
+    try {
+      const flow = Root.instance.addFlow(path, {
+        '#main': {
+          '#is': 'react:div',
+          '#order': ['a', 'hidden', 'b', 'extra'],
+          'a': {'#is': 'react:p', 'content': 'First'},
+          'hidden': {'#is': 'add'},
+          'b': {'#is': 'react:span', 'content': 'Second'},
+          'extra': {'#is': nodeId},
+        },
+      });
+      const main = flow.getValue('#main') as Block;
+      const [, conn] = makeLocalConnection(Root.instance, true, undefined, false);
+      let context: TicloCurrentFlow;
+      let functions: FunctionTree;
+      function Panels() {
+        context = useContext(TicloCurrentFlowContext);
+        return (
+          <>
+            <FunctionTree
+              ref={(value) => {
+                functions = value;
+              }}
+              conn={conn}
+              tags={context.activeStage?.functionTreeTags}
+              search="extra"
+              style={{height: 300}}
+            />
+            <div style={{height: 300}}>
+              <DesignerNodeTree />
+            </div>
+          </>
+        );
+      }
+      const [, div] = loadTemplate(
+        <DesignerApp value={{}}>
+          <DesignerStage
+            root={Root.instance}
+            conn={conn}
+            basePath={path}
+            functionTreeTags={['react-comp', 'function-extra']}
+            nodeTreeTags={['react-comp', 'node-extra']}
+          />
+          <Panels />
+        </DesignerApp>,
+        'editor'
+      );
+      const functionIds = () =>
+        functions?.list.filter((item) => item.desc?.properties).map((item) => item.desc.id) ?? [];
+      const tree = () => div.querySelector<HTMLElement>('.ticl-d-node-tree');
+      const node = (name: string) => querySingle(`//div.ticl-e-tree-node-text[text()='${name}']`, tree());
+      await shouldHappen(() => context?.activeStage?.kind === 'designer' && functionIds().includes(functionId));
+      expect(functionIds()).toEqual([functionId]);
+      expect(functions.list.some((item) => item.key === 'designer-filter:')).toBe(true);
+      const expand = await shouldHappen(() => tree().querySelector<HTMLElement>('.ticl-e-tree-arr'));
+      expand.click();
+      await shouldHappen(() => node('a') && node('b') && node('extra'));
+      expect(node('hidden')).toBeNull();
+      node('a').click();
+      node('b').dispatchEvent(new MouseEvent('click', {bubbles: true, shiftKey: true}));
+      await shouldHappen(() => context.activeStage.selection.paths.length === 2);
+      expect(context.activeStage.selection.paths).toEqual([`${path}.#main.a`, `${path}.#main.b`]);
+
+      (main.getValue('hidden') as Block).setValue('#is', 'react:p');
+      await shouldHappen(() => node('hidden'));
+      (main.getValue('hidden') as Block).setValue('#is', 'add');
+      await shouldHappen(() => !node('hidden'));
+
+      const secondPath = `${path}Second`;
+      const dataflow = {kind: 'dataflow', selection: {paths: [] as string[]}, select: () => {}};
+      context.registerStage(secondPath, dataflow);
+      context.onFlowFocus(secondPath);
+      await shouldHappen(() => context.activeStage === dataflow && functionIds().includes(nodeId));
+      expect(functionIds()).toEqual([functionId, nodeId]);
+      expect(tree().querySelector('.ticl-e-tree-node')).toBeNull();
+      context.onFlowFocus(path);
+      await shouldHappen(() => context.activeStage?.kind === 'designer' && !functionIds().includes(nodeId));
+      expect(functionIds()).toEqual([functionId]);
+      context.unregisterStage(secondPath, dataflow);
+    } finally {
+      globalFunctions.delete(functionId);
+      globalFunctions.delete(nodeId);
+    }
   });
 });

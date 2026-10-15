@@ -9,6 +9,7 @@ interface Props {
   conn: ClientConn;
   search?: string;
   filter?: (desc: FunctionDesc) => boolean;
+  tags?: readonly string[];
   showPreset?: boolean;
   onFunctionClick?: OnFunctionClick;
   onAddFunction?: (prefix: string) => void;
@@ -69,7 +70,7 @@ export class FunctionTree extends React.PureComponent<Props, State> {
     search = (search ?? '').trim().toLowerCase();
     this.list.length = 0;
     for (const item of this.rootNode?.children ?? []) {
-      item.addToList(this.list, search);
+      item.addToList(this.list, search, this.props.tags);
     }
   }
 

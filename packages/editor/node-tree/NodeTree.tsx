@@ -11,6 +11,7 @@ interface Props {
   basePaths: string[];
   style?: React.CSSProperties;
   hideRoot?: boolean;
+  tags?: readonly string[];
   selectedKeys?: string[];
   onSelect?: (keys: string[]) => void;
 }
@@ -46,8 +47,9 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
       if (event.shiftKey) {
         // shift click, select range
         if (item.parent.children && this.lastClickedItem?.parent === item.parent) {
-          let idx0 = item.parent.children.indexOf(item);
-          let idx1 = item.parent.children.indexOf(this.lastClickedItem);
+          const siblings = this.list.filter((child) => child.parent === item.parent);
+          let idx0 = siblings.indexOf(item);
+          let idx1 = siblings.indexOf(this.lastClickedItem);
           if (idx0 < 0 || idx1 < 0 || idx0 === idx1) {
             // not a valid shift click
             return;
@@ -56,7 +58,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
             [idx0, idx1] = [idx1, idx0];
           }
           for (let i = idx0; i <= idx1; ++i) {
-            const childKey = item.parent.children[i].key;
+            const childKey = siblings[i].key;
             if (!keys.includes(childKey)) {
               keys.push(childKey);
             }
@@ -181,7 +183,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   refreshList() {
     this.list.length = 0;
     for (const item of this.rootList) {
-      item.addToList(this.list);
+      item.addToList(this.list, this.props.tags);
     }
   }
 

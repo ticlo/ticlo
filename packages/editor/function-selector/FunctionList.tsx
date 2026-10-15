@@ -36,6 +36,7 @@ interface Props {
   types?: string[];
   style?: React.CSSProperties;
   funcLib?: string;
+  tags?: readonly string[];
 }
 
 export class FunctionList extends React.PureComponent<Props, any> {
@@ -49,14 +50,14 @@ export class FunctionList extends React.PureComponent<Props, any> {
   }
 
   render() {
-    let {conn, recent, types, style, funcLib} = this.props;
+    let {conn, recent, types, style, funcLib, tags} = this.props;
     if (recent) {
       types = _recentFunctionList;
     }
     const children: React.ReactNode[] = [];
     for (const type of types) {
       const desc = conn.watchDesc(type);
-      if (desc) {
+      if (desc && (!tags || desc.tags?.some((tag) => tags.includes(tag)))) {
         children.push(<FunctionView key={type} conn={conn} desc={desc} funcLib={funcLib} />);
       }
     }

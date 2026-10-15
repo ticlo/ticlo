@@ -95,9 +95,14 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     this.subscribe();
   }
 
-  addToList(list: NodeTreeItem[]) {
-    super.addToList(list);
-    // TODO add 3 dots to indicate there are mroe
+  addToList(list: NodeTreeItem[], tags?: readonly string[]) {
+    if (this.level >= 0) {
+      if (tags && !this.desc.tags?.some((tag) => tags.includes(tag))) return;
+      list.push(this);
+    }
+    if (this.opened === 'opened' && this.children) {
+      for (const child of this.children) child.addToList(list, tags);
+    }
   }
 
   listingId: string;
@@ -234,6 +239,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   descCallback = (desc: FunctionDesc) => {
     this.desc = desc || blankFuncDesc;
     for (const renderer of this._renderers) renderer.descCallback(this.desc);
+    this.onListChange?.();
   };
 
   applyOrder() {

@@ -4,6 +4,14 @@ Designer stages operate on local Blocks directly. Outline selection may span
 parents; stage additions and group movement keep selections under one Block
 parent. Component selection snapshots stay out of the React component context.
 
+Each stage exposes separate `functionTreeTags` and `nodeTreeTags` lists. Both
+default to `['react-comp']` on `DesignerStage` and can be configured independently
+through its props. The function panel uses the active stage's function tags;
+`DesignerNodeTree` uses its node tags and shares its selection. A descriptor matches
+when it has any listed tag. Unmatched node branches are hidden, and function
+categories remain visible when they contain matching functions. Dataflow stages
+leave these lists undefined to show all functions and nodes.
+
 In design mode, page input is forwarded to the stage as events of the same type,
 with pointer coordinates, keyboard modifiers, and drag/touch data preserved.
 Stage and ancestor listeners receive these events, while page components' native

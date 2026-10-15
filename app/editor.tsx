@@ -81,8 +81,12 @@ class App extends React.PureComponent<Props, State> {
         cached: true,
         content: (
           <TicloCurrentFlowConsumer>
-            {({currentPath}) => (
-              <FunctionSelect conn={conn} funcLib={currentPath ? `${currentPath}.#lib` : undefined} />
+            {({currentPath, activeStage}) => (
+              <FunctionSelect
+                conn={conn}
+                funcLib={currentPath ? `${currentPath}.#lib` : undefined}
+                tags={activeStage?.functionTreeTags}
+              />
             )}
           </TicloCurrentFlowConsumer>
         ),

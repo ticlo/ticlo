@@ -71,6 +71,7 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
     }
     if (changed) {
       this.forceUpdate();
+      this.onListChange?.();
     }
   }
 
@@ -145,19 +146,27 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
     return this.key.includes(search) || this.name.includes(search);
   }
 
-  addToList(list: FunctionTreeItem[], search?: string) {
+  matchesTags(tags: readonly string[]): boolean {
+    return (
+      (Boolean(this.desc?.properties) && this.desc.tags?.some((tag) => tags.includes(tag))) ||
+      this.children.some((child) => child.matchesTags(tags))
+    );
+  }
+
+  addToList(list: FunctionTreeItem[], search?: string, tags?: readonly string[]) {
+    if (tags && !this.matchesTags(tags)) return;
     if (this.matchSearch(search)) {
       list.push(this);
       if (this.opened === 'opened' && this.children) {
         for (const child of this.children) {
-          child.addToList(list);
+          child.addToList(list, undefined, tags);
         }
       }
     } else if (search && this.children.length) {
       // check if there is any matched child
       const searchChildren: FunctionTreeItem[] = [];
       for (const child of this.children) {
-        child.addToList(searchChildren, search);
+        child.addToList(searchChildren, search, tags);
       }
 
       const strongFilter = search.length > 1 || search.charCodeAt(0) > 128;

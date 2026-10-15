@@ -25,6 +25,7 @@ interface Props {
   onFunctionClick?: OnFunctionClick;
   onClick?: React.MouseEventHandler;
   filter?: (desc: FunctionDesc) => boolean;
+  tags?: readonly string[];
   useFlow?: boolean;
   currentValue?: unknown;
   funcLib?: string;
@@ -99,7 +100,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     }
   };
   render() {
-    const {conn, showPreset, onFunctionClick, onClick, filter, useFlow, currentValue, funcLib} = this.props;
+    const {conn, showPreset, onFunctionClick, onClick, filter, tags, useFlow, currentValue, funcLib} = this.props;
     const {tab, search, modelVisible, newFunctionName, addFunctionPrefix} = this.state;
 
     if (!conn) {
@@ -188,6 +189,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             showPreset={showPreset}
             search={search}
             filter={filter}
+            tags={tags}
             onFunctionClick={onFunctionClick}
             onAddFunction={this.onAddFunction}
             funcLib={funcLib ?? ''}
@@ -198,11 +200,18 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
           showPreset={showPreset}
           search={search}
           filter={filter}
+          tags={tags}
           onFunctionClick={onFunctionClick}
           onAddFunction={this.onAddFunction}
           style={{display: tab === 'tree' ? '' : 'none'}}
         />
-        <FunctionList conn={conn} recent={true} funcLib={funcLib} style={{display: tab === 'recent' ? '' : 'none'}} />
+        <FunctionList
+          conn={conn}
+          recent={true}
+          funcLib={funcLib}
+          tags={tags}
+          style={{display: tab === 'recent' ? '' : 'none'}}
+        />
       </div>
     );
   }
