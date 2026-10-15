@@ -1,7 +1,7 @@
 import React, {StrictMode} from 'react';
 import {vi} from 'vitest';
 import {DragDrop} from 'rc-dock';
-import {Block, Root, globalFunctions, type DataMap} from '@ticlo/core';
+import {Block, Root, getDefaultFuncData, globalFunctions, type DataMap} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {getElementBoxQuads} from '@ticlo/html';
@@ -25,7 +25,8 @@ describe('designer stage drops', () => {
     vi.restoreAllMocks();
   });
 
-  async function mount(data: DataMap, handlers: DesignerDropHandlers = {}, source: DataMap = {'#is': 'react:div'}) {
+  async function mount(data: DataMap, handlers: DesignerDropHandlers = {}, source: DataMap | string = 'react:div') {
+    const desc = globalFunctions.getDescToSend(typeof source === 'string' ? source : (source['#is'] as string))[0];
     const flow = Root.instance.addFlow(
       path,
       {'#main': {'#is': 'react:div', 'style': {position: 'relative', width: 500, height: 300}, ...data}},
@@ -44,7 +45,7 @@ describe('designer stage drops', () => {
           <div style={{width: 650, height: 500}}>
             <DesignerStage root={Root.instance} conn={conn} basePath={path} {...handlers} />
           </div>
-          <FunctionView conn={conn} desc={globalFunctions.getDescToSend(source['#is'] as string)[0]} data={source} />
+          <FunctionView conn={conn} desc={desc} data={typeof source === 'string' ? undefined : source} />
           <DragDrop
             className="binding-drag"
             onDragStartT={(event) => {
@@ -137,9 +138,10 @@ describe('designer stage drops', () => {
   });
 
   it.each(['rotate(20deg) scale(1.1,.8)', 'perspective(700px) rotateY(20deg)'])(
-    'positions a 150x100 absolute child through borders, scrolling, zoom and %s',
+    'centers an initialized 200x200 absolute child on the pointer through borders, scrolling, zoom and %s',
     async (transform) => {
-      const source = {'#is': 'react:div', 'style': {position: 'relative', backgroundColor: 'red'}};
+      const initial = getDefaultFuncData(globalFunctions.getDescToSend('react:horizontal')[0]);
+      const source = {...initial, style: {...(initial.style as DataMap), position: 'relative', backgroundColor: 'red'}};
       const {main, host, page, outline, begin, move, getStage} = await mount(
         {
           '#is': 'react:absolute',
@@ -162,7 +164,7 @@ describe('designer stage drops', () => {
       page.scrollLeft = 20;
       page.scrollTop = 15;
       const marker = document.createElement('div');
-      marker.style.cssText = 'position:absolute;left:90px;top:70px;width:0;height:0;';
+      marker.style.cssText = 'position:absolute;left:190px;top:170px;width:0;height:0;';
       page.appendChild(marker);
       const point = marker.getBoundingClientRect();
       begin();
@@ -170,24 +172,67 @@ describe('designer stage drops', () => {
       await shouldHappen(outline);
       const preview = outline().cloneNode(true) as SVGPolygonElement;
       move(page, point.left, point.top, 'mouseup');
-      await shouldHappen(() => main.getValue('div') instanceof Block);
-      const added = main.getValue('div') as Block;
+      await shouldHappen(() => main.getValue('horizontal') instanceof Block);
+      const added = main.getValue('horizontal') as Block;
       const style = added.getValue('style') as DataMap;
       // MouseEvent coordinates are integral viewport pixels, even through zoom.
       expect(Math.abs((style.left as number) - 90)).toBeLessThan(1);
       expect(Math.abs((style.top as number) - 70)).toBeLessThan(1);
-      expect(style.width).toBe(150);
-      expect(style.height).toBe(100);
+      expect(style.width).toBe(200);
+      expect(style.height).toBe(200);
       expect(style.position).toBe('absolute');
       expect(style.backgroundColor).toBe('red');
       await shouldHappen(() => getStage().elementMap.getElements(added)?.length);
       const rendered = getStage().elementMap.getElements(added)[0];
       expectQuad(preview, getElementBoxQuads([rendered], host).get(rendered));
-      expect(source).toEqual({'#is': 'react:div', 'style': {position: 'relative', backgroundColor: 'red'}});
+      expect(source.style).toEqual({width: 200, height: 200, position: 'relative', backgroundColor: 'red'});
       getStage().undo();
-      await shouldHappen(() => !main.getValue('div'));
+      await shouldHappen(() => !main.getValue('horizontal'));
       expect(main.getValue('#order')).toEqual(['large']);
       marker.remove();
+    }
+  );
+
+  it.each(['absolute', 'horizontal', 'vertical'])(
+    'creates a %s layout with its initial 200x200 style',
+    async (layout) => {
+      const {main, outline, begin, dragTo, page} = await mount({'#is': 'react:absolute'}, {}, `react:${layout}`);
+      begin();
+      const finish = dragTo(page);
+      await shouldHappen(outline);
+      const bounds = outline().getBBox();
+      expect(bounds.width).toBeCloseTo(200, 3);
+      expect(bounds.height).toBeCloseTo(200, 3);
+      finish();
+      await shouldHappen(() => main.getValue(layout) instanceof Block);
+      expect((main.getValue(layout) as Block).getValue('style')).toMatchObject({
+        width: 200,
+        height: 200,
+        left: -90,
+        top: -90,
+      });
+    }
+  );
+
+  it.each([undefined, {width: 80}, {height: 60}])(
+    'uses preview-only fallback dimensions for initial style %j',
+    async (style) => {
+      const source: DataMap = {'#is': 'react:div', ...(style ? {style} : {})};
+      const {main, outline, begin, dragTo, page} = await mount({'#is': 'react:absolute'}, {}, source);
+      begin();
+      const finish = dragTo(page);
+      await shouldHappen(outline);
+      const bounds = outline().getBBox();
+      expect(bounds.width).toBeCloseTo(style?.width ?? 100, 3);
+      expect(bounds.height).toBeCloseTo(style?.height ?? 100, 3);
+      finish();
+      await shouldHappen(() => main.getValue('div') instanceof Block);
+      const savedStyle = (main.getValue('div') as Block).getValue('style') as DataMap;
+      expect(savedStyle.width).toBe(style?.width);
+      expect(savedStyle.height).toBe(style?.height);
+      expect(savedStyle.left).toBe(10 - (style?.width ?? 100) / 2);
+      expect(savedStyle.top).toBe(10 - (style?.height ?? 100) / 2);
+      expect(source).toEqual({'#is': 'react:div', ...(style ? {style} : {})});
     }
   );
 

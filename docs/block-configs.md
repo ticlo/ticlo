@@ -33,6 +33,18 @@ override this.
 of optional property names to show in the editor. The
 [property API](../packages/core/property-api) maintains these lists and values.
 
+## Initial values
+
+New-block data from `getDefaultFuncData()` includes each property's descriptor
+`init` value. A function descriptor can also provide an `init` object keyed by
+property name, which overrides property-level initial values. This lets functions
+share property descriptors while supplying different initial values. Function-level
+initial objects and arrays are copied for each new block.
+
+These values apply when creating blocks through the editor; loading saved blocks
+does not add missing initial values. A property descriptor's `default` controls
+editor display only.
+
 ## Runtime references
 
 Read-only; never write these into flow files:

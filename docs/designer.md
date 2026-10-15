@@ -18,9 +18,14 @@ in that container's `#order`, refreshes the outline tree, and selects the new
 component. The connection's edit policy is checked during hover and again at
 release.
 
-Absolute layouts convert the pointer to local child coordinates and default new
-children to 150 by 100 CSS pixels. Horizontal and vertical layouts infer an order
-index from the nearest rendered child; an empty layout appends its first child.
+Absolute layouts convert the pointer to local child coordinates and preserve the
+new child's initial style dimensions, centering the child and its drop indicator
+on the pointer. The drop indicator uses numeric dimensions
+from that style, falling back to 100 CSS pixels for each unspecified dimension;
+the fallback is not saved on the child. The three layout functions initialize
+their styles with a width and height of 200 CSS pixels. Horizontal and vertical
+layouts infer an order index from the nearest rendered child; an empty layout
+appends its first child.
 An unordered `content` component stays before new ordered children. Insertion
 feedback follows container transforms and is an estimate of the new child's
 placement.

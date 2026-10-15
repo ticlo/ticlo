@@ -1,7 +1,7 @@
 import {expect} from 'vitest';
 import '../../functions/math/Arithmetic.ts';
 import '../../functions/data/State.ts';
-import type {PropDesc, PropGroupDesc} from '../Descriptor.ts';
+import type {FunctionDesc, PropDesc, PropGroupDesc} from '../Descriptor.ts';
 import {
   blankPropDesc,
   attributeDescs,
@@ -65,6 +65,47 @@ describe('Descriptor', function () {
       '#is': 'add',
       '@b-p': ['0', '1', '#output'],
     });
+  });
+
+  it('applies function initial values over shared property initial values', function () {
+    const properties: PropDesc[] = [
+      {name: 'content', type: 'any', init: 'shared', pinned: true},
+      {name: 'enabled', type: 'toggle', init: true},
+      {name: 'style', type: 'object'},
+    ];
+    const desc: FunctionDesc = {
+      name: 'example',
+      id: 'example',
+      properties,
+      init: {content: 'example', style: {width: 200, height: 200}},
+    };
+    expect(getDefaultFuncData(desc)).toEqual({
+      '#is': 'example',
+      '@b-p': ['content'],
+      'content': 'example',
+      'enabled': true,
+      'style': {width: 200, height: 200},
+    });
+    expect(getDefaultFuncData({...desc, init: {content: 'other'}}).content).toBe('other');
+    expect(properties[0].init).toBe('shared');
+  });
+
+  it('copies nested function initial values for each new block', function () {
+    const desc: FunctionDesc = {
+      name: 'example',
+      id: 'example',
+      init: {style: {width: 200, height: 200}, items: [{label: 'initial'}]},
+    };
+    const first = getDefaultFuncData(desc);
+    (first.style as {width: number}).width = 300;
+    (first.items as {label: string}[])[0].label = 'changed';
+    expect(getDefaultFuncData(desc)).toEqual({
+      '#is': 'example',
+      '@b-p': [],
+      ...desc.init,
+    });
+    expect(desc.init.style).toEqual({width: 200, height: 200});
+    expect(desc.init.items).toEqual([{label: 'initial'}]);
   });
 
   it('getDefaultDataFromCustom', function () {

@@ -1,4 +1,5 @@
 import {DataMap} from '../index.ts';
+import {deepClone} from '../util/Clone.ts';
 
 export const BlockModeList = [
   'auto', // defined by function, this mode also allows block to update by itself automatically, like with internal timer
@@ -125,6 +126,8 @@ export interface FunctionDesc {
   // whether the function's output purely depends on input values.
   isPure?: boolean;
   properties?: (PropDesc | PropGroupDesc)[];
+  /** Initial property values for new blocks, overriding property descriptor init values. */
+  init?: DataMap;
   /** Block attributes exposed by this function, in addition to the common attributes. */
   attributes?: (string | PropDesc)[];
   configs?: (string | PropDesc)[];
@@ -331,8 +334,8 @@ export function getDefaultFuncData(desc: FunctionDesc) {
   const data: DataMap = {
     '#is': desc.id,
   };
-  initBlockProperties(data, desc.properties);
-  return data;
+  initBlockProperties(data, desc.properties ?? []);
+  return {...data, ...deepClone(desc.init)};
 }
 export function getSubBlockFuncData(data: DataMap) {
   if (Array.isArray(data['@b-p']) && data['@b-p'].includes('#output')) {

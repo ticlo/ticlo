@@ -77,14 +77,18 @@ export function getStageChildDrop(
     const matrix = getElementGeometry([element], stage).get(element)?.matrix;
     if (!local || !matrix || !(element instanceof HTMLElement)) return null;
     if (id === 'react:absolute') {
-      const left = local.x - element.clientLeft + element.scrollLeft;
-      const top = local.y - element.clientTop + element.scrollTop;
       const style = source.style as DataMap;
+      const width = typeof style?.width === 'number' ? style.width : 100;
+      const height = typeof style?.height === 'number' ? style.height : 100;
+      const localLeft = local.x - width / 2;
+      const localTop = local.y - height / 2;
+      const left = localLeft - element.clientLeft + element.scrollLeft;
+      const top = localTop - element.clientTop + element.scrollTop;
       data = {
         ...source,
-        style: {...style, position: 'absolute', left, top, width: style?.width ?? 150, height: style?.height ?? 100},
+        style: {...style, position: 'absolute', left, top},
       };
-      points = pointsForRect(matrix, local.x, local.y, 150, 100);
+      points = pointsForRect(matrix, localLeft, localTop, width, height);
       if (!points) return null;
     } else {
       const children = getChildren(block, order, block.getValue('content')).flatMap((child) => {

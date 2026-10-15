@@ -1,22 +1,26 @@
 import React from 'react';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '@ticlo/core/block/Descriptor.ts';
+import {FunctionDesc} from '@ticlo/core/block/Descriptor.ts';
 import {elementAttributes, elementConfigs, elementProps} from '../comp/CommontProps.ts';
 import {Block, globalFunctions} from '@ticlo/core';
 import {useTicloComp} from '../hooks/useTicloComp.ts';
 import {metaKey, renderChildren} from '../comp/Component.tsx';
 import {optionalHtmlSuggestions} from './HtmlAttributes.ts';
 
-const sharedElementDesc: FunctionDesc = {
-  name: '',
-  base: 'react:element',
-  optionalSuggestions: optionalHtmlSuggestions,
-  attributes: elementAttributes,
-  tags: ['react-comp'],
-  childrenTags: ['react-comp'],
-  configs: elementConfigs,
-  properties: elementProps,
-  category: 'react:elements',
-};
+function createElementDesc(name: string, icon: string): FunctionDesc {
+  return {
+    name,
+    icon,
+    base: 'react:element',
+    optionalSuggestions: optionalHtmlSuggestions,
+    attributes: elementAttributes,
+    tags: ['react-comp'],
+    childrenTags: ['react-comp'],
+    configs: elementConfigs,
+    properties: elementProps,
+    init: {content: name},
+    category: 'react:elements',
+  };
+}
 
 function DivElement({block}: {block: Block}) {
   const {style, className, children, optionalHandlers} = useTicloComp(block);
@@ -26,7 +30,7 @@ function DivElement({block}: {block: Block}) {
     </div>
   );
 }
-globalFunctions.addFactory(null, {...sharedElementDesc, name: 'div', icon: 'txt:div'}, 'react', undefined, {
+globalFunctions.addFactory(null, createElementDesc('div', 'txt:div'), 'react', undefined, {
   meta: {[metaKey]: DivElement},
 });
 
@@ -38,7 +42,7 @@ function SpanElement({block}: {block: Block}) {
     </span>
   );
 }
-globalFunctions.addFactory(null, {...sharedElementDesc, name: 'span', icon: 'txt:spn'}, 'react', undefined, {
+globalFunctions.addFactory(null, createElementDesc('span', 'txt:spn'), 'react', undefined, {
   meta: {[metaKey]: SpanElement},
 });
 
@@ -50,7 +54,7 @@ function PElement({block}: {block: Block}) {
     </p>
   );
 }
-globalFunctions.addFactory(null, {...sharedElementDesc, name: 'p', icon: 'txt:p'}, 'react', undefined, {
+globalFunctions.addFactory(null, createElementDesc('p', 'txt:p'), 'react', undefined, {
   meta: {[metaKey]: PElement},
 });
 
@@ -62,7 +66,7 @@ function PreElement({block}: {block: Block}) {
     </pre>
   );
 }
-globalFunctions.addFactory(null, {...sharedElementDesc, name: 'pre', icon: 'txt:pre'}, 'react', undefined, {
+globalFunctions.addFactory(null, createElementDesc('pre', 'txt:pre'), 'react', undefined, {
   meta: {[metaKey]: PreElement},
 });
 
@@ -74,6 +78,6 @@ function ButtonElement({block}: {block: Block}) {
     </button>
   );
 }
-globalFunctions.addFactory(null, {...sharedElementDesc, name: 'button', icon: 'txt:btn'}, 'react', undefined, {
+globalFunctions.addFactory(null, createElementDesc('button', 'txt:btn'), 'react', undefined, {
   meta: {[metaKey]: ButtonElement},
 });
