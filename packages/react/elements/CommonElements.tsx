@@ -26,7 +26,7 @@ function DivElement({block}: {block: Block}) {
     </div>
   );
 }
-globalFunctions.addFactory(null, {...sharedElementDesc, name: 'div'}, 'react', undefined, {
+globalFunctions.addFactory(null, {...sharedElementDesc, name: 'div', icon: 'txt:div'}, 'react', undefined, {
   meta: {[metaKey]: DivElement},
 });
 
@@ -38,7 +38,7 @@ function SpanElement({block}: {block: Block}) {
     </span>
   );
 }
-globalFunctions.addFactory(null, {...sharedElementDesc, name: 'span'}, 'react', undefined, {
+globalFunctions.addFactory(null, {...sharedElementDesc, name: 'span', icon: 'txt:spn'}, 'react', undefined, {
   meta: {[metaKey]: SpanElement},
 });
 
@@ -50,7 +50,7 @@ function PElement({block}: {block: Block}) {
     </p>
   );
 }
-globalFunctions.addFactory(null, {...sharedElementDesc, name: 'p'}, 'react', undefined, {
+globalFunctions.addFactory(null, {...sharedElementDesc, name: 'p', icon: 'txt:p'}, 'react', undefined, {
   meta: {[metaKey]: PElement},
 });
 
@@ -62,7 +62,7 @@ function PreElement({block}: {block: Block}) {
     </pre>
   );
 }
-globalFunctions.addFactory(null, {...sharedElementDesc, name: 'pre'}, 'react', undefined, {
+globalFunctions.addFactory(null, {...sharedElementDesc, name: 'pre', icon: 'txt:pre'}, 'react', undefined, {
   meta: {[metaKey]: PreElement},
 });
 
@@ -74,6 +74,6 @@ function ButtonElement({block}: {block: Block}) {
     </button>
   );
 }
-globalFunctions.addFactory(null, {...sharedElementDesc, name: 'button'}, 'react', undefined, {
+globalFunctions.addFactory(null, {...sharedElementDesc, name: 'button', icon: 'txt:btn'}, 'react', undefined, {
   meta: {[metaKey]: ButtonElement},
 });

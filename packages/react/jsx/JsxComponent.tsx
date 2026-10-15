@@ -54,6 +54,7 @@ function JsxComponent({block}: {block: Block}) {
 }
 const jsxComponentDesc: FunctionDesc = {
   name: 'jsx',
+  icon: 'txt:jsx',
   base: 'react:element',
   optionalSuggestions: optionalHtmlSuggestions,
   attributes: elementAttributes,

@@ -29,6 +29,7 @@ globalFunctions.addFactory(
   null,
   {
     name: 'markdown',
+    icon: 'txt:md',
     base: 'react:element',
     optionalSuggestions: optionalHtmlSuggestions,
     attributes: elementAttributes,
