@@ -25,7 +25,12 @@ import {
 } from '../property-api/GroupProperty.ts';
 import {findPropertyForNewBlock} from '../property-api/PropertyName.ts';
 import {hideProperties, moveShownProperty, showProperties} from '../property-api/PropertyShowHide.ts';
-import {addCustomProperty, moveCustomProperty, removeCustomProperty} from '../property-api/CustomProperty.ts';
+import {
+  addCustomProperty,
+  copyCustomPropertyDescriptor,
+  moveCustomProperty,
+  removeCustomProperty,
+} from '../property-api/CustomProperty.ts';
 import {FlowEditor} from '../worker/FlowEditor.ts';
 import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty.ts';
 import {WorkerFunctionGen} from '../worker/WorkerFunctionGen.ts';
@@ -1204,6 +1209,19 @@ export class ServerConnection extends ServerConnectionCore {
     } else {
       return 'invalid path';
     }
+  }
+
+  /**
+   * Copies a connected descriptor to an existing custom property.
+   */
+  copyCustomPropDesc({path, name, group}: {path: string; name: string; group?: string}) {
+    const property = this.root.queryProperty(path);
+    if (!(property?._value instanceof Block)) return 'invalid path';
+    if (typeof name !== 'string') return 'invalid property';
+    if (copyCustomPropertyDescriptor(property._value, name, group)) {
+      getTrackedFlow(property._value, path, this.root).trackChange();
+    }
+    return null;
   }
 
   /**

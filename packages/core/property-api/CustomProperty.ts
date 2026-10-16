@@ -1,9 +1,71 @@
-import {PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
+import {
+  blankFuncDesc,
+  blankPropDesc,
+  buildPropDescCache,
+  findPropDesc,
+  PropDesc,
+  PropGroupDesc,
+} from '../block/Descriptor.ts';
 import {Block} from '../block/Block.ts';
+import {BlockProperty} from '../block/BlockProperty.ts';
+import {Namespace} from '../block/Namespace.ts';
 import {deepClone} from '../util/Clone.ts';
 import {endsWithNumberReg} from '../util/String.ts';
 import {hideGroupProperties, hideProperties, showGroupProperties, showProperties} from './PropertyShowHide.ts';
 import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.ts';
+
+/** Copy a connected property's descriptor, preserving the custom property's name. */
+export function copyCustomPropertyDescriptor(block: Block, name: string, group?: string): boolean {
+  const custom = block.getValue('#custom') as (PropDesc | PropGroupDesc)[];
+  if (!Array.isArray(custom)) return false;
+  const properties =
+    group == null
+      ? custom
+      : (custom.find((desc) => desc.type === 'group' && desc.name === group) as PropGroupDesc)?.properties;
+  const baseName = group == null ? name : name.replace(/\d+$/, '');
+  const customDesc = properties?.find((desc) => desc.name === baseName && desc.type !== 'group');
+  const property = block.getProperty(name, false);
+  if (!customDesc || !property) return false;
+
+  let connected: BlockProperty;
+  if (property._bindingSource) {
+    connected = property._bindingSource.getProperty();
+  } else {
+    for (const listener of property._listeners) {
+      if (
+        listener instanceof BlockProperty &&
+        listener._bindingPath &&
+        listener._bindingSource?.getProperty() === property
+      ) {
+        if (connected) return false;
+        connected = listener;
+      }
+    }
+  }
+  if (!connected) return false;
+
+  const sourceBlock = connected._block;
+  const getFuncDesc = (id: unknown) =>
+    typeof id === 'string' ? Namespace.getFunctions(id, sourceBlock._flow)?.getDescToSend(id)[0] : undefined;
+  const funcDesc = getFuncDesc(sourceBlock.getValue('#is')) ?? blankFuncDesc;
+  const sourceCustom = sourceBlock.getValue('#custom');
+  const cache = buildPropDescCache(funcDesc, Array.isArray(sourceCustom) ? sourceCustom : []);
+  let desc = findPropDesc(connected._name, cache);
+  if (desc === blankPropDesc) {
+    let optionalDesc = funcDesc;
+    const visited = new Set<string>();
+    while (optionalDesc) {
+      desc = optionalDesc.optional?.[connected._name] ?? blankPropDesc;
+      if (desc !== blankPropDesc || !optionalDesc.base || visited.has(optionalDesc.base)) break;
+      visited.add(optionalDesc.base);
+      optionalDesc = getFuncDesc(optionalDesc.base);
+    }
+  }
+  if (desc === blankPropDesc) return false;
+
+  addCustomProperty(block, {...deepClone(desc), name: baseName}, group);
+  return true;
+}
 
 export function addCustomProperty(block: Block, desc: PropDesc | PropGroupDesc, group?: string) {
   let propDesc: PropDesc;
@@ -125,6 +187,8 @@ export function removeCustomProperty(block: Block, name: string, group?: string)
             block.deleteValue(`${baseName}${i}`);
           }
         }
+        hideProperties(block, [`${group}[]`]);
+        block.deleteValue(`${group}[]`);
       }
     }
   } else if (name) {

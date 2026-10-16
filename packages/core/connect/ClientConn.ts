@@ -320,6 +320,11 @@ export abstract class ClientConn {
     return this.simpleRequest({cmd: 'addCustomProp', path, desc, group}, callbacks);
   }
 
+  /** Copies a binding source's descriptor, or the sole binding target's, to a custom property. */
+  copyCustomPropDesc(path: string, name: string, group?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+    return this.simpleRequest({cmd: 'copyCustomPropDesc', path, name, group}, callbacks);
+  }
+
   /**
    * Removes a user-defined custom property from the Block.
    * @param path path to the Block

@@ -178,6 +178,54 @@ describe('PropertyEditor', function () {
     Root.instance.deleteValue('PropertyEditorScopedDesc');
   });
 
+  it('removes a custom group and its values through the context menu', async () => {
+    const keep: PropDesc = {name: 'keep', type: 'number', pinned: true};
+    const flow = Root.instance.addFlow('PropertyEditorRemoveGroup', {
+      block: {
+        '#is': '',
+        '#custom': [
+          {
+            name: 'items',
+            type: 'group',
+            defaultLen: 1,
+            properties: [{name: 'item', type: 'number', pinned: true}],
+          },
+          keep,
+        ],
+        'items[]': 2,
+        'item0': 1,
+        'item1': 2,
+        'keep': 3,
+        '@b-p': ['items[]', 'item0', 'item1', 'keep'],
+      },
+    });
+    const [, client] = makeLocalConnection(Root.instance);
+    const [, div] = loadTemplate(<PropertyList conn={client} paths={['PropertyEditorRemoveGroup.block']} />, 'editor');
+    try {
+      const header = await shouldHappen(() =>
+        querySingle("//div.ticl-e-property-name.drag-initiator/span[text()='items[]']/..", div)
+      );
+      simulate(header, 'contextmenu', {button: 2, buttons: 0});
+      const remove = await shouldHappen(() =>
+        Array.from(
+          document.querySelectorAll<HTMLButtonElement>('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden) button')
+        ).find((button) => button.textContent === 'Remove Property')
+      );
+      remove.click();
+      const block = flow.getValue('block') as Block;
+      await shouldHappen(() => (block.getValue('#custom') as PropDesc[]).length === 1);
+      expect(block.getValue('#custom')).toEqual([keep]);
+      expect(block.getValue('items[]')).toBeUndefined();
+      expect(block.getValue('item0')).toBeUndefined();
+      expect(block.getValue('item1')).toBeUndefined();
+      expect(block.getValue('keep')).toBe(3);
+      expect(block.getValue('@b-p')).toEqual(['keep']);
+      await shouldHappen(() => !div.querySelector('.ticl-e-property-group'));
+    } finally {
+      Root.instance.deleteValue('PropertyEditorRemoveGroup');
+    }
+  });
+
   it('reorders custom properties with the right button without opening a menu', async () => {
     const flow = Root.instance.addFlow('PropertyEditorReorderMenu', {
       block: {

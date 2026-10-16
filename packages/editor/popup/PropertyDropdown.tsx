@@ -34,6 +34,7 @@ interface Props {
   funcDesc: FunctionDesc;
   propDesc: PropDesc;
   bindingPath: string;
+  hasListener?: boolean;
   conn: ClientConn;
   group?: string;
   valueDefined?: boolean;
@@ -166,10 +167,17 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   onRemoveCustom = () => {
     if (!this.can('removeCustomProp')) return;
     const {conn, paths, name, baseName, group} = this.props;
-    const removeField = baseName != null ? baseName : name;
+    const removeField = group != null && name.endsWith('[]') ? null : (baseName ?? name);
     for (const path of paths) {
       conn.removeCustomProp(path, removeField, group);
     }
+    this.closeMenu();
+  };
+  onCopyDescriptor = () => {
+    if (!this.can('copyCustomPropDesc')) return;
+    const {conn, paths, name, group, isCustom} = this.props;
+    if (!isCustom || paths.length !== 1 || name.endsWith('[]')) return;
+    conn.copyCustomPropDesc(paths[0], name, group);
     this.closeMenu();
   };
   onAddCustomGroupChild = (desc: PropDesc | PropGroupDesc) => {
@@ -349,6 +357,18 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       );
     }
     if (isCustom) {
+      if (
+        this.props.paths.length === 1 &&
+        !name.endsWith('[]') &&
+        (bindingPath || this.props.hasListener) &&
+        this.can('copyCustomPropDesc')
+      ) {
+        menuItems.push(
+          <Button key="copyDescriptor" shape="round" onClick={this.onCopyDescriptor}>
+            {t('Copy Descriptor')}
+          </Button>
+        );
+      }
       if (this.can('removeCustomProp')) {
         menuItems.push(
           <Button key="removeFromCustom" shape="round" onClick={this.onRemoveCustom}>

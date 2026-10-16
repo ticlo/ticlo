@@ -322,6 +322,7 @@ export function checkEditPolicy(
     case 'moveOptionalProp':
       return checkProp(`${path}.#optional`);
     case 'addCustomProp':
+    case 'copyCustomPropDesc':
     case 'removeCustomProp':
     case 'addOptionalProp':
     case 'removeOptionalProp':

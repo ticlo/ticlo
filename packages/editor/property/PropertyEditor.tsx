@@ -68,6 +68,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
     onUpdate: (response: ValueUpdate) => {
       let changed = this.cache == null;
       this.cache = response.cache;
+      if (Object.hasOwn(response.change, 'hasListener')) changed = true;
       if (Object.hasOwn(response.change, 'value') || Object.hasOwn(response.change, 'bindingPath')) {
         this.subBlock = response.cache.bindingPath === `~${this.name}.#output`;
         if (this.parent.props.propDesc.type === 'object' && this.parent.props.propDesc.create && this.subBlock) {
@@ -617,6 +618,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           funcDesc={funcDesc}
           propDesc={this.props.propDesc}
           bindingPath={bindingPath}
+          hasListener={paths.length === 1 && this.loaders.get(paths[0])?.cache?.hasListener}
           conn={conn}
           group={group}
           valueDefined={value !== undefined}
