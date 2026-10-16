@@ -54,6 +54,7 @@ export const SharedBlockConfigGenerators: {[key: string]: typeof BlockProperty} 
   '#is': ConstTypeConfig('flow:const'),
 };
 
+// The function library's flow owns this runtime-only #shared container.
 class SharedBlock extends Block {
   _createConfig(field: string): BlockProperty {
     if (field in SharedBlockConfigGenerators) {
@@ -64,6 +65,7 @@ class SharedBlock extends Block {
   }
 }
 
+// One function's static content, owned by #shared and referenced through #static.
 export class StaticBlock extends Block {
   static _dict = new Map<any, StaticBlock>();
   static loadStaticBlock(flow: FlowWithStatic, funcId: string, data: DataMap) {
@@ -78,19 +80,19 @@ export class StaticBlock extends Block {
 
   static _loadFuncStaticBlock(flow: FlowWithStatic, funcId: string, data: DataMap) {
     const functions = Namespace.getFunctions(funcId, flow);
-    const ownerFlow = functions?.flow;
-    if (!ownerFlow) {
+    const libraryFlow = functions?.flow;
+    if (!libraryFlow) {
       return null;
     }
-    const ownerProp = ownerFlow.getProperty('#shared', true);
-    let ownerBlock = ownerProp._value;
-    if (!(ownerBlock instanceof SharedBlock) || ownerBlock._prop !== ownerProp) {
-      ownerBlock = new SharedBlock(ownerFlow, ownerFlow, ownerProp);
-      ownerProp.setValue(ownerBlock);
+    const sharedProp = libraryFlow.getProperty('#shared', true);
+    let sharedBlock = sharedProp._value;
+    if (!(sharedBlock instanceof SharedBlock) || sharedBlock._prop !== sharedProp) {
+      sharedBlock = new SharedBlock(libraryFlow, libraryFlow, sharedProp);
+      sharedProp.setValue(sharedBlock);
     }
     const getLocalId = (functions as unknown as {getLocalId?: (id: string) => string}).getLocalId;
     const localId = getLocalId ? getLocalId.call(functions, funcId) : funcId;
-    const prop = ownerBlock.getProperty(encodeTicloName(localId));
+    const prop = sharedBlock.getProperty(encodeTicloName(localId));
     if (StaticBlock._dict.has(prop)) {
       return StaticBlock._dict.get(prop);
     } else {
@@ -157,6 +159,7 @@ export const FlowWithStaticConfigGenerators: {[key: string]: typeof BlockPropert
   '#static': StaticConfig,
 };
 
+// Worker and editor flows expose the library-owned StaticBlock through #static.
 export class FlowWithStatic extends Flow {
   _staticBlock: StaticBlock;
 

@@ -63,6 +63,32 @@ Read-only; never write these into flow files:
 Workers receive inputs through `#inputs` and publish through `#outputs`.
 `#input` and `#output` are conventional default names; named IO is supported.
 
+## Worker static content and shared ownership
+
+Named workers expose static content through `#static`. The function library's
+owning flow keeps that content under `#shared`, with one child per function.
+
+| Property | Where it appears | Runtime value | Persistence |
+| --- | --- | --- | --- |
+| `#static` | `WorkerFlow` and `FlowEditor`, through `FlowWithStatic` | Reference to the function's `StaticBlock` (`flow:static`) | Contents saved under `#static` in the worker definition, with `#is: ""` |
+| `#shared` | Function library's owning flow | `SharedBlock` (`flow:const`) containing the library's static blocks | Runtime container; never serialized |
+
+A worker's `#static` references the same Block as
+`libraryFlow.#shared.<encoded local function ID>`. All instances and editors of
+that function reference the same static block. Different function libraries own
+separate `#shared` containers, even when their local function IDs match.
+
+The name `FlowWithStatic` follows the `#static` property it adds. `SharedBlock`
+names the owning container; `StaticBlock` names each function's content.
+
+Static content loads before the worker's other data so bindings can resolve it.
+Destroying a worker instance detaches its reference; the static block remains
+owned by `#shared`. Replacing or deleting the function invalidates the block.
+Inline workers do not support static content.
+
+See [StaticBlock.ts](../packages/core/block/StaticBlock.ts) and
+[worker architecture](../.agents/skills/ticlo/worker-architecture.md#flow-classes-and-static-content).
+
 ## Component root
 
 `#main` is a flow's UI root Block and is included in its node tree. `TicloComp`
@@ -85,8 +111,9 @@ A reusable UI worker publishes its root as a named `#main` output:
 
 The worker instance's `#main` references the same root Block.
 
-When saving a flow with an owned `#main` Block and an existing `#outputs` Block,
-Ticlo adds the binding above if the output has no saved `#main` value or binding.
+When saving a worker flow or worker editor with an owned `#main` Block and an
+existing `#outputs` Block, Ticlo adds the binding above if the output has no saved
+`#main` value or binding.
 It also adds the `block` custom property if missing, so the worker descriptor
 exposes the output. Existing output definitions and descriptors are preserved.
 

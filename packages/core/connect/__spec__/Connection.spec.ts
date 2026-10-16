@@ -1011,7 +1011,7 @@ describe('Connection', function () {
     error = await shouldReject(client.setBinding('#temp.v', 'Connection22_2.v', true, true) as Promise<any>);
     expect(error).toBe('invalid binding path');
 
-    // binding to #static is allowed only when it's from #global
+    // binding to #temp is allowed only when it's from #global
     await client.setBinding('#temp.v', '#global.v', true, true);
     expect(Root.instance.queryProperty('#temp.v')._bindingPath).toBe('##.#global.v');
 
