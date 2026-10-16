@@ -1,7 +1,15 @@
 import React from 'react';
 import {ClientConn} from '@ticlo/core/editor.ts';
-import {Modal, Input} from 'antd';
+import {Modal, Input, type InputProps, type InputRef} from 'antd';
 import {DragState} from 'rc-dock';
+
+function BlockNameInput(props: InputProps) {
+  const inputRef = React.useRef<InputRef>(null);
+  React.useLayoutEffect(() => {
+    inputRef.current?.focus({cursor: 'all'});
+  }, []);
+  return <Input {...props} ref={inputRef} />;
+}
 
 export function onDragBlockOver(conn: ClientConn, e: DragState) {
   const blockData = DragState.getData('blockData', conn.getBaseConn());
@@ -58,22 +66,9 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
           onConfirmedBlockName(blockName);
         }
       };
-      const onGetRef = (ref: {select: () => void}) => {
-        if (ref) {
-          ref.select();
-        }
-      };
       Modal.confirm({
         title: 'Block Name',
-        content: (
-          <Input
-            defaultValue={blockName}
-            autoFocus={true}
-            onChange={onInputChange}
-            onPressEnter={onEnter}
-            ref={onGetRef}
-          />
-        ),
+        content: <BlockNameInput defaultValue={blockName} onChange={onInputChange} onPressEnter={onEnter} />,
         icon: <span />, // hide icon
         autoFocusButton: null,
         centered: true,
