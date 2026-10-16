@@ -7,6 +7,14 @@ import {WorkerFlow} from '../WorkerFlow.ts';
 import {WorkerFunctionGen} from '../WorkerFunctionGen.ts';
 
 describe('Worker #main output', function () {
+  it('does not add an output when saving a regular flow', function () {
+    const data = {'#is': '', '#main': {'#is': ''}, '#outputs': {'#is': ''}};
+    const flow = new Flow();
+    flow.load(data);
+    expect(flow.save()).toEqual(data);
+    flow.destroy();
+  });
+
   it.each([WorkerFlow, FlowEditor])('adds the binding and descriptor when saving %s', function (FlowClass) {
     const data = {'#is': '', '#main': {'#is': ''}, '#outputs': {'#is': ''}};
     const flow = new FlowClass();

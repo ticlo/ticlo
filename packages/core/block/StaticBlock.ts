@@ -1,5 +1,5 @@
 import './Block.ts';
-import {Block} from './Block.ts';
+import {Block, OutputsBlock} from './Block.ts';
 import {BlockConfig, BlockProperty} from './BlockProperty.ts';
 import {DataMap, isSavedBlock} from '../util/DataTypes.ts';
 import {ConfigGenerators, ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs.ts';
@@ -159,6 +159,27 @@ export const FlowWithStaticConfigGenerators: {[key: string]: typeof BlockPropert
 
 export class FlowWithStatic extends Flow {
   _staticBlock: StaticBlock;
+
+  save(): DataMap {
+    const data = super.save();
+    const main = this._props.get('#main');
+    const outputs = data['#outputs'] as DataMap;
+    if (
+      main?._saved instanceof Block &&
+      main._saved._prop === main &&
+      this._props.get('#outputs')?._saved instanceof OutputsBlock &&
+      outputs &&
+      !Object.hasOwn(outputs, '#main') &&
+      !Object.hasOwn(outputs, '~#main')
+    ) {
+      outputs['~#main'] = '##.#main';
+      const custom = outputs['#custom'];
+      if (!Array.isArray(custom) || !custom.some((prop) => prop.name === '#main')) {
+        outputs['#custom'] = [...(Array.isArray(custom) ? custom : []), {name: '#main', type: 'block'}];
+      }
+    }
+    return data;
+  }
 
   getCacheKey(funcId: string, data: DataMap): string | null {
     return funcId || null;
