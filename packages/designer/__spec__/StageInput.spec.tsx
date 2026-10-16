@@ -78,6 +78,40 @@ describe('designer stage gestures', () => {
     return {flow, main, page, div, element, conn, getStage: () => stage};
   }
 
+  it.each([1, 3])('selects the outer host when clicking inside %s worker boundaries', async (depth) => {
+    let component: DataMap = {
+      '#is': 'react:div',
+      '#optional': ['id'],
+      'id': 'worker-root',
+      '#order': ['leaf'],
+      'leaf': child('worker-leaf'),
+    };
+    for (let i = 0; i < depth; ++i) {
+      component = {
+        '#is': 'worker',
+        '+use': {
+          '#is': {
+            '#is': '',
+            '#main': component,
+            '#outputs': {
+              '#is': '',
+              '#custom': [{name: '#main', type: 'block'}],
+              '~#main': '##.#main',
+            },
+          },
+        },
+      };
+    }
+    const {main, element, getStage} = await mount({'#order': ['host'], 'host': component});
+    await shouldHappen(() => element('worker-leaf'));
+    const host = main.getValue('host') as Block;
+    expect(getStage().elementMap.getBlock(element('worker-root'))).toBe(host);
+    expect(getStage().elementMap.getBlock(element('worker-leaf'))).toBeUndefined();
+    click(element('worker-leaf'));
+    await shouldHappen(() => getStage().selection.blocks[0] === host);
+    expect(getStage().selection.blocks).toEqual([host]);
+  });
+
   it('delays container clicks, tolerates small movement, toggles Ctrl selections, and prunes other parents on down', async () => {
     const {main, page, element, getStage} = await mount({
       '#order': ['a', 'b'],

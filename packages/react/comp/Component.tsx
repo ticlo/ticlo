@@ -1,8 +1,9 @@
-import React, {ComponentType, ReactNode, isValidElement, useEffect, useMemo, useRef, useState} from 'react';
+import React, {ComponentType, ReactNode, useEffect, useMemo, useRef, useState} from 'react';
 import {Block} from '@ticlo/core';
 import {FunctionFactory} from '@ticlo/core/block/BlockFunction.ts';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
 import {useBlockValue} from '../hooks/useBlockValue.ts';
+import {TicloPage} from './TicloPage.tsx';
 
 export interface BaseProps {
   block: Block;
@@ -57,19 +58,6 @@ function isPropsEqual(a: Record<string, unknown>, b: Record<string, unknown>) {
   return true;
 }
 
-export function TicloMainComp<T extends BaseProps = BaseProps>(props: T) {
-  const {block} = props;
-  const main = useBlockValue(block, '#main');
-
-  if (main instanceof Block) {
-    return <TicloComp {...props} block={main} key={main._blockId} />;
-  }
-  if (isValidElement(main)) {
-    return main;
-  }
-  return null;
-}
-
 export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
   const {block} = props;
   const functionId = useBlockValue<string>(block, '#is');
@@ -84,7 +72,7 @@ export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
     if (C) {
       return <C {...propsRef.current} key={block._blockId} />;
     }
-    return <TicloMainComp {...propsRef.current} key={block._blockId} />;
+    return <TicloPage {...propsRef.current} key={block._blockId} />;
   }, [functionId, C, propsRef.current]);
 }
 

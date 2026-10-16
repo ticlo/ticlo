@@ -9,6 +9,8 @@ export {useFilteredBlocks} from './hooks/useFilteredBlocks.tsx';
 export {useWatchBlock} from './hooks/useWatchBlock.tsx';
 export {Values} from './comp/Values.ts';
 export {metaKey, renderChildren, TicloComp, useComponentUpdate} from './comp/Component.tsx';
+export {TicloPage} from './comp/TicloPage.tsx';
+export type {TicloPageProps} from './comp/TicloPage.tsx';
 export * from './markdown/index.ts';
 export {Horizontal, Vertical, Absolute} from './layout/Layout.tsx';
 

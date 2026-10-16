@@ -1,8 +1,7 @@
 import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Block, Flow, voidFunction, type ClientConn} from '@ticlo/core';
 import {TicloCurrentFlowContext} from '@ticlo/editor/component/LayoutContext.ts';
-import {ComponentContext, ElementMap, useValue} from '@ticlo/react';
-import {DesignerPage} from './DesignerPage.tsx';
+import {ElementMap, TicloPage, useValue} from '@ticlo/react';
 import {DesignerSelectionLayer} from './DesignerSelectionLayer.tsx';
 import {DesignerLayoutContextType, type DesignerStageContextValue} from './DesignerContext.tsx';
 import {useSelection} from './useSelection.ts';
@@ -120,13 +119,18 @@ export function DesignerStage({
       onPointerDownCapture={activate}
       {...dropHandlers}
     >
-      <ComponentContext.Provider value={componentContext}>
-        {flow ? (
-          <DesignerPage flow={flow} key={flow._blockId} />
-        ) : (
-          <div className="ticl-d-empty">This flow is not available.</div>
-        )}
-      </ComponentContext.Provider>
+      {flow ? (
+        <div className="ticl-d-page">
+          <TicloPage
+            block={flow}
+            key={flow._blockId}
+            context={componentContext}
+            fallback={<div className="ticl-d-empty">This flow has no #main component.</div>}
+          />
+        </div>
+      ) : (
+        <div className="ticl-d-empty">This flow is not available.</div>
+      )}
       {flow && designMode && (
         <DesignerSelectionLayer
           stageRef={stageRef}
