@@ -198,6 +198,27 @@ describe('StaticFlowStorage', () => {
     expect(root.queryValue('+main.libs.nested.flow.value')).toBe('libs');
   });
 
+  it('loads namespace context through an escaped reserved filename and keeps its edits in memory', async () => {
+    mockFiles({
+      [`${rootUrl}/.list.json`]: '["#global.ticlo"]',
+      [`${rootUrl}/%23global.ticlo`]: encodeSorted({'^value': 1}),
+      [`${baseUrl}/proj/main/.list.json`]: '["#context.ticlo","entry.ticlo"]',
+      [`${baseUrl}/proj/main/%23context.ticlo`]: encodeSorted({'^value': 7}),
+      [`${baseUrl}/proj/main/entry.ticlo`]: encodeSorted({'~value': '^value'}),
+    });
+    root = new Root();
+    const storage = new StaticFlowStorage(baseUrl, 'main');
+    await root.setStorage(storage);
+    await root.start({main: {flows: ['**']}});
+    expect(root.queryValue('+main.entry.value')).toBe(7);
+    expect(await storage.listFlows('main')).toEqual(['entry']);
+    const context = root.queryValue('+main.#context') as Flow;
+    context.setValue('^value', 8);
+    await context.applyChange();
+    expect(await storage.loadFlow('+main.#context')).toEqual({'#is': '', '^value': 8});
+    expect(root._globalRoot.getValue('^value')).toBe(1);
+  });
+
   it('loads only the selected project and recursive deps, with globals always from #root', async () => {
     const fetchMock = mockFiles({
       [`${rootUrl}/.list.json`]: '["#global.ticlo","unused.ticlo"]',

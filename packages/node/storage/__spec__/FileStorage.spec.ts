@@ -276,6 +276,42 @@ describe('FileStorage', function () {
     }
   });
 
+  it('saves namespace context beside ordinary flows without listing it as an ordinary flow', async () => {
+    const dir = Fs.mkdtempSync('./temp/namespace-context-');
+    const root = new Root();
+    try {
+      const storage = new FileFlowStorage(dir);
+      await storage.saveFlow(null, {'^value': 1}, '#global');
+      await storage.saveFlow(
+        null,
+        {
+          'add': {'#is': 'add', '0': 2, '1': 3},
+          '~^value': 'add.#output',
+        },
+        '+main.#context'
+      );
+      await storage.saveFlow(null, {'~value': '^value'}, '+main.add');
+      await root.setStorage(storage);
+      await root.start({main: {flows: ['**']}});
+      root.runAll();
+      expect(root.queryValue('+main.add.value')).toBe(5);
+      expect(await storage.listFlows('main')).toEqual(['add']);
+      const context = root.queryValue('+main.#context') as Flow;
+      context.setValue('^local', false);
+      await context.applyChange();
+      expect(JSON.parse(Fs.readFileSync(`${dir}/+main/#context.ticlo`, 'utf8'))['^local']).toBe(false);
+      await root.stop();
+      await root.start({main: {flows: ['**']}});
+      root.runAll();
+      expect(root.queryValue('+main.add.value')).toBe(5);
+      expect(root.queryValue('+main.^local')).toBe(false);
+    } finally {
+      await root.stop({discardChanges: true});
+      root.destroy();
+      Fs.rmSync(dir, {recursive: true, force: true});
+    }
+  });
+
   it('creates and reloads namespace directories, including empty folders', async () => {
     const dir = Fs.mkdtempSync('./temp/namespace-folders-');
     const root = new Root();

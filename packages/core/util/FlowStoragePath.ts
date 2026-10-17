@@ -24,7 +24,7 @@ export function flowStoragePath(key: string, folder = false): string {
   if ((folder || parts.length > 1) && reservedFlowFolders.has(parts[0])) {
     throw new Error(`Reserved folder: ${parts[0]}`);
   }
-  if (!parts.every(validFlowEntry) && !(parts.length === 1 && name === '#global' && !folder)) {
+  if (!parts.every(validFlowEntry) && !(parts.length === 1 && (name === '#global' || name === '#context') && !folder)) {
     throw new Error('Invalid flow path');
   }
   return parts.map(encodeFileName).join('/') + encodeFileName(suffix) + (folder ? '' : '.ticlo');

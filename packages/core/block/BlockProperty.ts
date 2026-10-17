@@ -387,12 +387,9 @@ export class ContextProperty extends BlockIO {
   }
 
   onChange(val: unknown, save?: boolean): boolean {
-    if (super.onChange(val, save) && save) {
-      this.checkInUse();
-      return true;
-    } else {
-      return false;
-    }
+    const changed = super.onChange(val, save);
+    if (save) this.checkInUse();
+    return changed && Boolean(save);
   }
 
   unlisten(listener: PropListener<any>) {
@@ -422,7 +419,7 @@ export class ContextProperty extends BlockIO {
   }
 
   listenToParentGlobal() {
-    this._listenRaw(this._block._flow._parent._flow.getContextProperty(this._name));
+    this._listenRaw(this._block._flow.getParentContextProperty(this._name));
   }
 }
 

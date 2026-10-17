@@ -24,6 +24,7 @@ is a namespace; `#root` holds unqualified flows. Global settings always load fro
 | `#root/example.ticlo` | `example` |
 | `main/_proj.json` | File-server project metadata; runtime storage never reads/writes it |
 | `main/ticlo.json` | Namespace dependencies and Service Libraries |
+| `main/#context.ticlo` | Namespace context flow at `+main.#context`; missing file means inherited global defaults |
 | `main/folder/child.ticlo` | `+main.folder.child` |
 | `main/#libs/tools.ticlo` | Library for `+main:tools:worker`, separate from ordinary flows |
 | `main/folder/flow.#.worker.ticlo` | `+main.folder.flow.#.worker`; subflows load on demand |

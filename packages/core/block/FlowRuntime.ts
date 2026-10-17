@@ -1,4 +1,4 @@
-import type {Flow, Root} from './Flow.ts';
+import type {Flow, FlowNameSpace, Root} from './Flow.ts';
 import {Namespace} from './Namespace.ts';
 import type {NamespaceMetadata} from './Storage.ts';
 import {namespacePrefix, validateNamespace} from '../util/NamespaceMetadata.ts';
@@ -53,7 +53,8 @@ export class FlowRuntime {
     const prefix = namespacePrefix(ref.namespace);
     if (ref.kind !== 'flow' && ref.kind !== 'library') throw new Error('Invalid flow kind');
     const names = ref.kind === 'library' ? [ref.name] : ref.name.split('.');
-    if (!names.every(validFlowEntry)) throw new Error(`Invalid flow name: ${ref.name}`);
+    const context = ref.kind === 'flow' && ref.namespace !== '#root' && ref.name === '#context';
+    if (!context && !names.every(validFlowEntry)) throw new Error(`Invalid flow name: ${ref.name}`);
     return `${prefix}${ref.kind === 'library' ? ':' : ''}${ref.name}`;
   }
 
@@ -107,6 +108,11 @@ export class FlowRuntime {
       if (name !== '#root') this.root.addFlowFolder(ns.ns, {});
     }
     try {
+      // Contexts replace the namespace's inheritance layer and load before its services/flows.
+      for (const name of versions.keys()) {
+        if (name !== '#root') await this.loadFlow({namespace: name, kind: 'flow', name: '#context'});
+        check();
+      }
       for (const [name, data] of discovered) {
         for (const library of data.serviceLibraries ?? []) {
           await this.loadFlow({namespace: name, kind: 'library', name: library});
@@ -199,15 +205,20 @@ export class FlowRuntime {
       .then(async () => {
         const storage = this.root._storage;
         const ns = this.namespace(ref.namespace);
+        const context = ref.kind === 'flow' && ref.name === '#context';
         const data =
           ref.kind === 'library'
             ? await storage?.loadLib(ref.namespace === '#root' ? '' : ns.ns, ref.name)
             : await storage?.loadFlow(key);
         this.checkGeneration(generation);
         if (operation.cancelled || !ns._enabled) throw new Error(`Flow load cancelled: ${key}`);
-        if (!data) throw new Error(`Missing ${ref.kind}: ${ref.namespace}/${ref.name}`);
+        if (!data && !context) throw new Error(`Missing ${ref.kind}: ${ref.namespace}/${ref.name}`);
         let flow: Flow;
-        if (ref.kind === 'library') {
+        if (context) {
+          flow = (this.root.getValue(ns.ns) as FlowNameSpace)._contextRoot;
+          flow._runtimeDisabled = undefined;
+          flow.load(data ?? {}, null, storage?.getFlowLoader(key, flow._prop).applyChange, undefined, ns.ns);
+        } else if (ref.kind === 'library') {
           const lib = ns.getLib(ref.name, false);
           lib.setAvailable(false);
           flow = this.root.addFlowLib(ns.ns, ref.name);
@@ -292,7 +303,13 @@ export class FlowRuntime {
       lib._loaded = false;
       lib.flow = undefined;
     }
-    if (flow && !flow._destroyed) flow._prop.setValue(undefined);
+    if (flow && !flow._destroyed) {
+      if (ref.kind === 'flow' && ref.name === '#context') {
+        (this.root.getValue(`+${ref.namespace}`) as FlowNameSpace)._contextRoot.unload();
+      } else {
+        flow._prop.setValue(undefined);
+      }
+    }
     this.loaded.delete(key);
   }
 
@@ -346,7 +363,12 @@ export class FlowRuntime {
       this.namespace(ns)._enabled = false;
       this.metadata.delete(ns);
     }
-    for (const {ref} of [...this.loaded.values()]) if (removed.has(ref.namespace)) await this.unloadFlow(ref, options);
+    for (const {ref} of [...this.loaded.values()]) {
+      if (removed.has(ref.namespace) && ref.name !== '#context') await this.unloadFlow(ref, options);
+    }
+    for (const ns of removed) {
+      if (ns !== '#root') await this.unloadFlow({namespace: ns, kind: 'flow', name: '#context'}, options);
+    }
     for (const [key, pending] of this.pending) {
       if ([...removed].some((ns) => key.startsWith(namespacePrefix(ns)) && (ns !== '#root' || !key.startsWith('+')))) {
         pending.cancelled = true;
@@ -368,6 +390,9 @@ export class FlowRuntime {
     }
     for (const pending of this.pending.values()) pending.cancelled = true;
     this.pending.clear();
+    for (const {ref} of [...this.loaded.values()]) {
+      if (ref.name !== '#context') await this.unloadFlow(ref, options);
+    }
     for (const {ref} of [...this.loaded.values()]) await this.unloadFlow(ref, options);
     this.metadata.clear();
     this.suppressed.clear();

@@ -120,7 +120,8 @@ describe('IndexDbStorage', function () {
     await storage.saveNamespaceMetadata('metaMain', {dependencies: ['metaShared']});
     await storage.saveNamespaceMetadata('metaShared', {serviceLibraries: ['service']});
     await storage.saveLib('+metaShared', 'service', {'#disabled': true});
-    await storage.saveFlow(null, {value: 1}, '+metaMain.entry');
+    await storage.saveFlow(null, {'^value': 7}, '+metaMain.#context');
+    await storage.saveFlow(null, {'value': 1, '~context': '^value'}, '+metaMain.entry');
     const root = new Root();
     try {
       await root.setStorage(storage);
@@ -130,6 +131,8 @@ describe('IndexDbStorage', function () {
       expect(root.getFlowState(service)).toBe('disabled');
       expect(root.getFlowState(entry)).toBe('unloaded');
       await root.loadFlow(entry);
+      expect(root.queryValue('+metaMain.entry.context')).toBe(7);
+      expect(await storage.listFlows('metaMain')).toEqual(['entry']);
       await root.disableFlow(entry, {persist: true});
       await root.stop();
       expect(await storage.loadFlow('+metaMain.entry')).toMatchObject({'#disabled': true});
@@ -137,6 +140,7 @@ describe('IndexDbStorage', function () {
       expect(root.getFlowState(entry)).toBe('unloaded');
       await root.loadFlow(entry);
       expect(root.getFlowState(entry)).toBe('disabled');
+      expect(root.queryValue('+metaMain.entry.context')).toBe(7);
     } finally {
       await root.stop({discardChanges: true});
       root.destroy();

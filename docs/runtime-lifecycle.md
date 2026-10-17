@@ -92,6 +92,33 @@ unloaded flows. Loaded sets, startup patterns, and unload suppression are not sa
 `#global` remains available for settings/context but its stored executable blocks
 are not started implicitly; put startup work in a Service Library.
 
+## Namespace context
+
+Each named namespace owns a reserved `#context` flow, such as `+main.#context`,
+saved as `#context.ticlo` in its namespace directory. A missing file supplies an
+empty context. It supports values, blocks, bindings, and local functions; its
+block names are independent of the namespace's ordinary flows and folders.
+It is excluded from ordinary flow catalogs and startup patterns.
+
+Context inheritance is one chain: local flow, parent flows/folders, namespace
+`#context`, then root `#global`. Namespace lookups return the `#context` property
+directly, without another mirror or parallel fallback. Each inherited property
+listens only to its immediate upstream property. Worker instances keep the caller's
+context even when their function is defined in another namespace.
+
+Overrides apply to an entire `^name`, without merging object fields. Local values
+including `null`, `false`, and `0`, or an explicit binding, override the inherited
+value. A binding producing `undefined` remains an override. Removing the local
+definition restores inheritance. Only local definitions and bindings are saved.
+
+Activation loads namespace contexts before Service Libraries and ordinary flows.
+Context blocks execute while their context flow is enabled; asynchronous results
+propagate through normal bindings. Disabling a namespace or stopping the runtime
+unloads ordinary flows and libraries before clearing its context definitions.
+Unsaved context edits block these operations unless discarded. Reenabling reloads
+the saved context; the context flow object remains stable for existing subscribers.
+The root namespace continues to use `#global`.
+
 ## Persistence
 
 `FlowLoader.applyChange` / `Flow.applyChange()` return saved data or a promise.

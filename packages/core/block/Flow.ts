@@ -148,6 +148,10 @@ export class Flow extends Block {
     return this.getProperty(name);
   }
 
+  getParentContextProperty(name: string): BlockProperty {
+    return this._parent._flow.getContextProperty(name);
+  }
+
   queueBlock(block: Runnable) {
     this._parent._flow.queueBlock(block);
   }
@@ -464,10 +468,40 @@ export class FlowLib extends Flow {
   }
 }
 
+export class NamespaceContextFlow extends Flow {
+  getParentContextProperty(name: string): BlockProperty {
+    return Namespace.rootOf(this).getContextProperty(name);
+  }
+
+  unload() {
+    this._runtimeDisabled = true;
+    this._disabledChanged(true);
+    this.liveUpdate({});
+    this.destroyHistory();
+    this._loaded = false;
+    this._applyChange = undefined;
+  }
+}
+
 export class FlowNameSpace extends FlowFolder {
+  readonly _contextRoot: NamespaceContextFlow;
+
   constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
     super(parent, output, property);
     this._namespace = property._name;
+    this._contextRoot = this._createConstBlock('#context', (prop) => new NamespaceContextFlow(this, null, prop))
+      ._value as NamespaceContextFlow;
+    this._contextRoot._namespace = this._namespace;
+    if (Namespace.rootOf(this)._storage) this._contextRoot._runtimeDisabled = true;
+    this._contextRoot._disabledChanged(false);
+  }
+
+  createContextProperty(name: string): BlockProperty {
+    return this.getContextProperty(name);
+  }
+
+  getContextProperty(name: string): BlockProperty {
+    return this._contextRoot.getContextProperty(name);
   }
   _createConfig(field: string): BlockProperty {
     if (field in FlowNamespaceConfigGenerators) {

@@ -31,12 +31,15 @@ strings to ordinary blocks does not construct those classes. Use flow/folder API
 | none | Normal inputs/outputs |
 | `#` | Engine and function configuration |
 | `~` | Binding path or helper block |
-| `^` | Context linked to parent/global context |
+| `^` | Context inherited through parent flows, namespace `#context`, and root `#global` |
 | `@` | Editor attributes, not function inputs |
 | `+` | Namespace entries under the runtime root, such as `+main` |
 
 ### Configuration (`#`)
 
+- `#context`: a named namespace's independently saved context flow. It replaces
+  the namespace's context inheritance layer and falls back directly to root
+  `#global`; see [namespace context](../../../docs/runtime-lifecycle.md#namespace-context).
 - `#inputs` / `#outputs`: flow IO blocks.
 - `#functions`: local worker definitions (example below).
 - `#static`: named-worker static content, loaded before normal data. Saved with

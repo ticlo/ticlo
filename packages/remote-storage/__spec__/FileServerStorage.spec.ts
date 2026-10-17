@@ -5,7 +5,7 @@ import {join} from 'node:path';
 import {serve} from '@hono/node-server';
 import {Hono} from 'hono';
 import {routeRemoteStorage} from '@ticlo/file-server';
-import {Root, FlowFolder, encodeSorted} from '@ticlo/core';
+import {Root, Flow, FlowFolder, encodeSorted} from '@ticlo/core';
 import {FileServerFlowStorage, FileServerStorage, TicloFileClient} from '../index.ts';
 
 describe('FileServerStorage integration', () => {
@@ -175,6 +175,26 @@ describe('FileServerStorage integration', () => {
     expect(await reloaded.loadLib('+main', 'tools')).toEqual({worker: 'library'});
     await root.deleteFlow('+main.empty');
     expect((await client.listFiles('proj/main')).some((entry) => entry.name === 'empty')).toBe(false);
+  });
+
+  it('loads and saves namespace context as a reserved flow file', async () => {
+    await project('main', {
+      '#context.ticlo': {'^value': 7},
+      'entry.ticlo': {'~value': '^value'},
+    });
+    const storage = new FileServerFlowStorage(client, 'main');
+    await root.setStorage(storage);
+    await root.start({main: {flows: ['**']}});
+    expect(root.queryValue('+main.entry.value')).toBe(7);
+    expect(root._globalRoot.getValue('^value')).toBe(42);
+    expect(await storage.listFlows('main')).toEqual(['entry']);
+    const context = root.queryValue('+main.#context') as Flow;
+    context.setValue('^value', 8);
+    await context.applyChange();
+    expect(JSON.parse(await readFile(join(dir, 'proj/main/#context.ticlo'), 'utf8'))['^value']).toBe(8);
+    await root.stop();
+    await root.start({main: {flows: ['entry']}});
+    expect(root.queryValue('+main.entry.value')).toBe(8);
   });
 
   it('reads and writes ticlo.json without fetching or changing project management metadata', async () => {
