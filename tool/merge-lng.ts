@@ -52,8 +52,6 @@ function mergeI18n(src: string, dest: string) {
 
 for (const pkg of ['editor', 'core', 'web-server', 'html', 'node', 'react', 'test']) {
   const outdir = `./i18n/${pkg}`;
-  if (!fs.existsSync(outdir)) {
-    fs.mkdirSync(outdir);
-  }
+  fs.mkdirSync(outdir, {recursive: true});
   mergeI18n(`./packages/${pkg}/**/i18n`, outdir);
 }
