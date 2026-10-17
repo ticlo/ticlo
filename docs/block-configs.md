@@ -128,6 +128,12 @@ existing tags without duplicates. Currently, only `react-comp` is copied.
 When these conditions hold and `#inputs.#custom` declares `#order`, the worker's
 `#desc.childrenTags` is also copied from that function.
 
+Saving a `react-comp` worker captures the resolved `#inputs.style.width` and
+`height` as `#desc.init.style` when both are defined. Values can come from bindings
+or runtime inputs. Other initial values and initial style fields are preserved.
+Declared `#main` and `#order` parameters appear in the generated function's configs
+instead of its regular properties, retaining their input/output metadata.
+
 A `#order` string array names children on the Block holding that value. When
 `#inputs` receives a declared `#order` input, its runtime value is a `BlockOrder`
 containing the original `owner` and `order` list. Forwarding it through another

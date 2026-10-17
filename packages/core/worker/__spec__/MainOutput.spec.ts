@@ -1,6 +1,7 @@
 import {expect} from 'vitest';
 import {Block} from '../../block/Block.ts';
 import {Flow, Root} from '../../block/Flow.ts';
+import {defaultConfigs, getDefaultFuncData, mapConfigDesc, type FunctionDesc} from '../../block/Descriptor.ts';
 import type {DataMap} from '../../util/DataTypes.ts';
 import {FlowEditor} from '../FlowEditor.ts';
 import {WorkerFlow} from '../WorkerFlow.ts';
@@ -98,9 +99,9 @@ describe('Worker #main output', function () {
     const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
     const saved = editor.applyChange() as DataMap;
     expect(flow.getFuncLib().getWorkerData(':component')).toEqual(saved);
-    expect(flow.getFuncLib().getDescToSend(':component')[0].properties).toEqual([
-      {name: '#main', type: 'block', readonly: true},
-    ]);
+    const desc = flow.getFuncLib().getDescToSend(':component')[0];
+    expect(desc.properties).toEqual([]);
+    expect(desc.configs).toEqual([...defaultConfigs, {name: '#main', type: 'block', readonly: true}]);
 
     const instance = flow.createBlock('instance');
     instance.setValue('#is', ':component');
@@ -108,6 +109,107 @@ describe('Worker #main output', function () {
     const worker = instance.getValue('#worker') as WorkerFlow;
     expect(instance.getValue('#main')).toBeInstanceOf(Block);
     expect(instance.getValue('#main')).toBe(worker.getValue('#main'));
+    flow.destroy();
+  });
+
+  it('exposes #main and #order as configs while retaining ordinary properties and custom configs', function () {
+    const data = {
+      '#desc': {configs: ['#disabled', '#order', {name: '#custom-config', type: 'number'}]},
+      '#inputs': {
+        '#custom': [
+          {name: '#order', type: 'array', readonly: true, pinned: true},
+          {name: 'label', type: 'string'},
+        ],
+      },
+      '#outputs': {
+        '#custom': [
+          {name: '#main', type: 'block'},
+          {name: '#output', type: 'any'},
+        ],
+      },
+    };
+    const desc = WorkerFunctionGen.collectDesc(':component', data);
+    expect(desc.properties).toEqual([
+      {name: 'label', type: 'string'},
+      {name: '#output', type: 'any', readonly: true},
+    ]);
+    expect(desc.configs).toEqual([
+      '#disabled',
+      {name: '#order', type: 'array', pinned: true},
+      {name: '#custom-config', type: 'number'},
+      {name: '#main', type: 'block', readonly: true},
+    ]);
+    expect(mapConfigDesc(desc.configs).map((config) => config.name)).toEqual([
+      '#disabled',
+      '#order',
+      '#custom-config',
+      '#main',
+    ]);
+    expect(data['#desc'].configs[1]).toBe('#order');
+    expect(data['#inputs']['#custom'][0].readonly).toBe(true);
+  });
+
+  it.each([
+    {name: 'saved style', inputs: {'#is': '', 'style': {width: 0, height: '50%', left: 10}}},
+    {name: 'bound style', inputs: {'#is': '', '~style': '##.styleSource'}},
+    {
+      name: 'bound dimensions',
+      inputs: {'#is': '', 'style': {'#is': '', '~width': '##.##.width', '~height': '##.##.height'}},
+    },
+    {name: 'runtime style', inputs: {'#is': ''}},
+    {name: 'object input', inputs: undefined},
+  ])('saves resolved dimensions from $name as component initial style', function ({name, inputs}) {
+    const flow = new Flow();
+    const functionLib = flow.getFuncLib();
+    functionLib.addFactory(null, {id: ':view', name: 'view', tags: ['react-comp']});
+    const originalDesc = {init: {label: 'keep', style: {width: 99, height: 99, color: 'red'}}};
+    WorkerFunctionGen.registerType(
+      {'#is': '', '#desc': originalDesc, '#inputs': inputs, '#main': {'#is': ':view'}, '#outputs': {'#is': ''}},
+      {id: ':component', name: 'component'},
+      undefined,
+      functionLib
+    );
+    const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
+    const style = {width: 0, height: '50%', left: 10};
+    editor.setValue('styleSource', style);
+    editor.setValue('width', style.width);
+    editor.setValue('height', style.height);
+    if (name === 'runtime style') (editor.getValue('#inputs') as Block).updateValue('style', style);
+    else if (name === 'object input') editor.updateInput({style});
+
+    const saved = editor.applyChange() as DataMap;
+    const expectedInit = {label: 'keep', style: {width: 0, height: '50%', color: 'red'}};
+    expect((saved['#desc'] as FunctionDesc).init).toEqual(expectedInit);
+    const desc = functionLib.getDescToSend(':component')[0];
+    expect(desc.init).toEqual(expectedInit);
+    expect(getDefaultFuncData(desc).style).toEqual(expectedInit.style);
+    expect(editor.getValue('#desc')).toEqual(originalDesc);
+    expect(originalDesc.init.style).toEqual({width: 99, height: 99, color: 'red'});
+
+    const reloaded = new Flow();
+    reloaded.load(flow.save());
+    expect(reloaded.getFuncLib().getDescToSend(':component')[0].init).toEqual(expectedInit);
+    reloaded.destroy();
+    flow.destroy();
+  });
+
+  it.each([
+    {tags: ['other'], style: {width: 100, height: 200}},
+    {tags: ['react-comp'], style: {width: 100}},
+    {tags: ['react-comp'], style: {height: 200}},
+    {tags: ['react-comp'], style: null},
+  ])('preserves existing initial style without a component and both dimensions: %j', function ({tags, style}) {
+    const flow = new Flow();
+    const init = {style: {width: 10, height: 20}};
+    WorkerFunctionGen.registerType(
+      {'#is': '', '#desc': {tags, init}, '#inputs': {'#is': '', style}},
+      {id: ':component', name: 'component'},
+      undefined,
+      flow.getFuncLib()
+    );
+    const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
+    const saved = editor.applyChange() as DataMap;
+    expect((saved['#desc'] as FunctionDesc).init).toEqual(init);
     flow.destroy();
   });
 

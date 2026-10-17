@@ -1,7 +1,7 @@
 import {FunctionLib, globalFunctions} from '../block/FunctionLib.ts';
 import {BaseFunction, createFunctionFactory, FunctionFactory, StatefulFunction} from '../block/BlockFunction.ts';
 import {deepEqual} from '../util/Compare.ts';
-import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
+import {defaultConfigs, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
 import {BlockIO} from '../block/BlockProperty.ts';
 import {Flow} from '../block/Flow.ts';
 import {DataMap} from '../util/DataTypes.ts';
@@ -101,6 +101,21 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
         }
       }
     }
+    const desc = data['#desc'] as FunctionDesc;
+    if (desc?.tags?.includes('react-comp')) {
+      const inputs = flow.getValue('#inputs');
+      const style = (inputs instanceof Block ? inputs.getValue('style') : (inputs as DataMap)?.style) as
+        | Block
+        | DataMap;
+      const width = style instanceof Block ? style.getValue('width') : style?.width;
+      const height = style instanceof Block ? style.getValue('height') : style?.height;
+      if (width != null && height != null) {
+        data['#desc'] = {
+          ...desc,
+          init: {...desc.init, style: {...(desc.init?.style as DataMap), width, height}},
+        };
+      }
+    }
     const namespace = flow._namespace;
     const factory = WorkerFunctionGen.generate(data, funcId, namespace);
     const functionLib = Namespace.getFunctions(funcId, flow);
@@ -123,6 +138,15 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     const savedDesc = data['#desc'] as FunctionDesc;
     if (savedDesc && typeof savedDesc === 'object' && savedDesc.constructor === Object) {
       desc = {...savedDesc, ...desc};
+    }
+    const configs = desc.properties.filter((prop) => prop.name === '#main' || prop.name === '#order') as PropDesc[];
+    if (configs.length) {
+      desc.properties = desc.properties.filter((prop) => prop.name !== '#main' && prop.name !== '#order');
+      const configMap = new Map(
+        (desc.configs ?? defaultConfigs).map((config) => [typeof config === 'string' ? config : config.name, config])
+      );
+      for (const config of configs) configMap.set(config.name, config);
+      desc.configs = [...configMap.values()];
     }
     desc.id = funcId;
     return desc;
