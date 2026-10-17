@@ -5,7 +5,7 @@ function removeElement(elements: Element[] | undefined, element: Element) {
   if (index >= 0) elements.splice(index, 1);
 }
 
-/** DOM registrations belong to one rendered page, including in preview mode. */
+/** DOM registrations belong to one stage, including in preview mode. */
 export class ElementMap {
   private elements = new WeakMap<Block, Element[]>();
   private blocks = new WeakMap<Element, Block>();

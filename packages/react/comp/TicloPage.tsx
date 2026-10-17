@@ -1,8 +1,12 @@
-import React, {isValidElement, useContext, useLayoutEffect, useMemo, useState, type ReactNode} from 'react';
+import React, {isValidElement, useContext, useMemo, type ReactNode} from 'react';
 import {Block} from '@ticlo/core';
-import {ComponentContext, type ComponentContextValue} from '../ComponentContext.ts';
+import {
+  ComponentContext,
+  ComponentRenderContext,
+  defaultComponentContext,
+  type ComponentContextValue,
+} from '../ComponentContext.ts';
 import {useBlockValue} from '../hooks/useBlockValue.ts';
-import {ElementMap} from '../util/ElementMap.ts';
 import {TicloComp, type BaseProps} from './Component.tsx';
 
 export interface TicloPageProps extends BaseProps {
@@ -10,48 +14,24 @@ export interface TicloPageProps extends BaseProps {
   fallback?: ReactNode;
 }
 
-/** Render #main in its own context and expose its root elements to the parent context. */
+/** Render #main while retaining the editable flow and its root DOM ownership. */
 export function TicloPage<T extends TicloPageProps = TicloPageProps>({block, context, fallback = null, ...others}: T) {
   const main = useBlockValue(block, '#main');
-  const parentMap = useContext(ComponentContext).elementMap;
-  const [localMap] = useState(() => new ElementMap());
-  const elementMap = context?.elementMap ?? localMap;
-  const value = useMemo<ComponentContextValue<Block | string>>(
-    () => ({
-      designMode: false,
-      select: () => false,
-      addSelection: () => false,
-      ...context,
-      elementMap,
-    }),
-    [context, elementMap]
+  const parentContext = useContext(ComponentContext);
+  const parent = useContext(ComponentRenderContext);
+  const flow = context ? block._flow : (parent?.flow ?? block._flow);
+  const rootContext = context ?? parent?.context ?? parentContext;
+  const owner = context
+    ? undefined
+    : block === parent?.main && parent.owner
+      ? parent.owner
+      : block._flow === flow
+        ? block
+        : undefined;
+  const value = useMemo(
+    () => ({flow, context: rootContext, main: main instanceof Block ? main : undefined, owner}),
+    [flow, rootContext, main, owner]
   );
-
-  useLayoutEffect(() => {
-    if (!(main instanceof Block) || !parentMap || parentMap === elementMap) return;
-    const roots = new Map<Element, () => void>();
-    const syncRoots = () => {
-      const elements = new Set(elementMap.getElements(main));
-      for (const [element, disconnect] of roots) {
-        if (!elements.has(element)) {
-          roots.delete(element);
-          disconnect();
-        }
-      }
-      for (const element of elements) {
-        if (!roots.has(element)) roots.set(element, parentMap.connect(block, element));
-      }
-    };
-    const unsubscribe = elementMap.subscribe((changed) => {
-      if (changed === main) syncRoots();
-    });
-    // Child refs can attach before this Page's layout effect runs.
-    syncRoots();
-    return () => {
-      unsubscribe();
-      for (const disconnect of roots.values()) disconnect();
-    };
-  }, [block, main, elementMap, parentMap]);
 
   let page = fallback;
   if (main instanceof Block) {
@@ -59,5 +39,9 @@ export function TicloPage<T extends TicloPageProps = TicloPageProps>({block, con
   } else if (isValidElement(main)) {
     page = main;
   }
-  return <ComponentContext.Provider value={value}>{page}</ComponentContext.Provider>;
+  return (
+    <ComponentRenderContext.Provider value={value}>
+      <ComponentContext.Provider value={context ?? defaultComponentContext}>{page}</ComponentContext.Provider>
+    </ComponentRenderContext.Provider>
+  );
 }

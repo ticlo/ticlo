@@ -124,9 +124,7 @@ describe('component context boundaries', () => {
     expect(internal.addSelection([child])).toBe(false);
     expect(select).not.toHaveBeenCalled();
     expect(addSelection).not.toHaveBeenCalled();
-    expect(internal.elementMap).not.toBe(elementMap);
-    expect(internal.elementMap.getBlock(element)).toBe(main);
-    expect(internal.elementMap.getBlock(childElement)).toBe(child);
+    expect(internal.elementMap).toBeUndefined();
     expect(elementMap.getBlock(element)).toBe(host);
     expect(elementMap.getElements(host)).toEqual([element]);
     expect(elementMap.getBlock(childElement)).toBeUndefined();
@@ -138,6 +136,108 @@ describe('component context boundaries', () => {
     expect(contexts.get(main)).toBe(internal);
     expect(elementMap.getBlock(element)).toBe(host);
     expect(elementMap.getElements(host)).toEqual([element]);
+  });
+
+  it.each([1, 3])('registers external children through %s worker boundaries in the stage map', async (depth) => {
+    const bindings = {'~#order': '##.#inputs.#order', '~child': '##.#inputs.child'};
+    let data: DataMap = {
+      '#is': functionId,
+      ...bindings,
+      'content': {'#is': functionId, '#optional': ['ref'], 'content': 'Internal child'},
+    };
+    for (let i = 1; i < depth; ++i) data = {...worker(data), ...bindings};
+    flow.load({
+      '#main': {
+        ...worker(data),
+        '#order': ['child'],
+        'child': {'#is': functionId, 'content': 'External child'},
+      },
+    });
+    Root.run();
+    const host = flow.getValue('#main') as Block;
+    const child = host.getValue('child') as Block;
+    let main = host;
+    for (let i = 0; i < depth; ++i) main = main.getValue('#main') as Block;
+    const internal = main.getValue('content') as Block;
+    const elementMap = new ElementMap();
+    const context = {designMode: true, elementMap, select: vi.fn(() => true), addSelection: vi.fn(() => true)};
+    const render = (designMode: boolean) =>
+      root.waitRender(
+        <StrictMode>
+          <TicloPage block={flow} context={{...context, designMode}} />
+        </StrictMode>
+      );
+
+    await render(true);
+    const element = root.div.firstElementChild;
+    const [internalElement, childElement] = Array.from(element.children);
+    expect(main.getValue('child')).toBe(child);
+    expect(child.getParent()).toBe(host);
+    expect(elementMap.getBlock(element)).toBe(host);
+    expect(elementMap.getBlock(childElement)).toBe(child);
+    expect(elementMap.getBlock(internalElement)).toBeUndefined();
+    expect(elementMap.getElements(main)).toBeUndefined();
+    expect(contexts.get(main).elementMap).toBeUndefined();
+    expect(contexts.get(internal).designMode).toBe(false);
+    expect(internal.getValue('ref')).toBe(internalElement);
+    expect(contexts.get(child).elementMap).toBe(elementMap);
+    expect(contexts.get(child).designMode).toBe(true);
+    contexts.get(child).select([child]);
+    contexts.get(child).addSelection([child]);
+    expect(context.select).toHaveBeenCalledWith([child]);
+    expect(context.addSelection).toHaveBeenCalledWith([child]);
+
+    await render(false);
+    expect(root.div.firstElementChild).toBe(element);
+    expect(contexts.get(child).designMode).toBe(false);
+    expect(elementMap.getElements(child)).toEqual([childElement]);
+    host.setValue('#order', []);
+    Root.run();
+    await root.waitRender();
+    expect(elementMap.getBlock(childElement)).toBeUndefined();
+    expect(elementMap.getElements(child)).toEqual([]);
+    expect(elementMap.getElements(host)).toEqual([element]);
+    await root.waitRender(<></>);
+    expect(elementMap.getElements(host)).toEqual([]);
+  });
+
+  it('assigns a shared root DOM to the host when #main references an editable child', async () => {
+    flow.load({
+      '#main': {'#is': '', 'child': {'#is': functionId}, '~#main': '#.child'},
+    });
+    Root.run();
+    const host = flow.getValue('#main') as Block;
+    const child = host.getValue('child') as Block;
+    const elementMap = new ElementMap();
+    const context = {designMode: true, elementMap, select: () => false, addSelection: () => false};
+    await root.waitRender(<TicloPage block={flow} context={context} />);
+    expect(contexts.get(child)).toBe(context);
+    expect(elementMap.getBlock(root.div.firstElementChild)).toBe(host);
+    expect(elementMap.getElements(child)).toBeUndefined();
+    await root.waitRender(<></>);
+    expect(elementMap.getElements(host)).toEqual([]);
+  });
+
+  it('keeps stages displaying the same flow independent', async () => {
+    const {host} = createWorker(3);
+    flow.setValue('#main', host);
+    const first = {designMode: true, elementMap: new ElementMap(), select: () => false, addSelection: () => false};
+    const second = {...first, elementMap: new ElementMap()};
+    const render = (showFirst: boolean) =>
+      root.waitRender(
+        <>
+          {showFirst && <TicloPage block={flow} context={first} />}
+          <TicloPage block={flow} context={second} />
+        </>
+      );
+    await render(true);
+    const [a, b] = Array.from(root.div.children);
+    expect(first.elementMap.getElements(host)).toEqual([a]);
+    expect(second.elementMap.getElements(host)).toEqual([b]);
+    await render(false);
+    expect(first.elementMap.getElements(host)).toEqual([]);
+    expect(second.elementMap.getElements(host)).toEqual([b]);
+    expect(second.elementMap.getBlock(b)).toBe(host);
   });
 
   it('tracks root elements that disappear and return without replacing the #main Block', async () => {
@@ -163,7 +263,7 @@ describe('component context boundaries', () => {
     const nextElement = root.div.firstElementChild;
     expect(nextElement).not.toBe(element);
     expect(elementMap.getBlock(nextElement)).toBe(host);
-    expect(contexts.get(main).elementMap.getBlock(nextElement)).toBe(main);
+    expect(elementMap.getElements(main)).toBeUndefined();
     expect(elementMap.getElements(host)).toEqual([nextElement]);
   });
 
@@ -181,7 +281,7 @@ describe('component context boundaries', () => {
     expect(elementMap.getElements(host)).toEqual(elements);
     for (const element of elements) {
       expect(elementMap.getBlock(element)).toBe(host);
-      expect(contexts.get(main).elementMap.getBlock(element)).toBe(main);
+      expect(elementMap.getElements(main)).toBeUndefined();
     }
 
     await root.waitRender(<></>);
@@ -189,7 +289,7 @@ describe('component context boundaries', () => {
     for (const element of elements) expect(elementMap.getBlock(element)).toBeUndefined();
   });
 
-  it('cleans up every context when a nested #main is cleared, replaced, or unmounted', async () => {
+  it('cleans up the stage map when a nested #main is cleared, replaced, or unmounted', async () => {
     const {host, main} = createWorker(3);
     const elementMap = new ElementMap();
     await root.waitRender(
@@ -198,7 +298,6 @@ describe('component context boundaries', () => {
       </ComponentContext.Provider>
     );
     const element = root.div.firstElementChild;
-    const internalMap = contexts.get(main).elementMap;
 
     main._flow.updateValue('#main', null);
     Root.run();
@@ -206,8 +305,7 @@ describe('component context boundaries', () => {
     expect(root.div.children.length).toBe(0);
     expect(elementMap.getBlock(element)).toBeUndefined();
     expect(elementMap.getElements(host)).toEqual([]);
-    expect(internalMap.getBlock(element)).toBeUndefined();
-    expect(internalMap.getElements(main)).toEqual([]);
+    expect(elementMap.getElements(main)).toBeUndefined();
 
     const replacement = main._flow.createBlock('replacement');
     replacement.setValue('#is', functionId);
@@ -217,14 +315,12 @@ describe('component context boundaries', () => {
     await root.waitRender();
     const nextElement = root.div.firstElementChild;
     expect(nextElement.textContent).toBe('Replacement');
-    expect(contexts.get(replacement).elementMap).toBe(internalMap);
-    expect(internalMap.getBlock(nextElement)).toBe(replacement);
+    expect(contexts.get(replacement).elementMap).toBeUndefined();
+    expect(elementMap.getElements(replacement)).toBeUndefined();
     expect(elementMap.getBlock(nextElement)).toBe(host);
     expect(elementMap.getElements(host)).toEqual([nextElement]);
 
     await root.waitRender(<></>);
-    expect(internalMap.getBlock(nextElement)).toBeUndefined();
-    expect(internalMap.getElements(replacement)).toEqual([]);
     expect(elementMap.getBlock(nextElement)).toBeUndefined();
     expect(elementMap.getElements(host)).toEqual([]);
   });

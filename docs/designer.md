@@ -4,13 +4,13 @@ Designer stages operate on local Blocks directly. Outline selection may span
 parents; stage additions and group movement keep selections under one Block
 parent. Component selection snapshots stay out of the React component context.
 
-`TicloPage` from `@ticlo/react` renders a Block's `#main` in its own component
-context without adding a DOM wrapper. Designer stages supply their editable
-context; delegated worker pages default to local design mode disabled and
-independent element maps. Each Page tracks its `#main` root elements and registers
-them against the host Block in the parent context. Nested pages propagate these
-registrations, so the same element maps directly to a different Block in each
-context. Internal descendants stay out of the parent element map.
+Each designer stage owns one element map for its editable flow. `TicloPage` from
+`@ticlo/react` renders a Block's `#main` without adding a DOM wrapper. Worker root
+elements register as their outer host Block, including through nested workers;
+internal Blocks remain unregistered and use design mode disabled with inactive
+selection commands. Blocks belonging to the stage's flow retain its component
+context and register as themselves even when rendered inside a worker. When a
+delegated root is itself an editable Block, the host owns the shared root DOM.
 
 Each stage exposes separate `functionTreeTags` and `nodeTreeTags` lists. Both
 default to `['react-comp']` on `DesignerStage` and can be configured independently

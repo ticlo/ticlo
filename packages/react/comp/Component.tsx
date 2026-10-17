@@ -1,9 +1,10 @@
-import React, {ComponentType, ReactNode, useEffect, useMemo, useRef, useState} from 'react';
+import React, {ComponentType, ReactNode, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Block} from '@ticlo/core';
 import {FunctionFactory} from '@ticlo/core/block/BlockFunction.ts';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
 import {useBlockValue} from '../hooks/useBlockValue.ts';
 import {TicloPage} from './TicloPage.tsx';
+import {ComponentContext, ComponentRenderContext, defaultComponentContext} from '../ComponentContext.ts';
 
 export interface BaseProps {
   block: Block;
@@ -60,6 +61,13 @@ function isPropsEqual(a: Record<string, unknown>, b: Record<string, unknown>) {
 
 export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
   const {block} = props;
+  const parentContext = useContext(ComponentContext);
+  const renderContext = useContext(ComponentRenderContext);
+  const context = renderContext
+    ? block._flow === renderContext.flow
+      ? renderContext.context
+      : defaultComponentContext
+    : parentContext;
   const functionId = useBlockValue<string>(block, '#is');
   const C = useComponentUpdate<T>(functionId, block);
 
@@ -69,11 +77,16 @@ export function TicloComp<T extends BaseProps = BaseProps>(props: T) {
   }
 
   return useMemo(() => {
-    if (C) {
-      return <C {...propsRef.current} key={block._blockId} />;
-    }
-    return <TicloPage {...propsRef.current} key={block._blockId} />;
-  }, [functionId, C, propsRef.current]);
+    return (
+      <ComponentContext.Provider value={context}>
+        {C ? (
+          <C {...propsRef.current} key={block._blockId} />
+        ) : (
+          <TicloPage {...propsRef.current} key={block._blockId} />
+        )}
+      </ComponentContext.Provider>
+    );
+  }, [functionId, C, propsRef.current, context]);
 }
 
 export function renderChildren<T extends BaseProps>(blocks: (ReactNode | Block)[], others?: Omit<T, 'block'>) {

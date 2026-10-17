@@ -49,10 +49,11 @@ describe('designer stage gestures', () => {
     vi.restoreAllMocks();
   });
 
-  async function mount(data: DataMap, zoom = 1) {
+  async function mount(data: DataMap, zoom = 1, flowData: DataMap = {}) {
     const flow = Root.instance.addFlow(
       path,
       {
+        ...flowData,
         '#main': {'#is': 'react:div', 'style': {position: 'relative', width: 300, height: 200}, ...data},
       },
       {applyChange: (flow) => flow.save()}
@@ -110,6 +111,61 @@ describe('designer stage gestures', () => {
     click(element('worker-leaf'));
     await shouldHappen(() => getStage().selection.blocks[0] === host);
     expect(getStage().selection.blocks).toEqual([host]);
+  });
+
+  it.each([1, 3])('selects, outlines, and moves external children through %s worker boundaries', async (depth) => {
+    const bindings = {'~#order': '##.#inputs.#order', '~a': '##.#inputs.a', '~b': '##.#inputs.b'};
+    let layout: DataMap = {
+      '#is': 'react:div',
+      '#optional': ['id'],
+      'id': 'worker-root',
+      'style': {position: 'relative', width: 300, height: 200},
+      ...bindings,
+    };
+    const definition = (main: DataMap): DataMap => ({
+      '#is': '',
+      '#desc': {tags: ['react-comp'], childrenTags: ['react-comp']},
+      '#main': main,
+      '#outputs': {'#is': '', '#custom': [{name: '#main', type: 'block'}], '~#main': '##.#main'},
+    });
+    for (let i = 1; i < depth; ++i) layout = {'#is': 'worker', '#use': {'#is': definition(layout)}, ...bindings};
+    const {main, element, div, getStage} = await mount(
+      {
+        '#is': ':layout',
+        '#order': ['a', 'b'],
+        'a': child('a', {position: 'absolute', left: 30, top: 30}),
+        'b': child('b', {position: 'absolute', left: 100, top: 100}),
+      },
+      1,
+      {'#functions': {':layout': {type: 'worker', worker: definition(layout)}}}
+    );
+    const a = main.getValue('a') as Block;
+    const b = main.getValue('b') as Block;
+    await shouldHappen(() => element('a') && element('b'));
+    expect(getStage().elementMap.getBlock(element('worker-root'))).toBe(main);
+    expect(getStage().elementMap.getBlock(element('a'))).toBe(a);
+
+    click(element('a'));
+    await shouldHappen(() => getStage().selection.blocks[0] === a);
+    await shouldHappen(() => div.querySelectorAll('.ticl-d-selection-rect').length === 1);
+    click(element('b'), true);
+    await shouldHappen(() => getStage().selection.blocks.length === 2);
+    expect(getStage().selection.blocks).toEqual([a, b]);
+
+    getStage().select([]);
+    await shouldHappen(() => getStage().selection.blocks.length === 0);
+    const rect = element('worker-root').getBoundingClientRect();
+    pointer(element('worker-root'), 'pointerdown', rect.left + 10, rect.top + 10);
+    pointer(document, 'pointermove', rect.left + 80, rect.top + 70);
+    pointer(document, 'pointerup', rect.left + 80, rect.top + 70);
+    await shouldHappen(() => getStage().selection.blocks[0] === a);
+    expect(getStage().selection.blocks).toEqual([a]);
+
+    const childRect = element('a').getBoundingClientRect();
+    pointer(element('a'), 'pointerdown', childRect.left + 2, childRect.top + 2);
+    pointer(document, 'pointermove', childRect.left + 14, childRect.top + 9);
+    pointer(document, 'pointerup', childRect.left + 14, childRect.top + 9);
+    expect(a.getProperty('style')._saved).toMatchObject({left: 42, top: 37});
   });
 
   it('delays container clicks, tolerates small movement, toggles Ctrl selections, and prunes other parents on down', async () => {
