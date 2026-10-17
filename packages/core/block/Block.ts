@@ -8,14 +8,7 @@ import {DoneEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event.ts
 import {DataMap} from '../util/DataTypes.ts';
 import {Uid} from '../util/Uid.ts';
 import {voidProperty} from './Void.ts';
-import {
-  ConfigGenerators,
-  BlockConstConfig,
-  OutputsConfigGenerators,
-  InputsConfigGenerators,
-  ConstBinding,
-} from './BlockConfigs.ts';
-import {Task} from './Task.ts';
+import {ConfigGenerators, BlockConstConfig, ConstBinding} from './BlockConfigs.ts';
 import {_strictMode} from './BlockSettings.ts';
 import type {Flow, FlowLoader, Root} from './Flow.ts';
 import {BlockMode} from './Descriptor.ts';
@@ -23,7 +16,6 @@ import {FunctionData, FunctionOutput} from './FunctonData.ts';
 import {getMaxFlowDepth} from '../util/Settings.ts';
 import {Logger} from '../util/Logger.ts';
 import {Namespace} from './Namespace.ts';
-import {BlockOrder} from './BlockOrder.ts';
 
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;
@@ -1078,76 +1070,6 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
         this.#secret = str;
         this.configChanged(this.getProperty('#secret') as BlockConfig, str);
       }
-    }
-  }
-}
-
-export class InputsBlock extends Block {
-  _createConfig(field: string): BlockProperty {
-    if (field in InputsConfigGenerators) {
-      return new InputsConfigGenerators[field](this, field);
-    } else {
-      return new BlockConfig(this, field);
-    }
-  }
-
-  _setInputValue(val: unknown) {
-    if (val instanceof Task) {
-      this.updateValue('#value', val.getData());
-      val = val.getDataMap();
-    } else {
-      this.updateValue('#value', val);
-    }
-    if (val instanceof Block) {
-      const customList = this.getValue('#custom');
-      if (Array.isArray(customList)) {
-        for (const customProp of customList) {
-          // create raw binding
-          this.getProperty(customProp.name)._listenRaw(val.getProperty(customProp.name));
-        }
-      }
-    } else if (Object.isExtensible(val)) {
-      const customList = this.getValue('#custom');
-      if (Array.isArray(customList)) {
-        for (const customProp of customList) {
-          const value = (val as DataMap)[customProp.name];
-          if (customProp.name === '#order') {
-            const property = this.getProperty('#order');
-            property._bindingSource?.unlisten(property);
-            property._bindingSource = null;
-          }
-          this.updateValue(
-            customProp.name,
-            customProp.name === '#order' ? BlockOrder.from(val as DataMap, value) : value
-          );
-        }
-      }
-    }
-  }
-}
-
-export class OutputsBlock extends Block {
-  inputChanged(input: BlockIO, val: unknown) {
-    super.inputChanged(input, val);
-    this._flow.outputChanged(input, val);
-  }
-
-  configChanged(input: BlockConfig, val: unknown) {
-    super.configChanged(input, val);
-    switch (input._name) {
-      case '#custom':
-      case '#return':
-        break;
-      default:
-        this._flow.outputChanged(input, val);
-    }
-  }
-
-  _createConfig(field: string): BlockProperty {
-    if (field in OutputsConfigGenerators) {
-      return new OutputsConfigGenerators[field](this, field);
-    } else {
-      return new BlockConfig(this, field);
     }
   }
 }

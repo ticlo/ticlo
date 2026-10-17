@@ -1,5 +1,6 @@
 import {afterEach, describe, expect, it} from 'vitest';
-import {Block, InputsBlock} from '../Block.ts';
+import {Block} from '../Block.ts';
+import {InputsBlock} from '../FlowIO.ts';
 import {Flow} from '../Flow.ts';
 import {BlockOrder} from '../BlockOrder.ts';
 import {decode, encode, encodeSorted} from '../../util/Serialize.ts';

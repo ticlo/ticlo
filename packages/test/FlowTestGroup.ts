@@ -1,5 +1,6 @@
 import {Block, BlockProperty, DataMap, Flow, FlowFolder} from '@ticlo/core';
-import {ConstTypeConfig, FlowConfigGenerators} from '@ticlo/core/block/BlockConfigs.ts';
+import {ConstTypeConfig} from '@ticlo/core/block/BlockConfigs.ts';
+import {FlowConfigGenerators} from '@ticlo/core/block/FlowConfigs.ts';
 import {BlockConfig} from '@ticlo/core/block/BlockProperty.ts';
 import {TestsRunner, TestState} from './Interface.ts';
 import {updateObjectValue} from '@ticlo/core/property-api/ObjectValue.ts';

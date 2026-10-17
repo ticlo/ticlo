@@ -1,15 +1,15 @@
-import {Block, BlockChildWatch, InputsBlock, Runnable} from './Block.ts';
+import {Block, BlockChildWatch, Runnable} from './Block.ts';
+import {InputsBlock} from './FlowIO.ts';
 import {BlockConfig, BlockIO, BlockProperty, ContextProperty} from './BlockProperty.ts';
 import {Resolver} from './Resolver.ts';
+import {BlockConstConfig, ConstTypeConfig} from './BlockConfigs.ts';
 import {
-  BlockConstConfig,
-  ConstTypeConfig,
   FlowConfigGenerators,
   FlowFolderConfigGenerators,
   FlowNamespaceConfigGenerators,
   FlowLibConfigGenerators,
   GlobalConfigGenerators,
-} from './BlockConfigs.ts';
+} from './FlowConfigs.ts';
 import {Event} from './Event.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {FunctionDesc} from './Descriptor.ts';

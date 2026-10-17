@@ -9,7 +9,8 @@ import {
 } from '../block/BlockProperty.ts';
 import {DataMap, isPrimitiveType, isStringArray} from '../util/DataTypes.ts';
 import {truncateData} from '../util/DataTruncate.ts';
-import {Block, BlockChildWatch, InputsBlock} from '../block/Block.ts';
+import {Block, BlockChildWatch} from '../block/Block.ts';
+import {InputsBlock} from '../block/FlowIO.ts';
 import {Flow, Root} from '../block/Flow.ts';
 import {flowRefFromPath} from '../block/FlowRuntime.ts';
 import {FlowWithStatic, StaticConfig} from '../block/StaticBlock.ts';
@@ -45,7 +46,7 @@ import {
 } from '../property-api/CopyPaste.ts';
 import {moveProperty, PropertyMover} from '../property-api/PropertyMover.ts';
 import {deleteBlock} from '../property-api/DeleteBlock.ts';
-import {BlockInputsConfig, BlockOutputsConfig} from '../block/BlockConfigs.ts';
+import {BlockInputsConfig, BlockOutputsConfig} from '../block/FlowConfigs.ts';
 import {WorkerFlow} from '../worker/WorkerFlow.ts';
 import {Query, queryBlock} from './Query.ts';
 import {getGlobalSettingsData} from '../util/Settings.ts';

@@ -1,8 +1,10 @@
 import './Block.ts';
-import {Block, OutputsBlock} from './Block.ts';
+import {Block} from './Block.ts';
+import {OutputsBlock} from './FlowIO.ts';
 import {BlockConfig, BlockProperty} from './BlockProperty.ts';
 import {DataMap, isSavedBlock} from '../util/DataTypes.ts';
-import {ConfigGenerators, ConstTypeConfig, FlowConfigGenerators} from './BlockConfigs.ts';
+import {ConfigGenerators, ConstTypeConfig} from './BlockConfigs.ts';
+import {FlowConfigGenerators} from './FlowConfigs.ts';
 import {Flow} from './Flow.ts';
 import {encodeTicloName} from '../util/Name.ts';
 import {FunctionDispatcher} from './FunctionLib.ts';
