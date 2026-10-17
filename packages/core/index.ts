@@ -1,4 +1,5 @@
 export {Block} from './block/Block.ts';
+export {BlockOrder, getBlockOrder} from './block/BlockOrder.ts';
 export {Root, Flow, FlowFolder} from './block/Flow.ts';
 export type {StartOptions, FlowRef, UnloadOptions} from './block/FlowRuntime.ts';
 export {type FlowStorage, type Storage, type NamespaceMetadata} from './block/Storage.ts';
@@ -9,7 +10,7 @@ export * from './block/FunctonData.ts';
 export * from './block/Event.ts';
 export * from './block/Descriptor.ts';
 export {ServerConnection} from './connect/ServerConnection.ts';
-export {type DataMap, TRUNCATED} from './util/DataTypes.ts';
+export {type DataMap, TRUNCATED, isStringArray} from './util/DataTypes.ts';
 export {convertToObject} from './util/DataTruncate.ts';
 export {forAllPathsBetween} from './util/Path.ts';
 export {encodeDisplay, decode, encode, encodeSorted, decodeReviver} from './util/Serialize.ts';

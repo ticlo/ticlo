@@ -1,7 +1,7 @@
 import React, {StrictMode} from 'react';
 import {vi} from 'vitest';
 import {DragDrop} from 'rc-dock';
-import {Block, Root, getDefaultFuncData, globalFunctions, type DataMap} from '@ticlo/core';
+import {Block, BlockOrder, Root, getDefaultFuncData, globalFunctions, type DataMap} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {getElementBoxQuads} from '@ticlo/html';
@@ -99,6 +99,35 @@ describe('designer stage drops', () => {
       expect(outline.points.getItem(index).y).toBeCloseTo(point.y, 2);
     });
   }
+
+  it('leaves forwarded order and its owner unchanged on a function drop', async () => {
+    const {flow, main, conn, page, element, outline, begin, dragTo} = await mount({
+      '#is': 'react:horizontal',
+      'owner': {
+        '#is': 'react:horizontal',
+        '#order': ['a', 'b'],
+        'a': child('forwarded-a'),
+        'b': child('forwarded-b'),
+      },
+    });
+    const owner = main.getValue('owner') as Block;
+    flow.createBlock('#inputs').setValue('#custom', [{name: '#order', type: 'array'}]);
+    flow.updateInput(owner);
+    main.setBinding('#order', '##.#inputs.#order');
+    await shouldHappen(() => element('forwarded-b'));
+    const add = vi.spyOn(conn, 'addBlock');
+    begin();
+    const drop = dragTo(element('forwarded-b'), 1, 10);
+    expect(outline()).toBeNull();
+    drop();
+    expect(add).not.toHaveBeenCalled();
+    expect(owner.getValue('div')).toBeUndefined();
+    expect(owner.getValue('#order')).toEqual(['a', 'b']);
+    expect(main.getValue('div')).toBeUndefined();
+    expect(main.getValue('#order')).toBeInstanceOf(BlockOrder);
+    expect((main.getValue('#order') as BlockOrder).owner).toBe(owner);
+    expect(page.children.length).toBe(2);
+  });
 
   it('outlines the nearest compatible ancestor of the frontmost hit, follows transforms, and selects unique new children', async () => {
     const source = {'#is': 'react:div', 'content': 'new child'};

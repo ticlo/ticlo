@@ -14,6 +14,7 @@ function worker(main: DataMap): DataMap {
     '#use': {
       '#is': {
         '#is': '',
+        '#inputs': {'#is': '', '#custom': [{name: '#order', type: 'array'}]},
         '#main': main,
         '#outputs': {
           '#is': '',
@@ -139,11 +140,12 @@ describe('component context boundaries', () => {
   });
 
   it.each([1, 3])('registers external children through %s worker boundaries in the stage map', async (depth) => {
-    const bindings = {'~#order': '##.#inputs.#order', '~child': '##.#inputs.child'};
+    const bindings = {'~#order': '##.#inputs.#order'};
     let data: DataMap = {
       '#is': functionId,
       ...bindings,
       'content': {'#is': functionId, '#optional': ['ref'], 'content': 'Internal child'},
+      'child': {'#is': functionId, 'content': 'Shadow child'},
     };
     for (let i = 1; i < depth; ++i) data = {...worker(data), ...bindings};
     flow.load({
@@ -171,7 +173,8 @@ describe('component context boundaries', () => {
     await render(true);
     const element = root.div.firstElementChild;
     const [internalElement, childElement] = Array.from(element.children);
-    expect(main.getValue('child')).toBe(child);
+    expect(main.getValue('child')).not.toBe(child);
+    expect(childElement.textContent).toBe('External child');
     expect(child.getParent()).toBe(host);
     expect(elementMap.getBlock(element)).toBe(host);
     expect(elementMap.getBlock(childElement)).toBe(child);
@@ -191,11 +194,22 @@ describe('component context boundaries', () => {
     expect(root.div.firstElementChild).toBe(element);
     expect(contexts.get(child).designMode).toBe(false);
     expect(elementMap.getElements(child)).toEqual([childElement]);
+    host.deleteValue('child');
+    const replacement = host.createBlock('child');
+    replacement.setValue('#is', functionId);
+    replacement.setValue('content', 'Replaced child');
+    Root.run();
+    await root.waitRender();
+    const replacementElement = element.lastElementChild;
+    expect(replacementElement.textContent).toBe('Replaced child');
+    expect(elementMap.getBlock(replacementElement)).toBe(replacement);
+    expect(elementMap.getBlock(childElement)).toBeUndefined();
     host.setValue('#order', []);
     Root.run();
     await root.waitRender();
     expect(elementMap.getBlock(childElement)).toBeUndefined();
     expect(elementMap.getElements(child)).toEqual([]);
+    expect(elementMap.getBlock(replacementElement)).toBeUndefined();
     expect(elementMap.getElements(host)).toEqual([element]);
     await root.waitRender(<></>);
     expect(elementMap.getElements(host)).toEqual([]);

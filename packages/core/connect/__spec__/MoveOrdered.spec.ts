@@ -1,6 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {Root} from '../../block/Flow.ts';
 import {Block} from '../../block/Block.ts';
+import {BlockOrder} from '../../block/BlockOrder.ts';
 import {globalFunctions} from '../../block/FunctionLib.ts';
 import {makeLocalConnection} from '../LocalConnection.ts';
 import type {EditPolicy} from '../../policy/EditPolicy.ts';
@@ -52,6 +53,37 @@ describe('Move ordered command', () => {
     root.destroy();
     globalFunctions.delete(parentId);
     globalFunctions.delete(childId);
+  });
+
+  it.each([
+    ['source', 'forwarded'],
+    ['target', 'forwarded'],
+    ['source', 'binding'],
+    ['target', 'binding'],
+  ])('rejects a %s with %s order before moving or reordering children', async (name, kind) => {
+    const flow = root.queryValue('Main') as Block;
+    const source = flow.getValue('source') as Block;
+    const target = flow.getValue('target') as Block;
+    const block = flow.getValue(name) as Block;
+    const order = block.getValue('#order') as string[];
+    if (kind === 'forwarded') {
+      block.updateValue('#order', new BlockOrder(block, order));
+    } else {
+      flow.setValue('order', order);
+      block.setBinding('#order', '##.order');
+    }
+    const property = block.getProperty('#order');
+    const value = property.getValue();
+    const binding = property._bindingSource;
+    const child = source.getValue('a');
+    await expect(client.moveOrdered('Main.source', ['a'], 'Main.target', 1)).rejects.toBe('invalid ordered children');
+    await expect(client.moveOrdered(`Main.${name}`, [order[0]], `Main.${name}`, 1)).rejects.toBe(
+      'invalid ordered children'
+    );
+    expect(source.getValue('a')).toBe(child);
+    expect(target.getValue('a')).toBeUndefined();
+    expect(property.getValue()).toBe(value);
+    expect(property._bindingSource).toBe(binding);
   });
 
   it('inserts in source order and updates both parents', async () => {

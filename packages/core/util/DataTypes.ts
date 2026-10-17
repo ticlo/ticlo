@@ -3,6 +3,10 @@ import {BlockIO} from '../block/BlockProperty.ts';
 
 export type DataMap = Record<string, unknown>;
 
+export function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
 export function isDataMap(val: unknown): val is DataMap {
   // The core treats arrays and class instances as traversable runtime data in a
   // few places, so this intentionally checks extensibility rather than

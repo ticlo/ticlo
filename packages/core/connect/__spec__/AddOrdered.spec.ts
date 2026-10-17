@@ -1,6 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 import {Root, type Flow} from '../../block/Flow.ts';
 import {Block} from '../../block/Block.ts';
+import {BlockOrder} from '../../block/BlockOrder.ts';
 import {globalFunctions} from '../../block/FunctionLib.ts';
 import {makeLocalConnection} from '../LocalConnection.ts';
 
@@ -112,4 +113,30 @@ describe('Add block with orderIndex', () => {
     await client.addBlock('Main.parent.local', {'#is': ':child'}, true, 1);
     expect(root.queryValue('Main.parent.#order')).toEqual(['a', 'local', 'b']);
   });
+
+  it.each(['forwarded', 'binding', 'raw binding', 'unresolved binding'])(
+    'rejects %s order before creating a child',
+    async (kind) => {
+      const flow = root.queryValue('Main') as Flow;
+      const parent = flow.getValue('parent') as Block;
+      const layout = flow.createBlock('layout');
+      layout.setValue('#is', parentId);
+      const property = layout.getProperty('#order');
+      if (kind === 'forwarded') {
+        layout.updateValue('#order', new BlockOrder(parent, parent.getValue('#order') as string[]));
+      } else if (kind === 'raw binding') {
+        property._listenRaw(parent.getProperty('#order'));
+      } else {
+        layout.setBinding('#order', kind === 'binding' ? '##.parent.#order' : '##.missing');
+      }
+      const order = property.getValue();
+      const binding = property._bindingSource;
+      await expect(client.addBlock('Main.layout.new', {'#is': childId}, true, 0)).rejects.toBe('invalid order');
+      expect(parent.getValue('new')).toBeUndefined();
+      expect(parent.getValue('#order')).toEqual(['a', 'b']);
+      expect(layout.getValue('new')).toBeUndefined();
+      expect(property.getValue()).toBe(order);
+      expect(property._bindingSource).toBe(binding);
+    }
+  );
 });

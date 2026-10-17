@@ -23,6 +23,7 @@ import {FunctionData, FunctionOutput} from './FunctonData.ts';
 import {getMaxFlowDepth} from '../util/Settings.ts';
 import {Logger} from '../util/Logger.ts';
 import {Namespace} from './Namespace.ts';
+import {BlockOrder} from './BlockOrder.ts';
 
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;
@@ -1109,7 +1110,16 @@ export class InputsBlock extends Block {
       const customList = this.getValue('#custom');
       if (Array.isArray(customList)) {
         for (const customProp of customList) {
-          this.updateValue(customProp.name, (val as DataMap)[customProp.name]);
+          const value = (val as DataMap)[customProp.name];
+          if (customProp.name === '#order') {
+            const property = this.getProperty('#order');
+            property._bindingSource?.unlisten(property);
+            property._bindingSource = null;
+          }
+          this.updateValue(
+            customProp.name,
+            customProp.name === '#order' ? BlockOrder.from(val as DataMap, value) : value
+          );
         }
       }
     }

@@ -5,7 +5,7 @@ export * from './connect/PolicyConnection.ts';
 export * from './block/Descriptor.ts';
 export * from './util/i18n.ts';
 export * from './util/Compare.ts';
-export {type DataMap, isDataTruncated, TRUNCATED} from './util/DataTypes.ts';
+export {type DataMap, isDataTruncated, TRUNCATED, isStringArray} from './util/DataTypes.ts';
 export {encodeDisplay, decode, encode} from './util/Serialize.ts';
 export * from './util/Name.ts';
 export {endsWithNumberReg, getTailingNumber, smartStrCompare, isColorStr} from './util/String.ts';

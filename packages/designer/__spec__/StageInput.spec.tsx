@@ -3,7 +3,7 @@ import {vi} from 'vitest';
 import {userEvent} from 'vitest/browser';
 import '../style/index.css';
 import '../../react/style/index.css';
-import {Block, Root, type DataMap} from '@ticlo/core';
+import {Block, BlockOrder, Root, type DataMap} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {loadTemplate, removeLastTemplate} from '@ticlo/editor/util/test-util.ts';
@@ -114,7 +114,7 @@ describe('designer stage gestures', () => {
   });
 
   it.each([1, 3])('selects, outlines, and moves external children through %s worker boundaries', async (depth) => {
-    const bindings = {'~#order': '##.#inputs.#order', '~a': '##.#inputs.a', '~b': '##.#inputs.b'};
+    const bindings = {'~#order': '##.#inputs.#order'};
     let layout: DataMap = {
       '#is': 'react:div',
       '#optional': ['id'],
@@ -124,6 +124,7 @@ describe('designer stage gestures', () => {
     };
     const definition = (main: DataMap): DataMap => ({
       '#is': '',
+      '#inputs': {'#is': '', '#custom': [{name: '#order', type: 'array'}]},
       '#desc': {tags: ['react-comp'], childrenTags: ['react-comp']},
       '#main': main,
       '#outputs': {'#is': '', '#custom': [{name: '#main', type: 'block'}], '~#main': '##.#main'},
@@ -166,6 +167,34 @@ describe('designer stage gestures', () => {
     pointer(document, 'pointermove', childRect.left + 14, childRect.top + 9);
     pointer(document, 'pointerup', childRect.left + 14, childRect.top + 9);
     expect(a.getProperty('style')._saved).toMatchObject({left: 42, top: 37});
+  });
+
+  it('enters and marquee-selects children on the forwarded order owner', async () => {
+    const {main, element, getStage} = await mount({
+      owner: {
+        '#is': 'react:div',
+        '#order': ['a'],
+        'a': child('forwarded-child', {position: 'absolute', left: 30, top: 30}),
+      },
+      a: child('shadow-child'),
+    });
+    const owner = main.getValue('owner') as Block;
+    const a = owner.getValue('a') as Block;
+    main.updateValue('#order', new BlockOrder(owner, ['a']));
+    await shouldHappen(() => element('forwarded-child'));
+    expect(element('shadow-child')).toBeNull();
+    getStage().select([main]);
+    await shouldHappen(() => getStage().selection.blocks[0] === main);
+    click(element('forwarded-child'));
+    await shouldHappen(() => getStage().selection.blocks[0] === a);
+    getStage().select([]);
+    await shouldHappen(() => getStage().selection.blocks.length === 0);
+    const page = element('forwarded-child').parentElement;
+    const rect = page.getBoundingClientRect();
+    pointer(page, 'pointerdown', rect.left + 10, rect.top + 10);
+    pointer(document, 'pointermove', rect.left + 80, rect.top + 70);
+    pointer(document, 'pointerup', rect.left + 80, rect.top + 70);
+    await shouldHappen(() => getStage().selection.blocks[0] === a);
   });
 
   it('delays container clicks, tolerates small movement, toggles Ctrl selections, and prunes other parents on down', async () => {

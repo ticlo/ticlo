@@ -1,4 +1,4 @@
-import {Block, type ClientConn, type DataMap, type FunctionDesc} from '@ticlo/core';
+import {Block, isStringArray, type ClientConn, type DataMap, type FunctionDesc} from '@ticlo/core';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
 import {getElementBoxQuads, getElementGeometry} from '@ticlo/html';
 import type {ElementMap} from '@ticlo/react';
@@ -65,7 +65,7 @@ export function getStageChildDrop(
   if (!container) return null;
   const {block, element} = container;
   const order = block.getValue('#order') ?? [];
-  if (!Array.isArray(order) || !order.every((name) => typeof name === 'string')) return null;
+  if (!isStringArray(order)) return null;
   let index = order.length;
   let data = source;
   let points: {x: number; y: number}[];

@@ -1,5 +1,5 @@
 import {useCallback, useLayoutEffect, useRef, useState, type RefObject} from 'react';
-import {Block, type Flow} from '@ticlo/core';
+import {Block, getBlockOrder, type Flow} from '@ticlo/core';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
 import type {ComponentContextValue} from '@ticlo/react';
 import {getChildren} from '@ticlo/react/hooks/useTicloComp.ts';
@@ -45,8 +45,7 @@ function supportsChildren(block: Block) {
 }
 
 function canSelectChildren(block: Block) {
-  const order = block.getValue('#order');
-  return !block.getValue('@d-seal') && Array.isArray(order) && order.length > 0;
+  return !block.getValue('@d-seal') && (getBlockOrder(block)?.order.length ?? 0) > 0;
 }
 
 const inputEvents = [
@@ -138,6 +137,7 @@ export function useStageInput(
       return null;
     };
     const findClickChild = (container: Hit, mouse: MouseEvent): Block | undefined => {
+      const owner = getBlockOrder(container.block)?.owner ?? container.block;
       for (const target of document.elementsFromPoint(mouse.clientX, mouse.clientY)) {
         if (!container.element.contains(target)) continue;
         for (
@@ -146,7 +146,7 @@ export function useStageInput(
           element = element.parentElement
         ) {
           const block = elementMap.getBlock(element);
-          if (block?.getParent() === container.block) return block.getValue('@d-lock') ? undefined : block;
+          if (block?.getParent() === owner) return block.getValue('@d-lock') ? undefined : block;
         }
       }
     };
@@ -250,10 +250,11 @@ export function useStageInput(
       } else if (mode === 'marquee') {
         const rect = bounds(gesture);
         const order = block.getValue('#order');
-        const children = getChildren(block, Array.isArray(order) ? order : undefined, block.getValue('content'));
+        const owner = getBlockOrder(block, order)?.owner ?? block;
+        const children = getChildren(block, order, block.getValue('content'));
         const targets = new Map<Block, Element[]>();
         for (const child of children) {
-          if (child instanceof Block && child.getParent() === block && !child.getValue('@d-lock'))
+          if (child instanceof Block && child.getParent() === owner && !child.getValue('@d-lock'))
             targets.set(
               child,
               (elementMap.getElements(child) ?? []).filter((element) => gesture.element.contains(element))
@@ -269,14 +270,15 @@ export function useStageInput(
           )
           .map(([child]) => child);
         if (mouse.ctrlKey) {
-          select([...selectionRef.current.blocks.filter((item) => item.getParent() === block), ...selected]);
+          select([...selectionRef.current.blocks.filter((item) => item.getParent() === owner), ...selected]);
         } else select(selected);
       } else if (mode === 'pending' && !block.getValue('@d-lock')) {
         if (mouse.ctrlKey) addSelection([block]);
         else select([block]);
       } else if (mode === 'ready' && gesture.clickChild && !mouse.ctrlKey && canSelectChildren(block)) {
         const child = gesture.clickChild;
-        if (!child._destroyed && child.getParent() === block && !child.getValue('@d-lock')) select([child]);
+        const owner = getBlockOrder(block)?.owner ?? block;
+        if (!child._destroyed && child.getParent() === owner && !child.getValue('@d-lock')) select([child]);
       }
       if (gesture.pointerId != null && stage.hasPointerCapture(gesture.pointerId))
         stage.releasePointerCapture(gesture.pointerId);

@@ -10,7 +10,7 @@ import {
   useState,
   type Ref,
 } from 'react';
-import {Block, BlockProperty, Event} from '@ticlo/core';
+import {Block, BlockOrder, BlockProperty, Event, getBlockOrder} from '@ticlo/core';
 import {PropMap} from '../comp/PropType.ts';
 import {Values} from '../comp/Values.ts';
 import {ComponentContext} from '../ComponentContext.ts';
@@ -19,7 +19,7 @@ import {useComponentRef} from './useComponentRef.ts';
 import {useMemoUpdate, useValueRef} from '../util/react-tools.ts';
 
 const configsMap: PropMap = {
-  '#order': {value: Values.arrayOptional, pinned: true},
+  '#order': {value: Values.any, pinned: true},
   '#optional': {value: Values.arrayOptional, pinned: true},
 };
 const noChildrenConfigsMap: PropMap = {
@@ -30,21 +30,20 @@ function isReactChild(child: unknown): child is ReactNode | Block {
   return child instanceof Block || isValidElement(child) || typeof child === 'string' || typeof child === 'number';
 }
 
-export function getChildren(block: Block, order?: unknown[], content?: unknown): (ReactNode | Block)[] {
+export function getChildren(block: Block, order?: unknown, content?: unknown): (ReactNode | Block)[] {
   const result: (ReactNode | Block)[] = [];
-  // content should be skipped if it's already included in order list
-  if (!order?.includes('content') && isReactChild(content)) {
+  const source = getBlockOrder(block, order);
+  // Only an order owned by this Block can consume its content slot.
+  if ((source?.owner !== block || !source.order.includes('content')) && isReactChild(content)) {
     result.push(content);
   }
 
   // inline children
-  if (order) {
-    for (const name of order) {
-      if (typeof name === 'string') {
-        const b = block.getValue(name);
-        if (b instanceof Block) {
-          result.push(b);
-        }
+  if (source) {
+    for (const name of source.order) {
+      const b = source.getValue(name);
+      if (b instanceof Block) {
+        result.push(b);
       }
     }
   }
@@ -156,26 +155,30 @@ export function useTicloComp(
     [optionalHandlers, componentRef]
   );
 
-  const onPropertyChange = useCallback((property: BlockProperty, saved?: boolean) => {
-    switch (property._name) {
-      case 'content':
-        if (needChildren) {
-          setContent(property.getValue());
-        }
-        break;
-      case 'style':
-        setStyle(property.getValue());
-        break;
-      case 'class':
-        setClassName(property.getValue());
-        break;
-    }
-    if (needChildren && Array.isArray(orderRef.current) && orderRef.current.includes(property._name)) {
-      updateResolvedChildren();
-    } else if (Array.isArray(optionalRef.current) && optionalRef.current.includes(property._name)) {
-      updateOptionalHandlers();
-    }
-  }, []);
+  const onPropertyChange = useCallback(
+    (property: BlockProperty, saved?: boolean) => {
+      switch (property._name) {
+        case 'content':
+          if (needChildren) {
+            setContent(property.getValue());
+          }
+          break;
+        case 'style':
+          setStyle(property.getValue());
+          break;
+        case 'class':
+          setClassName(property.getValue());
+          break;
+      }
+      const order = getBlockOrder(block, orderRef.current);
+      if (needChildren && order?.owner === block && order.order.includes(property._name)) {
+        updateResolvedChildren();
+      } else if (Array.isArray(optionalRef.current) && optionalRef.current.includes(property._name)) {
+        updateOptionalHandlers();
+      }
+    },
+    [block, needChildren, orderRef, optionalRef, updateResolvedChildren, updateOptionalHandlers]
+  );
 
   useEffect(() => {
     const listener = {onChildChange: onPropertyChange};
@@ -183,7 +186,19 @@ export function useTicloComp(
     return () => {
       block.unwatch(listener);
     };
-  }, [block]);
+  }, [block, onPropertyChange]);
+
+  useEffect(() => {
+    if (!(orderList instanceof BlockOrder) || !(orderList.owner instanceof Block) || orderList.owner === block) return;
+    const owner = orderList.owner;
+    const listener = {
+      onChildChange(property: BlockProperty) {
+        if (orderList.order.includes(property._name)) updateResolvedChildren();
+      },
+    };
+    owner.watch(listener);
+    return () => owner.unwatch(listener);
+  }, [block, orderList, updateResolvedChildren]);
 
   return {
     className,

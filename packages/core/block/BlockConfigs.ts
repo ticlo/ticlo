@@ -3,6 +3,14 @@ import {Block, InputsBlock, OutputsBlock} from './Block.ts';
 import type {Flow} from './Flow.ts';
 import {FlowFunctionLib} from './NSFunctionLib.ts';
 import {isDataMap} from '../util/DataTypes.ts';
+import {BlockOrder} from './BlockOrder.ts';
+
+class InputOrderConfig extends BlockConfig {
+  onChange(value: unknown, save?: boolean): boolean {
+    const owner = this._bindingSource?.getProperty()?._block;
+    return super.onChange(owner ? BlockOrder.from(owner, value) : value, save);
+  }
+}
 
 class BlockFuncIdConfig extends BlockProperty {
   constructor(block: Block, name: string) {
@@ -231,6 +239,7 @@ export const InputsConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#is': ConstTypeConfig('flow:inputs'),
   '#call': BlockProperty,
+  '#order': InputOrderConfig,
 };
 
 export const OutputsConfigGenerators: {[key: string]: typeof BlockProperty} = {

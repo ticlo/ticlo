@@ -3,7 +3,7 @@ import {simulate} from 'simulate-event';
 import React from 'react';
 import {BlockStage, NodeTree, initEditor} from '../../index.ts';
 import type {Block} from '@ticlo/core';
-import {Root} from '@ticlo/core';
+import {BlockOrder, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.ts';
@@ -176,6 +176,29 @@ describe('editor NodeTree', function () {
     expect(querySingle("//div.ticl-e-tree-node-text[text()='29']/../..", div).classList).toContain(
       'ticl-e-tree-node-ordered'
     );
+  });
+
+  it.each([true, false])('ignores forwarded orders and non-string arrays with serialize=%s', async (serialize) => {
+    const flow = Root.instance.addFlow('NodeTree', {
+      '#order': ['b', 'a'],
+      'a': {'#is': 'add'},
+      'b': {'#is': 'add'},
+    });
+    [server, client] = makeLocalConnection(Root.instance, true, undefined, serialize);
+    const [, div] = loadTemplate(
+      <NodeTree conn={client} basePaths={['NodeTree']} style={{width: 600, height: 300}} />,
+      'editor'
+    );
+    const expand = await shouldHappen(() => div.querySelector('.ticl-e-tree-arr'));
+    simulate(expand, 'click');
+    await shouldHappen(() => getVisibleNodeNames(div).join() === 'NodeTree,b,a');
+    for (const value of [['b', 42, 'a'], new BlockOrder(flow, ['b', 'a'])]) {
+      flow.updateValue('#order', value);
+      await shouldHappen(() => getVisibleNodeNames(div).join() === 'NodeTree,a,b');
+      expect(div.querySelector('.ticl-e-tree-node-ordered')).toBeNull();
+    }
+    flow.setValue('#order', ['b', 'a']);
+    await shouldHappen(() => getVisibleNodeNames(div).join() === 'NodeTree,b,a');
   });
 
   it('removes an ordered child through the node context menu', async () => {

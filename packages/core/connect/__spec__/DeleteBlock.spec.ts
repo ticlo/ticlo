@@ -4,6 +4,7 @@ import {makeLocalConnection} from '../LocalConnection.ts';
 import {EditPolicyView, type EditPolicy} from '../../policy/EditPolicy.ts';
 import {FlowEditor} from '../../worker/FlowEditor.ts';
 import {shouldHappen} from '../../util/test-util.ts';
+import {BlockOrder} from '../../block/BlockOrder.ts';
 
 describe('Delete block command', () => {
   let root: Root;
@@ -65,6 +66,33 @@ describe('Delete block command', () => {
     parent.setValue('#order', 'invalid');
     await client.deleteBlock('Main.parent.b');
     expect(parent.getValue('#order')).toBe('invalid');
+  });
+
+  it('leaves forwarded order untouched when deleting an unrelated local child with the same name', () => {
+    const layout = flow.createBlock('layout');
+    layout.createBlock('a');
+    const order = new BlockOrder(parent, parent.getValue('#order') as string[]);
+    layout.updateValue('#order', order);
+    deleteBlock(layout, 'a');
+    expect(layout.getValue('a')).toBeUndefined();
+    expect(parent.getValue('a')).toBeInstanceOf(Block);
+    expect(parent.getValue('#order')).toEqual(['a', 'b', 'missing', 'a']);
+    expect(layout.getValue('#order')).toBe(order);
+  });
+
+  it.each(['binding', 'raw binding'])('preserves %s order when deleting a child', async (kind) => {
+    const order = parent.getValue('#order');
+    flow.setValue('order', order);
+    const property = parent.getProperty('#order');
+    if (kind === 'binding') parent.setBinding('#order', '##.order');
+    else property._listenRaw(flow.getProperty('order'));
+    const binding = property._bindingSource;
+    await client.deleteBlock('Main.parent.a');
+    expect(parent.getValue('a')).toBeUndefined();
+    expect(property.getValue()).toBe(order);
+    expect(property._bindingSource).toBe(binding);
+    flow.setValue('order', ['b']);
+    expect(parent.getValue('#order')).toEqual(['b']);
   });
 
   it('exposes the helper without requiring a connection and leaves low-level deletion unchanged', async () => {

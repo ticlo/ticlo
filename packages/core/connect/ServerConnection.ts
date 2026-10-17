@@ -7,7 +7,7 @@ import {
   BlockPropertySubscriber,
   HelperProperty,
 } from '../block/BlockProperty.ts';
-import {DataMap, isPrimitiveType} from '../util/DataTypes.ts';
+import {DataMap, isPrimitiveType, isStringArray} from '../util/DataTypes.ts';
 import {truncateData} from '../util/DataTruncate.ts';
 import {Block, BlockChildWatch, InputsBlock} from '../block/Block.ts';
 import {Flow, Root} from '../block/Flow.ts';
@@ -798,7 +798,7 @@ export class ServerConnection extends ServerConnectionCore {
     let order: string[];
     if (orderIndex !== undefined) {
       const value = parentBlock.getValue('#order') ?? [];
-      if (!Array.isArray(value) || !value.every((name) => typeof name === 'string')) return 'invalid order';
+      if (parentBlock.getProperty('#order', false)?._bindingSource || !isStringArray(value)) return 'invalid order';
       order = value;
       if (!Number.isInteger(orderIndex) || orderIndex < 0 || orderIndex > order.length) return 'invalid index';
       const funcId = data?.['#is'];
@@ -1450,13 +1450,13 @@ export class ServerConnection extends ServerConnectionCore {
     const sourceOrder = source.getValue('#order');
     const targetOrder = target.getValue('#order') ?? [];
     if (
+      source.getProperty('#order', false)?._bindingSource ||
+      target.getProperty('#order', false)?._bindingSource ||
+      !isStringArray(sourceOrder) ||
+      !isStringArray(targetOrder) ||
       !Array.isArray(props) ||
       !props.length ||
       new Set(props).size !== props.length ||
-      !Array.isArray(sourceOrder) ||
-      !sourceOrder.every((name) => typeof name === 'string') ||
-      !Array.isArray(targetOrder) ||
-      !targetOrder.every((name) => typeof name === 'string') ||
       !props.every((name) => typeof name === 'string' && sourceOrder.includes(name))
     )
       return 'invalid ordered children';

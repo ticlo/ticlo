@@ -28,6 +28,7 @@ import {
   getDisplayName,
   deepEqual,
   ClientConn,
+  isStringArray,
 } from '@ticlo/core/editor.ts';
 import {TIcon} from '../icon/Icon.tsx';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
@@ -252,15 +253,13 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     }
     const orderedChildren: NodeTreeItem[] = [];
     const orderedNames = new Set<string>();
-    if (Array.isArray(this.order)) {
+    if (isStringArray(this.order)) {
       for (const name of this.order) {
-        if (typeof name === 'string') {
-          const child = children.get(name);
-          if (child) {
-            orderedChildren.push(child);
-            orderedNames.add(name);
-            children.delete(name);
-          }
+        const child = children.get(name);
+        if (child) {
+          orderedChildren.push(child);
+          orderedNames.add(name);
+          children.delete(name);
         }
       }
     }

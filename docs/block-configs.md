@@ -128,6 +128,21 @@ existing tags without duplicates. Currently, only `react-comp` is copied.
 When these conditions hold and `#inputs.#custom` declares `#order`, the worker's
 `#desc.childrenTags` is also copied from that function.
 
+A `#order` string array names children on the Block holding that value. When
+`#inputs` receives a declared `#order` input, its runtime value is a `BlockOrder`
+containing the original `owner` and `order` list. Forwarding it through another
+worker retains that owner. Consumers resolve the names on the owner, even when
+the receiving layout has properties with the same names. Plain object inputs
+retain the input object as their owner. This runtime reference is not persisted
+or transferred as an editable value. The node tree only uses string-array orders
+for sorting.
+
+Ordered insertion and movement only edit local string-array orders. The commands
+reject forwarded `BlockOrder` values and bound `#order` properties before changing
+any blocks. An absent target order can be created on insertion. Deleting a child
+leaves forwarded or bound orders unchanged. The designer stage supports inserting
+new children; reordering existing children is handled by the node tree.
+
 ## Worker readiness
 
 `#wait` signals pending work. Clearing it lets `WorkerFlow` report readiness
