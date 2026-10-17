@@ -58,20 +58,15 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     this._rootNode = node;
   };
 
-  initialBlockKey: string;
+  private blockRevision = 0;
   blockListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      if (response.cache.value) {
-        const blockKey = String(response.cache.value);
-        if (!this.initialBlockKey) {
-          this.initialBlockKey = blockKey;
-        } else if (blockKey !== this.initialBlockKey) {
-          // change the blockKey to force a stage reload
-          this.safeSetState({blockKey, selectedKeys: []});
-        }
-      } else {
-        this.safeSetState({blockKey: null, selectedKeys: []});
-      }
+      if (!Object.hasOwn(response.change ?? response.cache, 'value')) return;
+      this.blockRevision += 1;
+      // Keep the initial watch: closing a FlowEditor's last watch destroys it.
+      if (this.blockRevision === 1 && response.cache.value) return;
+      // Replacement blocks have the same serialized path, so each value update needs a fresh stage.
+      this.safeSetState({blockKey: response.cache.value ? String(this.blockRevision) : null, selectedKeys: []});
     },
   });
 
