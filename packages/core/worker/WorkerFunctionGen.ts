@@ -83,17 +83,21 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
       return null;
     }
     // Inherit allowed tags from the block directly bound to #outputs.#main.
-    // A worker exposing a React component also gets the react-comp tag.
+    // Workers declaring #order also inherit the component's accepted child tags.
     const outputs = flow.getValue('#outputs');
     const mainBinding = (data['#outputs'] as DataMap)?.['~#main'];
     if (outputs instanceof Block && typeof mainBinding === 'string') {
       const main = outputs.queryProperty(mainBinding)?._saved;
       if (main instanceof Block) {
-        const sourceTags = main._funcSrc?.getValue()?.desc.tags;
-        const tags = inheritedMainOutputTags.filter((tag) => sourceTags?.includes(tag));
+        const sourceDesc = main._funcSrc?.getValue()?.desc;
+        const tags = inheritedMainOutputTags.filter((tag) => sourceDesc?.tags?.includes(tag));
         if (tags.length) {
           const desc = data['#desc'] as FunctionDesc;
           data['#desc'] = {...desc, tags: [...new Set([...(desc?.tags ?? []), ...tags])]};
+          const inputs = (data['#inputs'] as DataMap)?.['#custom'] as PropDesc[];
+          if (Array.isArray(inputs) && inputs.some((prop) => prop.name === '#order')) {
+            (data['#desc'] as FunctionDesc).childrenTags = sourceDesc.childrenTags;
+          }
         }
       }
     }

@@ -125,6 +125,8 @@ exposes the output. Existing output definitions and descriptors are preserved.
 When saving a worker function, Ticlo copies allowed tags from the function of the
 Block directly bound to `#outputs.#main` into the worker's `#desc.tags`, preserving
 existing tags without duplicates. Currently, only `react-comp` is copied.
+When these conditions hold and `#inputs.#custom` declares `#order`, the worker's
+`#desc.childrenTags` is also copied from that function.
 
 ## Worker readiness
 

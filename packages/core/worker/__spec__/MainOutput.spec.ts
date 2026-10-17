@@ -117,7 +117,12 @@ describe('Worker #main output', function () {
   ])('inherits allowed tags from the #main binding source when saving %j', function (data) {
     const flow = new Flow();
     const functionLib = flow.getFuncLib();
-    functionLib.addFactory(null, {id: ':view', name: 'view', tags: ['react-comp', 'other']});
+    functionLib.addFactory(null, {
+      id: ':view',
+      name: 'view',
+      tags: ['react-comp', 'other'],
+      childrenTags: ['react-comp'],
+    });
     WorkerFunctionGen.registerType(data, {id: ':component', name: 'component'}, undefined, functionLib);
     const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
 
@@ -142,16 +147,57 @@ describe('Worker #main output', function () {
   });
 
   it.each([
+    {inputs: {'#is': '', '#custom': [{name: '#order', type: 'array'}]}, expected: ['react-comp', 'custom-child']},
+    {inputs: {'#is': '', '#custom': [{name: 'order', type: 'array'}]}, expected: ['existing']},
+    {inputs: {'#is': '', '#order': []}, expected: ['existing']},
+  ])('copies childrenTags only for a declared #order input: %j', function ({inputs, expected}) {
+    const flow = new Flow();
+    const functionLib = flow.getFuncLib();
+    functionLib.addFactory(null, {
+      id: ':view',
+      name: 'view',
+      tags: ['react-comp'],
+      childrenTags: ['react-comp', 'custom-child'],
+    });
+    WorkerFunctionGen.registerType(
+      {
+        '#is': '',
+        '#desc': {tags: ['custom'], childrenTags: ['existing']},
+        '#inputs': inputs,
+        '#main': {'#is': ':view'},
+        '#outputs': {'#is': ''},
+      },
+      {id: ':component', name: 'component'},
+      undefined,
+      functionLib
+    );
+    const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
+
+    const saved = editor.applyChange() as DataMap;
+    expect(saved['#desc']).toEqual({tags: ['custom', 'react-comp'], childrenTags: expected});
+    expect(functionLib.getDescToSend(':component')[0].childrenTags).toEqual(expected);
+    expect(functionLib.getWorkerData(':component')).toEqual(saved);
+    expect(editor.getValue('#desc')).toEqual({tags: ['custom'], childrenTags: ['existing']});
+
+    const reloaded = new Flow();
+    reloaded.load(flow.save());
+    expect(reloaded.getFuncLib().getDescToSend(':component')[0].childrenTags).toEqual(expected);
+    reloaded.destroy();
+    flow.destroy();
+  });
+
+  it.each([
     {'#is': '', 'view': {'#is': ':view'}, '#outputs': {'#is': '', '#main': null}},
     {'#is': '', 'view': {'#is': ':view'}, '#outputs': {'#is': '', '~#main': '##.missing'}},
     {'#is': '', 'view': {'#is': ':view'}, '#outputs': {'#is': '', '~#main': '##.view.result'}},
     {'#is': '', 'view': {'#is': ':view'}, '~alias': 'view', '#outputs': {'#is': '', '~#main': '##.alias'}},
     {'#is': '', 'view': {'#is': ':plain'}, '#outputs': {'#is': '', '~#main': '##.view'}},
-  ])('requires a direct #main binding to a block with an allowed tag: %j', function (data) {
+  ])('requires a direct #main binding to a block with an allowed tag: %j', function (data: DataMap) {
+    data['#inputs'] = {'#is': '', '#custom': [{name: '#order', type: 'array'}]};
     const flow = new Flow();
     const functionLib = flow.getFuncLib();
-    functionLib.addFactory(null, {id: ':view', name: 'view', tags: ['react-comp']});
-    functionLib.addFactory(null, {id: ':plain', name: 'plain', tags: ['other']});
+    functionLib.addFactory(null, {id: ':view', name: 'view', tags: ['react-comp'], childrenTags: ['react-comp']});
+    functionLib.addFactory(null, {id: ':plain', name: 'plain', tags: ['other'], childrenTags: ['react-comp']});
     WorkerFunctionGen.registerType(data, {id: ':component', name: 'component'}, undefined, functionLib);
     const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
 
