@@ -89,7 +89,7 @@ describe('designer stage gestures', () => {
     for (let i = 0; i < depth; ++i) {
       component = {
         '#is': 'worker',
-        '+use': {
+        '#use': {
           '#is': {
             '#is': '',
             '#main': component,

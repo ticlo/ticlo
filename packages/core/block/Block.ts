@@ -254,8 +254,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     const firstChar = field.charCodeAt(0);
 
     // Property prefixes are part of the file format contract:
-    // # is engine config, ^ is inherited context, ~ is a helper block,
-    // @ is editor metadata, + is function-specific config, everything else is IO.
+    // # is engine or function config, ^ is inherited context, ~ is a helper block,
+    // @ is editor metadata, everything else is IO.
     if (firstChar === 35) {
       // # config
       switch (field) {
@@ -306,11 +306,6 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
         case 64: {
           // @ attribute
           prop = new BlockProperty(this, field);
-          break;
-        }
-        case 43: {
-          // + function config
-          prop = new BlockConfig(this, field);
           break;
         }
         default:

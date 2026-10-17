@@ -29,11 +29,11 @@ strings to ordinary blocks does not construct those classes. Use flow/folder API
 | Prefix | Purpose |
 | --- | --- |
 | none | Normal inputs/outputs |
-| `#` | Engine controls and configuration |
+| `#` | Engine and function configuration |
 | `~` | Binding path or helper block |
 | `^` | Context linked to parent/global context |
 | `@` | Editor attributes, not function inputs |
-| `+` | Function-specific config, such as worker `+use`/`+state` |
+| `+` | Namespace entries under the runtime root, such as `+main` |
 
 ### Configuration (`#`)
 
@@ -85,7 +85,7 @@ Preserve saved layout when editing:
 
 ### Inline worker
 
-Passes `4` in and emits `8` at `double.#output`. The outer `#is` under `+use`
+Passes `4` in and emits `8` at `double.#output`. The outer `#is` under `#use`
 wraps the definition as a value.
 
 ```json
@@ -94,7 +94,7 @@ wraps the definition as a value.
   "double": {
     "#is": "worker",
     "value": 4,
-    "+use": {
+    "#use": {
       "#is": {
         "#is": "",
         "#inputs": {"#is": "", "#custom": [{"name": "value", "type": "number"}]},

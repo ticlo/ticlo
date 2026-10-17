@@ -84,7 +84,7 @@
   }
  ],
  "#is": "worker",
- "+use": ":my-worker",
+ "#use": ":my-worker",
  "@b-p": [
   "a",
   "b"

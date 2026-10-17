@@ -43,7 +43,7 @@ Creating the helper also establishes its output binding; setting the object valu
 removes both the binding and helper. Each block keeps its own value when several
 blocks are selected. Optional fields become enabled helper properties; custom
 object fields become custom properties, with remaining fields preserved in
-`+extend`. Functions with `recipient` receive the whole object in that property.
+`#extend`. Functions with `recipient` receive the whole object in that property.
 
 ## Optional property suggestions
 

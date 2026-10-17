@@ -60,6 +60,11 @@ Read-only; never write these into flow files:
 
 ## Worker data
 
+The `worker` function selects its source through `#use` and controls its lifecycle
+through `#state` (`on`, `off`, `disable`, or `lazy`). Object-building functions use
+`#extend` as a base object. These function-specific settings share the `#` config
+prefix with engine settings; `+` identifies namespaces in paths and function IDs.
+
 Workers receive inputs through `#inputs` and publish through `#outputs`.
 `#input` and `#output` are conventional default names; named IO is supported.
 

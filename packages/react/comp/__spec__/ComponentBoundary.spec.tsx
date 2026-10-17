@@ -11,7 +11,7 @@ import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.ts
 function worker(main: DataMap): DataMap {
   return {
     '#is': 'worker',
-    '+use': {
+    '#use': {
       '#is': {
         '#is': '',
         '#main': main,

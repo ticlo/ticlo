@@ -94,7 +94,7 @@ describe('runtime lifecycle', () => {
     storage.saveLib('+shared', 'tools', libData);
     storage.saveFlow(
       null,
-      {'#is': '', 'call': {'#is': '+shared:tools:value'}, 'repeat': {'#is': 'worker', '+use': '+shared:tools:value'}},
+      {'#is': '', 'call': {'#is': '+shared:tools:value'}, 'repeat': {'#is': 'worker', '#use': '+shared:tools:value'}},
       '+main.entry'
     );
     const read = vi.spyOn(storage, 'loadLib');
@@ -163,7 +163,7 @@ describe('runtime lifecycle', () => {
     for (const name of ['first', 'second']) {
       storage.saveFlow(
         null,
-        {'#is': '', 'call': {'#is': '+main:tools:value'}, 'repeat': {'#is': 'worker', '+use': '+:tools:value'}},
+        {'#is': '', 'call': {'#is': '+main:tools:value'}, 'repeat': {'#is': 'worker', '#use': '+:tools:value'}},
         `+main.${name}`
       );
     }

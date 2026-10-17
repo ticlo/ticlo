@@ -73,7 +73,7 @@ describe('ObjectEditor conversion', () => {
       const helper = flow.queryValue(`${name}.~style`) as Block;
       expect(helper.getValue('#is')).toBe('html:create-style');
       expect(helper.getValue('#optional')).toEqual(Object.keys(value).filter((name) => name !== 'extra'));
-      expect(helper.getValue('+extend')).toEqual({extra: value.extra});
+      expect(helper.getValue('#extend')).toEqual({extra: value.extra});
       expect(flow.queryValue(`${name}.style`)).toEqual(value);
       expect(flow.queryProperty(`${name}.style`)._bindingPath).toBe('~style.#output');
     }
@@ -135,7 +135,7 @@ describe('ObjectEditor conversion', () => {
 
   it('updates the tool when the helper function changes and honors edit policies', async () => {
     const flow = Root.instance.addFlow('ObjectEditorTest', {
-      block: {'#is': '', '~style': {'#is': 'create-object', '+extend': {color: 'red'}}},
+      block: {'#is': '', '~style': {'#is': 'create-object', '#extend': {color: 'red'}}},
     });
     const [server, conn] = makeLocalConnection(Root.instance, true);
     loadTemplate(

@@ -20,7 +20,7 @@ globalFunctions.addFactory(
       'User-Agent',
     ],
     properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],
-    configs: ([{name: '+extend', type: 'object'}] as (string | PropDesc)[]).concat(defaultConfigs),
+    configs: ([{name: '#extend', type: 'object'}] as (string | PropDesc)[]).concat(defaultConfigs),
   },
   'http'
 );

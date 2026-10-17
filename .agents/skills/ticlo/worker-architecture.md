@@ -1,7 +1,7 @@
 # Worker architecture
 
 `packages/core/worker/` implements flow-backed functions. `WorkerHost` exposes a
-`control: WorkerControl` and `workerField`: `+use` for `worker`, `use` for
+`control: WorkerControl` and `workerField`: `#use` for `worker`, `use` for
 `map`, `handler`, and `multi-worker`. Hosts usually connect
 `WorkerControl.onUseChange` to a `StatefulFunction` input map.
 
@@ -49,7 +49,7 @@ it from a deep block path. See [the `#lib` connection contract](./core-package.m
 
 | Host | Behavior |
 | --- | --- |
-| `WorkerFunction` | One `#worker`; `+state`: `on`, `off`, `disable`, `lazy`; accepts `WorkerCollector` |
+| `WorkerFunction` | One `#worker`; `#state`: `on`, `off`, `disable`, `lazy`; accepts `WorkerCollector` |
 | `MapFunction` | Array/object results after all assigned workers are ready; fixed/unlimited pools, reuse, persist, timeout |
 | `MultiWorkerFunction` | One worker per key; emits incremental results; watches child changes for Block inputs |
 | `HandlerFunction` | Queues tasks; `keepOrder` uses `InfiniteQueue` to emit in call order |

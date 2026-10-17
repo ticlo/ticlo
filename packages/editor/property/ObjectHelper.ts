@@ -29,6 +29,6 @@ export function getObjectHelperData(desc: FunctionDesc, value: DataMap, optional
   if (optionalNames.length) data['#optional'] = optionalNames;
   if (custom.length) data['#custom'] = custom;
   data['@b-p'] = [...(data['@b-p'] as string[]), ...optionalNames, ...custom.map((prop) => prop.name)];
-  if (Object.keys(extend).length) data['+extend'] = savedValue(extend);
+  if (Object.keys(extend).length) data['#extend'] = savedValue(extend);
   return data;
 }

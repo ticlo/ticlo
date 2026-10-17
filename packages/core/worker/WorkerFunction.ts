@@ -47,7 +47,7 @@ export class WorkerCollector extends Event {
  * SubFlowFunction is the function to load another flow from storage, not as a reusable worker
  */
 export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
-  readonly workerField = '+use';
+  readonly workerField = '#use';
   readonly control: WorkerControl;
 
   _funcFlow: WorkerFlow;
@@ -61,16 +61,16 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
 
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {
-      case '+state':
+      case '#state':
         return true;
-      case '+use':
+      case '#use':
         return this.control.onUseChange(val);
       default:
         return false;
     }
   }
   initInputs() {
-    this.control.onUseChange(this._data.getValue('+use'));
+    this.control.onUseChange(this._data.getValue('#use'));
   }
 
   inputChanged(input: BlockIO, val: any): boolean {
@@ -93,7 +93,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
     }
     if (this._funcFlow == null) {
       const {src, saveCallback} = this.control.getSaveParameter();
-      const subFlowMode = this._data.getValue('+state') ?? WorkerMode.ON;
+      const subFlowMode = this._data.getValue('#state') ?? WorkerMode.ON;
       if (subFlowMode === WorkerMode.ON) {
         this._funcFlow = this._data.createOutputFlow(RepeaterWorker, '#worker', src, this._data, saveCallback);
         this._funcFlow?.updateInput(this._data);
@@ -113,7 +113,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
       this.control._srcChanged = false;
     }
 
-    const subFlowMode = this._data.getValue('+state');
+    const subFlowMode = this._data.getValue('#state');
     switch (subFlowMode) {
       case WorkerMode.OFF: {
         if (this._funcFlow != null) {
@@ -181,13 +181,13 @@ globalFunctions.addFactory(
     priority: 3,
     properties: [
       {
-        name: '+state',
+        name: '#state',
         type: 'radio-button',
         options: WorkerModeOptions,
         default: WorkerMode.ON,
       },
       {
-        name: '+use',
+        name: '#use',
         type: 'worker',
       },
     ],

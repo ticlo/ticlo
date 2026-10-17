@@ -97,8 +97,8 @@ describe('WorkerFunction', function () {
     const block = flow.createBlock('worker');
     block._load({
       '#is': 'worker',
-      '+state': WorkerMode.DISABLE,
-      '+use': {
+      '#state': WorkerMode.DISABLE,
+      '#use': {
         '#is': {
           '#is': '',
           '#inputs': {'#is': '', '#custom': [{name: 'in1', type: 'event'}]},
@@ -117,7 +117,7 @@ describe('WorkerFunction', function () {
     expect(block.getValue('#worker')).toBeUndefined();
     expect(TestFunctionRunner.logs).toEqual([]);
 
-    block.setValue('+state', WorkerMode.ON);
+    block.setValue('#state', WorkerMode.ON);
     Root.run();
     const worker = block.getValue('#worker') as Flow;
     expect(worker).toBeInstanceOf(Flow);
@@ -126,6 +126,29 @@ describe('WorkerFunction', function () {
 
     flow.destroy();
     TestFunctionRunner.clearLog();
+  });
+
+  it('saves inline worker edits through #use', async function () {
+    const flow = new Flow();
+    const block = flow.createBlock('child');
+    block._load({'#is': 'worker', '#use': {'#is': {'#is': '', 'value': 1}}});
+    Root.run();
+
+    const worker = block.getValue('#worker') as Flow;
+    worker.setValue('value', 2);
+    await worker.applyChange();
+
+    expect(block.getValue('#use')).toEqual({'#is': '', 'value': 2});
+    const saved = flow.save();
+    expect(saved).toEqual({'#is': '', 'child': {'#is': 'worker', '#use': {'#is': {'#is': '', 'value': 2}}}});
+
+    const reloaded = new Flow();
+    reloaded.load(saved);
+    Root.run();
+    expect(reloaded.queryValue('child.#worker.value')).toBe(2);
+
+    reloaded.destroy();
+    flow.destroy();
   });
 
   it('supports save and undo from runtime worker flow', async function () {
