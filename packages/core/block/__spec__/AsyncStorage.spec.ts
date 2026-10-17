@@ -186,7 +186,12 @@ describe('asynchronous persistence', () => {
   it('waits for library worker persistence and keeps failed edits dirty', async () => {
     root = new Root();
     let nextSave = Promise.resolve();
-    root._storage = {loadLib: async (): Promise<DataMap> => ({'#is': ''}), saveLib: () => nextSave} as any;
+    root._storage = {
+      loadFlow: async () => null,
+      getFlowLoader: () => ({}),
+      loadLib: async (): Promise<DataMap> => ({'#is': ''}),
+      saveLib: () => nextSave,
+    } as any;
     await root.enableNamespace('asyncStorage');
     await root.loadFlow({namespace: 'asyncStorage', kind: 'library', name: 'library'});
     const ns = '+asyncStorage';

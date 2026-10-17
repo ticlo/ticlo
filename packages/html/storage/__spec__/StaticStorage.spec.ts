@@ -260,6 +260,9 @@ describe('StaticFlowStorage', () => {
     const urls = fetchMock.mock.calls.map(([url]) => url);
     expect(urls.filter((url) => url.endsWith('.ticlo'))).toEqual([
       `${rootUrl}/%23global.ticlo`,
+      `${baseUrl}/proj/main/%23context.ticlo`,
+      `${baseUrl}/proj/shared/%23context.ticlo`,
+      `${baseUrl}/proj/common/%23context.ticlo`,
       `${baseUrl}/proj/main/run.ticlo`,
     ]);
     expect(urls.filter((url) => url === `${baseUrl}/proj/common/.list.json`)).toHaveLength(1);
