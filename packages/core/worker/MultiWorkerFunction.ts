@@ -39,17 +39,21 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
 
   _input: any;
   _inputChanged: boolean = false;
+  _key = '';
+  // Worker keys in output array order.
+  _arrayKeys: string[];
   _watchedInputBlock: Block;
 
   _funcBlock: Block;
 
   _workers: Map<string, RepeaterWorker>;
 
-  _outputCache: any;
-  _currentOutput: any;
+  _outputCache: DataMap;
+  _currentOutput: DataMap;
 
   static inputMap = new Map([
     ['input', MultiWorkerFunction.prototype._onInputChange],
+    ['key', MultiWorkerFunction.prototype._onKeyChange],
     ['use', WorkerControl.onUseChange],
   ]);
   getInputMap() {
@@ -63,6 +67,16 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
     }
     if (val !== this._input) {
       this._input = val;
+      this._inputChanged = true;
+      return true;
+    }
+    return false;
+  }
+
+  _onKeyChange(val: unknown): boolean {
+    const key = typeof val === 'string' ? val : '';
+    if (key !== this._key) {
+      this._key = key;
       this._inputChanged = true;
       return true;
     }
@@ -85,7 +99,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
       this._checkChanges();
       this._applyPendingOutput();
       return;
-    } else {
+    } else if (this._watchedInputBlock || this._input instanceof Block) {
       this._clearWorkers();
     }
     if (this.control.isReady()) {
@@ -136,52 +150,56 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
 
   // when input is regular Object
   _watchObject(obj: DataMap) {
-    if (this._workers) {
-      // update existing workers
-      const oldWorkers = this._workers;
-      this._workers = new Map();
-      for (const key in obj) {
-        const input = obj[key];
-        if (input === undefined) {
-          continue;
+    this._arrayKeys = null;
+    if (Array.isArray(obj)) {
+      if (this._key) {
+        const inputs: DataMap = Object.create(null);
+        this._arrayKeys = [];
+        for (const input of obj) {
+          const value = input instanceof Block ? input.getValue(this._key) : input?.[this._key];
+          if (typeof value !== 'string' && typeof value !== 'number') {
+            continue;
+          }
+          const key = String(value);
+          if (Object.hasOwn(inputs, key)) {
+            continue;
+          }
+          inputs[key] = input;
+          this._arrayKeys.push(key);
         }
-        if (oldWorkers.has(key)) {
-          oldWorkers.get(key).updateInput(input);
-          this._workers.set(key, oldWorkers.get(key));
-          // remove from oldWorkers so it won't be destroyed later
-          oldWorkers.set(key, undefined);
-        } else {
-          this._addWorker(key, input);
-        }
-      }
-      // destroy old workers
-      for (const [key, oldWorker] of oldWorkers) {
-        if (oldWorker) {
-          oldWorker.destroy();
-          this._funcBlock.deleteValue(key);
-          this._output(key, undefined);
-        }
-      }
-    } else {
-      if (Array.isArray(obj)) {
-        this._outputCache = new Array(obj.length);
-        this._currentOutput = [];
+        obj = inputs;
       } else {
-        this._outputCache = {};
-        this._currentOutput = {};
-      }
-      this._workers = new Map();
-      for (const key in obj) {
-        this._addWorker(key, obj[key]);
+        this._arrayKeys = Array.from({length: obj.length}, (_, index) => String(index));
       }
     }
+    this._workers ??= new Map();
+    this._currentOutput ??= Object.create(null);
+    this._outputCache ??= Object.create(null);
+    const removedKeys = new Set(this._workers.keys());
+    for (const key in obj) {
+      const input = obj[key];
+      if (input === undefined) {
+        continue;
+      }
+      removedKeys.delete(key);
+      const worker = this._workers.get(key);
+      if (worker) {
+        worker.updateInput(input);
+      } else {
+        this._addWorker(key, input);
+      }
+    }
+    for (const key of removedKeys) {
+      this._removeWorker(key);
+    }
+    this._applyOuputLater();
   }
 
   // when input is Block
   _watchBlock(block: Block) {
     this._workers = new Map();
-    this._outputCache = {};
-    this._currentOutput = {};
+    this._outputCache = Object.create(null);
+    this._currentOutput = Object.create(null);
     this._watchedInputBlock = block;
     block.forEach((field: string, value: unknown, prop: BlockIO) => {
       this._addWorker(field, value);
@@ -233,12 +251,10 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
       this._pendingOutput = false;
 
       this._currentOutput = this._outputCache;
-      if (Array.isArray(this._input)) {
-        this._outputCache = [...this._currentOutput];
-      } else {
-        this._outputCache = {...this._currentOutput};
-      }
-      this._data.output(this._currentOutput);
+      this._outputCache = Object.assign(Object.create(null), this._currentOutput);
+      this._data.output(
+        this._arrayKeys ? this._arrayKeys.map((key) => this._currentOutput[key]) : {...this._currentOutput}
+      );
     }
   };
 
@@ -259,6 +275,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
       this._childChanges.clear();
     }
     this._pendingOutput = false;
+    this._arrayKeys = null;
     this._currentOutput = null;
     this._outputCache = null;
   }
@@ -296,6 +313,7 @@ globalFunctions.addFactory(MultiWorkerFunction, {
   configs: defaultConfigs.concat('#cancel'),
   properties: [
     {name: 'input', pinned: true, type: 'object'},
+    {name: 'key', type: 'string'},
     {name: 'use', type: 'worker', init: ''},
     {name: '#output', pinned: true, type: 'any', readonly: true},
   ],
