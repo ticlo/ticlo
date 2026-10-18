@@ -7,7 +7,7 @@ import {initEditor} from '../../index.ts';
 import {loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
 import {PropertyList} from '../PropertyList.tsx';
 
-describe('Copy Descriptor menu', () => {
+describe('Copy Type menu', () => {
   let flow: Flow;
   let block: Block;
   const source: PropDesc = {name: 'source', type: 'number', min: 1, max: 10};
@@ -28,7 +28,7 @@ describe('Copy Descriptor menu', () => {
 
   const menu = () => document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)');
   const copyButton = () =>
-    Array.from(menu()?.querySelectorAll('button') ?? []).find((button) => button.textContent === 'Copy Descriptor');
+    Array.from(menu()?.querySelectorAll('button') ?? []).find((button) => button.textContent === 'Copy Type');
 
   async function copyDescriptor(conn: ClientConn) {
     const request = vi.spyOn(conn, 'copyCustomPropDesc');

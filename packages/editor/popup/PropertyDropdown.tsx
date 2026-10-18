@@ -365,7 +365,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       ) {
         menuItems.push(
           <Button key="copyDescriptor" shape="round" onClick={this.onCopyDescriptor}>
-            {t('Copy Descriptor')}
+            {t('Copy Type')}
           </Button>
         );
       }

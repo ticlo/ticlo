@@ -108,7 +108,7 @@
 "Insert at {{n}}": "Insert at {{n}}"
 "Delete at {{n}}": "Delete at {{n}}"
 "Remove Property": "Remove Property"
-"Copy Descriptor": "Copy Descriptor"
+"Copy Type": "Copy Type"
 "Add Child Property": "Add Child Property"
 
 # popup/BlockDropdown.tsx
