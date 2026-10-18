@@ -1,5 +1,5 @@
 import React, {isValidElement, useContext, useMemo, type ReactNode} from 'react';
-import {Block} from '@ticlo/core';
+import {Block, Flow} from '@ticlo/core';
 import {
   ComponentContext,
   ComponentRenderContext,
@@ -14,9 +14,9 @@ export interface TicloPageProps extends BaseProps {
   fallback?: ReactNode;
 }
 
-/** Render #main while retaining the editable flow and its root DOM ownership. */
+/** Render a flow's #main or a component's #return, retaining its root DOM ownership. */
 export function TicloPage<T extends TicloPageProps = TicloPageProps>({block, context, fallback = null, ...others}: T) {
-  const main = useBlockValue(block, '#main');
+  const main = useBlockValue(block, block instanceof Flow ? '#main' : '#return');
   const parentContext = useContext(ComponentContext);
   const parent = useContext(ComponentRenderContext);
   const flow = context ? block._flow : (parent?.flow ?? block._flow);

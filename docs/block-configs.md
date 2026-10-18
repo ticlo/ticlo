@@ -97,10 +97,11 @@ See [StaticBlock.ts](../packages/core/block/StaticBlock.ts) and
 ## Component root
 
 `#main` is a flow's UI root Block and is included in its node tree. `TicloComp`
-uses a registered React renderer when available; otherwise it renders the Block
-or React element in `#main`. `#output` remains the default data output.
+uses a registered React renderer when available; otherwise it renders a flow's
+`#main` or a component instance's `#return`. Both can hold a Block or React
+element. `#output` remains the default data output.
 
-A reusable UI worker publishes its root as a named `#main` output:
+A reusable UI worker returns its root through `#outputs.#return`:
 
 ```json
 {
@@ -108,22 +109,24 @@ A reusable UI worker publishes its root as a named `#main` output:
   "#main": {"#is": "react:div", "content": "Hello"},
   "#outputs": {
     "#is": "",
-    "#custom": [{"name": "#main", "type": "block"}],
-    "~#main": "##.#main"
+    "~#return": "##.#main"
   }
 }
 ```
 
-The worker instance's `#main` references the same root Block.
+The worker instance's `#return` references the same root Block. In `multi-worker`,
+each result is that Block directly, rather than an object containing the outputs.
+Other named outputs remain available on ordinary worker instances. A `null`
+return represents an empty component; `undefined` retains the existing fallback
+to named outputs in worker result aggregation.
 
 When saving a worker flow or worker editor with an owned `#main` Block and an
 existing `#outputs` Block, Ticlo adds the binding above if the output has no saved
-`#main` value or binding.
-It also adds the `block` custom property if missing, so the worker descriptor
-exposes the output. Existing output definitions and descriptors are preserved.
+`#return` value or binding. The generated function exposes `#return` as a
+read-only config without requiring a custom property declaration.
 
 When saving a worker function, Ticlo copies allowed tags from the function of the
-Block directly bound to `#outputs.#main` into the worker's `#desc.tags`, preserving
+Block directly bound to `#outputs.#return` into the worker's `#desc.tags`, preserving
 existing tags without duplicates. Currently, only `react-comp` is copied.
 When these conditions hold and `#inputs.#custom` declares `#order`, the worker's
 `#desc.childrenTags` is also copied from that function.
@@ -131,7 +134,7 @@ When these conditions hold and `#inputs.#custom` declares `#order`, the worker's
 Saving a `react-comp` worker captures the resolved `#inputs.style.width` and
 `height` as `#desc.init.style` when both are defined. Values can come from bindings
 or runtime inputs. Other initial values and initial style fields are preserved.
-Declared `#main` and `#order` parameters appear in the generated function's configs
+Declared `#return` and `#order` parameters appear in the generated function's configs
 instead of its regular properties, retaining their input/output metadata.
 
 A `#order` string array names children on the Block holding that value. When

@@ -18,8 +18,7 @@ function worker(main: DataMap): DataMap {
         '#main': main,
         '#outputs': {
           '#is': '',
-          '#custom': [{name: '#main', type: 'block'}],
-          '~#main': '##.#main',
+          '~#return': '##.#main',
         },
       },
     },
@@ -71,7 +70,7 @@ describe('component context boundaries', () => {
     Root.run();
     const host = flow.getValue('host') as Block;
     let main = host;
-    for (let i = 0; i < depth; ++i) main = main.getValue('#main') as Block;
+    for (let i = 0; i < depth; ++i) main = main.getValue('#return') as Block;
     return {host, main};
   }
 
@@ -159,7 +158,7 @@ describe('component context boundaries', () => {
     const host = flow.getValue('#main') as Block;
     const child = host.getValue('child') as Block;
     let main = host;
-    for (let i = 0; i < depth; ++i) main = main.getValue('#main') as Block;
+    for (let i = 0; i < depth; ++i) main = main.getValue('#return') as Block;
     const internal = main.getValue('content') as Block;
     const elementMap = new ElementMap();
     const context = {designMode: true, elementMap, select: vi.fn(() => true), addSelection: vi.fn(() => true)};
@@ -215,9 +214,9 @@ describe('component context boundaries', () => {
     expect(elementMap.getElements(host)).toEqual([]);
   });
 
-  it('assigns a shared root DOM to the host when #main references an editable child', async () => {
+  it('assigns a shared root DOM to the host when #return references an editable child', async () => {
     flow.load({
-      '#main': {'#is': '', 'child': {'#is': functionId}, '~#main': '#.child'},
+      '#main': {'#is': '', 'child': {'#is': functionId}, '~#return': '#.child'},
     });
     Root.run();
     const host = flow.getValue('#main') as Block;
@@ -254,7 +253,7 @@ describe('component context boundaries', () => {
     expect(second.elementMap.getBlock(b)).toBe(host);
   });
 
-  it('tracks root elements that disappear and return without replacing the #main Block', async () => {
+  it('tracks root elements that disappear and return without replacing the returned Block', async () => {
     const {host, main} = createWorker(3);
     const elementMap = new ElementMap();
     await root.waitRender(
@@ -303,7 +302,7 @@ describe('component context boundaries', () => {
     for (const element of elements) expect(elementMap.getBlock(element)).toBeUndefined();
   });
 
-  it('cleans up the stage map when a nested #main is cleared, replaced, or unmounted', async () => {
+  it('cleans up the stage map when a nested return is cleared, replaced, or unmounted', async () => {
     const {host, main} = createWorker(3);
     const elementMap = new ElementMap();
     await root.waitRender(

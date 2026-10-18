@@ -29,8 +29,8 @@ globalFunctions.addFactory(
 globalFunctions.addFactory(
   null,
   {
-    name: 'dynamic-main',
-    properties: [{name: '#main', type: 'any', readonly: true, pinned: true}],
+    name: 'dynamic-return',
+    configs: [{name: '#return', type: 'any', readonly: true, pinned: true}],
   },
   'react-test'
 );
@@ -55,28 +55,33 @@ describe('TicloComp', function () {
     root.remove();
   });
 
-  it('renders dynamic #main react elements', async function () {
+  it('renders dynamic #return react elements', async function () {
     const flow = new Flow();
     const block = flow.createBlock('a');
-    block.setValue('#is', 'react-test:dynamic-main');
+    block.setValue('#is', 'react-test:dynamic-return');
 
     await root.waitRender(<TicloComp block={block} />);
     expect(root.div.children.length).toBe(0);
 
-    block.updateValue('#main', <span>output</span>);
+    block.updateValue('#return', <span>output</span>);
     await root.waitRender();
     expect(root.div.children[0]).toBeInstanceOf(HTMLSpanElement);
     expect(root.div.textContent).toBe('output');
+
+    block.updateValue('#return', null);
+    await root.waitRender();
+    expect(root.div.children.length).toBe(0);
+    flow.destroy();
   });
 
-  it('renders dynamic #main blocks', async function () {
+  it('renders dynamic #return blocks', async function () {
     const flow = new Flow();
     const block = flow.createBlock('a');
     const output = flow.createBlock('b');
-    block.setValue('#is', 'react-test:dynamic-main');
-    output.setValue('#is', 'react-test:dynamic-main');
-    output.updateValue('#main', <span>nested output</span>);
-    block.updateValue('#main', output);
+    block.setValue('#is', 'react-test:dynamic-return');
+    output.setValue('#is', 'react-test:dynamic-return');
+    output.updateValue('#return', <span>nested output</span>);
+    block.updateValue('#return', output);
 
     await root.waitRender(<TicloComp block={block} />);
     expect(root.div.children[0]).toBeInstanceOf(HTMLSpanElement);
@@ -117,7 +122,7 @@ describe('TicloComp', function () {
     flow.destroy();
   });
 
-  it('renders a worker #main block output alongside a data #output', async function () {
+  it('renders a worker #return block alongside a data #output', async function () {
     const flow = new Flow();
     WorkerFunctionGen.registerType(
       {
@@ -126,11 +131,8 @@ describe('TicloComp', function () {
         '#main': {'#is': 'react:div', '~content': '##.#inputs.label'},
         '#outputs': {
           '#is': '',
-          '#custom': [
-            {name: '#main', type: 'block'},
-            {name: '#output', type: 'number'},
-          ],
-          '~#main': '##.#main',
+          '#custom': [{name: '#output', type: 'number'}],
+          '~#return': '##.#main',
           '#output': 17,
         },
       },
@@ -144,7 +146,7 @@ describe('TicloComp', function () {
     Root.run();
 
     const worker = block.getValue('#worker') as Flow;
-    expect(block.getValue('#main')).toBe(worker.getValue('#main'));
+    expect(block.getValue('#return')).toBe(worker.getValue('#main'));
     expect(block.getValue('#output')).toBe(17);
     await root.waitRender(<TicloComp block={block} />);
     expect(root.div.textContent).toBe('Worker');
@@ -173,7 +175,6 @@ describe('TicloComp', function () {
     Root.run();
 
     expect(React.isValidElement(block.getValue('#output'))).toBe(true);
-    expect(block.getValue('#main')).toBeUndefined();
     await root.waitRender(<TicloComp block={container} />);
     expect(root.div.textContent).toBe('Converted');
     flow.destroy();

@@ -174,14 +174,10 @@ export class FlowWithStatic extends Flow {
       main._saved._prop === main &&
       this._props.get('#outputs')?._saved instanceof OutputsBlock &&
       outputs &&
-      !Object.hasOwn(outputs, '#main') &&
-      !Object.hasOwn(outputs, '~#main')
+      !Object.hasOwn(outputs, '#return') &&
+      !Object.hasOwn(outputs, '~#return')
     ) {
-      outputs['~#main'] = '##.#main';
-      const custom = outputs['#custom'];
-      if (!Array.isArray(custom) || !custom.some((prop) => prop.name === '#main')) {
-        outputs['#custom'] = [...(Array.isArray(custom) ? custom : []), {name: '#main', type: 'block'}];
-      }
+      outputs['~#return'] = '##.#main';
     }
     return data;
   }

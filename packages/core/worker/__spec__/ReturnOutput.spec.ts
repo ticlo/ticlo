@@ -6,8 +6,9 @@ import type {DataMap} from '../../util/DataTypes.ts';
 import {FlowEditor} from '../FlowEditor.ts';
 import {WorkerFlow} from '../WorkerFlow.ts';
 import {WorkerFunctionGen} from '../WorkerFunctionGen.ts';
+import '../MultiWorkerFunction.ts';
 
-describe('Worker #main output', function () {
+describe('Worker #return output', function () {
   it('does not add an output when saving a regular flow', function () {
     const data = {'#is': '', '#main': {'#is': ''}, '#outputs': {'#is': ''}};
     const flow = new Flow();
@@ -16,7 +17,7 @@ describe('Worker #main output', function () {
     flow.destroy();
   });
 
-  it.each([WorkerFlow, FlowEditor])('adds the binding and descriptor when saving %s', function (FlowClass) {
+  it.each([WorkerFlow, FlowEditor])('binds the component root to #return when saving %s', function (FlowClass) {
     const data = {'#is': '', '#main': {'#is': ''}, '#outputs': {'#is': ''}};
     const flow = new FlowClass();
     flow.load(data);
@@ -24,66 +25,30 @@ describe('Worker #main output', function () {
     const saved = flow.save();
     expect(saved['#outputs']).toEqual({
       '#is': '',
-      '~#main': '##.#main',
-      '#custom': [{name: '#main', type: 'block'}],
+      '~#return': '##.#main',
     });
     expect(flow.save()).toEqual(saved);
     expect(data['#outputs']).toEqual({'#is': ''});
 
     const reloaded = new FlowClass();
     reloaded.load(saved);
-    expect(reloaded.queryValue('#outputs.#main')).toBe(reloaded.getValue('#main'));
+    expect(reloaded.queryValue('#outputs.#return')).toBe(reloaded.getValue('#main'));
     expect(reloaded.save()).toEqual(saved);
     reloaded.destroy();
     flow.destroy();
     expect(flow.save()).toEqual(saved);
   });
 
-  it('preserves custom properties without duplicating an existing #main descriptor', function () {
-    const custom = [
-      {name: 'result', type: 'number'},
-      {name: '#main', type: 'any', pinned: true},
-    ];
-    const flow = new WorkerFlow();
-    flow.load({'#is': '', '#main': {'#is': ''}, '#outputs': {'#is': '', '#custom': custom, 'result': 17}});
-
-    expect(flow.save()['#outputs']).toEqual({
-      '#is': '',
-      '#custom': custom,
-      'result': 17,
-      '~#main': '##.#main',
-    });
-    expect(custom).toHaveLength(2);
-
-    const remaining = [custom[0]];
-    (flow.getValue('#outputs') as Block).setValue('#custom', remaining);
-    const saved = flow.save()['#outputs'] as DataMap;
-    expect(saved['#custom']).toEqual([...remaining, {name: '#main', type: 'block'}]);
-    expect(remaining).toEqual([custom[0]]);
-    flow.destroy();
-  });
-
-  it.each([{'#main': null}, {'~#main': '##.other'}])('preserves an explicit output %j', function (output) {
-    const data = {'#is': '', '#main': {'#is': ''}, '#outputs': {'#is': '', ...output}};
-    const flow = new WorkerFlow();
-    flow.load(data);
-    expect(flow.save()).toEqual(data);
-    flow.destroy();
-  });
-
-  it.each([
-    {'#is': '', '#main': {'#is': ''}},
-    {'#is': '', '#outputs': {'#is': ''}},
-    {'#is': '', '#main': 'text', '#outputs': {'#is': ''}},
-    {'#is': '', '#main': {'#is': {'#is': 'react:div'}}, '#outputs': {'#is': ''}},
-    {'#is': '', '#main': {'#is': ''}, '#outputs': {'#is': {'#is': ''}}},
-    {'#is': '', 'other': {'#is': ''}, '~#main': 'other', '#outputs': {'#is': ''}},
-  ])('requires an owned root Block and an existing output Block: %j', function (data) {
-    const flow = new WorkerFlow();
-    flow.load(data);
-    expect(flow.save()).toEqual(data);
-    flow.destroy();
-  });
+  it.each([{'#return': null}, {'#return': 0}, {'~#return': '##.other'}])(
+    'preserves an explicit return %j',
+    function (output) {
+      const data = {'#is': '', '#main': {'#is': ''}, '#outputs': {'#is': '', ...output}};
+      const flow = new WorkerFlow();
+      flow.load(data);
+      expect(flow.save()).toEqual(data);
+      flow.destroy();
+    }
+  );
 
   it('publishes the generated output after saving a named worker', function () {
     const flow = new Flow();
@@ -101,18 +66,18 @@ describe('Worker #main output', function () {
     expect(flow.getFuncLib().getWorkerData(':component')).toEqual(saved);
     const desc = flow.getFuncLib().getDescToSend(':component')[0];
     expect(desc.properties).toEqual([]);
-    expect(desc.configs).toEqual([...defaultConfigs, {name: '#main', type: 'block', readonly: true}]);
+    expect(desc.configs).toEqual([...defaultConfigs, {name: '#return', type: 'any', readonly: true}]);
 
     const instance = flow.createBlock('instance');
     instance.setValue('#is', ':component');
     Root.run();
     const worker = instance.getValue('#worker') as WorkerFlow;
-    expect(instance.getValue('#main')).toBeInstanceOf(Block);
-    expect(instance.getValue('#main')).toBe(worker.getValue('#main'));
+    expect(instance.getValue('#return')).toBeInstanceOf(Block);
+    expect(instance.getValue('#return')).toBe(worker.getValue('#main'));
     flow.destroy();
   });
 
-  it('exposes #main and #order as configs while retaining ordinary properties and custom configs', function () {
+  it('exposes #return and #order as configs while retaining ordinary properties and custom configs', function () {
     const data = {
       '#desc': {configs: ['#disabled', '#order', {name: '#custom-config', type: 'number'}]},
       '#inputs': {
@@ -123,7 +88,7 @@ describe('Worker #main output', function () {
       },
       '#outputs': {
         '#custom': [
-          {name: '#main', type: 'block'},
+          {name: '#return', type: 'block'},
           {name: '#output', type: 'any'},
         ],
       },
@@ -137,16 +102,35 @@ describe('Worker #main output', function () {
       '#disabled',
       {name: '#order', type: 'array', pinned: true},
       {name: '#custom-config', type: 'number'},
-      {name: '#main', type: 'block', readonly: true},
+      {name: '#return', type: 'block', readonly: true},
     ]);
     expect(mapConfigDesc(desc.configs).map((config) => config.name)).toEqual([
       '#disabled',
       '#order',
       '#custom-config',
-      '#main',
+      '#return',
     ]);
     expect(data['#desc'].configs[1]).toBe('#order');
     expect(data['#inputs']['#custom'][0].readonly).toBe(true);
+  });
+
+  it('returns live component Blocks directly from multi-worker', function () {
+    const flow = new Flow();
+    flow.load({
+      '#functions': {
+        ':component': {
+          type: 'worker',
+          worker: {'#is': '', '#main': {'#is': ''}, '#outputs': {'#is': '', '~#return': '##.#main'}},
+        },
+      },
+      'repeat': {'#is': 'multi-worker', 'input': [{}, {}], 'use': ':component'},
+    });
+    Root.run();
+    const repeat = flow.getValue('repeat') as Block;
+    const result = repeat.getValue('#output') as Block[];
+    expect(result).toEqual([repeat.queryValue('#workers.0.#main'), repeat.queryValue('#workers.1.#main')]);
+    expect(result.every((block) => block instanceof Block && !block.isDestroyed())).toBe(true);
+    flow.destroy();
   });
 
   it.each([
@@ -214,9 +198,9 @@ describe('Worker #main output', function () {
   });
 
   it.each([
-    {'#is': '', 'view': {'#is': ':view'}, '#outputs': {'#is': '', '~#main': '##.view'}},
+    {'#is': '', 'view': {'#is': ':view'}, '#outputs': {'#is': '', '~#return': '##.view'}},
     {'#is': '', '#main': {'#is': ':view'}, '#outputs': {'#is': ''}},
-  ])('inherits allowed tags from the #main binding source when saving %j', function (data) {
+  ])('inherits allowed tags from the #return binding source when saving %j', function (data) {
     const flow = new Flow();
     const functionLib = flow.getFuncLib();
     functionLib.addFactory(null, {
@@ -289,12 +273,12 @@ describe('Worker #main output', function () {
   });
 
   it.each([
-    {'#is': '', 'view': {'#is': ':view'}, '#outputs': {'#is': '', '#main': null}},
-    {'#is': '', 'view': {'#is': ':view'}, '#outputs': {'#is': '', '~#main': '##.missing'}},
-    {'#is': '', 'view': {'#is': ':view'}, '#outputs': {'#is': '', '~#main': '##.view.result'}},
-    {'#is': '', 'view': {'#is': ':view'}, '~alias': 'view', '#outputs': {'#is': '', '~#main': '##.alias'}},
-    {'#is': '', 'view': {'#is': ':plain'}, '#outputs': {'#is': '', '~#main': '##.view'}},
-  ])('requires a direct #main binding to a block with an allowed tag: %j', function (data: DataMap) {
+    {'#is': '', 'view': {'#is': ':view'}, '#outputs': {'#is': '', '#return': null}},
+    {'#is': '', 'view': {'#is': ':view'}, '#outputs': {'#is': '', '~#return': '##.missing'}},
+    {'#is': '', 'view': {'#is': ':view'}, '#outputs': {'#is': '', '~#return': '##.view.result'}},
+    {'#is': '', 'view': {'#is': ':view'}, '~alias': 'view', '#outputs': {'#is': '', '~#return': '##.alias'}},
+    {'#is': '', 'view': {'#is': ':plain'}, '#outputs': {'#is': '', '~#return': '##.view'}},
+  ])('requires a direct #return binding to a block with an allowed tag: %j', function (data: DataMap) {
     data['#inputs'] = {'#is': '', '#custom': [{name: '#order', type: 'array'}]};
     const flow = new Flow();
     const functionLib = flow.getFuncLib();

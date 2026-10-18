@@ -10,7 +10,7 @@ import {Block} from '../block/Block.ts';
 import {Namespace} from '../block/Namespace.ts';
 import {FlowFunctionLib, NsFunctionLib} from '../block/NSFunctionLib.ts';
 
-const inheritedMainOutputTags = ['react-comp'];
+const inheritedReturnTags = ['react-comp'];
 
 export class WorkerFunctionGen extends BaseFunction<Block> {
   declare readonly type: string;
@@ -82,15 +82,15 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     if (!funcId) {
       return null;
     }
-    // Inherit allowed tags from the block directly bound to #outputs.#main.
+    // Inherit allowed tags from the block directly bound to #outputs.#return.
     // Workers declaring #order also inherit the component's accepted child tags.
     const outputs = flow.getValue('#outputs');
-    const mainBinding = (data['#outputs'] as DataMap)?.['~#main'];
-    if (outputs instanceof Block && typeof mainBinding === 'string') {
-      const main = outputs.queryProperty(mainBinding)?._saved;
-      if (main instanceof Block) {
-        const sourceDesc = main._funcSrc?.getValue()?.desc;
-        const tags = inheritedMainOutputTags.filter((tag) => sourceDesc?.tags?.includes(tag));
+    const returnBinding = (data['#outputs'] as DataMap)?.['~#return'];
+    if (outputs instanceof Block && typeof returnBinding === 'string') {
+      const returned = outputs.queryProperty(returnBinding)?._saved;
+      if (returned instanceof Block) {
+        const sourceDesc = returned._funcSrc?.getValue()?.desc;
+        const tags = inheritedReturnTags.filter((tag) => sourceDesc?.tags?.includes(tag));
         if (tags.length) {
           const desc = data['#desc'] as FunctionDesc;
           data['#desc'] = {...desc, tags: [...new Set([...(desc?.tags ?? []), ...tags])]};
@@ -139,9 +139,17 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     if (savedDesc && typeof savedDesc === 'object' && savedDesc.constructor === Object) {
       desc = {...savedDesc, ...desc};
     }
-    const configs = desc.properties.filter((prop) => prop.name === '#main' || prop.name === '#order') as PropDesc[];
+    const configs = desc.properties.filter((prop) => prop.name === '#return' || prop.name === '#order') as PropDesc[];
+    const outputs = data['#outputs'] as DataMap;
+    if (
+      outputs &&
+      (Object.hasOwn(outputs, '#return') || Object.hasOwn(outputs, '~#return')) &&
+      !configs.some((prop) => prop.name === '#return')
+    ) {
+      configs.push({name: '#return', type: 'any', readonly: true});
+    }
     if (configs.length) {
-      desc.properties = desc.properties.filter((prop) => prop.name !== '#main' && prop.name !== '#order');
+      desc.properties = desc.properties.filter((prop) => prop.name !== '#return' && prop.name !== '#order');
       const configMap = new Map(
         (desc.configs ?? defaultConfigs).map((config) => [typeof config === 'string' ? config : config.name, config])
       );

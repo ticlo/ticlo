@@ -5,8 +5,9 @@ parents; stage additions and group movement keep selections under one Block
 parent. Component selection snapshots stay out of the React component context.
 
 Each designer stage owns one element map for its editable flow. `TicloPage` from
-`@ticlo/react` renders a Block's `#main` without adding a DOM wrapper. Worker root
-elements register as their outer host Block, including through nested workers;
+`@ticlo/react` renders a flow's `#main` or a component's `#return` without adding
+a DOM wrapper. Worker root elements register as their outer host Block,
+including through nested workers;
 internal Blocks remain unregistered and use design mode disabled with inactive
 selection commands. Blocks belonging to the stage's flow retain its component
 context and register as themselves even when rendered inside a worker. When a

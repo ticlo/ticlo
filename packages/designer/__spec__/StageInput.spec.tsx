@@ -96,8 +96,7 @@ describe('designer stage gestures', () => {
             '#main': component,
             '#outputs': {
               '#is': '',
-              '#custom': [{name: '#main', type: 'block'}],
-              '~#main': '##.#main',
+              '~#return': '##.#main',
             },
           },
         },
@@ -127,7 +126,7 @@ describe('designer stage gestures', () => {
       '#inputs': {'#is': '', '#custom': [{name: '#order', type: 'array'}]},
       '#desc': {tags: ['react-comp'], childrenTags: ['react-comp']},
       '#main': main,
-      '#outputs': {'#is': '', '#custom': [{name: '#main', type: 'block'}], '~#main': '##.#main'},
+      '#outputs': {'#is': '', '~#return': '##.#main'},
     });
     for (let i = 1; i < depth; ++i) layout = {'#is': 'worker', '#use': {'#is': definition(layout)}, ...bindings};
     const {main, element, div, getStage} = await mount(
