@@ -242,4 +242,55 @@ describe('editor Block Field', function () {
 
     await shouldHappen(() => !wire.classList.contains('ticl-e-wire-dash'));
   });
+
+  it.each([true, false])(
+    'uses the footer only for block bindings (source already mounted: %s)',
+    async (sourceFirst) => {
+      const source = {
+        '#is': '',
+        'data': {value: 3},
+        '@b-xyw': [100, 100, 143],
+        '@b-p': [],
+      };
+      const target = {
+        '#is': '',
+        '~value': '##.source.data.value',
+        '@b-xyw': [300, 100, 143],
+        '@b-p': ['value'],
+      };
+      flow = Root.instance.addFlow('BlockFieldFooter');
+      flow.load(sourceFirst ? {source, target} : {target});
+
+      const [, client] = makeLocalConnection(Root.instance);
+      const stage = React.createRef<BlockStage>();
+      const [, div] = loadTemplate(<BlockStage ref={stage} conn={client} basePath="BlockFieldFooter" />, 'editor');
+      await shouldHappen(
+        () => stage.current?.getBlock('BlockFieldFooter.target')?.fieldItems.get('value')?._bindingTargetPath
+      );
+      if (!sourceFirst) await client.addBlock('BlockFieldFooter.source', source);
+
+      await shouldHappen(() => div.querySelectorAll('.ticl-e-block').length === 2);
+      await shouldHappen(
+        () => stage.current.getBlock('BlockFieldFooter.target').fieldItems.get('value').cache.value === 3
+      );
+      expect(div.querySelector('.ticl-e-block-wire')).toBeNull();
+      expect(div.querySelector('.ticl-e-block-foot > .ticl-e-outbound')).toBeNull();
+
+      flow.queryProperty('source.@b-p').setValue(['data']);
+      await shouldHappen(() => div.querySelector('.ticl-e-wire-dash'));
+      expect(div.querySelector('.ticl-e-block-foot > .ticl-e-outbound')).toBeNull();
+
+      flow.queryProperty('source.@b-p').setValue([]);
+      await shouldHappen(() => !div.querySelector('.ticl-e-block-wire'));
+
+      flow.queryProperty('target.value').setBinding('##.source');
+      await shouldHappen(() => div.querySelector('.ticl-e-block-wire'));
+      expect(div.querySelector('.ticl-e-wire-dash')).toBeNull();
+      expect(div.querySelector('.ticl-e-block-foot > .ticl-e-outbound')).not.toBeNull();
+
+      flow.queryProperty('target.value').setBinding('##.source.data.value');
+      await shouldHappen(() => !div.querySelector('.ticl-e-block-wire'));
+      expect(div.querySelector('.ticl-e-block-foot > .ticl-e-outbound')).toBeNull();
+    }
+  );
 });

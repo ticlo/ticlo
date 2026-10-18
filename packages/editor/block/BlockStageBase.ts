@@ -246,7 +246,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     this._fieldLinks.get(sourcePath).add(targetField);
     const sourceFound = forAllPathsBetween(sourcePath, this.props.basePath, (path) => {
       const field = this._fields.get(path);
-      if (field) {
+      if (field && (path === sourcePath || path !== field.block.path)) {
         targetField.sourceChanged(field);
         return true;
       }
@@ -273,6 +273,8 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
         target.sourceChanged(item);
       }
     }
+    // The block's own source anchor only supports exact bindings.
+    if (path === item.block.path) return;
     const preFixPath = `${path}.`;
     for (const [path, links] of this._fieldLinks) {
       // search for children path to have a indirect binding wire
@@ -297,7 +299,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
           // search for children path to remove indirect binding wire
           if (path.startsWith(preFixPath)) {
             for (const target of links) {
-              if (target.inWire.source === item) {
+              if (target.inWire?.source === item) {
                 target.sourceChanged(null);
               }
             }
