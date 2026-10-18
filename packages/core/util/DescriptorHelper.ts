@@ -1,5 +1,5 @@
 import {PropDesc} from '../block/Descriptor.ts';
 
 export function propAcceptsBlock(desc: PropDesc) {
-  return desc.type === 'block' || (desc.type === 'any' && desc.options?.includes('block'));
+  return desc.type === 'block' || (desc.type === 'any' && desc.types?.includes('block'));
 }

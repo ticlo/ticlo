@@ -261,7 +261,10 @@ describe('editor BlockStage', function () {
     simulate(document.body, 'mouseup');
   });
 
-  it('shows block binding source by default and binds by dragging the header', async function () {
+  it.each([
+    {name: 'source', type: 'block'},
+    {name: 'source', type: 'any', types: ['string', 'block']},
+  ])('shows block binding source by default and binds by dragging the header to $type', async function (propDesc) {
     flow = Root.instance.addFlow('BlockStageSelfBinding');
     flow.load({
       add: {
@@ -271,7 +274,7 @@ describe('editor BlockStage', function () {
       },
       target: {
         '#is': '',
-        '#custom': [{name: 'source', type: 'block'}],
+        '#custom': [propDesc],
         '~source': '##.add',
         '@b-xyw': [300, 100, 143],
         '@b-p': ['source'],
