@@ -25,6 +25,8 @@ interface Gesture extends Hit {
   mode: 'pending' | 'ready' | 'marquee' | 'moving' | 'resizing' | 'blocked';
   canMarquee: boolean;
   clickChild?: Block;
+  clickCycle?: Block;
+  moved?: boolean;
   pointerId: number | null;
   startX: number;
   startY: number;
@@ -112,6 +114,7 @@ export function useStageInput(
     const document = stage.ownerDocument;
     const view = document.defaultView;
     let gesture: Gesture | null = null;
+    let lastClick: {block: Block; x: number; y: number; pointer: boolean} | null = null;
     let frame: number | null = null;
     const forwardedEvents = new WeakMap<Event, Event>();
     const focusStage = () => stage.focus({preventScroll: true});
@@ -123,6 +126,19 @@ export function useStageInput(
         if (block && (!hit || !canSelectChildren(block))) hit = {block, element};
       }
       return hit;
+    };
+    const findCycleBlock = (block: Block, target: EventTarget | null) => {
+      const main = flow?.getValue('#main');
+      for (
+        let parent = block.getParent();
+        parent && parent !== main && parent._flow === flow;
+        parent = parent.getParent()
+      ) {
+        if (!parent.getValue('@d-lock') && elementMap.getElements(parent)?.some((element) => stage.contains(element)))
+          return parent;
+      }
+      const inner = findHit(target)?.block;
+      return inner && inner !== main && !inner.getValue('@d-lock') ? inner : undefined;
     };
     const findSelectedHit = (mouse: MouseEvent): Hit | null => {
       const selected = new Set(selectionRef.current.blocks);
@@ -137,17 +153,10 @@ export function useStageInput(
       return null;
     };
     const findClickChild = (container: Hit, mouse: MouseEvent): Block | undefined => {
-      const owner = getBlockOrder(container.block)?.owner ?? container.block;
       for (const target of document.elementsFromPoint(mouse.clientX, mouse.clientY)) {
         if (!container.element.contains(target)) continue;
-        for (
-          let element: Element | null = target;
-          element && element !== container.element;
-          element = element.parentElement
-        ) {
-          const block = elementMap.getBlock(element);
-          if (block?.getParent() === owner) return block.getValue('@d-lock') ? undefined : block;
-        }
+        const block = findHit(target)?.block;
+        return block && block !== container.block && !block.getValue('@d-lock') ? block : undefined;
       }
     };
     const findHover = (target: EventTarget | null) => {
@@ -160,6 +169,7 @@ export function useStageInput(
     };
     const cancel = () => {
       cancelFrame();
+      lastClick = null;
       gesture?.move?.cancel();
       gesture?.resize?.cancel();
       if (gesture?.pointerId != null && stage.hasPointerCapture(gesture.pointerId))
@@ -243,6 +253,7 @@ export function useStageInput(
       preview();
       if (!gesture) return;
       const {block, mode} = gesture;
+      const stationary = !gesture.moved && mouse.clientX === gesture.startX && mouse.clientY === gesture.startY;
       if (mode === 'moving') {
         if (gesture.move.commit()) flow?.trackChange();
       } else if (mode === 'resizing') {
@@ -275,11 +286,25 @@ export function useStageInput(
       } else if (mode === 'pending' && !block.getValue('@d-lock')) {
         if (mouse.ctrlKey) addSelection([block]);
         else select([block]);
+      } else if (mode === 'ready' && stationary && gesture.clickCycle && !mouse.ctrlKey) {
+        const next = gesture.clickCycle;
+        if (!next._destroyed && !next.getValue('@d-lock')) select([next]);
       } else if (mode === 'ready' && gesture.clickChild && !mouse.ctrlKey && canSelectChildren(block)) {
         const child = gesture.clickChild;
-        const owner = getBlockOrder(block)?.owner ?? block;
-        if (!child._destroyed && child.getParent() === owner && !child.getValue('@d-lock')) select([child]);
+        if (!child._destroyed && !child.getValue('@d-lock')) select([child]);
       }
+      lastClick =
+        stationary &&
+        !mouse.ctrlKey &&
+        (mode === 'pending' || mode === 'ready') &&
+        selectionRef.current.blocks.length === 1
+          ? {
+              block: selectionRef.current.blocks[0],
+              x: mouse.clientX,
+              y: mouse.clientY,
+              pointer: gesture.pointerId !== null,
+            }
+          : null;
       if (gesture.pointerId != null && stage.hasPointerCapture(gesture.pointerId))
         stage.releasePointerCapture(gesture.pointerId);
       gesture = null;
@@ -305,6 +330,10 @@ export function useStageInput(
         if (event.type !== 'wheel' || forwarded.defaultPrevented) event.preventDefault();
         return;
       }
+      if (lastClick && event.type === (lastClick.pointer ? 'pointermove' : 'mousemove')) {
+        const mouse = event as MouseEvent;
+        if (mouse.clientX !== lastClick.x || mouse.clientY !== lastClick.y) lastClick = null;
+      }
       if (gesture) {
         if (
           (event.type === 'keydown' && (event as KeyboardEvent).key === 'Escape') ||
@@ -324,6 +353,7 @@ export function useStageInput(
           event.preventDefault();
           if (event.type.endsWith('up')) finish(mouse);
           else {
+            if (mouse.clientX !== gesture.startX || mouse.clientY !== gesture.startY) gesture.moved = true;
             gesture.clientX = mouse.clientX;
             gesture.clientY = mouse.clientY;
             if (gesture.mode === 'pending' || gesture.mode === 'ready') {
@@ -374,6 +404,16 @@ export function useStageInput(
         const locked = block.getValue('@d-lock');
         const canMarquee = canSelectChildren(block) && supportsChildren(block);
         const selected = !locked && selectionRef.current.blocks.includes(block);
+        const clickCycle =
+          selected &&
+          !mouse.ctrlKey &&
+          selectionRef.current.blocks.length === 1 &&
+          lastClick?.block === block &&
+          lastClick.x === mouse.clientX &&
+          lastClick.y === mouse.clientY
+            ? findCycleBlock(block, target)
+            : undefined;
+        lastClick = null;
         let mode: Gesture['mode'] = canMarquee ? 'pending' : 'ready';
         if (selected) {
           if (mouse.ctrlKey) {
@@ -392,6 +432,7 @@ export function useStageInput(
           ...hit,
           mode,
           canMarquee,
+          clickCycle,
           clickChild: selected && canMarquee && !mouse.ctrlKey ? findClickChild(hit, mouse) : undefined,
           pointerId: event instanceof PointerEvent ? event.pointerId : null,
           startX: mouse.clientX,

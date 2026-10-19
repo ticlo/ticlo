@@ -87,13 +87,17 @@ child-selection rules.
 Pressing a selected component with Ctrl removes it; without Ctrl it retains
 selected siblings and can start movement. Unselected containers with selectable
 children use the marquee gesture even if their own position is absolute.
-For a selected container with selectable children, releasing a click on a child
-without Ctrl replaces the selection with that direct child, entering only one
-level even when the pointer is over a deeper descendant. A locked direct child
-keeps the container selected. Dragging moves the selected container when it is
-movable; otherwise it starts child marquee selection, from either a child or
-empty space. Crossing the four-pixel threshold starts a drag even if the pointer
-later returns to its starting point. Escape cancels a pending child click too.
+For a selected container with selectable children, releasing a click on a
+descendant without Ctrl selects the innermost selectable component under the
+pointer, even through multiple container levels. Consecutive clicks at the same
+position without movement or Ctrl instead select the selected component's
+parent in the current flow, skipping locked or unrendered parents. Before reaching `#main`, the cycle
+wraps to the innermost selectable component under the pointer. Any pointer
+movement resets the cycle and restores normal click selection. Dragging moves
+the selected container when it is movable; otherwise it starts child marquee
+selection, from either a child or empty space. Crossing the four-pixel threshold
+starts a drag even if the pointer later returns to its starting point. Escape
+cancels a pending child click too.
 
 Movement requires computed `position: absolute` and a directly writable style:
 a set object, a set null/undefined value, or the component's own

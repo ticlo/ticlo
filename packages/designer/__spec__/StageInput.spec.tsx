@@ -304,7 +304,153 @@ describe('designer stage gestures', () => {
     expect(getStage().selection.blocks).toEqual([parent]);
   });
 
-  it('enters only a direct child on a small click, clears siblings, and preserves Ctrl, locks, and Escape', async () => {
+  it.each(['pointer', 'mouse', 'native'])(
+    'cycles stationary %s clicks through parents and wraps before main',
+    async (input) => {
+      const {main, element, getStage} = await mount({
+        '#order': ['parent'],
+        'parent': child(
+          'parent',
+          {position: 'relative', width: 150, height: 100},
+          {
+            '#is': 'react:div',
+            '#order': ['inner'],
+            'inner': child(
+              'inner',
+              {position: 'absolute', left: 30, top: 30, width: 60, height: 40},
+              {
+                '#is': 'react:div',
+                '#order': ['deep'],
+                'deep': child('deep', {position: 'absolute', left: 10, top: 10}),
+              }
+            ),
+          }
+        ),
+      });
+      const parent = main.getValue('parent') as Block;
+      const inner = parent.getValue('inner') as Block;
+      const deep = inner.getValue('deep') as Block;
+      getStage().select([parent]);
+      await shouldHappen(() => getStage().selection.blocks[0] === parent);
+      const rect = element('deep').getBoundingClientRect();
+      const press = (type: 'down' | 'up') => {
+        if (input === 'pointer') pointer(element('deep'), `pointer${type}`, rect.left + 10, rect.top + 7);
+        else
+          element('deep').dispatchEvent(
+            new MouseEvent(`mouse${type}`, {
+              bubbles: true,
+              cancelable: true,
+              button: 0,
+              clientX: rect.left + 10,
+              clientY: rect.top + 7,
+            })
+          );
+      };
+      for (const [index, expected] of [deep, inner, parent, deep, inner, parent, deep].entries()) {
+        if (index === 6) {
+          if (input === 'mouse')
+            document.dispatchEvent(new MouseEvent('mousemove', {clientX: rect.left + 11, clientY: rect.top + 7}));
+          else pointer(document, 'pointermove', rect.left + 11, rect.top + 7);
+        }
+        if (input === 'native') await userEvent.click(element('deep'), {position: {x: 10, y: 7}});
+        else {
+          const previous = getStage().selection.blocks;
+          press('down');
+          if (previous.length) expect(getStage().selection.blocks).toEqual(previous);
+          press('up');
+        }
+        await shouldHappen(() => getStage().selection.blocks[0] === expected);
+        expect(getStage().selection.blocks).toEqual([expected]);
+      }
+    }
+  );
+
+  it('resets click cycling after any movement, including moving away and back or during a small click', async () => {
+    const {main, element, getStage} = await mount({
+      '#order': ['parent'],
+      'parent': child(
+        'parent',
+        {position: 'absolute', left: 0, top: 0, width: 100, height: 80},
+        {
+          '#is': 'react:div',
+          '#order': ['inner'],
+          'inner': child('inner', {position: 'absolute', left: 30, top: 30}),
+        }
+      ),
+    });
+    const parent = main.getValue('parent') as Block;
+    const inner = parent.getValue('inner') as Block;
+    click(element('inner'));
+    await shouldHappen(() => getStage().selection.blocks[0] === inner);
+    click(element('inner'));
+    await shouldHappen(() => getStage().selection.blocks[0] === parent);
+    const rect = element('inner').getBoundingClientRect();
+    pointer(document, 'pointermove', rect.left + 3, rect.top + 2);
+    pointer(document, 'pointermove', rect.left + 2, rect.top + 2);
+    click(element('inner'));
+    await shouldHappen(() => getStage().selection.blocks[0] === inner);
+    click(element('inner'));
+    await shouldHappen(() => getStage().selection.blocks[0] === parent);
+    pointer(element('inner'), 'pointerdown', rect.left + 2, rect.top + 2);
+    pointer(document, 'pointermove', rect.left + 3, rect.top + 2);
+    pointer(document, 'pointermove', rect.left + 2, rect.top + 2);
+    pointer(document, 'pointerup', rect.left + 2, rect.top + 2);
+    await shouldHappen(() => getStage().selection.blocks[0] === inner);
+    click(element('inner'));
+    expect(getStage().selection.blocks).toEqual([inner]);
+    click(element('inner'));
+    await shouldHappen(() => getStage().selection.blocks[0] === parent);
+    pointer(element('inner'), 'pointerdown', rect.left + 2, rect.top + 2);
+    pointer(document, 'pointermove', rect.left + 22, rect.top + 2);
+    pointer(document, 'pointermove', rect.left + 2, rect.top + 2);
+    pointer(document, 'pointerup', rect.left + 2, rect.top + 2);
+    expect(getStage().selection.blocks).toEqual([parent]);
+    click(element('inner'));
+    await shouldHappen(() => getStage().selection.blocks[0] === inner);
+  });
+
+  it('skips locked parents and wraps to the outermost seal without entering sealed descendants', async () => {
+    const {main, element, getStage} = await mount({
+      '#order': ['parent'],
+      'parent': child(
+        'parent',
+        {position: 'relative', width: 150, height: 100},
+        {
+          '#is': 'react:div',
+          '#order': ['locked'],
+          'locked': child(
+            'locked',
+            {position: 'relative', width: 100, height: 80},
+            {
+              '#is': 'react:div',
+              '@d-lock': true,
+              '#order': ['sealed'],
+              'sealed': child(
+                'sealed',
+                {position: 'relative', width: 60, height: 40},
+                {
+                  '#is': 'react:div',
+                  '@d-seal': true,
+                  '#order': ['deep'],
+                  'deep': child('deep'),
+                }
+              ),
+            }
+          ),
+        }
+      ),
+    });
+    const parent = main.getValue('parent') as Block;
+    const locked = parent.getValue('locked') as Block;
+    const sealed = locked.getValue('sealed') as Block;
+    for (const expected of [sealed, parent, sealed, parent]) {
+      click(element('deep'));
+      await shouldHappen(() => getStage().selection.blocks[0] === expected);
+      expect(getStage().selection.blocks).toEqual([expected]);
+    }
+  });
+
+  it('selects the innermost descendant on a small click, clears siblings, and preserves Ctrl, seals, and Escape', async () => {
     const {main, element, getStage} = await mount({
       '#order': ['parent', 'sibling'],
       'parent': child(
@@ -329,6 +475,7 @@ describe('designer stage gestures', () => {
     const parent = main.getValue('parent') as Block;
     const sibling = main.getValue('sibling') as Block;
     const inner = parent.getValue('inner') as Block;
+    const deep = inner.getValue('deep') as Block;
     const rect = element('deep').getBoundingClientRect();
     getStage().select([parent, sibling]);
     await shouldHappen(() => getStage().selection.blocks.length === 2);
@@ -336,8 +483,8 @@ describe('designer stage gestures', () => {
     expect(getStage().selection.blocks).toEqual([parent, sibling]);
     pointer(document, 'pointermove', rect.left + 3, rect.top + 3);
     pointer(document, 'pointerup', rect.left + 3, rect.top + 3);
-    await shouldHappen(() => getStage().selection.blocks[0] === inner);
-    expect(getStage().selection.blocks).toEqual([inner]);
+    await shouldHappen(() => getStage().selection.blocks[0] === deep);
+    expect(getStage().selection.blocks).toEqual([deep]);
 
     getStage().select([parent]);
     await shouldHappen(() => getStage().selection.blocks[0] === parent);
@@ -351,7 +498,7 @@ describe('designer stage gestures', () => {
     expect(getStage().selection.blocks).toEqual([parent]);
     inner.setValue('@d-lock', true);
     click(element('deep'));
-    expect(getStage().selection.blocks).toEqual([parent]);
+    await shouldHappen(() => getStage().selection.blocks[0] === deep);
     inner.setValue('@d-lock', false);
     inner.setValue('@d-seal', true);
     click(element('deep'));
