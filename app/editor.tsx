@@ -186,7 +186,7 @@ class App extends React.PureComponent<Props, State> {
               sideColumns={leftSideColumns}
               ref={this.getLayout}
               groups={layoutGroups}
-              style={{position: 'absolute', left: 0, top: 10, right: 10, bottom: 10}}
+              style={{position: 'absolute', left: 0, top: 4, right: 4, bottom: 4}}
             />
             {modal}
           </TicloApp>

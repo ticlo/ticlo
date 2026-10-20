@@ -5,8 +5,8 @@ import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.tsx'
 import type {DockLayout, SideColumns, TabGroup} from 'rc-dock';
 
 export const sideColumns: SideColumns = {
-  left: {collapsible: true, accordion: true, padding: 10},
-  right: {collapsible: true, accordion: true, padding: 10},
+  left: {collapsible: true, accordion: true, padding: 4},
+  right: {collapsible: true, accordion: true, padding: 4},
 };
 
 export const leftSideColumns: SideColumns = {left: sideColumns.left};

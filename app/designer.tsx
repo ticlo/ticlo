@@ -327,7 +327,7 @@ class App extends React.PureComponent<Props, State> {
       closable: false,
       content: (
         <PlaygroundConnection>
-          <DesignerStage root={this.props.root} conn={this.conn} basePath={path} />
+          <DesignerStage root={this.props.root} conn={this.conn} basePath={path} onSave={save} />
         </PlaygroundConnection>
       ),
     };
@@ -380,7 +380,7 @@ class App extends React.PureComponent<Props, State> {
                   sideColumns={sideColumns}
                   ref={this.getLayout}
                   groups={layoutGroups}
-                  style={{position: 'absolute', left: 0, top: 10, right: 0, bottom: 10}}
+                  style={{position: 'absolute', left: 0, top: 4, right: 0, bottom: 4}}
                 />
                 {modal}
               </DesignerApp>
