@@ -78,6 +78,10 @@ function ButtonElement({block}: {block: Block}) {
     </button>
   );
 }
-globalFunctions.addFactory(null, createElementDesc('button', 'txt:btn'), 'react', undefined, {
-  meta: {[metaKey]: ButtonElement},
-});
+globalFunctions.addFactory(
+  null,
+  {...createElementDesc('button', 'txt:btn'), init: {'content': 'button', '@d-seal': true}},
+  'react',
+  undefined,
+  {meta: {[metaKey]: ButtonElement}}
+);

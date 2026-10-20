@@ -243,6 +243,59 @@ describe('designer stage drops', () => {
     }
   );
 
+  it('creates buttons sealed through descriptor init and drops subsequent components beside them', async () => {
+    const {main, page, outline, begin, dragTo} = await mount({}, {}, 'react:button');
+    begin();
+    let finish = dragTo(page);
+    await shouldHappen(outline);
+    finish();
+    await shouldHappen(() => main.getValue('button') instanceof Block && page.querySelector('button'));
+    const button = main.getValue('button') as Block;
+    expect(button.getValue('@d-seal')).toBe(true);
+    expect(button.getValue('content')).toBe('button');
+
+    begin();
+    finish = dragTo(page.querySelector('button'), 5, 5);
+    await shouldHappen(outline);
+    finish();
+    await shouldHappen(() => main.getValue('button1') instanceof Block);
+    expect(main.getValue('#order')).toEqual(['button', 'button1']);
+    expect(button.getValue('#order')).toBeUndefined();
+    expect(button.getValue('button')).toBeUndefined();
+  });
+
+  it('skips sealed descendants and allows insertion after removing the seal', async () => {
+    const {main, element, outline, begin, dragTo} = await mount({
+      '#order': ['sealed'],
+      'sealed': child(
+        'sealed',
+        {},
+        {
+          '#is': 'react:div',
+          '@d-seal': true,
+          '#order': ['inner'],
+          'inner': child('inner', {}, {'#is': 'react:div'}),
+        }
+      ),
+    });
+    const sealed = main.getValue('sealed') as Block;
+    const inner = sealed.getValue('inner') as Block;
+    begin();
+    let finish = dragTo(element('inner'));
+    await shouldHappen(outline);
+    finish();
+    await shouldHappen(() => main.getValue('div') instanceof Block);
+    expect(sealed.getValue('#order')).toEqual(['inner']);
+    expect(inner.getValue('div')).toBeUndefined();
+
+    sealed.setValue('@d-seal', false);
+    begin();
+    finish = dragTo(element('inner'));
+    await shouldHappen(outline);
+    finish();
+    await shouldHappen(() => inner.getValue('div') instanceof Block);
+  });
+
   it.each([undefined, {width: 80}, {height: 60}])(
     'uses preview-only fallback dimensions for initial style %j',
     async (style) => {

@@ -57,9 +57,10 @@ export function getStageChildDrop(
   let container: DesignerDropTarget;
   for (let element = target.element; element && element !== stage; element = element.parentElement) {
     const block = elementMap.getBlock(element);
-    if (block && getDesc(block)?.childrenTags?.some((tag) => desc.tags?.includes(tag))) {
+    if (block?.getValue('@d-seal')) {
+      container = null;
+    } else if (!container && block && getDesc(block)?.childrenTags?.some((tag) => desc.tags?.includes(tag))) {
       container = {block, element};
-      break;
     }
   }
   if (!container) return null;

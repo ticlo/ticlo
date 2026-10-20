@@ -69,8 +69,9 @@ through the core attribute descriptor registry; custom descriptors can also be
 included in the same array. `@d-lock` prevents selecting the component in the
 stage while leaving its children selectable. `@d-seal: true` or an empty/missing
 `#order` prevents selecting descendants; a hit within the subtree resolves to
-the outermost such component. A locked container with selectable children can
-still start child marquee selection. A locked component without selectable
+the outermost such component. Function drops skip sealed subtrees and resolve
+to a compatible ancestor outside the seal. A locked container with selectable
+children can still start child marquee selection. A locked component without selectable
 children excludes its entire subtree from stage selection. These rules do not
 restrict the outline tree.
 
