@@ -92,7 +92,10 @@ export function getStageChildDrop(
       if (!points) return null;
     } else {
       const children = getChildren(block, order, block.getValue('content')).flatMap((child) => {
-        const index = order.findIndex((name) => block.getValue(name) === child);
+        const index = order.findIndex((name) => {
+          const value = block.getValue(name);
+          return value === child || (name === 'content' && Array.isArray(value) && value.includes(child));
+        });
         return child instanceof Block
           ? (elementMap.getElements(child) ?? [])
               .filter((childElement) => element.contains(childElement))
@@ -125,9 +128,9 @@ export function getStageChildDrop(
         const {rect} = nearest;
         const before =
           (horizontal ? local.x < rect.left + rect.width / 2 : local.y < rect.top + rect.height / 2) !== reverse;
-        // Unordered content precedes #order and can only be followed by new children.
-        index = nearest.index < 0 ? 0 : nearest.index + (before ? 0 : 1);
-        const leading = nearest.index < 0 ? reverse : before !== reverse;
+        // Unordered content follows #order, so new children go before it.
+        index = nearest.index < 0 ? order.length : nearest.index + (before ? 0 : 1);
+        const leading = nearest.index < 0 ? !reverse : before !== reverse;
         points = horizontal
           ? pointsForRect(matrix, (leading ? rect.left : rect.right) - 3, rect.top, 6, rect.height)
           : pointsForRect(matrix, rect.left, (leading ? rect.top : rect.bottom) - 3, rect.width, 6);

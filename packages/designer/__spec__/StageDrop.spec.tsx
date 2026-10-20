@@ -320,7 +320,7 @@ describe('designer stage drops', () => {
   });
 
   it.each(['horizontal', 'vertical'])(
-    'inserts after a content component in a %s layout without #order',
+    'inserts before a content component in a %s layout without #order',
     async (layout) => {
       const {main, element, outline, begin, dragTo} = await mount({
         '#is': `react:${layout}`,
@@ -335,6 +335,8 @@ describe('designer stage drops', () => {
       await shouldHappen(() => main.getValue('div') instanceof Block);
       expect(main.getValue('#order')).toEqual(['div']);
       expect(main.getValue('content')).toBeInstanceOf(Block);
+      await shouldHappen(() => element('content').previousElementSibling);
+      expect(element('content').previousElementSibling.tagName).toBe('DIV');
     }
   );
 

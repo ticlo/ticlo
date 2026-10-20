@@ -171,9 +171,10 @@ describe('component context boundaries', () => {
 
     await render(true);
     const element = root.div.firstElementChild;
-    const [internalElement, childElement] = Array.from(element.children);
+    const [childElement, internalElement] = Array.from(element.children);
     expect(main.getValue('child')).not.toBe(child);
     expect(childElement.textContent).toBe('External child');
+    expect(internalElement.textContent).toBe('Internal child');
     expect(child.getParent()).toBe(host);
     expect(elementMap.getBlock(element)).toBe(host);
     expect(elementMap.getBlock(childElement)).toBe(child);
@@ -199,7 +200,7 @@ describe('component context boundaries', () => {
     replacement.setValue('content', 'Replaced child');
     Root.run();
     await root.waitRender();
-    const replacementElement = element.lastElementChild;
+    const replacementElement = element.firstElementChild;
     expect(replacementElement.textContent).toBe('Replaced child');
     expect(elementMap.getBlock(replacementElement)).toBe(replacement);
     expect(elementMap.getBlock(childElement)).toBeUndefined();

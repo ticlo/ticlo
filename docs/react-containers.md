@@ -1,8 +1,13 @@
 # React containers
 
-React containers resolve their children from `content` and `#order`. An unordered
-renderable `content` occupies the first position. Ordered children are Blocks;
-forwarded `BlockOrder` values resolve them from their original owner.
+React containers resolve their children from `content` and `#order`. Content can
+be a Block, React element, string, number, or an array of those values. Arrays
+expand into individual children; unsupported values are omitted. An explicit
+`content` entry in `#order` places those children at that position, including
+between other children. Otherwise, content follows the ordered children.
+Other ordered children are Blocks. Forwarded `BlockOrder` values resolve entries
+from their original owner, including its content slot; the receiving container's
+own content is appended separately.
 
 `ViewDeck` (`react:view-deck`) mounts only the child at `selectedIndex`, using
 zero-based positions in that same resolved list. Switching the index unmounts

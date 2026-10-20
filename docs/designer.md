@@ -47,7 +47,7 @@ the fallback is not saved on the child. The three layout functions initialize
 their styles with a width and height of 200 CSS pixels. Horizontal and vertical
 layouts infer an order index from the nearest rendered child; an empty layout
 appends its first child.
-An unordered `content` component stays before new ordered children. Insertion
+An unordered `content` component stays after ordered children. Insertion
 feedback follows container transforms and is an estimate of the new child's
 placement.
 

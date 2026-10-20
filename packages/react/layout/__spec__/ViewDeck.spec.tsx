@@ -156,19 +156,47 @@ describe('View Deck', () => {
     deck.setValue('content', 'Content');
     deck.setValue('#order', ['missing', 'first', 'second']);
     await root.waitRender(<TicloComp block={deck} />);
-    expect(root.div.textContent).toBe('Content');
-    expect(rendered).toEqual([]);
-
-    deck.updateValue('selectedIndex', 1);
-    await root.waitRender();
     expect(root.div.textContent).toBe('First');
+    expect(rendered).toEqual([deck.getValue('first')]);
+
+    deck.updateValue('selectedIndex', 2);
+    await root.waitRender();
+    expect(root.div.textContent).toBe('Content');
     deck.setValue('content', undefined);
+    await root.waitRender();
+    expect(root.div.textContent).toBe('');
+    deck.updateValue('selectedIndex', 1);
     await root.waitRender();
     expect(root.div.textContent).toBe('Second');
     deck.setValue('#order', ['second', 'first']);
     await root.waitRender();
     expect(root.div.textContent).toBe('First');
   });
+
+  it.each(['div', 'horizontal', 'vertical', 'absolute', 'view-deck'])(
+    '%s expands and updates content arrays between ordered children',
+    async (name) => {
+      const block = createDeck();
+      block.setValue('#is', `react:${name}`);
+      block.setValue('#order', ['first', 'content', 'second']);
+      const a = flow.createBlock('repeated-a');
+      const b = flow.createBlock('repeated-b');
+      a._load({'#is': probeId, 'label': 'A'});
+      b._load({'#is': probeId, 'label': 'B'});
+      block.updateValue('content', [a, b]);
+      block.setValue('selectedIndex', 2);
+      await root.waitRender(<TicloComp block={block} />);
+      expect(root.div.textContent).toBe(name === 'view-deck' ? 'B' : 'FirstABSecond');
+
+      block.updateValue('content', [b, a]);
+      await root.waitRender();
+      expect(root.div.textContent).toBe(name === 'view-deck' ? 'A' : 'FirstBASecond');
+
+      block.setValue('#order', ['first', 'second']);
+      await root.waitRender();
+      expect(root.div.textContent).toBe(name === 'view-deck' ? 'B' : 'FirstSecondBA');
+    }
+  );
 
   it('renders and watches children forwarded through a worker, including unmounted worker dataflow', async () => {
     WorkerFunctionGen.registerType(

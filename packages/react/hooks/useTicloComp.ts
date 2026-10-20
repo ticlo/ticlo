@@ -33,20 +33,23 @@ function isReactChild(child: unknown): child is ReactNode | Block {
 export function getChildren(block: Block, order?: unknown, content?: unknown): (ReactNode | Block)[] {
   const result: (ReactNode | Block)[] = [];
   const source = getBlockOrder(block, order);
-  // Only an order owned by this Block can consume its content slot.
-  if ((source?.owner !== block || !source.order.includes('content')) && isReactChild(content)) {
-    result.push(content);
-  }
+  const appendContent = (value: unknown) => {
+    result.push(...(Array.isArray(value) ? value : [value]).filter(isReactChild));
+  };
 
   // inline children
   if (source) {
     for (const name of source.order) {
-      const b = source.getValue(name);
-      if (b instanceof Block) {
-        result.push(b);
+      const child = source.getValue(name);
+      if (name === 'content') {
+        appendContent(source.owner === block ? content : child);
+      } else if (child instanceof Block) {
+        result.push(child);
       }
     }
   }
+  // Only an order owned by this Block can consume its content slot.
+  if (source?.owner !== block || !source.order.includes('content')) appendContent(content);
 
   return result;
 }
