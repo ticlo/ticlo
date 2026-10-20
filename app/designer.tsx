@@ -1,6 +1,6 @@
 import './styles.ts';
 import '@ticlo/designer/style/index.css';
-import React, {StrictMode, useContext, useEffect, useRef} from 'react';
+import React, {StrictMode, useContext} from 'react';
 import {App as AntdApp, Button, Checkbox, ConfigProvider, Switch, type RadioChangeEvent} from 'antd';
 import {ReloadOutlined, UndoOutlined} from '@ant-design/icons';
 import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
@@ -14,11 +14,7 @@ import {
   useActiveDesignerStage,
 } from '@ticlo/designer';
 import {initEditor, PropertyList, FileManager} from '@ticlo/editor';
-import {
-  TicloCurrentFlowConsumer,
-  TicloCurrentFlowContext,
-  type TicloLayoutContext,
-} from '@ticlo/editor/component/LayoutContext.ts';
+import {TicloCurrentFlowConsumer, type TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.ts';
 import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.tsx';
 import {BlockStageTabButton} from '@ticlo/editor/dock/block/BlockStageTabButton.tsx';
@@ -29,7 +25,7 @@ import {TooltipIconButton} from '@ticlo/editor/component/TooltipIconButton.tsx';
 import {FrameServerConnection} from '@ticlo/html';
 import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.ts';
 import {FileServerFlowStorage, TicloFileClient} from '@ticlo/remote-storage';
-import {DockLayout, type LayoutBase, type TabDefinitions, type PanelData, type TabData} from 'rc-dock';
+import {DockLayout, type LayoutBase, type TabDefinitions, type TabData} from 'rc-dock';
 import {sideColumns, stageGroup, toolGroup, createLayoutActions} from './AppLayout.ts';
 import {antdLocales, initAppI18n, LanguageSettings} from './AppI18n.tsx';
 import {createRoot} from 'react-dom/client';
@@ -41,17 +37,6 @@ import {PlaygroundConnection, PlaygroundConnectionContext} from './PlaygroundCon
 import {designerData} from './sample-data/designer.ts';
 
 const DarkModeContext = React.createContext(false);
-
-function DesignerPanelFocus({panel}: {panel: PanelData}): null {
-  const context = useContext(TicloCurrentFlowContext);
-  const contextRef = useRef(context);
-  contextRef.current = context;
-  const path = panel.activeId?.slice('designer:'.length);
-  useEffect(() => {
-    if (path) contextRef.current.onFlowFocus(path);
-  }, [path]);
-  return null;
-}
 
 function DesignerProperties({conn}: {conn: ClientConnection}) {
   const stage = useActiveDesignerStage();
@@ -126,10 +111,7 @@ function OpenEditorButton({openEditor}: {openEditor: (path: string) => void}) {
 }
 
 const layoutGroups = {
-  designerStage: {
-    ...stageGroup,
-    panelExtra: (panel: PanelData) => <DesignerPanelFocus panel={panel} />,
-  },
+  designerStage: stageGroup,
   tool: toolGroup,
 };
 
@@ -327,7 +309,7 @@ class App extends React.PureComponent<Props, State> {
       closable: false,
       content: (
         <PlaygroundConnection>
-          <DesignerStage root={this.props.root} conn={this.conn} basePath={path} onSave={save} />
+          <DesignerStage root={this.props.root} conn={this.conn} basePath={path} stageId={id} onSave={save} />
         </PlaygroundConnection>
       ),
     };

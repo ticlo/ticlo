@@ -1,4 +1,6 @@
-import React from 'react';
+import React, {useContext} from 'react';
+import {vi} from 'vitest';
+import {DockLayout} from 'rc-dock';
 import {Block, Root, type Flow} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
@@ -6,6 +8,9 @@ import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 import {initEditor} from '../../../index.ts';
 import {loadTemplate, removeLastTemplate} from '../../../util/test-util.ts';
 import {BlockStagePane} from '../BlockStagePane.tsx';
+import {TicloApp} from '../../../component/TicloApp.tsx';
+import {TicloCurrentFlowContext, type TicloCurrentFlow} from '../../../component/LayoutContext.ts';
+import {StagePanelFocus} from '../../StagePanelFocus.tsx';
 
 describe('BlockStagePane', () => {
   const flowPath = 'BlockStagePaneReload';
@@ -18,6 +23,58 @@ describe('BlockStagePane', () => {
     removeLastTemplate();
     destroyLastLocalConnection();
     Root.instance.deleteValue(flowPath);
+  });
+
+  it('activates individual dock tabs sharing a flow, including cached tabs and tabs without save callbacks', async () => {
+    Root.instance.addFlow(flowPath, {add: {'#is': 'add'}});
+    const [, conn] = makeLocalConnection(Root.instance);
+    const saveSecond = vi.fn();
+    const saveThird = vi.fn();
+    const first = BlockStagePane.createDockTab(flowPath, conn);
+    const second = BlockStagePane.createDockTab(flowPath, conn, undefined, saveSecond);
+    const third = BlockStagePane.createDockTab(flowPath, conn, undefined, saveThird);
+    let context: TicloCurrentFlow;
+    let layout: DockLayout;
+    function Panel(): null {
+      context = useContext(TicloCurrentFlowContext);
+      return null;
+    }
+    const [, div] = loadTemplate(
+      <TicloApp value={{}}>
+        <DockLayout
+          ref={(value) => {
+            layout = value;
+          }}
+          groups={{blockStage: {panelExtra: (panel) => <StagePanelFocus panel={panel} />}}}
+          defaultLayout={{
+            dockbox: {mode: 'horizontal', children: [{tabs: [first]}, {tabs: [second, third], activeId: second.id}]},
+          }}
+          style={{width: 1000, height: 500}}
+        />
+        <Panel />
+      </TicloApp>,
+      'editor'
+    );
+    await shouldHappen(() => div.querySelectorAll('.ticl-e-stage').length === 3);
+    expect(context.activeStage?.id).toBe(second.id);
+    // Clicking a tab in a different panel must activate it even though neither flow path nor panel.activeId changes.
+    div.querySelector<HTMLElement>('.ticl-e-stage-panel-tab').click();
+    await shouldHappen(() => context.activeStage.id === first.id);
+    expect(context.runStageCommand('save')).toBe(false);
+    layout.updateTab(third.id, null, true);
+    await shouldHappen(() => context.activeStage.id === third.id);
+    context.runStageCommand('save');
+    expect(saveThird).toHaveBeenCalledTimes(1);
+    const stageCount = div.querySelectorAll('.ticl-e-stage').length;
+    div.querySelector<HTMLElement>('.ticl-e-stage-tab-content').focus();
+    await shouldHappen(() => context.activeStage.id === first.id);
+    layout.updateTab(second.id, null, true);
+    await shouldHappen(() => context.activeStage.id === second.id);
+    expect(div.querySelectorAll('.ticl-e-stage').length).toBe(stageCount);
+    expect(div.querySelectorAll('.ticl-e-selected-stage').length).toBe(1);
+    context.runStageCommand('save');
+    expect(saveSecond).toHaveBeenCalledTimes(1);
+    expect(context.currentPath).toBe(flowPath);
   });
 
   it.each([true, false])('reloads a runtime worker after consecutive saves (serialize=%s)', async (serialize) => {

@@ -1,6 +1,6 @@
-import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useContext, useEffect, useId, useMemo, useRef, useState} from 'react';
 import {Block, Flow, voidFunction, type ClientConn} from '@ticlo/core';
-import {TicloCurrentFlowContext} from '@ticlo/editor/component/LayoutContext.ts';
+import {useTicloStage} from '@ticlo/editor/component/useTicloStage.ts';
 import {ElementMap, TicloPage, revealChild, useValue} from '@ticlo/react';
 import {DesignerSelectionLayer} from './DesignerSelectionLayer.tsx';
 import {DesignerLayoutContextType, type DesignerStageContextValue} from './DesignerContext.tsx';
@@ -9,6 +9,7 @@ import {useStageInput} from './useStageInput.ts';
 import {DragDrop} from 'rc-dock';
 import {useStageDrop} from './useStageDrop.ts';
 import type {DesignerDropHandlers} from './StageDrop.ts';
+import {useStageCommands} from './useStageCommands.ts';
 
 const defaultFunctionTreeTags = ['react-comp'];
 const defaultNodeTreeTags = ['react-comp'];
@@ -17,6 +18,8 @@ interface Props extends DesignerDropHandlers {
   root: Block;
   conn: ClientConn;
   basePath: string;
+  stageId?: string;
+  onSave?: () => void;
   functionTreeTags?: readonly string[];
   nodeTreeTags?: readonly string[];
 }
@@ -25,11 +28,15 @@ export function DesignerStage({
   root,
   conn,
   basePath,
+  stageId,
+  onSave,
   onDragOverT,
   onDropT,
   functionTreeTags = defaultFunctionTreeTags,
   nodeTreeTags = defaultNodeTreeTags,
 }: Props) {
+  const generatedId = useId();
+  const id = stageId ?? generatedId;
   const stageRef = useRef<HTMLDivElement>(null);
   const [elementMap] = useState(() => new ElementMap());
   const block = useValue(root, basePath);
@@ -59,23 +66,10 @@ export function DesignerStage({
     () => ({designMode, elementMap, select, addSelection}),
     [designMode, elementMap, select, addSelection]
   );
-  const historyCommands = useMemo(
-    () => ({
-      undo: () => {
-        if (!flow) return false;
-        flow.undo();
-        return true;
-      },
-      redo: () => {
-        if (!flow) return false;
-        flow.redo();
-        return true;
-      },
-    }),
-    [flow]
-  );
+  const commands = useStageCommands({conn, basePath, flow, main, designMode, select}, selectionRef, onSave);
   const stage = useMemo<DesignerStageContextValue>(
     () => ({
+      id,
       kind: 'designer',
       functionTreeTags,
       nodeTreeTags,
@@ -86,9 +80,10 @@ export function DesignerStage({
       selection,
       ...componentContext,
       setDesignMode,
-      ...historyCommands,
+      ...commands,
     }),
     [
+      id,
       basePath,
       flow,
       main,
@@ -96,16 +91,12 @@ export function DesignerStage({
       selection,
       componentContext,
       setDesignMode,
-      historyCommands,
+      commands,
       functionTreeTags,
       nodeTreeTags,
     ]
   );
-  const context = useContext(TicloCurrentFlowContext);
-  const {registerStage, unregisterStage} = context;
-  const contextRef = useRef(context);
-  contextRef.current = context;
-  const activate = useCallback(() => contextRef.current.onFlowFocus(basePath), [basePath]);
+  const activate = useTicloStage(stage, stageId == null);
   const {hover, marquee, resizePreview, startResize} = useStageInput(
     stageRef,
     componentContext,
@@ -114,20 +105,13 @@ export function DesignerStage({
     flow
   );
   const {dropPoints, ...dropHandlers} = useStageDrop(stageRef, stage, activate, {onDragOverT, onDropT});
-  useEffect(() => {
-    registerStage(basePath, stage);
-    return () => unregisterStage(basePath, stage);
-  }, [basePath, registerStage, unregisterStage, stage]);
-  useEffect(() => {
-    contextRef.current.onFlowFocus(basePath);
-    return () => contextRef.current.onFlowClosed(basePath);
-  }, [basePath]);
   return (
     <DragDrop
       className={designMode ? 'ticl-d-stage ticl-d-stage-design' : 'ticl-d-stage'}
       ref={stageRef}
       tabIndex={designMode ? 0 : undefined}
       onPointerDownCapture={activate}
+      onFocusCapture={activate}
       {...dropHandlers}
     >
       {flow ? (

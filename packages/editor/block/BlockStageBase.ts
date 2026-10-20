@@ -56,6 +56,8 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
 
   abstract getRootElement(): HTMLElement;
 
+  abstract focus(): void;
+
   abstract onChildrenSizeChanged(): void;
 
   // automatic block location
@@ -465,16 +467,8 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     return true;
   }
 
-  focus() {
-    this.getRootElement()?.focus({preventScroll: true});
-    if (this.context.currentPath !== this.props.basePath) {
-      this.context.onFlowFocus(this.props.basePath);
-    }
-  }
-
   componentWillUnmount() {
     const {conn, basePath} = this.props;
-    this.context.onFlowClosed(basePath);
     this.staticListener.unsubscribe();
     this.scopeListener.unsubscribe();
     conn.unwatch(basePath, this.watchListener);

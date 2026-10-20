@@ -1,9 +1,10 @@
-import React, {StrictMode, useContext, useEffect, useState} from 'react';
+import React, {StrictMode, useContext, useState} from 'react';
 import {expectTypeOf, vi} from 'vitest';
 import {Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {BlockStage} from '../../block/BlockStage.tsx';
 import {TicloApp} from '../TicloApp.tsx';
+import {useTicloStage} from '../useTicloStage.ts';
 import {
   TicloCurrentFlowContext,
   TicloLayoutContextType,
@@ -23,8 +24,21 @@ describe('TicloApp stage registry', () => {
 
   it('shares active stages and preserves keyboard commands when stages change or close', async () => {
     const save = vi.fn(() => true);
-    const first: TicloStage = {kind: 'dataflow', selection: {paths: []}, select: vi.fn(), save};
-    const second: TicloStage = {kind: 'custom', selection: {paths: []}, select: vi.fn()};
+    const first: TicloStage = {
+      id: 'first',
+      basePath: 'first',
+      kind: 'dataflow',
+      selection: {paths: []},
+      select: vi.fn(),
+      save,
+    };
+    const second: TicloStage = {
+      id: 'second',
+      basePath: 'second',
+      kind: 'custom',
+      selection: {paths: []},
+      select: vi.fn(),
+    };
     interface CustomLayoutContext extends TicloLayoutContext {
       workspaceName: string;
     }
@@ -33,12 +47,8 @@ describe('TicloApp stage registry', () => {
     let layoutContext: CustomLayoutContext;
     let replaceSecond: (stage: TicloStage) => void;
     let closeSecond: () => void;
-    function Register({path, stage}: {path: string; stage: TicloStage}): null {
-      const {registerStage, unregisterStage} = useContext(TicloCurrentFlowContext);
-      useEffect(() => {
-        registerStage(path, stage);
-        return () => unregisterStage(path, stage);
-      }, [path, stage, registerStage, unregisterStage]);
+    function Register({stage}: {stage: TicloStage}): null {
+      useTicloStage(stage);
       return null;
     }
     function Contents() {
@@ -50,8 +60,8 @@ describe('TicloApp stage registry', () => {
       closeSecond = () => setOpen(false);
       return (
         <>
-          <Register path="first" stage={first} />
-          {open && <Register path="second" stage={stage} />}
+          <Register stage={first} />
+          {open && <Register stage={stage} />}
           <input />
         </>
       );
@@ -63,7 +73,7 @@ describe('TicloApp stage registry', () => {
         </TicloApp>
       </StrictMode>
     );
-    await shouldHappen(() => context != null);
+    await shouldHappen(() => context?.activeStage === second);
     expect(layoutContext.workspaceName).toBe('Example');
     context.onFlowFocus('first');
     await shouldHappen(() => context.activeStage === first);
@@ -92,6 +102,84 @@ describe('TicloApp stage registry', () => {
     context.onFlowFocus('first');
     await shouldHappen(() => context.activeStage === first);
     context.onFlowClosed('first');
+    await shouldHappen(() => context.activeStage === null && context.currentPath === null);
+  });
+
+  it('routes all commands to one stage ID even when views share a flow', async () => {
+    let context: TicloCurrentFlow;
+    function Panel(): null {
+      context = useContext(TicloCurrentFlowContext);
+      return null;
+    }
+    const [, div] = loadTemplate(
+      <TicloApp value={{}}>
+        <Panel />
+      </TicloApp>
+    );
+    await shouldHappen(() => context != null);
+    const first = {
+      id: 'dataflow',
+      basePath: 'shared',
+      kind: 'dataflow',
+      selection: {paths: [] as string[]},
+      select: vi.fn(),
+      save: vi.fn(() => true),
+      copy: vi.fn(() => true),
+      paste: vi.fn(() => true),
+      undo: vi.fn(() => true),
+      redo: vi.fn(() => true),
+      deleteSelection: vi.fn(() => true),
+    };
+    const second: TicloStage = {
+      id: 'designer',
+      basePath: 'shared',
+      kind: 'designer',
+      selection: {paths: []},
+      select: vi.fn(),
+      copy: vi.fn(() => false),
+      paste: vi.fn(() => false),
+    };
+    context.registerStage(first);
+    context.activateStage(second.id);
+    expect(context.runStageCommand('copy')).toBe(false);
+    context.registerStage(second);
+    const host = div.querySelector('.ticl-e-app');
+    for (const [key, modifiers] of [
+      ['s', {ctrlKey: true}],
+      ['c', {metaKey: true}],
+      ['z', {ctrlKey: true}],
+      ['z', {ctrlKey: true, shiftKey: true}],
+      ['y', {ctrlKey: true}],
+      ['Delete', {}],
+    ] as [string, KeyboardEventInit][]) {
+      const event = new KeyboardEvent('keydown', {key, ...modifiers, bubbles: true, cancelable: true});
+      host.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(false);
+    }
+    host.dispatchEvent(new ClipboardEvent('paste', {bubbles: true}));
+    for (const command of ['save', 'copy', 'paste', 'undo', 'redo', 'deleteSelection'] as const) {
+      expect(first[command]).not.toHaveBeenCalled();
+    }
+    expect(second.copy).toHaveBeenCalledTimes(1);
+    expect(second.paste).toHaveBeenCalledTimes(1);
+
+    // Updating a background snapshot must not activate it.
+    const updated = {...first, selection: {paths: ['shared.a']}};
+    context.registerStage(updated);
+    await shouldHappen(() => context.activeStage === second);
+    expect(context.currentPath).toBe('shared');
+    // Activation and execution can happen before React renders the new context.
+    context.activateStage(first.id);
+    expect(context.runStageCommand('copy')).toBe(true);
+    expect(first.copy).toHaveBeenCalledTimes(1);
+    await shouldHappen(() => context.activeStage === updated);
+    context.onFlowFocus('shared');
+    expect(context.runStageCommand('save')).toBe(true);
+    expect(first.save).toHaveBeenCalledTimes(1);
+    context.unregisterStage(second.id);
+    await shouldHappen(() => context.activeStage === updated);
+    context.unregisterStage(first.id);
+    expect(context.runStageCommand('copy')).toBe(false);
     await shouldHappen(() => context.activeStage === null && context.currentPath === null);
   });
 

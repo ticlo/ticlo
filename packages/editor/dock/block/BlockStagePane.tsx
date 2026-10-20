@@ -14,6 +14,7 @@ import {getFuncLibPath} from '../../util/FunctionLib.ts';
 interface Props {
   conn: ClientConn;
   basePath: string;
+  stageId?: string;
   /** Hide the property list and its toggle button. */
   disablePropertyList?: boolean;
   onSelect?: (keys: string[], handled: boolean) => void;
@@ -30,6 +31,8 @@ interface State {
 
 export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   state: State = {showPropertyList: true, selectedKeys: [], sizes: [1000, 1], blockKey: 'Flow'};
+  private stage = React.createRef<BlockStage>();
+  private activate = () => this.stage.current?.activate();
 
   static editorCount = 0;
 
@@ -47,9 +50,9 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     return {
       id,
       closable: !onSave, // use the custom close button when onSave is not null
-      title: onSave ? <BlockStageTabButton conn={conn} id={id} path={path} title={tabName} onSave={onSave} /> : tabName,
+      title: <BlockStageTabButton conn={conn} id={id} path={path} title={tabName} onSave={onSave} />,
       group: 'blockStage',
-      content: <BlockStagePane conn={conn} basePath={path} onSelect={onSelect} onSave={onSave} />,
+      content: <BlockStagePane conn={conn} basePath={path} stageId={id} onSelect={onSelect} onSave={onSave} />,
     } as TabData;
   }
 
@@ -124,16 +127,24 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   };
 
   renderImpl() {
-    const {conn, basePath, onSave, disablePropertyList} = this.props;
+    const {conn, basePath, stageId, onSave, disablePropertyList} = this.props;
     const {showPropertyList, selectedKeys, sizes, blockKey, funcLib = basePath} = this.state;
 
     return (
-      <div className="ticl-e-hbox ticl-e-stage-tab-content" ref={this.getRef} tabIndex={0}>
+      <div
+        className="ticl-e-hbox ticl-e-stage-tab-content"
+        ref={this.getRef}
+        tabIndex={0}
+        onPointerDownCapture={this.activate}
+        onFocusCapture={this.activate}
+      >
         {blockKey ? (
           <BlockStage
+            ref={this.stage}
             key={blockKey}
             conn={conn}
             basePath={basePath}
+            stageId={stageId}
             funcLib={funcLib}
             onSave={onSave}
             onSelect={this.onSelect}

@@ -1,7 +1,13 @@
 import React, {useCallback, useContext, useMemo, useRef, useState, ReactNode} from 'react';
 import {ConfigProvider, theme} from 'antd';
 import {DragLayerContext} from 'rc-dock';
-import {TicloCurrentFlowContext, TicloLayoutContext, TicloLayoutContextType, TicloStage} from './LayoutContext.ts';
+import {
+  TicloCurrentFlowContext,
+  TicloLayoutContext,
+  TicloLayoutContextType,
+  TicloStage,
+  TicloStageCommand,
+} from './LayoutContext.ts';
 
 export interface TicloAppProps<Context extends TicloLayoutContext = TicloLayoutContext> {
   value: Context;
@@ -11,59 +17,90 @@ export interface TicloAppProps<Context extends TicloLayoutContext = TicloLayoutC
 }
 
 function useTicloContext(value: TicloLayoutContext) {
-  const [currentPath, setCurrentPath] = useState<string | null>(null);
-  const currentPathRef = useRef<string | null>(null);
-  const [stages, setStages] = useState(() => new Map<string, TicloStage[]>());
-  const stagesRef = useRef(stages);
-  stagesRef.current = stages;
-  currentPathRef.current = currentPath;
-
-  const registerStage = useCallback((path: string, stage: TicloStage) => {
-    setStages((previous) => {
-      const registered = previous.get(path) ?? [];
-      if (registered.includes(stage)) return previous;
-      return new Map(previous).set(path, [...registered, stage]);
-    });
+  const [registry, setRegistry] = useState(() => ({
+    stages: new Map<string, TicloStage>(),
+    activeId: null as string | null,
+    currentPath: null as string | null,
+  }));
+  const registryRef = useRef(registry);
+  const valueRef = useRef(value);
+  valueRef.current = value;
+  // Update the ref synchronously so focus and commands in the same event use the same stage.
+  const updateRegistry = useCallback((update: (previous: typeof registry) => typeof registry) => {
+    const next = update(registryRef.current);
+    if (next === registryRef.current) return;
+    registryRef.current = next;
+    setRegistry(next);
   }, []);
 
-  const unregisterStage = useCallback((path: string, stage: TicloStage) => {
-    setStages((previous) => {
-      const registered = previous.get(path);
-      if (!registered?.includes(stage)) return previous;
-      const next = new Map(previous);
-      const remaining = registered.filter((item) => item !== stage);
-      if (remaining.length) next.set(path, remaining);
-      else next.delete(path);
-      return next;
-    });
+  const registerStage = useCallback(
+    (stage: TicloStage) => {
+      updateRegistry((previous) => {
+        if (previous.stages.get(stage.id) === stage) return previous;
+        return {
+          ...previous,
+          stages: new Map(previous.stages).set(stage.id, stage),
+          currentPath: previous.activeId === stage.id ? stage.basePath : previous.currentPath,
+        };
+      });
+    },
+    [updateRegistry]
+  );
+
+  const unregisterStage = useCallback(
+    (id: string) => {
+      updateRegistry((previous) => {
+        if (!previous.stages.has(id)) return previous;
+        const stages = new Map(previous.stages);
+        stages.delete(id);
+        return previous.activeId === id ? {stages, activeId: null, currentPath: null} : {...previous, stages};
+      });
+    },
+    [updateRegistry]
+  );
+
+  const activateStage = useCallback(
+    (id: string) => {
+      const stage = registryRef.current.stages.get(id);
+      updateRegistry((previous) =>
+        previous.activeId === id ? previous : {...previous, activeId: id, currentPath: stage?.basePath ?? null}
+      );
+      if (stage) valueRef.current.onFlowFocus?.(stage.basePath);
+    },
+    [updateRegistry]
+  );
+
+  const runStageCommand = useCallback((...command: TicloStageCommand) => {
+    const {stages, activeId} = registryRef.current;
+    const stage = stages.get(activeId);
+    if (command[0] === 'paste') return stage?.paste?.(command[1]) ?? false;
+    return stage?.[command[0]]?.() ?? false;
   }, []);
 
   const currentFlow = useMemo(
     () => ({
-      currentPath,
-      activeStage: stages.get(currentPath)?.at(-1) ?? null,
+      currentPath: registry.currentPath,
+      activeStage: registry.stages.get(registry.activeId) ?? null,
+      activateStage,
+      runStageCommand,
       onFlowFocus: (path: string) => {
-        setCurrentPath((prev) => {
-          if (prev === path) {
-            return prev;
-          }
-          return path;
+        updateRegistry((previous) => {
+          if (previous.currentPath === path) return previous;
+          const stage = [...previous.stages.values()].findLast((stage) => stage.basePath === path);
+          return {...previous, currentPath: path, activeId: stage?.id ?? null};
         });
         value.onFlowFocus?.(path);
       },
       onFlowClosed: (path: string) => {
-        setCurrentPath((prev) => {
-          if (prev === path) {
-            return null;
-          }
-          return prev;
-        });
+        updateRegistry((previous) =>
+          previous.currentPath === path ? {...previous, activeId: null, currentPath: null} : previous
+        );
         value.onFlowClosed?.(path);
       },
       registerStage,
       unregisterStage,
     }),
-    [currentPath, stages, registerStage, unregisterStage, value]
+    [registry, activateStage, runStageCommand, updateRegistry, registerStage, unregisterStage, value]
   );
 
   const wrappedLayoutContext: TicloLayoutContext = useMemo(
@@ -80,22 +117,6 @@ function useTicloContext(value: TicloLayoutContext) {
     [value, currentFlow]
   );
 
-  const forEachCurrentStage = useCallback((callback: (stage: TicloStage) => boolean) => {
-    const currentPath = currentPathRef.current;
-    if (!currentPath) {
-      return false;
-    }
-    const stages = stagesRef.current.get(currentPath);
-    if (stages) {
-      for (const stage of stages.concat()) {
-        if (callback(stage)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }, []);
-
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
       if (event.defaultPrevented) {
@@ -110,33 +131,33 @@ function useTicloContext(value: TicloLayoutContext) {
       switch (key) {
         case 's': {
           if (event.ctrlKey || event.metaKey) {
-            handled = forEachCurrentStage((stage) => stage.save?.() ?? false);
+            handled = runStageCommand('save');
           }
           break;
         }
         case 'c': {
           if (!isEditable && (event.ctrlKey || event.metaKey)) {
-            handled = forEachCurrentStage((stage) => stage.copy?.() ?? false);
+            handled = runStageCommand('copy');
           }
           break;
         }
         case 'z': {
           if (!isEditable && (event.ctrlKey || event.metaKey) && event.shiftKey) {
-            handled = forEachCurrentStage((stage) => stage.redo?.() ?? false);
+            handled = runStageCommand('redo');
           } else if (!isEditable && (event.ctrlKey || event.metaKey)) {
-            handled = forEachCurrentStage((stage) => stage.undo?.() ?? false);
+            handled = runStageCommand('undo');
           }
           break;
         }
         case 'y': {
           if (!isEditable && (event.ctrlKey || event.metaKey)) {
-            handled = forEachCurrentStage((stage) => stage.redo?.() ?? false);
+            handled = runStageCommand('redo');
           }
           break;
         }
         case 'delete': {
           if (!isEditable) {
-            handled = forEachCurrentStage((stage) => stage.deleteSelection?.() ?? false);
+            handled = runStageCommand('deleteSelection');
           }
           break;
         }
@@ -147,7 +168,7 @@ function useTicloContext(value: TicloLayoutContext) {
         event.stopPropagation();
       }
     },
-    [forEachCurrentStage]
+    [runStageCommand]
   );
 
   const onPaste = useCallback(
@@ -158,12 +179,12 @@ function useTicloContext(value: TicloLayoutContext) {
       const isEditable =
         event.target instanceof HTMLElement &&
         event.target.closest('input, textarea, [contenteditable="true"], [contenteditable="plaintext-only"]') != null;
-      if (!isEditable && forEachCurrentStage((stage) => stage.paste?.(event) ?? false)) {
+      if (!isEditable && runStageCommand('paste', event)) {
         event.preventDefault();
         event.stopPropagation();
       }
     },
-    [forEachCurrentStage]
+    [runStageCommand]
   );
 
   return {currentFlow, wrappedLayoutContext, onKeyDown, onPaste};

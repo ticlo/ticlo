@@ -1,4 +1,30 @@
-# Property editors
+# Editor
+
+## Current stage and commands
+
+`TicloApp` owns the stage registry used by the editor, playground, and designer.
+Each view has a unique, stable `TicloStage.id` and a `basePath`. Several views
+can share one flow path, including a dataflow stage and a designer stage.
+`currentPath` identifies the flow; `activeStage` identifies the single view
+whose selection and commands are current.
+
+Standalone stages activate on mount, pointer input, or focus. Supplying `stageId`
+leaves initial activation to the host. Dock tabs use their tab ID as `stageId`
+and `StagePanelFocus` activates the selected tab, including cached tabs. An ID
+can activate before its stage registers; background mounts retain that choice.
+Updating a registered stage's selection or commands preserves the active view.
+Unregistering a background view leaves it
+unchanged; unregistering the active view clears it until another view activates.
+`useTicloStage` handles registration for function components; its optional
+`activateOnMount` argument defaults to true.
+
+Keyboard save, copy, paste, undo, redo, and deletion invoke only the active
+stage. An unsupported or declined command does not fall through to another
+view. External controls can use `runStageCommand` for the same dispatch.
+`activateStage(id)` selects a specific view. `onFlowFocus(path)` supports flow
+navigation and preserves the active view when its path already matches.
+
+## Property editors
 
 A property's descriptor `type` selects its editor. The registry is in
 [value/index.ts](../packages/editor/property/value/index.ts), with basic types

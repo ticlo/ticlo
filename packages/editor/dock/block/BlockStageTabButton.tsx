@@ -14,7 +14,7 @@ interface Props {
   title: React.ReactNode;
   id: string;
   path: string;
-  onSave: () => void;
+  onSave?: () => void;
 }
 
 interface State {
@@ -86,11 +86,11 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
       <TicloCurrentFlowContext.Consumer>
         {(currentFlow) => (
           <span
-            className={`ticl-e-stage-panel-tab${currentFlow.currentPath === this.props.path ? ' ticl-e-stage-panel-tab-focused' : ''}`}
-            onClick={() => currentFlow.onFlowFocus(this.props.path)}
+            className={`ticl-e-stage-panel-tab${currentFlow.activeStage?.id === this.props.id ? ' ticl-e-stage-panel-tab-focused' : ''}`}
+            onClick={() => currentFlow.activateStage(this.props.id)}
           >
             <span className="ticl-e-stage-panel-tab-title">{title}</span>
-            {closeButtun}
+            {onSave && closeButtun}
           </span>
         )}
       </TicloCurrentFlowContext.Consumer>

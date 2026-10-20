@@ -7,6 +7,7 @@ import {
   type TicloLayoutContext,
   type TicloSelection,
   type TicloStage,
+  type TicloStageCommands,
 } from '@ticlo/editor/component/LayoutContext.ts';
 
 export interface DesignerLayoutContext extends TicloLayoutContext {
@@ -33,6 +34,10 @@ export interface DesignerStageContextValue extends TicloStage<DesignerSelection>
   selection: DesignerSelection;
   select: (items: (Block | string)[]) => boolean;
   addSelection: (items: (Block | string)[]) => boolean;
+  save: TicloStageCommands['save'];
+  copy: TicloStageCommands['copy'];
+  paste: TicloStageCommands['paste'];
+  deleteSelection: TicloStageCommands['deleteSelection'];
   undo: () => boolean;
   redo: () => boolean;
 }

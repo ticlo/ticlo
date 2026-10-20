@@ -10,11 +10,17 @@ export interface TicloStageCommands {
   deleteSelection(): boolean;
 }
 
+export type TicloStageCommand =
+  | [command: Exclude<keyof TicloStageCommands, 'paste'>]
+  | [command: 'paste', event: React.ClipboardEvent];
+
 export interface TicloSelection {
   paths: string[];
 }
 
 export interface TicloStage<Selection extends TicloSelection = TicloSelection> extends Partial<TicloStageCommands> {
+  id: string;
+  basePath: string;
   kind: string;
   functionTreeTags?: readonly string[];
   nodeTreeTags?: readonly string[];
@@ -25,10 +31,12 @@ export interface TicloStage<Selection extends TicloSelection = TicloSelection> e
 export interface TicloCurrentFlow<Stage extends TicloStage = TicloStage> {
   currentPath?: string | null;
   activeStage: Stage | null;
+  activateStage: (id: string) => void;
+  runStageCommand: (...command: TicloStageCommand) => boolean;
   onFlowFocus: (path: string) => void;
   onFlowClosed: (path: string) => void;
-  registerStage: (path: string, stage: Stage) => void;
-  unregisterStage: (path: string, stage: Stage) => void;
+  registerStage: (stage: Stage) => void;
+  unregisterStage: (id: string) => void;
 }
 
 export interface TicloLayoutContext<Stage extends TicloStage = TicloStage> extends Partial<TicloCurrentFlow<Stage>> {
@@ -49,6 +57,8 @@ export interface TicloLayoutContext<Stage extends TicloStage = TicloStage> exten
 
 export const TicloCurrentFlowContext = createContext<TicloCurrentFlow>({
   activeStage: null,
+  activateStage: voidFunction,
+  runStageCommand: () => false,
   onFlowFocus: voidFunction,
   onFlowClosed: voidFunction,
   registerStage: voidFunction,
@@ -57,6 +67,8 @@ export const TicloCurrentFlowContext = createContext<TicloCurrentFlow>({
 export const TicloCurrentFlowConsumer = TicloCurrentFlowContext.Consumer;
 
 export const TicloLayoutContextType = createContext<TicloLayoutContext>({
+  activateStage: voidFunction,
+  runStageCommand: () => false,
   onFlowFocus: voidFunction,
   onFlowClosed: voidFunction,
   registerStage: voidFunction,

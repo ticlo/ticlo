@@ -766,8 +766,14 @@ describe('DesignerStage', () => {
       await shouldHappen(() => !node('hidden'));
 
       const secondPath = `${path}Second`;
-      const dataflow = {kind: 'dataflow', selection: {paths: [] as string[]}, select: () => {}};
-      context.registerStage(secondPath, dataflow);
+      const dataflow = {
+        id: 'dataflow',
+        basePath: secondPath,
+        kind: 'dataflow',
+        selection: {paths: [] as string[]},
+        select: () => {},
+      };
+      context.registerStage(dataflow);
       context.onFlowFocus(secondPath);
       await shouldHappen(() => context.activeStage === dataflow && functionIds().includes(nodeId));
       expect(functionIds()).toEqual([functionId, nodeId]);
@@ -775,7 +781,7 @@ describe('DesignerStage', () => {
       context.onFlowFocus(path);
       await shouldHappen(() => context.activeStage?.kind === 'designer' && !functionIds().includes(nodeId));
       expect(functionIds()).toEqual([functionId]);
-      context.unregisterStage(secondPath, dataflow);
+      context.unregisterStage(dataflow.id);
     } finally {
       globalFunctions.delete(functionId);
       globalFunctions.delete(nodeId);

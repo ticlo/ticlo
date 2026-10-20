@@ -53,6 +53,7 @@ function getPrevZoom(v: number) {
 }
 
 interface BlockStageProps extends StagePropsBase {
+  stageId?: string;
   toolButtons?: React.ReactNode;
   onSave?: () => void;
 }
@@ -62,6 +63,19 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   static contextType = TicloCurrentFlowContext;
 
   private stageContext: TicloStage | null = null;
+  private static stageCount = 0;
+  private defaultStageId = `dataflow:${BlockStage.stageCount++}`;
+
+  get stageId() {
+    return this.props.stageId ?? this.defaultStageId;
+  }
+
+  activate = () => this.context.activateStage(this.stageId);
+
+  focus() {
+    this.getRootElement()?.focus({preventScroll: true});
+    this.activate();
+  }
 
   select = (paths: string[]) => {
     for (const block of this._blocks.values()) block.setSelected(paths.includes(block.path));
@@ -71,9 +85,8 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
 
   protected onSelectionChange(paths: string[]) {
     if (this.stageContext && !arrayEqual(paths, this.stageContext.selection.paths)) {
-      this.context.unregisterStage(this.props.basePath, this.stageContext);
       this.stageContext = {...this.stageContext, selection: {paths}};
-      this.context.registerStage(this.props.basePath, this.stageContext);
+      this.context.registerStage(this.stageContext);
     }
     super.onSelectionChange(paths);
   }
@@ -148,6 +161,8 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   componentDidMount() {
     super.componentDidMount();
     this.stageContext = {
+      id: this.stageId,
+      basePath: this.props.basePath,
       kind: this.kind,
       selection: {paths: []},
       select: this.select,
@@ -158,7 +173,8 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
       redo: this.redo,
       deleteSelection: this.deleteSelection,
     };
-    this.context.registerStage(this.props.basePath, this.stageContext);
+    this.context.registerStage(this.stageContext);
+    if (this.props.stageId == null) this.activate();
     this.resizeObserver = new ResizeObserver(this.handleResize);
     this.resizeObserver.observe(this._rootNode);
   }
@@ -293,11 +309,14 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
     }
   };
 
-  componentDidUpdate(prevProps: Readonly<StagePropsBase>, prevState: Readonly<StageState>, snapshot?: any): void {
+  componentDidUpdate(prevProps: Readonly<BlockStageProps>, prevState: Readonly<StageState>, snapshot?: any): void {
     super.componentDidUpdate(prevProps, prevState);
-    if (prevProps.basePath !== this.props.basePath) {
-      this.context.unregisterStage(prevProps.basePath, this.stageContext);
-      this.context.registerStage(this.props.basePath, this.stageContext);
+    if (prevProps.basePath !== this.props.basePath || prevProps.stageId !== this.props.stageId) {
+      const wasActive = this.context.activeStage?.id === this.stageContext.id;
+      if (this.stageContext.id !== this.stageId) this.context.unregisterStage(this.stageContext.id);
+      this.stageContext = {...this.stageContext, id: this.stageId, basePath: this.props.basePath};
+      this.context.registerStage(this.stageContext);
+      if (wasActive) this.activate();
     }
     if (this._pendingScroll) {
       this._scrollX = this._pendingScroll[0];
@@ -641,9 +660,11 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
     return (
       <div
         style={style}
-        className={`ticl-e-stage${this.context.currentPath === basePath ? ' ticl-e-selected-stage' : ''}`}
+        className={`ticl-e-stage${this.context.activeStage?.id === this.stageId ? ' ticl-e-selected-stage' : ''}`}
         ref={this.getRootRef}
         onMouseDown={this.onMouseDown}
+        onPointerDownCapture={this.activate}
+        onFocusCapture={this.activate}
         tabIndex={0}
       >
         <DragDropDiv
@@ -865,7 +886,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   };
 
   componentWillUnmount() {
-    this.context.unregisterStage(this.props.basePath, this.stageContext);
+    this.context.unregisterStage(this.stageId);
     this.stageContext = null;
 
     if (this.resizeObserver) {

@@ -1,5 +1,7 @@
 import type {ClientConn} from '@ticlo/core';
+import {createElement} from 'react';
 import type {TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.ts';
+import {StagePanelFocus} from '@ticlo/editor/dock/StagePanelFocus.tsx';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.tsx';
 import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.tsx';
 import type {DockLayout, SideColumns, TabGroup} from 'rc-dock';
@@ -15,6 +17,7 @@ export const stageGroup: TabGroup = {
   animated: false,
   floatable: true,
   maximizable: true,
+  panelExtra: (panel) => createElement(StagePanelFocus, {panel}),
 };
 
 export const toolGroup: TabGroup = {

@@ -32,6 +32,19 @@ and React input handlers do not run. Forwarded events target the stage and
 are synthetic (`isTrusted: false`). Native wheel scrolling remains enabled unless
 a stage or ancestor listener prevents its default. Preview restores page input.
 
+Designer stages use the app's shared keyboard commands: Ctrl/Cmd+S saves,
+Ctrl/Cmd+C copies, paste inserts components, Delete removes the selection,
+Ctrl/Cmd+Z undoes, and Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y redoes. Copy operates on
+selected siblings. Paste inserts siblings under the selected component's parent,
+or into `#main` when the selection is empty or contains only `#main`. Name
+conflicts are renamed, and pasted components are appended to the parent's
+`#order` and selected. Commands respect the connection's edit policy. Copy,
+paste, and deletion are inactive in preview mode. Text inputs retain their
+editing shortcuts; save remains available while editing properties.
+
+`DesignerStage` accepts an optional `onSave` callback for the hosting editor's
+save action. Without one, it saves through `conn.applyFlowChange(basePath)`.
+
 Function drags use the same connection-scoped payload as the node tree. Child
 insertion resolves the frontmost hit component, then its nearest ancestor whose
 descriptor accepts the function's tags. Release creates a uniquely named Block
