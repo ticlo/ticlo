@@ -9,6 +9,11 @@
     '@name': "Enfants " # translated from: Children\s
   style:
     '@name': Style # translated from: Style
+  selectedIndex:
+    '@name': Indice sélectionné # translated from: Selected Index
+
+view-deck:
+  '@name': Conteneur de vues # translated from: View Deck
 
 jsx:
   script:

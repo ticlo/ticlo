@@ -9,6 +9,11 @@
     '@name': 'Children '
   style:
     '@name': Style
+  selectedIndex:
+    '@name': Selected Index
+
+view-deck:
+  '@name': View Deck
 
 jsx:
   script:

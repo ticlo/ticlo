@@ -9,6 +9,11 @@
     '@name': 子元素
   style:
     '@name': 样式
+  selectedIndex:
+    '@name': 选中索引 # translated from: Selected Index
+
+view-deck:
+  '@name': 视图容器 # translated from: View Deck
 
 jsx:
   script:

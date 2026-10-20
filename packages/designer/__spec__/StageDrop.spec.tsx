@@ -222,7 +222,7 @@ describe('designer stage drops', () => {
     }
   );
 
-  it.each(['absolute', 'horizontal', 'vertical'])(
+  it.each(['absolute', 'horizontal', 'vertical', 'view-deck'])(
     'creates a %s layout with its initial 200x200 style',
     async (layout) => {
       const {main, outline, begin, dragTo, page} = await mount({'#is': 'react:absolute'}, {}, `react:${layout}`);

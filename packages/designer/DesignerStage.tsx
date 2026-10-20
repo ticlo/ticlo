@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Block, Flow, voidFunction, type ClientConn} from '@ticlo/core';
 import {TicloCurrentFlowContext} from '@ticlo/editor/component/LayoutContext.ts';
-import {ElementMap, TicloPage, useValue} from '@ticlo/react';
+import {ElementMap, TicloPage, revealChild, useValue} from '@ticlo/react';
 import {DesignerSelectionLayer} from './DesignerSelectionLayer.tsx';
 import {DesignerLayoutContextType, type DesignerStageContextValue} from './DesignerContext.tsx';
 import {useSelection} from './useSelection.ts';
@@ -44,6 +44,17 @@ export function DesignerStage({
   }, [flow]);
   const {selection, selectionRef, select, addSelection} = useSelection(root, main);
   const {designMode = true, setDesignMode = voidFunction} = useContext(DesignerLayoutContextType);
+  useEffect(() => {
+    if (!designMode) return;
+    const ancestors: [Block, Block][] = [];
+    for (let child = selection.blocks.at(-1); child && child !== main;) {
+      const parent = child.getParent();
+      if (!parent) break;
+      ancestors.push([parent, child]);
+      child = parent;
+    }
+    for (const [parent, child] of ancestors.reverse()) revealChild(parent, child);
+  }, [designMode, main, selection]);
   const componentContext = useMemo(
     () => ({designMode, elementMap, select, addSelection}),
     [designMode, elementMap, select, addSelection]

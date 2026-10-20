@@ -68,6 +68,72 @@ describe('DesignerStage', () => {
     await shouldHappen(() => div.textContent === 'React page');
   });
 
+  it('reveals selected descendants in nested View Decks without saving selection or changing bindings', async () => {
+    const flow = Root.instance.addFlow(path, {
+      'index': 0,
+      '#main': {
+        '#is': 'react:view-deck',
+        '~selectedIndex': '##.index',
+        '#order': ['first', 'second'],
+        'first': {'#is': 'react:span', 'content': 'First'},
+        'second': {
+          '#is': 'react:view-deck',
+          'selectedIndex': 0,
+          '#order': ['innerFirst', 'innerSecond'],
+          'innerFirst': {'#is': 'react:span', 'content': 'Inner first'},
+          'innerSecond': {'#is': 'react:span', 'content': 'Inner second'},
+        },
+      },
+    });
+    const main = flow.getValue('#main') as Block;
+    const first = main.getValue('first') as Block;
+    const inner = main.getValue('second') as Block;
+    const target = inner.getValue('innerSecond') as Block;
+    const saved = flow.save();
+    let stage: DesignerStageContextValue;
+    function Panel(): null {
+      stage = useActiveDesignerStage();
+      return null;
+    }
+    const [, conn] = makeLocalConnection(Root.instance);
+    const [, div] = loadTemplate(
+      <DesignerApp value={{}}>
+        <DesignerStage root={Root.instance} conn={conn} basePath={path} />
+        <DesignerNodeTree />
+        <Panel />
+      </DesignerApp>
+    );
+    const page = () => div.querySelector('.ticl-d-page');
+    await shouldHappen(() => stage && page()?.textContent === 'First');
+    expect(stage.elementMap.getElements(target)).toBeUndefined();
+
+    stage.select([target]);
+    await shouldHappen(
+      () => page().textContent === 'Inner second' && stage.elementMap.getElements(target)?.length === 1
+    );
+    expect(main.getValue('selectedIndex')).toBe(1);
+    expect(inner.getValue('selectedIndex')).toBe(1);
+    expect(main.getProperty('selectedIndex')._bindingPath).toBe('##.index');
+    expect(flow.save()).toEqual(saved);
+    const node = (name: string) => querySingle(`//div.ticl-e-tree-node-text[text()='${name}']`, div);
+    await shouldHappen(() => node('innerSecond'));
+    expect(node('first')).toBeTruthy();
+    expect(node('innerFirst')).toBeTruthy();
+
+    stage.setDesignMode(false);
+    await shouldHappen(() => !stage.designMode);
+    stage.select([first]);
+    await shouldHappen(() => stage.selection.blocks[0] === first);
+    expect(page().textContent).toBe('Inner second');
+
+    stage.setDesignMode(true);
+    await shouldHappen(() => page().textContent === 'First');
+    expect(main.getValue('selectedIndex')).toBe(0);
+    expect(flow.save()).toEqual(saved);
+    flow.updateValue('index', 1);
+    await shouldHappen(() => page().textContent === 'Inner second');
+  });
+
   it('only uses #main directly on a flow as the page entry', async () => {
     const flow = Root.instance.addFlow(path, {
       child: {'#main': {'#is': 'react:p', 'content': 'Nested main'}},

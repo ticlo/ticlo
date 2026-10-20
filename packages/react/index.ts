@@ -13,6 +13,8 @@ export {TicloPage} from './comp/TicloPage.tsx';
 export type {TicloPageProps} from './comp/TicloPage.tsx';
 export * from './markdown/index.ts';
 export {Horizontal, Vertical, Absolute} from './layout/Layout.tsx';
+export {ViewDeck} from './layout/ViewDeck.tsx';
+export {revealChild, revealChildMetaKey, selectedIndexProperty, toSelectedIndex} from './comp/Selection.ts';
 
 import {globalFunctions} from '@ticlo/core';
 import './functions/ToComponent.tsx';
