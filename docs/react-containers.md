@@ -10,6 +10,11 @@ the previous React child. Hidden Blocks, their bindings, and their dataflow rema
 active and available in the node tree. React-local state is reset on remount;
 state that must survive switching belongs in Blocks.
 
+View Deck uses a single-cell inline grid. An in-flow child with automatic
+dimensions stretches to the deck's defined size; automatic deck dimensions can
+grow from the child's content. Explicit child dimensions are respected. Overflow
+and minimum sizes remain configurable on the child.
+
 View Deck defaults to index `0`. Numeric strings are accepted and fractions are
 truncated toward zero. Missing, invalid, non-finite, and negative indices use the
 container's default. A nonnegative index beyond the child list renders no child.

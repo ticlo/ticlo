@@ -18,3 +18,10 @@
     position: absolute;
   }
 }
+
+.ticl-view-deck {
+  display: inline-grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  place-items: stretch;
+}
