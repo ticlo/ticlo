@@ -557,8 +557,8 @@ describe('DesignerStage', () => {
     second.dispatchEvent(new MouseEvent('mouseup', {bubbles: true, ctrlKey: true}));
     await shouldHappen(() => activeStage.selection.blocks.length === 1 && selected().length === 1);
     expect(activeStage.selection.blocks).toEqual([a]);
-    page.querySelector('div').dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
-    page.querySelector('div').dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
+    page.querySelector('div:not(.ticl-d-input-layer)').dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+    page.querySelector('div:not(.ticl-d-input-layer)').dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
     await shouldHappen(
       () =>
         activeStage.selection.blocks[0] === main &&

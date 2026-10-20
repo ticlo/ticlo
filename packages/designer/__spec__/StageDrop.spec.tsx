@@ -1,5 +1,6 @@
 import React, {StrictMode} from 'react';
 import {vi} from 'vitest';
+import {message} from 'antd';
 import {DragDrop} from 'rc-dock';
 import {Block, BlockOrder, Root, getDefaultFuncData, globalFunctions, type DataMap} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -21,6 +22,7 @@ describe('designer stage drops', () => {
     document.dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
     removeLastTemplate();
     destroyLastLocalConnection();
+    message.destroy();
     Root.instance.deleteValue(path);
     vi.restoreAllMocks();
   });
@@ -59,9 +61,9 @@ describe('designer stage drops', () => {
         </DesignerApp>
       </StrictMode>
     );
-    await shouldHappen(() => stage?.main === main && div.querySelector('.ticl-d-page > div'));
+    await shouldHappen(() => stage?.main === main && div.querySelector('.ticl-d-page > div:not(.ticl-d-input-layer)'));
     const host = div.querySelector<HTMLElement>('.ticl-d-stage');
-    const page = div.querySelector<HTMLElement>('.ticl-d-page > div');
+    const page = div.querySelector<HTMLElement>('.ticl-d-page > div:not(.ticl-d-input-layer)');
     const element = (id: string) => div.querySelector<HTMLElement>(`#${id}`);
     const outline = () => host.querySelector<SVGPolygonElement>('.ticl-d-drop-rect');
     const move = (target: Element, x: number, y: number, type = 'mousemove') =>

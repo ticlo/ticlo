@@ -8,6 +8,7 @@ import {createStageMove} from './StageMove.ts';
 import {createStageResize, type ResizePreview, type ResizeStart} from './StageResize.ts';
 import {getElementBoxQuads} from '@ticlo/html';
 import {createStagePointMapper, getFallbackQuad, quadIntersectsRect} from './StageGeometry.ts';
+import {findStageDropTarget} from './StageDrop.ts';
 
 export interface MarqueeRect {
   left: number;
@@ -113,6 +114,15 @@ export function useStageInput(
     const stage = stageRef.current;
     const document = stage.ownerDocument;
     const view = document.defaultView;
+    const inputLayer = stage.querySelector<HTMLElement>('.ticl-d-input-layer');
+    const updateInputHeight = () => {
+      inputLayer?.style.setProperty('--ticl-d-input-height', `${inputLayer.parentElement.clientHeight}px`);
+    };
+    const resizeObserver = new ResizeObserver(updateInputHeight);
+    if (inputLayer) {
+      updateInputHeight();
+      resizeObserver.observe(inputLayer.parentElement);
+    }
     let gesture: Gesture | null = null;
     let lastClick: {block: Block; x: number; y: number; pointer: boolean} | null = null;
     let frame: number | null = null;
@@ -313,13 +323,13 @@ export function useStageInput(
     };
     const handleInput = (event: Event) => {
       const source = forwardedEvents.get(event) ?? event;
-      const target = source.target;
+      const sourceTarget = source.target;
       if (
         source === event &&
-        target instanceof Element &&
-        target !== stage &&
-        stage.contains(target) &&
-        !target.closest('.ticl-d-selection-layer')
+        sourceTarget instanceof Element &&
+        sourceTarget !== stage &&
+        stage.contains(sourceTarget) &&
+        !sourceTarget.closest('.ticl-d-selection-layer')
       ) {
         event.stopImmediatePropagation();
         const forwarded = new (event.constructor as typeof Event)(event.type, event);
@@ -330,6 +340,10 @@ export function useStageInput(
         if (event.type !== 'wheel' || forwarded.defaultPrevented) event.preventDefault();
         return;
       }
+      const target =
+        sourceTarget instanceof Element && sourceTarget.closest('.ticl-d-input-layer') && source instanceof MouseEvent
+          ? findStageDropTarget(stage, elementMap, source.clientX, source.clientY)?.element
+          : sourceTarget;
       if (lastClick && event.type === (lastClick.pointer ? 'pointermove' : 'mousemove')) {
         const mouse = event as MouseEvent;
         if (mouse.clientX !== lastClick.x || mouse.clientY !== lastClick.y) lastClick = null;
@@ -444,7 +458,7 @@ export function useStageInput(
       } else if (event.type === 'focus' || event.type === 'focusin') {
         activate();
         if (target !== stage) focusStage();
-      } else if (event.type === 'pointerover') {
+      } else if (event.type === 'pointerover' || event.type === 'pointermove') {
         setHover(findHover(target));
       } else if (event.type === 'pointerout') {
         setHover(findHover((event as PointerEvent).relatedTarget));
@@ -459,6 +473,7 @@ export function useStageInput(
     if (stage.contains(document.activeElement)) focusStage();
     return () => {
       resizeStartRef.current = null;
+      resizeObserver.disconnect();
       cancel();
       view.removeEventListener('blur', cancel);
       for (const type of inputEvents) document.removeEventListener(type, handleInput, true);

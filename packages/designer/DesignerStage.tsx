@@ -116,6 +116,7 @@ export function DesignerStage({
     >
       {flow ? (
         <div className="ticl-d-page">
+          {designMode && <div className="ticl-d-input-layer" />}
           <TicloPage
             block={flow}
             key={flow._blockId}

@@ -73,8 +73,8 @@ describe('designer stage gestures', () => {
         <Panel />
       </DesignerApp>
     );
-    await shouldHappen(() => stage?.main === main && div.querySelector('.ticl-d-page > div'));
-    const page = div.querySelector('.ticl-d-page > div');
+    await shouldHappen(() => stage?.main === main && div.querySelector('.ticl-d-page > div:not(.ticl-d-input-layer)'));
+    const page = div.querySelector('.ticl-d-page > div:not(.ticl-d-input-layer)');
     const element = (id: string) => div.querySelector<HTMLElement>(`#${id}`);
     return {flow, main, page, div, element, conn, getStage: () => stage};
   }
@@ -240,9 +240,10 @@ describe('designer stage gestures', () => {
     const coverStyle = cover.getValue('style');
     getStage().select([selected]);
     await shouldHappen(() => getStage().selection.blocks[0] === selected);
-    await userEvent.click(element('cover'), {position: {x: 10, y: 10}});
+    await userEvent.click(element('cover'), {force: true, position: {x: 10, y: 10}});
     expect(getStage().selection.blocks).toEqual([selected]);
     await userEvent.dragAndDrop(element('cover'), page, {
+      force: true,
       sourcePosition: {x: 10, y: 10},
       targetPosition: {x: 90, y: 80},
     });
@@ -288,18 +289,18 @@ describe('designer stage gestures', () => {
     const inner = parent.getValue('inner') as Block;
     getStage().select([parent]);
     await shouldHappen(() => getStage().selection.blocks[0] === parent);
-    await userEvent.click(element('inner'), {position: {x: 10, y: 7}});
+    await userEvent.click(element('inner'), {force: true, position: {x: 10, y: 7}});
     await shouldHappen(() => getStage().selection.blocks[0] === inner);
     expect(getStage().selection.blocks).toEqual([inner]);
     getStage().select([parent, inner]);
     await shouldHappen(() => getStage().selection.blocks.length === 2);
-    await userEvent.click(element('inner'), {position: {x: 10, y: 7}, modifiers: ['Control']});
+    await userEvent.click(element('inner'), {force: true, position: {x: 10, y: 7}, modifiers: ['Control']});
     await shouldHappen(() => getStage().selection.blocks.length === 1);
     expect(getStage().selection.blocks).toEqual([parent]);
     parent.setValue('@d-seal', true);
     getStage().select([inner]);
     await shouldHappen(() => getStage().selection.blocks[0] === inner);
-    await userEvent.click(element('inner'), {position: {x: 10, y: 7}});
+    await userEvent.click(element('inner'), {force: true, position: {x: 10, y: 7}});
     await shouldHappen(() => getStage().selection.blocks[0] === parent);
     expect(getStage().selection.blocks).toEqual([parent]);
   });
@@ -352,7 +353,7 @@ describe('designer stage gestures', () => {
             document.dispatchEvent(new MouseEvent('mousemove', {clientX: rect.left + 11, clientY: rect.top + 7}));
           else pointer(document, 'pointermove', rect.left + 11, rect.top + 7);
         }
-        if (input === 'native') await userEvent.click(element('deep'), {position: {x: 10, y: 7}});
+        if (input === 'native') await userEvent.click(element('deep'), {force: true, position: {x: 10, y: 7}});
         else {
           const previous = getStage().selection.blocks;
           press('down');

@@ -19,10 +19,14 @@ export interface DesignerDropHandlers {
 }
 
 export function findStageDropTarget(stage: HTMLElement, elementMap: ElementMap, x: number, y: number) {
-  const target = stage.ownerDocument.elementFromPoint(x, y);
-  if (!target || !stage.contains(target)) return null;
-  const element = elementMap.findElementFromParent(target, stage);
-  return element ? {element, block: elementMap.getBlock(element)} : null;
+  const targets = stage.ownerDocument.elementsFromPoint(x, y);
+  if (!targets.length || !stage.contains(targets[0])) return null;
+  for (const target of targets) {
+    if (!stage.contains(target)) continue;
+    const element = elementMap.findElementFromParent(target, stage);
+    if (element) return {element, block: elementMap.getBlock(element)};
+  }
+  return null;
 }
 
 function getDesc(block: Block) {

@@ -66,16 +66,16 @@ describe('DesignerSelectionLayer', () => {
     return {main, a, b, page, host, selected, hovered, getStage: () => stage};
   }
 
-  it('renders selection and hover outside the page, passes through pointers, and retains selection across root changes', async () => {
+  it('renders selection and hover outside the page and retains selection across root changes', async () => {
     const {main, a, b, page, host, selected, hovered, getStage} = await createPage();
     const first = page.querySelector<HTMLElement>('#first');
     const second = page.querySelector<HTMLElement>('#second');
     const layer = host.querySelector('.ticl-d-selection-layer');
     expect(layer.parentElement).toBe(host);
     expect(page.contains(layer)).toBe(false);
-    await userEvent.hover(second);
+    await userEvent.hover(second, {force: true});
     await expect.poll(() => hovered() && hovered().points.getItem(1).x - hovered().points.getItem(0).x).toBe(120);
-    await userEvent.click(first.querySelector('span'));
+    await userEvent.click(first.querySelector('span'), {force: true});
     await shouldHappen(() => selected().length === 1 && getStage().selection.blocks[0] === a);
     expect(selected()[0].points.getItem(1).x - selected()[0].points.getItem(0).x).toBe(100);
     const handles = host.querySelectorAll<SVGRectElement>('.ticl-d-resize-handle');
@@ -88,8 +88,8 @@ describe('DesignerSelectionLayer', () => {
     expect(getComputedStyle(handles[0]).cursor).toBe('nwse-resize');
     expect(getComputedStyle(handles[2]).cursor).toBe('nesw-resize');
     const bounds = first.getBoundingClientRect();
-    expect(page.contains(document.elementFromPoint(bounds.left + 5, bounds.top + 5))).toBe(true);
-    await userEvent.click(second, {modifiers: ['Control']});
+    expect(document.elementFromPoint(bounds.left + 5, bounds.top + 5)).toBe(page.querySelector('.ticl-d-input-layer'));
+    await userEvent.click(second, {force: true, modifiers: ['Control']});
     await shouldHappen(() => selected().length === 2 && !hovered());
     expect(getStage().selection.blocks).toEqual([a, b]);
     await userEvent.unhover(host);
@@ -120,7 +120,7 @@ describe('DesignerSelectionLayer', () => {
     const {a, page, host, selected, hovered, getStage} = await createPage();
     const first = page.querySelector<HTMLElement>('#first');
     const second = page.querySelector<HTMLElement>('#second');
-    await userEvent.hover(first);
+    await userEvent.hover(first, {force: true});
     await shouldHappen(() => hovered());
     getStage().select([a]);
     await shouldHappen(() => selected().length === 1 && !hovered());

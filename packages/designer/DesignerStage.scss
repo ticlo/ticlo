@@ -19,3 +19,19 @@
     pointer-events: none;
   }
 }
+
+.ticl-d-input-layer {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  height: 0;
+  cursor: default;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: var(--ticl-d-input-height);
+  }
+}

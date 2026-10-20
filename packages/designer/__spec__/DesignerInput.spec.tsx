@@ -164,7 +164,7 @@ describe('Designer input', () => {
       outsideClick,
       getStage,
     } = await createPage();
-    await userEvent.click(label);
+    await userEvent.click(label, {force: true});
     await shouldHappen(() => getStage().selection.blocks[0] === a);
     expect(document.activeElement).toBe(host);
     expect(getComputedStyle(label).userSelect).toBe('none');
@@ -189,11 +189,11 @@ describe('Designer input', () => {
     await shouldHappen(() => getStage().selection.blocks.length === 2);
     expect(getStage().selection.blocks).toEqual([a, b]);
 
-    await userEvent.click(input);
+    await userEvent.click(input, {force: true});
     await userEvent.keyboard('design');
     expect(document.activeElement).toBe(host);
     expect(input.value).toBe('editable');
-    await userEvent.dragAndDrop(label, second);
+    await userEvent.dragAndDrop(label, second, {force: true});
 
     for (const type of ['touchstart', 'dblclick', 'contextmenu', 'dragenter', 'dragover', 'dragleave', 'drop']) {
       const event = new Event(type, {bubbles: true, cancelable: true});
@@ -208,7 +208,7 @@ describe('Designer input', () => {
     const tab = new KeyboardEvent('keydown', {key: 'Tab', bubbles: true, cancelable: true});
     host.dispatchEvent(tab);
     expect(tab.defaultPrevented).toBe(true);
-    await userEvent.click(toggle);
+    await userEvent.click(toggle, {force: true});
     expect(toggle.classList.contains('ant-switch-checked')).toBe(false);
     expect(switchChange).not.toHaveBeenCalled();
     expect(reactHandler).not.toHaveBeenCalled();
@@ -242,7 +242,7 @@ describe('Designer input', () => {
     expect(getStage().selection.blocks).toEqual([a]);
     reactHandler.mockClear();
     nativeHandler.mockClear();
-    await userEvent.click(toggle);
+    await userEvent.click(toggle, {force: true});
     expect(switchChange).toHaveBeenCalledOnce();
     expect(reactHandler).not.toHaveBeenCalled();
     expect(nativeHandler).not.toHaveBeenCalled();
