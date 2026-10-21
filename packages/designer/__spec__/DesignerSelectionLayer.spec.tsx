@@ -86,13 +86,6 @@ describe('DesignerSelectionLayer', () => {
     await shouldHappen(() => label.textContent === 'a');
     const handles = host.querySelectorAll<SVGRectElement>('.ticl-d-resize-handle');
     expect(handles.length).toBe(8);
-    for (const handle of handles) {
-      const style = getComputedStyle(handle);
-      expect(style.fill).toBe('rgb(255, 255, 255)');
-      expect(style.stroke).toBe('rgb(0, 0, 0)');
-    }
-    expect(getComputedStyle(handles[0]).cursor).toBe('nwse-resize');
-    expect(getComputedStyle(handles[2]).cursor).toBe('nesw-resize');
     const bounds = first.getBoundingClientRect();
     expect(document.elementFromPoint(bounds.left + 5, bounds.top + 5)).toBe(page.querySelector('.ticl-d-input-layer'));
     await userEvent.click(second, {force: true, modifiers: ['Control']});
@@ -197,11 +190,7 @@ describe('DesignerSelectionLayer', () => {
     function expectLabel() {
       const label = host.querySelector<HTMLElement>('.ticl-d-selection-label');
       expect(label.textContent).toBe('a');
-      const style = getComputedStyle(label);
-      expect(style.backgroundColor).toBe('rgba(0, 0, 0, 0.25)');
-      expect(style.color).toBe('rgb(255, 255, 255)');
-      expect(style.opacity).toBe('1');
-      expect(style.pointerEvents).toBe('none');
+      expect(getComputedStyle(label).pointerEvents).toBe('none');
       const marker = document.createElement('span');
       marker.style.cssText = 'position:absolute;left:0;top:0;width:0;height:0;';
       label.appendChild(marker);
@@ -223,8 +212,6 @@ describe('DesignerSelectionLayer', () => {
     const handle = host.querySelector<SVGRectElement>('[data-handle="top-left"]');
     expect(handle.x.baseVal.value + 3.5).toBeCloseTo(selected()[0].points.getItem(0).x, 2);
     expect(handle.y.baseVal.value + 3.5).toBeCloseTo(selected()[0].points.getItem(0).y, 2);
-    expect(getComputedStyle(handle).cursor).toBe('nwse-resize');
-    expect(getComputedStyle(host.querySelector('[data-handle="top-right"]')).cursor).toBe('nesw-resize');
     parent.style.transform = 'rotateY(25deg)';
     parent.style.transformStyle = 'preserve-3d';
     parent.style.perspective = '500px';

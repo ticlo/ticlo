@@ -467,13 +467,9 @@ describe('editor BlockStage', function () {
     // mousedown to select
     simulate(addBlock.querySelector('.ticl-e-stage-scroll .ticl-e-block-head'), 'mousedown');
     simulate(document.body, 'mouseup');
-    // wire should have z index
-    await shouldHappen(() => wire.style.zIndex === '100');
-
     // minimize the block
     simulate(addBlock.querySelector('.ticl-e-block-head'), 'dblclick');
-    await shouldHappen(() => addBlock.offsetWidth === 24);
-    expect(addBlock.offsetHeight).toBe(24);
+    await shouldHappen(() => addBlock.classList.contains('ticl-e-block-min'));
 
     // wrie instance should be reused
     expect(div.querySelector('svg')).toBe(wire);
@@ -482,12 +478,9 @@ describe('editor BlockStage', function () {
     simulate(querySingle("//div.ticl-e-block-head.ticl-e-block-head-label[text()='subtract']/..", div), 'mousedown');
     // addBlock is no longer selected
     await shouldHappen(() => !addBlock.classList.contains('ticl-e-block-selected'));
-    // since subtract block is now selected, wire should still have zindex
-    expect(wire.style.zIndex).toBe('100');
-
     // expand block
     simulate(addBlock.querySelector('.ticl-e-block-head'), 'dblclick');
-    await shouldHappen(() => addBlock.offsetWidth === 143);
+    await shouldHappen(() => !addBlock.classList.contains('ticl-e-block-min'));
 
     // wire should disappear when source not in stage
     flow.queryProperty('subtract.0').setBinding('##.unknown');

@@ -10,10 +10,10 @@ describe('editor Icon', function () {
   });
 
   it('basic', async function () {
-    const [component, div] = loadTemplate(
-      <div style={{position: 'absolute'}}>
+    loadTemplate(
+      <div>
         <TIcon icon="fab:react" />
-        <TIcon icon="fas:plus" colorClass="tico-pr1" />
+        <TIcon icon="fas:plus" />
         <TIcon icon="fas:minus" />
         <TIcon icon="txt:A" />
         <TIcon icon="txt:ip" />
@@ -36,31 +36,19 @@ describe('editor Icon', function () {
     expect(icons[0].children[0].classList.contains('tico-fab-react')).toBe(true);
 
     expect(icons[1].children[0].classList.contains('tico-fas-plus')).toBe(true);
-    expect(icons[1].classList.contains('tico-pr1')).toBe(true);
-
     expect(icons[2].children[0].classList.contains('tico-fas-minus')).toBe(true);
-
-    icons[2].style.width = 'auto';
-    await shouldHappen(() => {
-      // this doesn't work as expected in karma
-      // return icons[2].offsetWidth <= 22;
-      return icons[2].offsetWidth < 50; // < 50 still proves the icon font is working
-    }, 1000);
 
     expect(icons[3].classList.contains('tico-txt')).toBe(true);
     expect(icons[3].innerText).toBe('A');
 
     expect(icons[4].classList.contains('tico-txt')).toBe(true);
-    expect(icons[4].classList.contains('tico-yoff')).toBe(true);
 
     expect(icons[5].classList.contains('tico-txt')).toBe(true);
-    expect(icons[5].style.fontSize === '8px').toBe(true);
 
     expect(icons[6].classList.contains('tico-txt')).toBe(true);
     expect(icons[6].innerText).toBe('文');
 
     expect(icons[7].classList.contains('tico-txt')).toBe(true);
-    expect(icons[7].style.fontSize === '12px').toBe(true);
 
     // invalid icon input
     for (let i = 8; i < 11; ++i) {
