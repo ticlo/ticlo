@@ -24,7 +24,7 @@ import {
   removeGroupProperty,
   setGroupLength,
 } from '../property-api/GroupProperty.ts';
-import {findPropertyForNewBlock} from '../property-api/PropertyName.ts';
+import {findPropertyForNewBlock, renameProperty} from '../property-api/PropertyName.ts';
 import {hideProperties, moveShownProperty, showProperties} from '../property-api/PropertyShowHide.ts';
 import {
   addCustomProperty,
@@ -44,7 +44,6 @@ import {
   moveBlocks,
   pasteProperties,
 } from '../property-api/CopyPaste.ts';
-import {moveProperty, PropertyMover} from '../property-api/PropertyMover.ts';
 import {deleteBlock} from '../property-api/DeleteBlock.ts';
 import {BlockInputsConfig, BlockOutputsConfig} from '../block/FlowConfigs.ts';
 import {WorkerFlow} from '../worker/WorkerFlow.ts';
@@ -1187,7 +1186,8 @@ export class ServerConnection extends ServerConnectionCore {
       if (existingProp?._saved instanceof Block) {
         return 'invalid new name';
       }
-      return moveProperty(property._block, property._name, newName, true);
+      renameProperty(property._block, property._name, newName, true);
+      return null;
     } else {
       return 'invalid path';
     }

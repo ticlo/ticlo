@@ -1123,6 +1123,32 @@ describe('Connection', function () {
     Root.instance.deleteValue('Connection25');
   });
 
+  it.each([true, false])('renames ordered child blocks with serialize=%s', async (serialize) => {
+    const root = new Root();
+    const flow = root.addFlow('Main', {
+      parent: {
+        '#is': '',
+        '#order': ['before', 'child', 'after'],
+        'child': {'#is': '', 'value': 2},
+        '~result': 'child.value',
+      },
+    });
+    const [, client] = makeLocalConnection(root, false, undefined, serialize);
+    try {
+      await client.renameProp('Main.parent.child', 'renamed');
+
+      expect(flow.queryValue('parent.child')).toBeUndefined();
+      expect(flow.queryValue('parent.renamed.value')).toBe(2);
+      expect(flow.queryProperty('parent.result')._bindingPath).toBe('renamed.value');
+      expect(flow.queryValue('parent.#order')).toEqual(['before', 'renamed', 'after']);
+      expect((await client.getValue('Main.parent.#order')).value).toEqual(['before', 'renamed', 'after']);
+      expect((flow.save().parent as DataMap)['#order']).toEqual(['before', 'renamed', 'after']);
+    } finally {
+      client.destroy();
+      root.destroy();
+    }
+  });
+
   it('call function', async function () {
     const flow = Root.instance.addFlow('Connection26');
     const addBlock = flow.createBlock('add');

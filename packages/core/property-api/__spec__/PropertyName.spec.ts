@@ -1,6 +1,7 @@
 import {expect} from 'vitest';
 
 import {Block} from '../../block/Block.ts';
+import {BlockOrder} from '../../block/BlockOrder.ts';
 import {Flow} from '../../block/Flow.ts';
 import '../../functions/math/Arithmetic.ts';
 import {findPropertyForNewBlock, renameProperty} from '../PropertyName.ts';
@@ -92,5 +93,64 @@ describe('PropertyUtil', function () {
     renameProperty(flow, 'a8', 'b8', true);
     expect(flow.isPropertyUsed('a8')).toBe(false);
     expect(flow.queryProperty('c8.v')._bindingPath).toBe('##.b8');
+  });
+
+  it('renames an ordered child in place and saves its new name', () => {
+    const parent = new Flow();
+    const order = ['before', 'child', 'after'];
+    parent.setValue('#order', order);
+    parent.createBlock('child').setValue('value', 2);
+
+    renameProperty(parent, 'child', 'renamed');
+
+    expect(parent.getValue('child')).toBeUndefined();
+    expect(parent.queryValue('renamed.value')).toBe(2);
+    expect(parent.getValue('#order')).toEqual(['before', 'renamed', 'after']);
+    expect(parent.save()['#order']).toEqual(['before', 'renamed', 'after']);
+    expect(order).toEqual(['before', 'child', 'after']);
+    parent.destroy();
+  });
+
+  it.each([{order: undefined}, {order: []}, {order: ['before', 'after']}])(
+    'does not add an unordered child to $order when renaming',
+    ({order}) => {
+      const parent = new Flow();
+      if (order) parent.setValue('#order', order);
+      parent.createBlock('child');
+      const property = parent.getProperty('#order', false);
+
+      renameProperty(parent, 'child', 'renamed');
+
+      expect(parent.getValue('renamed')).toBeInstanceOf(Block);
+      expect(parent.getValue('#order')).toBe(order);
+      expect(parent.getProperty('#order', false)).toBe(property);
+      parent.destroy();
+    }
+  );
+
+  it.each(['forwarded', 'binding', 'raw binding'])('preserves a %s order when renaming a local child', (kind) => {
+    const parent = new Flow();
+    parent.createBlock('child').setValue('value', 2);
+    const owner = parent.createBlock('owner');
+    owner.setValue('#order', ['child']);
+    owner.createBlock('child');
+    if (kind === 'forwarded') {
+      parent.updateValue('#order', new BlockOrder(owner, owner.getValue('#order') as string[]));
+    } else if (kind === 'binding') {
+      parent.setBinding('#order', 'owner.#order');
+    } else {
+      parent.getProperty('#order')._listenRaw(owner.getProperty('#order'));
+    }
+    const property = parent.getProperty('#order');
+    const order = property.getValue();
+    const binding = property._bindingSource;
+
+    renameProperty(parent, 'child', 'renamed', true);
+
+    expect(parent.queryValue('renamed.value')).toBe(2);
+    expect(property.getValue()).toBe(order);
+    expect(property._bindingSource).toBe(binding);
+    expect(owner.getValue('#order')).toEqual(['child']);
+    parent.destroy();
   });
 });

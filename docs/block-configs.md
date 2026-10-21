@@ -148,9 +148,11 @@ for sorting.
 
 Ordered insertion and movement only edit local string-array orders. The commands
 reject forwarded `BlockOrder` values and bound `#order` properties before changing
-any blocks. An absent target order can be created on insertion. Deleting a child
-leaves forwarded or bound orders unchanged. The designer stage supports inserting
-new children; reordering existing children is handled by the node tree.
+any blocks. An absent target order can be created on insertion. Renaming an
+ordered child replaces its name at the same position in the parent's local order.
+Renaming and deletion leave forwarded or bound orders unchanged. The designer
+stage supports inserting new children; reordering existing children is handled by
+the node tree.
 
 ## Worker readiness
 

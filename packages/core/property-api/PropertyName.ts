@@ -4,6 +4,7 @@ import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descr
 import {globalFunctions} from '../block/FunctionLib.ts';
 import {configList} from './PropertyShowHide.ts';
 import {PropertyMover} from './PropertyMover.ts';
+import {isStringArray} from '../util/DataTypes.ts';
 
 const trailingNumberReg = /\d+$/;
 
@@ -94,4 +95,12 @@ export function findPropertyForNewBlock(block: Block, baseName: string, reserved
 
 export function renameProperty(block: Block, oldName: string, newName: string, moveOutboundLinks = false) {
   new PropertyMover(block, oldName, moveOutboundLinks).moveTo(newName);
+  const property = block.getProperty('#order', false);
+  const order = property?.getValue();
+  if (!property?._bindingSource && isStringArray(order) && order.includes(oldName)) {
+    block.setValue(
+      '#order',
+      order.map((name) => (name === oldName ? newName : name))
+    );
+  }
 }
