@@ -198,9 +198,9 @@ describe('DesignerSelectionLayer', () => {
       const label = host.querySelector<HTMLElement>('.ticl-d-selection-label');
       expect(label.textContent).toBe('a');
       const style = getComputedStyle(label);
-      expect(style.backgroundColor).toBe('rgb(0, 0, 0)');
+      expect(style.backgroundColor).toBe('rgba(0, 0, 0, 0.25)');
       expect(style.color).toBe('rgb(255, 255, 255)');
-      expect(style.opacity).toBe('0.6');
+      expect(style.opacity).toBe('1');
       expect(style.pointerEvents).toBe('none');
       const marker = document.createElement('span');
       marker.style.cssText = 'position:absolute;left:0;top:0;width:0;height:0;';

@@ -70,7 +70,7 @@ export function DesignerSelectionLayer({
       {marquee && <div className="ticl-d-marquee-rect" style={marquee} />}
       {outlines.map(({element, selected, quad}, i) => {
         const block = selected && elementMap.getBlock(element);
-        return block ? <SelectionLabel key={i} block={block} quad={quad} /> : null;
+        return block && block !== main ? <SelectionLabel key={i} block={block} quad={quad} /> : null;
       })}
       <svg className="ticl-d-selection-outlines" width="100%" height="100%">
         {outlines.map(({element, selected, points, quad}, i) => (
