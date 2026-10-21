@@ -78,12 +78,18 @@ describe('DesignerSelectionLayer', () => {
     await userEvent.click(first.querySelector('span'), {force: true});
     await shouldHappen(() => selected().length === 1 && getStage().selection.blocks[0] === a);
     expect(selected()[0].points.getItem(1).x - selected()[0].points.getItem(0).x).toBe(100);
+    const label = host.querySelector('.ticl-d-selection-label');
+    expect(label.textContent).toBe('a');
+    a.setValue('@b-name', 'First component');
+    await shouldHappen(() => label.textContent === 'First component');
+    a.deleteValue('@b-name');
+    await shouldHappen(() => label.textContent === 'a');
     const handles = host.querySelectorAll<SVGRectElement>('.ticl-d-resize-handle');
     expect(handles.length).toBe(8);
     for (const handle of handles) {
       const style = getComputedStyle(handle);
-      expect(style.fill).toBe(handle.dataset.handle === 'top-left' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)');
-      expect(style.stroke).toBe(handle.dataset.handle === 'top-left' ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)');
+      expect(style.fill).toBe('rgb(255, 255, 255)');
+      expect(style.stroke).toBe('rgb(0, 0, 0)');
     }
     expect(getComputedStyle(handles[0]).cursor).toBe('nwse-resize');
     expect(getComputedStyle(handles[2]).cursor).toBe('nesw-resize');
@@ -188,7 +194,32 @@ describe('DesignerSelectionLayer', () => {
         marker.remove();
       }
     }
+    function expectLabel() {
+      const label = host.querySelector<HTMLElement>('.ticl-d-selection-label');
+      expect(label.textContent).toBe('a');
+      const style = getComputedStyle(label);
+      expect(style.backgroundColor).toBe('rgb(0, 0, 0)');
+      expect(style.color).toBe('rgb(255, 255, 255)');
+      expect(style.opacity).toBe('0.6');
+      expect(style.pointerEvents).toBe('none');
+      const marker = document.createElement('span');
+      marker.style.cssText = 'position:absolute;left:0;top:0;width:0;height:0;';
+      label.appendChild(marker);
+      const start = marker.getBoundingClientRect();
+      marker.style.left = '100px';
+      const end = marker.getBoundingClientRect();
+      marker.remove();
+      const origin = host.getBoundingClientRect();
+      const p1 = selected()[0].points.getItem(0);
+      const p2 = selected()[0].points.getItem(1);
+      expect(start.left - origin.left).toBeCloseTo(p1.x, 1);
+      expect(start.top - origin.top).toBeCloseTo(p1.y, 1);
+      const length = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      expect((end.left - start.left) / 100).toBeCloseTo((p2.x - p1.x) / length, 3);
+      expect((end.top - start.top) / 100).toBeCloseTo((p2.y - p1.y) / length, 3);
+    }
     expectCorners(selected()[0], first, 100, 40);
+    expectLabel();
     const handle = host.querySelector<SVGRectElement>('[data-handle="top-left"]');
     expect(handle.x.baseVal.value + 3.5).toBeCloseTo(selected()[0].points.getItem(0).x, 2);
     expect(handle.y.baseVal.value + 3.5).toBeCloseTo(selected()[0].points.getItem(0).y, 2);
@@ -200,6 +231,7 @@ describe('DesignerSelectionLayer', () => {
     const rotated = selected()[0].getAttribute('points');
     await shouldHappen(() => selected()[0].getAttribute('points') !== rotated);
     expectCorners(selected()[0], first, 100, 40);
+    expectLabel();
 
     b.setValue('#is', 'react:div');
     b.setValue('style', {position: 'relative', width: 120, height: 40, transform: 'rotate(-15deg)'});

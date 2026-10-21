@@ -38,14 +38,25 @@
   fill: $selection-bg;
 }
 
+.ticl-d-selection-label {
+  position: absolute;
+  width: max-content;
+  max-width: 160px;
+  box-sizing: border-box;
+  padding: 0 8px;
+  background: #00000040;
+  text-shadow: 1px 1px 2px black;
+  color: #fff;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform-origin: 0 0;
+}
+
 .ticl-d-resize-handle {
   fill: #fff;
   stroke: #000;
   pointer-events: all;
   touch-action: none;
-
-  &[data-handle='top-left'] {
-    fill: #000;
-    stroke: #fff;
-  }
 }
