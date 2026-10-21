@@ -133,6 +133,15 @@ body:not(.dock-dragging) {
   }
 }
 
+.ticl-e-button-view {
+  display: flex;
+  padding: 3px 0;
+
+  & > .ant-btn {
+    height: 36px;
+  }
+}
+
 .ticl-e-block-foot {
   position: relative;
   height: 22px;

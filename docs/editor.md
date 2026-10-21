@@ -24,6 +24,12 @@ view. External controls can use `runStageCommand` for the same dispatch.
 `activateStage(id)` selects a specific view. `onFlowFocus(path)` supports flow
 navigation and preserves the active view when its path already matches.
 
+## Block widgets
+
+`@b-widget` adds a button, slider, or note to an expanded block. See
+[block widgets](./block-widgets.md) for configuration, defaults, examples, and
+height alignment with fields and binding wires.
+
 ## Property editors
 
 A property's descriptor `type` selects its editor. The registry is in

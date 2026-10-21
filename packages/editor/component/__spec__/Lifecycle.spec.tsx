@@ -2,6 +2,7 @@ import {blankFuncDesc} from '@ticlo/core/editor.ts';
 import type {ClientConn} from '@ticlo/core/editor.ts';
 import {BlockWidget} from '../../block/view/BlockWidget.ts';
 import '../../block/view/NoteWidget.tsx';
+import '../../block/view/ButtonWidget.tsx';
 import {NodeTreeItem, NodeTreeRenderer} from '../../node-tree/NodeRenderer.tsx';
 import {ObjectTree} from '../../object-tree/ObjectTree.tsx';
 
@@ -32,6 +33,20 @@ describe('editor component lifecycle', function () {
     const widget = new NoteWidget({conn, path: 'flow.note', updateViewHeight() {}});
 
     expect(Array.from(subscriptions.values()).sort()).toEqual(['flow.note.@b-note', 'flow.note.@b-note-mode']);
+    widget.componentWillUnmount();
+    expect(subscriptions.size).toBe(0);
+  });
+
+  it('unsubscribes every button widget value on unmount', function () {
+    const {conn, subscriptions} = createConnection();
+    const ButtonWidget = BlockWidget.get('button');
+    const widget = new ButtonWidget({conn, path: 'flow.button', updateViewHeight() {}});
+
+    expect(Array.from(subscriptions.values()).sort()).toEqual([
+      'flow.button.@b-w-field',
+      'flow.button.@b-w-label',
+      'flow.button.@b-w-value',
+    ]);
     widget.componentWillUnmount();
     expect(subscriptions.size).toBe(0);
   });

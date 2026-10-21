@@ -12,6 +12,7 @@ import * as ticloI18n from '@ticlo/core/editor.ts';
 import './block/view/NoteView.tsx';
 import './block/view/SliderWidget.tsx';
 import './block/view/NoteWidget.tsx';
+import './block/view/ButtonWidget.tsx';
 
 export async function initEditor() {
   const lng = window.localStorage.getItem('ticlo-lng');
