@@ -20,7 +20,7 @@ function topEdgeRotation(quad: DOMQuad) {
 }
 
 function SelectionLabel({block, quad}: {block: Block; quad: DOMQuad}) {
-  const displayName = useValue<string>(block, '@b-name');
+  const displayName = useValue<string>(block, '#label');
   return (
     <div
       className="ticl-d-selection-label"

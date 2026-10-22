@@ -426,7 +426,7 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
             <div className="ticl-e-property-divider">
               <div className="ticl-e-h-line" style={{maxWidth: '16px'}} />
               <ExpandIcon opened={showAttribute ? 'opened' : 'closed'} onClick={this.onShowAttributeClick} />
-              {t('Block')}
+              {t('Misc')}
               <div className="ticl-e-h-line" />
             </div>
           ) : null}

@@ -75,7 +75,7 @@ export class AssertFunction extends BaseFunction<Block> {
     if (this._data._flow instanceof FlowTestCase) {
       // let message: string = null;
       // if (!matched) {
-      //   message = this._data.getValue('@b-name');
+      //   message = this._data.getValue('#label');
       //   if (!message || typeof message !== 'string') {
       //     message = this._data._prop._name;
       //   }

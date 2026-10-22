@@ -29,7 +29,7 @@ export class RenameDialog extends LazyUpdateComponent<Props, State> {
     const {nameEditor, dispEditor, changeDisp} = this.formItems;
     return this.context.can(
       changeDisp.value
-        ? {cmd: 'set', path: `${path}.@b-name`, value: dispEditor.value}
+        ? {cmd: 'set', path: `${path}.#label`, value: dispEditor.value}
         : {cmd: 'renameProp', path, newName: nameEditor.value}
     );
   }
@@ -54,7 +54,7 @@ export class RenameDialog extends LazyUpdateComponent<Props, State> {
 
     if (changeDisp.value) {
       if (dispEditor.value !== displayName) {
-        conn.setValue(`${path}.@b-name`, dispEditor.value || undefined);
+        conn.setValue(`${path}.#label`, dispEditor.value || undefined);
       }
     } else {
       const [parentPath, name] = splitPathName(path);

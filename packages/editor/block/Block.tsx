@@ -197,7 +197,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   constructor(props: BlockViewProps) {
     super(props);
     this.state = {moving: false, footDropping: false};
-    this.displayName.subscribe(props.item.conn, `${props.item.path}.@b-name`);
+    this.displayName.subscribe(props.item.conn, `${props.item.path}.#label`);
     this.widget.subscribe(props.item.conn, `${props.item.path}.@b-widget`);
   }
 

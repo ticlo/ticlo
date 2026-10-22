@@ -12,7 +12,7 @@ describe('FlowTestGroup', () => {
 
     group.run();
 
-    expect(group.getValue('@b-name')).toContain('running');
+    expect(group.getValue('#label')).toContain('running');
     expect(parent.updateTestState).toHaveBeenLastCalledWith(group, TestState.RUNNING);
     group.destroy();
     root.destroy();

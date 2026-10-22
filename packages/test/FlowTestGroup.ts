@@ -109,6 +109,6 @@ export class FlowTestGroup extends FlowFolder implements TestsRunner {
   }
 
   updateLabel(stat: string) {
-    this.updateValue('@b-name', `${this._prop._name}-${stat}-#`);
+    this.updateValue('#label', `${this._prop._name}-${stat}-#`);
   }
 }

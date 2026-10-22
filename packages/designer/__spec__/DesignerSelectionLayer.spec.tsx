@@ -80,9 +80,9 @@ describe('DesignerSelectionLayer', () => {
     expect(selected()[0].points.getItem(1).x - selected()[0].points.getItem(0).x).toBe(100);
     const label = host.querySelector('.ticl-d-selection-label');
     expect(label.textContent).toBe('a');
-    a.setValue('@b-name', 'First component');
+    a.setValue('#label', 'First component');
     await shouldHappen(() => label.textContent === 'First component');
-    a.deleteValue('@b-name');
+    a.deleteValue('#label');
     await shouldHappen(() => label.textContent === 'a');
     const handles = host.querySelectorAll<SVGRectElement>('.ticl-d-resize-handle');
     expect(handles.length).toBe(8);

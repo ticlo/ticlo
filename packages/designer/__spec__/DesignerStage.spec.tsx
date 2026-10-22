@@ -584,7 +584,7 @@ describe('DesignerStage', () => {
     main.deleteValue('a');
     const replacementChild = main.createBlock('a');
     replacementChild.setValue('#is', 'react:span');
-    replacementChild.setValue('@b-name', 'Replacement A');
+    replacementChild.setValue('#label', 'Replacement A');
     await shouldHappen(() => tree().textContent.includes('Replacement A'));
     expect(activeStage.selection).toEqual({blocks: [], paths: []});
     activeStage.select([`${path}.outside`, `${path}.missing`]);

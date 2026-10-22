@@ -67,7 +67,7 @@
   '#use':
     '@name': 使用
 
-  '@b-name':
+  '#label':
     '@name': 名称
   '@b-p':
     '@name': 属性列表

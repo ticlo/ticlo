@@ -227,14 +227,14 @@ export function mapConfigDesc(configs: (string | PropDesc)[]): PropDesc[] {
 }
 
 export const attributeDescs: {[key: string]: PropDesc} = {
-  '@b-name': {name: '@b-name', type: 'string'},
+  '#label': {name: '#label', type: 'string'},
   '@b-p': {name: '@b-p', type: 'array'},
   '@b-xyw': {name: '@b-xyw', type: 'array'},
   '@d-lock': {name: '@d-lock', type: 'toggle', default: false},
   '@d-seal': {name: '@d-seal', type: 'toggle', default: false},
 };
 
-export const attributeList: PropDesc[] = [attributeDescs['@b-name'], attributeDescs['@b-p'], attributeDescs['@b-xyw']];
+export const attributeList: PropDesc[] = [attributeDescs['#label'], attributeDescs['@b-p'], attributeDescs['@b-xyw']];
 
 export function mapAttributeDesc(attributes: (string | PropDesc)[]): PropDesc[] {
   if (attributes == null) return undefined;

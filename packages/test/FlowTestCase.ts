@@ -170,7 +170,7 @@ export class FlowTestCase extends Flow implements TestsRunner {
   }
 
   updateLabel(stat: string) {
-    this.updateValue('@b-name', `${this._prop._name}-${stat}-#`);
+    this.updateValue('#label', `${this._prop._name}-${stat}-#`);
   }
 
   executeCommand(command: string, params: DataMap, readonly = false): DataMap {

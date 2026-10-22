@@ -1,4 +1,5 @@
 import {expect} from 'vitest';
+import {userEvent} from 'vitest/browser';
 import {simulate} from 'simulate-event';
 import React from 'react';
 import '../../index.ts';
@@ -9,7 +10,7 @@ import '../../../core/functions/math/Arithmetic.ts';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.ts';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.ts';
-import {initEditor} from '../../index.ts';
+import {BlockStage, NodeTree, initEditor} from '../../index.ts';
 import type {PropGroupDesc} from '@ticlo/core';
 import {FunctionDesc, PropDesc} from '@ticlo/core';
 import {globalFunctions} from '@ticlo/core/block/FunctionLib.ts';
@@ -26,6 +27,49 @@ describe('PropertyEditor', function () {
   afterEach(function () {
     removeLastTemplate();
     destroyLastLocalConnection();
+  });
+
+  it('edits #label in Misc and updates the block header and node tree', async function () {
+    const path = 'PropertyLabelTest.block';
+    const flow = Root.instance.addFlow('PropertyLabelTest', {
+      block: {'#is': 'add', '@b-xyw': [100, 100, 200]},
+    });
+    const [, conn] = makeLocalConnection(Root.instance);
+    const list = React.createRef<PropertyList>();
+    const [, div] = loadTemplate(
+      <>
+        <BlockStage conn={conn} basePath="PropertyLabelTest" style={{width: 400, height: 300}} />
+        <NodeTree conn={conn} basePaths={[path]} style={{width: 300, height: 100}} />
+        <PropertyList ref={list} conn={conn} paths={[path]} />
+      </>,
+      'editor'
+    );
+    try {
+      await shouldHappen(() => list.current && div.querySelector('.ticl-e-property-divider'));
+      list.current.onShowAttributeClick();
+      const misc = Array.from(div.querySelectorAll('.ticl-e-property-divider')).find(
+        (element) => element.textContent === 'Misc'
+      );
+      await shouldHappen(() => misc.nextElementSibling?.querySelector('textarea'));
+      const input = misc.nextElementSibling.querySelector('textarea');
+      const header = () => div.querySelector('.ticl-e-block-head-label')?.textContent;
+      const node = () => div.querySelector('.ticl-e-tree-node-text')?.textContent;
+
+      await userEvent.fill(input, 'Friendly label');
+      await userEvent.keyboard('{Enter}');
+      await shouldHappen(() => header() === 'Friendly label' && node() === 'Friendly label');
+      expect(flow.queryValue('block.#label')).toBe('Friendly label');
+      expect(flow.queryValue('block.#name')).toBe('block');
+      expect((flow.save().block as Record<string, unknown>)['#label']).toBe('Friendly label');
+
+      await userEvent.fill(input, '');
+      await userEvent.keyboard('{Enter}');
+      await shouldHappen(() => header() === 'block' && node() === 'block');
+      expect(flow.queryValue('block.#label')).toBe('');
+    } finally {
+      await conn.getValue(path);
+      Root.instance.deleteValue('PropertyLabelTest');
+    }
   });
 
   it.each(['@d-lock', '@d-seal', {name: '@test-lock', type: 'toggle', default: false}] as (string | PropDesc)[])(

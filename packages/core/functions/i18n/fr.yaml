@@ -67,7 +67,7 @@
   '#use':
     '@name': Utiliser # translated from: Use
 
-  '@b-name':
+  '#label':
     '@name': Nom # translated from: Name
   '@b-p':
     '@name': Liste des propriétés # translated from: Property List

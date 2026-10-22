@@ -495,7 +495,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     const {item} = this.props;
     this.descCallback(item.desc);
     this.disabledListener.subscribe(item.connection, `${item.key}.#disabled`, true);
-    this.nameListener.subscribe(item.connection, `${item.key}.@b-name`);
+    this.nameListener.subscribe(item.connection, `${item.key}.#label`);
     if (item.canApply) {
       this.hasChangeListener.subscribe(item.connection, `${item.key}.@has-change`);
     }

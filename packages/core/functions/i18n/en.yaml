@@ -67,7 +67,7 @@
   '#use':
     '@name': Use
 
-  '@b-name':
+  '#label':
     '@name': 'Name'
   '@b-p':
     '@name': 'Property List'

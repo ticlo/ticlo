@@ -45,6 +45,16 @@ These values apply when creating blocks through the editor; loading saved blocks
 does not add missing initial values. A property descriptor's `default` controls
 editor display only.
 
+## Display label
+
+`#label` is the block's editable display name. It is saved with the block and
+shown in block headers, the node tree, and designer selection labels. An absent
+or empty label falls back to the block's key. `#name` remains the read-only block
+key.
+
+The property list shows `#label` in **Misc**, alongside editor attributes and
+block widget settings.
+
 ## Runtime references
 
 Read-only; never write these into flow files:
