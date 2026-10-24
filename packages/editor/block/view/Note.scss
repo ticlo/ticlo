@@ -10,6 +10,7 @@
   border: 1px solid var(--ant-color-warning-border, #{color.mix($yellow-7, white, 30%)});
   background: var(--ant-color-warning-bg, #{color.mix($yellow-1, white, 30%)});
   padding: 6px 10px;
+  min-height: calc(1lh + 14px);
   max-height: 1024px;
   overflow-y: auto;
 
