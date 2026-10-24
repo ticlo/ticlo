@@ -250,7 +250,7 @@ describe('editor Block Field', function () {
         '#is': '',
         'data': {value: 3},
         '@b-xyw': [100, 100, 143],
-        '@b-p': [],
+        '@b-p': [] as string[],
       };
       const target = {
         '#is': '',
