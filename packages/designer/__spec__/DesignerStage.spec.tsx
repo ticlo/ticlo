@@ -84,10 +84,12 @@ describe('DesignerStage', () => {
       return null;
     }
     const [, div] = loadTemplate(
-      <DesignerApp value={{}}>
-        <DesignerStage root={Root.instance} conn={conn} basePath={path} />
-        <Panel />
-      </DesignerApp>
+      <EditPolicyProvider conn={conn}>
+        <DesignerApp value={{}}>
+          <DesignerStage root={Root.instance} conn={conn} basePath={path} />
+          <Panel />
+        </DesignerApp>
+      </EditPolicyProvider>
     );
     await shouldHappen(() => stage?.flow === flow && div.querySelectorAll('button').length === 3);
     expect(div.textContent).not.toContain('#main');
