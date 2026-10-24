@@ -1,5 +1,6 @@
 import React, {isValidElement, useContext, useEffect, useId, useMemo, useRef, useState} from 'react';
 import {Block, Flow, voidFunction, type ClientConn, type DataMap} from '@ticlo/core';
+import {FlowWithStatic} from '@ticlo/core/block/StaticBlock.ts';
 import {Button} from 'antd';
 import {useEditPolicy} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {useTicloStage} from '@ticlo/editor/component/useTicloStage.ts';
@@ -135,7 +136,7 @@ export function DesignerStage({
       {...dropHandlers}
     >
       {flow ? (
-        <div className="ticl-d-page">
+        <div className={flow instanceof FlowWithStatic ? 'ticl-d-page ticl-d-page-worker' : 'ticl-d-page'}>
           {designMode && hasPage && <div className="ticl-d-input-layer" />}
           <TicloPage
             block={flow}

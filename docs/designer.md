@@ -13,6 +13,9 @@ selection commands. Blocks belonging to the stage's flow retain its component
 context and register as themselves even when rendered inside a worker. When a
 delegated root is itself an editable Block, the host owns the shared root DOM.
 
+Ordinary flow roots fill the stage page. Worker instances and worker editors
+retain the root component's own sizing, including intrinsic and stylesheet sizes.
+
 Each stage exposes separate `functionTreeTags` and `nodeTreeTags` lists. Both
 default to `['react-comp']` on `DesignerStage` and can be configured independently
 through its props. The function panel uses the active stage's function tags;
