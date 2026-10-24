@@ -1,6 +1,9 @@
-import React, {useContext, useEffect, useId, useMemo, useRef, useState} from 'react';
-import {Block, Flow, voidFunction, type ClientConn} from '@ticlo/core';
+import React, {isValidElement, useContext, useEffect, useId, useMemo, useRef, useState} from 'react';
+import {Block, Flow, voidFunction, type ClientConn, type DataMap} from '@ticlo/core';
+import {Button} from 'antd';
+import {useEditPolicy} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {useTicloStage} from '@ticlo/editor/component/useTicloStage.ts';
+import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {ElementMap, TicloPage, revealChild, useValue} from '@ticlo/react';
 import {DesignerSelectionLayer} from './DesignerSelectionLayer.tsx';
 import {DesignerLayoutContextType, type DesignerStageContextValue} from './DesignerContext.tsx';
@@ -13,6 +16,11 @@ import {useStageCommands} from './useStageCommands.ts';
 
 const defaultFunctionTreeTags = ['react-comp'];
 const defaultNodeTreeTags = ['react-comp'];
+const pageLayouts: {label: string; data: DataMap}[] = [
+  {label: 'Absolute', data: {'#is': 'react:absolute', '#order': []}},
+  {label: 'Horizontal', data: {'#is': 'react:horizontal', '#order': []}},
+  {label: 'Vertical', data: {'#is': 'react:vertical', '#order': []}},
+];
 
 interface Props extends DesignerDropHandlers {
   root: Block;
@@ -43,6 +51,8 @@ export function DesignerStage({
   const flow = block instanceof Flow ? block : null;
   const value = useValue(root, `${basePath}.#main`);
   const main = flow && value instanceof Block ? value : null;
+  const hasPage = main !== null || isValidElement(value);
+  const policy = useEditPolicy();
   useEffect(() => {
     if (!flow) return;
     const watcher = {watchHistory: true, onChildChange() {}};
@@ -99,12 +109,22 @@ export function DesignerStage({
   const activate = useTicloStage(stage, stageId == null);
   const {hover, marquee, resizePreview, startResize} = useStageInput(
     stageRef,
-    componentContext,
+    {...componentContext, designMode: designMode && hasPage},
     activate,
     selectionRef,
     flow
   );
   const {dropPoints, ...dropHandlers} = useStageDrop(stageRef, stage, activate, {onDragOverT, onDropT});
+  const canCreatePage = (data: DataMap) =>
+    flow &&
+    !flow.isDestroyed() &&
+    flow.getValue('#main') == null &&
+    [policy, conn.getEditPolicyView()].every((view) => view.can({cmd: 'addBlock', path: `${basePath}.#main`, data}));
+  const createPage = (data: DataMap) => {
+    if (!designMode || !canCreatePage(data)) return;
+    activate();
+    conn.addBlock(`${basePath}.#main`, data, false, undefined, requestCallbacks);
+  };
   return (
     <DragDrop
       className={designMode ? 'ticl-d-stage ticl-d-stage-design' : 'ticl-d-stage'}
@@ -116,12 +136,28 @@ export function DesignerStage({
     >
       {flow ? (
         <div className="ticl-d-page">
-          {designMode && <div className="ticl-d-input-layer" />}
+          {designMode && hasPage && <div className="ticl-d-input-layer" />}
           <TicloPage
             block={flow}
             key={flow._blockId}
             context={componentContext}
-            fallback={<div className="ticl-d-empty">This flow has no #main component.</div>}
+            fallback={
+              <div className="ticl-d-empty ticl-d-page-setup">
+                <h3>This flow has no page yet.</h3>
+                {designMode && (
+                  <>
+                    <p>Choose a layout to start designing.</p>
+                    <div className="ticl-d-layout-options">
+                      {pageLayouts.map(({label, data}) => (
+                        <Button key={label} disabled={!canCreatePage(data)} onClick={() => createPage(data)}>
+                          {label}
+                        </Button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            }
           />
         </div>
       ) : (

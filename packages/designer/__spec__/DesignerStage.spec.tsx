@@ -1,7 +1,7 @@
 import React, {StrictMode, useContext, useState} from 'react';
 import '../style/index.css';
 import {expectTypeOf} from 'vitest';
-import {Block, Root, globalFunctions} from '@ticlo/core';
+import {Block, Root, globalFunctions, type DataMap} from '@ticlo/core';
 import {ComponentContext, type ComponentContextValue} from '@ticlo/react';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
@@ -15,6 +15,7 @@ import {
 import {DesignerApp} from '../DesignerApp.tsx';
 import {DesignerNodeTree} from '../DesignerNodeTree.tsx';
 import {FunctionTree} from '@ticlo/editor/function-selector/FunctionTree.tsx';
+import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {
   TicloCurrentFlowContext,
   TicloLayoutContextType,
@@ -49,7 +50,7 @@ describe('DesignerStage', () => {
 
     const flow = Root.instance.getValue(path) as Block;
     flow.deleteValue('#main');
-    await shouldHappen(() => div.textContent.includes('This flow has no #main component.'));
+    await shouldHappen(() => div.textContent.includes('This flow has no page yet.'));
     const replacement = flow.createBlock('#main');
     replacement.setValue('#is', 'react:p');
     replacement.setValue('content', 'Replacement');
@@ -61,11 +62,104 @@ describe('DesignerStage', () => {
     flow.updateValue('#output', <span>Data output</span>);
     const [, conn] = makeLocalConnection(Root.instance);
     const [, div] = loadTemplate(<DesignerStage root={Root.instance} conn={conn} basePath={path} />);
-    await shouldHappen(() => div.textContent.includes('This flow has no #main component.'));
+    await shouldHappen(() => div.textContent.includes('This flow has no page yet.'));
     expect(div.textContent).not.toContain('Data output');
 
     flow.updateValue('#main', <span>React page</span>);
     await shouldHappen(() => div.textContent === 'React page');
+  });
+
+  it.each(['absolute', 'horizontal', 'vertical'])('initializes an empty page with a %s layout', async (layout) => {
+    let saved: DataMap;
+    const flow = Root.instance.addFlow(
+      path,
+      {value: 42, calculation: {'#is': 'add', '0': 1, '1': 2}},
+      {applyChange: (flow) => (saved = flow.save())}
+    );
+    const calculation = flow.getValue('calculation');
+    const [, conn] = makeLocalConnection(Root.instance);
+    let stage: DesignerStageContextValue;
+    function Panel(): null {
+      stage = useActiveDesignerStage();
+      return null;
+    }
+    const [, div] = loadTemplate(
+      <DesignerApp value={{}}>
+        <DesignerStage root={Root.instance} conn={conn} basePath={path} />
+        <Panel />
+      </DesignerApp>
+    );
+    await shouldHappen(() => stage?.flow === flow && div.querySelectorAll('button').length === 3);
+    expect(div.textContent).not.toContain('#main');
+    const button = Array.from(div.querySelectorAll('button')).find(
+      (button) => button.textContent.toLowerCase() === layout
+    );
+    await shouldHappen(() => !button.disabled);
+    button.click();
+
+    await shouldHappen(() => stage.main?.getValue('#is') === `react:${layout}`);
+    const main = flow.getValue('#main') as Block;
+    await shouldHappen(() => stage.elementMap.getElements(main)?.length === 1);
+    expect(main.getValue('#order')).toEqual([]);
+    expect(div.querySelector('.ticl-d-page-setup')).toBeNull();
+    expect(flow.getValue('value')).toBe(42);
+    expect(flow.getValue('calculation')).toBe(calculation);
+
+    expect(stage.undo()).toBe(true);
+    await shouldHappen(() => !flow.getValue('#main') && div.querySelectorAll('button').length === 3);
+    expect(flow.getValue('calculation')).toBe(calculation);
+    expect(stage.redo()).toBe(true);
+    await shouldHappen(() => stage.main?.getValue('#is') === `react:${layout}`);
+    expect(stage.save()).toBe(true);
+    await shouldHappen(() => saved?.['#main']);
+    expect(saved['#main']).toMatchObject({'#is': `react:${layout}`});
+  });
+
+  it('respects the connection policy when initializing a page', async () => {
+    const flow = Root.instance.addFlow(path, {});
+    const [server, conn] = makeLocalConnection(Root.instance, true, {readonly: true});
+    const [, div] = loadTemplate(
+      <EditPolicyProvider conn={conn}>
+        <DesignerStage root={Root.instance} conn={conn} basePath={path} />
+      </EditPolicyProvider>
+    );
+    await shouldHappen(() => div.querySelectorAll('button').length === 3);
+    const buttons = Array.from(div.querySelectorAll('button'));
+    expect(buttons.every((button) => button.disabled)).toBe(true);
+    buttons[0].click();
+    expect(flow.getValue('#main')).toBeUndefined();
+
+    server.setEditPolicy({allowBlockTypes: ['react:horizontal']});
+    const horizontal = buttons.find((button) => button.textContent === 'Horizontal');
+    await shouldHappen(() => !horizontal.disabled);
+    expect(buttons.find((button) => button.textContent === 'Absolute').disabled).toBe(true);
+    expect(buttons.find((button) => button.textContent === 'Vertical').disabled).toBe(true);
+    horizontal.click();
+    await shouldHappen(() => (flow.getValue('#main') as Block)?.getValue('#is') === 'react:horizontal');
+  });
+
+  it('only offers page initialization in design mode', async () => {
+    const flow = Root.instance.addFlow(path, {});
+    const [, conn] = makeLocalConnection(Root.instance);
+    let stage: DesignerStageContextValue;
+    function Panel(): null {
+      stage = useActiveDesignerStage();
+      return null;
+    }
+    const [, div] = loadTemplate(
+      <DesignerApp value={{}}>
+        <DesignerStage root={Root.instance} conn={conn} basePath={path} />
+        <Panel />
+      </DesignerApp>
+    );
+    await shouldHappen(() => stage?.flow === flow && div.querySelectorAll('button').length === 3);
+    stage.setDesignMode(false);
+    await shouldHappen(() => div.querySelectorAll('button').length === 0);
+    expect(div.textContent).toContain('This flow has no page yet.');
+    expect(div.textContent).not.toContain('#main');
+    stage.setDesignMode(true);
+    await shouldHappen(() => div.querySelectorAll('button').length === 3);
+    expect(flow.getValue('#main')).toBeUndefined();
   });
 
   it('reveals selected descendants in nested View Decks without saving selection or changing bindings', async () => {
@@ -145,7 +239,7 @@ describe('DesignerStage', () => {
         <DesignerStage root={Root.instance} conn={conn} basePath={`${path}.child`} />
       </>
     );
-    await shouldHappen(() => div.textContent.includes('This flow has no #main component.'));
+    await shouldHappen(() => div.textContent.includes('This flow has no page yet.'));
     expect(div.textContent).toContain('This flow is not available.');
     expect(div.textContent).not.toContain('Nested main');
 
