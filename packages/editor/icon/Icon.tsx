@@ -22,12 +22,13 @@ export function TIcon({icon, style}: Props) {
   return (
     <div className="tico" style={iconStyle}>
       {backgroundClass ? <div className={`tico-icon-svg ${backgroundClass}`} /> : null}
-      {texts.map(({text, position, fontSize}, index) => (
+      {texts.map(({text, position, fontSize, shiftUp}, index) => (
         <span
           key={index}
           className="tico-txt"
           style={{
             fontSize,
+            transform: shiftUp ? 'translateY(-0.1em)' : undefined,
             justifyContent: position.includes('l') ? 'flex-start' : position.includes('r') ? 'flex-end' : 'center',
             alignItems: position.includes('t') ? 'flex-start' : position.includes('b') ? 'flex-end' : 'center',
           }}

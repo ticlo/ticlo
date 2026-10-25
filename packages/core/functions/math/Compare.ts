@@ -140,7 +140,7 @@ export class WithinRangeFunction extends PureFunction {
 globalFunctions.addFactory(WithinRangeFunction, {
   ...descriptor,
   name: 'within-range',
-  icon: ':[,]',
+  icon: '^:[,]',
   properties: [
     {name: 'input', type: 'number', pinned: true},
     {name: 'min', type: 'number', pinned: true},
@@ -166,7 +166,7 @@ export class WithinIntervalFunction extends PureFunction {
 globalFunctions.addFactory(WithinIntervalFunction, {
   ...descriptor,
   name: 'within-interval',
-  icon: ':[,)',
+  icon: '^:[,)',
   properties: [
     {name: 'input', type: 'number', pinned: true},
     {name: 'min', type: 'number', pinned: true},

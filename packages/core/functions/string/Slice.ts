@@ -44,7 +44,7 @@ export class SubstrFunction extends PureFunction {
 
 globalFunctions.addFactory(SubstrFunction, {
   name: 'substr',
-  icon: '13:sub',
+  icon: '13^:sub',
   properties: [
     {name: 'input', pinned: true, type: 'string'},
     {name: 'start', pinned: true, type: 'number', default: 0},

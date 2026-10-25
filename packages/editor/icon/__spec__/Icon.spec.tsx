@@ -16,8 +16,8 @@ describe('editor Icon', () => {
   it('renders one background below multiple text layers without truncating text', async () => {
     const [, div] = loadTemplate(
       <div>
-        <TIcon icon="tl:s  svg:react  br:2  :A" />
-        <TIcon icon="13:long text" />
+        <TIcon icon="tl^:s  svg:react  br^:2  :A" />
+        <TIcon icon="13^:long text" />
         <TIcon icon="svg:plus  svg:minus  t:add" />
         <TIcon icon="unknown:invalid" />
       </div>,

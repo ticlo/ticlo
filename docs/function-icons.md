@@ -20,6 +20,13 @@ The prefix selects a position and an optional font size in pixels:
 | `l:a`, `t:a`, `r:a`, `b:a` | Left, top, right or bottom, centered on the other axis |
 | `tl:a`, `tr:a`, `bl:a`, `br:a` | A corner; `t` or `b` must come first |
 | `tl13:a` | Top-left text at size 13 |
+| `17^:[ ]` | Centered text at size 17, shifted upward by `0.1em` |
+
+An optional `^` immediately before the colon shifts the entire text layer upward
+by `0.1em` of its own font size. It works with any position and font size,
+including the defaults: `^:text`, `t^:text`, `br13^:text`. Other layers are
+unaffected. Built-in text icons whose first character is not an uppercase letter
+use this marker explicitly; custom text is shifted only when `^` is present.
 
 Positioned text defaults to size 9. Opposing positions such as `lr` and `tb` are
 invalid. Text uses system Noto Sans 700. There is no automatic sizing or

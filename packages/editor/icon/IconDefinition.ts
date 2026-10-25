@@ -2,6 +2,7 @@ export interface IconText {
   text: string;
   position: string;
   fontSize: number;
+  shiftUp: boolean;
 }
 
 export interface IconBackground {
@@ -24,11 +25,13 @@ export function parseIcon(icon: string): {background?: IconBackground; texts: Ic
       continue;
     }
 
-    const match = /^([tb]?[lr]?)(\d+(?:\.\d+)?)?$/.exec(prefix);
+    const match = /^([tb]?[lr]?)(\d+(?:\.\d+)?)?(\^)?$/.exec(prefix);
     if (!match || !value || /[\u0000-\u001f]/.test(value)) continue;
     const position = match[1];
     const fontSize = match[2] ? Number(match[2]) : position ? 9 : 18;
-    if (fontSize > 0 && Number.isFinite(fontSize)) texts.push({text: value, position, fontSize});
+    if (fontSize > 0 && Number.isFinite(fontSize)) {
+      texts.push({text: value, position, fontSize, shiftUp: Boolean(match[3])});
+    }
   }
   return {background, texts};
 }

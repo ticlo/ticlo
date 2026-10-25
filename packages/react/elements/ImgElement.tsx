@@ -33,7 +33,7 @@ function ImageElement({block}: {block: Block}) {
 }
 const imgElementDesc: FunctionDesc = {
   name: 'img',
-  icon: '12:img',
+  icon: '12^:img',
   base: 'react:element',
   attributes: elementAttributes,
   tags: ['react-comp'],

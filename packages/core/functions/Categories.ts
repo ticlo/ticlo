@@ -10,14 +10,14 @@ globalFunctions.addCategory({
 globalFunctions.addCategory({
   id: 'string',
   name: 'string',
-  icon: '13:str',
+  icon: '13^:str',
   color: '4af',
 });
 
 globalFunctions.addCategory({
   id: 'script',
   name: 'script',
-  icon: 't18:{ }',
+  icon: '^:{ }',
   color: '1bb',
 });
 
@@ -31,7 +31,7 @@ globalFunctions.addCategory({
 globalFunctions.addCategory({
   id: 'condition',
   name: 'condition',
-  icon: ':if',
+  icon: '^:if',
   color: '4af',
 });
 
@@ -46,7 +46,7 @@ globalFunctions.addCategory({
 globalFunctions.addCategory({
   id: 'http',
   name: 'http',
-  icon: ':://',
+  icon: '^:://',
   color: '4af',
   ns: 'http',
 });
