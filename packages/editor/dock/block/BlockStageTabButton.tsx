@@ -80,7 +80,11 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
         </div>
       );
     } else {
-      closeButtun = <div className="dock-tab-close-btn" onClick={this.onClose} />;
+      closeButtun = (
+        <div className="dock-tab-close-btn" onClick={this.onClose}>
+          <span className="dock-icon dock-icon-close" />
+        </div>
+      );
     }
     return (
       <TicloCurrentFlowContext.Consumer>

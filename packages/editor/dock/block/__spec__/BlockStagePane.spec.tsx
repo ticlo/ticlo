@@ -75,6 +75,14 @@ describe('BlockStagePane', () => {
     context.runStageCommand('save');
     expect(saveSecond).toHaveBeenCalledTimes(1);
     expect(context.currentPath).toBe(flowPath);
+
+    const close = div.querySelector<HTMLElement>(`[data-node-key="${second.id}"] .dock-tab-close-btn`);
+    expect(close.getBoundingClientRect().width).toBeGreaterThan(0);
+    expect(close.getBoundingClientRect().height).toBeGreaterThan(0);
+    close.click();
+    await shouldHappen(() => layout.find(second.id) === undefined);
+    expect(layout.find(first.id)).toBeDefined();
+    expect(layout.find(third.id)).toBeDefined();
   });
 
   it.each([true, false])('reloads a runtime worker after consecutive saves (serialize=%s)', async (serialize) => {

@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="../dist/antd.css">
   <link rel="stylesheet" href="../dist/editor.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.12/css/all.css" crossorigin="anonymous">
-  <link rel="stylesheet" href="../packages/editor/style/fonts.css">
   <style>
     body {
       height: 100%;
@@ -16,7 +15,8 @@
 
     #main {
       font-size: 18px;
-      font-family: 'Fredoka One', cursive;
+      font-family: 'Noto Sans', sans-serif;
+      font-weight: 900;
       line-height: 18px;
     }
   </style>
@@ -48,7 +48,7 @@
     span.innerText = JSON.stringify(widthTable);
   }
 
-  setTimeout(measure, 100);
+  document.fonts.load('900 18px "Noto Sans"').then(measure);
 </script>
 </body>
 
