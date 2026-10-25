@@ -3,6 +3,11 @@
   font-weight: 900;
 }
 
+.dock-icon-collapse-left::before,
+.dock-icon-collapse-right::before {
+  transform: translateY(-0.1em);
+}
+
 body > .dragging-layer {
   & > div:last-child[class^='tico-fa'] {
     top: 14px;

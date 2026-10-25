@@ -88,7 +88,7 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
           desc = {id: item.key, name};
         }
       }
-      const [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-e-bg--');
+      const [colorStyle, iconName] = getFuncStyleFromDesc(desc, item.getConn());
       const isFunctionLib =
         !item.root.inFlow && item.key.startsWith('+') && item.key.endsWith(':') && item.key.split(':').length > 2;
       const categoryView = (
@@ -97,7 +97,7 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
           className={isFunctionLib ? 'ticl-e-tree-type ticl-e-func-lib' : 'ticl-e-tree-type'}
         >
           <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
-          <TIcon icon={iconName} colorClass={colorClass} />
+          <TIcon icon={iconName} style={colorStyle} />
           <LocalizedFunctionName desc={desc} />
         </div>
       );

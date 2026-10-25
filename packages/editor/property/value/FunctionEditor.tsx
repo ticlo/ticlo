@@ -71,16 +71,12 @@ export class FunctionEditor extends StringEditorBase {
       onChange = null;
     }
 
-    let iconName: string;
-    let colorClass = 'ticl-e-bg--999';
     const funcDesc = conn.watchDesc(value, getDescLib(value, funcLib));
-    if (funcDesc) {
-      [colorClass, iconName] = getFuncStyleFromDesc(funcDesc, conn, 'ticl-e-bg--');
-    }
+    const [colorStyle, iconName] = getFuncStyleFromDesc(funcDesc, conn);
 
     return (
       <DragDropDiv className="ticl-e-type-editor ticl-e-hbox" onDragOverT={this.onDragOver} onDropT={this.onDrop}>
-        <TIcon icon={iconName} colorClass={colorClass} />
+        <TIcon icon={iconName} style={colorStyle} />
         <Popup
           popupVisible={opened && onChange != null}
           onPopupVisibleChange={this.onPopupClose}

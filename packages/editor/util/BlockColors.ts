@@ -1,37 +1,10 @@
-import {globalStyle} from '@ticlo/html';
-import {FunctionDesc} from '@ticlo/core';
-import {ClientConn} from '@ticlo/core/editor.ts';
+import type {CSSProperties} from 'react';
+import type {ClientConn} from '@ticlo/core/editor.ts';
 
-const usedColors = new Set<string>();
-
-const colorReg = /^[a-f0-9]{3}$/;
-function brighterColor(c: string) {
-  return 255 - ((255 - Number(`0x${c}`) * 17) >> 1);
-}
-export function addBlockColor(color: string) {
-  if (usedColors.has(color)) {
-    return;
-  }
-  if (!colorReg.test(color)) {
-    return;
-  }
-  usedColors.add(color);
-  const rr = brighterColor(color.substring(0, 1));
-  const gg = brighterColor(color.substring(1, 2));
-  const bb = brighterColor(color.substring(2, 3));
-  globalStyle.addCssText(`.ticl-e-block--${color}{border-color: #${color};}`);
-  globalStyle.addCssText(`.ticl-e-block--${color} .ticl-e-block-prbg, .ticl-e-bg--${color}{background: #${color};}`);
-  globalStyle.addCssText(
-    `.ticl-e-block--${color}.ticl-e-block-selected{box-shadow: 0 0 4px 3px rgb(${rr},${gg},${bb});}`
-  );
-}
-
-const priorityColors = ['4af', '1bb', '8c1', 'f72'];
 export function getFuncStyleFromDesc(
   desc: {color?: string; icon?: string; ns?: string; category?: string},
-  conn: ClientConn,
-  prefix = 'ticl-e-block--'
-): [string, string] {
+  conn: ClientConn
+): [CSSProperties, string] {
   let color: string;
   let icon: string;
   if (desc) {
@@ -51,6 +24,5 @@ export function getFuncStyleFromDesc(
     }
   }
   color = color || '999';
-  addBlockColor(color);
-  return [prefix + color, icon];
+  return [{'--ticl-block-color': `#${color}`} as CSSProperties, icon];
 }

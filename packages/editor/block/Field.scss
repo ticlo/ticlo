@@ -136,7 +136,7 @@
   top: 10px;
   width: 18px;
   height: 14px;
-  background: $ticl-color-prn;
+  background: var(--ticl-block-color);
   border-radius: 0 9px 0 0;
   & > .tico {
     transform-origin: top left;

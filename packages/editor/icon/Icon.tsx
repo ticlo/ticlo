@@ -12,7 +12,7 @@ for (const charWithOff of [40, 41, 44, 59, 64, 91, 93, 103, 106, 112, 113, 121, 
 
 interface Props {
   icon: string;
-  colorClass?: string;
+  style?: React.CSSProperties;
 }
 
 // not an accurate way to measure a string
@@ -56,8 +56,11 @@ function iconNameWidth(str: string): [string, number, boolean] {
 }
 
 export function TIcon(props: Props) {
-  let {icon, colorClass} = props;
-  let className = `tico ${colorClass || ''}`;
+  let {icon, style} = props;
+  if (style) {
+    style = {backgroundColor: 'var(--ticl-block-color)', ...style};
+  }
+  let className = 'tico';
   if (icon == null) {
     icon = '';
   }
@@ -73,7 +76,7 @@ export function TIcon(props: Props) {
       case 'fa':
         if (!iconName.includes(' ')) {
           return (
-            <div className={className}>
+            <div className={className} style={style}>
               <div className={`tico-icon-svg tico-${iconType}-${iconName}`} />
             </div>
           );
@@ -90,10 +93,14 @@ export function TIcon(props: Props) {
             if (needOffset) {
               className += ' tico-yoff';
             }
-            return <div className={`tico-txt ${className}`}>{iconName}</div>;
+            return (
+              <div className={`tico-txt ${className}`} style={style}>
+                {iconName}
+              </div>
+            );
           } else {
             return (
-              <div className={`tico-txt ${className}`} style={{fontSize: `${fontSize}px`}}>
+              <div className={`tico-txt ${className}`} style={{...style, fontSize: `${fontSize}px`}}>
                 {iconName}
               </div>
             );
@@ -102,5 +109,5 @@ export function TIcon(props: Props) {
     }
   }
 
-  return <div className={className} />;
+  return <div className={className} style={style} />;
 }

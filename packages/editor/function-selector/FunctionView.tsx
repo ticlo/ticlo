@@ -126,9 +126,9 @@ export class FunctionView extends React.PureComponent<Props, any> {
         prefix = idParts.at(-3);
       }
     }
-    const [colorClass, iconName] = getFuncStyleFromDesc(desc, conn, 'ticl-e-bg--');
+    const [colorStyle, iconName] = getFuncStyleFromDesc(desc, conn);
     const typeView = (
-      <DragDropDiv className={`${colorClass} ticl-e-func-view`} onClick={this.onClick} onDragStartT={this.onDrag}>
+      <DragDropDiv className="ticl-e-func-view" style={colorStyle} onClick={this.onClick} onDragStartT={this.onDrag}>
         <TIcon icon={iconName} />
         {prefix ? <span className="ticl-e-func-ns">{prefix}</span> : null}
         <LocalizedFunctionName desc={desc} className="ticl-e-func-name" />

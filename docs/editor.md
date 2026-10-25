@@ -187,5 +187,9 @@ Ticlo-specific colors can be overridden in the same scope:
 | `--ticl-code-number-color` | Ant Design `colorWarning` |
 | `--dock-drop-indicator-bg` | Ant Design `colorPrimary` |
 
+Block and function views always define `--ticl-block-color`, which descendant
+headers and icons inherit. Selected-block shadows use CSS `color-mix` with
+transparent to preserve the color's hue on light and dark backgrounds.
+
 Editor components include light-color fallbacks when Ant Design variables are
 absent. Designer pages and note views can still specify their own content colors.

@@ -529,18 +529,16 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (this.state.dropPosition === 'inside') contentClassName += ' ticl-e-tree-drop-inside';
     let icon: React.ReactElement;
 
-    let [colorClass, iconName] = getFuncStyleFromDesc(desc, item.getConn(), 'ticl-e-bg--');
+    let [colorStyle, iconName] = getFuncStyleFromDesc(desc, item.getConn());
 
     if (dynamicStyle) {
-      const [dynamicColor, dynamicIcon] = getFuncStyleFromDesc(dynamicStyle, null, 'ticl-e-bg--');
-      if (dynamicColor) {
-        colorClass = dynamicColor;
-      }
+      const [dynamicColor, dynamicIcon] = getFuncStyleFromDesc(dynamicStyle, null);
+      colorStyle = dynamicColor;
       if (dynamicIcon) {
         iconName = dynamicIcon;
       }
     }
-    icon = <TIcon icon={iconName} colorClass={colorClass} />;
+    icon = <TIcon icon={iconName} style={colorStyle} />;
 
     if (!dynamicStyle) {
       if (saveAllowed.has(item.functionId)) {

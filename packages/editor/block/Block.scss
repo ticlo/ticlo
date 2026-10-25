@@ -7,12 +7,16 @@
   list-style: none;
   background: var(--ant-color-bg-container, #fff);
   border-radius: 0 12px 0;
-  border: 1px solid var(--ant-color-border, #999);
+  border: 1px solid var(--ticl-block-color);
   position: absolute;
   white-space: nowrap;
   transition-property: border-color, box-shadow;
   transition-duration: 0.2s;
   z-index: 5;
+
+  &.ticl-e-block-selected {
+    box-shadow: 0 0 4px 3px color-mix(in srgb, var(--ticl-block-color) 50%, transparent);
+  }
 }
 
 .ticl-e-block-full-view {
@@ -60,7 +64,7 @@
   border-top-right-radius: 10px;
   height: 24px;
   padding: 2px 16px;
-  background: $ticl-color-prn;
+  background: var(--ticl-block-color);
   color: white;
 
   & > .tico {

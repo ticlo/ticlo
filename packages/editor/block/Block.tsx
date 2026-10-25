@@ -257,18 +257,15 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       // data not ready, don't renderer
       return <div ref={this.getRef} />;
     } else {
-      let [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
+      let [colorStyle, icon] = getFuncStyleFromDesc(item.desc, item.conn);
       classNames.push('ticl-e-block');
       if (item.dynamicStyle) {
         const [dynamicColor, dynamicIcon] = getFuncStyleFromDesc(item.dynamicStyle, null);
-        if (dynamicColor) {
-          colorClass = dynamicColor;
-        }
+        colorStyle = dynamicColor;
         if (dynamicIcon) {
           icon = dynamicIcon;
         }
       }
-      classNames.push(colorClass);
       if (item.w) {
         // not minimized
         let widget: React.ReactNode;
@@ -281,7 +278,11 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           );
         }
         return (
-          <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x, width: item.w}}>
+          <div
+            ref={this.getRef}
+            className={classNames.join(' ')}
+            style={{...colorStyle, top: item.y, left: item.x, width: item.w}}
+          >
             <BlockHeaderView
               item={item.getHeaderCallField()}
               isStatic={item.isStatic}
@@ -317,12 +318,12 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       } else {
         // minimized block
         classNames.push('ticl-e-block-min');
-        let headClasses = 'ticl-e-block-head ticl-e-block-prbg';
+        let headClasses = 'ticl-e-block-head';
         if (item.isStatic) {
           headClasses = `${headClasses} ticl-e-block-head-static`;
         }
         return (
-          <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
+          <div ref={this.getRef} className={classNames.join(' ')} style={{...colorStyle, top: item.y, left: item.x}}>
             <div className="ticl-e-block-min-bound" />
             <BlockDropdown
               checkPolicy

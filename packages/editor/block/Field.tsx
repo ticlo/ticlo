@@ -331,7 +331,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
         }
       }
     }
-    let className = 'ticl-e-block-head ticl-e-block-prbg';
+    let className = 'ticl-e-block-head';
     if (isStatic) {
       className = `${className} ticl-e-block-head-static`;
     }
@@ -365,7 +365,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
         ) : null}
         {showOutBound ? <div className="ticl-e-outbound" /> : null}
         {item?.subBlock ? (
-          <div className="ticl-e-field-subicon ticl-e-block-prbg">
+          <div className="ticl-e-field-subicon">
             <TIcon icon={item.subBlock.desc.icon} />
           </div>
         ) : null}
@@ -564,7 +564,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         {indentChildren}
         <div className="ticl-e-field-name" onDoubleClick={this.onNameDoubleClick}>
           {item.subBlock ? (
-            <div className="ticl-e-field-subicon ticl-e-block-prbg" style={{left: item.indents.length * 18}}>
+            <div className="ticl-e-field-subicon" style={{left: item.indents.length * 18}}>
               <TIcon icon={item.subBlock.desc.icon} />
             </div>
           ) : null}

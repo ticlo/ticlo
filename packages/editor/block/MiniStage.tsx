@@ -65,15 +65,14 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
     } else if (item.w) {
       classNames.push('ticl-e-block');
 
-      const [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
-      classNames.push(colorClass);
+      const [colorStyle, icon] = getFuncStyleFromDesc(item.desc, item.conn);
       return (
         <div
           ref={this.getRef}
           className={classNames.join(' ')}
-          style={{top: item.y, left: item.x, width: item.w, height: item.h}}
+          style={{...colorStyle, top: item.y, left: item.x, width: item.w, height: item.h}}
         >
-          <div className="ticl-e-block-head ticl-e-block-prbg">
+          <div className="ticl-e-block-head">
             <TIcon icon={icon} />
             {item.name}
           </div>
@@ -82,11 +81,10 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
     } else if (item.descLoaded) {
       classNames.push('ticl-e-block');
       classNames.push('ticl-e-block-min');
-      const [colorClass, icon] = getFuncStyleFromDesc(item.desc, item.conn);
-      classNames.push(colorClass);
+      const [colorStyle, icon] = getFuncStyleFromDesc(item.desc, item.conn);
       return (
-        <div ref={this.getRef} className={classNames.join(' ')} style={{top: item.y, left: item.x}}>
-          <div className="ticl-e-block-head ticl-e-block-prbg">
+        <div ref={this.getRef} className={classNames.join(' ')} style={{...colorStyle, top: item.y, left: item.x}}>
+          <div className="ticl-e-block-head">
             <TIcon icon={icon} />
           </div>
         </div>
