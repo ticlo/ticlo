@@ -22,7 +22,7 @@ globalFunctions.addFactory(
   null,
   {
     name: 'view-deck',
-    icon: 'txt:-D-',
+    icon: '14:-D-',
     base: 'react:element',
     optionalSuggestions: optionalHtmlSuggestions,
     attributes: elementAttributes,

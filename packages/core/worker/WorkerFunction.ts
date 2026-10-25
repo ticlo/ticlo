@@ -192,7 +192,7 @@ globalFunctions.addFactory(
       },
     ],
     category: 'repeat',
-    icon: 'fas:file',
+    icon: 'svg:file',
   },
   null,
   {getDefaultWorker}

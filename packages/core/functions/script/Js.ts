@@ -127,7 +127,7 @@ export class JsFunction extends BaseFunction<Block> {
 
 globalFunctions.addFactory(JsFunction, {
   name: 'js',
-  icon: 'txt:js',
+  icon: ':js',
   priority: 1,
   properties: [
     {

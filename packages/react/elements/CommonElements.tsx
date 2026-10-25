@@ -30,7 +30,7 @@ function DivElement({block}: {block: Block}) {
     </div>
   );
 }
-globalFunctions.addFactory(null, createElementDesc('div', 'txt:div'), 'react', undefined, {
+globalFunctions.addFactory(null, createElementDesc('div', '13:div'), 'react', undefined, {
   meta: {[metaKey]: DivElement},
 });
 
@@ -42,7 +42,7 @@ function SpanElement({block}: {block: Block}) {
     </span>
   );
 }
-globalFunctions.addFactory(null, createElementDesc('span', 'txt:spn'), 'react', undefined, {
+globalFunctions.addFactory(null, createElementDesc('span', '13:spn'), 'react', undefined, {
   meta: {[metaKey]: SpanElement},
 });
 
@@ -54,7 +54,7 @@ function PElement({block}: {block: Block}) {
     </p>
   );
 }
-globalFunctions.addFactory(null, createElementDesc('p', 'txt:p'), 'react', undefined, {
+globalFunctions.addFactory(null, createElementDesc('p', ':p'), 'react', undefined, {
   meta: {[metaKey]: PElement},
 });
 
@@ -66,7 +66,7 @@ function PreElement({block}: {block: Block}) {
     </pre>
   );
 }
-globalFunctions.addFactory(null, createElementDesc('pre', 'txt:pre'), 'react', undefined, {
+globalFunctions.addFactory(null, createElementDesc('pre', '13:pre'), 'react', undefined, {
   meta: {[metaKey]: PreElement},
 });
 
@@ -80,7 +80,7 @@ function ButtonElement({block}: {block: Block}) {
 }
 globalFunctions.addFactory(
   null,
-  {...createElementDesc('button', 'txt:btn'), init: {'content': 'button', '@d-seal': true}},
+  {...createElementDesc('button', '13:btn'), init: {'content': 'button', '@d-seal': true}},
   'react',
   undefined,
   {meta: {[metaKey]: ButtonElement}}

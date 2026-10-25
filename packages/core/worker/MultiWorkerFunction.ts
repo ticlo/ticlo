@@ -309,7 +309,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
 globalFunctions.addFactory(MultiWorkerFunction, {
   name: 'multi-worker',
   priority: 1,
-  icon: 'fas:list',
+  icon: 'svg:list',
   configs: defaultConfigs.concat('#cancel'),
   properties: [
     {name: 'input', pinned: true, type: 'object'},

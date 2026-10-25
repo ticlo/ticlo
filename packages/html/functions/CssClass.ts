@@ -52,7 +52,7 @@ globalFunctions.addFactory(
   CssClassFunction,
   {
     name: 'css-class',
-    icon: 'fab:css3',
+    icon: 'svg:css3',
     priority: 1,
     properties: [
       {name: 'cssSheet', type: 'service', options: ['css-sheet']},

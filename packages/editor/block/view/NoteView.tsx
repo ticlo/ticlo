@@ -87,7 +87,7 @@ ClientConnection.addEditorDescriptor('note', {
   view: NoteView,
   name: 'note',
   id: 'note',
-  icon: 'fas:align-left',
+  icon: 'svg:align-left',
   properties: [
     {name: 'input', type: 'any', mime: 'text/x-markdown'},
     {name: 'mode', type: 'select', options: ['markdown', 'json', 'yaml'], default: 'markdown'},

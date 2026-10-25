@@ -37,7 +37,7 @@ globalFunctions.addFactory(
   FormatDateFunction,
   {
     name: 'modify',
-    icon: 'fas:clock',
+    icon: 'svg:clock',
     priority: 0,
     properties: [
       {name: 'base', type: 'any', pinned: true},

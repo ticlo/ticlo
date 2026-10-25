@@ -115,7 +115,7 @@ describe('FlowEditor', function () {
         ],
         '@b-p': ['b'],
       },
-      '#desc': {icon: 'fas:plus'},
+      '#desc': {icon: 'svg:plus'},
     };
     const expectedDescProperties: (PropDesc | PropGroupDesc)[] = [
       {
@@ -141,7 +141,7 @@ describe('FlowEditor', function () {
 
     const [desc, workerData, functionLib] = Namespace.getWorker('+FlowEditor::worker3');
     expect(workerData).toEqual(expectedData);
-    expect(desc.icon).toBe('fas:plus');
+    expect(desc.icon).toBe('svg:plus');
     expect(desc.properties).toEqual(expectedDescProperties);
 
     Namespace.delete('+FlowEditor::worker3');

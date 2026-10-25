@@ -14,7 +14,7 @@ export class IfFunction extends PureFunction {
 
 globalFunctions.addFactory(IfFunction, {
   name: 'if',
-  icon: 'txt:if',
+  icon: ':if',
   properties: [
     {name: 'input', pinned: true, type: 'any'},
     {name: 'then', pinned: true, type: 'any'},

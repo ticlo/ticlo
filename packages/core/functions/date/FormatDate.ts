@@ -29,7 +29,7 @@ globalFunctions.addFactory(
   FormatDateFunction,
   {
     name: 'format',
-    icon: 'fas:clock',
+    icon: 'svg:clock',
     priority: 0,
     properties: [
       {name: 'input', type: 'any', pinned: true},

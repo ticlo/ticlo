@@ -89,7 +89,7 @@ globalFunctions.addFactory(
   DelayFunction,
   {
     name: 'delay',
-    icon: 'fas:stopwatch',
+    icon: 'svg:stopwatch',
     priority: 2,
     properties: [
       {name: 'input', type: 'any', pinned: true},

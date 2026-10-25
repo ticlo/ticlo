@@ -30,7 +30,7 @@ globalFunctions.addFactory(
   CreateDateFunction,
   {
     name: 'create',
-    icon: 'fas:clock',
+    icon: 'svg:clock',
     priority: 0,
     properties: [
       {name: 'year', type: 'number', pinned: true},

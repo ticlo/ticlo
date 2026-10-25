@@ -478,7 +478,7 @@ describe('editor EditPolicy', () => {
       expect(DragState.getData('moveGroupIndex', client.getBaseConn())).toBeUndefined();
       expect(CustomGroupPropertyReorder.onDragOver({...editor.props, name: 'a1'}, event)).toBeNull();
       const target = {...editor.props, name: 'b0', baseName: 'b'};
-      expect(CustomGroupPropertyReorder.onDragOver(target, event)).toBe('tico-fas-exchange-alt');
+      expect(CustomGroupPropertyReorder.onDragOver(target, event)).toBe('tico-svg-right-left');
       const move = vi.spyOn(client, 'moveCustomProp').mockReturnValue('');
       CustomGroupPropertyReorder.onDragDrop(target, event);
       expect(move).toHaveBeenCalledWith('PolicyUI.add', 'a', 'b', 'items');
@@ -493,7 +493,7 @@ describe('editor EditPolicy', () => {
       expect(DragState.getData('moveGroupIndex', client.getBaseConn())).toBe(0);
       expect(CustomGroupPropertyReorder.onDragOver({...editor.props, name: 'b0', baseName: 'b'}, event)).toBeNull();
       const grouped = {...editor.props, name: 'b1', baseName: 'b'};
-      expect(CustomGroupPropertyReorder.onDragOver(grouped, event)).toBe('tico-fas-random');
+      expect(CustomGroupPropertyReorder.onDragOver(grouped, event)).toBe('tico-svg-shuffle');
       const reorderGroup = vi.spyOn(client, 'moveGroupProp').mockReturnValue('');
       CustomGroupPropertyReorder.onDragDrop(grouped, event);
       expect(reorderGroup).toHaveBeenCalledWith('PolicyUI.add', 'items', 0, 1);

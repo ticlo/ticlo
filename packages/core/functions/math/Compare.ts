@@ -25,7 +25,7 @@ export class EqualFunction extends PureFunction {
 globalFunctions.addFactory(EqualFunction, {
   ...descriptor,
   name: 'equal',
-  icon: 'fas:equals',
+  icon: 'svg:equals',
   properties: [
     {name: '0', type: 'any', pinned: true},
     {name: '1', type: 'any', pinned: true},
@@ -44,7 +44,7 @@ export class NotEqualFunction extends PureFunction {
 globalFunctions.addFactory(NotEqualFunction, {
   ...descriptor,
   name: 'not-equal',
-  icon: 'fas:not-equal',
+  icon: 'svg:not-equal',
   properties: [
     {name: '0', type: 'any', pinned: true},
     {name: '1', type: 'any', pinned: true},
@@ -67,7 +67,7 @@ export class GreaterThanFunction extends PureFunction {
 globalFunctions.addFactory(GreaterThanFunction, {
   ...descriptor,
   name: 'greater-than',
-  icon: 'fas:greater-than',
+  icon: 'svg:greater-than',
 });
 
 export class LessThanFunction extends PureFunction {
@@ -85,7 +85,7 @@ export class LessThanFunction extends PureFunction {
 globalFunctions.addFactory(LessThanFunction, {
   ...descriptor,
   name: 'less-than',
-  icon: 'fas:less-than',
+  icon: 'svg:less-than',
 });
 
 export class GreaterEqualFunction extends PureFunction {
@@ -103,7 +103,7 @@ export class GreaterEqualFunction extends PureFunction {
 globalFunctions.addFactory(GreaterEqualFunction, {
   ...descriptor,
   name: 'greater-equal',
-  icon: 'fas:greater-than-equal',
+  icon: 'svg:greater-than-equal',
 });
 
 export class LessEqualFunction extends PureFunction {
@@ -121,7 +121,7 @@ export class LessEqualFunction extends PureFunction {
 globalFunctions.addFactory(LessEqualFunction, {
   ...descriptor,
   name: 'less-equal',
-  icon: 'fas:less-than-equal',
+  icon: 'svg:less-than-equal',
 });
 
 export class WithinRangeFunction extends PureFunction {
@@ -140,7 +140,7 @@ export class WithinRangeFunction extends PureFunction {
 globalFunctions.addFactory(WithinRangeFunction, {
   ...descriptor,
   name: 'within-range',
-  icon: 'txt:[,]',
+  icon: ':[,]',
   properties: [
     {name: 'input', type: 'number', pinned: true},
     {name: 'min', type: 'number', pinned: true},
@@ -166,7 +166,7 @@ export class WithinIntervalFunction extends PureFunction {
 globalFunctions.addFactory(WithinIntervalFunction, {
   ...descriptor,
   name: 'within-interval',
-  icon: 'txt:[,)',
+  icon: ':[,)',
   properties: [
     {name: 'input', type: 'number', pinned: true},
     {name: 'min', type: 'number', pinned: true},

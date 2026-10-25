@@ -27,7 +27,7 @@ export class GroupFunction extends BaseFunction<Block> {
 
 globalFunctions.addFactory(GroupFunction, {
   name: 'group',
-  icon: 'fas:folder',
+  icon: 'svg:folder',
   color: '9bd',
   properties: [],
 });

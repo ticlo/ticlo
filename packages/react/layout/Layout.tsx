@@ -20,7 +20,7 @@ function createLayout(name: string) {
     null,
     {
       name,
-      icon: `txt:-${name[0].toUpperCase()}-`,
+      icon: `14:-${name[0].toUpperCase()}-`,
       base: 'react:element',
       optionalSuggestions: optionalHtmlSuggestions,
       attributes: elementAttributes,

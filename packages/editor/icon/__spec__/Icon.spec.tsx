@@ -1,58 +1,66 @@
 import {expect} from 'vitest';
-import React from 'react';
+import React, {StrictMode, useState} from 'react';
 import {TIcon} from '../Icon.tsx';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {removeLastTemplate, loadTemplate} from '../../util/test-util.ts';
 
-describe('editor Icon', function () {
-  afterEach(function () {
-    removeLastTemplate();
-  });
+function rulesFor(className: string) {
+  return document.adoptedStyleSheets
+    .flatMap((sheet) => [...sheet.cssRules])
+    .filter((rule) => rule instanceof CSSStyleRule && rule.selectorText === `.${className}`);
+}
 
-  it('basic', async function () {
-    loadTemplate(
+describe('editor Icon', () => {
+  afterEach(removeLastTemplate);
+
+  it('renders one background below multiple text layers without truncating text', async () => {
+    const [, div] = loadTemplate(
       <div>
-        <TIcon icon="fab:react" />
-        <TIcon icon="fas:plus" />
-        <TIcon icon="fas:minus" />
-        <TIcon icon="txt:A" />
-        <TIcon icon="txt:ip" />
-        <TIcon icon="txt:WWW" />
-        <TIcon icon="txt:文" />
-        <TIcon icon="txt:文文:12" />
-
-        <TIcon icon="fab:space space" />
-        <TIcon icon={'txt:\t'} />
-        <TIcon icon="txt" />
+        <TIcon icon="tl:s  svg:react  br:2  :A" />
+        <TIcon icon="13:long text" />
+        <TIcon icon="svg:plus  svg:minus  t:add" />
+        <TIcon icon="unknown:invalid" />
       </div>,
       'editor'
     );
+    await shouldHappen(() => div.querySelectorAll('.tico').length === 4);
+    const icons = div.querySelectorAll('.tico');
+    expect(icons[0].firstElementChild.className).toBe('tico-icon-svg tico-svg-react');
+    expect([...icons[0].querySelectorAll('.tico-txt')].map((text) => text.textContent)).toEqual(['s', '2', 'A']);
+    expect(icons[1].textContent).toBe('long text');
+    expect(icons[1].querySelector('.tico-icon-svg')).toBeNull();
+    expect(icons[2].querySelectorAll('.tico-icon-svg').length).toBe(1);
+    expect(icons[2].querySelector('.tico-svg-plus')).not.toBeNull();
+    expect(icons[3].children.length).toBe(0);
+  });
 
-    await shouldHappen(() => document.querySelector('.tico'));
-
-    const icons: NodeListOf<HTMLDivElement> = document.querySelectorAll('.tico');
-    expect(icons.length).toBe(11);
-
-    expect(icons[0].children[0].classList.contains('tico-fab-react')).toBe(true);
-
-    expect(icons[1].children[0].classList.contains('tico-fas-plus')).toBe(true);
-    expect(icons[2].children[0].classList.contains('tico-fas-minus')).toBe(true);
-
-    expect(icons[3].classList.contains('tico-txt')).toBe(true);
-    expect(icons[3].innerText).toBe('A');
-
-    expect(icons[4].classList.contains('tico-txt')).toBe(true);
-
-    expect(icons[5].classList.contains('tico-txt')).toBe(true);
-
-    expect(icons[6].classList.contains('tico-txt')).toBe(true);
-    expect(icons[6].innerText).toBe('文');
-
-    expect(icons[7].classList.contains('tico-txt')).toBe(true);
-
-    // invalid icon input
-    for (let i = 8; i < 11; ++i) {
-      expect(icons[i].classList.length).toBe(1);
+  it('shares path classes and releases temporary CSS when the path changes or unmounts', async () => {
+    let changePath: React.Dispatch<React.SetStateAction<string>>;
+    function Example() {
+      const [path, setPath] = useState('M0 0L96 96L0 96Z');
+      changePath = setPath;
+      return (
+        <>
+          <TIcon icon={`path:${path}  t:A`} />
+          <TIcon icon={`b:B  path:${path}`} />
+        </>
+      );
     }
+    const [, div] = loadTemplate(
+      <StrictMode>
+        <Example />
+      </StrictMode>,
+      'editor'
+    );
+    const backgroundClass = () => div.querySelector('.tico-icon-svg')?.classList[1];
+    const first = await shouldHappen(backgroundClass);
+    expect(div.querySelectorAll(`.${first}`).length).toBe(2);
+    await shouldHappen(() => rulesFor(first).length === 1);
+    changePath('M0 0L96 0L96 96Z');
+    const second = await shouldHappen(() => backgroundClass() !== first && backgroundClass());
+    expect(second).not.toBe(first);
+    await shouldHappen(() => rulesFor(first).length === 0 && rulesFor(second).length === 1);
+    removeLastTemplate();
+    await shouldHappen(() => rulesFor(second).length === 0);
   });
 });

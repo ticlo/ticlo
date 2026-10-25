@@ -33,7 +33,7 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
           }
 
           if (moveToField !== moveCustomField && group == fromGroup) {
-            return 'tico-fas-exchange-alt';
+            return 'tico-svg-right-left';
           }
         }
       }
@@ -42,7 +42,7 @@ export const CustomGroupPropertyReorder: PropertyReorder = {
         const moveGroupIndex = DragState.getData('moveGroupIndex', conn.getBaseConn());
         const currentGroupIndex = getTailingNumber(name);
         if (moveGroupIndex != null && moveGroupIndex !== currentGroupIndex) {
-          return 'tico-fas-random';
+          return 'tico-svg-shuffle';
         }
       }
     }
@@ -124,7 +124,7 @@ export const OptionalPropertyReorder: PropertyReorder = {
       const moveOptionalField: string = DragState.getData('moveOptionalField', conn.getBaseConn());
 
       if (moveOptionalField && moveOptionalField !== name) {
-        return 'tico-fas-exchange-alt';
+        return 'tico-svg-right-left';
       }
     }
     return null;

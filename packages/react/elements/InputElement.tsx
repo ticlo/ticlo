@@ -53,7 +53,7 @@ const inputOptions = {
 
 const inputElementDesc: FunctionDesc = {
   name: 'input',
-  icon: 'txt:in',
+  icon: ':in',
   base: 'react:element',
   attributes: elementAttributes,
   tags: ['react-comp'],
@@ -173,7 +173,7 @@ const textareaPropMap = {
 
 const textareaElementDesc: FunctionDesc = {
   name: 'textarea',
-  icon: 'txt:txt',
+  icon: '13:txt',
   base: 'react:element',
   attributes: elementAttributes,
   tags: ['react-comp'],
@@ -247,7 +247,7 @@ const selectPropMap = {
 
 const selectElementDesc: FunctionDesc = {
   name: 'select',
-  icon: 'txt:sel',
+  icon: '13:sel',
   base: 'react:element',
   attributes: elementAttributes,
   tags: ['react-comp'],

@@ -82,7 +82,7 @@ describe('editor BlockStage', function () {
     );
 
     // check block icon
-    expect(querySingle('//div.tico-icon-svg.tico-fas-plus', div)).not.toBeNull();
+    expect(querySingle('//div.tico-icon-svg.tico-svg-plus', div)).not.toBeNull();
 
     // test value update
     flow.queryProperty('add.0').updateValue(5);
@@ -107,7 +107,7 @@ describe('editor BlockStage', function () {
       'find field 3'
     );
     // check block icon again
-    expect(querySingle('//div.tico-icon-svg.tico-fas-minus', div)).not.toBeNull();
+    expect(querySingle('//div.tico-icon-svg.tico-svg-minus', div)).not.toBeNull();
   });
 
   it('opens block context menus on mouseup by default', async () => {
@@ -116,7 +116,7 @@ describe('editor BlockStage', function () {
     });
     const [, client] = makeLocalConnection(Root.instance);
     const [, div] = loadTemplate(<BlockStage conn={client} basePath="BlockStageMenu" />, 'editor');
-    await shouldHappen(() => div.querySelector('.tico-fas-plus'));
+    await shouldHappen(() => div.querySelector('.tico-svg-plus'));
     const label = await shouldHappen(() => div.querySelector('.ticl-e-block-head-label'));
     const mouse = {button: 2, clientX: 150, clientY: 110};
     simulate(label, 'mousedown', {...mouse, buttons: 2});

@@ -280,7 +280,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
               return;
             }
           }
-          e.accept('tico-fas-link');
+          e.accept('tico-svg-link');
           return;
         }
       }
@@ -288,7 +288,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         // bind from a block
         const moveBlock = DragState.getData('moveBlock', conn.getBaseConn());
         if (moveBlock && this.canBind()) {
-          e.accept('tico-fas-link');
+          e.accept('tico-svg-link');
           return;
         }
       }
@@ -300,7 +300,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         const desc = conn.watchDesc(blockData['#is'], getDescLib(blockData['#is'], this.props.funcLib));
         const outProp = getOutputDesc(desc);
         if (outProp) {
-          e.accept('tico-fas-plus-square');
+          e.accept('tico-svg-square-plus');
           return;
         }
       }

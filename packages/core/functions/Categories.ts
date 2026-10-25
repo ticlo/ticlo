@@ -3,42 +3,42 @@ import {globalFunctions} from '../block/FunctionLib.ts';
 globalFunctions.addCategory({
   id: 'math',
   name: 'math',
-  icon: 'fas:plus',
+  icon: 'svg:plus',
   color: '4af',
 });
 
 globalFunctions.addCategory({
   id: 'string',
   name: 'string',
-  icon: 'txt:str',
+  icon: '13:str',
   color: '4af',
 });
 
 globalFunctions.addCategory({
   id: 'script',
   name: 'script',
-  icon: 'txt:{ }',
+  icon: 't18:{ }',
   color: '1bb',
 });
 
 globalFunctions.addCategory({
   id: 'compare',
   name: 'compare',
-  icon: 'fas:equals',
+  icon: 'svg:equals',
   color: '4af',
 });
 
 globalFunctions.addCategory({
   id: 'condition',
   name: 'condition',
-  icon: 'txt:if',
+  icon: ':if',
   color: '4af',
 });
 
 globalFunctions.addCategory({
   id: 'web-server',
   name: 'web-server',
-  icon: 'fas:network-wired',
+  icon: 'svg:network-wired',
   color: '4af',
   ns: 'web-server',
 });
@@ -46,7 +46,7 @@ globalFunctions.addCategory({
 globalFunctions.addCategory({
   id: 'http',
   name: 'http',
-  icon: 'txt:://',
+  icon: ':://',
   color: '4af',
   ns: 'http',
 });
@@ -54,14 +54,14 @@ globalFunctions.addCategory({
 globalFunctions.addCategory({
   id: 'other',
   name: 'other',
-  icon: 'fas:question',
+  icon: 'svg:question',
   color: '4af',
 });
 
 globalFunctions.addCategory({
   id: 'repeat',
   name: 'repeat',
-  icon: 'fas:grip-vertical',
+  icon: 'svg:grip-vertical',
   color: '1bb',
   // color: 'e91',
 });
@@ -69,20 +69,20 @@ globalFunctions.addCategory({
 globalFunctions.addCategory({
   id: 'data',
   name: 'data',
-  icon: 'fas:code-branch',
+  icon: 'svg:code-branch',
   color: '4af',
 });
 
 globalFunctions.addCategory({
   id: 'date',
   name: 'date',
-  icon: 'fas:clock',
+  icon: 'svg:clock',
   color: '4af',
 });
 
 globalFunctions.addCategory({
   id: 'time',
   name: 'time',
-  icon: 'fas:stopwatch',
+  icon: 'svg:stopwatch',
   color: '4af',
 });

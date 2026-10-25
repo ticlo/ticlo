@@ -6,7 +6,7 @@ globalFunctions.addFactory(
   CreateObjectFunctionOptional,
   {
     name: 'create-style',
-    icon: 'fab:css3',
+    icon: 'svg:css3',
     optional: StyleDef,
     optionalSuggestions: [
       'display',

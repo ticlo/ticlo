@@ -39,7 +39,7 @@ globalFunctions.addFactory(
   ParseDateFunction,
   {
     name: 'parse',
-    icon: 'fas:clock',
+    icon: 'svg:clock',
     priority: 0,
     properties: [
       {name: 'input', type: 'any', pinned: true},

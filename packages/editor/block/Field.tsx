@@ -289,7 +289,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
           fields.length === 1 &&
           isBindable(item.path, fields[0])
         ) {
-          e.accept('tico-fas-play');
+          e.accept('tico-svg-play');
           return;
         }
       }
@@ -434,7 +434,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       const moveShownField = DragState.getData('moveShownField', item.getBaseConn());
       const block = DragState.getData('block', item.getBaseConn());
       if (block === item.block && moveShownField !== item.name) {
-        e.accept('tico-fas-exchange-alt');
+        e.accept('tico-svg-right-left');
         return;
       }
     } else {
@@ -447,12 +447,12 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
           fields.length === 1 &&
           isBindable(item.path, fields[0])
         ) {
-          e.accept('tico-fas-link');
+          e.accept('tico-svg-link');
           return;
         }
       } else {
         if (this.getMovingBlockPath() && this.context.canBindField(item.path)) {
-          e.accept('tico-fas-link');
+          e.accept('tico-svg-link');
           return;
         }
       }

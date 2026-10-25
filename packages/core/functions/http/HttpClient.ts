@@ -86,7 +86,7 @@ globalFunctions.addFactory(
   HttpClientFunction,
   {
     name: 'client',
-    icon: 'fas:file-arrow-down',
+    icon: 'svg:file-arrow-down',
     mode: 'onLoad',
     priority: 0,
     properties: [

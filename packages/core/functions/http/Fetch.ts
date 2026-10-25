@@ -91,7 +91,7 @@ globalFunctions.addFactory(
   FetchFunction,
   {
     name: 'fetch',
-    icon: 'fas:file-arrow-down',
+    icon: 'svg:file-arrow-down',
     mode: 'onLoad',
     priority: 2,
     configs: defaultConfigs.concat('#cancel'),

@@ -32,7 +32,7 @@ globalFunctions.addFactory(
   QuerySelectorFunction,
   {
     name: 'query-selector',
-    icon: 'fab:html5',
+    icon: 'svg:html5',
     properties: [
       {name: 'parent', type: 'none', init: 'document'},
       {name: 'query', type: 'string', pinned: true},

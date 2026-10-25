@@ -37,7 +37,7 @@ globalFunctions.addFactory(
   CssSheetFunction,
   {
     name: 'css-sheet',
-    icon: 'fab:css3',
+    icon: 'svg:css3',
     priority: 1,
     properties: [
       {name: 'prefix', type: 'string'},

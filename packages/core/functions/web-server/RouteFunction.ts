@@ -144,7 +144,7 @@ globalFunctions.addFactory(
   RouteFunction,
   {
     name: 'route',
-    icon: 'fas:network-wired',
+    icon: 'svg:network-wired',
     mode: 'onCall',
     properties: [
       {name: 'server', type: 'service', options: ['route-server']},

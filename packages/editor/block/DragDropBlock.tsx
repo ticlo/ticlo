@@ -15,7 +15,7 @@ export function onDragBlockOver(conn: ClientConn, e: DragState) {
   const blockData = DragState.getData('blockData', conn.getBaseConn());
 
   if (blockData && Object.hasOwn(blockData, '#is')) {
-    e.accept('tico-fas-plus');
+    e.accept('tico-svg-plus');
   }
 }
 

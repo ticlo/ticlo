@@ -4,8 +4,10 @@ import {nodePolyfills} from 'vite-plugin-node-polyfills';
 import {playwright} from '@vitest/browser-playwright';
 import {fileURLToPath} from 'node:url';
 import {buildCss} from './tool/package-styles.ts';
+import {buildIcons} from './tool/icon-styles.ts';
 
 buildCss();
+buildIcons();
 
 const isHeadless = process.env.HEADLESS !== 'false';
 const coreNodeModules = (name: string) => fileURLToPath(new URL(`./packages/core/node_modules/${name}`, import.meta.url));

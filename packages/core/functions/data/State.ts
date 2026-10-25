@@ -86,7 +86,7 @@ globalFunctions.addFactory(
   StateFunction,
   {
     name: 'set-state',
-    icon: 'fas:code-branch',
+    icon: 'svg:code-branch',
     mode: 'onCall',
     priority: 1,
     properties: [

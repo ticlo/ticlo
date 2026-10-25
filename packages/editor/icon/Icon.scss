@@ -18,10 +18,6 @@
   position: relative;
   width: 24px;
   height: 24px;
-  padding: 3px 0;
-  font-size: 18px;
-  line-height: 18px;
-  text-align: center;
   overflow: hidden;
   flex: 0 0 auto;
 }
@@ -34,14 +30,17 @@
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
+  pointer-events: none;
 }
 
 .tico-txt {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
   font-family: 'Noto Sans', sans-serif;
   font-weight: 700;
+  line-height: 1;
   color: white;
-
-  &.tico-yoff {
-    padding: 2px 0 4px;
-  }
+  pointer-events: none;
 }

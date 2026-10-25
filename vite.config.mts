@@ -7,6 +7,7 @@ import {exec} from 'child_process';
 import util from 'util';
 import path from 'path';
 import {buildCss, stylePackages} from './tool/package-styles.ts';
+import {buildIcons} from './tool/icon-styles.ts';
 
 const execAsync = util.promisify(exec);
 let checked = false; // shared across both hooks
@@ -34,10 +35,7 @@ async function checkFiles() {
     console.log('Building antd css...');
     await runNpmScript('build-antd-style');
   }
-  if (!fs.existsSync('css/icons.css')) {
-    console.log('Building icons...');
-    await runNpmScript('build-icons');
-  }
+  buildIcons();
 
   checked = true;
 }
@@ -54,11 +52,6 @@ function preProcess(): Plugin {
     /** Runs once at the very start of `vite build` */
     async buildStart() {
       await checkFiles();
-      this.emitFile({
-        type: 'asset',
-        fileName: 'assets/fredoka-one-OFL.txt',
-        source: fs.readFileSync('packages/editor/style/fonts/OFL.txt'),
-      });
     },
   };
 }

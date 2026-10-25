@@ -27,7 +27,7 @@ globalFunctions.addFactory(
   StaticResponse,
   {
     name: 'static-response',
-    icon: 'fas:network-wired',
+    icon: 'svg:network-wired',
     mode: 'onCall',
     properties: [
       {name: 'data', type: 'any', pinned: true},

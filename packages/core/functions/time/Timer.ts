@@ -139,7 +139,7 @@ globalFunctions.addFactory(
   TimerFunction,
   {
     name: 'timer',
-    icon: 'fas:stopwatch',
+    icon: 'svg:stopwatch',
     priority: 2,
     properties: [
       {

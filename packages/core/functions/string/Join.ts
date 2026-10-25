@@ -25,7 +25,7 @@ export class JoinFunction extends PureFunction {
 
 globalFunctions.addFactory(JoinFunction, {
   name: 'join',
-  icon: 'txt:j,o',
+  icon: ':j,o',
   properties: [
     {
       name: '',

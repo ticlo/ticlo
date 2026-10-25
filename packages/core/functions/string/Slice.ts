@@ -16,7 +16,7 @@ export class SliceFunction extends PureFunction {
 
 globalFunctions.addFactory(SliceFunction, {
   name: 'slice',
-  icon: 'fas:scissors',
+  icon: 'svg:scissors',
   properties: [
     {name: 'input', pinned: true, type: 'string'},
     {name: 'start', pinned: true, type: 'number', default: 0},
@@ -44,7 +44,7 @@ export class SubstrFunction extends PureFunction {
 
 globalFunctions.addFactory(SubstrFunction, {
   name: 'substr',
-  icon: 'txt:sub',
+  icon: '13:sub',
   properties: [
     {name: 'input', pinned: true, type: 'string'},
     {name: 'start', pinned: true, type: 'number', default: 0},

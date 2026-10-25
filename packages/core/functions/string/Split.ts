@@ -27,7 +27,7 @@ export class SplitFunction extends PureFunction {
 
 globalFunctions.addFactory(SplitFunction, {
   name: 'split',
-  icon: 'txt:s,p',
+  icon: '16:s,p',
   properties: [
     {name: 'input', pinned: true, type: 'string'},
     {name: 'separator', type: 'string', placeholder: ','},

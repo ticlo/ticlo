@@ -12,6 +12,6 @@ export {getElementBoxQuads, getElementGeometry, type ElementGeometry} from './ut
 globalFunctions.addCategory({
   id: 'html',
   name: 'html',
-  icon: 'fab:html5',
+  icon: 'svg:html5',
   color: '4af',
 });

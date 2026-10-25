@@ -254,7 +254,7 @@ globalFunctions.addFactory(
   HandlerFunction,
   {
     name: 'handler',
-    icon: 'fas:snowplow',
+    icon: 'svg:snowplow',
     priority: 3,
     mode: 'onChange',
     configs: defaultConfigs.concat('#cancel'),

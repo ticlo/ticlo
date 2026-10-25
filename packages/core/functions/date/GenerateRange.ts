@@ -56,7 +56,7 @@ globalFunctions.addFactory(
   GenerateDateFunction,
   {
     name: 'generate-range',
-    icon: 'fas:calendar',
+    icon: 'svg:calendar',
     priority: 0,
     properties: [
       {name: 'mode', type: 'select', options: ['previous', 'next'], init: 'previous', pinned: true},

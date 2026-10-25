@@ -30,7 +30,7 @@ export class SelectWorkerFunction extends BaseFunction<Block> {
 
 globalFunctions.addFactory(SelectWorkerFunction, {
   name: 'select-worker',
-  icon: 'fas:file-circle-question',
+  icon: 'svg:file-circle-question',
   priority: 2,
   properties: [
     {

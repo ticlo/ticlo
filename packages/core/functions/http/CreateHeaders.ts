@@ -9,7 +9,7 @@ globalFunctions.addFactory(
   CreateObjectFunctionOptional,
   {
     name: 'create-headers',
-    icon: 'txt:H',
+    icon: ':H',
     optional: HeadersDef,
     optionalSuggestions: [
       'Content-Type',

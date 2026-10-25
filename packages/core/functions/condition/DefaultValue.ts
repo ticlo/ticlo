@@ -14,7 +14,7 @@ export class DefaultValueFunction extends PureFunction {
 
 globalFunctions.addFactory(DefaultValueFunction, {
   name: 'default-value',
-  icon: 'fas:circle-dot',
+  icon: 'svg:circle-dot',
   properties: [
     {name: 'input', pinned: true, type: 'any'},
     {name: 'default', pinned: true, type: 'any'},

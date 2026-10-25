@@ -460,7 +460,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   onDragOver = (e: DragState) => {
     const drop = this.getDrop(e);
-    if (drop) e.accept(drop.functionDrag ? 'tico-fas-plus' : 'tico-fas-exchange-alt');
+    if (drop) e.accept(drop.functionDrag ? 'tico-svg-plus' : 'tico-svg-right-left');
     this.safeSetState({dropPosition: drop?.position});
   };
 

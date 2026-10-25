@@ -52,7 +52,7 @@ globalFunctions.addFactory(
   RenderDomFunction,
   {
     name: 'render-dom',
-    icon: 'fab:react',
+    icon: 'svg:react',
     properties: [
       {name: 'container', type: 'object'},
       {name: 'component', type: 'object'},

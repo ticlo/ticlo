@@ -8,7 +8,7 @@ export {FlowTestCase} from './FlowTestCase.ts';
 globalFunctions.addCategory({
   id: 'test:',
   name: 'test',
-  icon: 'fas:vial',
+  icon: 'svg:vial',
   color: 'fa1',
   ns: 'test',
 });

@@ -33,7 +33,7 @@ export class WriteStorageFunction extends BaseFunction {
 
 globalFunctions.addFactory(WriteStorageFunction, {
   name: 'write-storage',
-  icon: 'fas:file-arrow-up',
+  icon: 'svg:file-arrow-up',
   mode: 'onCall',
   priority: 3,
   properties: [
@@ -96,7 +96,7 @@ export class ReadStorageFunction extends BaseFunction {
 
 globalFunctions.addFactory(ReadStorageFunction, {
   name: 'read-storage',
-  icon: 'fas:file-arrow-down',
+  icon: 'svg:file-arrow-down',
   mode: 'onLoad',
   priority: 1,
   properties: [
