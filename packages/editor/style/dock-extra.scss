@@ -6,6 +6,12 @@
   font-synthesis-weight: none;
 }
 
+.dock-icon-close::before {
+  content: '🞩';
+  font-size: 18px;
+  line-height: 1;
+}
+
 .dock-icon-accordion::before {
   content: '⎶';
 }
