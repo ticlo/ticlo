@@ -74,7 +74,6 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
 
   focus() {
     this.getRootElement()?.focus({preventScroll: true});
-    this.activate();
   }
 
   select = (paths: string[]) => {
@@ -164,6 +163,8 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
       id: this.stageId,
       basePath: this.props.basePath,
       kind: this.kind,
+      conn: this.props.conn,
+      funcLib: this.props.funcLib,
       selection: {paths: []},
       select: this.select,
       save: this.save,
@@ -311,10 +312,21 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
 
   componentDidUpdate(prevProps: Readonly<BlockStageProps>, prevState: Readonly<StageState>, snapshot?: any): void {
     super.componentDidUpdate(prevProps, prevState);
-    if (prevProps.basePath !== this.props.basePath || prevProps.stageId !== this.props.stageId) {
+    if (
+      prevProps.basePath !== this.props.basePath ||
+      prevProps.stageId !== this.props.stageId ||
+      prevProps.conn !== this.props.conn ||
+      prevProps.funcLib !== this.props.funcLib
+    ) {
       const wasActive = this.context.activeStage?.id === this.stageContext.id;
       if (this.stageContext.id !== this.stageId) this.context.unregisterStage(this.stageContext.id);
-      this.stageContext = {...this.stageContext, id: this.stageId, basePath: this.props.basePath};
+      this.stageContext = {
+        ...this.stageContext,
+        id: this.stageId,
+        basePath: this.props.basePath,
+        conn: this.props.conn,
+        funcLib: this.props.funcLib,
+      };
       this.context.registerStage(this.stageContext);
       if (wasActive) this.activate();
     }
@@ -663,8 +675,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
         className={`ticl-e-stage${this.context.activeStage?.id === this.stageId ? ' ticl-e-selected-stage' : ''}`}
         ref={this.getRootRef}
         onMouseDown={this.onMouseDown}
-        onPointerDownCapture={this.activate}
-        onFocusCapture={this.activate}
+        onPointerUpCapture={this.activate}
         tabIndex={0}
       >
         <DragDropDiv
@@ -706,7 +717,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
           {toolButtons}
           <TooltipIconButton
             conn={conn}
-            path={`${basePath}.@has-undo`}
+            path={`${basePath}.#flow.@has-undo`}
             tooltip={t('Undo')}
             tooltipPlacement="left"
             icon={<UndoOutlined />}
@@ -714,7 +725,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
           />
           <TooltipIconButton
             conn={conn}
-            path={`${basePath}.@has-redo`}
+            path={`${basePath}.#flow.@has-redo`}
             tooltip={t('Redo')}
             tooltipPlacement="left"
             icon={<ReloadOutlined />}

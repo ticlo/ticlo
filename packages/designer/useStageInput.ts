@@ -94,7 +94,6 @@ const inputEvents = [
 export function useStageInput(
   stageRef: RefObject<HTMLDivElement | null>,
   {designMode, elementMap, select, addSelection}: ComponentContextValue<Block | string>,
-  activate: () => void,
   selectionRef: RefObject<DesignerSelection>,
   flow: Flow | null
 ) {
@@ -197,7 +196,6 @@ export function useStageInput(
       if (!block || !selectionRef.current.blocks.includes(block) || !stage.contains(element)) return;
       const resize = createStageResize(block, element, stage, handle, event.clientX, event.clientY);
       if (!resize) return;
-      activate();
       focusStage();
       setHover(null);
       gesture = {
@@ -409,7 +407,6 @@ export function useStageInput(
 
       if (event.type === 'pointerdown' || event.type === 'mousedown') {
         if (gesture) return;
-        activate();
         focusStage();
         const mouse = event as MouseEvent;
         const hit = findSelectedHit(mouse) ?? findHit(target);
@@ -456,7 +453,6 @@ export function useStageInput(
         };
         if (source instanceof PointerEvent && source.isTrusted) stage.setPointerCapture(source.pointerId);
       } else if (event.type === 'focus' || event.type === 'focusin') {
-        activate();
         if (target !== stage) focusStage();
       } else if (event.type === 'pointerover' || event.type === 'pointermove') {
         setHover(findHover(target));
@@ -478,7 +474,7 @@ export function useStageInput(
       view.removeEventListener('blur', cancel);
       for (const type of inputEvents) document.removeEventListener(type, handleInput, true);
     };
-  }, [stageRef, designMode, elementMap, select, addSelection, activate, selectionRef, flow]);
+  }, [stageRef, designMode, elementMap, select, addSelection, selectionRef, flow]);
 
   return {hover, marquee, resizePreview, startResize};
 }

@@ -181,7 +181,7 @@ describe('designer keyboard commands', () => {
     expect(container.getValue('a')).toBe(a);
   });
 
-  it('keeps commands and selection scoped to the focused view when dataflow and designer share a flow', async () => {
+  it('keeps commands and selection scoped to the active view when dataflow and designer share a flow', async () => {
     const flow = Root.instance.addFlow(path, {
       '#main': {'#is': 'react:div', '#order': ['a'], 'a': {'#is': 'react:span', 'content': 'A'}},
       'calc': {'#is': 'add'},
@@ -226,7 +226,7 @@ describe('designer keyboard commands', () => {
       'editor'
     );
     await shouldHappen(() => context && dataflow?.getBlock(`${path}.calc`));
-    div.querySelector<HTMLElement>('.ticl-d-stage').focus();
+    div.querySelector('.ticl-d-stage').dispatchEvent(new PointerEvent('pointerup', {bubbles: true}));
     await shouldHappen(() => context.activeStage?.id === 'design');
     const designer = context.activeStage as DesignerStageContextValue;
     designer.select([main.getValue('a') as Block]);
@@ -241,7 +241,12 @@ describe('designer keyboard commands', () => {
     key(div.querySelector('.ticl-e-app'), 'c', {ctrlKey: true});
     expect(copy).toHaveBeenLastCalledWith(`${path}.#main`, ['a']);
 
-    div.querySelector<HTMLElement>('.ticl-e-stage').focus();
+    const dataflowElement = div.querySelector<HTMLElement>('.ticl-e-stage');
+    dataflowElement.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, buttons: 1}));
+    expect(context.activeStage.id).toBe('design');
+    context.runStageCommand('copy');
+    expect(copy).toHaveBeenLastCalledWith(`${path}.#main`, ['a']);
+    dataflowElement.dispatchEvent(new PointerEvent('pointerup', {bubbles: true}));
     await shouldHappen(() => context.activeStage.id === 'dataflow');
     expect(context.activeStage.selection.paths).toEqual([`${path}.calc`]);
     key(input, 's', {metaKey: true});
@@ -255,9 +260,28 @@ describe('designer keyboard commands', () => {
     );
     expect(main.getValue('#order')).toEqual(['a']);
 
-    div.querySelector('.ticl-d-stage').dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
+    const designerElement = div.querySelector<HTMLElement>('.ticl-d-stage');
+    const childElement = div.querySelector('.ticl-d-page span');
+    childElement.dispatchEvent(
+      new PointerEvent('pointerdown', {bubbles: true, pointerType: 'mouse', pointerId: 1, isPrimary: true})
+    );
+    designerElement.focus();
+    expect(context.activeStage.id).toBe('dataflow');
+    context.runStageCommand('copy');
+    expect(copy.mock.lastCall[0]).toBe(path);
+    childElement.dispatchEvent(
+      new PointerEvent('pointerup', {bubbles: true, pointerType: 'mouse', pointerId: 1, isPrimary: true})
+    );
     await shouldHappen(() => context.activeStage.id === 'design');
     expect(context.activeStage.selection.paths).toEqual([`${path}.#main.a`]);
+    dataflow.focus();
+    expect(context.activeStage.id).toBe('design');
+    context.activateStage('dataflow');
+    await shouldHappen(() => context.activeStage.id === 'dataflow');
+    designerElement.focus();
+    expect(context.activeStage.id).toBe('dataflow');
+    context.activateStage('design');
+    await shouldHappen(() => context.activeStage.id === 'design');
     paste(div.querySelector('.ticl-e-app'), encode({designPaste: {'#is': 'react:span'}}));
     await shouldHappen(
       () =>

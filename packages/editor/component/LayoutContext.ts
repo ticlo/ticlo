@@ -1,5 +1,5 @@
 import React, {createContext} from 'react';
-import {PropDesc, PropDispatcher, voidFunction} from '@ticlo/core';
+import {PropDesc, PropDispatcher, voidFunction, type ClientConn} from '@ticlo/core';
 
 export interface TicloStageCommands {
   save(): boolean;
@@ -22,6 +22,8 @@ export interface TicloStage<Selection extends TicloSelection = TicloSelection> e
   id: string;
   basePath: string;
   kind: string;
+  conn?: ClientConn;
+  funcLib?: string;
   functionTreeTags?: readonly string[];
   nodeTreeTags?: readonly string[];
   selection: Selection;

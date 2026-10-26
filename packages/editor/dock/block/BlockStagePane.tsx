@@ -17,6 +17,7 @@ interface Props {
   stageId?: string;
   /** Hide the property list and its toggle button. */
   disablePropertyList?: boolean;
+  defaultShowPropertyList?: boolean;
   onSelect?: (keys: string[], handled: boolean) => void;
   onSave?: () => void;
 }
@@ -30,7 +31,12 @@ interface State {
 }
 
 export class BlockStagePane extends LazyUpdateComponent<Props, State> {
-  state: State = {showPropertyList: true, selectedKeys: [], sizes: [1000, 1], blockKey: 'Flow'};
+  state: State = {
+    showPropertyList: this.props.defaultShowPropertyList ?? true,
+    selectedKeys: [],
+    sizes: [1000, 1],
+    blockKey: 'Flow',
+  };
   private stage = React.createRef<BlockStage>();
   private activate = () => this.stage.current?.activate();
 
@@ -38,7 +44,8 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     path: string,
     conn: ClientConn,
     onSelect?: (keys: string[], handled: boolean) => void,
-    onSave?: () => void
+    onSave?: () => void,
+    options?: Pick<Props, 'disablePropertyList' | 'defaultShowPropertyList'>
   ) {
     const id = `blockEditor:${path}`;
     let tabName: string | React.ReactNode = getDisplayName(path.split('.').pop(), null);
@@ -50,7 +57,17 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
       closable: !onSave, // use the custom close button when onSave is not null
       title: <BlockStageTabButton conn={conn} id={id} path={path} title={tabName} onSave={onSave} />,
       group: 'blockStage',
-      content: <BlockStagePane conn={conn} basePath={path} stageId={id} onSelect={onSelect} onSave={onSave} />,
+      content: (
+        <BlockStagePane
+          conn={conn}
+          basePath={path}
+          stageId={id}
+          onSelect={onSelect}
+          onSave={onSave}
+          disablePropertyList={options?.disablePropertyList}
+          defaultShowPropertyList={options?.defaultShowPropertyList}
+        />
+      ),
     } as TabData;
   }
 
@@ -133,8 +150,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
         className="ticl-e-hbox ticl-e-stage-tab-content"
         ref={this.getRef}
         tabIndex={0}
-        onPointerDownCapture={this.activate}
-        onFocusCapture={this.activate}
+        onPointerUpCapture={this.activate}
       >
         {blockKey ? (
           <BlockStage

@@ -66,7 +66,13 @@ describe('BlockStagePane', () => {
     context.runStageCommand('save');
     expect(saveThird).toHaveBeenCalledTimes(1);
     const stageCount = div.querySelectorAll('.ticl-e-stage').length;
-    div.querySelector<HTMLElement>('.ticl-e-stage-tab-content').focus();
+    const firstPane = div.querySelector<HTMLElement>('.ticl-e-stage-tab-content');
+    firstPane.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
+    firstPane.focus();
+    expect(context.activeStage.id).toBe(third.id);
+    context.runStageCommand('save');
+    expect(saveThird).toHaveBeenCalledTimes(2);
+    firstPane.dispatchEvent(new PointerEvent('pointerup', {bubbles: true}));
     await shouldHappen(() => context.activeStage.id === first.id);
     layout.updateTab(second.id, null, true);
     await shouldHappen(() => context.activeStage.id === second.id);

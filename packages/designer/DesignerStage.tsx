@@ -111,7 +111,6 @@ export function DesignerStage({
   const {hover, marquee, resizePreview, startResize} = useStageInput(
     stageRef,
     {...componentContext, designMode: designMode && hasPage},
-    activate,
     selectionRef,
     flow
   );
@@ -131,8 +130,7 @@ export function DesignerStage({
       className={designMode ? 'ticl-d-stage ticl-d-stage-design' : 'ticl-d-stage'}
       ref={stageRef}
       tabIndex={designMode ? 0 : undefined}
-      onPointerDownCapture={activate}
-      onFocusCapture={activate}
+      onPointerUpCapture={activate}
       {...dropHandlers}
     >
       {flow ? (

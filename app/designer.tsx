@@ -16,7 +16,7 @@ import {
   type DesignerLayoutContext,
 } from '@ticlo/designer';
 import {initEditor, PropertyList, FileManager} from '@ticlo/editor';
-import {TicloCurrentFlowConsumer} from '@ticlo/editor/component/LayoutContext.ts';
+import {TicloCurrentFlowConsumer, TicloCurrentFlowContext} from '@ticlo/editor/component/LayoutContext.ts';
 import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.tsx';
 import {BlockStageTabButton} from '@ticlo/editor/dock/block/BlockStageTabButton.tsx';
@@ -41,12 +41,12 @@ import {designerData} from './sample-data/designer.ts';
 const DarkModeContext = React.createContext(false);
 
 function DesignerProperties({conn}: {conn: ClientConnection}) {
-  const stage = useActiveDesignerStage();
+  const {activeStage: stage} = useContext(TicloCurrentFlowContext);
   return (
     <PropertyList
       conn={stage?.conn ?? conn}
       paths={stage?.selection.paths ?? []}
-      funcLib={stage?.basePath}
+      funcLib={stage?.funcLib ?? stage?.basePath}
       style={{width: '100%', height: '100%', padding: 8}}
     />
   );
@@ -63,7 +63,7 @@ function ToolBox({
 }) {
   const darkMode = useContext(DarkModeContext);
   const {designMode, setDesignMode} = useContext(DesignerLayoutContextType);
-  const stage = useActiveDesignerStage();
+  const {activeStage: stage} = useContext(TicloCurrentFlowContext);
   return (
     <div style={{position: 'relative', padding: 8, height: '100%', overflow: 'auto', boxSizing: 'border-box'}}>
       <OpenEditorButton openEditor={openEditor} />
@@ -76,18 +76,18 @@ function ToolBox({
         <Switch size="small" checked={darkMode} onChange={onDarkModeChange} />
         Dark mode
       </label>
-      {stage?.flow && (
-        <div key={stage.basePath} style={{display: 'flex', gap: 8, marginTop: 8}}>
+      {stage?.conn && stage.undo && stage.redo && (
+        <div key={stage.id} style={{display: 'flex', gap: 8, marginTop: 8}}>
           <TooltipIconButton
             conn={stage.conn}
-            path={`${stage.basePath}.@has-undo`}
+            path={`${stage.basePath}.#flow.@has-undo`}
             tooltip={t('Undo')}
             icon={<UndoOutlined />}
             onClick={stage.undo}
           />
           <TooltipIconButton
             conn={stage.conn}
-            path={`${stage.basePath}.@has-redo`}
+            path={`${stage.basePath}.#flow.@has-redo`}
             tooltip={t('Redo')}
             icon={<ReloadOutlined />}
             onClick={stage.redo}
@@ -281,7 +281,13 @@ class App extends React.PureComponent<Props, State> {
     language: this.lng,
     editFlow: (path: string, onSave: () => void) => {
       if (!this.layout.updateTab(`blockEditor:${path}`, null, true)) {
-        this.layout.dockMove(BlockStagePane.createDockTab(path, this.conn, this.onSelect, onSave), 'main', 'middle');
+        this.layout.dockMove(
+          BlockStagePane.createDockTab(path, this.conn, this.onSelect, onSave, {
+            defaultShowPropertyList: false,
+          }),
+          'main',
+          'middle'
+        );
       }
     },
     designFlow: (path: string, onSave: () => void) => {

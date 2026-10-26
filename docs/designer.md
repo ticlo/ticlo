@@ -24,15 +24,26 @@ when it has any listed tag. Unmatched node branches are hidden, and function
 categories remain visible when they contain matching functions. Dataflow stages
 leave these lists undefined to show all functions and nodes.
 
+Design and dataflow stages share the external Properties and Outline panels.
+Both panels follow the active stage and its selection; selecting an Outline
+node also selects it in the stage. Shared Undo and Redo controls follow the
+active stage. Dataflow stages retain their own Properties and Undo/Redo controls,
+with Properties initially collapsed in Designer.
+
+Mouse interaction activates a stage on release, so pressing or starting a drag
+does not switch the shared panels early. Focus alone does not activate a stage;
+non-pointer navigation can explicitly call `activateStage()`.
+
 When stage selection changes, `DesignerNodeTree` expands the selected paths'
 ancestors, loading each level as needed. Switching stages also reveals their
 restored selections. Manual expansion and collapse remain available.
 
-`DesignerApp` accepts separate `designFlow` and `editFlow` callbacks. Both trees
-expose Design and Open Flow actions: `DesignerNavigationTree` defaults to Design
-on double-click, while `DesignerNodeTree` defaults to Open Flow. Design opens a
-designer stage; Open Flow opens the node's dataflow editor. Each mode keeps one
-tab per path; opening it again activates the existing tab.
+`DesignerApp` accepts separate `designFlow` and `editFlow` callbacks. Navigation
+double-click defaults to Design when available, and otherwise Open Flow.
+Outline double-click always uses Open Flow. Design is available only for
+`flow:main` and `flow:worker` nodes and opens a designer stage; Open Flow opens
+the node's dataflow editor. Each mode keeps one tab per path; opening it again
+activates the existing tab.
 
 In design mode, page input is forwarded to the stage as events of the same type,
 with pointer coordinates, keyboard modifiers, and drag/touch data preserved.

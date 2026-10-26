@@ -309,6 +309,7 @@ export interface NodeTreeOpenAction {
   label: React.ReactNode;
   icon?: React.ReactNode;
   onOpen: (path: string, onSave: () => void) => void;
+  functionIds?: readonly string[];
 }
 
 interface Props {
@@ -351,7 +352,11 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   };
 
   getOpenActions = (): readonly NodeTreeOpenAction[] => {
-    if (this.props.openActions) return this.props.openActions;
+    if (this.props.openActions) {
+      return this.props.openActions.filter(
+        (action) => !action.functionIds || action.functionIds.includes(this.props.item.functionId)
+      );
+    }
     return this.context?.editFlow
       ? [{key: 'open-flow', label: t('Open Flow'), icon: <BuildOutlined />, onOpen: this.context.editFlow}]
       : [];

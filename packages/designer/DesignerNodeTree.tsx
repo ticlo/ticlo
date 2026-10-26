@@ -3,11 +3,18 @@ import {BuildOutlined, PlaySquareOutlined} from '@ant-design/icons';
 import {NodeTree, type NodeTreeOpenAction} from '@ticlo/editor/node-tree/NodeTree.tsx';
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.tsx';
 import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
+import {TicloCurrentFlowContext} from '@ticlo/editor/component/LayoutContext.ts';
 import {DesignerLayoutContextType, useActiveDesignerStage} from './DesignerContext.tsx';
 
-function useOpenActions(designFirst: boolean): NodeTreeOpenAction[] {
+function useOpenActions(designFirst = false): NodeTreeOpenAction[] {
   const {designFlow, editFlow} = useContext(DesignerLayoutContextType);
-  const design = {key: 'design', label: t('Design'), icon: <PlaySquareOutlined />, onOpen: designFlow};
+  const design = {
+    key: 'design',
+    label: t('Design'),
+    icon: <PlaySquareOutlined />,
+    onOpen: designFlow,
+    functionIds: ['flow:main', 'flow:worker'],
+  };
   const flow = {key: 'open-flow', label: t('Open Flow'), icon: <BuildOutlined />, onOpen: editFlow};
   return (designFirst ? [design, flow] : [flow, design]).filter((action) => action.onOpen);
 }
@@ -18,15 +25,17 @@ export function DesignerNavigationTree(props: React.ComponentProps<typeof NodeTr
 }
 
 export function DesignerNodeTree() {
-  const stage = useActiveDesignerStage();
-  const openActions = useOpenActions(false);
+  const {activeStage: stage} = useContext(TicloCurrentFlowContext);
+  const designerStage = useActiveDesignerStage();
+  const basePath = designerStage ? designerStage.main?.getFullPath() : stage?.basePath;
+  const openActions = useOpenActions();
   return (
     <div className="ticl-d-node-tree" style={{height: '100%'}}>
-      {stage?.main ? (
+      {stage?.conn && basePath != null ? (
         <NodeTree
-          key={`${stage.basePath}:${stage.main._blockId}`}
+          key={`${stage.id}:${designerStage?.main?._blockId ?? ''}`}
           conn={stage.conn}
-          basePaths={[stage.main.getFullPath()]}
+          basePaths={[basePath]}
           tags={stage.nodeTreeTags}
           selectedKeys={stage.selection.paths}
           autoExpandSelected
@@ -35,9 +44,7 @@ export function DesignerNodeTree() {
           style={{height: '100%'}}
         />
       ) : (
-        <div className="ticl-d-outline-empty">
-          {stage ? 'This stage has no component tree.' : 'No active designer stage.'}
-        </div>
+        <div className="ticl-d-outline-empty">{stage ? 'This stage has no component tree.' : 'No active stage.'}</div>
       )}
     </div>
   );
