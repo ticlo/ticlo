@@ -20,8 +20,29 @@
 }
 
 .ticl-view-deck {
+  position: relative;
   display: inline-grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   place-items: stretch;
+}
+
+.ticl-view-deck-page {
+  display: grid;
+  grid-area: 1 / 1;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  place-items: stretch;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ticl-view-deck-animating {
+  overflow: clip !important;
+  isolation: isolate;
+}
+
+.ticl-view-deck-outgoing {
+  position: absolute;
+  pointer-events: none;
 }

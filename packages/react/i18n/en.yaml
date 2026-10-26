@@ -14,6 +14,18 @@
 
 view-deck:
   '@name': View Deck
+  animation:
+    '@name': Animation
+    '@options':
+      none: None
+      fade: Fade
+      slide: Slide
+      zoom: Zoom
+      custom: Custom
+  showEffect:
+    '@name': Show Effect
+  hideEffect:
+    '@name': Hide Effect
 
 jsx:
   script:

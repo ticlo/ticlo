@@ -14,6 +14,18 @@
 
 view-deck:
   '@name': Conteneur de vues # translated from: View Deck
+  animation:
+    '@name': Animation # translated from: Animation
+    '@options':
+      none: Aucune # translated from: None
+      fade: Fondu # translated from: Fade
+      slide: Glissement # translated from: Slide
+      zoom: Zoom # translated from: Zoom
+      custom: Personnalisée # translated from: Custom
+  showEffect:
+    '@name': Effet d’entrée # translated from: Show Effect
+  hideEffect:
+    '@name': Effet de sortie # translated from: Hide Effect
 
 jsx:
   script:

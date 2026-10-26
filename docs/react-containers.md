@@ -9,11 +9,15 @@ Other ordered children are Blocks. Forwarded `BlockOrder` values resolve entries
 from their original owner, including its content slot; the receiving container's
 own content is appended separately.
 
-`ViewDeck` (`react:view-deck`) mounts only the child at `selectedIndex`, using
-zero-based positions in that same resolved list. Switching the index unmounts
-the previous React child. Hidden Blocks, their bindings, and their dataflow remain
+`ViewDeck` (`react:view-deck`) displays the child at `selectedIndex`, using
+zero-based positions in that same resolved list. Normally only that React child
+is mounted. During an animated switch the previous child stays mounted until
+the transition finishes. Hidden Blocks, their bindings, and their dataflow remain
 active and available in the node tree. React-local state is reset on remount;
 state that must survive switching belongs in Blocks.
+
+[View Deck animations](view-deck-animations.md) describes effects, direction,
+timing, and transition behavior. Animation defaults to `none`.
 
 View Deck uses a single-cell inline grid. An in-flow child with automatic
 dimensions stretches to the deck's defined size; automatic deck dimensions can

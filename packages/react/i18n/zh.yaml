@@ -14,6 +14,18 @@
 
 view-deck:
   '@name': 视图容器 # translated from: View Deck
+  animation:
+    '@name': 动画 # translated from: Animation
+    '@options':
+      none: 无 # translated from: None
+      fade: 淡入 # translated from: Fade
+      slide: 滑动 # translated from: Slide
+      zoom: 缩放 # translated from: Zoom
+      custom: 自定义 # translated from: Custom
+  showEffect:
+    '@name': 进入动画 # translated from: Show Effect
+  hideEffect:
+    '@name': 退出动画 # translated from: Hide Effect
 
 jsx:
   script:

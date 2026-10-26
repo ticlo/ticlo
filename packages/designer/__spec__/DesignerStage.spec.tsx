@@ -169,11 +169,13 @@ describe('DesignerStage', () => {
       'index': 0,
       '#main': {
         '#is': 'react:view-deck',
+        'animation': 'slide',
         '~selectedIndex': '##.index',
         '#order': ['first', 'second'],
         'first': {'#is': 'react:span', 'content': 'First'},
         'second': {
           '#is': 'react:view-deck',
+          'animation': 'fade',
           'selectedIndex': 0,
           '#order': ['innerFirst', 'innerSecond'],
           'innerFirst': {'#is': 'react:span', 'content': 'Inner first'},
@@ -210,6 +212,7 @@ describe('DesignerStage', () => {
     expect(main.getValue('selectedIndex')).toBe(1);
     expect(inner.getValue('selectedIndex')).toBe(1);
     expect(main.getProperty('selectedIndex')._bindingPath).toBe('##.index');
+    expect(page().getAnimations({subtree: true})).toHaveLength(0);
     expect(flow.save()).toEqual(saved);
     const node = (name: string) => querySingle(`//div.ticl-e-tree-node-text[text()='${name}']`, div);
     await shouldHappen(() => node('innerSecond'));
