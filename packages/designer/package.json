@@ -14,6 +14,7 @@
   "types": "./index.ts",
   "style": "./style/index.css",
   "dependencies": {
+    "@ant-design/icons": "^6.3.4",
     "@ticlo/core": "workspace:*",
     "@ticlo/editor": "workspace:*",
     "@ticlo/html": "workspace:*",

@@ -1,7 +1,7 @@
 import React from 'react';
 import {ClientConn} from '@ticlo/core/editor.ts';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.ts';
-import {NodeTree} from '../../index.ts';
+import {NodeTree, type NodeTreeOpenAction} from '../../index.ts';
 import {Button, Input, Menu, Tooltip} from 'antd';
 import {FileAddOutlined, FolderAddOutlined, ReloadOutlined} from '@ant-design/icons';
 
@@ -16,6 +16,7 @@ interface Props {
   hideRoot?: boolean;
   onSelect?: (keys: string[]) => void;
   showMenu?: boolean;
+  openActions?: readonly NodeTreeOpenAction[];
 }
 
 interface State {
@@ -87,7 +88,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     }
   };
   render() {
-    const {conn, basePaths, hideRoot, onSelect, showMenu} = this.props;
+    const {conn, basePaths, hideRoot, onSelect, showMenu, openActions} = this.props;
     const {selectedKeys} = this.state;
 
     return (
@@ -116,6 +117,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
           hideRoot={hideRoot}
           selectedKeys={selectedKeys || []}
           onSelect={onSelect}
+          openActions={openActions}
         />
       </div>
     );

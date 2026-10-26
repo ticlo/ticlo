@@ -11,6 +11,7 @@ import {
 } from '@ticlo/editor/component/LayoutContext.ts';
 
 export interface DesignerLayoutContext extends TicloLayoutContext {
+  designFlow?: TicloLayoutContext['editFlow'];
   designMode?: boolean;
   setDesignMode?: (designMode: boolean) => void;
 }

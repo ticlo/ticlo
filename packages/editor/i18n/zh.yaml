@@ -13,7 +13,8 @@
 "Type": 类型
 "Block": 数据块
 "Misc": 其他 # translated from: Misc
-"Open": 打开 # translated from: Open
+"Open Flow": 打开数据流 # translated from: Open Flow
+"Design": 设计 # translated from: Design
 "Save": 保存
 "Edit": 编辑 # translated from: Edit
 "Delete": 删除 # translated from: Delete

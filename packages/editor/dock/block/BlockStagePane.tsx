@@ -34,15 +34,13 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   private stage = React.createRef<BlockStage>();
   private activate = () => this.stage.current?.activate();
 
-  static editorCount = 0;
-
   static createDockTab(
     path: string,
     conn: ClientConn,
     onSelect?: (keys: string[], handled: boolean) => void,
     onSave?: () => void
   ) {
-    const id = `blockEditor${BlockStagePane.editorCount++}`;
+    const id = `blockEditor:${path}`;
     let tabName: string | React.ReactNode = getDisplayName(path.split('.').pop(), null);
     if ((tabName as string).startsWith('#')) {
       tabName = <LocalizedNodeName name={tabName as string} />;

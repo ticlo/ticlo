@@ -304,11 +304,19 @@ export interface NodeTreeFunctionDrag {
   name: string;
 }
 
+export interface NodeTreeOpenAction {
+  key: string;
+  label: React.ReactNode;
+  icon?: React.ReactNode;
+  onOpen: (path: string, onSave: () => void) => void;
+}
+
 interface Props {
   item: NodeTreeItem;
   style: React.CSSProperties;
   selected: boolean;
   onClick: (item: NodeTreeItem, event: React.MouseEvent) => void;
+  openActions?: readonly NodeTreeOpenAction[];
   getOrderedDrag?: (item: NodeTreeItem) => NodeTreeItem[];
   canDropOrdered?: (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => boolean;
   onDropOrdered?: (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => void;
@@ -342,10 +350,17 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
   };
 
-  onOpenBlock = () => {
+  getOpenActions = (): readonly NodeTreeOpenAction[] => {
+    if (this.props.openActions) return this.props.openActions;
+    return this.context?.editFlow
+      ? [{key: 'open-flow', label: t('Open Flow'), icon: <BuildOutlined />, onOpen: this.context.editFlow}]
+      : [];
+  };
+
+  openBlock = (action: NodeTreeOpenAction) => {
     const {item} = this.props;
-    if (this.context && this.context.editFlow) {
-      this.context.editFlow(
+    if (action) {
+      action.onOpen(
         item.key,
         item.canApply
           ? () => {
@@ -355,6 +370,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       );
     }
   };
+
+  onOpenBlock = () => this.openBlock(this.getOpenActions()[0]);
 
   onAddFlowClick = (path: string) => {
     const {item} = this.props;
@@ -374,12 +391,11 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
     const menuItems: React.ReactElement[] = [];
 
-    const editFlow = this.context?.editFlow;
-    if (editFlow) {
+    for (const action of this.getOpenActions()) {
       menuItems.push(
-        <MenuItem key="open" onClick={this.onOpenBlock}>
-          <BuildOutlined />
-          {t('Open')}
+        <MenuItem key={action.key} onClick={() => this.openBlock(action)}>
+          {action.icon}
+          {action.label}
         </MenuItem>
       );
     }
@@ -573,7 +589,10 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         </div>
       );
     }
-    const onDoubleClick = this.context?.editFlow && quickOpenAllowed.has(item.functionId) ? this.onOpenBlock : null;
+    const onDoubleClick =
+      this.getOpenActions().length && (this.props.openActions !== undefined || quickOpenAllowed.has(item.functionId))
+        ? this.onOpenBlock
+        : null;
 
     let disabled = this.disabledListener.value;
     if (disabled == null && saveAllowed.has(item.functionId)) {

@@ -28,6 +28,12 @@ When stage selection changes, `DesignerNodeTree` expands the selected paths'
 ancestors, loading each level as needed. Switching stages also reveals their
 restored selections. Manual expansion and collapse remain available.
 
+`DesignerApp` accepts separate `designFlow` and `editFlow` callbacks. Both trees
+expose Design and Open Flow actions: `DesignerNavigationTree` defaults to Design
+on double-click, while `DesignerNodeTree` defaults to Open Flow. Design opens a
+designer stage; Open Flow opens the node's dataflow editor. Each mode keeps one
+tab per path; opening it again activates the existing tab.
+
 In design mode, page input is forwarded to the stage as events of the same type,
 with pointer coordinates, keyboard modifiers, and drag/touch data preserved.
 Stage and ancestor listeners receive these events, while page components' native

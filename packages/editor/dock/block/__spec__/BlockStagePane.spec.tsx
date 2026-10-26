@@ -25,14 +25,14 @@ describe('BlockStagePane', () => {
     Root.instance.deleteValue(flowPath);
   });
 
-  it('activates individual dock tabs sharing a flow, including cached tabs and tabs without save callbacks', async () => {
-    Root.instance.addFlow(flowPath, {add: {'#is': 'add'}});
+  it('activates individual dock tabs, including cached tabs and tabs without save callbacks', async () => {
+    Root.instance.addFlow(flowPath, {add: {'#is': 'add'}, second: {'#is': ''}, third: {'#is': ''}});
     const [, conn] = makeLocalConnection(Root.instance);
     const saveSecond = vi.fn();
     const saveThird = vi.fn();
     const first = BlockStagePane.createDockTab(flowPath, conn);
-    const second = BlockStagePane.createDockTab(flowPath, conn, undefined, saveSecond);
-    const third = BlockStagePane.createDockTab(flowPath, conn, undefined, saveThird);
+    const second = BlockStagePane.createDockTab(`${flowPath}.second`, conn, undefined, saveSecond);
+    const third = BlockStagePane.createDockTab(`${flowPath}.third`, conn, undefined, saveThird);
     let context: TicloCurrentFlow;
     let layout: DockLayout;
     function Panel(): null {
@@ -57,7 +57,7 @@ describe('BlockStagePane', () => {
     );
     await shouldHappen(() => div.querySelectorAll('.ticl-e-stage').length === 3);
     expect(context.activeStage?.id).toBe(second.id);
-    // Clicking a tab in a different panel must activate it even though neither flow path nor panel.activeId changes.
+    // Clicking a tab in a different panel must activate it even though panel.activeId does not change.
     div.querySelector<HTMLElement>('.ticl-e-stage-panel-tab').click();
     await shouldHappen(() => context.activeStage.id === first.id);
     expect(context.runStageCommand('save')).toBe(false);
@@ -74,7 +74,7 @@ describe('BlockStagePane', () => {
     expect(div.querySelectorAll('.ticl-e-selected-stage').length).toBe(1);
     context.runStageCommand('save');
     expect(saveSecond).toHaveBeenCalledTimes(1);
-    expect(context.currentPath).toBe(flowPath);
+    expect(context.currentPath).toBe(`${flowPath}.second`);
 
     const close = div.querySelector<HTMLElement>(`[data-node-key="${second.id}"] .dock-tab-close-btn`);
     expect(close.getBoundingClientRect().width).toBeGreaterThan(0);

@@ -149,7 +149,9 @@ class App extends React.PureComponent<Props, State> {
   ticloContext: TicloLayoutContext = {
     language: this.lng,
     editFlow: (path: string, onSave: () => void) => {
-      this.layout.dockMove(this.createBlockEditorTab(path, onSave), 'main', 'middle');
+      if (!this.layout.updateTab(`blockEditor:${path}`, null, true)) {
+        this.layout.dockMove(this.createBlockEditorTab(path, onSave), 'main', 'middle');
+      }
     },
 
     ...createLayoutActions(

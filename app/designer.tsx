@@ -9,14 +9,16 @@ import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {
   DesignerApp,
   DesignerLayoutContextType,
+  DesignerNavigationTree,
   DesignerNodeTree,
   DesignerStage,
   useActiveDesignerStage,
+  type DesignerLayoutContext,
 } from '@ticlo/designer';
 import {initEditor, PropertyList, FileManager} from '@ticlo/editor';
-import {TicloCurrentFlowConsumer, type TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.ts';
+import {TicloCurrentFlowConsumer} from '@ticlo/editor/component/LayoutContext.ts';
 import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
-import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.tsx';
+import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.tsx';
 import {BlockStageTabButton} from '@ticlo/editor/dock/block/BlockStageTabButton.tsx';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
 import {theme, darkTheme} from '@ticlo/editor/style/theme.ts';
@@ -112,6 +114,7 @@ function OpenEditorButton({openEditor}: {openEditor: (path: string) => void}) {
 
 const layoutGroups = {
   designerStage: stageGroup,
+  blockStage: stageGroup,
   tool: toolGroup,
 };
 
@@ -152,7 +155,15 @@ class App extends React.PureComponent<Props, State> {
         group: 'tool',
         title: t('Navigation'),
         cached: true,
-        content: <NodeTreePane conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} showMenu={true} />,
+        content: (
+          <DesignerNavigationTree
+            conn={conn}
+            basePaths={['']}
+            hideRoot={true}
+            onSelect={this.onSelect}
+            showMenu={true}
+          />
+        ),
       },
       Functions: {
         group: 'tool',
@@ -266,9 +277,14 @@ class App extends React.PureComponent<Props, State> {
   };
 
   /// implements TicloLayoutContext
-  ticloContext: TicloLayoutContext = {
+  ticloContext: DesignerLayoutContext = {
     language: this.lng,
     editFlow: (path: string, onSave: () => void) => {
+      if (!this.layout.updateTab(`blockEditor:${path}`, null, true)) {
+        this.layout.dockMove(BlockStagePane.createDockTab(path, this.conn, this.onSelect, onSave), 'main', 'middle');
+      }
+    },
+    designFlow: (path: string, onSave: () => void) => {
       if (!this.layout.updateTab(`designer:${path}`, null, true)) {
         this.layout.dockMove(this.createDesignerTab(path, onSave), 'main', 'middle');
       }

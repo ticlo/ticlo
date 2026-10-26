@@ -1,4 +1,4 @@
-import {expect} from 'vitest';
+import {expect, vi} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
 import {BlockStage, NodeTree, initEditor} from '../../index.ts';
@@ -7,6 +7,7 @@ import {BlockOrder, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.ts';
+import {TicloApp} from '../../component/TicloApp.tsx';
 
 describe('editor NodeTree', function () {
   let server: any;
@@ -227,5 +228,46 @@ describe('editor NodeTree', function () {
     expect(flow.getValue('#order')).toEqual(['b', 'missing']);
     await shouldHappen(() => !querySingle("//div.ticl-e-tree-node-text[text()='a']", div));
     await shouldHappen(() => querySingle("//div.ticl-e-tree-node-text[text()='b']", div));
+  });
+
+  it('labels the default action Open Flow and preserves its save callback', async () => {
+    await initEditor();
+    const save = vi.fn();
+    Root.instance.addFlow('NodeTree', {}, {applyChange: save});
+    [server, client] = makeLocalConnection(Root.instance);
+    const editFlow = vi.fn();
+    let tree: NodeTree;
+    const [, div] = loadTemplate(
+      <TicloApp value={{editFlow}}>
+        <NodeTree
+          ref={(value) => {
+            tree = value;
+          }}
+          conn={client}
+          basePaths={['']}
+          hideRoot
+          style={{width: 600, height: 300}}
+        />
+      </TicloApp>,
+      'editor'
+    );
+    const row = await shouldHappen(() => querySingle("//div.ticl-e-tree-node-text[text()='NodeTree']/..", div));
+    await shouldHappen(() => tree.list.find((item) => item.key === 'NodeTree')?.functionId);
+    simulate(row, 'contextmenu', {button: 2, clientX: 30, clientY: 30});
+    const popup = (await shouldHappen(() =>
+      document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)')
+    )) as HTMLElement;
+    const items = Array.from(popup.querySelectorAll<HTMLElement>('.ticl-e-dropdown-menu-item'));
+    expect(items.some((item) => item.textContent === 'Open')).toBe(false);
+    simulate(
+      items.find((item) => item.textContent === 'Open Flow'),
+      'click'
+    );
+    expect(editFlow).toHaveBeenCalledTimes(1);
+    expect(editFlow.mock.calls[0][0]).toBe('NodeTree');
+    editFlow.mock.calls[0][1]();
+    await shouldHappen(() => save.mock.calls.length === 1);
+    row.dispatchEvent(new MouseEvent('dblclick', {bubbles: true}));
+    expect(editFlow).toHaveBeenCalledTimes(2);
   });
 });

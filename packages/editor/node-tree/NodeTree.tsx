@@ -2,9 +2,11 @@ import React from 'react';
 import {ExpandState} from '../component/Tree.tsx';
 import VirtualList from '../component/Virtual.tsx';
 import {ClientConn, arrayEqual, blankFuncDesc} from '@ticlo/core/editor.ts';
-import {NodeTreeItem, NodeTreeRenderer, type NodeTreeFunctionDrag} from './NodeRenderer.tsx';
+import {NodeTreeItem, NodeTreeRenderer, type NodeTreeFunctionDrag, type NodeTreeOpenAction} from './NodeRenderer.tsx';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
+
+export type {NodeTreeOpenAction} from './NodeRenderer.tsx';
 
 interface Props {
   conn: ClientConn;
@@ -15,6 +17,8 @@ interface Props {
   selectedKeys?: string[];
   autoExpandSelected?: boolean;
   onSelect?: (keys: string[]) => void;
+  /** Custom open actions; double-click uses the first action. */
+  openActions?: readonly NodeTreeOpenAction[];
 }
 
 export class NodeTree extends LazyUpdateComponent<Props, any> {
@@ -165,6 +169,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
         style={style}
         selected={selectedKeys.includes(item.key)}
         onClick={this.onItemClick}
+        openActions={this.props.openActions}
         getOrderedDrag={this.getOrderedDrag}
         canDropOrdered={this.canDropOrdered}
         onDropOrdered={this.onDropOrdered}
