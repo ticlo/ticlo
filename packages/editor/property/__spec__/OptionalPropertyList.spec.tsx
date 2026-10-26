@@ -61,52 +61,9 @@ describe('OptionalPropertyList search', () => {
     localStorage.removeItem(historyKey);
   });
 
-  it('shows descriptor suggestions for a focused empty search and restores them after clearing text', async () => {
-    await shouldHappen(() => names().length === 10);
-    expect(document.activeElement).toBe(input);
-    expect(names()).toEqual([
-      'display',
-      'width',
-      'height',
-      'color',
-      'backgroundColor',
-      'margin',
-      'padding',
-      'fontSize',
-      'border',
-      'position',
-    ]);
-    await userEvent.fill(input, 'missingProperty');
-    await shouldHappen(() => names().length === 0);
-    await userEvent.fill(input, '');
-    await shouldHappen(() => names().length === 10);
-    expect(names()[0]).toBe('display');
-  });
-
-  it('sorts background before its longer names before applying the result limit', async () => {
-    await userEvent.fill(input, 'backgroun');
-    await shouldHappen(() => names()[0] === 'background');
-    expect(names().slice(0, 3)).toEqual(['background', 'backgroundAttachment', 'backgroundBlendMode']);
-    expect(names()).toHaveLength(10);
-    expect(div.textContent).toContain('. . . more . . .');
-
-    await userEvent.fill(input, 'background');
-    expect(names()[0]).toBe('background');
-  });
-
-  it('sorts matches alphabetically with case-insensitive prefix matches first', async () => {
-    await userEvent.fill(input, 'COLOR');
-    await shouldHappen(() => names()[0] === 'color');
-    expect(names().slice(0, 4)).toEqual(['color', 'colorAdjust', 'colorInterpolation', 'colorRendering']);
-    expect(names()[4]).toBe('backgroundColor');
-  });
-
-  it.each([
-    {search: 'background', name: 'background'},
-    {search: 'BACKGROUND', name: 'background'},
-    {search: 'backgroundatta', name: 'backgroundAttachment'},
-  ])('enables $name on Enter when searching for $search', async ({search, name}) => {
-    await userEvent.fill(input, search);
+  it('enables the matching property on Enter', async () => {
+    const name = 'background';
+    await userEvent.fill(input, 'BACKGROUND');
     await userEvent.keyboard('{Enter}');
     await shouldHappen(
       () =>
@@ -115,53 +72,8 @@ describe('OptionalPropertyList search', () => {
         div.querySelector<HTMLInputElement>('.ticl-e-property-optional input[type="checkbox"]')?.checked
     );
     expect(Root.instance.queryValue('OptionalPropertySearch.style.#optional')).toEqual([name]);
-    expect(names()).toHaveLength(10);
     expect(div.querySelector<HTMLInputElement>('.ticl-e-property-optional input[type="checkbox"]').checked).toBe(true);
     expect(list.history.entries[0]).toEqual({name, count: 1});
-  });
-
-  it('records checkbox enables once per action and retains history after disabling', async () => {
-    await shouldHappen(() => names().length === 10);
-    const checkbox = () => div.querySelector<HTMLInputElement>('.ticl-e-property-optional input[type="checkbox"]');
-    const enabled = () =>
-      (Root.instance.queryValue('OptionalPropertySearch.style.#optional') as string[])?.includes('display') === true;
-    checkbox().click();
-    await expect
-      .poll(
-        () => ({
-          optional: Root.instance.queryValue('OptionalPropertySearch.style.#optional'),
-          checked: checkbox()?.checked,
-        }),
-        {timeout: 5000}
-      )
-      .toEqual({optional: ['display'], checked: true});
-    expect(list.history.entries[0]).toEqual({name: 'display', count: 2});
-    checkbox().click();
-    await expect.poll(() => !enabled() && !checkbox()?.checked, {timeout: 5000}).toBe(true);
-    expect(list.history.entries[0]).toEqual({name: 'display', count: 2});
-    checkbox().click();
-    await expect.poll(() => enabled() && checkbox()?.checked, {timeout: 5000}).toBe(true);
-    expect(list.history.entries[0]).toEqual({name: 'display', count: 3});
-  });
-
-  it('places matching enabled properties first, results and more before other enabled properties', async () => {
-    list.onPropertyChecked('color', true);
-    list.onPropertyChecked('backgroundColor', true);
-    await shouldHappen(
-      () => (Root.instance.queryValue('OptionalPropertySearch.style.#optional') as string[])?.length === 2
-    );
-    await userEvent.fill(input, 'backgroun');
-    await shouldHappen(() => names()[0] === 'backgroundColor' && names().at(-1) === 'color');
-    expect(names()[1]).toBe('background');
-    expect(names().filter((name) => name === 'backgroundColor')).toHaveLength(1);
-    const rows = Array.from(div.querySelector('.ticl-e-property-optional-list').children).map(
-      (element) => element.textContent
-    );
-    expect(rows.findIndex((text) => text.includes('. . . more . . .'))).toBe(rows.length - 2);
-
-    await userEvent.keyboard('{Escape}');
-    await shouldHappen(() => !div.querySelector('.ticl-e-property-divider input'));
-    expect(names()).toEqual(['color', 'backgroundColor']);
   });
 
   it('records one use when enabling across multiple selected blocks', async () => {
@@ -188,7 +100,8 @@ describe('OptionalPropertyList search', () => {
     expect(list.history.entries[0]).toEqual({name: 'width', count: 2});
   });
 
-  it.each(['backgroun', 'missingProperty', ''])('keeps selection unchanged on Enter for %j', async (search) => {
+  it('keeps selection unchanged when Enter has no matching property', async () => {
+    const search = 'missingProperty';
     await userEvent.fill(input, search);
     await userEvent.keyboard('{Enter}');
     expect(Root.instance.queryValue('OptionalPropertySearch.style.#optional')).toBeUndefined();

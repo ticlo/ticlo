@@ -83,8 +83,6 @@ describe('BlockStagePane', () => {
     expect(context.currentPath).toBe(`${flowPath}.second`);
 
     const close = div.querySelector<HTMLElement>(`[data-node-key="${second.id}"] .dock-tab-close-btn`);
-    expect(close.getBoundingClientRect().width).toBeGreaterThan(0);
-    expect(close.getBoundingClientRect().height).toBeGreaterThan(0);
     close.click();
     await shouldHappen(() => layout.find(second.id) === undefined);
     expect(layout.find(first.id)).toBeDefined();

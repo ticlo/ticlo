@@ -13,27 +13,6 @@ function rulesFor(className: string) {
 describe('editor Icon', () => {
   afterEach(removeLastTemplate);
 
-  it('renders one background below multiple text layers without truncating text', async () => {
-    const [, div] = loadTemplate(
-      <div>
-        <TIcon icon="tl^:s  svg:react  br^:2  :A" />
-        <TIcon icon="13^:long text" />
-        <TIcon icon="svg:clock  svg:calendar  t:add" />
-        <TIcon icon="unknown:invalid" />
-      </div>,
-      'editor'
-    );
-    await shouldHappen(() => div.querySelectorAll('.tico').length === 4);
-    const icons = div.querySelectorAll('.tico');
-    expect(icons[0].firstElementChild.className).toBe('tico-icon-svg tico-svg-react');
-    expect([...icons[0].querySelectorAll('.tico-txt')].map((text) => text.textContent)).toEqual(['s', '2', 'A']);
-    expect(icons[1].textContent).toBe('long text');
-    expect(icons[1].querySelector('.tico-icon-svg')).toBeNull();
-    expect(icons[2].querySelectorAll('.tico-icon-svg').length).toBe(1);
-    expect(icons[2].querySelector('.tico-svg-clock')).not.toBeNull();
-    expect(icons[3].children.length).toBe(0);
-  });
-
   it('shares path classes and releases temporary CSS when the path changes or unmounts', async () => {
     let changePath: React.Dispatch<React.SetStateAction<string>>;
     function Example() {

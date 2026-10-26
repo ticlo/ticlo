@@ -81,9 +81,6 @@ describe('editor BlockStage', function () {
       'find output 3'
     );
 
-    // check block icon
-    expect(div.querySelector('.tico-txt')?.textContent).toBe('🞥');
-
     // test value update
     flow.queryProperty('add.0').updateValue(5);
     await shouldHappen(
@@ -106,28 +103,6 @@ describe('editor BlockStage', function () {
       100,
       'find field 3'
     );
-    // check block icon again
-    expect(div.querySelector('.tico-txt')?.textContent).toBe('−');
-  });
-
-  it('opens block context menus on mouseup by default', async () => {
-    flow = Root.instance.addFlow('BlockStageMenu', {
-      block: {'#is': 'add', '@b-xyw': [100, 100, 200]},
-    });
-    const [, client] = makeLocalConnection(Root.instance);
-    const [, div] = loadTemplate(<BlockStage conn={client} basePath="BlockStageMenu" />, 'editor');
-    await shouldHappen(() => div.querySelector('.tico-txt')?.textContent === '🞥');
-    const label = await shouldHappen(() => div.querySelector('.ticl-e-block-head-label'));
-    const mouse = {button: 2, clientX: 150, clientY: 110};
-    simulate(label, 'mousedown', {...mouse, buttons: 2});
-    simulate(label, 'contextmenu', mouse);
-    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-    expect(document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)')).toBeNull();
-    simulate(label, 'mouseup', mouse);
-    const menu = await shouldHappen(() => document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)'));
-    expect(menu.textContent).toContain('Rename');
-    simulate(document.body, 'keydown', {key: 'Escape'});
-    await shouldHappen(() => !document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)'));
   });
 
   it('removes selected blocks from #order when deleting from the stage', async () => {

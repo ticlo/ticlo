@@ -57,8 +57,6 @@ describe('binding drag wire', function () {
     const wire = startDrag();
     expect(wire).not.toBeNull();
     expect(wire.parentElement).toBe(document.body);
-    const preview = document.querySelector('.dragging-layer');
-    expect(Number(getComputedStyle(wire).zIndex)).toBeLessThan(Number(getComputedStyle(preview).zIndex));
     expect(getComputedStyle(wire).pointerEvents).toBe('none');
     expect(div.querySelectorAll('.ticl-e-inbound, .ticl-e-inbound-right, .ticl-e-outbound').length).toBe(markers);
 

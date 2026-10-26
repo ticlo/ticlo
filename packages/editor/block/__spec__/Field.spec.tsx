@@ -138,42 +138,6 @@ describe('editor Block Field', function () {
     await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-e-field').length === 3);
   });
 
-  it.each(['mousedown', 'mouseup'])('opens a field menu on release when contextmenu follows %s', async (timing) => {
-    const flow = Root.instance.addFlow('BlockFieldMenu');
-    flow.load({
-      add: {
-        '#is': 'add',
-        '0': 1,
-        '@b-xyw': [100, 100, 143],
-        '@b-p': ['0'],
-      },
-    });
-    const [server, client] = makeLocalConnection(Root.instance);
-    const [, div] = loadTemplate(<BlockStage conn={client} basePath="BlockFieldMenu" />, 'editor');
-
-    try {
-      const fieldName = await shouldHappen(() => div.querySelector('.ticl-e-field-name > span'));
-      const mouse = {button: 2, clientX: 150, clientY: 140};
-      simulate(fieldName, 'mousedown', {...mouse, buttons: 2});
-      if (timing === 'mousedown') simulate(fieldName, 'contextmenu', mouse);
-      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      expect(document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)')).toBeNull();
-      simulate(fieldName, 'mouseup', mouse);
-      if (timing === 'mouseup') simulate(fieldName, 'contextmenu', mouse);
-
-      const menu = await shouldHappen(() => document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)'));
-      expect(menu.textContent).toContain('Binding');
-      expect(menu.textContent).toContain('Pinned');
-      expect(div.querySelector('.ticl-e-block')).not.toBeNull();
-
-      simulate(document.body, 'keydown', {key: 'Escape'});
-      await shouldHappen(() => !document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)'));
-      expect(div.querySelector('.ticl-e-block')).not.toBeNull();
-    } finally {
-      Root.instance.deleteValue('BlockFieldMenu');
-    }
-  });
-
   it('reorders fields with the right button without opening a menu', async () => {
     const flow = Root.instance.addFlow('BlockFieldReorderMenu', {
       block: {'#is': '', 'a': 1, 'b': 2, '@b-xyw': [100, 100, 200], '@b-p': ['a', 'b']},

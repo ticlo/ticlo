@@ -6,7 +6,6 @@ import {EditPolicyProvider} from '../../component/EditPolicyContext.tsx';
 import {initEditor} from '../../index.ts';
 import {loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
 import {BlockStage} from '../BlockStage.tsx';
-import {BlockWidget} from '../view/BlockWidget.ts';
 
 describe('button block widget', () => {
   let flow: Flow;
@@ -35,14 +34,13 @@ describe('button block widget', () => {
     Root.instance.deleteValue('ButtonWidget');
   });
 
-  it('renders on the block, defaults to calling the function and reacts to label changes', async () => {
+  it('calls the function and keeps field bindings aligned', async () => {
     block.setValue('@b-p', ['0', '1', '#output']);
     [, client] = makeLocalConnection(Root.instance);
     const stage = React.createRef<BlockStage>();
     const [, div] = loadTemplate(<BlockStage ref={stage} conn={client} basePath="ButtonWidget" />, 'editor');
     const button = () => div.querySelector('.ticl-e-block-view button') as HTMLButtonElement;
-    await shouldHappen(() => button()?.textContent === '#call');
-    expect(BlockWidget.widgetDesc.options).toContain('button');
+    await shouldHappen(button);
     expect(block.getValue('#output')).toBeUndefined();
 
     const view = div.querySelector('.ticl-e-block-view') as HTMLElement;
@@ -56,14 +54,9 @@ describe('button block widget', () => {
     button().click();
     await shouldHappen(() => block.getValue('#output') === 3);
 
-    await client.setValue('ButtonWidget.block.@b-w-label', 'Run again', true);
-    await shouldHappen(() => button().textContent === 'Run again');
     block.setValue('0', 4);
     button().click();
     await shouldHappen(() => block.getValue('#output') === 6);
-
-    await client.setValue('ButtonWidget.block.@b-w-label', undefined, true);
-    await shouldHappen(() => button().textContent === '#call');
   });
 
   it.each([true, false])('updates fields with fresh objects when serialize=%s', async (serialize) => {

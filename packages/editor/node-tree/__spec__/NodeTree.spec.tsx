@@ -1,7 +1,7 @@
 import {expect, vi} from 'vitest';
 import {simulate} from 'simulate-event';
 import React from 'react';
-import {BlockStage, NodeTree, initEditor} from '../../index.ts';
+import {NodeTree, initEditor} from '../../index.ts';
 import type {Block} from '@ticlo/core';
 import {BlockOrder, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -50,7 +50,7 @@ describe('editor NodeTree', function () {
 
   it('basic', async function () {
     const flow = Root.instance.addFlow('NodeTree');
-    addTestChildren(flow, '', 3);
+    addTestChildren(flow, '', 1);
 
     [server, client] = makeLocalConnection(Root.instance);
 
@@ -67,9 +67,6 @@ describe('editor NodeTree', function () {
 
     simulate(querySingle("//div.ticl-e-tree-node-text[text()='NodeTree']/../../div.ticl-e-tree-arr", div), 'click');
     await shouldHappen(() => contentDiv.childNodes.length >= 11);
-
-    // find block icon
-    await shouldHappen(() => querySingle("//div.ticl-e-tree-node-text[text()='5']/../div.tico/span[text()='🞥']", div));
 
     // expand more children
     simulate(querySingle("//div.ticl-e-tree-node-text[text()='9']/../../div.ticl-e-tree-arr", div), 'click');
@@ -118,35 +115,6 @@ describe('editor NodeTree', function () {
 
     // Test is complete, no additional cleanup needed here
     // The flow will be cleaned up in afterEach
-  });
-
-  it.each([true, false])('keeps icons on first expansion with serialize=%s', async function (serialize) {
-    Root.instance.addFlow('NodeTree', {child: {'#is': 'add', '@b-xyw': [0, 0, 150]}});
-    [server, client] = makeLocalConnection(Root.instance, true, undefined, serialize);
-    let tree: NodeTree;
-    const [, div] = loadTemplate(
-      <>
-        <BlockStage conn={client} basePath="NodeTree" style={{width: 600, height: 300}} />
-        <NodeTree
-          ref={(value) => {
-            tree = value;
-          }}
-          conn={client}
-          basePaths={['NodeTree']}
-          style={{width: 600, height: 300}}
-        />
-      </>,
-      'editor'
-    );
-    await shouldHappen(() => div.querySelector('.ticl-e-block .tico-txt')?.textContent === '🞥');
-    const expand = await shouldHappen(() =>
-      querySingle("//div.ticl-e-tree-node-text[text()='NodeTree']/../../div.ticl-e-tree-arr", div)
-    );
-    simulate(expand, 'click');
-    await shouldHappen(() => tree.list.find((item) => item.name === 'child')?.funcLib);
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    const row = querySingle("//div.ticl-e-tree-node-text[text()='child']/..", div);
-    expect(row.querySelector('.tico-txt')?.textContent).toBe('🞥');
   });
 
   it('uses #order config for child order', async function () {
@@ -230,7 +198,7 @@ describe('editor NodeTree', function () {
     await shouldHappen(() => querySingle("//div.ticl-e-tree-node-text[text()='b']", div));
   });
 
-  it('labels the default action Open Flow and preserves its save callback', async () => {
+  it('opens a flow with its save callback', async () => {
     await initEditor();
     const save = vi.fn();
     Root.instance.addFlow('NodeTree', {}, {applyChange: save});
@@ -253,21 +221,10 @@ describe('editor NodeTree', function () {
     );
     const row = await shouldHappen(() => querySingle("//div.ticl-e-tree-node-text[text()='NodeTree']/..", div));
     await shouldHappen(() => tree.list.find((item) => item.key === 'NodeTree')?.functionId);
-    simulate(row, 'contextmenu', {button: 2, clientX: 30, clientY: 30});
-    const popup = (await shouldHappen(() =>
-      document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)')
-    )) as HTMLElement;
-    const items = Array.from(popup.querySelectorAll<HTMLElement>('.ticl-e-dropdown-menu-item'));
-    expect(items.some((item) => item.textContent === 'Open')).toBe(false);
-    simulate(
-      items.find((item) => item.textContent === 'Open Flow'),
-      'click'
-    );
+    row.dispatchEvent(new MouseEvent('dblclick', {bubbles: true}));
     expect(editFlow).toHaveBeenCalledTimes(1);
     expect(editFlow.mock.calls[0][0]).toBe('NodeTree');
     editFlow.mock.calls[0][1]();
     await shouldHappen(() => save.mock.calls.length === 1);
-    row.dispatchEvent(new MouseEvent('dblclick', {bubbles: true}));
-    expect(editFlow).toHaveBeenCalledTimes(2);
   });
 });

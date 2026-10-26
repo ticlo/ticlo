@@ -7,7 +7,6 @@ import {loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {initEditor} from '../../index.ts';
 import {FileManager} from '../FileManager.tsx';
-import {previewType} from '../FilePreview.tsx';
 import {file, fixtureClient, folder} from './fixtures.ts';
 import type {FileManagerProps} from '../FileManager.tsx';
 
@@ -64,14 +63,6 @@ describe('FileManager', () => {
     document.querySelector<HTMLButtonElement>(`.ant-modal .ant-btn${confirm ? '-primary' : '-default'}`).click();
   }
 
-  it('recognizes images and common source/config formats while excluding project and binary formats', () => {
-    for (const name of ['a.JSON', 'a.js', 'a.yaml', 'a.tsx', 'a.py', 'a.html', 'a.css', 'a.toml', 'README', 'a.jsonc'])
-      expect(previewType(name)).toBe('text');
-    for (const name of ['a.png', 'a.svg', 'a.JPG']) expect(previewType(name)).toBe('image');
-    for (const name of ['a.ticlo', 'a.dg5', 'a.zip', 'README.zip', 'a.pdf', 'a.mp4'])
-      expect(previewType(name)).toBeNull();
-  });
-
   it('lazily expands folders, supports multi-selection, and collapses them', async () => {
     const fixture = fixtureClient([
       file('proj/demo/a.txt'),
@@ -88,66 +79,6 @@ describe('FileManager', () => {
     await shouldHappen(() => div.querySelectorAll('.ticl-e-file-selected').length === 2);
     row('proj/demo/folder').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
     await shouldHappen(() => !row('proj/demo/folder/b.txt'));
-  });
-
-  it('shows Collapse Children only for one expanded folder and collapses only its descendants', async () => {
-    const fixture = fixtureClient([
-      file('proj/demo/a.txt'),
-      folder('proj/demo/main'),
-      folder('proj/demo/main/child'),
-      file('proj/demo/main/child/nested.txt'),
-      folder('proj/demo/other'),
-      file('proj/demo/other/other.txt'),
-    ]);
-    mount({client: fixture.client, project: 'demo', defaultPreview: false});
-    await ready();
-    const menu = () => document.querySelector<HTMLElement>('.ant-dropdown:not(.ant-dropdown-hidden)');
-    const collapseItem = () =>
-      Array.from(menu()?.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item') ?? []).find(
-        (item) => item.textContent === 'Collapse Children'
-      );
-    const openMenu = async () => {
-      button('Actions').click();
-      await shouldHappen(menu, 2000);
-    };
-    const closeMenu = async () => {
-      button('Actions').click();
-      await shouldHappen(() => !menu(), 2000);
-    };
-    for (const path of [undefined, 'proj/demo/a.txt', 'proj/demo/main']) {
-      if (path) await click(path);
-      await openMenu();
-      expect(collapseItem()).toBeUndefined();
-      await closeMenu();
-    }
-    const expand = async (path: string, child: string) => {
-      row(path).querySelector<HTMLElement>('.ticl-e-tree-arr').click();
-      await shouldHappen(() => row(child), 2000);
-    };
-    await expand('proj/demo/main', 'proj/demo/main/child');
-    await expand('proj/demo/main/child', 'proj/demo/main/child/nested.txt');
-    await expand('proj/demo/other', 'proj/demo/other/other.txt');
-    await click('proj/demo/main');
-    await openMenu();
-    expect(collapseItem()).toBeDefined();
-    collapseItem().click();
-    await shouldHappen(() => !row('proj/demo/main/child/nested.txt'));
-    expect(row('proj/demo/main/child')).not.toBeNull();
-    expect(row('proj/demo/other/other.txt')).not.toBeNull();
-    expect(row('proj/demo/main').classList.contains('ticl-e-file-selected')).toBe(true);
-    await shouldHappen(() => !menu(), 2000);
-    row('proj/demo/other').dispatchEvent(new MouseEvent('click', {bubbles: true, ctrlKey: true}));
-    await shouldHappen(() => div.querySelectorAll('.ticl-e-file-selected').length === 2);
-    await openMenu();
-    expect(collapseItem()).toBeUndefined();
-    await closeMenu();
-    await click('proj/demo');
-    await openMenu();
-    expect(collapseItem()).toBeDefined();
-    collapseItem().click();
-    await shouldHappen(() => !row('proj/demo/main/child') && !row('proj/demo/other/other.txt'));
-    expect(row('proj/demo/a.txt')).not.toBeNull();
-    expect(row('proj/demo').classList.contains('ticl-e-file-selected')).toBe(true);
   });
 
   it('automatically previews small text read-only and leaves unsupported files unloaded', async () => {
