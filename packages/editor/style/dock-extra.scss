@@ -1,6 +1,35 @@
+@use './icon-font';
+
 .dock-icon {
-  font-family: 'Noto Sans', sans-serif;
-  font-weight: 900;
+  font-family: icon-font.$family;
+  font-weight: 700;
+  font-synthesis-weight: none;
+}
+
+.dock-icon-accordion::before {
+  content: '⎶';
+}
+
+.dock-icon-left::before,
+.dock-icon-right::before,
+.dock-icon-top::before,
+.dock-icon-bottom::before {
+  content: '▶';
+  line-height: 1;
+  // Center the triangle's visual weight before rotating the complete icon.
+  transform: translateX(0.1em);
+}
+
+.dock-icon-left {
+  transform: rotate(180deg);
+}
+
+.dock-icon-top {
+  transform: rotate(270deg);
+}
+
+.dock-icon-bottom {
+  transform: rotate(90deg);
 }
 
 .dock-icon-collapse-left::before,
@@ -9,12 +38,29 @@
 }
 
 body > .dragging-layer {
-  & > div:last-child[class^='tico-svg-'] {
+  & > div:last-child[class^='tico-svg-'],
+  & > .tico-txt-plus {
     top: 14px;
     width: 14px;
     height: 14px;
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
+  }
+
+  & > .tico-txt-plus {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: icon-font.$family;
+    font-weight: 700;
+    font-synthesis-weight: none;
+    font-size: 23px;
+    line-height: 1;
+    color: white;
+
+    &::before {
+      content: '🞥';
+    }
   }
 }

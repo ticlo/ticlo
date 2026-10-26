@@ -31,7 +31,7 @@ export function useStageDrop(
         return;
       }
       const drop = getStageChildDrop(stage, elementMap, conn, target, event.clientX, event.clientY);
-      if (drop) event.accept('tico-svg-plus');
+      if (drop) event.accept('tico-txt-plus');
       setDropPoints(drop?.points ?? null);
     },
     [stageRef, clear]

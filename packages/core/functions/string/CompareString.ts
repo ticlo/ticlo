@@ -35,7 +35,7 @@ export class StartWithFunction extends PureFunction {
 globalFunctions.addFactory(StartWithFunction, {
   ...descriptor,
   name: 'start-with',
-  icon: '^:a~',
+  icon: '15:a~',
 });
 
 export class EndWithFunction extends PureFunction {
@@ -59,7 +59,7 @@ export class EndWithFunction extends PureFunction {
 globalFunctions.addFactory(EndWithFunction, {
   ...descriptor,
   name: 'end-with',
-  icon: '^:~a',
+  icon: '15:~a',
 });
 
 export class ContainFunction extends PureFunction {
@@ -80,5 +80,5 @@ export class ContainFunction extends PureFunction {
 globalFunctions.addFactory(ContainFunction, {
   ...descriptor,
   name: 'contain',
-  icon: '^:.a.',
+  icon: '15:.a.',
 });

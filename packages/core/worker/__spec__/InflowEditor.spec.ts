@@ -414,7 +414,7 @@ describe('InflowEditor', function () {
         ],
         '@b-p': ['b'],
       },
-      '#desc': {icon: 'svg:plus'},
+      '#desc': {icon: '23:🞥'},
     };
     const expectedDescProperties: (PropDesc | PropGroupDesc)[] = [
       {
@@ -440,7 +440,7 @@ describe('InflowEditor', function () {
 
     const [desc, workerData, functionLib] = Namespace.getWorker(':worker3', flow);
     expect(workerData).toEqual(expectedData);
-    expect(desc.icon).toBe('svg:plus');
+    expect(desc.icon).toBe('23:🞥');
     expect(desc.properties).toEqual(expectedDescProperties);
     expect(functionLib).toBeInstanceOf(FlowFunctionLib);
     expect(functionLib).toBe(funcLib);

@@ -213,7 +213,7 @@ describe('FunctionTree', function () {
     const editPath = '#temp.#edit-%3aa';
 
     await client.editWorker(editPath, undefined, ':a', {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}}, scopePath);
-    await client.setValue(`${editPath}.#desc`, {icon: 'svg:plus'}, true);
+    await client.setValue(`${editPath}.#desc`, {icon: '23:🞥'}, true);
     await client.applyFlowChange(editPath);
 
     await shouldHappen(() => client.watchDesc(':a', scopePath));
@@ -238,7 +238,7 @@ describe('FunctionTree', function () {
 
     try {
       await client.editWorker(editPath, undefined, '+demo:g:test', {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}});
-      await client.setValue(`${editPath}.#desc`, {icon: 'svg:plus'}, true);
+      await client.setValue(`${editPath}.#desc`, {icon: '23:🞥'}, true);
       await client.applyFlowChange(editPath);
 
       await shouldHappen(() => client.watchDesc('+demo:g:test'));

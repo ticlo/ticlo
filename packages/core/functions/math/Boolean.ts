@@ -44,7 +44,7 @@ export class OrFunction extends PureFunction {
 
 globalFunctions.addFactory(OrFunction, {
   name: 'or',
-  icon: '^:or',
+  icon: '15^:or',
   properties: [
     {
       name: '',
@@ -96,7 +96,7 @@ export class NotFunction extends PureFunction {
 
 globalFunctions.addFactory(NotFunction, {
   name: 'not',
-  icon: '^:!',
+  icon: ':!',
   properties: [
     {name: 'input', type: 'toggle', pinned: true},
     {name: '#output', pinned: true, type: 'toggle', readonly: true},

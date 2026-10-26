@@ -7,7 +7,7 @@ class TestFunction extends PureFunction {
 
 const testDesc = {
   name: '',
-  icon: 'svg:plus',
+  icon: '23:🞥',
   properties: [
     {name: 'a', type: 'number', pinned: true},
     {name: 'b', type: 'number', pinned: true},

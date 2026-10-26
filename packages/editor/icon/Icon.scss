@@ -1,3 +1,5 @@
+@use '../style/icon-font';
+
 .ticl-e-icon {
   user-select: none;
   width: 12px;
@@ -38,8 +40,9 @@
   inset: 0;
   z-index: 1;
   display: flex;
-  font-family: 'Noto Sans', sans-serif;
+  font-family: icon-font.$family;
   font-weight: 700;
+  font-synthesis-weight: none;
   line-height: 1;
   color: white;
   pointer-events: none;

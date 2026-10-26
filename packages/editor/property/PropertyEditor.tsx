@@ -300,7 +300,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         const desc = conn.watchDesc(blockData['#is'], getDescLib(blockData['#is'], this.props.funcLib));
         const outProp = getOutputDesc(desc);
         if (outProp) {
-          e.accept('tico-svg-square-plus');
+          e.accept('tico-txt-plus');
           return;
         }
       }

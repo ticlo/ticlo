@@ -1,0 +1,66 @@
+$family: 'Ticlo Noto Sans', 'Ticlo Noto Sans Math', 'Ticlo Noto Sans CJK', 'Ticlo Noto Sans Symbols 2', sans-serif;
+
+@font-face {
+  font-family: 'Ticlo Noto Sans Math';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local('Noto Sans Math Regular'),
+    local('NotoSansMath-Regular'),
+    url('https://fonts.gstatic.com/s/notosansmath/v19/7Aump_cpkSecTWaHRlH2hyV5UHkD.woff2') format('woff2');
+}
+
+$cjk-local:
+  local('Noto Sans CJK SC'), local('NotoSansCJKsc-Regular'), local('Noto Sans SC Regular'), local('NotoSansSC-Regular'),
+  local('Noto Sans CJK TC'), local('NotoSansCJKtc-Regular'), local('Noto Sans TC Regular'), local('NotoSansTC-Regular'),
+  local('Noto Sans CJK HK'), local('NotoSansCJKhk-Regular'), local('Noto Sans HK Regular'), local('NotoSansHK-Regular'),
+  local('Noto Sans CJK JP'), local('NotoSansCJKjp-Regular'), local('Noto Sans JP Regular'), local('NotoSansJP-Regular'),
+  local('Noto Sans CJK KR'), local('NotoSansCJKkr-Regular'), local('Noto Sans KR Regular'), local('NotoSansKR-Regular');
+
+@font-face {
+  font-family: 'Ticlo Noto Sans CJK';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    $cjk-local,
+    url('https://fonts.gstatic.com/s/notosanssc/v41/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYk.woff2') format('woff2');
+}
+
+// Latin icon characters use a small subset instead of the complete CJK font.
+@font-face {
+  font-family: 'Ticlo Noto Sans CJK';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    $cjk-local,
+    url('https://fonts.gstatic.com/s/notosanssc/v41/k3kXo84MPvpLmixcA63oeALRLoKI.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Ticlo Noto Sans Symbols 2';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local('Noto Sans Symbols 2 Regular'),
+    local('NotoSansSymbols2-Regular'),
+    url('https://fonts.gstatic.com/s/notosanssymbols2/v25/I_uyMoGduATTei9eI8daxVHDyfisHr71ypY.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Ticlo Noto Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src:
+    local('Noto Sans Bold'),
+    local('NotoSans-Bold'),
+    url('https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyAaBN9d.ttf')
+      format('truetype');
+}

@@ -69,7 +69,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     }
     const path = DragState.getData('path', conn.getBaseConn());
     if (path) {
-      e.accept('tico-svg-square-plus');
+      e.accept('tico-txt-plus');
     }
   };
   newFlowDrop = (e: DragState) => {

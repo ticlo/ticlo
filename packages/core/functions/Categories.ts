@@ -3,14 +3,14 @@ import {globalFunctions} from '../block/FunctionLib.ts';
 globalFunctions.addCategory({
   id: 'math',
   name: 'math',
-  icon: 'svg:plus',
+  icon: '23:🞥',
   color: '4af',
 });
 
 globalFunctions.addCategory({
   id: 'string',
   name: 'string',
-  icon: '13^:str',
+  icon: '14:str',
   color: '4af',
 });
 
@@ -24,7 +24,7 @@ globalFunctions.addCategory({
 globalFunctions.addCategory({
   id: 'compare',
   name: 'compare',
-  icon: 'svg:equals',
+  icon: '23:=',
   color: '4af',
 });
 
@@ -46,7 +46,7 @@ globalFunctions.addCategory({
 globalFunctions.addCategory({
   id: 'http',
   name: 'http',
-  icon: '^:://',
+  icon: ':://',
   color: '4af',
   ns: 'http',
 });
@@ -54,7 +54,7 @@ globalFunctions.addCategory({
 globalFunctions.addCategory({
   id: 'other',
   name: 'other',
-  icon: 'svg:question',
+  icon: '22:?',
   color: '4af',
 });
 

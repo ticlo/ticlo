@@ -18,7 +18,7 @@ describe('editor Icon', () => {
       <div>
         <TIcon icon="tl^:s  svg:react  br^:2  :A" />
         <TIcon icon="13^:long text" />
-        <TIcon icon="svg:plus  svg:minus  t:add" />
+        <TIcon icon="svg:clock  svg:calendar  t:add" />
         <TIcon icon="unknown:invalid" />
       </div>,
       'editor'
@@ -30,7 +30,7 @@ describe('editor Icon', () => {
     expect(icons[1].textContent).toBe('long text');
     expect(icons[1].querySelector('.tico-icon-svg')).toBeNull();
     expect(icons[2].querySelectorAll('.tico-icon-svg').length).toBe(1);
-    expect(icons[2].querySelector('.tico-svg-plus')).not.toBeNull();
+    expect(icons[2].querySelector('.tico-svg-clock')).not.toBeNull();
     expect(icons[3].children.length).toBe(0);
   });
 

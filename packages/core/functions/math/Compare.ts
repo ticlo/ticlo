@@ -25,7 +25,7 @@ export class EqualFunction extends PureFunction {
 globalFunctions.addFactory(EqualFunction, {
   ...descriptor,
   name: 'equal',
-  icon: 'svg:equals',
+  icon: '23:=',
   properties: [
     {name: '0', type: 'any', pinned: true},
     {name: '1', type: 'any', pinned: true},
@@ -44,7 +44,7 @@ export class NotEqualFunction extends PureFunction {
 globalFunctions.addFactory(NotEqualFunction, {
   ...descriptor,
   name: 'not-equal',
-  icon: 'svg:not-equal',
+  icon: '^:≠',
   properties: [
     {name: '0', type: 'any', pinned: true},
     {name: '1', type: 'any', pinned: true},
@@ -67,7 +67,7 @@ export class GreaterThanFunction extends PureFunction {
 globalFunctions.addFactory(GreaterThanFunction, {
   ...descriptor,
   name: 'greater-than',
-  icon: 'svg:greater-than',
+  icon: '^:>',
 });
 
 export class LessThanFunction extends PureFunction {
@@ -85,7 +85,7 @@ export class LessThanFunction extends PureFunction {
 globalFunctions.addFactory(LessThanFunction, {
   ...descriptor,
   name: 'less-than',
-  icon: 'svg:less-than',
+  icon: '^:<',
 });
 
 export class GreaterEqualFunction extends PureFunction {
@@ -103,7 +103,7 @@ export class GreaterEqualFunction extends PureFunction {
 globalFunctions.addFactory(GreaterEqualFunction, {
   ...descriptor,
   name: 'greater-equal',
-  icon: 'svg:greater-than-equal',
+  icon: '^:≥',
 });
 
 export class LessEqualFunction extends PureFunction {
@@ -121,7 +121,7 @@ export class LessEqualFunction extends PureFunction {
 globalFunctions.addFactory(LessEqualFunction, {
   ...descriptor,
   name: 'less-equal',
-  icon: 'svg:less-than-equal',
+  icon: '^:≤',
 });
 
 export class WithinRangeFunction extends PureFunction {

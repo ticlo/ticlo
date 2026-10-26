@@ -39,11 +39,11 @@ describe('function icon definitions', () => {
         {position: 'b', fontSize: 9, text: 'B', shiftUp: false},
       ],
     });
-    expect(parseIcon('path:M0 0L96 96Z  svg:plus').background).toEqual({type: 'path', value: 'M0 0L96 96Z'});
+    expect(parseIcon('path:M0 0L96 96Z  svg:clock').background).toEqual({type: 'path', value: 'M0 0L96 96Z'});
   });
 
   it('ignores invalid expressions and unsafe asset names', () => {
-    expect(parseIcon('svg:../plus  unknown:a  lr:b  tb:c  tt:d  0:e  :\t  :valid')).toEqual({
+    expect(parseIcon('svg:../clock  unknown:a  lr:b  tb:c  tt:d  0:e  :\t  :valid')).toEqual({
       background: undefined,
       texts: [{position: '', fontSize: 18, text: 'valid', shiftUp: false}],
     });

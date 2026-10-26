@@ -60,7 +60,7 @@ export class AddFunction extends PureFunction {
 globalFunctions.addFactory(AddFunction, {
   ...descriptorN,
   name: 'add',
-  icon: '24:🞥',
+  icon: '23:🞥',
 });
 
 export class MultiplyFunction extends PureFunction {
@@ -80,7 +80,7 @@ export class MultiplyFunction extends PureFunction {
 globalFunctions.addFactory(MultiplyFunction, {
   ...descriptorN,
   name: 'multiply',
-  icon: 'svg:xmark',
+  icon: '23:×',
 });
 
 export class SubtractFunction extends PureFunction {
@@ -98,7 +98,7 @@ export class SubtractFunction extends PureFunction {
 globalFunctions.addFactory(SubtractFunction, {
   ...descriptor2,
   name: 'subtract',
-  icon: 'svg:minus',
+  icon: ':−',
 });
 
 export class DivideFunction extends PureFunction {
@@ -116,7 +116,7 @@ export class DivideFunction extends PureFunction {
 globalFunctions.addFactory(DivideFunction, {
   ...descriptor2,
   name: 'divide',
-  icon: 'svg:divide',
+  icon: '23:÷',
 });
 
 export class ModuloFunction extends PureFunction {
@@ -134,7 +134,7 @@ export class ModuloFunction extends PureFunction {
 globalFunctions.addFactory(ModuloFunction, {
   ...descriptor2,
   name: 'modulo',
-  icon: '^:%',
+  icon: ':%',
 });
 
 export class PowerFunction extends PureFunction {
@@ -152,7 +152,7 @@ export class PowerFunction extends PureFunction {
 globalFunctions.addFactory(PowerFunction, {
   ...descriptor2,
   name: 'power',
-  icon: '^:x^',
+  icon: '^:x  r12:^',
 });
 
 export class RoundFunction extends PureFunction {
@@ -165,7 +165,7 @@ export class RoundFunction extends PureFunction {
 globalFunctions.addFactory(RoundFunction, {
   ...descriptor1,
   name: 'round',
-  icon: '^:~',
+  icon: ':~',
 });
 
 export class FloorFunction extends PureFunction {

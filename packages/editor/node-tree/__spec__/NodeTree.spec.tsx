@@ -68,7 +68,7 @@ describe('editor NodeTree', function () {
     await shouldHappen(() => contentDiv.childNodes.length >= 11);
 
     // find block icon
-    await shouldHappen(() => querySingle("//div.ticl-e-tree-node-text[text()='5']/../div.tico/div.tico-svg-plus", div));
+    await shouldHappen(() => querySingle("//div.ticl-e-tree-node-text[text()='5']/../div.tico/span[text()='🞥']", div));
 
     // expand more children
     simulate(querySingle("//div.ticl-e-tree-node-text[text()='9']/../../div.ticl-e-tree-arr", div), 'click');
@@ -137,7 +137,7 @@ describe('editor NodeTree', function () {
       </>,
       'editor'
     );
-    await shouldHappen(() => div.querySelector('.ticl-e-block .tico-svg-plus'));
+    await shouldHappen(() => div.querySelector('.ticl-e-block .tico-txt')?.textContent === '🞥');
     const expand = await shouldHappen(() =>
       querySingle("//div.ticl-e-tree-node-text[text()='NodeTree']/../../div.ticl-e-tree-arr", div)
     );
@@ -145,8 +145,7 @@ describe('editor NodeTree', function () {
     await shouldHappen(() => tree.list.find((item) => item.name === 'child')?.funcLib);
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     const row = querySingle("//div.ticl-e-tree-node-text[text()='child']/..", div);
-    expect(row.querySelector('.tico-svg-plus')).not.toBeNull();
-    expect(row.querySelector('.tico-svg-question')).toBeNull();
+    expect(row.querySelector('.tico-txt')?.textContent).toBe('🞥');
   });
 
   it('uses #order config for child order', async function () {
@@ -214,7 +213,7 @@ describe('editor NodeTree', function () {
       'editor'
     );
     const node = await shouldHappen(() => querySingle("//div.ticl-e-tree-node-text[text()='a']/..", div));
-    await shouldHappen(() => node.querySelector('.tico-svg-plus'));
+    await shouldHappen(() => node.querySelector('.tico-txt')?.textContent === '🞥');
     simulate(node, 'contextmenu', {button: 2, clientX: 50, clientY: 15});
     const menu = (await shouldHappen(() =>
       document.querySelector('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden)')

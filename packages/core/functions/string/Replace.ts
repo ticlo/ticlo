@@ -23,7 +23,7 @@ export class ReplaceFunction extends PureFunction {
 globalFunctions.addFactory(ReplaceFunction, {
   ...descriptor,
   name: 'replace',
-  icon: '^:re',
+  icon: '15:re',
   properties: [
     {name: 'input', pinned: true, type: 'string'},
     {name: 'search', pinned: true, type: 'string'},
@@ -57,7 +57,7 @@ export class ReplaceRegexFunction extends PureFunction {
 globalFunctions.addFactory(ReplaceRegexFunction, {
   ...descriptor,
   name: 'replace-regex',
-  icon: '^:r*',
+  icon: '15:r*',
   properties: [
     {name: 'input', pinned: true, type: 'string'},
     {name: 'pattern', pinned: true, type: 'string'},

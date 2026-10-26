@@ -120,10 +120,10 @@ describe('editor Block Field', function () {
     await shouldHappen(() => subtractBlock.querySelectorAll('.ticl-e-field').length === 3);
 
     const fieldNames = subtractBlock.querySelectorAll('.ticl-e-field-name');
-    expect(fieldNames[0].textContent).toBe('0');
+    expect(fieldNames[0].querySelector(':scope > span')?.textContent).toBe('0');
     // property from sub blocks
-    expect(fieldNames[1].textContent).toBe('0');
-    expect(fieldNames[2].textContent).toBe('1');
+    expect(fieldNames[1].querySelector(':scope > span')?.textContent).toBe('0');
+    expect(fieldNames[2].querySelector(':scope > span')?.textContent).toBe('1');
 
     // hide sub block
     simulate(fieldNames[0], 'dblclick');
