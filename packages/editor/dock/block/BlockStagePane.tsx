@@ -56,7 +56,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
       id,
       closable: !onSave, // use the custom close button when onSave is not null
       title: <BlockStageTabButton conn={conn} id={id} path={path} title={tabName} onSave={onSave} />,
-      group: 'blockStage',
+      group: 'main',
       content: (
         <BlockStagePane
           conn={conn}

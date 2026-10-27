@@ -38,7 +38,7 @@ import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
 
 const layoutGroups = {
-  blockStage: stageGroup,
+  main: stageGroup,
 };
 
 interface Props {

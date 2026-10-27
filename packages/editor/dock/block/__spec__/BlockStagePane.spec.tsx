@@ -45,7 +45,7 @@ describe('BlockStagePane', () => {
           ref={(value) => {
             layout = value;
           }}
-          groups={{blockStage: {panelExtra: (panel) => <StagePanelFocus panel={panel} />}}}
+          groups={{main: {panelExtra: (panel) => <StagePanelFocus panel={panel} />}}}
           defaultLayout={{
             dockbox: {mode: 'horizontal', children: [{tabs: [first]}, {tabs: [second, third], activeId: second.id}]},
           }}

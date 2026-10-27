@@ -113,8 +113,7 @@ function OpenEditorButton({openEditor}: {openEditor: (path: string) => void}) {
 }
 
 const layoutGroups = {
-  designerStage: stageGroup,
-  blockStage: stageGroup,
+  main: stageGroup,
   tool: toolGroup,
 };
 
@@ -327,7 +326,7 @@ class App extends React.PureComponent<Props, State> {
           <BlockStageTabButton conn={this.conn} id={id} path={path} title={path} onSave={save} />
         </PlaygroundConnection>
       ),
-      group: 'designerStage',
+      group: 'main',
       closable: false,
       content: (
         <PlaygroundConnection>

@@ -56,7 +56,7 @@ import {PlaygroundConnection, PlaygroundConnectionContext} from './PlaygroundCon
 import type {ClientConn, EditPolicy} from '@ticlo/core';
 
 const layoutGroups = {
-  blockStage: stageGroup,
+  main: stageGroup,
   tool: toolGroup,
 };
 
