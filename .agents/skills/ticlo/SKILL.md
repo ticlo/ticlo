@@ -9,17 +9,17 @@ Ticlo combines a reactive dataflow runtime, React visual editor, and browser/Nod
 integrations. Packages live in `packages/`; demos and dev servers in `app/`;
 build and translation tools in `tool/`.
 
-| Package (`@ticlo/…`) | Responsibility |
-| --- | --- |
-| `core` | Blocks, bindings, functions, scheduling, persistence, client/server sync |
-| `editor` | React/Ant Design editor, property panels, function selectors |
-| `designer` | React page stages, design input, and selection; reuses editor tools |
-| `html` | Browser connections and DOM integrations |
-| `node` | Direct filesystem project storage, WebSocket/REST connections, secrets, flow test loading |
-| `remote-storage` | Browser file/flow storage: Remote, read-only Static, and IndexedDB-backed local project |
-| `react` | Flow bindings and components |
-| `test` | Flow assertions and test utilities |
-| `web-server` | Hono HTTP/WebSocket server using `@hono/node-server` and `@hono/node-ws` |
+| Package (`@ticlo/…`) | Responsibility                                                                            |
+| -------------------- | ----------------------------------------------------------------------------------------- |
+| `core`               | Blocks, bindings, functions, scheduling, persistence, client/server sync                  |
+| `editor`             | React/Ant Design editor, property panels, function selectors                              |
+| `designer`           | React page stages, design input, and selection; reuses editor tools                       |
+| `html`               | Browser connections and DOM integrations                                                  |
+| `node`               | Direct filesystem project storage, WebSocket/REST connections, secrets, flow test loading |
+| `remote-storage`     | Browser file/flow storage: Remote, read-only Static, and IndexedDB-backed local project   |
+| `react`              | Flow bindings and components                                                              |
+| `test`               | Flow assertions and test utilities                                                        |
+| `web-server`         | Hono HTTP/WebSocket server using `@hono/node-server` and `@hono/node-ws`                  |
 
 ## Documentation
 
@@ -30,6 +30,7 @@ project or package it describes. Put technical details in separate documentation
 
 Read only the references relevant to the task:
 
+- [Overview](../../../docs/overview.md): project overview for understanding Ticlo, reimplementing its dataflow engine, or porting it to another language.
 - [Core](./core-package.md): execution, bindings, functions, connections, editing helpers.
 - [Lifecycle](../../../docs/runtime-lifecycle.md): startup, namespaces, load/unload, persistence.
 - [File format](./file-format.md): saved `.ticlo` JSON, property prefixes, binding examples.
