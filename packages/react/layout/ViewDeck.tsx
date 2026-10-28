@@ -17,7 +17,6 @@ export function ViewDeck({block}: {block: Block}) {
   const {designMode} = useContext(ComponentContext);
   return (
     <ViewDeckContent
-      children={children}
       index={selectedIndex}
       designMode={designMode}
       animation={useBlockValue(block, 'animation')}
@@ -27,7 +26,9 @@ export function ViewDeck({block}: {block: Block}) {
       className={className}
       handlers={optionalHandlers}
       elementRef={elementRef}
-    />
+    >
+      {children}
+    </ViewDeckContent>
   );
 }
 
