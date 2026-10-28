@@ -10,7 +10,7 @@ A general purpose visual programming language.
 
 Use the Node.js and pnpm versions specified in [package.json](package.json).
 Run `pnpm install` to install dependencies, including the published file-server
-and file-client packages. See [local setup](docs/remote-storage.md#local-development)
+package. See [local setup](docs/remote-storage.md#server-identity-and-local-development)
 to try remote storage.
 
 `pnpm build-pages` builds the browser apps and their assets into `dist/`.

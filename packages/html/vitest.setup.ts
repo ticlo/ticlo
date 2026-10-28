@@ -1,4 +1,3 @@
 import {setStorageFunctionProvider} from '@ticlo/core';
-import {IndexDbStorage} from './storage/IndexDbStorage.ts';
-
-setStorageFunctionProvider(() => new IndexDbStorage('testFunctionStorage'));
+import {MemoryValueStorage} from '@ticlo/core/storage/MemoryValueStorage.ts';
+setStorageFunctionProvider(() => new MemoryValueStorage());

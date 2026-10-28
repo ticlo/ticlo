@@ -17,7 +17,7 @@ import {
   SnippetsOutlined,
   UploadOutlined,
 } from '@ant-design/icons';
-import type {FileEntry, TicloFileClient} from '@ticlo/file-client';
+import {type FileEntry, type FileAccess} from '@ticlo/core/storage/FileAccess.ts';
 import {translateEditor} from '@ticlo/core/editor.ts';
 import {ExpandIcon} from '../component/Tree.tsx';
 import VirtualList from '../component/Virtual.tsx';
@@ -27,7 +27,7 @@ import {FilePreview} from './FilePreview.tsx';
 import {droppedUploads, fileError, FileOperations, parentPath, topEntries, validFileName} from './FileOperations.ts';
 
 export interface FileManagerProps {
-  client: TicloFileClient;
+  storage: FileAccess;
   /** Project / namespace ID, without a leading +; #root is the global namespace. */
   project: string;
   defaultPreview?: boolean;
@@ -81,7 +81,7 @@ export function FileManager(props: FileManagerProps) {
 class FileManagerPanel extends React.Component<PanelProps, State> {
   state: State = {selected: [], preview: this.props.defaultPreview ?? true, busy: false, name: ''};
   private controller = new AbortController();
-  private files = new FileOperations(this.props.client, this.props.project, this.controller.signal);
+  private files = new FileOperations(this.props.storage, this.props.project, this.controller.signal);
   private folders = new Map<string, FileEntry[]>();
   private expanded = new Set([this.files.root]);
   private loading = new Map<string, Promise<void>>();
@@ -109,7 +109,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   }
 
   componentDidUpdate(previous: PanelProps) {
-    if (previous.client !== this.props.client || previous.project !== this.props.project) {
+    if (previous.storage !== this.props.storage || previous.project !== this.props.project) {
       this.reset();
       this.setState({selected: [], error: undefined, dialog: undefined, dropPath: undefined, busy: false});
       this.props.onSelect?.([]);
@@ -128,7 +128,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     this.controller.abort();
     ++this.generation;
     this.controller = new AbortController();
-    this.files = new FileOperations(this.props.client, this.props.project, this.controller.signal);
+    this.files = new FileOperations(this.props.storage, this.props.project, this.controller.signal);
     this.folders.clear();
     this.loading.clear();
     this.expanded = new Set([this.files.root]);
@@ -347,7 +347,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
       async () => {
         for (const entry of entries) {
           files.checkPath(entry.path);
-          const response = await files.client.getFile(entry.path, {signal: files.signal});
+          const response = await files.storage.getFile(entry.path, {signal: files.signal});
           files.signal.throwIfAborted();
           const url = URL.createObjectURL(new Blob([response.data]));
           const link = document.createElement('a');
@@ -373,27 +373,34 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     const mutable = entries.length > 0 && entries.every((entry) => entry.path !== this.files.root);
     const collapse = entries.length === 1 && entries[0].type === 'folder' && this.expanded.has(entries[0].path);
     const disabled = this.state.busy;
+    const readonly = !this.props.storage.getCapabilities(this.files.root).write;
     return {
       onClick: ({key}) => this.command(key),
       items: [
-        {key: 'new', label: t('New Folder'), icon: <FolderAddOutlined />, disabled},
-        {key: 'upload', label: t('Upload'), icon: <UploadOutlined />, disabled},
+        {key: 'new', label: t('New Folder'), icon: <FolderAddOutlined />, disabled: disabled || readonly},
+        {key: 'upload', label: t('Upload'), icon: <UploadOutlined />, disabled: disabled || readonly},
         {type: 'divider'},
-        {key: 'cut', label: t('Cut'), icon: <ScissorOutlined />, disabled: disabled || !mutable},
+        {key: 'cut', label: t('Cut'), icon: <ScissorOutlined />, disabled: disabled || readonly || !mutable},
         {key: 'copy', label: t('Copy'), icon: <CopyOutlined />, disabled: disabled || !mutable},
         {
           key: 'paste',
           label: t('Paste'),
           icon: <SnippetsOutlined />,
-          disabled: disabled || !this.clipboard?.entries.length,
+          disabled: disabled || readonly || !this.clipboard?.entries.length,
         },
         {
           key: 'rename',
           label: t('Rename'),
           icon: <EditOutlined />,
-          disabled: disabled || !mutable || entries.length !== 1,
+          disabled: disabled || readonly || !mutable || entries.length !== 1,
         },
-        {key: 'delete', label: t('Delete'), icon: <DeleteOutlined />, danger: true, disabled: disabled || !mutable},
+        {
+          key: 'delete',
+          label: t('Delete'),
+          icon: <DeleteOutlined />,
+          danger: true,
+          disabled: disabled || readonly || !mutable,
+        },
         {type: 'divider'},
         {
           key: 'download',
@@ -409,6 +416,11 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
 
   private command(key: string) {
     if (this.locked) return;
+    if (
+      ['new', 'upload', 'cut', 'paste', 'rename', 'delete'].includes(key) &&
+      !this.props.storage.getCapabilities(this.files.root).write
+    )
+      return;
     switch (key) {
       case 'new':
         this.newFolder();
@@ -471,6 +483,11 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   private keyDown = (event: React.KeyboardEvent) => {
     if (this.locked || (event.target as HTMLElement).closest('input, textarea, .cm-editor, .ant-modal')) return;
     const {key, ctrlKey, metaKey} = event;
+    if (
+      !this.props.storage.getCapabilities(this.files.root).write &&
+      (key === 'Delete' || key === 'F2' || ((ctrlKey || metaKey) && ['x', 'v'].includes(key.toLowerCase())))
+    )
+      return;
     if (ctrlKey || metaKey) {
       switch (key.toLowerCase()) {
         case 'a':
@@ -528,7 +545,11 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   }
 
   private acceptsDrop(event: React.DragEvent) {
-    return !this.locked && (Boolean(this.dragged) || Array.from(event.dataTransfer.types).includes('Files'));
+    return (
+      !this.locked &&
+      this.props.storage.getCapabilities(this.files.root).write &&
+      (Boolean(this.dragged) || Array.from(event.dataTransfer.types).includes('Files'))
+    );
   }
 
   private dragOver = (event: React.DragEvent) => {
@@ -610,9 +631,10 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   };
 
   render() {
-    const {project, client, style, className} = this.props;
-    if (client !== this.files.client) return <div className="ticl-e-file-manager" style={style} />;
+    const {project, storage, style, className} = this.props;
+    if (storage !== this.files.storage) return <div className="ticl-e-file-manager" style={style} />;
     const {busy, error, preview, dialog, name} = this.state;
+    const readonly = !storage.getCapabilities(this.files.root).write;
     this.rows = [];
     const add = (entry: FileEntry, level: number) => {
       this.rows.push({entry, level});
@@ -634,7 +656,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         onKeyDown={this.keyDown}
         onPaste={(event) => {
           if ((event.target as HTMLElement).closest('input, textarea, .cm-editor, .ant-modal')) return;
-          if (!this.locked && event.clipboardData.files.length) {
+          if (!this.locked && !readonly && event.clipboardData.files.length) {
             event.preventDefault();
             void this.upload(droppedUploads(event.clipboardData));
           }
@@ -656,14 +678,14 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             size="small"
             title={translateEditor('New Folder')}
             icon={<FolderAddOutlined />}
-            disabled={busy}
+            disabled={busy || readonly}
             onClick={this.newFolder}
           />
           <Button
             size="small"
             title={translateEditor('Upload')}
             icon={<UploadOutlined />}
-            disabled={busy}
+            disabled={busy || readonly}
             onClick={() => this.uploadInput.click()}
           />
           <Button
@@ -726,7 +748,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         {preview ? (
           <FilePreview
             key={entry ? `${entry.path}:${entry.modified}:${entry.type === 'file' ? entry.size : ''}` : 'empty'}
-            client={client}
+            storage={storage}
             entry={entry}
             onDownload={this.download}
           />

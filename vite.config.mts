@@ -45,8 +45,27 @@ function preProcess(): Plugin {
     name: 'prep-assets-once',
 
     /** Runs once when you start `vite dev` */
-    async configureServer() {
+    async configureServer(server) {
       await checkFiles();
+      // Vite's public-file middleware leaves encoded # characters in paths undecoded.
+      const storageDir = path.resolve('app/public/storage');
+      server.middlewares.use('/storage', async (req, res) => {
+        try {
+          const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+          const file = path.resolve(storageDir, `.${pathname}`);
+          const relative = path.relative(storageDir, file);
+          if (relative.startsWith('..') || path.isAbsolute(relative)) {
+            res.writeHead(400).end();
+            return;
+          }
+          const data = await fs.promises.readFile(file);
+          res.writeHead(200, {'Content-Type': 'application/json', 'Cache-Control': 'no-store'});
+          res.end(data);
+        } catch (error) {
+          const code = (error as NodeJS.ErrnoException).code;
+          res.writeHead(code === 'ENOENT' || code === 'EISDIR' || code === 'ENOTDIR' ? 404 : 500).end();
+        }
+      });
     },
 
     /** Runs once at the very start of `vite build` */

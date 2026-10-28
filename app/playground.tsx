@@ -22,7 +22,7 @@ import {data} from './sample-data/data.ts';
 import reactData from './sample-data/react.ts';
 import {initEditor, PropertyList, BlockStage, NodeTree, FileManager} from '@ticlo/editor';
 import {DockLayout, type LayoutBase, type TabDefinitions} from 'rc-dock';
-import {leftSideColumns, stageGroup, toolGroup, createLayoutActions} from './AppLayout.ts';
+import {leftSideColumns, stageGroup, toolGroup, createLayoutActions, stageReadonly} from './AppLayout.ts';
 import {antdLocales, initAppI18n, LanguageSettings} from './AppI18n.tsx';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 
@@ -46,13 +46,13 @@ import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx
 import i18next from 'i18next';
 
 import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel.tsx';
-import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.ts';
-import {FileServerFlowStorage, TicloFileClient} from '@ticlo/remote-storage';
+import {RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
+import type {ProjectFiles} from '@ticlo/core/storage/FileAccess.ts';
 import {createRoot} from 'react-dom/client';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
 import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {PolicyPanel} from './PolicyPanel.tsx';
-import {PlaygroundConnection, PlaygroundConnectionContext} from './PlaygroundConnection.tsx';
+import {PlaygroundConnection, PlaygroundConnectionContext, connectStageTab} from './PlaygroundConnection.tsx';
 import type {ClientConn, EditPolicy} from '@ticlo/core';
 
 const layoutGroups = {
@@ -63,7 +63,7 @@ const layoutGroups = {
 interface Props {
   conn: ClientConnection;
   initialFlow?: string;
-  files?: {client: TicloFileClient; project: string};
+  files?: {storage: ProjectFiles; project: string};
 }
 
 interface State {
@@ -248,11 +248,7 @@ class App extends React.PureComponent<Props, State> {
   createBlockEditorTab(path: string, onSave?: () => void) {
     const conn = this.conn;
     const tab = BlockStagePane.createDockTab(path, conn, this.onSelect, onSave);
-    tab.content = <PlaygroundConnection>{tab.content as React.ReactElement<{conn: ClientConn}>}</PlaygroundConnection>;
-    if (React.isValidElement<{conn: ClientConn}>(tab.title)) {
-      tab.title = <PlaygroundConnection>{tab.title}</PlaygroundConnection>;
-    }
-    return tab;
+    return connectStageTab(tab, stageReadonly(this.props.files?.storage, path));
   }
 
   render() {
@@ -308,30 +304,31 @@ window.addEventListener('hashchange', () => location.reload());
   let initialFlow: string;
   let files: Props['files'];
   if (host) {
-    const client = new TicloFileClient({baseURL: host});
+    const storage = new RemoteStorage({baseURL: host});
     const project = params.get('project') || '#root';
-    files = {client, project};
-    await root.setStorage(new FileServerFlowStorage(client));
+    files = {storage, project};
+    await root.setStorage(storage);
     await root.start(
       params.has('project') || params.has('flow') ? {[project]: {flows: params.getAll('flow')}} : undefined
     );
     const firstFlow = (await root.listFlows(project)).find(({state}) => state !== 'unloaded');
     if (firstFlow) initialFlow = project === '#root' ? firstFlow.name : `+${project}.${firstFlow.name}`;
   } else {
-    await root.setStorage(new IndexDbFlowStorage());
-    await root._storage.saveNamespaceMetadata('demo', {});
-    await root.start({'#root': {flows: ['**']}, 'demo': {}});
+    const storage = new StaticStorage(new URL('./storage', location.href).href);
+    files = {storage, project: 'local'};
+    await root.setStorage(storage);
+    await root.start({local: {flows: ['**']}});
 
-    if (!(root.getValue('example') instanceof Flow)) {
+    if (!(root.queryValue('+local.example') instanceof Flow)) {
       console.log('initialize the database');
-      root.addFlow('example', reactData);
-      root.addFlow('example0', data);
+      root.addFlow('+local.example', reactData);
+      root.addFlow('+local.example0', data);
     }
 
     // create some global blocks
     root._globalRoot.createBlock('^gAdd')?.setValue('#is', 'add');
     root._globalRoot.createBlock('^gSub')?.setValue('#is', 'subtract');
-    initialFlow = 'example';
+    initialFlow = '+local.example';
   }
 
   const [server, client] = makeLocalConnection(root);

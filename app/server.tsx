@@ -8,7 +8,7 @@ import {Logger} from '@ticlo/core/util/Logger.ts';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 import '../packages/react/index.ts';
 import {FrameServerConnection} from '@ticlo/html';
-import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.ts';
+import {StaticStorage} from '@ticlo/remote-storage';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
 
 WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, '+WorkerEditor');
@@ -23,13 +23,13 @@ window.addEventListener('beforeunload', () => {
 });
 
 (async () => {
-  await Root.instance.setStorage(new IndexDbFlowStorage());
-  await Root.instance.start({'#root': {flows: ['**']}});
+  await Root.instance.setStorage(new StaticStorage(new URL('./storage', location.href).href));
+  await Root.instance.start({local: {flows: ['**']}});
 
-  const reactFlow = Root.instance.addFlow('example');
+  const reactFlow = Root.instance.addFlow('+local.example');
   reactFlow.load(reactData);
 
-  const generalFlow = Root.instance.addFlow('example0');
+  const generalFlow = Root.instance.addFlow('+local.example0');
   generalFlow.load(data);
 
   // create some global blocks
@@ -39,7 +39,7 @@ window.addEventListener('beforeunload', () => {
   const [server, client] = makeLocalConnection(Root.instance);
 
   document.querySelector('button').addEventListener('click', () => {
-    const w = window.open('/app/simple-editor/editor.html?flow=example', '_blank');
+    const w = window.open('./editor.html?flow=%2Blocal.example', '_blank');
     editors.push(w);
     new FrameServerConnection(w, Root.instance);
   });

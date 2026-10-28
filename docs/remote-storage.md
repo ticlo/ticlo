@@ -1,124 +1,149 @@
-# Remote storage
+# File and flow storage
 
-`@ticlo/remote-storage` exports `FileServerStorage` for strings and
-`FileServerFlowStorage` for flows, using `TicloFileClient` from `@ticlo/file-client`.
+`RemoteStorage` and `StaticStorage` from `@ticlo/remote-storage`, and `NodeStorage`
+from `@ticlo/node`, provide file operations and implement the runtime's
+`FlowStorage` interface. The same instance can be passed to `Root.setStorage`
+and the editor's `FileManager`.
+
+```tsx
+import {Root} from '@ticlo/core';
+import {RemoteStorage} from '@ticlo/remote-storage';
+import {FileManager} from '@ticlo/editor';
+
+const storage = new RemoteStorage({baseURL: 'http://127.0.0.1:8010/file'});
+await Root.instance.setStorage(storage);
+await Root.instance.start({main: {flows: ['entry']}, local: {flows: ['**']}});
+
+<FileManager storage={storage} project="main" />;
+```
+
+## Paths and scopes
+
+Public project paths are `<project>/<relative-file-path>`, without `proj/`.
+`storage.user` exposes the same file operations with paths relative to the
+current user's directory. Paths reject traversal and backslashes. File APIs
+return promises, accept `AbortSignal`, and support binary data as well as text.
+
+| Scope | Remote | Static | Node |
+| --- | --- | --- | --- |
+| Project `main` | `proj/main/` | `proj/main/`, read-only | `<dir>/main/` |
+| Project `local` | IndexedDB | IndexedDB | `<dir>/local/` |
+| Current user | `usr/<authenticated-id>/` | `usr/guest/`, read-only | `<dir>/#root/` |
+| `#global` | `usr/<authenticated-id>/#global.ticlo` | `usr/guest/#global.ticlo` | `<dir>/#root/#global.ticlo` |
+
+Browser `local` is reserved: reads and writes never access a remote project with
+that name, even when a local file is missing. It is always available, including
+when empty, and cannot be deleted or moved as a project. The `ticlo-local-files`
+IndexedDB database stores only this project: `entries` contains metadata and a
+parent-directory index, while `contents` holds binary data. Empty directories
+are real entries. Metadata and contents change in one transaction.
+
+`#global` always uses `storage.user`. A missing global file produces an empty
+global flow; there is no fallback to a project's global file. Project context
+remains `<project>/#context.ticlo`.
+
+## File operations
+
+`getFile`, `getFileInfo`, `listFiles`, `uploadFile`, `createDirectory`,
+`deleteFile`, `copyFile`, `moveFile`, and `renameFile` use the same interface
+across backends. `listProjects`, `readProject`, `createProject`, `updateProject`,
+and `deleteProject` manage projects. `_proj.json` is project metadata; runtime
+namespace configuration remains in `ticlo.json`.
 
 ```ts
-import {Root} from '@ticlo/core';
-import {FileServerFlowStorage, TicloFileClient} from '@ticlo/remote-storage';
-
-const client = new TicloFileClient({baseURL: 'http://127.0.0.1:8010/file'});
-await Root.instance.setStorage(new FileServerFlowStorage(client));
-await Root.instance.start({main: {flows: ['example']}});
+const read = await storage.user.getFile('#global.ticlo');
+await storage.user.uploadFile('#global.ticlo', read.data, {revision: read.revision});
+await storage.uploadFile('local/images/logo.png', imageBytes, {revision: null});
+await storage.copyFile('main/assets', 'local/assets');
 ```
 
-## Project layout
+Reads return `{data: ArrayBuffer, revision?, contentType?}`. Writes return
+`{revision?}`. `revision: null` creates only; a string requires the matching
+revision. Omitting it permits an intentional overwrite. Runtime flow saves
+retain their own loaded revision, independent of file preview reads, and report
+conflicts without clearing unsaved changes. Flow mutations are ordered per key.
 
-Remote and [static storage](./static-storage.md) share this layout. Each project
-is a namespace; `#root` holds unqualified flows. Global settings always load from
-`proj/#root/#global.ticlo`, even when starting a named project.
+Copies include directories and empty folders. Cross-project copies use the same
+interface, including between remote and local. Moves copy successfully before
+removing the source; they are not an atomic transaction across backends. A failed
+or conflicting operation must be handled by the caller; there is no automatic
+retry or overwrite. `StorageError.code` distinguishes `not-found`, `conflict`,
+`readonly`, `permission-denied`, `invalid-path`, and `io`.
 
-| Path under `proj/` | Purpose / runtime path |
+`getCapabilities(path)` reports `write` and `persistent` for that scope. Static
+project and guest files cannot be modified, even temporarily. Copy them to
+`local` to edit. Static-to-local moves are rejected because the source cannot be
+deleted. Missing timestamps and sizes are left undefined; static previews with
+unknown sizes require an explicit load.
+
+`read-storage` and `write-storage` use the calling flow's project under
+`#storage/<encoded-key>.str`, through the same storage instance. Their listeners
+are notified after successful changes. Detached/in-memory runtimes use memory
+value storage. These listeners do not watch external filesystem or HTTP writers.
+
+## Runtime file layout
+
+| Relative project path | Purpose |
 | --- | --- |
-| `#root/#global.ticlo` | Global settings; missing file means an empty global flow |
-| `#root/example.ticlo` | `example` |
-| `main/_proj.json` | File-server project metadata; runtime storage never reads/writes it |
-| `main/ticlo.json` | Namespace dependencies and Service Libraries |
-| `main/#context.ticlo` | Namespace context flow at `+main.#context`; missing file means inherited global defaults |
-| `main/folder/child.ticlo` | `+main.folder.child` |
-| `main/#libs/tools.ticlo` | Library for `+main:tools:worker`, separate from ordinary flows |
-| `main/folder/flow.#.worker.ticlo` | `+main.folder.flow.#.worker`; subflows load on demand |
-| `main/#storage/key.str` | Generic string storage |
+| `ticlo.json` | Namespace dependencies and service libraries |
+| `#context.ticlo` | Namespace context |
+| `folder/child.ticlo` | Ordinary flow `folder.child` |
+| `#libs/tools.ticlo` | Library `tools` |
+| `folder/flow.#.worker.ticlo` | On-demand worker subflow |
+| `#storage/key.str` | String storage functions |
 
-For `ticlo.json`, startup selection, and library loading, see
-[runtime lifecycle](./runtime-lifecycle.md). Project IDs cannot contain dots.
-`#libs`, `#deps`, and `#storage` are reserved root folder names, although dependencies
-use metadata, not a directory. User folders named `libs`, `deps`, and `storage`
-are allowed. These conventions belong to flow adapters; the file server handles
-generic directories and its client encodes `#` in HTTP paths.
+`#root` holds unqualified flows. Named projects map to `+project.flow` runtime
+paths. `#libs`, `#deps`, and `#storage` are reserved root folder names; ordinary
+folders named `libs`, `deps`, and `storage` are allowed. Catalog reads do not run
+flows. See [runtime lifecycle](./runtime-lifecycle.md) for startup and dependencies.
 
-Remote initialization lists folders recursively, including empty folders, through
-the file-server API; it needs no `.list.json`. Folder creation persists immediately:
-await `folder.pendingCreate` in direct runtime calls (the editor already does).
-Deletion removes the directory and contents before removing the runtime node.
-Flows and folders cannot share a runtime name.
+## Server identity and local development
 
-## Writes and conflicts
+The Ticlo host installs `routeFileStorage` from `@ticlo/web-server/file-storage`
+around the file-server routes. It adds `GET /file?op=user`, using the same
+`authProvider` as file operations, and rejects access to another user's `usr`
+directory. The client discovers its user ID through this endpoint; it contains
+no admin default. There is no account or login system in this adapter.
+Cross-origin hosts must allow conditional request headers and expose `ETag`;
+the bundled server configures this for local development.
 
-Saves/deletions return promises and serialize per file. Reads capture ETags;
-updates/deletions send `If-Match`. A first save without a read sends
-`If-None-Match: *`, allowing creation only. HTTP 412 means a stale revision;
-reload before retrying. Failed saves and edits made during a pending save remain
-unsaved. Closing the host page does not delete files.
-
-For strings, use `new FileServerStorage(client, 'proj/main/#storage', '.str')`.
-Namespace selection for the generic storage function provider is deferred;
-browser demos install only flow storage.
-
-## Storage format change
-
-There is no legacy-layout fallback. Migrate existing files:
-
-1. Keep `_proj.json`; rename special project `_root` to `#root` and update its
-   metadata ID.
-2. Rename internal `libs`/`storage` to `#libs`/`#storage`. Move dependency names
-   from `deps`/`#deps` folders into `ticlo.json`'s `dependencies` array.
-3. Move dotted flow names into folders: `folder.child.ticlo` → `folder/child.ticlo`.
-   Preserve `.#...` worker suffixes on filenames.
-4. Regenerate `.list.json` indexes for static hosting.
-
-Node `FileFlowStorage` uses real folders under its existing namespace path:
-`<dir>/+main/folder/child.ticlo`, with libraries in `<dir>/+main/#libs/`.
-IndexedDB keeps dotted keys and reconstructs folders; empty folders have no key.
-
-## Local development
-
-Use the published `@ticlo/file-server` and `@ticlo/file-client` packages:
-
-```sh
-pnpm install
-pnpm server
-# In another terminal:
-pnpm vite-dev
+```ts
+routeFileStorage(app, {
+  rootDir: './files',
+  authProvider: () => ({
+    getUserId: () => 'admin',
+    canRead: () => true,
+    canWrite: () => true,
+  }),
+});
 ```
 
-Open `http://localhost:3003/file-server.html`, then **open editor**. Keep the host
-page open: it runs flows and connects `editor.html` through window messages.
-Select flows with `?project=main&flow=entry&flow=jobs.**`, or another file endpoint
-with `?host=https://example.com/file&project=main`.
+The bundled server uses `devUserAuth` (admin). Run `pnpm server` and
+`pnpm vite-dev`, then open `file-server.html`, or use
+`designer.html#host=http://127.0.0.1:8010/file&project=main&flow=entry`.
+The combined server's runtime and file API now share `app/server/files/proj`;
+Node accesses those files directly. Uploading a file does not automatically
+reload an already running flow.
 
-The playground uses the same options in its hash:
+## Migration
 
-```text
-http://localhost:3003/playground.html#host=http://127.0.0.1:8010/file&project=main&flow=entry&flow=jobs.**
-```
+The old `FileServerStorage`, `FileServerFlowStorage`, `StaticFlowStorage`,
+`IndexDbStorage`, `IndexDbFlowStorage`, and Node `FileStorage`/`FileFlowStorage`
+APIs are replaced. There is no legacy-layout fallback.
 
-- `project` defaults to `#root`; encode it as `%23root` in URLs.
-- Repeat `flow` for [startup patterns](./runtime-lifecycle.md). With neither
-  `project` nor `flow`, all ordinary `#root` flows load. An explicit project with
-  no `flow` starts only Service Libraries; `flow=**` selects all its ordinary flows.
-- A nonempty playground `host` selects remote storage without demo data and
-  opens the first loaded flow. Without `host`, it uses IndexedDB/local demo data.
-  Changing the hash reloads the page. Append `&strictMode` for either storage.
-
-`pnpm server`, `pnpm ticlo-server`, and `pnpm file-server` start the same combined
-server on `127.0.0.1:8010`:
-
-| Endpoint | Purpose |
-| --- | --- |
-| `WS /ticlo` | Editor connection to server-side flows |
-| `POST /ticlo` | Runtime commands |
-| `GET/POST /file?op=…` | Project/file management |
-| `GET /file/*` | File downloads |
-| `/api/*` | Flow-defined HTTP endpoints |
-| `GET /health` | `{"status":"ok"}` |
-| `GET /` | Endpoint overview |
-
-Files live in ignored `app/server/files`. The server creates `#root` and its
-metadata only when absent; it generates no flow files. The server runtime uses
-`app/server/flows`: uploading through `/file` does not load/reload that runtime.
-The browser host has its own runtime using `/file`.
-
-File-route CORS allows local dev origins, accepts `If-Match`/`If-None-Match`, and
-exposes `ETag`. Runtime CORS is scoped to `/ticlo` and `/api` to preserve those
-rules. The host app owns CORS; `@ticlo/file-server` does not add it.
+- Replace remote construction with `new RemoteStorage({baseURL})`; update servers
+  to use `routeFileStorage` so current-user discovery is available.
+- Pass the storage instance to `FileManager` using `storage`, and remove `proj/`
+  from file API paths. Axios options/responses are replaced by file options and
+  results. User files go through `storage.user`.
+- Move browser globals from `proj/#root/#global.ticlo` to the appropriate
+  `usr/<user>/#global.ticlo`; static deployments use `usr/guest/`.
+- Pass the project collection directory to `new NodeStorage(dir)`. Move the old
+  unqualified Node files into `#root/`, and rename `+main/` to `main/`. Existing
+  file-server data can be used directly by passing its `files/proj` directory.
+- The previous IndexedDB database is not deleted or automatically imported.
+  Export old data before retiring it. When moving flows to project `local`,
+  review namespace-qualified references; multiple old namespaces must not be
+  silently flattened into one project.
+- Browser demo flows now belong to `+local`; previous demo data remains in the
+  old database. Static storage no longer accepts temporary memory-only writes.

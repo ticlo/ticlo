@@ -4,7 +4,6 @@ export default defineConfig({
   resolve: {tsconfigPaths: true},
   test: {
     globals: true,
-    globalSetup: 'packages/node/vitest.global.setup.ts',
     setupFiles: 'packages/node/vitest.setup.ts',
     include: [
       'app/server/**/*.spec.ts',

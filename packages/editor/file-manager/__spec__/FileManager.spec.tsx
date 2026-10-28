@@ -38,7 +38,7 @@ describe('FileManager', () => {
   }
   const row = (path: string) => div.querySelector<HTMLElement>(`[data-path="${path}"]`);
   const button = (title: string) => div.querySelector<HTMLButtonElement>(`button[title="${title}"]`);
-  async function ready(path = 'proj/demo/a.txt') {
+  async function ready(path = 'demo/a.txt') {
     await shouldHappen(() => row(path) && !button('Reload')?.disabled, 3000);
   }
   async function click(path: string) {
@@ -64,50 +64,46 @@ describe('FileManager', () => {
   }
 
   it('lazily expands folders, supports multi-selection, and collapses them', async () => {
-    const fixture = fixtureClient([
-      file('proj/demo/a.txt'),
-      folder('proj/demo/folder'),
-      file('proj/demo/folder/b.txt'),
-    ]);
-    mount({client: fixture.client, project: 'demo', defaultPreview: false});
+    const fixture = fixtureClient([file('demo/a.txt'), folder('demo/folder'), file('demo/folder/b.txt')]);
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
     await ready();
-    expect(fixture.methods.listFiles.mock.calls.map(([path]) => path)).not.toContain('proj/demo/folder');
-    row('proj/demo/folder').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
-    await shouldHappen(() => row('proj/demo/folder/b.txt'), 2000);
-    await click('proj/demo/a.txt');
-    row('proj/demo/folder/b.txt').dispatchEvent(new MouseEvent('click', {bubbles: true, ctrlKey: true}));
+    expect(fixture.methods.listFiles.mock.calls.map(([path]) => path)).not.toContain('demo/folder');
+    row('demo/folder').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
+    await shouldHappen(() => row('demo/folder/b.txt'), 2000);
+    await click('demo/a.txt');
+    row('demo/folder/b.txt').dispatchEvent(new MouseEvent('click', {bubbles: true, ctrlKey: true}));
     await shouldHappen(() => div.querySelectorAll('.ticl-e-file-selected').length === 2);
-    row('proj/demo/folder').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
-    await shouldHappen(() => !row('proj/demo/folder/b.txt'));
+    row('demo/folder').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
+    await shouldHappen(() => !row('demo/folder/b.txt'));
   });
 
   it('automatically previews small text read-only and leaves unsupported files unloaded', async () => {
-    const fixture = fixtureClient([file('proj/demo/a.txt'), file('proj/demo/a.ticlo'), file('proj/demo/a.pdf')]);
-    mount({client: fixture.client, project: 'demo'});
+    const fixture = fixtureClient([file('demo/a.txt'), file('demo/a.ticlo'), file('demo/a.pdf')]);
+    mount({storage: fixture.client, project: 'demo'});
     await ready();
-    await click('proj/demo/a.txt');
+    await click('demo/a.txt');
     await shouldHappen(() => div.querySelector('.cm-content')?.textContent === 'preview text', 3000);
     expect(div.querySelector('.cm-content').getAttribute('contenteditable')).toBe('false');
-    await click('proj/demo/a.ticlo');
+    await click('demo/a.ticlo');
     await shouldHappen(() => div.querySelector('.ticl-e-file-preview')?.textContent.includes('Preview unavailable'));
-    await click('proj/demo/a.pdf');
-    expect([...new Set(fixture.methods.getFile.mock.calls.map(([path]) => path))]).toEqual(['proj/demo/a.txt']);
+    await click('demo/a.pdf');
+    expect([...new Set(fixture.methods.getFile.mock.calls.map(([path]) => path))]).toEqual(['demo/a.txt']);
   });
 
   it('requires a click at 100kB for both images and text, and preserves selection when preview is toggled off', async () => {
-    const fixture = fixtureClient([file('proj/demo/a.txt', 100000), file('proj/demo/a.svg', 100000)]);
+    const fixture = fixtureClient([file('demo/a.txt', 100000), file('demo/a.svg', 100000)]);
     fixture.methods.getFile.mockResolvedValue({
       data: new TextEncoder().encode(
         '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="red"/></svg>'
       ).buffer,
       headers: {},
     });
-    mount({client: fixture.client, project: 'demo'});
+    mount({storage: fixture.client, project: 'demo'});
     await ready();
-    await click('proj/demo/a.txt');
+    await click('demo/a.txt');
     await shouldHappen(() => div.querySelector('.ticl-e-file-preview')?.textContent.includes('Load preview'));
     expect(fixture.methods.getFile).not.toHaveBeenCalled();
-    await click('proj/demo/a.svg');
+    await click('demo/a.svg');
     await shouldHappen(() => div.querySelector('.ticl-e-file-preview')?.textContent.includes('Load preview'));
     expect(fixture.methods.getFile).not.toHaveBeenCalled();
     div.querySelector<HTMLButtonElement>('.ticl-e-file-preview button').click();
@@ -118,9 +114,9 @@ describe('FileManager', () => {
     const revoke = vi.spyOn(URL, 'revokeObjectURL');
     button('Preview').click();
     await shouldHappen(() => !div.querySelector('.ticl-e-file-preview'));
-    expect(row('proj/demo/a.svg').classList.contains('ticl-e-file-selected')).toBe(true);
+    expect(row('demo/a.svg').classList.contains('ticl-e-file-selected')).toBe(true);
     expect(revoke).toHaveBeenCalled();
-    await click('proj/demo/a.txt');
+    await click('demo/a.txt');
     expect(fixture.methods.getFile).toHaveBeenCalledTimes(1);
     button('Preview').click();
     await shouldHappen(() => div.querySelector('.ticl-e-file-preview')?.textContent.includes('Load preview'));
@@ -130,155 +126,155 @@ describe('FileManager', () => {
   });
 
   it('copies in place and moves files using keyboard cut/paste', async () => {
-    const fixture = fixtureClient([file('proj/demo/a.txt'), folder('proj/demo/folder')]);
-    mount({client: fixture.client, project: 'demo', defaultPreview: false});
+    const fixture = fixtureClient([file('demo/a.txt'), folder('demo/folder')]);
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
     await ready();
-    await click('proj/demo/a.txt');
+    await click('demo/a.txt');
     key('c', {ctrlKey: true});
     key('v', {ctrlKey: true});
-    await ready('proj/demo/a (1).txt');
-    expect(fixture.entries.has('proj/demo/a.txt')).toBe(true);
-    await click('proj/demo/a.txt');
+    await ready('demo/a (1).txt');
+    expect(fixture.entries.has('demo/a.txt')).toBe(true);
+    await click('demo/a.txt');
     key('x', {ctrlKey: true});
-    await click('proj/demo/folder');
+    await click('demo/folder');
     key('v', {ctrlKey: true});
-    await shouldHappen(() => fixture.entries.has('proj/demo/folder/a.txt') && !button('Reload').disabled, 3000);
-    expect(fixture.entries.has('proj/demo/a.txt')).toBe(false);
+    await shouldHappen(() => fixture.entries.has('demo/folder/a.txt') && !button('Reload').disabled, 3000);
+    expect(fixture.entries.has('demo/a.txt')).toBe(false);
     key('v', {ctrlKey: true});
     expect(fixture.methods.moveFile).toHaveBeenCalledTimes(1);
   });
 
   it('uploads native dropped and pasted files into the target folder', async () => {
-    const fixture = fixtureClient([file('proj/demo/a.txt'), folder('proj/demo/folder')]);
-    mount({client: fixture.client, project: 'demo', defaultPreview: false});
+    const fixture = fixtureClient([file('demo/a.txt'), folder('demo/folder')]);
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
     await ready();
     const data = new DataTransfer();
     const payload = new File(['uploaded'], 'new.txt');
     data.items.add(payload);
-    row('proj/demo/folder').dispatchEvent(new DragEvent('drop', {bubbles: true, dataTransfer: data}));
-    await shouldHappen(() => fixture.entries.has('proj/demo/folder/new.txt'), 3000);
-    expect(fixture.methods.uploadFile.mock.calls[0].slice(0, 2)).toEqual(['proj/demo/folder/new.txt', payload]);
-    await ready('proj/demo/folder/new.txt');
-    await click('proj/demo/folder');
+    row('demo/folder').dispatchEvent(new DragEvent('drop', {bubbles: true, dataTransfer: data}));
+    await shouldHappen(() => fixture.entries.has('demo/folder/new.txt'), 3000);
+    expect(fixture.methods.uploadFile.mock.calls[0].slice(0, 2)).toEqual(['demo/folder/new.txt', payload]);
+    await ready('demo/folder/new.txt');
+    await click('demo/folder');
     const clipboard = new DataTransfer();
     clipboard.items.add(new File(['pasted'], 'pasted.txt'));
     div
       .querySelector('.ticl-e-file-manager')
       .dispatchEvent(new ClipboardEvent('paste', {bubbles: true, clipboardData: clipboard}));
-    await ready('proj/demo/folder/pasted.txt');
+    await ready('demo/folder/pasted.txt');
   });
 
   it('requires confirmation before replacing uploaded files', async () => {
-    const fixture = fixtureClient([file('proj/demo/a.txt', 3)]);
-    mount({client: fixture.client, project: 'demo', defaultPreview: false});
+    const fixture = fixtureClient([file('demo/a.txt', 3)]);
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
     await ready();
     const drop = () => {
       const data = new DataTransfer();
       data.items.add(new File(['replacement'], 'a.txt'));
-      row('proj/demo').dispatchEvent(new DragEvent('drop', {bubbles: true, dataTransfer: data}));
+      row('demo').dispatchEvent(new DragEvent('drop', {bubbles: true, dataTransfer: data}));
     };
     drop();
     await modalButton(false);
     await ready();
     expect(fixture.methods.uploadFile).not.toHaveBeenCalled();
-    expect(fixture.entries.get('proj/demo/a.txt')).toMatchObject({size: 3});
+    expect(fixture.entries.get('demo/a.txt')).toMatchObject({size: 3});
     await shouldHappen(() => !document.querySelector('.ant-modal-confirm'), 2000);
     drop();
     await modalButton(true);
     await shouldHappen(() => fixture.methods.uploadFile.mock.calls.length === 1 && !button('Reload').disabled, 2000);
-    expect(fixture.entries.get('proj/demo/a.txt')).toMatchObject({size: 11});
+    expect(fixture.entries.get('demo/a.txt')).toMatchObject({size: 11});
   });
 
   it('creates, renames and deletes entries through the dialogs, while protecting the project root', async () => {
-    const fixture = fixtureClient([file('proj/demo/a.txt')]);
-    mount({client: fixture.client, project: 'demo', defaultPreview: false});
+    const fixture = fixtureClient([file('demo/a.txt')]);
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
     await ready();
     button('New Folder').click();
     await shouldHappen(() => document.querySelector('.ant-modal input'), 2000);
     setName('new');
     await shouldHappen(() => !document.querySelector<HTMLButtonElement>('.ant-modal .ant-btn-primary').disabled);
     await modalButton(true);
-    await ready('proj/demo/new');
+    await ready('demo/new');
     await shouldHappen(() => !document.querySelector('.ant-modal'), 2000);
-    await click('proj/demo/new');
+    await click('demo/new');
     key('F2');
     await shouldHappen(() => document.querySelector('.ant-modal input'), 2000);
     setName('renamed');
     await shouldHappen(() => document.querySelector<HTMLInputElement>('.ant-modal input').value === 'renamed');
     await modalButton(true);
-    await ready('proj/demo/renamed');
+    await ready('demo/renamed');
     await shouldHappen(() => !document.querySelector('.ant-modal'), 2000);
-    await click('proj/demo/renamed');
+    await click('demo/renamed');
     key('Delete');
     await modalButton(true);
     await ready();
-    expect(fixture.entries.has('proj/demo/renamed')).toBe(false);
+    expect(fixture.entries.has('demo/renamed')).toBe(false);
     await shouldHappen(() => !document.querySelector('.ant-modal'), 2000);
-    await click('proj/demo');
+    await click('demo');
     key('Delete');
     expect(document.querySelector('.ant-modal')).toBeNull();
-    expect(fixture.methods.deleteFile.mock.calls.map(([path]) => path)).toEqual(['proj/demo/renamed']);
+    expect(fixture.methods.deleteFile.mock.calls.map(([path]) => path)).toEqual(['demo/renamed']);
   });
 
   it('moves files with an internal drag and reveals the destination folder', async () => {
-    const fixture = fixtureClient([file('proj/demo/a.txt'), folder('proj/demo/folder')]);
-    mount({client: fixture.client, project: 'demo', defaultPreview: false});
+    const fixture = fixtureClient([file('demo/a.txt'), folder('demo/folder')]);
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
     await ready();
     const data = new DataTransfer();
-    row('proj/demo/a.txt').dispatchEvent(new DragEvent('dragstart', {bubbles: true, dataTransfer: data}));
-    row('proj/demo/folder').dispatchEvent(new DragEvent('drop', {bubbles: true, dataTransfer: data}));
-    await ready('proj/demo/folder/a.txt');
-    expect(fixture.entries.has('proj/demo/a.txt')).toBe(false);
+    row('demo/a.txt').dispatchEvent(new DragEvent('dragstart', {bubbles: true, dataTransfer: data}));
+    row('demo/folder').dispatchEvent(new DragEvent('drop', {bubbles: true, dataTransfer: data}));
+    await ready('demo/folder/a.txt');
+    expect(fixture.entries.has('demo/a.txt')).toBe(false);
     expect(fixture.methods.moveFile).toHaveBeenCalledTimes(1);
   });
 
   it('keeps only unfinished cut entries after a partial move fails', async () => {
-    const fixture = fixtureClient([file('proj/demo/a.txt'), file('proj/demo/b.txt'), folder('proj/demo/folder')]);
+    const fixture = fixtureClient([file('demo/a.txt'), file('demo/b.txt'), folder('demo/folder')]);
     const move = fixture.methods.moveFile.getMockImplementation();
     fixture.methods.moveFile.mockImplementationOnce(move).mockRejectedValueOnce(new Error('Move failed'));
-    mount({client: fixture.client, project: 'demo', defaultPreview: false});
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
     await ready();
-    await click('proj/demo/a.txt');
-    row('proj/demo/b.txt').dispatchEvent(new MouseEvent('click', {bubbles: true, ctrlKey: true}));
+    await click('demo/a.txt');
+    row('demo/b.txt').dispatchEvent(new MouseEvent('click', {bubbles: true, ctrlKey: true}));
     await shouldHappen(() => div.querySelectorAll('.ticl-e-file-selected').length === 2);
     key('x', {ctrlKey: true});
-    await click('proj/demo/folder');
+    await click('demo/folder');
     key('v', {ctrlKey: true});
     await shouldHappen(
       () => div.querySelector('.ticl-e-file-error')?.textContent.includes('Move failed') && !button('Reload').disabled,
       2000
     );
-    expect(fixture.entries.has('proj/demo/folder/a.txt')).toBe(true);
-    expect(fixture.entries.has('proj/demo/b.txt')).toBe(true);
+    expect(fixture.entries.has('demo/folder/a.txt')).toBe(true);
+    expect(fixture.entries.has('demo/b.txt')).toBe(true);
     key('v', {ctrlKey: true});
-    await ready('proj/demo/folder/b.txt');
+    await ready('demo/folder/b.txt');
     expect(fixture.methods.moveFile.mock.calls.map(([source]) => source)).toEqual([
-      'proj/demo/a.txt',
-      'proj/demo/b.txt',
-      'proj/demo/b.txt',
+      'demo/a.txt',
+      'demo/b.txt',
+      'demo/b.txt',
     ]);
   });
 
   it('closes outstanding overwrite confirmations when the project changes', async () => {
-    const fixture = fixtureClient([file('proj/demo/a.txt'), file('proj/next/a.txt')]);
+    const fixture = fixtureClient([file('demo/a.txt'), file('next/a.txt')]);
     div = document.createElement('div');
     document.body.appendChild(div);
     root = createRoot(div);
-    root.render(view({client: fixture.client, project: 'demo', defaultPreview: false}));
+    root.render(view({storage: fixture.client, project: 'demo', defaultPreview: false}));
     await ready();
     const data = new DataTransfer();
     data.items.add(new File(['replacement'], 'a.txt'));
-    row('proj/demo').dispatchEvent(new DragEvent('drop', {bubbles: true, dataTransfer: data}));
+    row('demo').dispatchEvent(new DragEvent('drop', {bubbles: true, dataTransfer: data}));
     await shouldHappen(() => document.querySelector('.ant-modal-confirm'), 2000);
-    root.render(view({client: fixture.client, project: 'next', defaultPreview: false}));
-    await ready('proj/next/a.txt');
+    root.render(view({storage: fixture.client, project: 'next', defaultPreview: false}));
+    await ready('next/a.txt');
     await shouldHappen(() => !document.querySelector('.ant-modal-confirm'), 2000);
     expect(fixture.methods.uploadFile).not.toHaveBeenCalled();
     expect(fixture.methods.deleteFile).not.toHaveBeenCalled();
   });
 
   it('cancels old previews and clears the clipboard when the project changes', async () => {
-    const fixture = fixtureClient([file('proj/demo/a.txt'), file('proj/next/a.txt')]);
+    const fixture = fixtureClient([file('demo/a.txt'), file('next/a.txt')]);
     let resolvePreview: (value: {data: ArrayBuffer; headers: {}}) => void;
     fixture.methods.getFile.mockImplementation(
       () =>
@@ -289,22 +285,20 @@ describe('FileManager', () => {
     div = document.createElement('div');
     document.body.appendChild(div);
     root = createRoot(div);
-    root.render(view({client: fixture.client, project: 'demo'}));
+    root.render(view({storage: fixture.client, project: 'demo'}));
     await ready();
-    await click('proj/demo/a.txt');
+    await click('demo/a.txt');
     await shouldHappen(() => fixture.methods.getFile.mock.calls.length > 0);
     key('c', {ctrlKey: true});
     const signal = fixture.methods.getFile.mock.calls.at(-1)[1].signal;
-    root.render(view({client: fixture.client, project: 'next'}));
-    await ready('proj/next/a.txt');
+    root.render(view({storage: fixture.client, project: 'next'}));
+    await ready('next/a.txt');
     expect(signal.aborted).toBe(true);
-    expect(row('proj/demo/a.txt')).toBeNull();
+    expect(row('demo/a.txt')).toBeNull();
     resolvePreview({data: new TextEncoder().encode('stale').buffer, headers: {}});
     key('v', {ctrlKey: true});
     expect(fixture.methods.copyFile).not.toHaveBeenCalled();
     expect(div.querySelector('.ticl-e-file-preview').textContent).not.toContain('stale');
-    expect(fixture.methods.listFiles.mock.calls.every(([path]) => ['proj/demo', 'proj/next'].includes(path))).toBe(
-      true
-    );
+    expect(fixture.methods.listFiles.mock.calls.every(([path]) => ['demo', 'next'].includes(path))).toBe(true);
   });
 });

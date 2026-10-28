@@ -2,3 +2,4 @@ export {connectTiclo, createTicloApp, routeTiclo, getEditorUrl} from './server.t
 export type {TicloApp, TicloAppOptions} from './server.ts';
 // Import ServerFunction to ensure it's registered
 import './ServerFunction.ts';
+export {routeFileStorage} from './file-storage.ts';

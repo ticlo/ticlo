@@ -18,6 +18,7 @@ build
 /temp
 /app/**/*.js
 /app/**/*.ticlo
+/app/public/storage/**/*.json
 /app/server/files/
 /css/*.css
 /packages/*/style/index.css

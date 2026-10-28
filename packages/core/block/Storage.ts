@@ -20,6 +20,9 @@ export interface FlowStorage {
   saveNamespaceMetadata?(namespace: string, metadata: NamespaceMetadata): Promise<void>;
   listFlows?(namespace: string, folders?: string[]): Promise<string[]>;
   readonly persistent?: boolean;
+  isPersistent?(namespace: string): boolean;
+  canWriteFlow?(key: string): boolean;
+  getValueStorage?(namespace: string): Storage;
   delete(name: string): void | Promise<void>;
 
   createFolder?(name: string): void | Promise<void>;

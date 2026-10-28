@@ -27,7 +27,6 @@
     "@lezer/highlight": "^1.2.3",
     "@rc-component/picker": "^1.13.0",
     "@ticlo/core": "workspace:*",
-    "@ticlo/file-client": "^0.0.2",
     "@ticlo/html": "workspace:*",
     "@types/luxon": "^3.7.5",
     "@uiw/codemirror-theme-eclipse": "^4.25.11",

@@ -25,17 +25,17 @@ import {theme, darkTheme} from '@ticlo/editor/style/theme.ts';
 import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
 import {TooltipIconButton} from '@ticlo/editor/component/TooltipIconButton.tsx';
 import {FrameServerConnection} from '@ticlo/html';
-import {IndexDbFlowStorage} from '@ticlo/html/storage/IndexDbStorage.ts';
-import {FileServerFlowStorage, TicloFileClient} from '@ticlo/remote-storage';
+import {RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
+import type {ProjectFiles} from '@ticlo/core/storage/FileAccess.ts';
 import {DockLayout, type LayoutBase, type TabDefinitions, type TabData} from 'rc-dock';
-import {sideColumns, stageGroup, toolGroup, createLayoutActions} from './AppLayout.ts';
+import {sideColumns, stageGroup, toolGroup, createLayoutActions, stageReadonly} from './AppLayout.ts';
 import {antdLocales, initAppI18n, LanguageSettings} from './AppI18n.tsx';
 import {createRoot} from 'react-dom/client';
 import i18next from 'i18next';
 import '@ticlo/react';
 import '@ticlo/test';
 import './sample-blocks.ts';
-import {PlaygroundConnection, PlaygroundConnectionContext} from './PlaygroundConnection.tsx';
+import {PlaygroundConnection, PlaygroundConnectionContext, connectStageTab} from './PlaygroundConnection.tsx';
 import {designerData} from './sample-data/designer.ts';
 
 const DarkModeContext = React.createContext(false);
@@ -121,7 +121,7 @@ interface Props {
   root: Root;
   conn: ClientConnection;
   initialFlow?: string;
-  files?: {client: TicloFileClient; project: string};
+  files?: {storage: ProjectFiles; project: string};
 }
 
 interface State {
@@ -281,9 +281,12 @@ class App extends React.PureComponent<Props, State> {
     editFlow: (path: string, onSave: () => void) => {
       if (!this.layout.updateTab(`blockEditor:${path}`, null, true)) {
         this.layout.dockMove(
-          BlockStagePane.createDockTab(path, this.conn, this.onSelect, onSave, {
-            defaultShowPropertyList: false,
-          }),
+          connectStageTab(
+            BlockStagePane.createDockTab(path, this.conn, this.onSelect, onSave, {
+              defaultShowPropertyList: false,
+            }),
+            stageReadonly(this.props.files?.storage, path)
+          ),
           'main',
           'middle'
         );
@@ -312,6 +315,7 @@ class App extends React.PureComponent<Props, State> {
   };
 
   createDesignerTab(path: string, onSave?: () => void): TabData {
+    const readonly = stageReadonly(this.props.files?.storage, path);
     const id = `designer:${path}`;
     const save =
       onSave ??
@@ -322,14 +326,14 @@ class App extends React.PureComponent<Props, State> {
     return {
       id,
       title: (
-        <PlaygroundConnection>
+        <PlaygroundConnection readonly={readonly}>
           <BlockStageTabButton conn={this.conn} id={id} path={path} title={path} onSave={save} />
         </PlaygroundConnection>
       ),
       group: 'main',
       closable: false,
       content: (
-        <PlaygroundConnection>
+        <PlaygroundConnection readonly={readonly}>
           <DesignerStage root={this.props.root} conn={this.conn} basePath={path} stageId={id} onSave={save} />
         </PlaygroundConnection>
       ),
@@ -423,24 +427,25 @@ window.addEventListener('hashchange', () => location.reload());
   let initialFlow: string;
   let files: Props['files'];
   if (host) {
-    const client = new TicloFileClient({baseURL: host});
+    const storage = new RemoteStorage({baseURL: host});
     const project = params.get('project') || '#root';
-    files = {client, project};
-    await root.setStorage(new FileServerFlowStorage(client));
+    files = {storage, project};
+    await root.setStorage(storage);
     await root.start(
       params.has('project') || params.has('flow') ? {[project]: {flows: params.getAll('flow')}} : undefined
     );
     const firstFlow = (await root.listFlows(project)).find(({state}) => state !== 'unloaded');
     if (firstFlow) initialFlow = project === '#root' ? firstFlow.name : `+${project}.${firstFlow.name}`;
   } else {
-    await root.setStorage(new IndexDbFlowStorage());
-    await root._storage.saveNamespaceMetadata('demo', {});
-    await root.start({'#root': {flows: ['**']}, 'demo': {}});
+    const storage = new StaticStorage(new URL('./storage', location.href).href);
+    files = {storage, project: 'local'};
+    await root.setStorage(storage);
+    await root.start({local: {flows: ['**']}});
 
-    if (!(root.getValue('designer-example') instanceof Flow)) {
-      root.addFlow('designer-example', designerData);
+    if (!(root.queryValue('+local.designer-example') instanceof Flow)) {
+      root.addFlow('+local.designer-example', designerData);
     }
-    initialFlow = params.get('flow') || 'designer-example';
+    initialFlow = params.get('flow') || '+local.designer-example';
   }
 
   const [server, client] = makeLocalConnection(root, true, undefined, false);

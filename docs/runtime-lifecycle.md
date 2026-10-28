@@ -37,10 +37,11 @@ never reads/writes it. Dependencies do not use a `#deps` directory.
 
 | Adapter | Metadata and persistence |
 | --- | --- |
-| `FileFlowStorage` | `<dir>/ticlo.json`, `<dir>/+main/ticlo.json` |
-| IndexedDB | `namespaces` store keyed by `#root`, `main`, etc., with `{dependencies?, serviceLibraries?}` values; default DB version 2; custom DBs must provide the store; flow keys stay dotted |
+| `NodeStorage` | `<projectsDir>/#root/ticlo.json`, `<projectsDir>/main/ticlo.json` |
+| Browser `local` | IndexedDB file `local/ticlo.json`; only the local project is stored in IndexedDB |
 | `MemoryFlowStorage` | Metadata and serialized-flow Maps survive stop/start on the same instance |
-| `StaticFlowStorage` | Reads metadata; rejects persistent lifecycle mutations; update deployed JSON |
+| `StaticStorage` | Static projects are read-only; lifecycle persistence is allowed only for `local` |
+| `RemoteStorage` | File server project metadata at `proj/<project>/ticlo.json` |
 
 Adapters expose `getNamespaceMetadata`, `saveNamespaceMetadata`, and `listFlows`.
 Catalog reads must not instantiate or run flows.

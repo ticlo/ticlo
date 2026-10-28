@@ -1,5 +1,5 @@
 import {vi} from 'vitest';
-import type {FileEntry, TicloFileClient} from '@ticlo/file-client';
+import {StorageError, type FileEntry, type FileAccess} from '@ticlo/core/storage/FileAccess.ts';
 import {parentPath} from '../FileOperations.ts';
 
 export function file(path: string, size = 12): FileEntry {
@@ -13,7 +13,7 @@ export function folder(path: string): FileEntry {
 export function fixtureClient(initial: FileEntry[]) {
   const entries = new Map(initial.map((entry) => [entry.path, entry]));
   const missing = () => {
-    throw {response: {status: 404, data: {message: 'Not found'}}};
+    throw new StorageError('Not found', 'not-found');
   };
   const move = (source: string, destination: string) => {
     if (!entries.has(source)) missing();
@@ -26,6 +26,7 @@ export function fixtureClient(initial: FileEntry[]) {
     }
   };
   const methods = {
+    getCapabilities: () => ({write: true, persistent: true}),
     listFiles: vi.fn(async (path: string) => [...entries.values()].filter((entry) => parentPath(entry.path) === path)),
     getFileInfo: vi.fn(async (path: string) => entries.get(path) ?? missing()),
     getFile: vi.fn(async (_path: string, _config?: {signal?: AbortSignal}) => ({
@@ -50,5 +51,5 @@ export function fixtureClient(initial: FileEntry[]) {
       return path;
     }),
   };
-  return {client: methods as unknown as TicloFileClient, methods, entries};
+  return {client: methods as unknown as FileAccess, methods, entries};
 }

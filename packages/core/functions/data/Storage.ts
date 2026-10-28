@@ -1,14 +1,23 @@
-import {StatefulFunction, BaseFunction, PureFunction} from '../../block/BlockFunction.ts';
+import {BaseFunction} from '../../block/BlockFunction.ts';
 import {globalFunctions} from '../../block/FunctionLib.ts';
-import {Storage, voidStorage} from '../../block/Storage.ts';
+import type {Storage} from '../../block/Storage.ts';
 import {encode, decode} from '../../util/Serialize.ts';
 import {BlockIO} from '../../block/BlockProperty.ts';
+import {Namespace} from '../../block/Namespace.ts';
+import {MemoryValueStorage} from '../../storage/MemoryValueStorage.ts';
+import type {FunctionData} from '../../block/FunctonData.ts';
 
-let storageInstance: Storage = voidStorage;
+let storageInstance: Storage = new MemoryValueStorage();
 export function setStorageFunctionProvider(getStorage: () => Storage) {
-  if (storageInstance == null || storageInstance === voidStorage) {
-    storageInstance = getStorage();
-  }
+  storageInstance = getStorage();
+}
+
+function getStorage(data: FunctionData): Storage {
+  const flow = data.getProperty('key', false)?._block?._flow;
+  return (
+    (flow && Namespace.rootOf(flow)._storage?.getValueStorage?.(flow._namespace?.slice(1) || '#root')) ??
+    storageInstance
+  );
 }
 
 export class WriteStorageFunction extends BaseFunction {
@@ -19,12 +28,11 @@ export class WriteStorageFunction extends BaseFunction {
       if (value !== undefined) {
         if (value === null) {
           // delete key when value is null
-          storageInstance.delete(key);
+          return getStorage(this._data).delete(key);
         } else {
           const encoded = encode(value);
-          storageInstance.save(key, encoded);
+          return getStorage(this._data).save(key, encoded);
         }
-        return;
       }
     }
     // todo: return something different if not successful?
@@ -46,18 +54,20 @@ globalFunctions.addFactory(WriteStorageFunction, {
 
 export class ReadStorageFunction extends BaseFunction {
   private _listeningKey: string = null;
+  private _storage: Storage;
   private _updateListener(key: unknown, autoRefresh: unknown) {
     if (autoRefresh && key && typeof key === 'string') {
       if (key !== this._listeningKey) {
         if (this._listeningKey) {
-          storageInstance.unlisten(this._listeningKey, this._storageCallback);
+          this._storage.unlisten(this._listeningKey, this._storageCallback);
         }
         this._listeningKey = key;
-        storageInstance.listen(key, this._storageCallback);
+        this._storage = getStorage(this._data);
+        this._storage.listen(key, this._storageCallback);
       }
     } else {
       if (this._listeningKey) {
-        storageInstance.unlisten(this._listeningKey, this._storageCallback);
+        this._storage.unlisten(this._listeningKey, this._storageCallback);
         this._listeningKey = null;
       }
     }
@@ -75,7 +85,7 @@ export class ReadStorageFunction extends BaseFunction {
   async run() {
     const key = this._data.getValue('key');
     if (key && typeof key === 'string') {
-      const str = await storageInstance.load(key);
+      const str = await getStorage(this._data).load(key);
       if (str) {
         this._data.output(decode(str));
       } else {
@@ -87,7 +97,7 @@ export class ReadStorageFunction extends BaseFunction {
 
   destroy() {
     if (this._listeningKey) {
-      storageInstance.unlisten(this._listeningKey, this._storageCallback);
+      this._storage.unlisten(this._listeningKey, this._storageCallback);
       this._listeningKey = null;
     }
     super.destroy();

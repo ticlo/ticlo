@@ -1,6 +1,7 @@
 import './styles.ts';
 import {Root} from '@ticlo/core';
-import {FrameServerConnection, StaticFlowStorage} from '@ticlo/html';
+import {FrameServerConnection} from '@ticlo/html';
+import {StaticStorage} from '@ticlo/remote-storage';
 import '@ticlo/react';
 import '@ticlo/test';
 import './sample-blocks.ts';
@@ -19,14 +20,14 @@ const status = document.getElementById('status');
 const params = new URLSearchParams(location.search);
 const host = params.get('host') || 'http://127.0.0.1:8011';
 const project = params.get('project') || '#root';
-const storage = new StaticFlowStorage(host);
+const storage = new StaticStorage(host);
 
 (async () => {
   await Root.instance.setStorage(storage);
   await Root.instance.start(
     params.has('project') || params.has('flow') ? {[project]: {flows: params.getAll('flow')}} : undefined
   );
-  status.textContent = `Loaded projects: ${[...storage.projects].join(', ')}`;
+  status.textContent = `Loaded project: ${project}`;
   button.disabled = false;
   button.addEventListener('click', () => {
     const editor = window.open('./editor.html', '_blank');

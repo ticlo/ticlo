@@ -1,4 +1,3 @@
-import {setStorageFunctionProvider} from '@ticlo/core/functions/data/Storage.ts';
-import {FileStorage} from './storage/FileStorage.ts';
-
-setStorageFunctionProvider(() => new FileStorage('./.test-storage/', '.str'));
+import {setStorageFunctionProvider} from '@ticlo/core';
+import {MemoryValueStorage} from '@ticlo/core/storage/MemoryValueStorage.ts';
+setStorageFunctionProvider(() => new MemoryValueStorage());

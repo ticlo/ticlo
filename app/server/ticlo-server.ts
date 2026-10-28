@@ -1,16 +1,20 @@
 import {serve} from '@hono/node-server';
-import {FileFlowStorage, FileStorage} from '@ticlo/node';
+import {NodeStorage} from '@ticlo/node';
 import '@ticlo/test';
 import {Hono} from 'hono';
 import {cors} from 'hono/cors';
-import {routeRemoteStorage, devUserAuth} from '@ticlo/file-server';
-import {Root, setStorageFunctionProvider} from '@ticlo/core';
+import {devUserAuth, type AuthProvider} from '@ticlo/file-server';
+import {Root} from '@ticlo/core';
+import {routeFileStorage} from '@ticlo/web-server/file-storage.ts';
 import {createTicloApp, getEditorUrl} from '@ticlo/web-server/server.ts';
 import {mkdir, writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
 
-export async function createServerApp(rootDir = fileURLToPath(new URL('./files/', import.meta.url))) {
+export async function createServerApp(
+  rootDir = fileURLToPath(new URL('./files/', import.meta.url)),
+  authProvider: AuthProvider = () => devUserAuth
+) {
   const rootProject = join(rootDir, 'proj/#root');
   if (await mkdir(rootProject, {recursive: true})) {
     await writeFile(join(rootProject, '_proj.json'), JSON.stringify({id: '#root', name: 'Root'}), {flag: 'wx'});
@@ -26,7 +30,7 @@ export async function createServerApp(rootDir = fileURLToPath(new URL('./files/'
       exposeHeaders: ['ETag'],
     })
   );
-  routeRemoteStorage(app, {rootDir, authProvider: () => devUserAuth});
+  routeFileStorage(app, {rootDir, authProvider});
 
   const runtimeCors = cors({allowMethods: ['GET', 'POST', 'OPTIONS'], allowHeaders: ['Content-Type']});
   for (const path of ['/ticlo', '/ticlo/*', '/api', '/api/*']) {
@@ -42,9 +46,7 @@ export async function createServerApp(rootDir = fileURLToPath(new URL('./files/'
 }
 
 async function start() {
-  setStorageFunctionProvider(() => new FileStorage('./app/server/storage', '.str'));
-
-  await Root.instance.setStorage(new FileFlowStorage('./app/server/flows'));
+  await Root.instance.setStorage(new NodeStorage(fileURLToPath(new URL('./files/proj/', import.meta.url))));
   await Root.instance.start();
 
   const {app, ticloWs} = await createServerApp();

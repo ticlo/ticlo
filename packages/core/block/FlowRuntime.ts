@@ -266,7 +266,10 @@ export class FlowRuntime {
   async setServiceLibrary(namespace: string, name: string, service: boolean) {
     this.key({namespace, name, kind: 'library'});
     const storage = this.root._storage;
-    if (!storage?.saveNamespaceMetadata || storage.persistent === false)
+    if (
+      !storage?.saveNamespaceMetadata ||
+      (storage.isPersistent ? !storage.isPersistent(namespace) : storage.persistent === false)
+    )
       throw new Error('Storage does not support persistence');
     const metadata = await storage.getNamespaceMetadata(namespace);
     const services = new Set(metadata.serviceLibraries);
@@ -319,7 +322,8 @@ export class FlowRuntime {
     if (!flow || flow._destroyed) throw new Error(`Flow is not loaded: ${key}`);
     if (options.persist) {
       const storage = this.root._storage;
-      if (!storage || storage.persistent === false) throw new Error('Storage does not support persistence');
+      if (!storage || (storage.isPersistent ? !storage.isPersistent(ref.namespace) : storage.persistent === false))
+        throw new Error('Storage does not support persistence');
       // Persist only this flag, not unrelated unsaved editor changes.
       const ns = ref.namespace === '#root' ? '' : `+${ref.namespace}`;
       const data = ref.kind === 'library' ? await storage.loadLib(ns, ref.name) : await storage.loadFlow(key);

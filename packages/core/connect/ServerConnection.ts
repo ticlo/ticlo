@@ -412,6 +412,37 @@ class ServerConnectionCore extends Connection {
     if (!Object.hasOwn(ServerConnection.prototype, cmd)) return 'invalid command';
     const func: Function = (this as any)[cmd];
     if (typeof func !== 'function' || func.length !== 1 || cmd.startsWith('on')) return 'invalid command';
+    const canWrite = this.root._storage?.canWriteFlow?.bind(this.root._storage);
+    if (
+      canWrite &&
+      ![
+        'get',
+        'list',
+        'query',
+        'subscribe',
+        'watch',
+        'watchDesc',
+        'getSettings',
+        'getFlowState',
+        'close',
+        'loadFlow',
+        'unloadFlow',
+        'enableFlow',
+        'disableFlow',
+        'callFunction',
+      ].includes(cmd) &&
+      !(cmd === 'copy' && !request.cut)
+    ) {
+      const path = cmd === 'deleteFunction' ? (request.funcLib ?? request.funcId) : request.path;
+      if (typeof path !== 'string') return 'invalid path';
+      if (!canWrite(path) || (typeof request.to === 'string' && !canWrite(request.to))) return 'Storage is read-only';
+      if (cmd === 'editWorker' && !request.fromField) {
+        const source = request.funcLib ?? request.fromFunction;
+        if (typeof source === 'string' && !canWrite(source)) return 'Storage is read-only';
+      }
+      const [owner, name] = this.root.queryBlockField(path);
+      if (owner && owner !== this.root && !canWrite(`${owner.getFullPath()}.${name}`)) return 'Storage is read-only';
+    }
     if (this._editPolicy?.readonly) {
       const error = this.checkRequestPolicy(request);
       if (error) return error;
@@ -1074,6 +1105,11 @@ export class ServerConnection extends ServerConnectionCore {
   applyFlowChange({path, funcId}: {path: string; funcId: string}) {
     const property = this.root.queryProperty(path, true);
     if (property && property._value instanceof Flow) {
+      if (property._value instanceof FlowEditor) {
+        const source = funcId ?? property._value._loadFrom;
+        const target = source?.startsWith('+') ? source : property._value._funcLib?.flow?.getFullPath();
+        if (target && this.root._storage?.canWriteFlow?.(target) === false) return 'Storage is read-only';
+      }
       if (funcId && property._value instanceof FlowEditor) {
         const result = WorkerFunctionGen.applyChangeToFunc(property._value, funcId);
         if (result instanceof Promise) return result.then((): string => null);

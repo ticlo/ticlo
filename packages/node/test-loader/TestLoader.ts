@@ -4,7 +4,7 @@ import {BlockProperty, DataMap, decode, Flow, Root} from '@ticlo/core';
 import {FlowLoader, FlowState} from '@ticlo/core/block/Flow.ts';
 import {FlowTestGroup} from '@ticlo/test';
 import {FlowTestCase} from '@ticlo/test';
-import {FileFlowStorage, FlowIOTask} from '../storage/FileStorage.ts';
+import {TestFileStorage, FlowIOTask} from './TestFileStorage.ts';
 
 interface TestLoaderOptions {
   timeout?: number;
@@ -12,14 +12,14 @@ interface TestLoaderOptions {
   ignoreFolders?: string[];
 }
 
-export class TestLoader extends FileFlowStorage {
+export class TestLoader extends TestFileStorage {
   flowToPathMap = new Map<string, string>();
   private readonly onDemandGeneration = new WeakMap<Flow, number>();
   timeout: number;
   onDemandLoad: boolean;
   ignoreFolders: string[];
   constructor(map: ([string, string] | string)[], options?: TestLoaderOptions) {
-    super('.');
+    super();
     this.timeout = options?.timeout ?? 5000;
     this.onDemandLoad = Boolean(options?.onDemandLoad);
     this.ignoreFolders = options?.ignoreFolders ?? ['i18n'];

@@ -1,4 +1,4 @@
-import type {FileEntry, TicloFileClient} from '@ticlo/file-client';
+import {StorageError, assertWritable, type FileEntry, type FileAccess} from '@ticlo/core/storage/FileAccess.ts';
 
 export type ConfirmOverwrite = (entry: FileEntry) => Promise<boolean>;
 export interface UploadEntry {
@@ -19,8 +19,7 @@ export function topEntries(entries: FileEntry[]) {
 }
 
 export function fileError(error: unknown) {
-  const response = (error as {response?: {data?: {message?: string}}})?.response;
-  return response?.data?.message ?? (error instanceof Error ? error.message : String(error));
+  return error instanceof Error ? error.message : String(error);
 }
 
 /** File operations stay within one project; the project root cannot be mutated. */
@@ -28,14 +27,14 @@ export class FileOperations {
   readonly root: string;
 
   constructor(
-    readonly client: TicloFileClient,
+    readonly storage: FileAccess,
     project: string,
     readonly signal?: AbortSignal
   ) {
     if (!validFileName(project) || project.includes('.') || project !== project.trim()) {
       throw new Error('Invalid project');
     }
-    this.root = `proj/${project}`;
+    this.root = project;
   }
 
   checkPath(path: string, allowRoot = false) {
@@ -52,16 +51,16 @@ export class FileOperations {
   async info(path: string) {
     this.checkPath(path, true);
     try {
-      return await this.client.getFileInfo(path, {signal: this.signal});
+      return await this.storage.getFileInfo(path, {signal: this.signal});
     } catch (error) {
-      if ((error as {response?: {status: number}}).response?.status === 404) return null;
+      if (error instanceof StorageError && error.code === 'not-found') return null;
       throw error;
     }
   }
 
   async list(path: string) {
     this.checkPath(path, true);
-    const entries = await this.client.listFiles(path, {signal: this.signal});
+    const entries = await this.storage.listFiles(path, {signal: this.signal});
     for (const entry of entries) {
       this.checkPath(entry.path);
       if (parentPath(entry.path) !== path) throw new Error('Invalid directory entry');
@@ -71,27 +70,32 @@ export class FileOperations {
 
   async createFolder(directory: string, name: string) {
     this.checkPath(directory, true);
+    assertWritable(this.storage, directory);
     if (!validFileName(name)) throw new Error('Invalid file name');
     const path = `${directory}/${name}`;
     if (await this.info(path)) throw new Error('An entry with this name already exists');
-    await this.client.createDirectory(path, {signal: this.signal});
+    await this.storage.createDirectory(path, {signal: this.signal});
   }
 
   async rename(entry: FileEntry, name: string) {
     this.checkPath(entry.path);
+    assertWritable(this.storage, entry.path);
     if (!validFileName(name)) throw new Error('Invalid file name');
     if (name === entry.name) return;
     if (await this.info(`${parentPath(entry.path)}/${name}`)) {
       throw new Error('An entry with this name already exists');
     }
-    await this.client.renameFile(entry.path, name, {signal: this.signal});
+    await this.storage.renameFile(entry.path, name, {signal: this.signal});
   }
 
   async remove(entries: FileEntry[]) {
-    for (const entry of entries) this.checkPath(entry.path);
+    for (const entry of entries) {
+      this.checkPath(entry.path);
+      assertWritable(this.storage, entry.path);
+    }
     for (const entry of topEntries(entries)) {
       this.checkPath(entry.path);
-      await this.client.deleteFile(entry.path, {signal: this.signal});
+      await this.storage.deleteFile(entry.path, {signal: this.signal});
     }
   }
 
@@ -112,7 +116,7 @@ export class FileOperations {
       if (!(await confirm(existing))) return null;
       this.checkPath(path);
       if (existing.type === 'folder' || type === 'folder') {
-        await this.client.deleteFile(path, {signal: this.signal});
+        await this.storage.deleteFile(path, {signal: this.signal});
       }
     }
     return existing?.type === 'file' && type === 'file' ? 'overwrite' : 'fail';
@@ -122,10 +126,10 @@ export class FileOperations {
     this.checkPath(entry.path);
     this.checkPath(destination);
     if (entry.type === 'file') {
-      await this.client.copyFile(entry.path, destination, {signal: this.signal});
+      await this.storage.copyFile(entry.path, destination, {signal: this.signal});
     } else {
       const children = await this.list(entry.path);
-      await this.client.createDirectory(destination, {signal: this.signal});
+      await this.storage.createDirectory(destination, {signal: this.signal});
       for (const child of children) await this.copy(child, `${destination}/${child.name}`);
     }
   }
@@ -138,10 +142,12 @@ export class FileOperations {
     onComplete?: (entry: FileEntry) => void
   ) {
     this.checkPath(directory, true);
+    assertWritable(this.storage, directory);
     const sources = topEntries(entries);
     // Validate the whole selection before changing any files.
     for (const entry of sources) {
       this.checkPath(entry.path);
+      if (move) assertWritable(this.storage, entry.path);
       const target = `${directory}/${entry.name}`;
       if (directory === entry.path || directory.startsWith(`${entry.path}/`) || entry.path.startsWith(`${target}/`)) {
         throw new Error('Cannot copy or move a folder into itself');
@@ -167,10 +173,15 @@ export class FileOperations {
       }
       const name = !move && parentPath(entry.path) === directory ? await this.copyName(entry, directory) : entry.name;
       const destination = `${directory}/${name}`;
-      if (!(await this.prepare(destination, entry.type, confirm))) continue;
-      if (move) {
+      const existsBehavior = await this.prepare(destination, entry.type, confirm);
+      if (!existsBehavior) continue;
+      if (existsBehavior === 'overwrite') {
+        const source = await this.storage.getFile(entry.path, {signal: this.signal});
+        await this.storage.uploadFile(destination, source.data, {existsBehavior, signal: this.signal});
+        if (move) await this.storage.deleteFile(entry.path, {revision: source.revision, signal: this.signal});
+      } else if (move) {
         this.checkPath(entry.path);
-        await this.client.moveFile(entry.path, destination, {signal: this.signal});
+        await this.storage.moveFile(entry.path, destination, {signal: this.signal});
       } else {
         await this.copy(entry, destination);
       }
@@ -181,6 +192,7 @@ export class FileOperations {
 
   async upload(entries: UploadEntry[], directory: string, confirm: ConfirmOverwrite) {
     this.checkPath(directory, true);
+    assertWritable(this.storage, directory);
     for (const entry of entries) this.checkPath(`${directory}/${entry.path}`);
     const skipped: string[] = [];
     for (const entry of entries) {
@@ -193,11 +205,11 @@ export class FileOperations {
           skipped.push(entry.path);
           continue;
         }
-        await this.client.createDirectory(path, {signal: this.signal});
+        await this.storage.createDirectory(path, {signal: this.signal});
       } else {
         const existsBehavior = await this.prepare(path, 'file', confirm);
         if (!existsBehavior) continue;
-        await this.client.uploadFile(path, entry.file, {existsBehavior}, {signal: this.signal});
+        await this.storage.uploadFile(path, entry.file, {existsBehavior, signal: this.signal});
       }
     }
   }

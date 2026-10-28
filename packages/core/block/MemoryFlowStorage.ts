@@ -4,12 +4,19 @@ import type {DataMap} from '../util/DataTypes.ts';
 import {decode, encodeSorted} from '../util/Serialize.ts';
 import {splitFlowStorageKey, validFlowEntry} from '../util/FlowStoragePath.ts';
 import {readNamespaceMetadata, validateNamespace} from '../util/NamespaceMetadata.ts';
+import {MemoryValueStorage} from '../storage/MemoryValueStorage.ts';
 
 /** In-memory persistence survives stop/start on the same storage instance. */
 export class MemoryFlowStorage implements FlowStorage {
   readonly flows = new Map<string, string>();
   readonly namespaces = new Map<string, NamespaceMetadata>([['#root', {}]]);
   inited = false;
+  private readonly values = new Map<string, MemoryValueStorage>();
+  getValueStorage(namespace: string) {
+    let values = this.values.get(namespace);
+    if (!values) this.values.set(namespace, (values = new MemoryValueStorage()));
+    return values;
+  }
 
   async getNamespaceMetadata(namespace: string) {
     validateNamespace(namespace);

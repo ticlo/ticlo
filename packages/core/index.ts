@@ -3,6 +3,8 @@ export {BlockOrder, getBlockOrder} from './block/BlockOrder.ts';
 export {Root, Flow, FlowFolder} from './block/Flow.ts';
 export type {StartOptions, FlowRef, UnloadOptions} from './block/FlowRuntime.ts';
 export {type FlowStorage, type Storage, type NamespaceMetadata} from './block/Storage.ts';
+export * from './storage/FileAccess.ts';
+export {ProjectStorage} from './storage/ProjectStorage.ts';
 export {BlockProperty, BlockIO} from './block/BlockProperty.ts';
 export {BaseFunction, StatefulFunction, PureFunction} from './block/BlockFunction.ts';
 export {FunctionLib as Functions, globalFunctions as globalFunctions} from './block/FunctionLib.ts';

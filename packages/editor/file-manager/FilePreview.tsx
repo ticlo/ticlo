@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import type {FileEntry, TicloFileClient} from '@ticlo/file-client';
+import {type FileEntry, type FileAccess} from '@ticlo/core/storage/FileAccess.ts';
 import {Button, Spin} from 'antd';
 import CodeMirror from '@uiw/react-codemirror';
 import {javascript} from '@codemirror/lang-javascript';
@@ -40,6 +40,7 @@ export function previewType(name: string): 'image' | 'text' | null {
 }
 
 export function formatFileSize(size: number) {
+  if (size === undefined) return '?';
   return size < 1000
     ? `${size} B`
     : size < 1000000
@@ -48,14 +49,16 @@ export function formatFileSize(size: number) {
 }
 
 interface Props {
-  client: TicloFileClient;
+  storage: FileAccess;
   entry?: FileEntry;
   onDownload: () => void;
 }
 
-export function FilePreview({client, entry, onDownload}: Props) {
+export function FilePreview({storage, entry, onDownload}: Props) {
   const kind = entry?.type === 'file' ? previewType(entry.name) : null;
-  const [requested, setRequested] = useState(entry?.type === 'file' && entry.size < 100000 && Boolean(kind));
+  const [requested, setRequested] = useState(
+    entry?.type === 'file' && entry.size !== undefined && entry.size < 100000 && Boolean(kind)
+  );
   const [content, setContent] = useState<string>();
   const [error, setError] = useState<string>();
   const path = entry?.path;
@@ -73,7 +76,7 @@ export function FilePreview({client, entry, onDownload}: Props) {
     if (!requested || !kind) return;
     const controller = new AbortController();
     let url: string;
-    client
+    storage
       .getFile(path, {signal: controller.signal})
       .then((response) => {
         if (controller.signal.aborted) return;
@@ -98,7 +101,7 @@ export function FilePreview({client, entry, onDownload}: Props) {
       controller.abort();
       if (url) URL.revokeObjectURL(url);
     };
-  }, [client, requested, kind, path, name]);
+  }, [storage, requested, kind, path, name]);
 
   return (
     <div className="ticl-e-file-preview">
@@ -151,7 +154,7 @@ export function FilePreview({client, entry, onDownload}: Props) {
           </div>
           {entry.type === 'file' ? (
             <div>
-              {t('Size')}: {formatFileSize(entry.size)} ({entry.size} B)
+              {t('Size')}: {formatFileSize(entry.size)} ({entry.size ?? '?'} B)
             </div>
           ) : null}
           {entry.modified > 0 ? (

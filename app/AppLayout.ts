@@ -1,10 +1,17 @@
 import type {ClientConn} from '@ticlo/core';
 import {createElement} from 'react';
+import type {ProjectFiles} from '@ticlo/core/storage/FileAccess.ts';
 import type {TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.ts';
 import {StagePanelFocus} from '@ticlo/editor/dock/StagePanelFocus.tsx';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.tsx';
 import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.tsx';
 import type {DockLayout, SideColumns, TabGroup} from 'rc-dock';
+
+export function stageReadonly(storage: ProjectFiles | undefined, path: string) {
+  if (!storage || path === '#temp' || path.startsWith('#temp.')) return false;
+  if (path === '#global' || path.startsWith('#global.')) return !storage.user.getCapabilities('#global.ticlo').write;
+  return !storage.getCapabilities(path.startsWith('+') ? path.slice(1).split(/[.:]/)[0] : '#root').write;
+}
 
 export const sideColumns: SideColumns = {
   left: {collapsible: true, accordion: true, padding: 4},

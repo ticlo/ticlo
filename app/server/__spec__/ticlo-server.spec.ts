@@ -7,7 +7,7 @@ import {serve} from '@hono/node-server';
 import {Root, MemoryFlowStorage} from '@ticlo/core';
 import {WsClientConnection} from '@ticlo/node/connect/WsClientConnection.ts';
 import {AsyncClientPromise} from '@ticlo/core/connect/__spec__/AsyncClientPromise.ts';
-import {FileServerFlowStorage, TicloFileClient} from '@ticlo/remote-storage';
+import {RemoteStorage} from '@ticlo/remote-storage';
 import {createServerApp} from '../ticlo-server.ts';
 
 it('serves files, runtime commands, WebSockets and flow routes on one port with scoped CORS', async () => {
@@ -29,6 +29,8 @@ it('serves files, runtime commands, WebSockets and flow routes on one port with 
     const base = `http://127.0.0.1:${address.port}`;
     expect(await (await fetch(`${base}/health`)).json()).toEqual({status: 'ok'});
     expect(await (await fetch(base)).text()).toContain('/file');
+    expect(await (await fetch(`${base}/file?op=user`)).json()).toEqual({id: 'admin'});
+    expect((await fetch(`${base}/file/usr/another-user/private.txt`)).status).toBe(403);
 
     const preflight = await fetch(`${base}/file?op=upload`, {
       method: 'OPTIONS',
@@ -42,10 +44,10 @@ it('serves files, runtime commands, WebSockets and flow routes on one port with 
     expect(preflight.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3003');
     expect(preflight.headers.get('Access-Control-Allow-Headers')).toContain('If-Match');
     expect(await readdir(join(dir, 'proj/#root'))).toEqual(['_proj.json']);
-    const files = new TicloFileClient({baseURL: `${base}/file`});
+    const files = new RemoteStorage({baseURL: `${base}/file`});
     const remote = new Root();
     try {
-      await remote.setStorage(new FileServerFlowStorage(files));
+      await remote.setStorage(files);
       await remote.start();
       expect(remote._globalRoot.save()).toEqual({'#is': ''});
       expect(await readdir(join(dir, 'proj/#root'))).toEqual(['_proj.json']);
@@ -53,7 +55,7 @@ it('serves files, runtime commands, WebSockets and flow routes on one port with 
       await remote.stop({discardChanges: true});
       remote.destroy();
     }
-    await files.uploadFileResponse('proj/#root/download.txt', 'test fixture', {}, {headers: {'If-None-Match': '*'}});
+    await files.uploadFile('#root/download.txt', 'test fixture', {revision: null});
     const fileUrl = `${base}/file/proj/%23root/download.txt`;
     const file = await fetch(fileUrl, {headers: {Origin: 'http://localhost:3003'}});
     expect(file.status).toBe(200);
@@ -62,17 +64,12 @@ it('serves files, runtime commands, WebSockets and flow routes on one port with 
     const deniedOrigin = await fetch(fileUrl, {headers: {Origin: 'https://untrusted.example'}});
     expect(deniedOrigin.headers.get('Access-Control-Allow-Origin')).toBeNull();
     expect((await files.readProject('#root')).id).toBe('#root');
-    const upload = await files.uploadFileResponse(
-      'proj/#root/check.txt',
-      'stored',
-      {},
-      {headers: {'If-None-Match': '*'}}
-    );
-    await files.uploadFileResponse('proj/#root/check.txt', 'updated', {}, {headers: {'If-Match': upload.headers.etag}});
+    const upload = await files.uploadFile('#root/check.txt', 'stored', {revision: null});
+    await files.uploadFile('#root/check.txt', 'updated', {revision: upload.revision});
     expect(await (await fetch(`${base}/file/proj/%23root/check.txt`)).text()).toBe('updated');
-    await expect(
-      files.uploadFileResponse('proj/#root/check.txt', 'stale', {}, {headers: {'If-Match': upload.headers.etag}})
-    ).rejects.toMatchObject({response: {status: 412}});
+    await expect(files.uploadFile('#root/check.txt', 'stale', {revision: upload.revision})).rejects.toMatchObject({
+      code: 'conflict',
+    });
 
     const flow = root.addFlow('combinedServer', {
       value: 42,

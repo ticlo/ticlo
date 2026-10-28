@@ -124,20 +124,20 @@ editing, remain read-only. Property and column edit restrictions apply.
 
 ## File manager
 
-`FileManager` manages remote files through `@ticlo/file-client`. Pass a client
-and a project / namespace ID; the panel is confined to `proj/<project>`, and
+`FileManager` uses the shared storage file interface for local, remote, and static
+files. Pass a storage instance and a project / namespace ID; the panel is confined to `<project>`, and
 cannot rename, copy, move, or delete the project root. Use `#root` for the global
-namespace. Changing either the client or project clears selection and clipboard
+namespace. Changing either the storage or project clears selection and clipboard
 state and cancels outstanding requests and confirmations.
 
 ```tsx
 import {FileManager} from '@ticlo/editor';
-import {TicloFileClient} from '@ticlo/file-client';
+import {RemoteStorage} from '@ticlo/remote-storage';
 import '@ticlo/editor/style/index.css';
 
-const client = new TicloFileClient({baseURL: 'http://127.0.0.1:8010/file'});
+const storage = new RemoteStorage({baseURL: 'http://127.0.0.1:8010/file'});
 
-<FileManager client={client} project="main" style={{height: 500}} />;
+<FileManager storage={storage} project="main" style={{height: 500}} />;
 ```
 
 The panel supports file and folder operations, including recursive folder copies

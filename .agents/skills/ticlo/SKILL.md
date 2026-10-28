@@ -14,9 +14,9 @@ build and translation tools in `tool/`.
 | `core` | Blocks, bindings, functions, scheduling, persistence, client/server sync |
 | `editor` | React/Ant Design editor, property panels, function selectors |
 | `designer` | React page stages, design input, and selection; reuses editor tools |
-| `html` | Browser connections, IndexedDB, static HTTP storage |
-| `node` | Filesystem storage, WebSocket/REST connections, secrets, flow test loading |
-| `remote-storage` | Writable HTTP storage via `@ticlo/file-client`; host: `@ticlo/file-server` |
+| `html` | Browser connections and DOM integrations |
+| `node` | Direct filesystem project storage, WebSocket/REST connections, secrets, flow test loading |
+| `remote-storage` | Browser file/flow storage: Remote, read-only Static, and IndexedDB-backed local project |
 | `react` | Flow bindings and components |
 | `test` | Flow assertions and test utilities |
 | `web-server` | Hono HTTP/WebSocket server using `@hono/node-server` and `@hono/node-ws` |

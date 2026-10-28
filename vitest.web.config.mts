@@ -10,7 +10,8 @@ buildCss();
 buildIcons();
 
 const isHeadless = process.env.HEADLESS !== 'false';
-const coreNodeModules = (name: string) => fileURLToPath(new URL(`./packages/core/node_modules/${name}`, import.meta.url));
+const coreNodeModules = (name: string) =>
+  fileURLToPath(new URL(`./packages/core/node_modules/${name}`, import.meta.url));
 
 export default defineConfig({
   plugins: [react(), nodePolyfills()],
@@ -25,8 +26,8 @@ export default defineConfig({
       // That lets optimizeDeps resolve them from this root config and prevents
       // browser tests from mixing package-local copies during cold startup.
       'arrow-code': coreNodeModules('arrow-code'),
-      i18next: coreNodeModules('i18next'),
-      luxon: coreNodeModules('luxon'),
+      'i18next': coreNodeModules('i18next'),
+      'luxon': coreNodeModules('luxon'),
     },
   },
   optimizeDeps: {
@@ -98,6 +99,7 @@ export default defineConfig({
     include: [
       'packages/core/**/*.spec.ts',
       'packages/html/**/*.spec.ts',
+      'packages/remote-storage/**/*.browser.test.ts',
       'packages/react/**/*.spec.(ts|tsx)',
       'packages/editor/**/*.spec.(ts|tsx)',
       'packages/designer/**/*.spec.(ts|tsx)',
