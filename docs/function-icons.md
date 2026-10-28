@@ -35,7 +35,7 @@ needs to fit a smaller area.
 
 ```text
 tl:s  br:2
-svg:react  b9:ui
+svg:clock  b9:ui
 path:M12 12H84V84H12Z  :A
 ```
 

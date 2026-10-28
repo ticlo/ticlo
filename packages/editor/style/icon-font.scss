@@ -1,4 +1,6 @@
-$family: 'Ticlo Noto Sans', 'Ticlo Noto Sans Math', 'Ticlo Noto Sans CJK', 'Ticlo Noto Sans Symbols 2', sans-serif;
+$family:
+  'Ticlo Noto Sans', 'Ticlo Noto Sans Math', 'Ticlo Noto Sans Symbols', 'Ticlo Noto Sans Symbols 2',
+  'Ticlo Noto Sans CJK', 'Ticlo Noto Emoji', sans-serif;
 
 @font-face {
   font-family: 'Ticlo Noto Sans Math';
@@ -43,6 +45,18 @@ $cjk-local:
 }
 
 @font-face {
+  font-family: 'Ticlo Noto Sans Symbols';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local('Noto Sans Symbols Regular'),
+    local('NotoSansSymbols-Regular'),
+    url('https://fonts.gstatic.com/s/notosanssymbols/v47/rP2up3q65FkAtHfwd-eIS2brbDN6gxP34F9jRRCe4W3gfQ8gag.ttf')
+      format('truetype');
+}
+
+@font-face {
   font-family: 'Ticlo Noto Sans Symbols 2';
   font-style: normal;
   font-weight: 400;
@@ -51,6 +65,18 @@ $cjk-local:
     local('Noto Sans Symbols 2 Regular'),
     local('NotoSansSymbols2-Regular'),
     url('https://fonts.gstatic.com/s/notosanssymbols2/v25/I_uyMoGduATTei9eI8daxVHDyfisHr71ypY.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Ticlo Noto Emoji';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local('Noto Emoji'),
+    local('Noto Emoji Regular'),
+    local('NotoEmoji-Regular'),
+    url('https://fonts.gstatic.com/s/notoemoji/v65/bMrnmSyK7YY-MEu6aWjPDs-ar6uWaGWuob-r0jwv.ttf') format('truetype');
 }
 
 @font-face {

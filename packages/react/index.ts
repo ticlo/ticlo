@@ -28,7 +28,7 @@ import './jsx/JsxComponent.tsx';
 globalFunctions.addCategory({
   id: 'react:',
   name: 'react',
-  icon: 'svg:react',
+  icon: '20:⚛',
   color: '5ce',
   ns: 'react',
 });

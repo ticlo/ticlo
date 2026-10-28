@@ -28,12 +28,12 @@ describe('function icon definitions', () => {
       {position: 'br', fontSize: 9.5, text: 'b', shiftUp: true},
       {position: '', fontSize: 18, text: 'A', shiftUp: false},
     ]);
-    expect(parseIcon('^17:a  17^^:b  br^9:c  svg^:react').texts).toEqual([]);
+    expect(parseIcon('^17:a  17^^:b  br^9:c  svg^:clock').texts).toEqual([]);
   });
 
   it('uses the first background and keeps text before and after it', () => {
-    expect(parseIcon('t:A  svg:react  path:M0 0L96 96Z  b:B')).toEqual({
-      background: {type: 'svg', value: 'react'},
+    expect(parseIcon('t:A  svg:clock  path:M0 0L96 96Z  b:B')).toEqual({
+      background: {type: 'svg', value: 'clock'},
       texts: [
         {position: 't', fontSize: 9, text: 'A', shiftUp: false},
         {position: 'b', fontSize: 9, text: 'B', shiftUp: false},
