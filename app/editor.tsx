@@ -1,14 +1,15 @@
 import './styles.ts';
 import * as React from 'react';
-import {App as AntdApp, ConfigProvider, Switch, type RadioChangeEvent} from 'antd';
+import {App as AntdApp, type RadioChangeEvent} from 'antd';
 import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, Root, addConsoleLogger} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {data} from './sample-data/data.ts';
 import reactData from './sample-data/react.ts';
 import {initEditor, PropertyList, BlockStage, NodeTree} from '@ticlo/editor';
 import {DockLayout, type LayoutBase, type TabDefinitions} from 'rc-dock';
-import {leftSideColumns, stageGroup, createLayoutActions} from './AppLayout.ts';
-import {antdLocales, initAppI18n, LanguageSettings} from './AppI18n.tsx';
+import {leftSideColumns, stageGroup, toolGroup, createLayoutActions} from './AppLayout.ts';
+import {antdLocales, initAppI18n} from './AppI18n.tsx';
+import {AppTheme, AppToolBox} from './AppToolBox.tsx';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {globalFunctions} from '@ticlo/core';
 import {FunctionTree} from '@ticlo/editor/function-selector/FunctionTree.tsx';
@@ -26,7 +27,6 @@ import {FrameClientConnection} from '@ticlo/html/connect/FrameClientConnection.t
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.tsx';
 
 import '@ticlo/test';
-import {theme} from '@ticlo/editor/style/theme.ts';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
 
 import i18next from 'i18next';
@@ -39,6 +39,7 @@ import {Namespace} from '@ticlo/core/block/Namespace.ts';
 
 const layoutGroups = {
   main: stageGroup,
+  tool: toolGroup,
 };
 
 interface Props {
@@ -63,20 +64,21 @@ class App extends React.PureComponent<Props, State> {
       ? this.createBlockEditorTab(initialFlow, () => conn.applyFlowChange(initialFlow))
       : undefined;
     this.tabs = {
-      'Navigation': {
+      Navigation: {
+        group: 'tool',
         title: t('Navigation'),
         cached: true,
         content: <NodeTreePane conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} showMenu={true} />,
       },
-      'Test Language': {
-        title: 'Test Language',
-        content: (
-          <div style={{margin: 12}}>
-            <LanguageSettings onChange={this.switchLan} />
-          </div>
-        ),
+      ToolBox: {
+        group: 'tool',
+        title: 'ToolBox',
+        minHeight: 210,
+        cached: true,
+        content: <AppToolBox switchLan={this.switchLan} />,
       },
-      'Functions': {
+      Functions: {
+        group: 'tool',
         title: t('Functions'),
         cached: true,
         content: (
@@ -91,7 +93,8 @@ class App extends React.PureComponent<Props, State> {
           </TicloCurrentFlowConsumer>
         ),
       },
-      'Properties': {
+      Properties: {
+        group: 'tool',
         title: t('Properties'),
         cached: true,
         content: <PropertyListPane conn={conn} />,
@@ -107,9 +110,15 @@ class App extends React.PureComponent<Props, State> {
             size: 200,
             children: [
               {
-                tabs: [{id: 'Navigation'}, {id: 'Test Language'}],
+                size: 210,
+                tabs: [{id: 'ToolBox'}],
               },
               {
+                size: 400,
+                tabs: [{id: 'Navigation'}],
+              },
+              {
+                size: 300,
                 tabs: [{id: 'Functions'}, {id: 'Properties'}],
               },
             ],
@@ -179,7 +188,7 @@ class App extends React.PureComponent<Props, State> {
     const {conn} = this.props;
     const {modal} = this.state;
     return (
-      <ConfigProvider locale={this.lngConfig} theme={theme}>
+      <AppTheme locale={this.lngConfig}>
         <AntdApp style={{height: '100%', backgroundColor: 'var(--ant-color-bg-layout)'}}>
           <TicloApp value={this.ticloContext}>
             <DockLayout
@@ -193,7 +202,7 @@ class App extends React.PureComponent<Props, State> {
             {modal}
           </TicloApp>
         </AntdApp>
-      </ConfigProvider>
+      </AppTheme>
     );
   }
 }

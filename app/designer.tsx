@@ -1,8 +1,7 @@
 import './styles.ts';
 import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext} from 'react';
-import {App as AntdApp, Button, Checkbox, ConfigProvider, Switch, type RadioChangeEvent} from 'antd';
-import {ReloadOutlined, UndoOutlined} from '@ant-design/icons';
+import {App as AntdApp, Button, Checkbox, type RadioChangeEvent} from 'antd';
 import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -21,15 +20,14 @@ import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx'
 import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.tsx';
 import {BlockStageTabButton} from '@ticlo/editor/dock/block/BlockStageTabButton.tsx';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
-import {theme, darkTheme} from '@ticlo/editor/style/theme.ts';
 import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
-import {TooltipIconButton} from '@ticlo/editor/component/TooltipIconButton.tsx';
 import {FrameServerConnection} from '@ticlo/html';
 import {RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
 import type {ProjectFiles} from '@ticlo/core/storage/FileAccess.ts';
 import {DockLayout, type LayoutBase, type TabDefinitions, type TabData} from 'rc-dock';
 import {sideColumns, stageGroup, toolGroup, createLayoutActions, stageReadonly} from './AppLayout.ts';
-import {antdLocales, initAppI18n, LanguageSettings} from './AppI18n.tsx';
+import {antdLocales, initAppI18n} from './AppI18n.tsx';
+import {AppTheme, AppToolBox} from './AppToolBox.tsx';
 import {createRoot} from 'react-dom/client';
 import i18next from 'i18next';
 import '@ticlo/react';
@@ -37,8 +35,6 @@ import '@ticlo/test';
 import './sample-blocks.ts';
 import {PlaygroundConnection, PlaygroundConnectionContext, connectStageTab} from './PlaygroundConnection.tsx';
 import {designerData} from './sample-data/designer.ts';
-
-const DarkModeContext = React.createContext(false);
 
 function DesignerProperties({conn}: {conn: ClientConnection}) {
   const {activeStage: stage} = useContext(TicloCurrentFlowContext);
@@ -55,46 +51,18 @@ function DesignerProperties({conn}: {conn: ClientConnection}) {
 function ToolBox({
   switchLan,
   openEditor,
-  onDarkModeChange,
 }: {
   switchLan: (e?: RadioChangeEvent) => void;
   openEditor: (path: string) => void;
-  onDarkModeChange: (checked: boolean) => void;
 }) {
-  const darkMode = useContext(DarkModeContext);
   const {designMode, setDesignMode} = useContext(DesignerLayoutContextType);
-  const {activeStage: stage} = useContext(TicloCurrentFlowContext);
   return (
-    <div style={{position: 'relative', padding: 8, height: '100%', overflow: 'auto', boxSizing: 'border-box'}}>
+    <AppToolBox switchLan={switchLan}>
       <OpenEditorButton openEditor={openEditor} />
-      <LanguageSettings onChange={switchLan} />
-      <br />
       <Checkbox checked={designMode} onChange={(e) => setDesignMode?.(e.target.checked)}>
         Design mode
       </Checkbox>
-      <label style={{display: 'flex', alignItems: 'center', gap: 8, marginTop: 8}}>
-        <Switch size="small" checked={darkMode} onChange={onDarkModeChange} />
-        Dark mode
-      </label>
-      {stage?.conn && stage.undo && stage.redo && (
-        <div key={stage.id} style={{display: 'flex', gap: 8, marginTop: 8}}>
-          <TooltipIconButton
-            conn={stage.conn}
-            path={`${stage.basePath}.#flow.@has-undo`}
-            tooltip={t('Undo')}
-            icon={<UndoOutlined />}
-            onClick={stage.undo}
-          />
-          <TooltipIconButton
-            conn={stage.conn}
-            path={`${stage.basePath}.#flow.@has-redo`}
-            tooltip={t('Redo')}
-            icon={<ReloadOutlined />}
-            onClick={stage.redo}
-          />
-        </div>
-      )}
-    </div>
+    </AppToolBox>
   );
 }
 
@@ -126,11 +94,10 @@ interface Props {
 
 interface State {
   modal?: React.ReactElement;
-  darkMode: boolean;
 }
 
 class App extends React.PureComponent<Props, State> {
-  state: State = {darkMode: false};
+  state: State = {};
   get conn() {
     return this.props.conn;
   }
@@ -146,9 +113,7 @@ class App extends React.PureComponent<Props, State> {
         title: 'ToolBox',
         minHeight: 210,
         cached: true,
-        content: (
-          <ToolBox switchLan={this.switchLan} openEditor={this.openEditor} onDarkModeChange={this.setDarkMode} />
-        ),
+        content: <ToolBox switchLan={this.switchLan} openEditor={this.openEditor} />,
       },
       Navigation: {
         group: 'tool',
@@ -356,60 +321,40 @@ class App extends React.PureComponent<Props, State> {
   };
   componentDidMount() {
     window.addEventListener('beforeunload', this.closeEditors);
-    this.updateColorScheme();
-  }
-  componentDidUpdate() {
-    this.updateColorScheme();
   }
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this.closeEditors);
     this.closeEditors();
   }
 
-  setDarkMode = (darkMode: boolean) => this.setState({darkMode});
-  updateColorScheme() {
-    const {darkMode} = this.state;
-    document.body.style.colorScheme = darkMode ? 'dark' : 'light';
-  }
-
   render() {
     const conn = this.conn;
-    const {modal, darkMode} = this.state;
+    const {modal} = this.state;
     const appContent = (
       <AntdApp style={{height: '100%', backgroundColor: 'var(--ant-color-bg-layout)'}}>
-        <DarkModeContext.Provider value={darkMode}>
-          <PlaygroundConnectionContext.Provider value={conn}>
-            <EditPolicyProvider conn={conn}>
-              <DesignerApp value={this.ticloContext}>
-                <DockLayout
-                  defaultLayout={this.defaultDockLayout}
-                  tabs={this.tabs}
-                  sideColumns={sideColumns}
-                  ref={this.getLayout}
-                  groups={layoutGroups}
-                  style={{position: 'absolute', left: 0, top: 4, right: 0, bottom: 4}}
-                />
-                {modal}
-              </DesignerApp>
-            </EditPolicyProvider>
-          </PlaygroundConnectionContext.Provider>
-        </DarkModeContext.Provider>
+        <PlaygroundConnectionContext.Provider value={conn}>
+          <EditPolicyProvider conn={conn}>
+            <DesignerApp value={this.ticloContext}>
+              <DockLayout
+                defaultLayout={this.defaultDockLayout}
+                tabs={this.tabs}
+                sideColumns={sideColumns}
+                ref={this.getLayout}
+                groups={layoutGroups}
+                style={{position: 'absolute', left: 0, top: 4, right: 0, bottom: 4}}
+              />
+              {modal}
+            </DesignerApp>
+          </EditPolicyProvider>
+        </PlaygroundConnectionContext.Provider>
       </AntdApp>
     );
 
-    if (location.hash.includes('strictMode')) {
-      return (
-        <ConfigProvider locale={this.lngConfig} theme={darkMode ? darkTheme : theme}>
-          <StrictMode>{appContent}</StrictMode>
-        </ConfigProvider>
-      );
-    } else {
-      return (
-        <ConfigProvider locale={this.lngConfig} theme={darkMode ? darkTheme : theme}>
-          {appContent}
-        </ConfigProvider>
-      );
-    }
+    return (
+      <AppTheme locale={this.lngConfig}>
+        {location.hash.includes('strictMode') ? <StrictMode>{appContent}</StrictMode> : appContent}
+      </AppTheme>
+    );
   }
 }
 

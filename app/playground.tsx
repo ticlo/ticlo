@@ -1,7 +1,7 @@
 import './styles.ts';
 import * as React from 'react';
 import {StrictMode} from 'react';
-import {App as AntdApp, ConfigProvider, Switch, type RadioChangeEvent} from 'antd';
+import {App as AntdApp, type RadioChangeEvent} from 'antd';
 import {
   Block,
   DataMap,
@@ -23,7 +23,8 @@ import reactData from './sample-data/react.ts';
 import {initEditor, PropertyList, BlockStage, NodeTree, FileManager} from '@ticlo/editor';
 import {DockLayout, type LayoutBase, type TabDefinitions} from 'rc-dock';
 import {leftSideColumns, stageGroup, toolGroup, createLayoutActions, stageReadonly} from './AppLayout.ts';
-import {antdLocales, initAppI18n, LanguageSettings} from './AppI18n.tsx';
+import {antdLocales, initAppI18n} from './AppI18n.tsx';
+import {AppTheme, AppToolBox} from './AppToolBox.tsx';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 
 import './sample-blocks.ts';
@@ -40,7 +41,6 @@ import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.tsx';
 import '@ticlo/html';
 import '@ticlo/react';
 import '@ticlo/test';
-import {theme} from '@ticlo/editor/style/theme.ts';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
 
 import i18next from 'i18next';
@@ -100,14 +100,12 @@ class App extends React.PureComponent<Props, State> {
         cached: true,
         content: <PolicyPanel onChange={this.changePolicy} />,
       },
-      'Test Language': {
+      'ToolBox': {
         group: 'tool',
-        title: 'Test Language',
-        content: (
-          <div style={{margin: 12}}>
-            <LanguageSettings onChange={this.switchLan} />
-          </div>
-        ),
+        title: 'ToolBox',
+        minHeight: 210,
+        cached: true,
+        content: <AppToolBox switchLan={this.switchLan} />,
       },
       'Functions': {
         group: 'tool',
@@ -165,14 +163,15 @@ class App extends React.PureComponent<Props, State> {
             size: 200,
             children: [
               {
-                tabs: [
-                  {id: 'Navigation'},
-                  ...(props.files ? [{id: 'Files'}] : []),
-                  {id: 'Policy'},
-                  {id: 'Test Language'},
-                ],
+                size: 210,
+                tabs: [{id: 'ToolBox'}],
               },
               {
+                size: 400,
+                tabs: [{id: 'Navigation'}, ...(props.files ? [{id: 'Files'}] : []), {id: 'Policy'}],
+              },
+              {
+                size: 300,
                 tabs: [{id: 'Functions'}, {id: 'Properties'}],
               },
             ],
@@ -274,19 +273,11 @@ class App extends React.PureComponent<Props, State> {
       </AntdApp>
     );
 
-    if (location.hash.includes('strictMode')) {
-      return (
-        <ConfigProvider locale={this.lngConfig} theme={theme}>
-          <StrictMode>{appContent}</StrictMode>
-        </ConfigProvider>
-      );
-    } else {
-      return (
-        <ConfigProvider locale={this.lngConfig} theme={theme}>
-          {appContent}
-        </ConfigProvider>
-      );
-    }
+    return (
+      <AppTheme locale={this.lngConfig}>
+        {location.hash.includes('strictMode') ? <StrictMode>{appContent}</StrictMode> : appContent}
+      </AppTheme>
+    );
   }
 }
 
