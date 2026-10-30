@@ -2,8 +2,7 @@ name: Deploy Pages
 
 on:
   push:
-    branches: [master]
-  workflow_dispatch:
+    branches: [dev]
 
 permissions:
   contents: read
@@ -32,7 +31,7 @@ jobs:
           path: dist
 
   deploy:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/dev'
     needs: build
     runs-on: ubuntu-latest
     permissions:
