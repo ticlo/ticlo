@@ -30,7 +30,6 @@ project or package it describes. Put technical details in separate documentation
 
 Read only the references relevant to the task:
 
-- `design.md` (if present): project overview for understanding Ticlo design, reimplementing its dataflow engine, or porting it to another language.
 - [Core](./core-package.md): execution, bindings, functions, connections, editing helpers.
 - [Lifecycle](../../../docs/runtime-lifecycle.md): startup, namespaces, load/unload, persistence.
 - [File format](./file-format.md): saved `.ticlo` JSON, property prefixes, binding examples.
