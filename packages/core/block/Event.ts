@@ -11,6 +11,7 @@ export class Event<T = Record<string, unknown>> {
   static get uid(): string {
     return Event._uid.current;
   }
+  // REFACTOR(design.md): MUST associate the event with its serial delivery rather than a global resolver loop.
   loopId: string;
   constructor(
     public readonly type: string,
@@ -29,6 +30,7 @@ export class Event<T = Record<string, unknown>> {
     return EventType.TRIGGER;
   }
 
+  // REFACTOR(design.md): MUST validate delivery lifetime without discarding events solely by loop timing.
   check(): number {
     // A event can only trigger block function in the same loop
     if (this.loopId === Event.uid) {

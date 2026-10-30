@@ -33,6 +33,7 @@ export class BlockOutputsConfig extends BlockIO {
 }
 
 export class BlockFunctionsConfig extends BlockProperty {
+  // REFACTOR(design.md): MUST migrate worker definitions without changing existing block function types in place.
   onChange(val: unknown, save?: boolean): boolean {
     const funcLib = (this._block as Flow).getFuncLib() as FlowFunctionLib;
     if (isDataMap(val)) {

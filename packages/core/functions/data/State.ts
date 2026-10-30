@@ -6,6 +6,7 @@ import {Resolver} from '../../block/Resolver.ts';
 import {getInputsArray, getInputsLength} from '../../block/FunctonData.ts';
 
 export class StateFunction extends BaseFunction<Block> {
+  // REFACTOR(design.md): MUST declare writes as explicit state transitions, separate from transient events.
   writeState() {
     if (!this._data) {
       // _data is null when function is destroyed
@@ -33,6 +34,7 @@ export class StateFunction extends BaseFunction<Block> {
     }
   }
 
+  // REFACTOR(design.md): MUST transfer input into declared state and release async references on completion.
   run() {
     const isAsync = this._data.getValue('async');
     if (isAsync) {

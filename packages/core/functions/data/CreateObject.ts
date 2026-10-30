@@ -16,6 +16,7 @@ export class CreateObjectFunction extends PureFunction {
     }
   }
 
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run() {
     const baseObj = this._data.getValue('#extend');
     const output: DataMap = typeof baseObj === 'object' ? {...baseObj} : {};
@@ -63,6 +64,7 @@ export class CreateObjectFunctionOptional extends PureFunction {
     }
   }
 
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run() {
     const baseObj = this._data.getValue('#extend');
     const output: DataMap = typeof baseObj === 'object' ? {...baseObj} : {};

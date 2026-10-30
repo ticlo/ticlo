@@ -20,9 +20,11 @@ export class Resolver implements Runnable {
     return 3;
   }
 
+  // REFACTOR(design.md): MUST replace the unbounded block wait list with a bounded delivery queue or backpressure.
   private _queueWait: Runnable[] = [];
 
   // queue has 4 priority groups
+  // REFACTOR(design.md): MUST order deliveries by persisted wire order and source position, not queue group alone.
   private _queue: Runnable[][] = [[], [], [], []];
 
   _resolving: boolean = false;
@@ -33,6 +35,7 @@ export class Resolver implements Runnable {
     this._schedule = schedule;
   }
 
+  // REFACTOR(design.md): MUST admit each event deterministically and enforce the queue's capacity rule.
   queueBlock(block: Runnable) {
     if (block._queued) return;
     block._queued = true;
@@ -58,6 +61,7 @@ export class Resolver implements Runnable {
   // }
 
   // return true when running priority need to change
+  // REFACTOR(design.md): MUST preserve FIFO event order and tie-break by saved wire or block ID.
   private _splitQueue(priority: number) {
     let priorityChanged = false;
     for (let i = this._queueWait.length - 1; i >= 0; --i) {
@@ -94,6 +98,7 @@ export class Resolver implements Runnable {
     }
   }
 
+  // REFACTOR(design.md): MUST process one delivery at a time; MUST append emissions to the queue tail.
   _resolve() {
     this._resolving = true;
     this._splitQueue(0);

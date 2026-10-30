@@ -91,6 +91,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     }
   }
 
+  // REFACTOR(design.md): MUST send port/wire events without treating the last payload as current state.
   onChange(val: any) {
     this.valueChanged = true;
     this.connection.addSend(this);
@@ -101,6 +102,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
     this.connection.addSend(this);
   }
 
+  // REFACTOR(design.md): MUST transmit wire IDs, endpoints, order, and routes without retaining payloads.
   getSendingData(): {data: DataMap; size: number} {
     if (!this.property) {
       return {data: null, size: 0};
@@ -582,6 +584,7 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Sets the value of a property at the given path.
    */
+  // REFACTOR(design.md): MUST replace type-changing writes with explicit block replacement.
   set({path, value}: {path: string; value: any}): string | Promise<string> {
     const property = this.root.queryProperty(path, value !== undefined);
     if (property) {
@@ -604,6 +607,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   /** Deletes a block through the editor helper, including its parent's #order entry. */
+  // REFACTOR(design.md): MUST remove attached wires and cancel pending deliveries with the block.
   deleteBlock({path}: {path: string}): string | Promise<string> {
     const property = this.root.queryProperty(path, false);
     if (!property) return 'invalid path';
@@ -681,6 +685,7 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Creates a data binding from a property to a source path.
    */
+  // REFACTOR(design.md): MUST add or remove an explicit wire and update subscriptions atomically.
   bind({path, from, absolute}: {path: string; from: string; absolute: boolean}): string {
     const property = this.root.queryProperty(path, true);
     if (property) {
@@ -790,6 +795,7 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Creates a new child Block. The server extracts the parent block and the new block's name from `path`.
    */
+  // REFACTOR(design.md): MUST assign a persistent block ID and fixed function type on creation.
   addBlock({
     path,
     data,
@@ -1214,6 +1220,7 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Renames a property on a Block. Finds the property via the given path and moves it to `newName` on the parent Block.
    */
+  // REFACTOR(design.md): MUST preserve stable port IDs and wire endpoints when display names change.
   renameProp({path, newName}: {path: string; newName: string}) {
     const property = this.root.queryProperty(path, true);
 
@@ -1384,6 +1391,7 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Resolves the tracked parent runtime `Flow` belonging to the block at `path` and reverses the latest operational change (undo stack).
    */
+  // REFACTOR(design.md): MUST restore structural graph metadata without replaying transient events.
   undo({path}: {path: string}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
@@ -1397,6 +1405,7 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Resolves the tracked parent runtime `Flow` belonging to the block at `path` and re-applies an undone state slice (redo stack).
    */
+  // REFACTOR(design.md): MUST reapply structural graph metadata without replaying transient events.
   redo({path}: {path: string}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
@@ -1411,6 +1420,7 @@ export class ServerConnection extends ServerConnectionCore {
    * Extracts specific serialized properties from a block entirely and returns the copied stringified structure.
    * If cut is true, the extracted properties are deleted from the block.
    */
+  // REFACTOR(design.md): MUST serialize copied blocks and their internal wires without event payloads.
   copy({path, props, cut}: {path: string; props: string[]; cut: boolean}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
@@ -1451,6 +1461,7 @@ export class ServerConnection extends ServerConnectionCore {
    * Loads serialized data structures onto the destination Block.
    * Evaluates logic resolution if keys/nodes collide using the literal `resolve` operation mode.
    */
+  // REFACTOR(design.md): MUST remap IDs and reconnect pasted wires before publishing the edit.
   paste({path, data, resolve}: {path: string; data: DataMap; resolve?: 'overwrite' | 'rename'}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
@@ -1466,6 +1477,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   /** Moves child blocks between parents using the copy/paste binding rules. */
+  // REFACTOR(design.md): MUST keep wire IDs, endpoint mappings, route points, and order when moving blocks.
   move({path, props, to, resolve}: {path: string; props: string[]; to: string; resolve?: 'overwrite' | 'rename'}) {
     if (typeof to !== 'string') return 'invalid path';
     const source = this.root.queryProperty(path)?._value;
@@ -1479,6 +1491,7 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   /** Moves #order children, keeping their source order and renaming destination conflicts. */
+  // REFACTOR(design.md): MUST update visible wire order after ordered block movement.
   moveOrdered({path, props, to, index}: {path: string; props: string[]; to: string; index?: number}) {
     if (typeof to !== 'string') return 'invalid path';
     const source = this.root.queryProperty(path)?._value;

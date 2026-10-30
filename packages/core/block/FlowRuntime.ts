@@ -191,6 +191,7 @@ export class FlowRuntime {
     });
   }
 
+  // REFACTOR(design.md): MUST migrate versioned graph data before activating fixed-type blocks and wires.
   loadFlow(ref: FlowRef): Promise<Flow> {
     const key = this.key(ref);
     if (!this.namespace(ref.namespace)._enabled)
@@ -289,6 +290,7 @@ export class FlowRuntime {
     }
   }
 
+  // REFACTOR(design.md): MUST cancel pending deliveries and detach wires before removing the flow.
   async unloadFlow(ref: FlowRef, options: UnloadOptions = {}) {
     const key = this.key(ref);
     const flow = this.loaded.get(key)?.flow;
@@ -385,6 +387,7 @@ export class FlowRuntime {
     }
   }
 
+  // REFACTOR(design.md): MUST release all queued event payloads and owned async work on shutdown.
   async stop(options: UnloadOptions = {}) {
     for (const {flow} of this.loaded.values()) this.assertClean(flow, options);
     ++this.generation;

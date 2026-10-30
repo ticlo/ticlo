@@ -90,7 +90,9 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
 
   _blocks: Map<string, BlockItem> = new Map<string, BlockItem>();
   _blockLinks: Map<string, Set<BlockItem>> = new Map<string, Set<BlockItem>>();
+  // REFACTOR(design.md): MUST index visible fields by persistent port ID for wire endpoints.
   _fields: Map<string, FieldItem> = new Map<string, FieldItem>();
+  // REFACTOR(design.md): MUST index saved wire IDs instead of grouping inferred links by source path.
   _fieldLinks: Map<string, Set<FieldItem>> = new Map<string, Set<FieldItem>>();
   _funcLib: string;
 
@@ -193,6 +195,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     }
   }
 
+  // REFACTOR(design.md): MUST recompute saved wire order after a block's visible position changes.
   onDragBlockEnd(e: DragState) {
     if (!this._draggingBlocks) return;
     if (e.event == null || e.dropped === 'field') {
@@ -241,6 +244,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     }
   }
 
+  // REFACTOR(design.md): MUST link the displayed wire by its ID and stable source/destination ports.
   linkField(sourcePath: string, targetField: FieldItem) {
     if (!this._fieldLinks.has(sourcePath)) {
       this._fieldLinks.set(sourcePath, new Set<FieldItem>());
@@ -258,6 +262,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     }
   }
 
+  // REFACTOR(design.md): MUST remove a wire record and detach its runtime listener together.
   unlinkField(sourcePath: string, targetField: FieldItem) {
     const links = this._fieldLinks.get(sourcePath);
     if (links) {
@@ -268,6 +273,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     }
   }
 
+  // REFACTOR(design.md): MUST resolve stored endpoint IDs to rendered field handles.
   registerField(path: string, item: FieldItem) {
     this._fields.set(path, item);
     if (this._fieldLinks.has(path)) {
@@ -288,6 +294,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     }
   }
 
+  // REFACTOR(design.md): MUST preserve wire records when a field view unmounts.
   unregisterField(path: string, item: FieldItem) {
     if (this._fields.get(path) === item) {
       this._fields.delete(path);
@@ -434,6 +441,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     return super.render();
   }
 
+  // REFACTOR(design.md): MUST create fixed-type blocks with persistent IDs and stable ports.
   createBlock = async (name: string, blockData: {[key: string]: any}, isStatic: boolean) => {
     const {conn, basePath} = this.props;
     const parentPath = isStatic ? this._staticPath : basePath;

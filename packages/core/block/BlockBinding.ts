@@ -11,10 +11,12 @@ export class BlockBinding extends PropDispatcher implements PropListener, BlockB
   private _path: string;
   private _field: string;
 
+  // REFACTOR(design.md): MUST replace cached upstream values with transient delivery routing through explicit wires.
   private _source: unknown = null;
 
   _parent: BlockBindingSource = null;
 
+  // REFACTOR(design.md): MUST bind to a stable source port ID rather than resolving a path as the wire identity.
   private _prop: BlockProperty = null;
 
   constructor(block: Block, path: string, field: string) {
@@ -54,6 +56,7 @@ export class BlockBinding extends PropDispatcher implements PropListener, BlockB
     // do nothing
   }
 
+  // REFACTOR(design.md): MUST deliver each event without retaining a latest source payload.
   onChange(val: unknown): unknown {
     if (Object.is(this._source, val)) {
       return;
@@ -72,6 +75,7 @@ export class BlockBinding extends PropDispatcher implements PropListener, BlockB
     }
   }
 
+  // REFACTOR(design.md): MUST preserve wire identity and order when its endpoint is reconnected.
   private _propChanged(prop: BlockProperty): boolean {
     if (prop === this._prop) return false;
     if (this._prop) {

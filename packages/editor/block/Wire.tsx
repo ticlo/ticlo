@@ -19,6 +19,7 @@ export class DragWire {
     doc.addEventListener('scroll', this.onScroll, true);
   }
 
+  // REFACTOR(design.md): MUST preview creation of a persistent wire with editable route points.
   update(pointer: {clientX: number; clientY: number}) {
     this.clientX = pointer.clientX;
     this.clientY = pointer.clientY;
@@ -42,9 +43,11 @@ export class DragWire {
 }
 
 export class WireItem extends DataRendererItem {
+  // REFACTOR(design.md): MUST resolve endpoints from stable port IDs stored on the wire.
   source: FieldItem;
   target: FieldItem;
 
+  // REFACTOR(design.md): MUST keep wire ID, execution order, and route points with this item.
   _rightSide?: boolean;
 
   checkIsRightSide() {
@@ -63,6 +66,7 @@ export class WireItem extends DataRendererItem {
     return rightSide;
   }
 
+  // REFACTOR(design.md): MUST reconnect by endpoint ID without replacing the wire's identity.
   setSource(source: FieldItem) {
     if (source !== this.source) {
       if (this.source) {
@@ -118,6 +122,7 @@ interface WireViewProps {
 const wirePadding = 2;
 
 export class WireView extends PureDataRenderer<WireViewProps, any> {
+  // REFACTOR(design.md): MUST render each saved wire and its route-point handles independently.
   renderImpl() {
     const {item} = this.props;
     const {source, target} = this.props.item;
@@ -136,6 +141,7 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
     }
   }
 
+  // REFACTOR(design.md): MUST use saved route points rather than only an inferred curve.
   renderNormal(zIndex: number, className: string) {
     const {source, target} = this.props.item;
     let x0 = source.x + source.w + 4;
@@ -202,6 +208,7 @@ export class WireView extends PureDataRenderer<WireViewProps, any> {
     );
   }
 
+  // REFACTOR(design.md): MUST preserve edited route points for wires drawn on this side.
   renderRightSide(zIndex: number, className: string) {
     const {source, target} = this.props.item;
     let x0 = source.x + source.w + 4;

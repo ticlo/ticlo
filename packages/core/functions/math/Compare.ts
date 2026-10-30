@@ -15,6 +15,7 @@ const descriptor: FunctionDesc = {
 };
 
 export class EqualFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('0');
     const v1 = this._data.getValue('1');
@@ -34,6 +35,7 @@ globalFunctions.addFactory(EqualFunction, {
 });
 
 export class NotEqualFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('0');
     const v1 = this._data.getValue('1');
@@ -53,6 +55,7 @@ globalFunctions.addFactory(NotEqualFunction, {
 });
 
 export class GreaterThanFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('0');
     const v1 = this._data.getValue('1');
@@ -71,6 +74,7 @@ globalFunctions.addFactory(GreaterThanFunction, {
 });
 
 export class LessThanFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('0');
     const v1 = this._data.getValue('1');
@@ -89,6 +93,7 @@ globalFunctions.addFactory(LessThanFunction, {
 });
 
 export class GreaterEqualFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('0');
     const v1 = this._data.getValue('1');
@@ -107,6 +112,7 @@ globalFunctions.addFactory(GreaterEqualFunction, {
 });
 
 export class LessEqualFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('0');
     const v1 = this._data.getValue('1');
@@ -125,6 +131,7 @@ globalFunctions.addFactory(LessEqualFunction, {
 });
 
 export class WithinRangeFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const input = this._data.getValue('input');
     const min = this._data.getValue('min');
@@ -151,6 +158,7 @@ globalFunctions.addFactory(WithinRangeFunction, {
 });
 
 export class WithinIntervalFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const input = this._data.getValue('input');
     const min = this._data.getValue('min');

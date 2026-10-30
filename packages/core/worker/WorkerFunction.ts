@@ -77,6 +77,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
     return false;
   }
 
+  // REFACTOR(design.md): MUST retain the collector only until its admitted call is handled.
   _collector: WorkerCollector;
 
   onCall(val: any): boolean {
@@ -87,6 +88,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
     return false;
   }
 
+  // REFACTOR(design.md): MUST give the child flow explicit event ownership and cancellation.
   createWorker(disable: boolean) {
     if (!this.control.isReady()) {
       return;
@@ -103,6 +105,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
     }
   }
 
+  // REFACTOR(design.md): MUST deliver collector and child-flow events through the serial scheduler.
   run(): any {
     if (this._collector) {
       this._collector.addSubFlow(this._data);

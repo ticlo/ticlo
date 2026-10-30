@@ -29,8 +29,10 @@ export interface FlowStorage {
 
   deleteFolder?(name: string): void | Promise<void>;
 
+  // REFACTOR(design.md): MUST save a versioned graph with fixed block types and explicit wire records.
   saveFlow(flow: Flow | null, data: DataMap | null, key: string): any;
 
+  // REFACTOR(design.md): MUST reject unsupported versions or run an explicit format migration.
   loadFlow(name: string): Promise<DataMap | null>;
 
   initNamespace?: (ns: string) => any;

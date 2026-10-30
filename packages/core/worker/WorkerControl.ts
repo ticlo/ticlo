@@ -30,6 +30,7 @@ export class WorkerControl {
   _funcSrc: FunctionDispatcher;
 
   // When use field is changed
+  // REFACTOR(design.md): MUST treat a worker type change as explicit block replacement and migration.
   onUseChange(val: any): boolean {
     if (this._src) {
       this.block.deleteValue('#static');
@@ -60,6 +61,7 @@ export class WorkerControl {
   }
   private available = false;
   // When registered function is changed
+  // REFACTOR(design.md): MUST NOT rebuild an existing block in place when its factory changes.
   onChange(value: FunctionFactory | null) {
     if (!value && this.available) {
       // Cancel work immediately; the resolver will rebuild an empty worker.

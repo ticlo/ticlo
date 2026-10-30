@@ -147,6 +147,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       }
     }
   };
+  // REFACTOR(design.md): MUST edit an explicit wire record instead of a binding expression.
   onBindChange = (str: string) => {
     if (!this.can('bind')) return;
     const {conn, paths, name} = this.props;
@@ -157,6 +158,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       conn.setBinding(`${key}.${name}`, str);
     }
   };
+  // REFACTOR(design.md): MUST remove the wire and cancel deliveries queued for it.
   onUnbindClick = (e: any) => {
     if (!this.can('bind')) return;
     const {conn, paths, name} = this.props;
@@ -224,6 +226,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     }
   };
 
+  // REFACTOR(design.md): MUST create a fixed-type helper block and connect its ports with a wire record.
   static addSubBlock(
     props: {
       conn: ClientConn;

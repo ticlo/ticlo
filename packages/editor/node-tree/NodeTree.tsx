@@ -107,6 +107,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     });
   };
 
+  // REFACTOR(design.md): MUST preserve attached wire IDs, routes, and order when moving blocks.
   onDropOrdered = (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => {
     if (!this.canDropOrdered(items, target, index)) return;
     const {conn, onSelect} = this.props;
@@ -141,6 +142,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     });
   };
 
+  // REFACTOR(design.md): MUST create a block with fixed type, persistent ID, and stable ports.
   onDropFunction = (drag: NodeTreeFunctionDrag, target: NodeTreeItem, index?: number) => {
     if (!this.canDropFunction(drag, target, index)) return;
     const {conn, onSelect} = this.props;

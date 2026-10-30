@@ -8,6 +8,7 @@ const descriptor = {
 };
 
 export class ReplaceFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const input = this._data.getValue('input');
     const search = this._data.getValue('search');
@@ -33,6 +34,7 @@ globalFunctions.addFactory(ReplaceFunction, {
 });
 
 export class ReplaceRegexFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const input = this._data.getValue('input');
     const pattern = this._data.getValue('pattern');

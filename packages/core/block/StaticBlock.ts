@@ -28,6 +28,7 @@ export class StaticConfig extends BlockProperty {
     }
   }
 
+  // REFACTOR(design.md): MUST save declared static state only, with no transient deliveries.
   _saveValue(): unknown {
     if (this._value instanceof StaticBlock) {
       const result = this._value.save();
@@ -165,6 +166,7 @@ export const FlowWithStaticConfigGenerators: {[key: string]: typeof BlockPropert
 export class FlowWithStatic extends Flow {
   _staticBlock: StaticBlock;
 
+  // REFACTOR(design.md): MUST preserve versioned graph and wire metadata in worker flow saves.
   save(): DataMap {
     const data = super.save();
     const main = this._props.get('#main');

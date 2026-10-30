@@ -87,12 +87,15 @@ export class FieldItem extends DataRendererItem {
   y: number = 0;
   w: number = 0;
 
+  // REFACTOR(design.md): MUST address the input port by stable ID, not just its field path.
   inWire?: WireItem;
+  // REFACTOR(design.md): MUST track multiple outbound wires by persistent wire ID and saved order.
   outWires: Set<WireItem> = new Set<WireItem>();
 
   _bindingPath?: string;
   _bindingTargetPath?: string;
 
+  // REFACTOR(design.md): MUST read explicit wire records rather than deriving the link from a binding path.
   setBindingPath(str: string) {
     if (str !== this._bindingPath) {
       if (this._bindingTargetPath) {
@@ -134,6 +137,7 @@ export class FieldItem extends DataRendererItem {
   indents: number[] = [];
 
   // return y pos of next field
+  // REFACTOR(design.md): MUST recalculate visible wire order when endpoint geometry changes.
   updateFieldPos(x: number, y: number, w: number, dy: number, indents: number[] = []): number {
     if (x !== this.x || y !== this.y || w !== this.w) {
       this.x = x;
@@ -241,6 +245,7 @@ export class FieldItem extends DataRendererItem {
     }
   }
 
+  // REFACTOR(design.md): MUST map incoming wire endpoints by persistent port ID.
   sourceChanged(source: FieldItem, partial = false) {
     if (source) {
       if (this.inWire) {
@@ -295,6 +300,7 @@ export class BlockHeaderView extends PureDataRenderer<BlockHeaderProps, any> {
       }
     }
   };
+  // REFACTOR(design.md): MUST create a wire record instead of setting a destination binding path.
   onDrop = (event: DragState) => {
     const {item} = this.props;
     if (event.dragType !== 'right') {
@@ -460,6 +466,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
 
     e.reject();
   };
+  // REFACTOR(design.md): MUST create or reconnect a wire with a stable ID and route metadata.
   onDrop = (event: DragState) => {
     const {item} = this.props;
     if (event.dragType === 'right') {
@@ -1016,6 +1023,7 @@ export class BlockItem extends BaseBlockItem {
     }
   }
 
+  // REFACTOR(design.md): MUST persist wire execution order after moving a block's ports.
   setXYW(x: number, y: number, w: number, save = false) {
     if (!(x >= 0)) {
       x = 0;

@@ -29,6 +29,7 @@ export interface EditPolicy {
   readonly allowBinding?: readonly string[];
   readonly allowCreateBlock?: boolean;
   readonly allowDeleteBlock?: boolean;
+  // REFACTOR(design.md): MUST model type changes as delete/create graph operations, not in-place edits.
   readonly allowChangeBlockType?: boolean;
   readonly allowBlockTypes?: readonly string[];
   readonly denyBlockTypes?: readonly string[];
@@ -141,6 +142,7 @@ function checkReadonlyPolicy(policy: EditPolicy, request: DataMap, lookup?: Edit
 /** A read-only lookup. The client may use its caches; readonly server copies use authoritative state. */
 export type EditPolicyLookup = (path: string) => boolean;
 
+// REFACTOR(design.md): MUST check wire creation, removal, and route/order edits against graph permissions.
 export function checkEditPolicy(
   policy: EditPolicy,
   request: DataMap,

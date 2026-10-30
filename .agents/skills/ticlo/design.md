@@ -1,10 +1,14 @@
 # Ticlo overview
 
-This document describes Ticlo's intended architecture and behavior. Use it as
-the source of truth when rewriting or porting Ticlo, implementing some of its
-features in another project, or borrowing its ideas. Other Ticlo documentation
-and the current implementation may provide context, but when they conflict
-with this overview, follow the overview.
+This document is the normative target for Ticlo's architecture and behavior;
+it does not claim that the current implementation already follows it. Anyone
+rewriting or porting Ticlo, implementing its features in another project, or
+borrowing its ideas MUST use this document as the source of truth. Other Ticlo
+documentation and the current code may provide context, but their conflicting
+behavior MUST NOT be copied into a new implementation. `REFACTOR(design.md)`
+comments mark required changes at legacy code locations, not behavior that the
+current code already guarantees. MUST and MUST NOT in this document and those
+comments state requirements for the target implementation.
 
 Ticlo is a visual dataflow engine. A flow is a graph of blocks connected
 by wires. Events carry values through that graph. The main design goals are
@@ -113,7 +117,7 @@ wire order and route points, without resurrecting transient event values.
 
 ## Implementation checks
 
-An implementation should demonstrate the applicable contracts with
+An implementation MUST demonstrate the applicable contracts with
 representative flows:
 
 - Repeated large values pass through a chain and fan-out without accumulating

@@ -3,6 +3,7 @@ import {PureFunction} from '../../block/BlockFunction.ts';
 import {ErrorEvent} from '../../block/Event.ts';
 
 export class SplitFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const input = this._data.getValue('input');
     if (typeof input === 'string') {

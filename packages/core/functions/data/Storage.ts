@@ -21,6 +21,7 @@ function getStorage(data: FunctionData): Storage {
 }
 
 export class WriteStorageFunction extends BaseFunction {
+  // REFACTOR(design.md): MUST capture the current input event for this write without retaining it afterward.
   run() {
     const key = this._data.getValue('key');
     if (key && typeof key === 'string') {
@@ -72,6 +73,7 @@ export class ReadStorageFunction extends BaseFunction {
       }
     }
   }
+  // REFACTOR(design.md): MUST admit storage updates through the serial event scheduler.
   private _storageCallback = (value: string) => {
     this._data.output(decode(value));
   };
@@ -82,6 +84,7 @@ export class ReadStorageFunction extends BaseFunction {
     }
     return true;
   }
+  // REFACTOR(design.md): MUST cancel or ignore stale reads and release their result after delivery.
   async run() {
     const key = this._data.getValue('key');
     if (key && typeof key === 'string') {
@@ -95,6 +98,7 @@ export class ReadStorageFunction extends BaseFunction {
     // todo: return something different if not successful?
   }
 
+  // REFACTOR(design.md): MUST detach storage listeners and cancel pending read deliveries.
   destroy() {
     if (this._listeningKey) {
       this._storage.unlisten(this._listeningKey, this._storageCallback);

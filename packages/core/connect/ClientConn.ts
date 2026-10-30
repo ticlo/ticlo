@@ -54,6 +54,7 @@ export abstract class ClientConn {
    * @param value new value to set
    * @param important whether the request is important and shouldn't be merged
    */
+  // REFACTOR(design.md): MUST route type replacement through an explicit block-replacement command.
   setValue(path: string, value: any, important: boolean | ClientCallbacks = false): Promise<any> | string {
     return this.sendValueRequest({cmd: 'set', path, value}, important);
   }
@@ -88,6 +89,7 @@ export abstract class ClientConn {
    *   If `from` is undefined, the binding is removed and the current evaluated primitive value is kept.
    * @param important whether the request is important and shouldn't be merged
    */
+  // REFACTOR(design.md): MUST expose wire IDs, endpoint port IDs, order, and route-point edits.
   setBinding(
     path: string,
     from: string,
@@ -113,6 +115,7 @@ export abstract class ClientConn {
    * @param orderIndex inserts into the parent's #order when supplied
    * @param callbacks request callbacks
    */
+  // REFACTOR(design.md): MUST create a fixed-type block with a persistent ID and stable ports.
   addBlock(
     path: string,
     data?: DataMap,
@@ -126,6 +129,7 @@ export abstract class ClientConn {
   }
 
   /** Deletes a block and removes it from its parent's #order. */
+  // REFACTOR(design.md): MUST disconnect attached wires and cancel their queued deliveries.
   deleteBlock(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'deleteBlock', path}, callbacks);
   }
@@ -430,6 +434,7 @@ export abstract class ClientConn {
    * @param path path to a block or property inside the target Flow context
    * @param callbacks request callbacks
    */
+  // REFACTOR(design.md): MUST restore graph structure, wire routes, and order without old event payloads.
   undo(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'undo', path}, callbacks);
   }
@@ -439,6 +444,7 @@ export abstract class ClientConn {
    * @param path path to a block or property inside the target Flow context
    * @param callbacks request callbacks
    */
+  // REFACTOR(design.md): MUST reapply graph structure, wire routes, and order without old event payloads.
   redo(path: string, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'redo', path}, callbacks);
   }
@@ -451,11 +457,13 @@ export abstract class ClientConn {
    * @param cut whether to delete the properties after copying
    * @param callbacks request callbacks
    */
+  // REFACTOR(design.md): MUST copy selected blocks with their internal wire records and stable endpoints.
   copy(path: string, props: string[], cut?: boolean, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'copy', path, props, cut}, callbacks);
   }
 
   /** Moves child blocks to a different parent, without rewriting bindings elsewhere. */
+  // REFACTOR(design.md): MUST preserve explicit wire identities and routes when moving blocks.
   move(
     path: string,
     props: string[],
@@ -467,6 +475,7 @@ export abstract class ClientConn {
   }
 
   /** Inserts ordered children before index in the destination's current #order, or appends if omitted. */
+  // REFACTOR(design.md): MUST recompute visible wire order when block positions change.
   moveOrdered(
     path: string,
     props: string[],
@@ -496,6 +505,7 @@ export abstract class ClientConn {
    * @param resolve flag deciding collision behavior ('overwrite' | 'rename')
    * @param callbacks request callbacks
    */
+  // REFACTOR(design.md): MUST remap copied graph IDs and reconnect wires as an atomic edit.
   paste(
     path: string,
     data: DataMap,
