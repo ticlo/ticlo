@@ -4,6 +4,7 @@
 interfaces as remote and Node storage. Its base URL contains `proj/` and `usr/`.
 
 ```ts
+import {Root} from '@ticlo/core';
 import {StaticStorage} from '@ticlo/remote-storage';
 
 const storage = new StaticStorage('https://example.com/files');

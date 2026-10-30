@@ -58,8 +58,8 @@ the flow boundary, including synced positions and static-block edits. See
 and [save/lifecycle rules](../../../docs/runtime-lifecycle.md).
 
 `Storage` holds strings; `FlowStorage` handles flows and libraries. Adapters live
-in `html` (IndexedDB/static HTTP), `node` (filesystem), and `remote-storage`
-(writable HTTP). Their layouts differ; use the adapter's reference.
+in `node` (filesystem) and `remote-storage` (writable HTTP, static HTTP, and
+IndexedDB-backed local projects). Their layouts differ; use the adapter's reference.
 
 ## Connection layer
 

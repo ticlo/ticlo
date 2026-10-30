@@ -30,12 +30,12 @@ project or package it describes. Put technical details in separate documentation
 
 Read only the references relevant to the task:
 
-- [Design overview](./design.md): project overview for understanding Ticlo design, reimplementing its dataflow engine, or porting it to another language.
+- `design.md` (if present): project overview for understanding Ticlo design, reimplementing its dataflow engine, or porting it to another language.
 - [Core](./core-package.md): execution, bindings, functions, connections, editing helpers.
 - [Lifecycle](../../../docs/runtime-lifecycle.md): startup, namespaces, load/unload, persistence.
 - [File format](./file-format.md): saved `.ticlo` JSON, property prefixes, binding examples.
 - [Workers](./worker-architecture.md): sources, static content, save callbacks, host patterns.
 - [Block controls](../../../docs/block-configs.md) and [property editors](../../../docs/editor.md).
 - [Remote storage](../../../docs/remote-storage.md): project layout, writes, conflicts, dev server.
-- [Static storage](../../../docs/static-storage.md): HTTP indexes and temporary edits.
+- [Static storage](../../../docs/static-storage.md): HTTP indexes, read-only files, and the writable local project.
 - [Translations](../ticlo-translation/SKILL.md): locale ownership and generation.

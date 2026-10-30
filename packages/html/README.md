@@ -1,4 +1,4 @@
 # Ticlo HTML
 
-`@ticlo/html` provides browser connections, storage, style functions, and DOM
+`@ticlo/html` provides browser connections, style functions, and DOM
 utilities.

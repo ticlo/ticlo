@@ -62,6 +62,8 @@ defined in [DynamicEditor.tsx](../packages/editor/property/value/DynamicEditor.t
 [PropertyEditor.tsx](../packages/editor/property/PropertyEditor.tsx).
 Unknown types fall back to a read-only display. Use `toggle` for booleans and
 `date` for dates; `bool`, `datetime`, and `js` are not registered value-editor types.
+Use `date-range` explicitly for a range picker; `any` treats a pair of Luxon
+`DateTime` values as an array.
 
 Descriptors, bindings, and connection edit policies determine whether a value
 can be edited. For local function descriptors, editor components also need the
