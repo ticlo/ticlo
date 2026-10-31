@@ -43,9 +43,6 @@ export class WorkerCollector extends Event {
   }
 }
 
-/**
- * SubFlowFunction is the function to load another flow from storage, not as a reusable worker
- */
 export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
   readonly workerField = '#use';
   readonly control: WorkerControl;

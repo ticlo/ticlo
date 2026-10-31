@@ -14,18 +14,15 @@ export function splitFlowStorageKey(key: string): [string, string] {
   return [namespace, key.slice(dot + 1)];
 }
 
-/** Relative to a project/namespace directory. Worker subflow suffixes stay on the file. */
+/** Relative to a project/namespace directory. */
 export function flowStoragePath(key: string, folder = false): string {
   if (!folder && key.startsWith(':')) return `#libs/${encodeFileName(key.slice(1))}.ticlo`;
-  const suffixIndex = folder ? -1 : key.indexOf('.#');
-  const name = suffixIndex < 0 ? key : key.slice(0, suffixIndex);
-  const suffix = suffixIndex < 0 ? '' : key.slice(suffixIndex);
-  const parts = name.split('.');
+  const parts = key.split('.');
   if ((folder || parts.length > 1) && reservedFlowFolders.has(parts[0])) {
     throw new Error(`Reserved folder: ${parts[0]}`);
   }
-  if (!parts.every(validFlowEntry) && !(parts.length === 1 && (name === '#global' || name === '#context') && !folder)) {
+  if (!parts.every(validFlowEntry) && !(parts.length === 1 && (key === '#global' || key === '#context') && !folder)) {
     throw new Error('Invalid flow path');
   }
-  return parts.map(encodeFileName).join('/') + encodeFileName(suffix) + (folder ? '' : '.ticlo');
+  return parts.map(encodeFileName).join('/') + (folder ? '' : '.ticlo');
 }

@@ -89,7 +89,6 @@ value storage. These listeners do not watch external filesystem or HTTP writers.
 | `#context.ticlo` | Namespace context |
 | `folder/child.ticlo` | Ordinary flow `folder.child` |
 | `#libs/tools.ticlo` | Library `tools` |
-| `folder/flow.#.worker.ticlo` | On-demand worker subflow |
 | `#storage/key.str` | String storage functions |
 
 `#root` holds unqualified flows. Named projects map to `+project.flow` runtime
@@ -120,7 +119,7 @@ routeFileStorage(app, {
 
 The bundled server uses `devUserAuth` (admin). Run `pnpm server` and
 `pnpm vite-dev`, then open `file-server.html`, or use
-`designer.html#host=http://127.0.0.1:8010/file&project=main&flow=entry`.
+`designer.html#host=http://127.0.0.1:8010/file&path=main/entry`.
 The combined server's runtime and file API now share `app/server/files/proj`;
 Node accesses those files directly. Uploading a file does not automatically
 reload an already running flow.

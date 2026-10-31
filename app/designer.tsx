@@ -21,9 +21,9 @@ import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.tsx';
 import {BlockStageTabButton} from '@ticlo/editor/dock/block/BlockStageTabButton.tsx';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
 import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
-import {FrameServerConnection} from '@ticlo/html';
 import {RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
-import type {ProjectFiles} from '@ticlo/core/storage/FileAccess.ts';
+import type {FileEntry, ProjectFiles} from '@ticlo/core/storage/FileAccess.ts';
+import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {DockLayout, type LayoutBase, type TabDefinitions, type TabData} from 'rc-dock';
 import {sideColumns, stageGroup, toolGroup, createLayoutActions, stageReadonly} from './AppLayout.ts';
 import {antdLocales, initAppI18n} from './AppI18n.tsx';
@@ -35,6 +35,8 @@ import '@ticlo/test';
 import './sample-blocks.ts';
 import {PlaygroundConnection, PlaygroundConnectionContext, connectStageTab} from './PlaygroundConnection.tsx';
 import {designerData} from './sample-data/designer.ts';
+import {EditorWindows} from './EditorWindows.ts';
+import {fileFlowPath, pageFlowPath} from './flow-path.ts';
 
 function DesignerProperties({conn}: {conn: ClientConnection}) {
   const {activeStage: stage} = useContext(TicloCurrentFlowContext);
@@ -46,6 +48,36 @@ function DesignerProperties({conn}: {conn: ClientConnection}) {
       style={{width: '100%', height: '100%', padding: 8}}
     />
   );
+}
+
+function DesignerFiles({
+  root,
+  conn,
+  storage,
+  project,
+}: {
+  root: Root;
+  conn: ClientConnection;
+  storage: ProjectFiles;
+  project: string;
+}) {
+  const {designFlow, editFlow} = useContext(DesignerLayoutContextType);
+  const open = async (entry: FileEntry) => {
+    const target = fileFlowPath(project, entry.path);
+    if (!target) throw new Error('This file is not a loadable flow.');
+    const flow = await root.loadFlow(target.ref);
+    const onSave = stageReadonly(storage, target.path)
+      ? null
+      : () => {
+          conn.applyFlowChange(target.path, undefined, requestCallbacks);
+        };
+    if (flow.getValue('#is') === 'flow:main' || flow.getValue('#is') === 'flow:worker') {
+      designFlow?.(target.path, onSave);
+    } else {
+      editFlow?.(target.path, onSave);
+    }
+  };
+  return <FileManager storage={storage} project={project} onOpen={open} />;
 }
 
 function ToolBox({
@@ -167,7 +199,7 @@ class App extends React.PureComponent<Props, State> {
           group: 'tool',
           title: t('Files'),
           cached: true,
-          content: <FileManager {...props.files} />,
+          content: <DesignerFiles root={props.root} conn={conn} {...props.files} />,
         },
       };
     }
@@ -305,20 +337,9 @@ class App extends React.PureComponent<Props, State> {
     };
   }
 
-  editors: {window: Window; connection: FrameServerConnection}[] = [];
-  openEditor = (path?: string) => {
-    const url = new URL('editor.html', location.href);
-    if (path) url.searchParams.set('flow', path);
-    const editor = window.open(url.href, '_blank', 'popup,width=1200,height=800');
-    if (editor) this.editors.push({window: editor, connection: new FrameServerConnection(editor, this.props.root)});
-  };
-  closeEditors = () => {
-    for (const editor of this.editors) {
-      editor.connection.destroy();
-      if (!editor.window.closed) editor.window.close();
-    }
-    this.editors = [];
-  };
+  editorWindows = new EditorWindows(this.props.root);
+  openEditor = (path: string) => this.editorWindows.open(path);
+  closeEditors = () => this.editorWindows.close();
   componentDidMount() {
     window.addEventListener('beforeunload', this.closeEditors);
   }
@@ -368,29 +389,45 @@ window.addEventListener('hashchange', () => location.reload());
 
   const params = new URLSearchParams(location.hash.slice(1));
   const host = params.get('host');
+  const selected = pageFlowPath(params);
   const root = Root.instance;
   let initialFlow: string;
   let files: Props['files'];
   if (host) {
     const storage = new RemoteStorage({baseURL: host});
-    const project = params.get('project') || '#root';
+    const project = selected?.ref.namespace ?? params.get('project') ?? '#root';
     files = {storage, project};
     await root.setStorage(storage);
     await root.start(
-      params.has('project') || params.has('flow') ? {[project]: {flows: params.getAll('flow')}} : undefined
+      selected
+        ? {[project]: {flows: [selected.ref.name]}}
+        : params.has('project') || params.has('flow')
+          ? {[project]: {flows: params.getAll('flow')}}
+          : undefined
     );
-    const firstFlow = (await root.listFlows(project)).find(({state}) => state !== 'unloaded');
-    if (firstFlow) initialFlow = project === '#root' ? firstFlow.name : `+${project}.${firstFlow.name}`;
+    if (selected) initialFlow = selected.path;
+    else {
+      const firstFlow = (await root.listFlows(project)).find(({state}) => state !== 'unloaded');
+      if (firstFlow) initialFlow = project === '#root' ? firstFlow.name : `+${project}.${firstFlow.name}`;
+    }
   } else {
     const storage = new StaticStorage(new URL('./storage', location.href).href);
-    files = {storage, project: 'local'};
+    files = {storage, project: selected?.ref.namespace ?? 'local'};
     await root.setStorage(storage);
-    await root.start({local: {flows: ['**']}});
-
-    if (!(root.queryValue('+local.designer-example') instanceof Flow)) {
-      root.addFlow('+local.designer-example', designerData);
+    if (selected) {
+      const sample =
+        selected.path === '+local.designer-example' &&
+        !(await root.listFlows('local')).some(({name}) => name === 'designer-example');
+      await root.start({[selected.ref.namespace]: {flows: sample ? [] : [selected.ref.name]}});
+      if (sample) root.addFlow(selected.path, designerData);
+      initialFlow = selected.path;
+    } else {
+      await root.start({local: {flows: ['**']}});
+      if (!(root.queryValue('+local.designer-example') instanceof Flow)) {
+        root.addFlow('+local.designer-example', designerData);
+      }
+      initialFlow = params.get('flow') || '+local.designer-example';
     }
-    initialFlow = params.get('flow') || '+local.designer-example';
   }
 
   const [server, client] = makeLocalConnection(root, true, undefined, false);

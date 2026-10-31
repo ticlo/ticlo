@@ -52,7 +52,7 @@
     "@vitest/browser-playwright": "^5.0.0",
     "@vitest/coverage-istanbul": "^5.0.0",
     "@vitest/coverage-v8": "^5.0.0",
-    "@vitest/ui": "5.0.0",
+    "@vitest/ui": "5.0.5",
     "antd": "6.6.3",
     "arrow-code": "^0.3.3",
     "axios": "1.20.0",

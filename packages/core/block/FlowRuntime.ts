@@ -16,6 +16,13 @@ export interface UnloadOptions {
   discardChanges?: boolean;
 }
 
+interface PreparedSelection {
+  namespace: string;
+  version: number;
+  folders: string[];
+  flows: {ref: FlowRef; data: Promise<DataMap | null>}[];
+}
+
 export function flowRefFromPath(path: string): FlowRef {
   let namespace = '#root';
   if (path.startsWith('+')) {
@@ -65,11 +72,13 @@ export class FlowRuntime {
     try {
       const selected = Object.keys(options).length ? options : {'#root': {flows: this.root._storage ? ['**'] : []}};
       this.checkGeneration(generation);
+      const selections = Object.entries(selected).map(([name, config]) =>
+        this.prepareSelected(name, config.flows ?? [], generation)
+      );
+      for (const selection of selections) void selection.catch(() => {});
       // Discover every dependency before running anything, including cyclic graphs.
       await this.activate(Object.keys(selected), generation);
-      for (const [name, config] of Object.entries(selected)) {
-        await this.loadSelected(name, config.flows ?? [], generation);
-      }
+      for (const selection of selections) await this.loadSelected(await selection, generation);
       this.checkGeneration(generation);
     } catch (error) {
       if (generation === this.generation) await this.stop({discardChanges: true});
@@ -79,6 +88,20 @@ export class FlowRuntime {
 
   private checkGeneration(generation: number) {
     if (generation !== this.generation || this.root._destroyed) throw new Error('Runtime operation cancelled');
+  }
+
+  private readFlow(ref: FlowRef): Promise<DataMap | null> {
+    const storage = this.root._storage;
+    if (!storage) return Promise.resolve(null);
+    return ref.kind === 'library'
+      ? storage.loadLib(ref.namespace === '#root' ? '' : `+${ref.namespace}`, ref.name)
+      : storage.loadFlow(this.key(ref));
+  }
+
+  private prefetch(ref: FlowRef): Promise<DataMap | null> {
+    const data = this.readFlow(ref);
+    void data.catch(() => {});
+    return data;
   }
 
   private async activate(names: string[], generation: number) {
@@ -101,6 +124,18 @@ export class FlowRuntime {
     };
     for (const name of names) await visit(name);
     check();
+    const contexts = [...discovered.keys()]
+      .filter((name) => name !== '#root')
+      .map((namespace) => {
+        const ref: FlowRef = {namespace, kind: 'flow', name: '#context'};
+        return {ref, data: this.prefetch(ref)};
+      });
+    const services = [...discovered].flatMap(([namespace, data]) =>
+      (data.serviceLibraries ?? []).map((name) => {
+        const ref: FlowRef = {namespace, kind: 'library', name};
+        return {ref, data: this.prefetch(ref)};
+      })
+    );
     for (const [name, data] of discovered) {
       this.metadata.set(name, data);
       const ns = this.namespace(name);
@@ -109,15 +144,15 @@ export class FlowRuntime {
     }
     try {
       // Contexts replace the namespace's inheritance layer and load before its services/flows.
-      for (const name of versions.keys()) {
-        if (name !== '#root') await this.loadFlow({namespace: name, kind: 'flow', name: '#context'});
+      for (const {ref, data} of contexts) {
+        await this.loadFlow(ref, data);
         check();
       }
-      for (const [name, data] of discovered) {
-        for (const library of data.serviceLibraries ?? []) {
-          await this.loadFlow({namespace: name, kind: 'library', name: library});
-          check();
-        }
+      for (const {ref, data} of services) {
+        await this.loadFlow(ref, data);
+        check();
+      }
+      for (const [name] of discovered) {
         // Restore subscriptions created while this namespace was inactive.
         for (const library of Object.keys(this.namespace(name)._libs)) {
           if (this.namespace(name)._libs[library].hasRuntimeListeners()) this.loadLibraryOnDemand(name, library);
@@ -137,12 +172,28 @@ export class FlowRuntime {
     }
   }
 
-  private async loadSelected(namespace: string, patterns: string[], generation: number) {
-    if (!patterns.length) return;
+  private async prepareSelected(namespace: string, patterns: string[], generation: number): Promise<PreparedSelection> {
+    const version = this.namespaceVersions.get(namespace);
+    if (!patterns.length) return {namespace, version, folders: [], flows: []};
     if (!this.root._storage?.listFlows) throw new Error('Storage does not support listing flows');
     const folders: string[] = [];
-    const version = this.namespaceVersions.get(namespace);
     const names = await this.root._storage.listFlows(namespace, folders);
+    this.checkGeneration(generation);
+    if (version !== this.namespaceVersions.get(namespace))
+      throw new Error(`Namespace selection cancelled: ${namespace}`);
+    for (const pattern of patterns) {
+      if (!/[?*]/.test(pattern) && !names.includes(pattern)) throw new Error(`Missing flow: ${namespace}/${pattern}`);
+    }
+    const flows = names
+      .filter((name) => patterns.some((pattern) => matchEditPath(pattern, name)))
+      .map((name) => {
+        const ref: FlowRef = {namespace, kind: 'flow', name};
+        return {ref, data: this.prefetch(ref)};
+      });
+    return {namespace, version, folders, flows};
+  }
+
+  private async loadSelected({namespace, version, folders, flows}: PreparedSelection, generation: number) {
     this.checkGeneration(generation);
     if (version !== this.namespaceVersions.get(namespace))
       throw new Error(`Namespace selection cancelled: ${namespace}`);
@@ -150,25 +201,21 @@ export class FlowRuntime {
       const path = `${namespacePrefix(namespace)}${folder}`;
       if (!this.root.queryValue(path)) this.root.addFlowFolder(path, {}, true);
     }
-    this.checkGeneration(generation);
-    for (const pattern of patterns) {
-      if (!/[?*]/.test(pattern) && !names.includes(pattern)) throw new Error(`Missing flow: ${namespace}/${pattern}`);
-    }
-    for (const name of names) {
-      if (patterns.some((pattern) => matchEditPath(pattern, name))) {
-        await this.loadFlow({namespace, kind: 'flow', name});
-        this.checkGeneration(generation);
-        if (version !== this.namespaceVersions.get(namespace))
-          throw new Error(`Namespace selection cancelled: ${namespace}`);
-      }
+    for (const {ref, data} of flows) {
+      await this.loadFlow(ref, data);
+      this.checkGeneration(generation);
+      if (version !== this.namespaceVersions.get(namespace))
+        throw new Error(`Namespace selection cancelled: ${namespace}`);
     }
   }
 
   async enableNamespace(name: string, options: {flows?: string[]} = {}) {
     this.started = true;
     const generation = this.generation;
+    const selection = this.prepareSelected(name, options.flows ?? [], generation);
+    void selection.catch(() => {});
     await this.activate([name], generation);
-    await this.loadSelected(name, options.flows ?? [], generation);
+    await this.loadSelected(await selection, generation);
   }
 
   loadLibraryOnDemand(namespace: string, name: string) {
@@ -192,7 +239,8 @@ export class FlowRuntime {
   }
 
   // REFACTOR(design.md): MUST migrate versioned graph data before activating fixed-type blocks and wires.
-  loadFlow(ref: FlowRef): Promise<Flow> {
+
+  loadFlow(ref: FlowRef, prefetched?: Promise<DataMap | null>): Promise<Flow> {
     const key = this.key(ref);
     if (!this.namespace(ref.namespace)._enabled)
       return Promise.reject(new Error(`Namespace is not enabled: ${ref.namespace}`));
@@ -207,10 +255,7 @@ export class FlowRuntime {
         const storage = this.root._storage;
         const ns = this.namespace(ref.namespace);
         const context = ref.kind === 'flow' && ref.name === '#context';
-        const data =
-          ref.kind === 'library'
-            ? await storage?.loadLib(ref.namespace === '#root' ? '' : ns.ns, ref.name)
-            : await storage?.loadFlow(key);
+        const data = await (prefetched ?? this.readFlow(ref));
         this.checkGeneration(generation);
         if (operation.cancelled || !ns._enabled) throw new Error(`Flow load cancelled: ${key}`);
         if (!data && !context) throw new Error(`Missing ${ref.kind}: ${ref.namespace}/${ref.name}`);
