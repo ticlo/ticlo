@@ -14,6 +14,9 @@
 "Block": 数据块
 "Misc": 其他 # translated from: Misc
 "Open": 打开 # translated from: Open
+"File": 文件 # translated from: File
+"Namespace": 命名空间 # translated from: Namespace
+"View": 视图 # translated from: View
 "Open Flow": 打开数据流 # translated from: Open Flow
 "Design": 设计 # translated from: Design
 "Save": 保存

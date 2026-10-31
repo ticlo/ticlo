@@ -1,11 +1,7 @@
-import React, {useContext} from 'react';
-import {Checkbox, Radio, type RadioChangeEvent} from 'antd';
 import type {Locale} from 'antd/es/locale/index.js';
 import enAntd from 'antd/es/locale/en_US.js';
 import frAntd from 'antd/es/locale/fr_FR.js';
 import zhAntd from 'antd/es/locale/zh_CN.js';
-import {TicloI18nSettings} from '@ticlo/core';
-import {TicloLayoutContextType} from '@ticlo/editor/component/LayoutContext.ts';
 import i18next from 'i18next';
 import enEditor from '../i18n/editor/en.json' with {type: 'json'};
 import frEditor from '../i18n/editor/fr.json' with {type: 'json'};
@@ -35,41 +31,4 @@ export function initAppI18n() {
       zh: {'ticlo-editor': zhEditor, 'ticlo-core': zhCore, 'ticlo-react': zhReact, 'ticlo-test': zhTest},
     },
   });
-}
-
-const languages = ['en', 'fr', 'zh'];
-
-export function LanguageSettings({onChange}: {onChange: (e?: RadioChangeEvent) => void}) {
-  const {language} = useContext(TicloLayoutContextType);
-  return (
-    <>
-      <Radio.Group
-        options={languages}
-        onChange={onChange}
-        value={language}
-        optionType="button"
-        buttonStyle="solid"
-        size="small"
-      />
-      <br />
-      <Checkbox
-        defaultChecked={TicloI18nSettings.shouldTranslateFunction}
-        onChange={(e) => {
-          TicloI18nSettings.shouldTranslateFunction = e.target.checked;
-          onChange();
-        }}
-      >
-        translate function
-      </Checkbox>
-      <br />
-      <Checkbox
-        defaultChecked={TicloI18nSettings.useLocalizedBlockName}
-        onChange={(e) => {
-          TicloI18nSettings.useLocalizedBlockName = e.target.checked;
-        }}
-      >
-        localize block name
-      </Checkbox>
-    </>
-  );
 }

@@ -1,7 +1,7 @@
 import './styles.ts';
 import * as React from 'react';
 import {StrictMode} from 'react';
-import {App as AntdApp, type RadioChangeEvent} from 'antd';
+import {App as AntdApp} from 'antd';
 import {
   Block,
   DataMap,
@@ -24,7 +24,7 @@ import {initEditor, PropertyList, BlockStage, NodeTree, FileManager} from '@ticl
 import {DockLayout, type LayoutBase, type TabDefinitions} from 'rc-dock';
 import {leftSideColumns, stageGroup, toolGroup, createLayoutActions, stageReadonly} from './AppLayout.ts';
 import {antdLocales, initAppI18n} from './AppI18n.tsx';
-import {AppTheme, AppToolBox} from './AppToolBox.tsx';
+import {AppHeader, AppTheme, appHeaderHeight} from './AppHeader.tsx';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 
 import './sample-blocks.ts';
@@ -100,13 +100,6 @@ class App extends React.PureComponent<Props, State> {
         cached: true,
         content: <PolicyPanel onChange={this.changePolicy} />,
       },
-      'ToolBox': {
-        group: 'tool',
-        title: 'ToolBox',
-        minHeight: 210,
-        cached: true,
-        content: <AppToolBox switchLan={this.switchLan} />,
-      },
       'Functions': {
         group: 'tool',
         title: t('Functions'),
@@ -163,10 +156,6 @@ class App extends React.PureComponent<Props, State> {
             size: 200,
             children: [
               {
-                size: 210,
-                tabs: [{id: 'ToolBox'}],
-              },
-              {
                 size: 400,
                 tabs: [{id: 'Navigation'}, ...(props.files ? [{id: 'Files'}] : []), {id: 'Policy'}],
               },
@@ -201,8 +190,8 @@ class App extends React.PureComponent<Props, State> {
 
   lng: string = 'en';
   lngConfig = antdLocales['en'];
-  switchLan = (e?: RadioChangeEvent) => {
-    this.lng = e?.target.value || this.lng;
+  switchLan = (language: string) => {
+    this.lng = language;
     this.lngConfig = antdLocales[this.lng];
     // force a reload of the context
     this.ticloContext = {...this.ticloContext, language: this.lng};
@@ -258,13 +247,14 @@ class App extends React.PureComponent<Props, State> {
         <PlaygroundConnectionContext.Provider value={conn}>
           <EditPolicyProvider conn={conn}>
             <TicloApp value={this.ticloContext}>
+              <AppHeader language={this.lng} onLanguageChange={this.switchLan} />
               <DockLayout
                 defaultLayout={this.defaultDockLayout}
                 tabs={this.tabs}
                 sideColumns={leftSideColumns}
                 ref={this.getLayout}
                 groups={layoutGroups}
-                style={{position: 'absolute', left: 0, top: 4, right: 4, bottom: 4}}
+                style={{position: 'absolute', left: 0, top: appHeaderHeight + 4, right: 4, bottom: 4}}
               />
               {modal}
             </TicloApp>

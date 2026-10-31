@@ -1,0 +1,49 @@
+.ticl-app-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: 40px;
+  padding: 0 8px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  border-bottom: 1px solid var(--ant-color-border-secondary);
+  background: var(--ant-color-bg-container);
+  box-sizing: border-box;
+}
+
+.ticl-app-header-left,
+.ticl-app-header-center,
+.ticl-app-header-right,
+.ticl-app-header-tools,
+.ticl-app-language {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ticl-app-logo {
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
+}
+
+.ticl-app-header-right {
+  justify-content: flex-end;
+}
+
+.ticl-app-header-center {
+  gap: 12px;
+}
+
+.ticl-app-flag {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.ticl-app-language {
+  gap: 8px;
+}

@@ -1,7 +1,7 @@
 import './styles.ts';
 import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext} from 'react';
-import {App as AntdApp, Button, Checkbox, type RadioChangeEvent} from 'antd';
+import {App as AntdApp, Button, Checkbox} from 'antd';
 import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -27,7 +27,7 @@ import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {DockLayout, type LayoutBase, type TabDefinitions, type TabData} from 'rc-dock';
 import {sideColumns, stageGroup, toolGroup, createLayoutActions, stageReadonly} from './AppLayout.ts';
 import {antdLocales, initAppI18n} from './AppI18n.tsx';
-import {AppTheme, AppToolBox} from './AppToolBox.tsx';
+import {AppHeader, AppTheme, appHeaderHeight} from './AppHeader.tsx';
 import {createRoot} from 'react-dom/client';
 import i18next from 'i18next';
 import '@ticlo/react';
@@ -80,33 +80,30 @@ function DesignerFiles({
   return <FileManager storage={storage} project={project} onOpen={open} />;
 }
 
-function ToolBox({
-  switchLan,
+function DesignerHeader({
+  language,
+  onLanguageChange,
   openEditor,
 }: {
-  switchLan: (e?: RadioChangeEvent) => void;
+  language: string;
+  onLanguageChange: (language: string) => void;
   openEditor: (path: string) => void;
 }) {
   const {designMode, setDesignMode} = useContext(DesignerLayoutContextType);
   return (
-    <AppToolBox switchLan={switchLan}>
+    <AppHeader language={language} onLanguageChange={onLanguageChange}>
       <OpenEditorButton openEditor={openEditor} />
       <Checkbox checked={designMode} onChange={(e) => setDesignMode?.(e.target.checked)}>
         Design mode
       </Checkbox>
-    </AppToolBox>
+    </AppHeader>
   );
 }
 
 function OpenEditorButton({openEditor}: {openEditor: (path: string) => void}) {
   const stage = useActiveDesignerStage();
   return (
-    <Button
-      size="small"
-      style={{position: 'absolute', top: 8, right: 8, zIndex: 1}}
-      disabled={!stage?.flow}
-      onClick={() => openEditor(stage.basePath)}
-    >
+    <Button size="small" disabled={!stage?.flow} onClick={() => openEditor(stage.basePath)}>
       Open Editor
     </Button>
   );
@@ -140,13 +137,6 @@ class App extends React.PureComponent<Props, State> {
     const {conn, initialFlow} = props;
     const initialTab = initialFlow ? this.createDesignerTab(initialFlow) : undefined;
     this.tabs = {
-      ToolBox: {
-        group: 'tool',
-        title: 'ToolBox',
-        minHeight: 210,
-        cached: true,
-        content: <ToolBox switchLan={this.switchLan} openEditor={this.openEditor} />,
-      },
       Navigation: {
         group: 'tool',
         title: t('Navigation'),
@@ -213,10 +203,6 @@ class App extends React.PureComponent<Props, State> {
             size: 200,
             children: [
               {
-                size: 210,
-                tabs: [{id: 'ToolBox'}],
-              },
-              {
                 size: 400,
                 tabs: [{id: 'Navigation'}, ...(props.files ? [{id: 'Files'}] : [])],
               },
@@ -254,8 +240,8 @@ class App extends React.PureComponent<Props, State> {
 
   lng: string = 'en';
   lngConfig = antdLocales['en'];
-  switchLan = (e?: RadioChangeEvent) => {
-    this.lng = e?.target.value || this.lng;
+  switchLan = (language: string) => {
+    this.lng = language;
     this.lngConfig = antdLocales[this.lng];
     // force a reload of the context
     this.ticloContext = {...this.ticloContext, language: this.lng};
@@ -356,13 +342,14 @@ class App extends React.PureComponent<Props, State> {
         <PlaygroundConnectionContext.Provider value={conn}>
           <EditPolicyProvider conn={conn}>
             <DesignerApp value={this.ticloContext}>
+              <DesignerHeader language={this.lng} onLanguageChange={this.switchLan} openEditor={this.openEditor} />
               <DockLayout
                 defaultLayout={this.defaultDockLayout}
                 tabs={this.tabs}
                 sideColumns={sideColumns}
                 ref={this.getLayout}
                 groups={layoutGroups}
-                style={{position: 'absolute', left: 0, top: 4, right: 0, bottom: 4}}
+                style={{position: 'absolute', left: 0, top: appHeaderHeight + 4, right: 0, bottom: 4}}
               />
               {modal}
             </DesignerApp>
