@@ -53,14 +53,14 @@ import {createRoot} from 'react-dom/client';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
 import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {PolicyPanel} from './PolicyPanel.tsx';
-import {PlaygroundConnection, PlaygroundConnectionContext, connectStageTab} from './PlaygroundConnection.tsx';
+import {StageConnection, StageConnectionContext, connectStageTab} from './StageConnection.tsx';
 import type {ClientConn, EditPolicy} from '@ticlo/core';
 import {fileFlowPath} from './flow-path.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 
 const FileVersionContext = React.createContext(0);
 
-function PlaygroundFiles({
+function DataflowFiles({
   storage,
   project,
   onOpen,
@@ -159,9 +159,9 @@ class App extends React.PureComponent<Props, State> {
         title: t('Properties'),
         cached: true,
         content: (
-          <PlaygroundConnection>
+          <StageConnection>
             <PropertyListPane conn={conn} />
-          </PlaygroundConnection>
+          </StageConnection>
         ),
       },
       'Test UI': {
@@ -178,7 +178,7 @@ class App extends React.PureComponent<Props, State> {
           group: 'tool',
           title: t('Files'),
           cached: true,
-          content: <PlaygroundFiles {...props.files} onOpen={this.openStoredFile} />,
+          content: <DataflowFiles {...props.files} onOpen={this.openStoredFile} />,
         },
       };
     }
@@ -280,7 +280,7 @@ class App extends React.PureComponent<Props, State> {
     const {modal} = this.state;
     const appContent = (
       <AntdApp style={{height: '100%', backgroundColor: 'var(--ant-color-bg-layout)'}}>
-        <PlaygroundConnectionContext.Provider value={conn}>
+        <StageConnectionContext.Provider value={conn}>
           <EditPolicyProvider conn={conn}>
             <FileVersionContext.Provider value={this.state.fileVersion}>
               <TicloApp value={this.ticloContext}>
@@ -309,7 +309,7 @@ class App extends React.PureComponent<Props, State> {
               </TicloApp>
             </FileVersionContext.Provider>
           </EditPolicyProvider>
-        </PlaygroundConnectionContext.Provider>
+        </StageConnectionContext.Provider>
       </AntdApp>
     );
 
@@ -366,7 +366,7 @@ window.addEventListener('hashchange', () => location.reload());
   createRoot(document.getElementById('app')).render(<App conn={client} initialFlow={initialFlow} files={files} />);
 })().catch((error) => {
   console.error(error);
-  document.getElementById('app').textContent = `Failed to load playground: ${error.message}`;
+  document.getElementById('app').textContent = `Failed to load dataflow editor: ${error.message}`;
 });
 
 (window as any).Logger = Logger;

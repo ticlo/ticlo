@@ -2,7 +2,7 @@
 
 ## Current stage and commands
 
-`TicloApp` owns the stage registry used by the editor, playground, and designer.
+`TicloApp` owns the stage registry used by the editor, Dataflow Editor, and Designer.
 Each view has a unique, stable `TicloStage.id` and a `basePath`. Several views
 can share one flow path, including a dataflow stage and a designer stage.
 `currentPath` identifies the flow; `activeStage` identifies the single view
@@ -162,7 +162,7 @@ metadata and download only. `defaultPreview` controls the initial preview state.
 `onSelect` receives the selected `FileEntry` objects. `onChange` fires after a
 mutation attempt and directory refresh, including partial failures. These are
 raw file operations; consumers must reload affected runtime flows themselves.
-The playground and designer show a Files panel when configured with remote
+The Dataflow Editor and Designer show a Files panel when configured with remote
 storage, using the project selected by their `project` URL parameter.
 
 ## Themes

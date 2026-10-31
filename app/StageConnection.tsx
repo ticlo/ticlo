@@ -2,17 +2,17 @@ import React, {createContext, useContext, useMemo} from 'react';
 import type {ClientConn} from '@ticlo/core';
 import type {TabData} from 'rc-dock';
 
-export const PlaygroundConnectionContext = createContext<ClientConn>(null);
+export const StageConnectionContext = createContext<ClientConn>(null);
 
-/** Live policy preview for the playground's stage and property panels. */
-export function PlaygroundConnection({
+/** Live policy preview for stage and property panels. */
+export function StageConnection({
   children,
   readonly = false,
 }: {
   children: React.ReactElement<{conn: ClientConn}>;
   readonly?: boolean;
 }) {
-  const current = useContext(PlaygroundConnectionContext);
+  const current = useContext(StageConnectionContext);
   const conn = useMemo(
     () => (readonly ? current.withPolicy({...current.getEditPolicyView().policy, readonly: true}) : current),
     [current, readonly]
@@ -22,8 +22,8 @@ export function PlaygroundConnection({
 
 export function connectStageTab(tab: TabData, readonly = false) {
   if (React.isValidElement<{conn: ClientConn}>(tab.content))
-    tab.content = <PlaygroundConnection readonly={readonly}>{tab.content}</PlaygroundConnection>;
+    tab.content = <StageConnection readonly={readonly}>{tab.content}</StageConnection>;
   if (React.isValidElement<{conn: ClientConn}>(tab.title))
-    tab.title = <PlaygroundConnection readonly={readonly}>{tab.title}</PlaygroundConnection>;
+    tab.title = <StageConnection readonly={readonly}>{tab.title}</StageConnection>;
   return tab;
 }

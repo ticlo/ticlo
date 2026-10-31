@@ -34,7 +34,7 @@ import i18next from 'i18next';
 import '@ticlo/react';
 import '@ticlo/test';
 import './sample-blocks.ts';
-import {PlaygroundConnection, PlaygroundConnectionContext, connectStageTab} from './PlaygroundConnection.tsx';
+import {StageConnection, StageConnectionContext, connectStageTab} from './StageConnection.tsx';
 import {designerData} from './sample-data/designer.ts';
 import {EditorWindows} from './EditorWindows.ts';
 import {fileFlowPath, pageFlowPath} from './flow-path.ts';
@@ -355,16 +355,16 @@ class App extends React.PureComponent<Props, State> {
     return {
       id,
       title: (
-        <PlaygroundConnection readonly={readonly}>
+        <StageConnection readonly={readonly}>
           <BlockStageTabButton conn={this.conn} id={id} path={path} title={path} onSave={save} />
-        </PlaygroundConnection>
+        </StageConnection>
       ),
       group: 'main',
       closable: false,
       content: (
-        <PlaygroundConnection readonly={readonly}>
+        <StageConnection readonly={readonly}>
           <DesignerStage root={this.props.root} conn={this.conn} basePath={path} stageId={id} onSave={save} />
-        </PlaygroundConnection>
+        </StageConnection>
       ),
     };
   }
@@ -385,7 +385,7 @@ class App extends React.PureComponent<Props, State> {
     const {modal} = this.state;
     const appContent = (
       <AntdApp style={{height: '100%', backgroundColor: 'var(--ant-color-bg-layout)'}}>
-        <PlaygroundConnectionContext.Provider value={conn}>
+        <StageConnectionContext.Provider value={conn}>
           <EditPolicyProvider conn={conn}>
             <FileVersionContext.Provider value={this.state.fileVersion}>
               <DesignerApp value={this.ticloContext}>
@@ -410,7 +410,7 @@ class App extends React.PureComponent<Props, State> {
               </DesignerApp>
             </FileVersionContext.Provider>
           </EditPolicyProvider>
-        </PlaygroundConnectionContext.Provider>
+        </StageConnectionContext.Provider>
       </AntdApp>
     );
 

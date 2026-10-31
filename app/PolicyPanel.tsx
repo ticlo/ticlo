@@ -49,7 +49,7 @@ const blockFields = [
   ['allowChangeBlockType', 'Change block types'],
 ] as const;
 
-/** Playground-only controls, deliberately separate from the reusable editor. */
+/** App-only controls, deliberately separate from the reusable editor. */
 export function PolicyPanel({onChange}: {onChange: (policy?: EditPolicy) => void}) {
   const [enabled, setEnabled] = useState(false);
   const [policy, setPolicy] = useState<EditPolicy>({});

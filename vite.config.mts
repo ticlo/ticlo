@@ -115,6 +115,7 @@ export default defineConfig({
     assetsDir: './',
     rollupOptions: {
       input: {
+        'dataflow': fileURLToPath(new URL('./app/dataflow.html', import.meta.url)),
         'playground': fileURLToPath(new URL('./app/playground.html', import.meta.url)),
         'designer-app': fileURLToPath(new URL('./app/designer.html', import.meta.url)),
         'viewer': fileURLToPath(new URL('./app/viewer.html', import.meta.url)),
