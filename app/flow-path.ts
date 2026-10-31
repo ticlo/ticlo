@@ -29,3 +29,10 @@ export function fileFlowPath(project: string, file: string): {ref: FlowRef; path
   const path = `${namespacePrefix(project)}${ref.kind === 'library' ? ':' : ''}${ref.name}`;
   return {ref, path};
 }
+
+export function fileDestination(project: string, directory: string, name: string, kind: FlowRef['kind']) {
+  if (!validFlowEntry(name)) return null;
+  const file = `${directory}/${name}.ticlo`;
+  const target = fileFlowPath(project, file);
+  return target?.ref.kind === kind ? {...target, file} : null;
+}

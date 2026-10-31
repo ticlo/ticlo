@@ -31,6 +31,8 @@ export interface FileManagerProps {
   /** Project / namespace ID, without a leading +; #root is the global namespace. */
   project: string;
   defaultPreview?: boolean;
+  /** Show only the file tree for a file selection dialog. */
+  picker?: boolean;
   onSelect?: (entries: FileEntry[]) => void;
   onOpen?: (entry: FileEntry) => void | Promise<void>;
   onChange?: () => void;
@@ -259,7 +261,9 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
 
   private selectRow(entry: FileEntry, event: {shiftKey: boolean; ctrlKey: boolean; metaKey: boolean}) {
     const path = entry.path;
-    if (event.shiftKey && this.anchor) {
+    if (this.props.picker) {
+      this.select([path]);
+    } else if (event.shiftKey && this.anchor) {
       const from = this.rows.findIndex((row) => row.entry.path === this.anchor);
       const to = this.rows.findIndex((row) => row.entry.path === path);
       const range = this.rows
@@ -497,8 +501,13 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   }
 
   private keyDown = (event: React.KeyboardEvent) => {
-    if (this.locked || (event.target as HTMLElement).closest('input, textarea, .cm-editor, .ant-modal')) return;
+    if (
+      this.locked ||
+      (event.target as HTMLElement).closest(`input, textarea, .cm-editor${this.props.picker ? '' : ', .ant-modal'}`)
+    )
+      return;
     const {key, ctrlKey, metaKey} = event;
+    if (this.props.picker && (key === 'Delete' || key === 'F2' || ctrlKey || metaKey)) return;
     if (
       !this.props.storage.getCapabilities(this.files.root).write &&
       (key === 'Delete' || key === 'F2' || ((ctrlKey || metaKey) && ['x', 'v'].includes(key.toLowerCase())))
@@ -612,7 +621,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             this.select([entry.path]);
           }
         }}
-        draggable={!this.state.busy && entry.path !== this.files.root}
+        draggable={!this.props.picker && !this.state.busy && entry.path !== this.files.root}
         onDragStart={(event) => {
           const entries = selected ? this.selected() : [entry];
           if (!selected) this.select([entry.path]);
@@ -647,7 +656,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   };
 
   render() {
-    const {project, storage, style, className} = this.props;
+    const {project, storage, style, className, picker} = this.props;
     if (storage !== this.files.storage) return <div className="ticl-e-file-manager" style={style} />;
     const {busy, error, preview, dialog, name} = this.state;
     const readonly = !storage.getCapabilities(this.files.root).write;
@@ -671,6 +680,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         tabIndex={0}
         onKeyDown={this.keyDown}
         onPaste={(event) => {
+          if (picker) return;
           if ((event.target as HTMLElement).closest('input, textarea, .cm-editor, .ant-modal')) return;
           if (!this.locked && !readonly && event.clipboardData.files.length) {
             event.preventDefault();
@@ -678,56 +688,58 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           }
         }}
       >
-        <div className="ticl-e-file-toolbar">
-          <span className="ticl-e-file-project" title={project}>
-            {project}
-          </span>
-          {busy ? <Spin size="small" /> : null}
-          <Button
-            size="small"
-            title={translateEditor('Reload')}
-            icon={<ReloadOutlined />}
-            disabled={busy}
-            onClick={this.reload}
-          />
-          <Button
-            size="small"
-            title={translateEditor('New Folder')}
-            icon={<FolderAddOutlined />}
-            disabled={busy || readonly}
-            onClick={this.newFolder}
-          />
-          <Button
-            size="small"
-            title={translateEditor('Upload')}
-            icon={<UploadOutlined />}
-            disabled={busy || readonly}
-            onClick={() => this.uploadInput.click()}
-          />
-          <Button
-            size="small"
-            title={translateEditor('Preview')}
-            type={preview ? 'primary' : 'default'}
-            icon={<EyeOutlined />}
-            onClick={() => this.setState({preview: !preview})}
-          />
-          <Dropdown menu={this.menu()} trigger={['click']}>
-            <Button size="small" title={translateEditor('Actions')} icon={<EllipsisOutlined />} />
-          </Dropdown>
-          <input
-            ref={(value) => {
-              this.uploadInput = value;
-            }}
-            type="file"
-            hidden
-            multiple
-            onChange={(event) => {
-              const entries = Array.from(event.target.files).map((file) => ({path: file.name, file}));
-              event.target.value = '';
-              if (entries.length) void this.upload(Promise.resolve(entries));
-            }}
-          />
-        </div>
+        {!picker && (
+          <div className="ticl-e-file-toolbar">
+            <span className="ticl-e-file-project" title={project}>
+              {project}
+            </span>
+            {busy ? <Spin size="small" /> : null}
+            <Button
+              size="small"
+              title={translateEditor('Reload')}
+              icon={<ReloadOutlined />}
+              disabled={busy}
+              onClick={this.reload}
+            />
+            <Button
+              size="small"
+              title={translateEditor('New Folder')}
+              icon={<FolderAddOutlined />}
+              disabled={busy || readonly}
+              onClick={this.newFolder}
+            />
+            <Button
+              size="small"
+              title={translateEditor('Upload')}
+              icon={<UploadOutlined />}
+              disabled={busy || readonly}
+              onClick={() => this.uploadInput.click()}
+            />
+            <Button
+              size="small"
+              title={translateEditor('Preview')}
+              type={preview ? 'primary' : 'default'}
+              icon={<EyeOutlined />}
+              onClick={() => this.setState({preview: !preview})}
+            />
+            <Dropdown menu={this.menu()} trigger={['click']}>
+              <Button size="small" title={translateEditor('Actions')} icon={<EllipsisOutlined />} />
+            </Dropdown>
+            <input
+              ref={(value) => {
+                this.uploadInput = value;
+              }}
+              type="file"
+              hidden
+              multiple
+              onChange={(event) => {
+                const entries = Array.from(event.target.files).map((file) => ({path: file.name, file}));
+                event.target.value = '';
+                if (entries.length) void this.upload(Promise.resolve(entries));
+              }}
+            />
+          </div>
+        )}
         {error ? (
           <div className="ticl-e-file-error">
             {error}
@@ -740,18 +752,23 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             />
           </div>
         ) : null}
-        <Dropdown menu={this.menu()} trigger={['contextMenu']}>
+        <Dropdown menu={picker ? {items: []} : this.menu()} trigger={picker ? [] : ['contextMenu']}>
           <div
             className="ticl-e-file-tree-area"
             onMouseDown={() => this.container.focus()}
             onContextMenu={(event) => {
-              if (!(event.target as HTMLElement).closest('.ticl-e-file-row')) this.select([this.files.root]);
+              if (!picker && !(event.target as HTMLElement).closest('.ticl-e-file-row')) this.select([this.files.root]);
             }}
-            onDragOver={this.dragOver}
-            onDrop={this.drop}
-            onDragLeave={(event) => {
-              if (!event.currentTarget.contains(event.relatedTarget as Node)) this.setState({dropPath: undefined});
-            }}
+            onDragOver={picker ? undefined : this.dragOver}
+            onDrop={picker ? undefined : this.drop}
+            onDragLeave={
+              picker
+                ? undefined
+                : (event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget as Node))
+                      this.setState({dropPath: undefined});
+                  }
+            }
           >
             <VirtualList
               className="ticl-e-file-tree"
@@ -761,7 +778,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             />
           </div>
         </Dropdown>
-        {preview ? (
+        {!picker && preview ? (
           <FilePreview
             key={entry ? `${entry.path}:${entry.modified}:${entry.type === 'file' ? entry.size : ''}` : 'empty'}
             storage={storage}
@@ -769,28 +786,30 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             onDownload={this.download}
           />
         ) : null}
-        <Modal
-          title={dialog?.entry ? t('Rename') : t('New Folder')}
-          open={Boolean(dialog)}
-          onOk={this.saveName}
-          onCancel={() => {
-            if (!busy) this.setState({dialog: undefined});
-          }}
-          confirmLoading={busy}
-          okButtonProps={{disabled: busy || !validFileName(name.trim())}}
-          cancelButtonProps={{disabled: busy}}
-          destroyOnHidden
-        >
-          <Input
-            value={name}
-            autoFocus
-            onChange={(event) => this.setState({name: event.target.value})}
-            onPressEnter={() => {
-              if (!busy && validFileName(name.trim())) void this.saveName();
+        {!picker && (
+          <Modal
+            title={dialog?.entry ? t('Rename') : t('New Folder')}
+            open={Boolean(dialog)}
+            onOk={this.saveName}
+            onCancel={() => {
+              if (!busy) this.setState({dialog: undefined});
             }}
-          />
-          {error ? <div className="ticl-e-file-error">{error}</div> : null}
-        </Modal>
+            confirmLoading={busy}
+            okButtonProps={{disabled: busy || !validFileName(name.trim())}}
+            cancelButtonProps={{disabled: busy}}
+            destroyOnHidden
+          >
+            <Input
+              value={name}
+              autoFocus
+              onChange={(event) => this.setState({name: event.target.value})}
+              onPressEnter={() => {
+                if (!busy && validFileName(name.trim())) void this.saveName();
+              }}
+            />
+            {error ? <div className="ticl-e-file-error">{error}</div> : null}
+          </Modal>
+        )}
       </div>
     );
   }

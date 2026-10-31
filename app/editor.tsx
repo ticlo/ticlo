@@ -180,7 +180,7 @@ class App extends React.PureComponent<Props, State> {
       <AppTheme locale={this.lngConfig}>
         <AntdApp style={{height: '100%', backgroundColor: 'var(--ant-color-bg-layout)'}}>
           <TicloApp value={this.ticloContext}>
-            <AppHeader language={this.lng} onLanguageChange={this.switchLan} />
+            <AppHeader language={this.lng} onLanguageChange={this.switchLan} showProjectMenus={false} />
             <DockLayout
               defaultLayout={this.defaultDockLayout}
               tabs={this.tabs}

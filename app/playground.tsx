@@ -25,6 +25,7 @@ import {DockLayout, type LayoutBase, type TabDefinitions} from 'rc-dock';
 import {leftSideColumns, stageGroup, toolGroup, createLayoutActions, stageReadonly} from './AppLayout.ts';
 import {antdLocales, initAppI18n} from './AppI18n.tsx';
 import {AppHeader, AppTheme, appHeaderHeight} from './AppHeader.tsx';
+import {FileMenuHeader} from './FileMenu.tsx';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 
 import './sample-blocks.ts';
@@ -47,13 +48,30 @@ import i18next from 'i18next';
 
 import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel.tsx';
 import {RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
-import type {ProjectFiles} from '@ticlo/core/storage/FileAccess.ts';
+import type {FileEntry, ProjectFiles} from '@ticlo/core/storage/FileAccess.ts';
 import {createRoot} from 'react-dom/client';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
 import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {PolicyPanel} from './PolicyPanel.tsx';
 import {PlaygroundConnection, PlaygroundConnectionContext, connectStageTab} from './PlaygroundConnection.tsx';
 import type {ClientConn, EditPolicy} from '@ticlo/core';
+import {fileFlowPath} from './flow-path.ts';
+import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
+
+const FileVersionContext = React.createContext(0);
+
+function PlaygroundFiles({
+  storage,
+  project,
+  onOpen,
+}: {
+  storage: ProjectFiles;
+  project: string;
+  onOpen: (entry: FileEntry) => Promise<void>;
+}) {
+  const version = React.useContext(FileVersionContext);
+  return <FileManager key={version} storage={storage} project={project} onOpen={onOpen} />;
+}
 
 const layoutGroups = {
   main: stageGroup,
@@ -69,15 +87,33 @@ interface Props {
 interface State {
   conn: ClientConn;
   modal?: React.ReactElement;
+  fileVersion: number;
 }
 
 class App extends React.PureComponent<Props, State> {
-  state: State = {conn: this.props.conn};
+  state: State = {conn: this.props.conn, fileVersion: 0};
   get conn() {
     return this.state.conn;
   }
   changePolicy = (policy?: EditPolicy) => {
     this.setState({conn: this.props.conn.withPolicy(policy)});
+  };
+  onFilesChange = () => this.setState(({fileVersion}) => ({fileVersion: fileVersion + 1}));
+  openFlow = (path: string) => {
+    const onSave = stageReadonly(this.props.files?.storage, path)
+      ? null
+      : () => {
+          this.conn.applyFlowChange(path, undefined, requestCallbacks);
+        };
+    this.ticloContext.editFlow?.(path, onSave);
+  };
+  openStoredFile = async (entry: FileEntry) => {
+    const target = fileFlowPath(this.props.files.project, entry.path);
+    if (!target) throw new Error('This file is not a loadable flow.');
+    if (!this.conn.getEditPolicyView().can({cmd: 'loadFlow', path: target.path}))
+      throw new Error('Opening this flow is not permitted.');
+    await Root.instance.loadFlow(target.ref);
+    this.openFlow(target.path);
   };
   defaultDockLayout: LayoutBase;
   tabs: TabDefinitions;
@@ -142,7 +178,7 @@ class App extends React.PureComponent<Props, State> {
           group: 'tool',
           title: t('Files'),
           cached: true,
-          content: <FileManager {...props.files} />,
+          content: <PlaygroundFiles {...props.files} onOpen={this.openStoredFile} />,
         },
       };
     }
@@ -246,18 +282,32 @@ class App extends React.PureComponent<Props, State> {
       <AntdApp style={{height: '100%', backgroundColor: 'var(--ant-color-bg-layout)'}}>
         <PlaygroundConnectionContext.Provider value={conn}>
           <EditPolicyProvider conn={conn}>
-            <TicloApp value={this.ticloContext}>
-              <AppHeader language={this.lng} onLanguageChange={this.switchLan} />
-              <DockLayout
-                defaultLayout={this.defaultDockLayout}
-                tabs={this.tabs}
-                sideColumns={leftSideColumns}
-                ref={this.getLayout}
-                groups={layoutGroups}
-                style={{position: 'absolute', left: 0, top: appHeaderHeight + 4, right: 4, bottom: 4}}
-              />
-              {modal}
-            </TicloApp>
+            <FileVersionContext.Provider value={this.state.fileVersion}>
+              <TicloApp value={this.ticloContext}>
+                {this.props.files ? (
+                  <FileMenuHeader
+                    language={this.lng}
+                    onLanguageChange={this.switchLan}
+                    root={Root.instance}
+                    conn={conn}
+                    files={this.props.files}
+                    onOpen={this.openFlow}
+                    onChange={this.onFilesChange}
+                  />
+                ) : (
+                  <AppHeader language={this.lng} onLanguageChange={this.switchLan} />
+                )}
+                <DockLayout
+                  defaultLayout={this.defaultDockLayout}
+                  tabs={this.tabs}
+                  sideColumns={leftSideColumns}
+                  ref={this.getLayout}
+                  groups={layoutGroups}
+                  style={{position: 'absolute', left: 0, top: appHeaderHeight + 4, right: 4, bottom: 4}}
+                />
+                {modal}
+              </TicloApp>
+            </FileVersionContext.Provider>
           </EditPolicyProvider>
         </PlaygroundConnectionContext.Provider>
       </AntdApp>

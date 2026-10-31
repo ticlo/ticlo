@@ -111,6 +111,21 @@ describe('FileManager', () => {
     expect(onOpen).toHaveBeenLastCalledWith(file('demo/entry.ticlo'));
   });
 
+  it('uses the file tree as a single-file picker without file actions', async () => {
+    const fixture = fixtureClient([file('demo/entry.ticlo'), file('demo/other.ticlo')]);
+    const onOpen = vi.fn();
+    const onSelect = vi.fn();
+    mount({storage: fixture.client, project: 'demo', picker: true, onOpen, onSelect});
+    await shouldHappen(() => row('demo/entry.ticlo'));
+    expect(div.querySelector('.ticl-e-file-toolbar')).toBeNull();
+    await click('demo/entry.ticlo');
+    row('demo/other.ticlo').dispatchEvent(new MouseEvent('click', {bubbles: true, ctrlKey: true}));
+    await shouldHappen(() => onSelect.mock.lastCall?.[0]?.[0]?.path === 'demo/other.ticlo');
+    expect(onSelect.mock.lastCall[0]).toHaveLength(1);
+    row('demo/other.ticlo').dispatchEvent(new MouseEvent('dblclick', {bubbles: true}));
+    await shouldHappen(() => onOpen.mock.calls.length === 1);
+  });
+
   it('requires a click at 100kB for both images and text, and preserves selection when preview is toggled off', async () => {
     const fixture = fixtureClient([file('demo/a.txt', 100000), file('demo/a.svg', 100000)]);
     fixture.methods.getFile.mockResolvedValue({

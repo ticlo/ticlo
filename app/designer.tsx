@@ -28,6 +28,7 @@ import {DockLayout, type LayoutBase, type TabDefinitions, type TabData} from 'rc
 import {sideColumns, stageGroup, toolGroup, createLayoutActions, stageReadonly} from './AppLayout.ts';
 import {antdLocales, initAppI18n} from './AppI18n.tsx';
 import {AppHeader, AppTheme, appHeaderHeight} from './AppHeader.tsx';
+import {FileMenuHeader} from './FileMenu.tsx';
 import {createRoot} from 'react-dom/client';
 import i18next from 'i18next';
 import '@ticlo/react';
@@ -37,6 +38,8 @@ import {PlaygroundConnection, PlaygroundConnectionContext, connectStageTab} from
 import {designerData} from './sample-data/designer.ts';
 import {EditorWindows} from './EditorWindows.ts';
 import {fileFlowPath, pageFlowPath} from './flow-path.ts';
+
+const FileVersionContext = React.createContext(0);
 
 function DesignerProperties({conn}: {conn: ClientConnection}) {
   const {activeStage: stage} = useContext(TicloCurrentFlowContext);
@@ -50,6 +53,25 @@ function DesignerProperties({conn}: {conn: ClientConnection}) {
   );
 }
 
+function openDesignerFlow(
+  path: string,
+  flow: Flow,
+  conn: ClientConnection,
+  storage: ProjectFiles,
+  layout: DesignerLayoutContext
+) {
+  const onSave = stageReadonly(storage, path)
+    ? null
+    : () => {
+        conn.applyFlowChange(path, undefined, requestCallbacks);
+      };
+  if (flow.getValue('#is') === 'flow:main' || flow.getValue('#is') === 'flow:worker') {
+    layout.designFlow?.(path, onSave);
+  } else {
+    layout.editFlow?.(path, onSave);
+  }
+}
+
 function DesignerFiles({
   root,
   conn,
@@ -61,41 +83,63 @@ function DesignerFiles({
   storage: ProjectFiles;
   project: string;
 }) {
-  const {designFlow, editFlow} = useContext(DesignerLayoutContextType);
+  const layout = useContext(DesignerLayoutContextType);
+  const version = useContext(FileVersionContext);
   const open = async (entry: FileEntry) => {
     const target = fileFlowPath(project, entry.path);
     if (!target) throw new Error('This file is not a loadable flow.');
     const flow = await root.loadFlow(target.ref);
-    const onSave = stageReadonly(storage, target.path)
-      ? null
-      : () => {
-          conn.applyFlowChange(target.path, undefined, requestCallbacks);
-        };
-    if (flow.getValue('#is') === 'flow:main' || flow.getValue('#is') === 'flow:worker') {
-      designFlow?.(target.path, onSave);
-    } else {
-      editFlow?.(target.path, onSave);
-    }
+    openDesignerFlow(target.path, flow, conn, storage, layout);
   };
-  return <FileManager storage={storage} project={project} onOpen={open} />;
+  return <FileManager key={version} storage={storage} project={project} onOpen={open} />;
 }
 
 function DesignerHeader({
   language,
   onLanguageChange,
   openEditor,
+  root,
+  conn,
+  files,
+  onFilesChange,
 }: {
   language: string;
   onLanguageChange: (language: string) => void;
   openEditor: (path: string) => void;
+  root: Root;
+  conn: ClientConnection;
+  files?: {storage: ProjectFiles; project: string};
+  onFilesChange: () => void;
 }) {
-  const {designMode, setDesignMode} = useContext(DesignerLayoutContextType);
-  return (
-    <AppHeader language={language} onLanguageChange={onLanguageChange}>
+  const layout = useContext(DesignerLayoutContextType);
+  const {designMode, setDesignMode} = layout;
+  const content = (
+    <>
       <OpenEditorButton openEditor={openEditor} />
       <Checkbox checked={designMode} onChange={(e) => setDesignMode?.(e.target.checked)}>
         Design mode
       </Checkbox>
+    </>
+  );
+  if (files) {
+    return (
+      <FileMenuHeader
+        language={language}
+        onLanguageChange={onLanguageChange}
+        root={root}
+        conn={conn}
+        files={files}
+        newPage
+        onChange={onFilesChange}
+        onOpen={(path, flow) => openDesignerFlow(path, flow, conn, files.storage, layout)}
+      >
+        {content}
+      </FileMenuHeader>
+    );
+  }
+  return (
+    <AppHeader language={language} onLanguageChange={onLanguageChange}>
+      {content}
     </AppHeader>
   );
 }
@@ -123,10 +167,11 @@ interface Props {
 
 interface State {
   modal?: React.ReactElement;
+  fileVersion: number;
 }
 
 class App extends React.PureComponent<Props, State> {
-  state: State = {};
+  state: State = {fileVersion: 0};
   get conn() {
     return this.props.conn;
   }
@@ -252,6 +297,7 @@ class App extends React.PureComponent<Props, State> {
   forceUpdateImmediate = () => {
     this.props.conn.callImmediate(this.forceUpdateLambda);
   };
+  onFilesChange = () => this.setState(({fileVersion}) => ({fileVersion: fileVersion + 1}));
 
   layout: DockLayout;
   getLayout = (layout: DockLayout) => {
@@ -341,18 +387,28 @@ class App extends React.PureComponent<Props, State> {
       <AntdApp style={{height: '100%', backgroundColor: 'var(--ant-color-bg-layout)'}}>
         <PlaygroundConnectionContext.Provider value={conn}>
           <EditPolicyProvider conn={conn}>
-            <DesignerApp value={this.ticloContext}>
-              <DesignerHeader language={this.lng} onLanguageChange={this.switchLan} openEditor={this.openEditor} />
-              <DockLayout
-                defaultLayout={this.defaultDockLayout}
-                tabs={this.tabs}
-                sideColumns={sideColumns}
-                ref={this.getLayout}
-                groups={layoutGroups}
-                style={{position: 'absolute', left: 0, top: appHeaderHeight + 4, right: 0, bottom: 4}}
-              />
-              {modal}
-            </DesignerApp>
+            <FileVersionContext.Provider value={this.state.fileVersion}>
+              <DesignerApp value={this.ticloContext}>
+                <DesignerHeader
+                  language={this.lng}
+                  onLanguageChange={this.switchLan}
+                  openEditor={this.openEditor}
+                  root={this.props.root}
+                  conn={conn}
+                  files={this.props.files}
+                  onFilesChange={this.onFilesChange}
+                />
+                <DockLayout
+                  defaultLayout={this.defaultDockLayout}
+                  tabs={this.tabs}
+                  sideColumns={sideColumns}
+                  ref={this.getLayout}
+                  groups={layoutGroups}
+                  style={{position: 'absolute', left: 0, top: appHeaderHeight + 4, right: 0, bottom: 4}}
+                />
+                {modal}
+              </DesignerApp>
+            </FileVersionContext.Provider>
           </EditPolicyProvider>
         </PlaygroundConnectionContext.Provider>
       </AntdApp>

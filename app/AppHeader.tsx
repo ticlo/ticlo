@@ -1,7 +1,17 @@
 import React, {createContext, useContext, useEffect, useState, type ReactNode} from 'react';
 import {Button, ConfigProvider, Dropdown, type MenuProps} from 'antd';
 import type {Locale} from 'antd/es/locale/index.js';
-import {DownOutlined, MoonOutlined, ReloadOutlined, SunOutlined, UndoOutlined} from '@ant-design/icons';
+import {
+  ApartmentOutlined,
+  AppstoreOutlined,
+  FileOutlined,
+  MoonOutlined,
+  ReloadOutlined,
+  SunOutlined,
+  TagsOutlined,
+  TranslationOutlined,
+  UndoOutlined,
+} from '@ant-design/icons';
 import {TicloI18nSettings} from '@ticlo/core';
 import {TicloCurrentFlowContext} from '@ticlo/editor/component/LayoutContext.ts';
 import {TooltipIconButton} from '@ticlo/editor/component/TooltipIconButton.tsx';
@@ -36,10 +46,10 @@ function flag(language: string) {
   return <img className="ticl-app-flag" src={new URL(icon, location.href).href} />;
 }
 
-function HeaderMenu({label, items}: {label: string; items?: MenuProps['items']}) {
+function HeaderMenu({label, icon, items}: {label: string; icon: React.ReactNode; items?: MenuProps['items']}) {
   const button = (
-    <Button size="small" type="text" disabled={!items?.length}>
-      {t(label)} <DownOutlined />
+    <Button size="small" icon={icon} className="ticl-app-header-menu-button" disabled={!items?.length}>
+      {t(label)}
     </Button>
   );
   return items?.length ? <Dropdown menu={{items}}>{button}</Dropdown> : button;
@@ -51,6 +61,7 @@ export function AppHeader({
   fileItems,
   namespaceItems,
   viewItems,
+  showProjectMenus = true,
   children,
 }: {
   language: string;
@@ -58,6 +69,7 @@ export function AppHeader({
   fileItems?: MenuProps['items'];
   namespaceItems?: MenuProps['items'];
   viewItems?: MenuProps['items'];
+  showProjectMenus?: boolean;
   children?: ReactNode;
 }) {
   const {darkMode, setDarkMode} = useContext(ThemeContext);
@@ -74,8 +86,12 @@ export function AppHeader({
       ),
     })),
     {type: 'divider'},
-    {key: 'translate-functions', label: `${translateFunctions ? '✓ ' : ''}Translate functions`},
-    {key: 'localize-names', label: `${localizeNames ? '✓ ' : ''}Localize block names`},
+    {
+      key: 'translate-functions',
+      icon: <TranslationOutlined />,
+      label: `${translateFunctions ? '✓ ' : ''}Translate functions`,
+    },
+    {key: 'localize-names', icon: <TagsOutlined />, label: `${localizeNames ? '✓ ' : ''}Localize block names`},
   ];
   const languageMenu: MenuProps = {
     items: languageItems,
@@ -96,9 +112,13 @@ export function AppHeader({
     <header className="ticl-app-header">
       <div className="ticl-app-header-left">
         <img className="ticl-app-logo" src={new URL('./ticlo-header-icon.svg', import.meta.url).href} title="Ticlo" />
-        <HeaderMenu label="File" items={fileItems} />
-        <HeaderMenu label="Namespace" items={namespaceItems} />
-        <HeaderMenu label="View" items={viewItems} />
+        {showProjectMenus && (
+          <>
+            <HeaderMenu label="File" icon={<FileOutlined />} items={fileItems} />
+            <HeaderMenu label="Namespace" icon={<ApartmentOutlined />} items={namespaceItems} />
+          </>
+        )}
+        <HeaderMenu label="View" icon={<AppstoreOutlined />} items={viewItems} />
       </div>
       <div className="ticl-app-header-center">
         {stage?.conn && stage.undo && stage.redo ? (
