@@ -37,21 +37,13 @@ export class TestLoader extends TestFileStorage {
     }
   }
   getTask(name: string): FlowIOTask {
-    let nameParts = name.split('.');
+    const nameParts = name.split('.');
     if (nameParts[0] !== 'tests' || !this.flowToPathMap.has(nameParts[1])) {
       throw new Error('trying to save/load an invalid test path');
     }
     nameParts.shift();
     nameParts[0] = this.flowToPathMap.get(nameParts[0]);
-    let filename: string;
-    if (nameParts.includes('#')) {
-      // subflow
-      const pos = nameParts.indexOf('#') - 2;
-      filename = nameParts.slice(pos).join('.');
-      nameParts = nameParts.slice(0, pos);
-    } else {
-      filename = nameParts.pop();
-    }
+    const filename = nameParts.pop();
 
     const specDir = `${nameParts.join('/')}/tests`;
     const realPath = `${specDir}/${filename}`;
@@ -153,10 +145,7 @@ export class TestLoader extends TestFileStorage {
         const stat = Fs.statSync(specDir);
         if (stat.isDirectory()) {
           for (const file of Fs.readdirSync(specDir)) {
-            if (
-              file.endsWith('.ticlo') &&
-              !file.startsWith('#') // Do not load subflow during initialization.
-            ) {
+            if (file.endsWith('.ticlo') && !file.startsWith('#')) {
               try {
                 let data = {};
                 if (!this.onDemandLoad) {

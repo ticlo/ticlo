@@ -142,6 +142,11 @@ const storage = new RemoteStorage({baseURL: 'http://127.0.0.1:8010/file'});
 <FileManager storage={storage} project="main" style={{height: 500}} />;
 ```
 
+Hosts may pass `onOpen(entry)` to expose **Open** and double click for `.ticlo`
+files. The callback receives that file entry and may return a promise. The
+designer maps the entry to a flow, loads it if needed, and opens its stage. This
+also covers namespace `#context.ticlo` and files in `#libs/`.
+
 The panel supports file and folder operations, including recursive folder copies
 and uploads that preserve empty folders. Copies include entries exposed by the
 file-server listing API. Same-directory copies receive an unused

@@ -90,6 +90,27 @@ describe('FileManager', () => {
     expect([...new Set(fixture.methods.getFile.mock.calls.map(([path]) => path))]).toEqual(['demo/a.txt']);
   });
 
+  it('opens ticlo files through the menu and double click', async () => {
+    const fixture = fixtureClient([file('demo/entry.ticlo'), file('demo/other.ticlo')]);
+    const onOpen = vi.fn();
+    mount({storage: fixture.client, project: 'demo', onOpen});
+    await ready('demo/entry.ticlo');
+    await click('demo/other.ticlo');
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll('.ant-dropdown-menu-item')].some((item) => item.textContent.trim() === 'Open')
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Open')
+      .click();
+    await shouldHappen(() => onOpen.mock.calls.length === 1);
+    expect(onOpen).toHaveBeenCalledWith(file('demo/other.ticlo'));
+    await ready('demo/entry.ticlo');
+    row('demo/entry.ticlo').dispatchEvent(new MouseEvent('dblclick', {bubbles: true}));
+    await shouldHappen(() => onOpen.mock.calls.length === 2);
+    expect(onOpen).toHaveBeenLastCalledWith(file('demo/entry.ticlo'));
+  });
+
   it('requires a click at 100kB for both images and text, and preserves selection when preview is toggled off', async () => {
     const fixture = fixtureClient([file('demo/a.txt', 100000), file('demo/a.svg', 100000)]);
     fixture.methods.getFile.mockResolvedValue({

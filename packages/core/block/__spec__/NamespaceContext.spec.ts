@@ -81,20 +81,29 @@ describe('namespace context', () => {
     expect(await root.listFlows('main')).toEqual([{name: 'add', state: 'enabled'}]);
   });
 
-  it('loads all namespace contexts before service libraries and ordinary flows', async () => {
+  it('downloads flows together but loads contexts before services and ordinary flows', async () => {
     await storage.saveNamespaceMetadata('main', {dependencies: ['shared'], serviceLibraries: ['service']});
     storage.saveFlow(null, {'^value': 2}, '+main.#context');
     storage.saveFlow(null, {'^value': 3}, '+shared.#context');
     storage.saveLib('+main', 'service', {'~value': '^value'});
     storage.saveFlow(null, {'~value': '^value'}, '+main.entry');
-    const read = vi.spyOn(storage, 'loadFlow');
-    await root.start({main: {flows: ['entry']}});
-    expect(read.mock.calls.map(([key]) => key)).toEqual([
-      '+main.#context',
-      '+shared.#context',
-      '+main.:service',
-      '+main.entry',
-    ]);
+    const loadFlow = storage.loadFlow.bind(storage);
+    let finishContext: () => void;
+    const read = vi.spyOn(storage, 'loadFlow').mockImplementation((key) =>
+      key === '+main.#context'
+        ? new Promise((resolve) => {
+            finishContext = () => void loadFlow(key).then(resolve);
+          })
+        : loadFlow(key)
+    );
+    const starting = root.start({main: {flows: ['entry']}});
+    await shouldHappen(() => read.mock.calls.length === 4);
+    expect(read.mock.calls.map(([key]) => key)).toEqual(
+      expect.arrayContaining(['+main.#context', '+shared.#context', '+main.:service', '+main.entry'])
+    );
+    expect(root.queryValue('+main.entry')).toBeUndefined();
+    finishContext();
+    await starting;
     expect(root.queryValue('+main.:service.value')).toBe(2);
     expect(root.queryValue('+main.entry.value')).toBe(2);
   });

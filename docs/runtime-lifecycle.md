@@ -112,7 +112,10 @@ including `null`, `false`, and `0`, or an explicit binding, override the inherit
 value. A binding producing `undefined` remains an override. Removing the local
 definition restores inheritance. Only local definitions and bindings are saved.
 
-Activation loads namespace contexts before Service Libraries and ordinary flows.
+`setStorage()` completes the root `#global` read before startup. Activation loads
+every used namespace's `#context` before Service Libraries and ordinary flows.
+When startup knows several required files, their storage reads may run together;
+the ordering applies to creating and running flows, not to network downloads.
 Context blocks execute while their context flow is enabled; asynchronous results
 propagate through normal bindings. Disabling a namespace or stopping the runtime
 unloads ordinary flows and libraries before clearing its context definitions.

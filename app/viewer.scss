@@ -1,0 +1,9 @@
+.ticl-viewer-page {
+  height: 100%;
+  overflow: auto;
+}
+
+.ticl-viewer-page > :first-child {
+  width: 100%;
+  height: 100%;
+}

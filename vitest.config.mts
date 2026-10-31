@@ -6,7 +6,7 @@ export default defineConfig({
     globals: true,
     setupFiles: 'packages/node/vitest.setup.ts',
     include: [
-      'app/server/**/*.spec.ts',
+      'app/**/*.spec.ts',
       'packages/core/**/*.spec.ts',
       'packages/node/**/*.spec.ts',
       'packages/test/**/*.spec.ts',

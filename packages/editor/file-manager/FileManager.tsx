@@ -32,6 +32,7 @@ export interface FileManagerProps {
   project: string;
   defaultPreview?: boolean;
   onSelect?: (entries: FileEntry[]) => void;
+  onOpen?: (entry: FileEntry) => void | Promise<void>;
   onChange?: () => void;
   className?: string;
   style?: React.CSSProperties;
@@ -250,6 +251,12 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     }
   }
 
+  private open(entry: FileEntry) {
+    if (entry.type === 'file' && entry.name.endsWith('.ticlo') && this.props.onOpen) {
+      void this.run(() => Promise.resolve(this.props.onOpen(entry)), false, false);
+    }
+  }
+
   private selectRow(entry: FileEntry, event: {shiftKey: boolean; ctrlKey: boolean; metaKey: boolean}) {
     const path = entry.path;
     if (event.shiftKey && this.anchor) {
@@ -370,6 +377,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
 
   private menu(): MenuProps {
     const entries = this.selected();
+    const openable = entries.length === 1 && entries[0].type === 'file' && entries[0].name.endsWith('.ticlo');
     const mutable = entries.length > 0 && entries.every((entry) => entry.path !== this.files.root);
     const collapse = entries.length === 1 && entries[0].type === 'folder' && this.expanded.has(entries[0].path);
     const disabled = this.state.busy;
@@ -377,6 +385,9 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     return {
       onClick: ({key}) => this.command(key),
       items: [
+        ...(this.props.onOpen && openable
+          ? [{key: 'open', label: t('Open'), icon: <FolderOpenOutlined />, disabled}]
+          : []),
         {key: 'new', label: t('New Folder'), icon: <FolderAddOutlined />, disabled: disabled || readonly},
         {key: 'upload', label: t('Upload'), icon: <UploadOutlined />, disabled: disabled || readonly},
         {type: 'divider'},
@@ -422,6 +433,11 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     )
       return;
     switch (key) {
+      case 'open': {
+        const entries = this.selected();
+        if (entries.length === 1) this.open(entries[0]);
+        break;
+      }
       case 'new':
         this.newFolder();
         break;
@@ -589,7 +605,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         className={`ticl-e-file-row${selected ? ' ticl-e-file-selected' : ''}${cut ? ' ticl-e-file-cut' : ''}${this.state.dropPath === entry.path ? ' ticl-e-file-drop' : ''}`}
         style={{...style, paddingLeft: level * 16}}
         onClick={(event) => this.selectRow(entry, event)}
-        onDoubleClick={() => this.toggle(entry)}
+        onDoubleClick={() => (entry.type === 'folder' ? this.toggle(entry) : this.open(entry))}
         onContextMenu={() => {
           if (!selected) {
             this.anchor = entry.path;
