@@ -240,7 +240,7 @@ describe('connection value subscriptions', () => {
     expect(showObjectTree).toHaveBeenCalledTimes(1);
     const source = showObjectTree.mock.calls[0][3];
     expect(showObjectTree).toHaveBeenCalledWith('field', value, arrow, source);
-    render('field', 'fr');
+    render('field', 'zh');
     expect(closeObjectTree).not.toHaveBeenCalled();
     flushSync(() => update('field', {value: {number: 2}}));
     flushSync(() => div.querySelector('.ticl-e-tree-arr').dispatchEvent(new MouseEvent('dblclick', {bubbles: true})));

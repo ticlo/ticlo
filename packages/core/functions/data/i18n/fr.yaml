@@ -1,8 +1,0 @@
-'set-state':
-  '@name': Définir l’état # translated from: Set State
-  '':
-    '@name': "États " # translated from: States\s
-  input:
-    '@name': "Entrée " # translated from: Input\s
-  target:
-    '@name': "Cible " # translated from: Target\s

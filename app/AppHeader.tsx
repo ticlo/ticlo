@@ -37,7 +37,6 @@ export function AppTheme({locale, children}: {locale: Locale; children: ReactNod
 
 const languages = [
   {key: 'en', name: 'English'},
-  {key: 'fr', name: 'Français'},
   {key: 'zh', name: '中文'},
 ];
 

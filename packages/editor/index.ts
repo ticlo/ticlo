@@ -16,5 +16,5 @@ import './block/view/ButtonWidget.tsx';
 
 export async function initEditor() {
   const lng = window.localStorage.getItem('ticlo-lng');
-  await ticloI18n.init(lng);
+  await ticloI18n.init(lng === 'zh' ? 'zh' : 'en');
 }
