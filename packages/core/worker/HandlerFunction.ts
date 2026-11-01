@@ -11,9 +11,7 @@ import {BlockMode, defaultConfigs} from '../block/Descriptor.ts';
 import {WorkerControl} from './WorkerControl.ts';
 
 export class HandlerFunction extends MapImpl {
-  // REFACTOR(design.md): MUST bound queued task payloads with one explicit backpressure rule.
   _queue = new Denque<Task>();
-  // REFACTOR(design.md): MUST bound retained results while preserving deterministic completion order.
   _outQueue = new InfiniteQueue<any>(); // use InfiniteQueue to maintain the order of output
 
   static inputMap = new Map([
@@ -41,7 +39,6 @@ export class HandlerFunction extends MapImpl {
     return true;
   }
 
-  // REFACTOR(design.md): MUST replace the unbounded default with a defined queue capacity or backpressure.
   _maxQueueSize = Infinity;
 
   _onMaxQueueSizeChange(val: any): boolean {
@@ -56,7 +53,6 @@ export class HandlerFunction extends MapImpl {
     this._checkQueueSize();
     return true;
   }
-  // REFACTOR(design.md): MUST cancel dropped tasks and release their input references.
   _checkQueueSize() {
     if (this._queue.length > this._maxQueueSize) {
       const countToRemove = this._queue.length - this._maxQueueSize;
@@ -94,7 +90,6 @@ export class HandlerFunction extends MapImpl {
     return false;
   }
 
-  // REFACTOR(design.md): MUST transfer one queued event to its worker and release queue ownership.
   _updateWorkerInput(worker: RepeaterWorker) {
     ++this._waitingWorker;
     let field: any;
@@ -114,7 +109,6 @@ export class HandlerFunction extends MapImpl {
     worker.updateInput(input);
   }
 
-  // REFACTOR(design.md): MUST admit calls into a bounded serial event queue instead of retaining an unbounded array.
   _called: any[] = [];
   onCall(val: any): boolean {
     if (val instanceof Event) {
@@ -176,7 +170,6 @@ export class HandlerFunction extends MapImpl {
     return NO_EMIT;
   }
 
-  // REFACTOR(design.md): MUST emit the completed delivery, then release task and result references.
   _onWorkerReady(output: WorkerOutput, timeout: boolean) {
     this._waitingWorker--;
     let result: any;
@@ -205,7 +198,6 @@ export class HandlerFunction extends MapImpl {
     this._pool.done(output.key, this._reuseWorker != null);
   }
 
-  // REFACTOR(design.md): MUST cancel queued and in-flight tasks and clear all retained payloads.
   _clearWorkers() {
     if (this._workers) {
       for (const [key, worker] of this._workers) {

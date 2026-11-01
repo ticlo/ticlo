@@ -5,7 +5,6 @@ import {Duration} from 'luxon';
 
 const OPERATIONS = ['add', 'subtract', 'set'];
 export class FormatDateFunction extends PureFunction {
-  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run() {
     const base = this._data.getValue('base');
 

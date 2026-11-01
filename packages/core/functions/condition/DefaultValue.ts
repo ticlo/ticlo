@@ -2,7 +2,6 @@ import {PureFunction} from '../../block/BlockFunction.ts';
 import {globalFunctions} from '../../block/FunctionLib.ts';
 
 export class DefaultValueFunction extends PureFunction {
-  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const input = this._data.getValue('input');
     if (input == null) {

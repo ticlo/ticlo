@@ -22,7 +22,6 @@ function getDefaultFunctions(block: Block, field: string) {
 }
 
 export const BlockProxy = {
-  // REFACTOR(design.md): MUST expose only active event inputs or explicitly retained state.
   get(block: Block, field: string, receiver: object): unknown {
     if (typeof field === 'string') {
       const defaultFunction = getDefaultFunctions(block, field);
@@ -46,7 +45,6 @@ export const BlockProxy = {
     return false;
   },
 
-  // REFACTOR(design.md): MUST NOT enumerate already consumed transient port values.
   ownKeys(block: Block): string[] {
     if (block._destroyed) {
       return [];
@@ -65,7 +63,6 @@ export const BlockProxy = {
   isExtensible(block: Block) {
     return true;
   },
-  // REFACTOR(design.md): MUST test active event/state presence without relying on cached values.
   has(block: Block, field: string): boolean {
     if (typeof field === 'string') {
       const prop = block.getProperty(field, false);
@@ -81,7 +78,6 @@ export const BlockProxy = {
 export const BlockDeepProxy = {
   ...BlockProxy,
 
-  // REFACTOR(design.md): MUST scope nested script reads to the current delivery or declared state.
   get(block: Block, field: string, receiver: object): unknown {
     if (typeof field === 'string') {
       const defaultFunction = getDefaultFunctions(block, field);

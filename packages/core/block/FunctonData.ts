@@ -5,12 +5,10 @@ export const MAX_GROUP_LENGTH = 256;
 
 export interface FunctionOutput {
   // field is '#output' by default
-  // REFACTOR(design.md): MUST deliver through a stable output port ID without caching the value.
   output(value: unknown, field?: string): void;
 }
 
 export interface FunctionInput {
-  // REFACTOR(design.md): MUST read only declared configuration or explicit state after an input event ends.
   getValue(field: string): unknown;
 
   getOptionalProps(): string[];
@@ -24,7 +22,6 @@ export interface FunctionData extends FunctionInput, FunctionOutput {
 }
 
 export class DataWrapper implements FunctionData {
-  // REFACTOR(design.md): MUST distinguish explicit output snapshots from transient deliveries.
   readonly outputs: DataMap = {};
   constructor(public readonly inputs: DataMap) {}
 
@@ -36,7 +33,6 @@ export class DataWrapper implements FunctionData {
     return this.inputs[field];
   }
 
-  // REFACTOR(design.md): MUST NOT retain event payloads after accepting an output delivery.
   output(value: unknown, field?: string): void {
     this.outputs[field] = value;
   }
@@ -61,7 +57,6 @@ export function getInputsLength(input: FunctionInput, group?: string, defaultLen
   return defaultLength;
 }
 
-// REFACTOR(design.md): MUST build grouped inputs from the active event rather than cached previous port values.
 export function getInputsArray<T extends string>(
   input: FunctionInput,
   group: string | undefined,

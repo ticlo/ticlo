@@ -29,9 +29,7 @@ class TimeoutListener implements ScheduleListener {
 }
 
 export abstract class AutoUpdateFunction<T extends FunctionData = FunctionData> extends BaseFunction<T> {
-  // REFACTOR(design.md): MUST own scheduled work only for the active block lifetime.
   private _schedule: ScheduleListener;
-  // REFACTOR(design.md): MUST admit scheduled callbacks through the serial event queue.
   private _onSchedule = (time: number) => {
     this._schedule = null;
     if (this.onSchedule) {
@@ -91,7 +89,6 @@ export abstract class AutoUpdateFunction<T extends FunctionData = FunctionData> 
     return false;
   }
 
-  // REFACTOR(design.md): MUST cancel scheduled deliveries and release any retained event payload.
   cancel(reason: EventType, mode: BlockMode): boolean {
     if (this._schedule) {
       this._schedule.cancel();
