@@ -35,6 +35,7 @@ export function FileMenuHeader({
   onChange,
   onNamespaceChange,
   newPage = false,
+  viewItems,
   children,
 }: {
   language: string;
@@ -46,6 +47,7 @@ export function FileMenuHeader({
   onChange?: () => void;
   onNamespaceChange: (name: string) => Promise<void>;
   newPage?: boolean;
+  viewItems?: MenuProps['items'];
   children?: React.ReactNode;
 }) {
   const {storage, project} = files;
@@ -184,6 +186,7 @@ export function FileMenuHeader({
         onLanguageChange={onLanguageChange}
         fileItems={items}
         namespaceItems={namespaceMenu.items}
+        viewItems={viewItems}
       >
         {children}
       </AppHeader>

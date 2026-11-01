@@ -6,9 +6,9 @@ export class EditorWindows {
 
   constructor(private root: Root) {}
 
-  open(path: string) {
+  open(path?: string) {
     const url = new URL('editor.html', location.href);
-    url.searchParams.set('flow', path);
+    if (path) url.searchParams.set('flow', path);
     const editor = window.open(url.href, '_blank', 'popup,width=1200,height=800');
     if (editor) this.editors.push({window: editor, connection: new FrameServerConnection(editor, this.root)});
     return editor;

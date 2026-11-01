@@ -1,7 +1,8 @@
 import './styles.ts';
 import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext} from 'react';
-import {App as AntdApp, Button, Checkbox} from 'antd';
+import {App as AntdApp, Checkbox} from 'antd';
+import {EditOutlined} from '@ant-design/icons';
 import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -11,7 +12,6 @@ import {
   DesignerNavigationTree,
   DesignerNodeTree,
   DesignerStage,
-  useActiveDesignerStage,
   type DesignerLayoutContext,
 } from '@ticlo/designer';
 import {initEditor, PropertyList, FileManager} from '@ticlo/editor';
@@ -108,7 +108,7 @@ function DesignerHeader({
 }: {
   language: string;
   onLanguageChange: (language: string) => void;
-  openEditor: (path: string) => void;
+  openEditor: (path?: string) => void;
   root: Root;
   conn: ClientConnection;
   files?: {storage: ProjectFiles; project: string};
@@ -116,14 +116,20 @@ function DesignerHeader({
   onNamespaceChange: (name: string) => Promise<void>;
 }) {
   const layout = useContext(DesignerLayoutContextType);
+  const {currentPath} = useContext(TicloCurrentFlowContext);
   const {designMode, setDesignMode} = layout;
+  const viewItems = [
+    {
+      key: 'open-editor',
+      icon: <EditOutlined />,
+      label: t('Open Editor'),
+      onClick: () => openEditor(currentPath ?? undefined),
+    },
+  ];
   const content = (
-    <>
-      <OpenEditorButton openEditor={openEditor} />
-      <Checkbox checked={designMode} onChange={(e) => setDesignMode?.(e.target.checked)}>
-        Design mode
-      </Checkbox>
-    </>
+    <Checkbox checked={designMode} onChange={(e) => setDesignMode?.(e.target.checked)}>
+      Design mode
+    </Checkbox>
   );
   if (files) {
     return (
@@ -137,24 +143,16 @@ function DesignerHeader({
         onChange={onFilesChange}
         onNamespaceChange={onNamespaceChange}
         onOpen={(path, flow) => openDesignerFlow(path, flow, conn, files.storage, layout)}
+        viewItems={viewItems}
       >
         {content}
       </FileMenuHeader>
     );
   }
   return (
-    <AppHeader language={language} onLanguageChange={onLanguageChange}>
+    <AppHeader language={language} onLanguageChange={onLanguageChange} viewItems={viewItems}>
       {content}
     </AppHeader>
-  );
-}
-
-function OpenEditorButton({openEditor}: {openEditor: (path: string) => void}) {
-  const stage = useActiveDesignerStage();
-  return (
-    <Button size="small" disabled={!stage?.flow} onClick={() => openEditor(stage.basePath)}>
-      Open Editor
-    </Button>
   );
 }
 
@@ -378,7 +376,8 @@ class App extends React.PureComponent<Props, State> {
   }
 
   editorWindows = new EditorWindows(this.props.root);
-  openEditor = (path: string) => this.editorWindows.open(path);
+  openEditor = (path?: string) =>
+    this.editorWindows.open(path && this.props.root.queryValue(path) instanceof Flow ? path : undefined);
   closeEditors = () => this.editorWindows.close();
   componentDidMount() {
     window.addEventListener('beforeunload', this.closeEditors);
