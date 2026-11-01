@@ -8,7 +8,7 @@ import {
   StarFilled,
   StarOutlined,
 } from '@ant-design/icons';
-import {AutoComplete, Button, Checkbox, Dropdown, Modal} from 'antd';
+import {AutoComplete, Button, Checkbox, Divider, Dropdown, Modal} from 'antd';
 import {translateEditor} from '@ticlo/core/editor.ts';
 import {t} from '../component/LocalizedLabel.tsx';
 
@@ -224,7 +224,7 @@ export function NamespaceSelectDialog({
 
   return (
     <Modal
-      title={t('Select Namespace')}
+      title={t('Namespaces')}
       open
       onCancel={() => !busy && onClose()}
       destroyOnHidden
@@ -239,14 +239,12 @@ export function NamespaceSelectDialog({
         </div>
       }
     >
-      <div style={{marginBottom: 4}}>{t('Loaded Namespaces')}</div>
       <div
         style={{
-          maxHeight: 180,
+          height: 300,
           overflow: 'auto',
           border: '1px solid var(--ant-color-border)',
           padding: 4,
-          marginBottom: 12,
         }}
       >
         <NamespaceTree
@@ -256,6 +254,7 @@ export function NamespaceSelectDialog({
           onSetDefault={(name) => void runTreeAction(() => onSetDefault(name))}
         />
       </div>
+      <Divider style={{margin: '12px 0'}} />
       <div style={{display: 'flex', gap: 8}}>
         <AutoComplete
           value={input}
