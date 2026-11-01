@@ -5,6 +5,7 @@ import {StaticStorage} from '@ticlo/remote-storage';
 import '@ticlo/react';
 import '@ticlo/test';
 import './sample-blocks.ts';
+import {initialUrlParams} from './url-state.ts';
 
 const editors: Window[] = [];
 window.addEventListener('beforeunload', () => {
@@ -17,7 +18,7 @@ window.addEventListener('beforeunload', () => {
 
 const button = document.querySelector('button');
 const status = document.getElementById('status');
-const params = new URLSearchParams(location.search);
+const params = initialUrlParams();
 const host = params.get('host') || 'http://127.0.0.1:8011';
 const project = params.get('project') || '#root';
 const storage = new StaticStorage(host);

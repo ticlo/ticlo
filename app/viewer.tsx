@@ -8,6 +8,7 @@ import {RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
 import {designerData} from './sample-data/designer.ts';
 import {EditorWindows} from './EditorWindows.ts';
 import {pageFlowPath} from './flow-path.ts';
+import {initialUrlParams} from './url-state.ts';
 
 function Viewer({root, path}: {root: Root; path: string}) {
   const value = useValue(root, path);
@@ -22,12 +23,10 @@ function Viewer({root, path}: {root: Root; path: string}) {
   );
 }
 
-window.addEventListener('hashchange', () => location.reload());
-
 (async () => {
-  const params = new URLSearchParams(location.hash.slice(1));
+  const params = initialUrlParams();
   const selected = pageFlowPath(params);
-  if (!selected) throw new Error('Missing path. Use #path=namespace/flow.');
+  if (!selected) throw new Error('Missing path. Use ?path=namespace/flow.');
   const root = Root.instance;
   const host = params.get('host');
   await root.setStorage(

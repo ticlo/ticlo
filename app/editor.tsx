@@ -36,6 +36,7 @@ import {FlowTestCase} from '@ticlo/test/FlowTestCase.ts';
 import {createRoot} from 'react-dom/client';
 import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection.ts';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {initialUrlParams} from './url-state.ts';
 
 const layoutGroups = {
   main: stageGroup,
@@ -204,7 +205,7 @@ class App extends React.PureComponent<Props, State> {
   const client = window.opener
     ? new FrameClientConnection(window.opener) // used by server-window.html
     : new MixedBrowserConnection(`http://127.0.0.1:8010/ticlo`); // used by ticlo-server
-  const initialFlow = new URLSearchParams(location.search).get('flow') || undefined;
+  const initialFlow = initialUrlParams().get('flow') || undefined;
   createRoot(document.getElementById('app')).render(<App conn={client} initialFlow={initialFlow} />);
 })();
 

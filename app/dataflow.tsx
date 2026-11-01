@@ -60,8 +60,10 @@ import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {useNamespaceSelection} from './useNamespaceSelection.ts';
 import {createLibraryAutoLoad} from './library-auto-load.ts';
 import type {NamespaceSelectionOptions} from '@ticlo/editor/namespace/NamespaceSelectDialog.tsx';
+import {initialUrlParams} from './url-state.ts';
 
 const FileVersionContext = React.createContext(0);
+const strictMode = initialUrlParams().has('strictMode');
 
 function DataflowFiles({
   storage,
@@ -333,9 +335,7 @@ class App extends React.PureComponent<Props, State> {
     );
 
     return (
-      <AppTheme locale={this.lngConfig}>
-        {location.hash.includes('strictMode') ? <StrictMode>{appContent}</StrictMode> : appContent}
-      </AppTheme>
+      <AppTheme locale={this.lngConfig}>{strictMode ? <StrictMode>{appContent}</StrictMode> : appContent}</AppTheme>
     );
   }
 }
@@ -349,7 +349,7 @@ function DataflowWorkspace({
   initialFlow?: string;
   files: {storage: ProjectFiles; project: string};
 }) {
-  const selection = useNamespaceSelection(Root.instance, files.project, initialFlow);
+  const selection = useNamespaceSelection(Root.instance, conn, files.project, initialFlow);
   return (
     <App
       key={selection.project}
@@ -363,15 +363,13 @@ function DataflowWorkspace({
   );
 }
 
-window.addEventListener('hashchange', () => location.reload());
-
 (async () => {
   addConsoleLogger();
   await initEditor();
 
   await initAppI18n();
 
-  const params = new URLSearchParams(location.hash.slice(1));
+  const params = initialUrlParams();
   const host = params.get('host');
   const root = Root.instance;
   let initialFlow: string;

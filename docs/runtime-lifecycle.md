@@ -106,7 +106,7 @@ allowed. `unloadNamespace()` removes a manual root and unloads only namespaces n
 longer required by another root. `retainNamespaces()` applies the same rule to a
 set of roots and rejects dirty removals before unloading any of them.
 In Designer and Dataflow Editor, the default namespace is the current page's
-`project` URL parameter; it is not a stored user preference.
+`project` query parameter; it is not a stored user preference.
 Late reads cannot restore unloaded flows. Loaded sets, startup patterns, and
 unload suppression are not saved.
 Changing dependencies saves `ticlo.json` and updates the active namespace at once:

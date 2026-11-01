@@ -5,6 +5,7 @@ import {MemoryFlowStorage} from '../MemoryFlowStorage.ts';
 import type {FlowRef} from '../FlowRuntime.ts';
 import {Namespace} from '../Namespace.ts';
 import {shouldHappen} from '../../util/test-util.ts';
+import {makeLocalConnection} from '../../connect/LocalConnection.ts';
 
 const ref = (namespace: string, name: string, kind: 'flow' | 'library' = 'flow'): FlowRef => ({namespace, name, kind});
 const libData = {
@@ -140,6 +141,28 @@ describe('runtime lifecycle', () => {
     await root.unloadNamespace('other');
     expect(root.getNamespaceGraph()).toEqual({roots: [], dependencies: {}});
     expect(root.getFlowState(ref('main', 'entry'))).toBe('unloaded');
+  });
+
+  it('lists only active namespaces after unloading other roots', async () => {
+    await storage.saveNamespaceMetadata('main', {dependencies: ['shared']});
+    await storage.saveNamespaceMetadata('other', {dependencies: ['shared']});
+    await root.start({main: {}});
+    await root.enableNamespace('other');
+    const [, client] = makeLocalConnection(root);
+    try {
+      const listed = async () => Object.keys((await client.list('', null, 64)).children);
+      expect(await listed()).toEqual(expect.arrayContaining(['+main', '+other', '+shared']));
+
+      await root.retainNamespaces(['other']);
+      expect(root.queryValue('+main')).toBeTruthy();
+      expect(await listed()).not.toContain('+main');
+      expect(await listed()).toEqual(expect.arrayContaining(['+other', '+shared']));
+
+      await root.enableNamespace('main');
+      expect(await listed()).toContain('+main');
+    } finally {
+      client.destroy();
+    }
   });
 
   it('checks every removed root for unsaved changes before retaining a selection', async () => {

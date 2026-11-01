@@ -41,8 +41,10 @@ import {fileFlowPath, pageFlowPath} from './flow-path.ts';
 import {useNamespaceSelection} from './useNamespaceSelection.ts';
 import type {NamespaceSelectionOptions} from '@ticlo/editor/namespace/NamespaceSelectDialog.tsx';
 import {createLibraryAutoLoad} from './library-auto-load.ts';
+import {initialUrlParams} from './url-state.ts';
 
 const FileVersionContext = React.createContext(0);
+const strictMode = initialUrlParams().has('strictMode');
 
 function DesignerProperties({conn}: {conn: ClientConnection}) {
   const {activeStage: stage} = useContext(TicloCurrentFlowContext);
@@ -434,9 +436,7 @@ class App extends React.PureComponent<Props, State> {
     );
 
     return (
-      <AppTheme locale={this.lngConfig}>
-        {location.hash.includes('strictMode') ? <StrictMode>{appContent}</StrictMode> : appContent}
-      </AppTheme>
+      <AppTheme locale={this.lngConfig}>{strictMode ? <StrictMode>{appContent}</StrictMode> : appContent}</AppTheme>
     );
   }
 }
@@ -452,7 +452,7 @@ function DesignerWorkspace({
   initialFlow?: string;
   files: {storage: ProjectFiles; project: string};
 }) {
-  const selection = useNamespaceSelection(root, files.project, initialFlow);
+  const selection = useNamespaceSelection(root, conn, files.project, initialFlow);
   return (
     <App
       key={selection.project}
@@ -467,15 +467,13 @@ function DesignerWorkspace({
   );
 }
 
-window.addEventListener('hashchange', () => location.reload());
-
 (async () => {
   addConsoleLogger();
   await initEditor();
 
   await initAppI18n();
 
-  const params = new URLSearchParams(location.hash.slice(1));
+  const params = initialUrlParams();
   const host = params.get('host');
   const selected = pageFlowPath(params);
   const root = Root.instance;

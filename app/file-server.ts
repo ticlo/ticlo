@@ -5,8 +5,9 @@ import {RemoteStorage} from '@ticlo/remote-storage';
 import '@ticlo/react';
 import '@ticlo/test';
 import './sample-blocks.ts';
+import {initialUrlParams} from './url-state.ts';
 
-const params = new URLSearchParams(location.search);
+const params = initialUrlParams();
 const storage = new RemoteStorage({baseURL: params.get('host') || 'http://127.0.0.1:8010/file'});
 const project = params.get('project') || '#root';
 

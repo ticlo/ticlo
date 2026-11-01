@@ -972,6 +972,7 @@ export class ServerConnection extends ServerConnectionCore {
       let count = 0;
       for (const [field, prop] of block._props) {
         if (prop._value instanceof Block && prop._value._prop === prop) {
+          if (block === this.root && this.root._namespaces[field]?._enabled === false) continue;
           if (!filterRegex || filterRegex.test(field)) {
             // filter
             if (count < max) {
