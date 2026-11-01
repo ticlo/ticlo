@@ -137,7 +137,7 @@ read-only config without requiring a custom property declaration.
 
 When saving a worker function, Ticlo copies allowed tags from the function of the
 Block directly bound to `#outputs.#return` into the worker's `#desc.tags`, preserving
-existing tags without duplicates. Currently, only `react-comp` is copied.
+existing tags without duplicates. Only `react-comp` and `react-svg` are copied.
 When these conditions hold and `#inputs.#custom` declares `#order`, the worker's
 `#desc.childrenTags` is also copied from that function.
 

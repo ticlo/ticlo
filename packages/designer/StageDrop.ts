@@ -4,7 +4,13 @@ import {getElementBoxQuads, getElementGeometry} from '@ticlo/html';
 import type {ElementMap} from '@ticlo/react';
 import {getChildren} from '@ticlo/react/hooks/useTicloComp.ts';
 import {DragState} from 'rc-dock';
-import {createStagePointMapper, getFallbackQuad, getPlaneInverse, projectPoint} from './StageGeometry.ts';
+import {
+  createStagePointMapper,
+  getFallbackQuad,
+  getPlaneInverse,
+  getStageElementGeometry,
+  projectPoint,
+} from './StageGeometry.ts';
 
 export interface DesignerDropTarget {
   block: Block;
@@ -144,7 +150,9 @@ export function getStageChildDrop(
   }
   if (!points) {
     const quad =
-      getElementBoxQuads([element], stage).get(element) ?? getFallbackQuad(element, createStagePointMapper(stage));
+      getElementBoxQuads([element], stage).get(element) ??
+      getStageElementGeometry(element, stage)?.quad ??
+      getFallbackQuad(element, createStagePointMapper(stage));
     if (!quad) return null;
     points = [quad.p1, quad.p2, quad.p3, quad.p4];
   }

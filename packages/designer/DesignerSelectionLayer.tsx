@@ -80,6 +80,8 @@ export function DesignerSelectionLayer({
             {selected &&
               elementMap.getBlock(element) !== main &&
               onResizeStart &&
+              (element instanceof HTMLElement ||
+                (element instanceof SVGSVGElement && element.parentElement instanceof HTMLElement)) &&
               resizeHandles.map((handle) => {
                 const point = handlePoint(quad, handle.x, handle.y);
                 const rotation = topEdgeRotation(quad);

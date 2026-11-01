@@ -11,7 +11,7 @@ import {DesignerApp} from '../DesignerApp.tsx';
 import {DesignerStage} from '../DesignerStage.tsx';
 import {useActiveDesignerStage, type DesignerStageContextValue} from '../DesignerContext.tsx';
 import {getElementGeometry} from '@ticlo/html';
-import {projectPoint} from '../StageGeometry.ts';
+import {getStageElementGeometry, projectPoint} from '../StageGeometry.ts';
 import {resizeHandles} from '../StageResize.ts';
 
 function pointer(target: EventTarget, type: string, x = 0, y = 0, ctrlKey = false) {
@@ -1039,6 +1039,81 @@ describe('designer stage gestures', () => {
       expect(flow.getValue('@has-undo')).toBeUndefined();
       if (reason !== 'unmount') await shouldHappen(() => getComputedStyle(element('a')).left === '10px');
     }
+  });
+
+  it('moves and resizes an outer SVG in an absolute layout', async () => {
+    const {main, element, div, getStage} = await mount({
+      '#is': 'react:absolute',
+      '#order': ['graphic'],
+      'graphic': {
+        '#is': 'react:svg',
+        '#optional': ['id', 'viewBox'],
+        'id': 'graphic',
+        'viewBox': '0 0 100 100',
+        'style': {position: 'absolute', left: 40, top: 50, width: 100, height: 60, padding: 6, border: '2px solid'},
+      },
+    });
+    const graphic = main.getValue('graphic') as Block;
+    getStage().select([graphic]);
+    await shouldHappen(() => div.querySelectorAll('.ticl-d-resize-handle').length === 8);
+
+    const start = element('graphic').getBoundingClientRect();
+    const quadBounds = getStageElementGeometry(element('graphic')).quad.getBounds();
+    expect(quadBounds.left).toBeCloseTo(start.left, 1);
+    expect(quadBounds.width).toBeCloseTo(start.width, 1);
+    pointer(element('graphic'), 'pointerdown', start.left + 20, start.top + 20);
+    pointer(document, 'pointermove', start.left + 40, start.top + 35);
+    await expect.poll(() => (graphic.getValue('style') as any).left).toBeCloseTo(60, 4);
+    pointer(document, 'pointerup', start.left + 40, start.top + 35);
+    expect((graphic.getValue('style') as any).top).toBeCloseTo(65, 4);
+
+    const moved = element('graphic').getBoundingClientRect();
+    pointer(div.querySelector('[data-handle="bottom-right"]'), 'pointerdown', moved.right, moved.bottom);
+    pointer(document, 'pointermove', moved.right + 20, moved.bottom + 10);
+    await expect.poll(() => (graphic.getValue('style') as any).width).toBeCloseTo(120, 4);
+    pointer(document, 'pointerup', moved.right + 20, moved.bottom + 10);
+    expect((graphic.getValue('style') as any).height).toBeCloseTo(70, 4);
+  });
+
+  it('keeps SVG move and resize coordinates through CSS rotation and viewBox scaling', async () => {
+    const {main, element, div, getStage} = await mount({
+      '#is': 'react:absolute',
+      'style': {position: 'relative', width: 300, height: 200, transform: 'rotate(12deg)'},
+      '#order': ['graphic'],
+      'graphic': {
+        '#is': 'react:svg',
+        '#optional': ['id', 'viewBox'],
+        'id': 'graphic',
+        'viewBox': '0 0 100 100',
+        'style': {position: 'absolute', left: 40, top: 50, width: 100, height: 60, transform: 'rotate(20deg)'},
+      },
+    });
+    const graphic = main.getValue('graphic') as Block;
+    const svg = element('graphic');
+    getStage().select([graphic]);
+    await shouldHappen(() => div.querySelectorAll('.ticl-d-resize-handle').length === 8);
+
+    const geometry = getStageElementGeometry(svg);
+    const parent = getElementGeometry([svg.parentElement]).get(svg.parentElement);
+    const start = projectPoint(geometry.matrix, 20, 20);
+    const parentStart = projectPoint(parent.matrix, 0, 0);
+    const parentEnd = projectPoint(parent.matrix, 20, 15);
+    const dx = parentEnd.x - parentStart.x;
+    const dy = parentEnd.y - parentStart.y;
+    pointer(svg, 'pointerdown', start.x, start.y);
+    pointer(document, 'pointermove', start.x + dx, start.y + dy);
+    await expect.poll(() => (graphic.getValue('style') as any).left).toBeCloseTo(60, 4);
+    pointer(document, 'pointerup', start.x + dx, start.y + dy);
+    expect((graphic.getValue('style') as any).top).toBeCloseTo(65, 4);
+
+    const moved = getStageElementGeometry(svg);
+    const corner = projectPoint(moved.matrix, 100, 60);
+    const expanded = projectPoint(moved.matrix, 120, 70);
+    pointer(div.querySelector('[data-handle="bottom-right"]'), 'pointerdown', corner.x, corner.y);
+    pointer(document, 'pointermove', expanded.x, expanded.y);
+    await expect.poll(() => (graphic.getValue('style') as any).width).toBeCloseTo(120, 4);
+    pointer(document, 'pointerup', expanded.x, expanded.y);
+    expect((graphic.getValue('style') as any).height).toBeCloseTo(70, 4);
   });
 
   it.each(['rotate(25deg) scale(1.2,.8)', 'perspective(600px) rotateY(25deg)'])(

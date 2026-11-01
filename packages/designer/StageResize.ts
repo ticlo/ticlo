@@ -1,7 +1,6 @@
 import {Block, type BlockProperty} from '@ticlo/core';
 import type {PointerEvent} from 'react';
-import {getElementGeometry} from '@ticlo/html';
-import {getPlaneInverse, projectPoint} from './StageGeometry.ts';
+import {getPlaneInverse, getStageElementGeometry, projectPoint} from './StageGeometry.ts';
 
 export const resizeHandles = [
   {name: 'top-left', x: -1, y: -1},
@@ -36,7 +35,12 @@ export function createStageResize(
   startX: number,
   startY: number
 ) {
-  if (block._destroyed || block.getValue('@d-lock') || !(element instanceof HTMLElement) || !element.isConnected)
+  if (
+    block._destroyed ||
+    block.getValue('@d-lock') ||
+    (!(element instanceof HTMLElement) && !(element instanceof SVGSVGElement)) ||
+    !element.isConnected
+  )
     return null;
   const property = block.getProperty('style', false);
   const helperValue = property?._helperProperty?.getValue();
@@ -90,8 +94,8 @@ export function createStageResize(
     top: parseFloat(computed.top) || 0,
     bottom: parseFloat(computed.bottom) || 0,
   };
-  const geometry = getElementGeometry([element]).get(element);
-  const stageGeometry = getElementGeometry([element], stage).get(element);
+  const geometry = getStageElementGeometry(element, undefined, true);
+  const stageGeometry = getStageElementGeometry(element, stage);
   const inverse = geometry && getPlaneInverse(geometry.matrix);
   const start = inverse && projectPoint(inverse, startX, startY);
   if (!start || !stageGeometry) return null;
@@ -152,7 +156,7 @@ export function createStageResize(
           try {
             element.style.width = `${width + dw}px`;
             element.style.height = `${height + dh}px`;
-            const resized = getElementGeometry([element], stage).get(element);
+            const resized = getStageElementGeometry(element, stage, true);
             if (!resized) return null;
             transform = resized.transform;
           } finally {

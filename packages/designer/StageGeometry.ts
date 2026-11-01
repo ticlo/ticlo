@@ -1,4 +1,4 @@
-import {getElementGeometry} from '@ticlo/html';
+import {getElementGeometry, type ElementGeometry} from '@ticlo/html';
 
 /** Invert the projected z=0 plane rather than the full 3D matrix. */
 export function getPlaneInverse(matrix: DOMMatrix) {
@@ -28,6 +28,75 @@ export function projectPoint(matrix: DOMMatrix, x: number, y: number) {
   x = point.x / point.w;
   y = point.y / point.w;
   return point.w > 0 && Number.isFinite(x) && Number.isFinite(y) ? {x, y} : null;
+}
+
+/** Measure an outer SVG's CSS box, excluding the viewBox transform from its SVG CTM. */
+export function getStageElementGeometry(
+  element: Element,
+  root?: HTMLElement,
+  includePosition = false
+): ElementGeometry | null {
+  const htmlGeometry = getElementGeometry([element], root).get(element);
+  if (htmlGeometry || !(element instanceof SVGSVGElement) || !(element.parentElement instanceof HTMLElement))
+    return htmlGeometry;
+
+  const computed = element.ownerDocument.defaultView.getComputedStyle(element);
+  const width = parseFloat(computed.width);
+  const height = parseFloat(computed.height);
+  if (!Number.isFinite(width) || !Number.isFinite(height) || !width || !height) return null;
+  const insetX = (parseFloat(computed.borderLeftWidth) || 0) + (parseFloat(computed.paddingLeft) || 0);
+  const insetY = (parseFloat(computed.borderTopWidth) || 0) + (parseFloat(computed.paddingTop) || 0);
+  const boxWidth =
+    width +
+    (computed.boxSizing === 'border-box'
+      ? 0
+      : insetX + (parseFloat(computed.paddingRight) || 0) + (parseFloat(computed.borderRightWidth) || 0));
+  const boxHeight =
+    height +
+    (computed.boxSizing === 'border-box'
+      ? 0
+      : insetY + (parseFloat(computed.paddingBottom) || 0) + (parseFloat(computed.borderBottomWidth) || 0));
+  const boxMatrix = () => {
+    const screen = element.getScreenCTM();
+    const local = element.getCTM();
+    const inverse = local && getPlaneInverse(DOMMatrix.fromMatrix(local));
+    return screen && inverse ? DOMMatrix.fromMatrix(screen).multiply(inverse).translate(-insetX, -insetY) : null;
+  };
+  const viewportMatrix = boxMatrix();
+  if (!viewportMatrix) return null;
+
+  let viewportPosition = viewportMatrix;
+  const transformed = ['transform', 'translate', 'rotate', 'scale'].some(
+    (name) => computed.getPropertyValue(name) !== 'none'
+  );
+  if (transformed && includePosition) {
+    const names = ['transform', 'translate', 'rotate', 'scale'];
+    const saved = names.map((name) => [element.style.getPropertyValue(name), element.style.getPropertyPriority(name)]);
+    try {
+      for (const name of names) element.style.setProperty(name, 'none', 'important');
+      viewportPosition = boxMatrix();
+    } finally {
+      names.forEach((name, index) => element.style.setProperty(name, saved[index][0], saved[index][1]));
+    }
+    if (!viewportPosition) return null;
+  }
+
+  const rootMatrix = root && getElementGeometry([root]).get(root)?.matrix;
+  const rootInverse = root ? rootMatrix && getPlaneInverse(rootMatrix) : null;
+  if (root && !rootInverse) return null;
+  const matrix = rootInverse ? rootInverse.multiply(viewportMatrix) : viewportMatrix;
+  const positionMatrix = rootInverse ? rootInverse.multiply(viewportPosition) : viewportPosition;
+  const positionInverse = getPlaneInverse(positionMatrix);
+  if (!positionInverse) return null;
+  const transform = transformed && includePosition ? positionInverse.multiply(matrix) : null;
+  const corners = [
+    projectPoint(matrix, 0, 0),
+    projectPoint(matrix, boxWidth, 0),
+    projectPoint(matrix, boxWidth, boxHeight),
+    projectPoint(matrix, 0, boxHeight),
+  ];
+  if (corners.some((corner) => !corner)) return null;
+  return {matrix, positionMatrix, transform, quad: new DOMQuad(corners[0], corners[1], corners[2], corners[3])};
 }
 
 export function createStagePointMapper(stage: HTMLElement) {

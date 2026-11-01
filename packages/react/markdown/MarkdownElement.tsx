@@ -48,7 +48,6 @@ globalFunctions.addFactory(
       elementStyleProperty,
       elementClassProperty,
     ],
-    category: 'react:elements',
   },
   'react',
   undefined,

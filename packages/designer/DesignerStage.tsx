@@ -15,8 +15,8 @@ import {useStageDrop} from './useStageDrop.ts';
 import type {DesignerDropHandlers} from './StageDrop.ts';
 import {useStageCommands} from './useStageCommands.ts';
 
-const defaultFunctionTreeTags = ['react-comp'];
-const defaultNodeTreeTags = ['react-comp'];
+const defaultFunctionTreeTags = ['react-comp', 'react-svg'];
+const defaultNodeTreeTags = ['react-comp', 'react-svg'];
 const pageLayouts: {label: string; data: DataMap}[] = [
   {label: 'Absolute', data: {'#is': 'react:absolute', '#order': []}},
   {label: 'Horizontal', data: {'#is': 'react:horizontal', '#order': []}},

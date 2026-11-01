@@ -1,7 +1,6 @@
 import {Block, type BlockProperty} from '@ticlo/core';
-import {getElementGeometry} from '@ticlo/html';
 import type {ElementMap} from '@ticlo/react';
-import {getPlaneInverse, projectPoint} from './StageGeometry.ts';
+import {getPlaneInverse, getStageElementGeometry, projectPoint} from './StageGeometry.ts';
 
 interface MoveTarget {
   block: Block;
@@ -72,7 +71,7 @@ export function createStageMove(
 ) {
   const reference = getMoveTarget(block, element);
   if (!reference || !element.parentElement) return null;
-  const geometry = getElementGeometry([element]).get(element);
+  const geometry = getStageElementGeometry(element, undefined, true);
   if (!geometry) return null;
   const inverse = getPlaneInverse(geometry.matrix);
   const local = inverse && projectPoint(inverse, startX, startY);

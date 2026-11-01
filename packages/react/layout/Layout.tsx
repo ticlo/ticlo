@@ -29,7 +29,6 @@ function createLayout(name: string) {
       configs: elementConfigs,
       properties: elementProps,
       init: {style: {width: 200, height: 200}},
-      category: 'react:elements',
     },
     'react',
     undefined,

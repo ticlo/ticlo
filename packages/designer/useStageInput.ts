@@ -44,7 +44,7 @@ function supportsChildren(block: Block) {
   return Namespace.getFunctions(id, block._flow)
     ?.listen(id, null)
     ?.getValue()
-    ?.desc.childrenTags?.includes('react-comp');
+    ?.desc.childrenTags?.some((tag) => tag === 'react-comp' || tag === 'react-svg');
 }
 
 function canSelectChildren(block: Block) {

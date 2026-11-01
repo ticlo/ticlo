@@ -10,7 +10,7 @@ import {Block} from '../block/Block.ts';
 import {Namespace} from '../block/Namespace.ts';
 import {FlowFunctionLib, NsFunctionLib} from '../block/NSFunctionLib.ts';
 
-const inheritedReturnTags = ['react-comp'];
+const inheritedReturnTags = ['react-comp', 'react-svg'];
 
 export class WorkerFunctionGen extends BaseFunction<Block> {
   declare readonly type: string;

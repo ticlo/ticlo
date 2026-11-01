@@ -3,6 +3,8 @@
     '@name': React # no translate
   'react:elements':
     '@name': Elements
+  'react:svg':
+    '@name': SVG
 
 '@shared':
   '':

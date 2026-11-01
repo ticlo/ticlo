@@ -51,7 +51,6 @@ globalFunctions.addFactory(
       {name: 'hideEffect', type: 'string'},
     ],
     init: {style: {width: 200, height: 200}},
-    category: 'react:elements',
   },
   'react',
   undefined,

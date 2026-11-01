@@ -352,6 +352,67 @@ describe('designer stage drops', () => {
     expect((main.getValue('back') as Block).getValue('div')).toBeUndefined();
   });
 
+  it('inserts SVG shapes into SVG containers but not into HTML containers', async () => {
+    const {main, element, page, outline, begin, dragTo} = await mount(
+      {
+        '#order': ['canvas'],
+        'canvas': {
+          '#is': 'react:svg',
+          '#optional': ['id', 'viewBox'],
+          'id': 'svg-canvas',
+          'viewBox': '0 0 100 100',
+          'style': {width: 120, height: 120},
+        },
+      },
+      {},
+      'react:circle'
+    );
+    const canvas = main.getValue('canvas') as Block;
+
+    begin();
+    const finish = dragTo(element('svg-canvas'));
+    await shouldHappen(outline);
+    finish();
+    await shouldHappen(() => canvas.getValue('circle') instanceof Block);
+    expect(canvas.getValue('#order')).toEqual(['circle']);
+    expect((canvas.getValue('circle') as Block).getValue('r')).toBe(40);
+
+    begin();
+    const reject = dragTo(page, 200, 200);
+    expect(outline()).toBeNull();
+    reject();
+    expect(main.getValue('circle')).toBeUndefined();
+  });
+
+  it('inserts HTML components into an empty SVG foreignObject', async () => {
+    const {main, element, outline, begin, dragTo} = await mount({
+      '#order': ['canvas'],
+      'canvas': {
+        '#is': 'react:svg',
+        'style': {width: 120, height: 120},
+        '#order': ['foreign'],
+        'foreign': {
+          '#is': 'react:foreignObject',
+          '#optional': ['id', 'x', 'y', 'width', 'height'],
+          'id': 'svg-foreign',
+          'x': 0,
+          'y': 0,
+          'width': 100,
+          'height': 100,
+        },
+      },
+    });
+    const canvas = main.getValue('canvas') as Block;
+    const foreign = canvas.getValue('foreign') as Block;
+
+    begin();
+    const finish = dragTo(element('svg-foreign'));
+    await shouldHappen(outline);
+    finish();
+    await shouldHappen(() => foreign.getValue('div') instanceof Block);
+    expect(foreign.getValue('#order')).toEqual(['div']);
+  });
+
   it.each(['horizontal', 'vertical'])(
     'inserts before a content component in a %s layout without #order',
     async (layout) => {

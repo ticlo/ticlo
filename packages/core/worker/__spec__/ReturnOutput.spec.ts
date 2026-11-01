@@ -232,6 +232,33 @@ describe('Worker #return output', function () {
     flow.destroy();
   });
 
+  it('inherits SVG placement and child tags from the returned component', function () {
+    const flow = new Flow();
+    const functionLib = flow.getFuncLib();
+    functionLib.addFactory(null, {
+      id: ':svg-group',
+      name: 'svg-group',
+      tags: ['react-svg'],
+      childrenTags: ['react-svg'],
+    });
+    WorkerFunctionGen.registerType(
+      {
+        '#is': '',
+        '#desc': {},
+        '#inputs': {'#is': '', '#custom': [{name: '#order', type: 'array'}]},
+        'group': {'#is': ':svg-group'},
+        '#outputs': {'#is': '', '~#return': '##.group'},
+      },
+      {id: ':component', name: 'component'},
+      undefined,
+      functionLib
+    );
+    const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
+
+    expect((editor.applyChange() as DataMap)['#desc']).toEqual({tags: ['react-svg'], childrenTags: ['react-svg']});
+    flow.destroy();
+  });
+
   it.each([
     {inputs: {'#is': '', '#custom': [{name: '#order', type: 'array'}]}, expected: ['react-comp', 'custom-child']},
     {inputs: {'#is': '', '#custom': [{name: 'order', type: 'array'}]}, expected: ['existing']},

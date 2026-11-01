@@ -20,15 +20,25 @@ import {globalFunctions} from '@ticlo/core';
 import './functions/ToComponent.tsx';
 import './functions/RenderDom.ts';
 import './elements/HtmlAttributes.ts';
+import './elements/SvgAttributes.ts';
 import './elements/CommonElements.tsx';
 import './elements/ImgElement.tsx';
 import './elements/InputElement.tsx';
+import './elements/SvgElements.tsx';
 import './jsx/JsxComponent.tsx';
 
 globalFunctions.addCategory({
   id: 'react:',
   name: 'react',
   icon: '20:⚛',
+  color: '5ce',
+  ns: 'react',
+});
+
+globalFunctions.addCategory({
+  id: 'react:svg',
+  name: 'SVG',
+  icon: '20:◇',
   color: '5ce',
   ns: 'react',
 });

@@ -2,7 +2,8 @@ import {expect} from 'vitest';
 import React, {StrictMode} from 'react';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
-import {Root} from '@ticlo/core';
+import {Root, type FunctionDesc} from '@ticlo/core';
+import type {ClientConn} from '@ticlo/core/connect/ClientConn.ts';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 import {DescRequest} from '@ticlo/core/connect/ClientRequests.ts';
 import {FunctionTreeRoot} from '../FunctionTreeItem.ts';
@@ -12,6 +13,24 @@ import {FunctionView} from '../FunctionView.tsx';
 import {loadTemplate, querySingle, removeLastTemplate} from '../../util/test-util.ts';
 
 describe('FunctionTree', function () {
+  it('groups SVG functions without removing the category when the svg function updates', () => {
+    const conn = {watchDesc() {}, unwatchDesc() {}} as unknown as ClientConn;
+    const root = new FunctionTreeRoot(conn, () => {});
+    const category = {id: 'react:svg:', name: 'SVG'} as FunctionDesc;
+    const shape = {id: 'react:rect', name: 'rect', category: 'react:svg', properties: []} as FunctionDesc;
+    const svg = {id: 'react:svg', name: 'svg', properties: []} as FunctionDesc;
+
+    root.onDesc(category, category.id);
+    root.onDesc(shape, shape.id);
+    root.onDesc(svg, svg.id);
+    expect(root.typeMap.get('react:svg:')?.children.map((item) => item.key)).toEqual(['react:rect']);
+    expect(root.typeMap.get('react:')?.children.map((item) => item.key)).toContain('react:svg');
+
+    root.onDesc({...svg}, svg.id);
+    expect(root.typeMap.get('react:svg:')?.children.map((item) => item.key)).toEqual(['react:rect']);
+    root.destroy();
+  });
+
   it('restores descriptor listeners after StrictMode remounts', async () => {
     const root = new Root();
     const [, conn] = makeLocalConnection(root);

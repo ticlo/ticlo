@@ -2,7 +2,7 @@ import {useEffect, useState, type RefObject} from 'react';
 import type {Block} from '@ticlo/core';
 import type {ElementMap} from '@ticlo/react';
 import {getElementBoxQuads} from '@ticlo/html';
-import {createStagePointMapper, getFallbackQuad} from './StageGeometry.ts';
+import {createStagePointMapper, getFallbackQuad, getStageElementGeometry} from './StageGeometry.ts';
 
 interface SelectionQuad {
   element: Element;
@@ -48,7 +48,10 @@ export function useSelectionQuads(
       const offsetX = stage.scrollLeft - stage.clientLeft;
       const offsetY = stage.scrollTop - stage.clientTop;
       for (const [element, selected] of targets) {
-        const quad = measured.get(element) ?? getFallbackQuad(element, (toStage ??= createStagePointMapper(stage)));
+        const quad =
+          measured.get(element) ??
+          getStageElementGeometry(element, stage)?.quad ??
+          getFallbackQuad(element, (toStage ??= createStagePointMapper(stage)));
         if (!quad || !quad.getBounds().width || !quad.getBounds().height) continue;
         const points = [quad.p1, quad.p2, quad.p3, quad.p4].map((point) => ({
           x: point.x + offsetX,

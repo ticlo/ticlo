@@ -70,7 +70,6 @@ const jsxComponentDesc: FunctionDesc = {
     elementStyleProperty,
     elementClassProperty,
   ],
-  category: 'react:elements',
 };
 globalFunctions.addFactory(null, jsxComponentDesc, 'react', undefined, {
   meta: {[metaKey]: JsxComponent},

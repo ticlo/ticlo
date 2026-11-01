@@ -238,11 +238,9 @@ export class FunctionTreeRoot extends FunctionTreeItem {
   }
 
   onDesc = (desc: FunctionDesc, key: string) => {
-    // remove existing function first
-    if (this.inFlow) {
+    // Category descriptors update in place; a function may share their key prefix.
+    if (this.inFlow || !key.endsWith(':')) {
       this.deleteItem(key);
-    } else {
-      this.deleteItem(key + ':');
     }
 
     if (desc) {
@@ -266,7 +264,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
 
       let category = desc.category || desc.ns;
       const lastColon = key.lastIndexOf(':');
-      if (lastColon > 0) {
+      if (!desc.category && lastColon > 0) {
         category = key.substring(0, lastColon);
       }
       if (category == null && desc.properties) {
