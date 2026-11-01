@@ -31,5 +31,8 @@ an SVG tree.
 
 Designer placement and selection support SVG elements. An outer `react:svg`
 inside HTML layout can be moved when absolutely positioned and resized through
-its CSS `style`, like an HTML container. Internal SVG shapes use their SVG
-geometry properties.
+its CSS `style`, like an HTML container. Dragging SVG shapes inside an `<svg>`
+or `<g>` updates their position attributes (`x/y`, `cx/cy`, line endpoints, or
+polygon points). Groups and paths use a single `transform` matrix because they
+have no separate position attributes. Shape dimensions remain editable through
+SVG geometry properties.

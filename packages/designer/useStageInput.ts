@@ -153,10 +153,16 @@ export function useStageInput(
       const selected = new Set(selectionRef.current.blocks);
       if (!selected.size) return null;
       // The browser orders these by paint order, including CSS stacking contexts.
-      for (const element of document.elementsFromPoint(mouse.clientX, mouse.clientY)) {
-        const block = elementMap.getBlock(element);
+      for (const target of document.elementsFromPoint(mouse.clientX, mouse.clientY)) {
+        if (target instanceof SVGElement) {
+          for (let element: Element | null = target; element instanceof SVGElement; element = element.parentElement) {
+            const block = elementMap.getBlock(element);
+            if (block && selected.has(block) && !block.getValue('@d-lock')) return {block, element};
+          }
+        }
+        const block = elementMap.getBlock(target);
         if (!block || !selected.has(block)) continue;
-        const hit = findHit(element);
+        const hit = findHit(target);
         if (hit?.block === block && !block.getValue('@d-lock')) return hit;
       }
       return null;

@@ -15,6 +15,46 @@ interface MoveTarget {
   addOptional: boolean;
 }
 
+interface SvgMoveTarget {
+  block: Block;
+  inverse: DOMMatrix;
+  start: {x: number; y: number};
+  values: {name: string; axis: 'x' | 'y'; value: number; suffix: string; string: boolean}[];
+  points?: {x: number; y: number}[];
+  transform?: DOMMatrix;
+  optional: string[];
+  additions: string[];
+}
+
+const svgPositionAttributes: Record<string, [string, string][]> = {
+  svg: [['x', 'y']],
+  rect: [['x', 'y']],
+  circle: [['cx', 'cy']],
+  ellipse: [['cx', 'cy']],
+  line: [
+    ['x1', 'y1'],
+    ['x2', 'y2'],
+  ],
+  text: [['x', 'y']],
+  foreignObject: [['x', 'y']],
+};
+
+function svgNumber(value: unknown) {
+  if (value == null) return {value: 0, suffix: '', string: false};
+  if (typeof value === 'number') return Number.isFinite(value) ? {value, suffix: '', string: false} : null;
+  if (typeof value !== 'string') return null;
+  const match = value.trim().match(/^([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)(px)?$/i);
+  return match ? {value: Number(match[1]), suffix: match[2] ?? '', string: true} : null;
+}
+
+function svgTransformMatrix(element: SVGGraphicsElement) {
+  let matrix = new DOMMatrix();
+  const transforms = element.transform.baseVal;
+  for (let i = 0; i < transforms.numberOfItems; i++)
+    matrix = matrix.multiply(DOMMatrix.fromMatrix(transforms.getItem(i).matrix));
+  return matrix;
+}
+
 function restore(property: BlockProperty | undefined) {
   if (!property) return;
   if (property._saved !== undefined || property._bindingSource) property.revertUpdate();
@@ -60,6 +100,133 @@ function getMoveTarget(block: Block, element: Element): MoveTarget | null {
   };
 }
 
+function getSvgMoveTarget(block: Block, element: Element, startX: number, startY: number): SvgMoveTarget | null {
+  if (
+    block._destroyed ||
+    block.getValue('@d-lock') ||
+    !(element instanceof SVGGraphicsElement) ||
+    !(element.parentElement instanceof SVGGraphicsElement) ||
+    !element.isConnected
+  )
+    return null;
+  const parentMatrix = element.parentElement.getScreenCTM();
+  if (!parentMatrix) return null;
+  const position = svgPositionAttributes[element.localName];
+  const names = position?.flat();
+  const pointsElement = element instanceof SVGPolylineElement || element instanceof SVGPolygonElement;
+  const transform = svgTransformMatrix(element);
+  const inverse = getPlaneInverse(
+    DOMMatrix.fromMatrix(parentMatrix).multiply(names || pointsElement ? transform : new DOMMatrix())
+  );
+  const start = inverse && projectPoint(inverse, startX, startY);
+  if (!start) return null;
+  const targetNames = names ?? [pointsElement ? 'points' : 'transform'];
+  const values: SvgMoveTarget['values'] = [];
+  for (const [index, name] of targetNames.entries()) {
+    const property = block.getProperty(name, false);
+    if (property?._bindingPath != null || property?._bindingSource) return null;
+    if (names) {
+      const number = svgNumber(block.getValue(name));
+      if (!number) return null;
+      values.push({name, axis: index % 2 ? 'y' : 'x', ...number});
+    }
+  }
+  let points: SvgMoveTarget['points'];
+  if (pointsElement) {
+    if (typeof block.getValue('points') !== 'string') return null;
+    points = [];
+    for (let i = 0; i < element.points.numberOfItems; i++) {
+      const point = element.points.getItem(i);
+      points.push({x: point.x, y: point.y});
+    }
+    if (!points.length) return null;
+  }
+  const optionalValue = block.getValue('#optional');
+  const optional = Array.isArray(optionalValue) ? optionalValue : [];
+  const additions = targetNames.filter((name) => !optional.includes(name));
+  const optionalProperty = block.getProperty('#optional', false);
+  if (additions.length && (optionalProperty?._bindingPath != null || optionalProperty?._bindingSource)) return null;
+  return {
+    block,
+    inverse,
+    start,
+    values,
+    points,
+    transform: names || pointsElement ? undefined : transform,
+    optional,
+    additions,
+  };
+}
+
+function createSvgStageMove(
+  block: Block,
+  element: Element,
+  selected: Block[],
+  elementMap: ElementMap,
+  startX: number,
+  startY: number
+) {
+  const reference = getSvgMoveTarget(block, element, startX, startY);
+  if (!reference) return null;
+  const targets = [reference];
+  for (const other of selected) {
+    if (other === block) continue;
+    const otherElement = elementMap.getElements(other)?.find((item) => item.isConnected);
+    const target = otherElement && getSvgMoveTarget(other, otherElement, startX, startY);
+    if (target) targets.push(target);
+  }
+  let values: {target: SvgMoveTarget; changed: Record<string, number | string>; moved: boolean}[] = [];
+  const cancel = () => {
+    for (const {block, values, points, transform, additions} of targets) {
+      if (block._destroyed) continue;
+      for (const {name} of values) restore(block.getProperty(name, false));
+      if (points) restore(block.getProperty('points', false));
+      if (transform) restore(block.getProperty('transform', false));
+      if (additions.length) restore(block.getProperty('#optional', false));
+    }
+  };
+  return {
+    update(screenX: number, screenY: number) {
+      values = [];
+      for (const target of targets) {
+        const {block, inverse, start, optional, additions} = target;
+        if (block._destroyed) continue;
+        const point = projectPoint(inverse, startX + screenX, startY + screenY);
+        if (!point) continue;
+        const dx = point.x - start.x;
+        const dy = point.y - start.y;
+        const changed: Record<string, number | string> = {};
+        for (const {name, axis, value, suffix, string} of target.values) {
+          const next = value + (axis === 'y' ? dy : dx);
+          changed[name] = string ? `${next}${suffix}` : next;
+        }
+        if (target.points) changed.points = target.points.map(({x, y}) => `${x + dx},${y + dy}`).join(' ');
+        if (target.transform) {
+          const {a, b, c, d, e, f} = target.transform;
+          changed.transform = `matrix(${a} ${b} ${c} ${d} ${e + dx} ${f + dy})`;
+        }
+        if (additions.length) block.updateValue('#optional', [...optional, ...additions]);
+        for (const [name, value] of Object.entries(changed)) block.updateValue(name, value);
+        values.push({target, changed, moved: Math.abs(dx) > 1e-9 || Math.abs(dy) > 1e-9});
+      }
+    },
+    commit() {
+      if (!values.some(({moved}) => moved)) {
+        cancel();
+        return false;
+      }
+      for (const {target, changed} of values) {
+        const {block, optional, additions} = target;
+        if (block._destroyed) continue;
+        if (additions.length) block.setValue('#optional', [...optional, ...additions]);
+        for (const [name, value] of Object.entries(changed)) block.setValue(name, value);
+      }
+      return true;
+    },
+    cancel,
+  };
+}
+
 /** A gesture previews runtime values, then either saves them or restores their sources. */
 export function createStageMove(
   block: Block,
@@ -69,6 +236,8 @@ export function createStageMove(
   startX: number,
   startY: number
 ) {
+  if (element instanceof SVGGraphicsElement && element.parentElement instanceof SVGGraphicsElement)
+    return createSvgStageMove(block, element, selected, elementMap, startX, startY);
   const reference = getMoveTarget(block, element);
   if (!reference || !element.parentElement) return null;
   const geometry = getStageElementGeometry(element, undefined, true);

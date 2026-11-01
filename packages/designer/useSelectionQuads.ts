@@ -95,7 +95,11 @@ export function useSelectionQuads(
       }
       for (const element of observed) {
         observer.observe(element);
-        mutations.observe(element, {attributes: true, attributeFilter: ['style', 'class'], childList: true});
+        mutations.observe(element, {
+          attributes: true,
+          attributeFilter: ['style', 'class', 'transform', 'x', 'y', 'cx', 'cy', 'x1', 'y1', 'x2', 'y2', 'points'],
+          childList: true,
+        });
       }
     };
     const unsubscribe = elementMap.subscribe((block) => {

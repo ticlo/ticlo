@@ -1116,6 +1116,245 @@ describe('designer stage gestures', () => {
     expect((graphic.getValue('style') as any).height).toBeCloseTo(70, 4);
   });
 
+  it('moves SVG shapes through their geometry in viewBox coordinates and keeps the move undoable', async () => {
+    const {flow, main, element, div, getStage} = await mount({
+      '#order': ['graphic'],
+      'graphic': {
+        '#is': 'react:svg',
+        '#optional': ['viewBox'],
+        'viewBox': '0 0 100 100',
+        'style': {width: 200, height: 200},
+        '#order': ['circle'],
+        'circle': {
+          '#is': 'react:circle',
+          '#optional': ['id', 'cx', 'cy', 'r'],
+          'id': 'svg-circle',
+          'cx': 50,
+          'cy': 50,
+          'r': 20,
+        },
+      },
+    });
+    const circle = (main.getValue('graphic') as Block).getValue('circle') as Block;
+    const shape = element('svg-circle');
+    const before = shape.getBoundingClientRect();
+    const saved = flow.save();
+    const x = before.left + before.width / 2;
+    const y = before.top + before.height / 2;
+
+    pointer(shape, 'pointerdown', x, y);
+    await shouldHappen(() => div.querySelector('.ticl-d-selection-rect'));
+    const outlineX = div.querySelector<SVGPolygonElement>('.ticl-d-selection-rect').points.getItem(0).x;
+    pointer(document, 'pointermove', x + 20, y + 10);
+    await expect.poll(() => shape.getBoundingClientRect().left - before.left).toBeCloseTo(20, 1);
+    await expect
+      .poll(() => div.querySelector<SVGPolygonElement>('.ticl-d-selection-rect').points.getItem(0).x - outlineX)
+      .toBeCloseTo(20, 1);
+    expect(shape.getBoundingClientRect().top - before.top).toBeCloseTo(10, 1);
+    expect(flow.save()).toEqual(saved);
+    pointer(document, 'pointerup', x + 20, y + 10);
+    expect(circle.getValue('cx')).toBe(60);
+    expect(circle.getValue('cy')).toBe(55);
+    expect(circle.getValue('transform')).toBeUndefined();
+
+    const moved = shape.getBoundingClientRect();
+    pointer(shape, 'pointerdown', moved.left + moved.width / 2, moved.top + moved.height / 2);
+    pointer(document, 'pointermove', moved.left + moved.width / 2 + 20, moved.top + moved.height / 2);
+    pointer(document, 'pointerup', moved.left + moved.width / 2 + 20, moved.top + moved.height / 2);
+    expect(circle.getValue('cx')).toBe(70);
+    expect(circle.getValue('transform')).toBeUndefined();
+
+    getStage().undo();
+    await shouldHappen(() => circle.getValue('cx') === 50);
+    expect(circle.getValue('cy')).toBe(50);
+    getStage().redo();
+    await shouldHappen(() => circle.getValue('cx') === 70);
+  });
+
+  it('moves SVG groups by updating one transform and moves nested shapes through geometry', async () => {
+    const {flow, main, element, getStage} = await mount({
+      '#order': ['graphic'],
+      'graphic': {
+        '#is': 'react:svg',
+        '#optional': ['viewBox'],
+        'viewBox': '0 0 100 100',
+        'style': {width: 200, height: 200},
+        '#order': ['group'],
+        'group': {
+          '#is': 'react:g',
+          '#optional': ['transform'],
+          'transform': 'rotate(30 50 50)',
+          '#order': ['rect'],
+          'rect': {
+            '#is': 'react:rect',
+            '#optional': ['id', 'x', 'y', 'width', 'height'],
+            'id': 'svg-rect',
+            'x': 40,
+            'y': 40,
+            'width': 20,
+            'height': 20,
+          },
+        },
+      },
+    });
+    const group = (main.getValue('graphic') as Block).getValue('group') as Block;
+    getStage().select([group]);
+    await shouldHappen(() => getStage().selection.blocks[0] === group);
+    const rect = element('svg-rect');
+    const before = rect.getBoundingClientRect();
+    const x = before.left + before.width / 2;
+    const y = before.top + before.height / 2;
+    const saved = flow.save();
+
+    pointer(rect, 'pointerdown', x, y);
+    pointer(document, 'pointermove', x + 20, y + 10);
+    await expect.poll(() => rect.getBoundingClientRect().left - before.left).toBeCloseTo(20, 1);
+    expect(rect.getBoundingClientRect().top - before.top).toBeCloseTo(10, 1);
+    expect(flow.save()).toEqual(saved);
+    pointer(document, 'pointerup', x + 20, y + 10);
+    const groupTransform = group.getValue('transform') as string;
+    expect(groupTransform).toMatch(/^matrix\(/);
+
+    const moved = rect.getBoundingClientRect();
+    const movedX = moved.left + moved.width / 2;
+    const movedY = moved.top + moved.height / 2;
+    pointer(rect, 'pointerdown', movedX, movedY);
+    pointer(document, 'pointermove', movedX + 10, movedY);
+    await expect.poll(() => rect.getBoundingClientRect().left - moved.left).toBeCloseTo(10, 1);
+    document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
+    expect(group.getValue('transform')).toBe(groupTransform);
+
+    pointer(rect, 'pointerdown', movedX, movedY);
+    pointer(document, 'pointermove', movedX + 10, movedY);
+    pointer(document, 'pointerup', movedX + 10, movedY);
+    expect(group.getValue('transform')).toMatch(/^matrix\([^)]*\)$/);
+
+    const nested = group.getValue('rect') as Block;
+    getStage().select([nested]);
+    await shouldHappen(() => getStage().selection.blocks[0] === nested);
+    const nestedBefore = rect.getBoundingClientRect();
+    const nestedX = nestedBefore.left + nestedBefore.width / 2;
+    const nestedY = nestedBefore.top + nestedBefore.height / 2;
+    pointer(rect, 'pointerdown', nestedX, nestedY);
+    pointer(document, 'pointermove', nestedX + 12, nestedY - 8);
+    await expect.poll(() => rect.getBoundingClientRect().left - nestedBefore.left).toBeCloseTo(12, 1);
+    pointer(document, 'pointerup', nestedX + 12, nestedY - 8);
+    expect(nested.getValue('x')).not.toBe(40);
+    expect(nested.getValue('y')).not.toBe(40);
+    expect(nested.getValue('transform')).toBeUndefined();
+    expect(group.getValue('transform')).toMatch(/^matrix\([^)]*\)$/);
+  });
+
+  it('moves SVG line endpoints and polygon points without adding transforms', async () => {
+    const {main, element} = await mount({
+      '#order': ['graphic'],
+      'graphic': {
+        '#is': 'react:svg',
+        '#optional': ['viewBox'],
+        'viewBox': '0 0 100 100',
+        'style': {width: 200, height: 200},
+        '#order': ['line', 'polygon'],
+        'line': {
+          '#is': 'react:line',
+          '#optional': ['id', 'x1', 'y1', 'x2', 'y2', 'stroke', 'strokeWidth'],
+          'id': 'svg-line',
+          'x1': 10,
+          'y1': 10,
+          'x2': 30,
+          'y2': 30,
+          'stroke': 'black',
+          'strokeWidth': 5,
+        },
+        'polygon': {
+          '#is': 'react:polygon',
+          '#optional': ['id', 'points'],
+          'id': 'svg-polygon',
+          'points': '60,10 90,10 90,30',
+        },
+      },
+    });
+    const graphic = main.getValue('graphic') as Block;
+    const drag = async (id: string) => {
+      const shape = element(id);
+      const before = shape.getBoundingClientRect();
+      const x = before.left + before.width / 2;
+      const y = before.top + before.height / 2;
+      pointer(shape, 'pointerdown', x, y);
+      pointer(document, 'pointermove', x + 20, y + 10);
+      await expect.poll(() => shape.getBoundingClientRect().left - before.left).toBeCloseTo(20, 1);
+      pointer(document, 'pointerup', x + 20, y + 10);
+      expect(shape.getBoundingClientRect().left - before.left).toBeCloseTo(20, 1);
+      expect(shape.getBoundingClientRect().top - before.top).toBeCloseTo(10, 1);
+    };
+    await drag('svg-line');
+    const line = graphic.getValue('line') as Block;
+    expect([line.getValue('x1'), line.getValue('y1'), line.getValue('x2'), line.getValue('y2')]).toEqual([
+      20, 15, 40, 35,
+    ]);
+    expect(line.getValue('transform')).toBeUndefined();
+
+    await drag('svg-polygon');
+    const polygon = graphic.getValue('polygon') as Block;
+    expect(polygon.getValue('points')).toBe('70,15 100,15 100,35');
+    expect(polygon.getValue('transform')).toBeUndefined();
+  });
+
+  it('moves a rotated SVG rect through geometry and keeps path transforms to one matrix', async () => {
+    const {main, element} = await mount({
+      '#order': ['graphic'],
+      'graphic': {
+        '#is': 'react:svg',
+        '#optional': ['viewBox'],
+        'viewBox': '0 0 100 100',
+        'style': {width: 200, height: 200},
+        '#order': ['rect', 'path'],
+        'rect': {
+          '#is': 'react:rect',
+          '#optional': ['id', 'x', 'y', 'width', 'height', 'transform'],
+          'id': 'svg-rotated-rect',
+          'x': 10,
+          'y': 10,
+          'width': 20,
+          'height': 20,
+          'transform': 'rotate(30 20 20)',
+        },
+        'path': {
+          '#is': 'react:path',
+          '#optional': ['id', 'd', 'transform'],
+          'id': 'svg-path',
+          'd': 'M 60 10 L 90 10 L 90 30 Z',
+          'transform': 'rotate(15 75 20)',
+        },
+      },
+    });
+    const graphic = main.getValue('graphic') as Block;
+    const rect = element('svg-rotated-rect');
+    const before = rect.getBoundingClientRect();
+    pointer(rect, 'pointerdown', before.left + before.width / 2, before.top + before.height / 2);
+    pointer(document, 'pointermove', before.left + before.width / 2 + 20, before.top + before.height / 2 + 10);
+    await expect.poll(() => rect.getBoundingClientRect().left - before.left).toBeCloseTo(20, 1);
+    pointer(document, 'pointerup', before.left + before.width / 2 + 20, before.top + before.height / 2 + 10);
+    expect(rect.getBoundingClientRect().left - before.left).toBeCloseTo(20, 1);
+    expect(rect.getBoundingClientRect().top - before.top).toBeCloseTo(10, 1);
+    const rectBlock = graphic.getValue('rect') as Block;
+    expect(rectBlock.getValue('x')).not.toBe(10);
+    expect(rectBlock.getValue('transform')).toBe('rotate(30 20 20)');
+
+    const path = element('svg-path');
+    const pathBlock = graphic.getValue('path') as Block;
+    for (let i = 0; i < 2; i++) {
+      const bounds = path.getBoundingClientRect();
+      const x = bounds.left + bounds.width / 2;
+      const y = bounds.top + bounds.height / 2;
+      pointer(path, 'pointerdown', x, y);
+      pointer(document, 'pointermove', x + 20, y + 10);
+      await expect.poll(() => path.getBoundingClientRect().left - bounds.left).toBeCloseTo(20, 1);
+      pointer(document, 'pointerup', x + 20, y + 10);
+    }
+    expect(pathBlock.getValue('transform')).toMatch(/^matrix\([^)]*\)$/);
+    expect(pathBlock.getValue('d')).toBe('M 60 10 L 90 10 L 90 30 Z');
+  });
+
   it.each(['rotate(25deg) scale(1.2,.8)', 'perspective(600px) rotateY(25deg)'])(
     'resizes all eight handles through %s, own rotation, zoom, and changing transform origins',
     async (transform) => {
