@@ -1171,15 +1171,15 @@ describe('designer stage gestures', () => {
     await shouldHappen(() => circle.getValue('cx') === 70);
   });
 
-  it('moves SVG groups by updating one transform and moves nested shapes through geometry', async () => {
-    const {flow, main, element, getStage} = await mount({
+  it('does not move SVG groups or paths but moves their positioned neighbors', async () => {
+    const {main, element, getStage} = await mount({
       '#order': ['graphic'],
       'graphic': {
         '#is': 'react:svg',
         '#optional': ['viewBox'],
         'viewBox': '0 0 100 100',
         'style': {width: 200, height: 200},
-        '#order': ['group'],
+        '#order': ['group', 'path'],
         'group': {
           '#is': 'react:g',
           '#optional': ['transform'],
@@ -1195,54 +1195,53 @@ describe('designer stage gestures', () => {
             'height': 20,
           },
         },
+        'path': {
+          '#is': 'react:path',
+          '#optional': ['id', 'd'],
+          'id': 'svg-path',
+          'd': 'M 60 10 L 90 10 L 90 30 Z',
+        },
       },
     });
-    const group = (main.getValue('graphic') as Block).getValue('group') as Block;
+    const graphic = main.getValue('graphic') as Block;
+    const group = graphic.getValue('group') as Block;
     getStage().select([group]);
     await shouldHappen(() => getStage().selection.blocks[0] === group);
     const rect = element('svg-rect');
     const before = rect.getBoundingClientRect();
     const x = before.left + before.width / 2;
     const y = before.top + before.height / 2;
-    const saved = flow.save();
 
     pointer(rect, 'pointerdown', x, y);
     pointer(document, 'pointermove', x + 20, y + 10);
-    await expect.poll(() => rect.getBoundingClientRect().left - before.left).toBeCloseTo(20, 1);
-    expect(rect.getBoundingClientRect().top - before.top).toBeCloseTo(10, 1);
-    expect(flow.save()).toEqual(saved);
     pointer(document, 'pointerup', x + 20, y + 10);
-    const groupTransform = group.getValue('transform') as string;
-    expect(groupTransform).toMatch(/^matrix\(/);
-
-    const moved = rect.getBoundingClientRect();
-    const movedX = moved.left + moved.width / 2;
-    const movedY = moved.top + moved.height / 2;
-    pointer(rect, 'pointerdown', movedX, movedY);
-    pointer(document, 'pointermove', movedX + 10, movedY);
-    await expect.poll(() => rect.getBoundingClientRect().left - moved.left).toBeCloseTo(10, 1);
-    document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
-    expect(group.getValue('transform')).toBe(groupTransform);
-
-    pointer(rect, 'pointerdown', movedX, movedY);
-    pointer(document, 'pointermove', movedX + 10, movedY);
-    pointer(document, 'pointerup', movedX + 10, movedY);
-    expect(group.getValue('transform')).toMatch(/^matrix\([^)]*\)$/);
+    expect(group.getValue('transform')).toBe('rotate(30 50 50)');
+    expect(rect.getBoundingClientRect().left).toBeCloseTo(before.left, 1);
 
     const nested = group.getValue('rect') as Block;
     getStage().select([nested]);
     await shouldHappen(() => getStage().selection.blocks[0] === nested);
-    const nestedBefore = rect.getBoundingClientRect();
-    const nestedX = nestedBefore.left + nestedBefore.width / 2;
-    const nestedY = nestedBefore.top + nestedBefore.height / 2;
-    pointer(rect, 'pointerdown', nestedX, nestedY);
-    pointer(document, 'pointermove', nestedX + 12, nestedY - 8);
-    await expect.poll(() => rect.getBoundingClientRect().left - nestedBefore.left).toBeCloseTo(12, 1);
-    pointer(document, 'pointerup', nestedX + 12, nestedY - 8);
+    pointer(rect, 'pointerdown', x, y);
+    pointer(document, 'pointermove', x + 12, y - 8);
+    await expect.poll(() => rect.getBoundingClientRect().left - before.left).toBeCloseTo(12, 1);
+    pointer(document, 'pointerup', x + 12, y - 8);
     expect(nested.getValue('x')).not.toBe(40);
     expect(nested.getValue('y')).not.toBe(40);
     expect(nested.getValue('transform')).toBeUndefined();
-    expect(group.getValue('transform')).toMatch(/^matrix\([^)]*\)$/);
+    expect(group.getValue('transform')).toBe('rotate(30 50 50)');
+
+    const path = element('svg-path');
+    const pathBlock = graphic.getValue('path') as Block;
+    getStage().select([pathBlock]);
+    await shouldHappen(() => getStage().selection.blocks[0] === pathBlock);
+    const pathBounds = path.getBoundingClientRect();
+    const pathX = pathBounds.left + pathBounds.width / 2;
+    const pathY = pathBounds.top + pathBounds.height / 2;
+    pointer(path, 'pointerdown', pathX, pathY);
+    pointer(document, 'pointermove', pathX + 20, pathY + 10);
+    pointer(document, 'pointerup', pathX + 20, pathY + 10);
+    expect(pathBlock.getValue('transform')).toBeUndefined();
+    expect(path.getBoundingClientRect().left).toBeCloseTo(pathBounds.left, 1);
   });
 
   it('moves SVG line endpoints and polygon points without adding transforms', async () => {
@@ -1299,7 +1298,7 @@ describe('designer stage gestures', () => {
     expect(polygon.getValue('transform')).toBeUndefined();
   });
 
-  it('moves a rotated SVG rect through geometry and keeps path transforms to one matrix', async () => {
+  it('moves a rotated SVG rect through its geometry', async () => {
     const {main, element} = await mount({
       '#order': ['graphic'],
       'graphic': {
@@ -1307,7 +1306,7 @@ describe('designer stage gestures', () => {
         '#optional': ['viewBox'],
         'viewBox': '0 0 100 100',
         'style': {width: 200, height: 200},
-        '#order': ['rect', 'path'],
+        '#order': ['rect'],
         'rect': {
           '#is': 'react:rect',
           '#optional': ['id', 'x', 'y', 'width', 'height', 'transform'],
@@ -1317,13 +1316,6 @@ describe('designer stage gestures', () => {
           'width': 20,
           'height': 20,
           'transform': 'rotate(30 20 20)',
-        },
-        'path': {
-          '#is': 'react:path',
-          '#optional': ['id', 'd', 'transform'],
-          'id': 'svg-path',
-          'd': 'M 60 10 L 90 10 L 90 30 Z',
-          'transform': 'rotate(15 75 20)',
         },
       },
     });
@@ -1339,20 +1331,6 @@ describe('designer stage gestures', () => {
     const rectBlock = graphic.getValue('rect') as Block;
     expect(rectBlock.getValue('x')).not.toBe(10);
     expect(rectBlock.getValue('transform')).toBe('rotate(30 20 20)');
-
-    const path = element('svg-path');
-    const pathBlock = graphic.getValue('path') as Block;
-    for (let i = 0; i < 2; i++) {
-      const bounds = path.getBoundingClientRect();
-      const x = bounds.left + bounds.width / 2;
-      const y = bounds.top + bounds.height / 2;
-      pointer(path, 'pointerdown', x, y);
-      pointer(document, 'pointermove', x + 20, y + 10);
-      await expect.poll(() => path.getBoundingClientRect().left - bounds.left).toBeCloseTo(20, 1);
-      pointer(document, 'pointerup', x + 20, y + 10);
-    }
-    expect(pathBlock.getValue('transform')).toMatch(/^matrix\([^)]*\)$/);
-    expect(pathBlock.getValue('d')).toBe('M 60 10 L 90 10 L 90 30 Z');
   });
 
   it.each(['rotate(25deg) scale(1.2,.8)', 'perspective(600px) rotateY(25deg)'])(
