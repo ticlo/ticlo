@@ -82,7 +82,7 @@ describe('namespace context', () => {
   });
 
   it('downloads flows together but loads contexts before services and ordinary flows', async () => {
-    await storage.saveNamespaceMetadata('main', {dependencies: ['shared'], serviceLibraries: ['service']});
+    await storage.saveNamespaceMetadata('main', {dependencies: ['shared'], autoLoadLibraries: ['service']});
     storage.saveFlow(null, {'^value': 2}, '+main.#context');
     storage.saveFlow(null, {'^value': 3}, '+shared.#context');
     storage.saveLib('+main', 'service', {'~value': '^value'});

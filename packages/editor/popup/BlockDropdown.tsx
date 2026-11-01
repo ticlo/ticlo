@@ -41,6 +41,8 @@ interface Props {
   // When disabled is null, don't show the menu item.
   disabled?: boolean;
   getMenu?: () => React.ReactElement[];
+  menuVersion?: boolean;
+  onMenuOpen?: () => void;
 }
 
 interface State {
@@ -63,6 +65,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   }
 
   onMenuVisibleChange = (visible: boolean) => {
+    if (visible) this.props.onMenuOpen?.();
     this.setState({visible});
   };
 

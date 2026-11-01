@@ -36,7 +36,7 @@ describe('runtime lifecycle', () => {
   });
 
   it.each([undefined, {}])('defaults to all #root flows and services (%j)', async (options) => {
-    await storage.saveNamespaceMetadata('#root', {serviceLibraries: ['service']});
+    await storage.saveNamespaceMetadata('#root', {autoLoadLibraries: ['service']});
     storage.saveLib('', 'service', libData);
     storage.saveFlow(null, {value: 1}, 'entry');
     storage.saveFlow(null, {'#disabled': true, 'value': 2}, 'folder.nested');
@@ -73,7 +73,7 @@ describe('runtime lifecycle', () => {
 
   it('uses policy globs per namespace and enables cyclic dependencies without ordinary dependency flows', async () => {
     await storage.saveNamespaceMetadata('main', {dependencies: ['shared']});
-    await storage.saveNamespaceMetadata('shared', {dependencies: ['main'], serviceLibraries: ['service']});
+    await storage.saveNamespaceMetadata('shared', {dependencies: ['main'], autoLoadLibraries: ['service']});
     storage.saveLib('+shared', 'service', libData);
     for (const name of ['entry', 'jobs.one', 'jobs.nested.two', 'worker12', 'workerX'])
       storage.saveFlow(null, {value: name}, `+main.${name}`);
@@ -122,7 +122,7 @@ describe('runtime lifecycle', () => {
   });
 
   it('updates active namespace dependencies without unloading its flows', async () => {
-    await storage.saveNamespaceMetadata('main', {dependencies: ['shared'], serviceLibraries: ['service']});
+    await storage.saveNamespaceMetadata('main', {dependencies: ['shared'], autoLoadLibraries: ['service']});
     await storage.saveNamespaceMetadata('other', {});
     storage.saveLib('+main', 'service', libData);
     storage.saveFlow(null, {value: 1}, '+main.entry');
@@ -149,7 +149,7 @@ describe('runtime lifecycle', () => {
     expect(Namespace.getNameSpace('+other', root)._enabled).toBe(true);
     expect(await storage.getNamespaceMetadata('main')).toEqual({
       dependencies: ['other'],
-      serviceLibraries: ['service'],
+      autoLoadLibraries: ['service'],
     });
   });
 
@@ -214,11 +214,30 @@ describe('runtime lifecycle', () => {
   });
 
   it('loads a disabled service but never exposes its functions', async () => {
-    await storage.saveNamespaceMetadata('main', {serviceLibraries: ['service']});
+    await storage.saveNamespaceMetadata('main', {autoLoadLibraries: ['service']});
     storage.saveLib('+main', 'service', {...libData, '#disabled': true});
     await root.start({main: {}});
     expect(root.getFlowState(ref('main', 'service', 'library'))).toBe('disabled');
     expect(Namespace.getFunctionLib('+main:service:value', root).getWorkerData('+main:service:value')).toBeNull();
+  });
+
+  it('persists auto-load selection for one namespace and applies changes immediately', async () => {
+    storage.saveLib('+main', 'tools', libData);
+    storage.saveLib('+shared', 'tools', libData);
+    await root.start({main: {}, shared: {}});
+    expect(root.getFlowState(ref('main', 'tools', 'library'))).toBe('unloaded');
+
+    await root.setAutoLoadLibrary('main', 'tools', true);
+    expect(await storage.getNamespaceMetadata('main')).toEqual({autoLoadLibraries: ['tools']});
+    expect(await storage.getNamespaceMetadata('shared')).toEqual({});
+    expect(root.getFlowState(ref('main', 'tools', 'library'))).toBe('enabled');
+    expect(root.getFlowState(ref('shared', 'tools', 'library'))).toBe('unloaded');
+
+    await root.setAutoLoadLibrary('main', 'tools', false);
+    expect(root.getFlowState(ref('main', 'tools', 'library'))).toBe('enabled');
+    await root.stop();
+    await root.start({main: {}, shared: {}});
+    expect(root.getFlowState(ref('main', 'tools', 'library'))).toBe('unloaded');
   });
 
   it('isolates caller disable from the library and other callers, including relative references', async () => {
@@ -277,7 +296,7 @@ describe('runtime lifecycle', () => {
     );
     const enabling = root.enableNamespace('main');
     await root.disableNamespace('main');
-    resolve({serviceLibraries: ['service']});
+    resolve({autoLoadLibraries: ['service']});
     await expect(enabling).rejects.toThrow('cancelled');
     expect(Namespace.getNameSpace('+main', root)._enabled).toBe(false);
     expect(root.getFlowState(ref('main', 'service', 'library'))).toBe('unloaded');
@@ -357,7 +376,7 @@ describe('runtime lifecycle', () => {
 
   it('rolls back failed service activation and retries without stopping other namespaces', async () => {
     await root.start({shared: {}});
-    await storage.saveNamespaceMetadata('main', {serviceLibraries: ['service']});
+    await storage.saveNamespaceMetadata('main', {autoLoadLibraries: ['service']});
     await expect(root.enableNamespace('main')).rejects.toThrow('Missing library');
     expect(Namespace.getNameSpace('+main', root)._enabled).toBe(false);
     expect(Namespace.getNameSpace('+shared', root)._enabled).toBe(true);

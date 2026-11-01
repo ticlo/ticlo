@@ -2,11 +2,18 @@ import React from 'react';
 import {ExpandState} from '../component/Tree.tsx';
 import VirtualList from '../component/Virtual.tsx';
 import {ClientConn, arrayEqual, blankFuncDesc} from '@ticlo/core/editor.ts';
-import {NodeTreeItem, NodeTreeRenderer, type NodeTreeFunctionDrag, type NodeTreeOpenAction} from './NodeRenderer.tsx';
+import {
+  NodeTreeItem,
+  NodeTreeRenderer,
+  type LibraryAutoLoad,
+  type NodeTreeFunctionDrag,
+  type NodeTreeOpenAction,
+} from './NodeRenderer.tsx';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
 export type {NodeTreeOpenAction} from './NodeRenderer.tsx';
+export type {LibraryAutoLoad} from './NodeRenderer.tsx';
 
 interface Props {
   conn: ClientConn;
@@ -19,6 +26,7 @@ interface Props {
   onSelect?: (keys: string[]) => void;
   /** Custom open actions; double-click uses the first action. */
   openActions?: readonly NodeTreeOpenAction[];
+  libraryAutoLoad?: LibraryAutoLoad;
 }
 
 export class NodeTree extends LazyUpdateComponent<Props, any> {
@@ -172,6 +180,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
         selected={selectedKeys.includes(item.key)}
         onClick={this.onItemClick}
         openActions={this.props.openActions}
+        libraryAutoLoad={this.props.libraryAutoLoad}
         getOrderedDrag={this.getOrderedDrag}
         canDropOrdered={this.canDropOrdered}
         onDropOrdered={this.onDropOrdered}

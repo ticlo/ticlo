@@ -212,22 +212,32 @@ describe('FileServerStorage integration', () => {
     const readProject = vi.spyOn(client, 'readProject');
     const storage = client;
     expect(await storage.getNamespaceMetadata('main')).toEqual({});
-    await storage.saveNamespaceMetadata('main', {serviceLibraries: ['service']});
+    await storage.saveNamespaceMetadata('main', {autoLoadLibraries: ['service']});
     expect(JSON.parse(await readFile(join(dir, 'proj/main/ticlo.json'), 'utf8'))).toEqual({
-      serviceLibraries: ['service'],
+      autoLoadLibraries: ['service'],
     });
     await root.setStorage(storage);
     await root.start({main: {}});
     const service = {namespace: 'main', kind: 'library', name: 'service'} as const;
     expect(root.getFlowState(service)).toBe('disabled');
     expect(root.queryValue('+main.unused')).toBeUndefined();
-    await root.setServiceLibrary('main', 'service', false);
-    expect(await storage.getNamespaceMetadata('main')).toEqual({serviceLibraries: []});
+    await root.setAutoLoadLibrary('main', 'service', false);
+    expect(await storage.getNamespaceMetadata('main')).toEqual({autoLoadLibraries: []});
     expect(await readFile(projectPath, 'utf8')).toBe(original);
     expect(readProject).not.toHaveBeenCalled();
     expect(get.mock.calls.every(([path]) => !path.endsWith('_proj.json') && !path.endsWith('#proj.json'))).toBe(true);
     await root.stop();
     expect(await storage.loadLib('+main', 'service')).toEqual({'#disabled': true});
+  });
+
+  it('reads legacy serviceLibraries and saves only autoLoadLibraries', async () => {
+    await project('main', {});
+    const path = join(dir, 'proj/main/ticlo.json');
+    await writeFile(path, JSON.stringify({serviceLibraries: ['tools']}));
+    const metadata = await client.getNamespaceMetadata('main');
+    expect(metadata).toEqual({autoLoadLibraries: ['tools']});
+    await client.saveNamespaceMetadata('main', metadata);
+    expect(JSON.parse(await readFile(path, 'utf8'))).toEqual({autoLoadLibraries: ['tools']});
   });
 
   it('rejects missing dependency projects instead of silently running a partial graph', async () => {

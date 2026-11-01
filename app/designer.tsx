@@ -39,6 +39,7 @@ import {designerData} from './sample-data/designer.ts';
 import {EditorWindows} from './EditorWindows.ts';
 import {fileFlowPath, pageFlowPath} from './flow-path.ts';
 import {useNamespaceSelection} from './useNamespaceSelection.ts';
+import {createLibraryAutoLoad} from './library-auto-load.ts';
 
 const FileVersionContext = React.createContext(0);
 
@@ -177,6 +178,7 @@ interface State {
 
 class App extends React.PureComponent<Props, State> {
   state: State = {fileVersion: 0};
+  libraryAutoLoad = createLibraryAutoLoad(this.props.root);
   get conn() {
     return this.props.conn;
   }
@@ -198,6 +200,7 @@ class App extends React.PureComponent<Props, State> {
             hideRoot={true}
             onSelect={this.onSelect}
             showMenu={true}
+            libraryAutoLoad={this.libraryAutoLoad}
           />
         ),
       },

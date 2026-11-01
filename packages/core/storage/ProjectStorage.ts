@@ -130,7 +130,7 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
   }
   async saveNamespaceMetadata(namespace: string, metadata: NamespaceMetadata) {
     validateNamespace(namespace);
-    readNamespaceMetadata(metadata);
+    metadata = readNamespaceMetadata(metadata);
     if (!this.isPersistent(namespace)) throw new StorageError('Storage is read-only', 'readonly');
     const path = `${namespace}/ticlo.json`;
     await this.enqueue(path, async () => {

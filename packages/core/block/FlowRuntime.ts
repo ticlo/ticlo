@@ -130,8 +130,8 @@ export class FlowRuntime {
         const ref: FlowRef = {namespace, kind: 'flow', name: '#context'};
         return {ref, data: this.prefetch(ref)};
       });
-    const services = [...discovered].flatMap(([namespace, data]) =>
-      (data.serviceLibraries ?? []).map((name) => {
+    const autoLoadLibraries = [...discovered].flatMap(([namespace, data]) =>
+      (data.autoLoadLibraries ?? []).map((name) => {
         const ref: FlowRef = {namespace, kind: 'library', name};
         return {ref, data: this.prefetch(ref)};
       })
@@ -143,12 +143,12 @@ export class FlowRuntime {
       if (name !== '#root') this.root.addFlowFolder(ns.ns, {});
     }
     try {
-      // Contexts replace the namespace's inheritance layer and load before its services/flows.
+      // Contexts replace the namespace's inheritance layer and load before libraries/flows.
       for (const {ref, data} of contexts) {
         await this.loadFlow(ref, data);
         check();
       }
-      for (const {ref, data} of services) {
+      for (const {ref, data} of autoLoadLibraries) {
         await this.loadFlow(ref, data);
         check();
       }
@@ -375,7 +375,7 @@ export class FlowRuntime {
     }));
   }
 
-  async setServiceLibrary(namespace: string, name: string, service: boolean) {
+  async setAutoLoadLibrary(namespace: string, name: string, autoLoad: boolean) {
     this.key({namespace, name, kind: 'library'});
     const storage = this.root._storage;
     if (
@@ -384,14 +384,14 @@ export class FlowRuntime {
     )
       throw new Error('Storage does not support persistence');
     const metadata = await storage.getNamespaceMetadata(namespace);
-    const services = new Set(metadata.serviceLibraries);
-    if (service) services.add(name);
-    else services.delete(name);
-    const updated = {...metadata, serviceLibraries: [...services]};
+    const libraries = new Set(metadata.autoLoadLibraries);
+    if (autoLoad) libraries.add(name);
+    else libraries.delete(name);
+    const updated = {...metadata, autoLoadLibraries: [...libraries]};
     await storage.saveNamespaceMetadata(namespace, updated);
     if (this.namespace(namespace)._enabled) {
       this.metadata.set(namespace, updated);
-      if (service) await this.loadFlow({namespace, name, kind: 'library'});
+      if (autoLoad) await this.loadFlow({namespace, name, kind: 'library'});
     }
   }
 

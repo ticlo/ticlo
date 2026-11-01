@@ -58,6 +58,7 @@ import type {ClientConn, EditPolicy} from '@ticlo/core';
 import {fileFlowPath} from './flow-path.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {useNamespaceSelection} from './useNamespaceSelection.ts';
+import {createLibraryAutoLoad} from './library-auto-load.ts';
 
 const FileVersionContext = React.createContext(0);
 
@@ -94,6 +95,7 @@ interface State {
 
 class App extends React.PureComponent<Props, State> {
   state: State = {conn: this.props.conn, fileVersion: 0};
+  libraryAutoLoad = createLibraryAutoLoad(Root.instance);
   get conn() {
     return this.state.conn;
   }
@@ -130,7 +132,16 @@ class App extends React.PureComponent<Props, State> {
         group: 'tool',
         title: t('Navigation'),
         cached: true,
-        content: <NodeTreePane conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} showMenu={true} />,
+        content: (
+          <NodeTreePane
+            conn={conn}
+            basePaths={['']}
+            hideRoot={true}
+            onSelect={this.onSelect}
+            showMenu={true}
+            libraryAutoLoad={this.libraryAutoLoad}
+          />
+        ),
       },
       'Policy': {
         group: 'tool',

@@ -3,6 +3,7 @@ import React from 'react';
 import {
   BookFilled,
   BuildOutlined,
+  CheckOutlined,
   DeleteOutlined,
   FileAddOutlined,
   FileOutlined,
@@ -312,12 +313,18 @@ export interface NodeTreeOpenAction {
   functionIds?: readonly string[];
 }
 
+export interface LibraryAutoLoad {
+  get: (path: string) => Promise<boolean>;
+  set: (path: string, enabled: boolean) => Promise<void>;
+}
+
 interface Props {
   item: NodeTreeItem;
   style: React.CSSProperties;
   selected: boolean;
   onClick: (item: NodeTreeItem, event: React.MouseEvent) => void;
   openActions?: readonly NodeTreeOpenAction[];
+  libraryAutoLoad?: LibraryAutoLoad;
   getOrderedDrag?: (item: NodeTreeItem) => NodeTreeItem[];
   canDropOrdered?: (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => boolean;
   onDropOrdered?: (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => void;
@@ -329,6 +336,7 @@ interface State {
   desc: FunctionDesc;
   error?: string;
   dropPosition?: 'before' | 'after' | 'inside';
+  autoLoad?: boolean;
 }
 
 export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
@@ -391,6 +399,33 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.:`} />, this.context.showModal);
   };
 
+  autoLoadRequest = 0;
+  readAutoLoad = async () => {
+    const {item, libraryAutoLoad} = this.props;
+    if (item.functionId !== 'flow:lib' || !libraryAutoLoad) return;
+    const request = ++this.autoLoadRequest;
+    this.safeSetState({autoLoad: undefined});
+    try {
+      const autoLoad = await libraryAutoLoad.get(item.key);
+      if (request === this.autoLoadRequest) this.safeSetState({autoLoad});
+    } catch (error) {
+      requestCallbacks.onError(String(error));
+    }
+  };
+
+  toggleAutoLoad = async () => {
+    const {item, libraryAutoLoad} = this.props;
+    if (!libraryAutoLoad) return;
+    ++this.autoLoadRequest;
+    try {
+      const autoLoad = !(this.state.autoLoad ?? (await libraryAutoLoad.get(item.key)));
+      await libraryAutoLoad.set(item.key, autoLoad);
+      this.safeSetState({autoLoad});
+    } catch (error) {
+      requestCallbacks.onError(String(error));
+    }
+  };
+
   getMenu = () => {
     const {item} = this.props;
 
@@ -401,6 +436,14 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         <MenuItem key={action.key} onClick={() => this.openBlock(action)}>
           {action.icon}
           {action.label}
+        </MenuItem>
+      );
+    }
+    if (item.functionId === 'flow:lib' && this.props.libraryAutoLoad) {
+      menuItems.push(
+        <MenuItem key="autoLoad" onClick={() => void this.toggleAutoLoad()}>
+          <CheckOutlined style={{visibility: this.state.autoLoad ? 'visible' : 'hidden'}} />
+          {t('Auto Load')}
         </MenuItem>
       );
     }
@@ -621,6 +664,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
           functionId={item.functionId}
           canApply={item.canApply}
           getMenu={this.getMenu}
+          menuVersion={this.state.autoLoad}
+          onMenuOpen={this.readAutoLoad}
           disabled={disabled}
           funcLib={item.funcLib}
         >

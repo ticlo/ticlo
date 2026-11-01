@@ -11,8 +11,8 @@ await root.start({main: {flows: ['entry', 'jobs.**']}, shared: {}});
 - `start()` / `start({})` select all ordinary `#root` flows, including nested
   folders: equivalent to `start({'#root': {flows: ['**']}})`.
 - Explicit selections take precedence. Empty/omitted `flows` loads no ordinary
-  flows; `start({'#root': {}})` starts only its Service Libraries.
-- Dependencies activate recursively with their Service Libraries; their ordinary
+  flows; `start({'#root': {}})` starts only its auto-load libraries.
+- Dependencies activate recursively with their auto-load libraries; their ordinary
   flows need explicit selection. Cycles are allowed. Missing dependencies or
   required libraries reject startup and tear down the new runtime.
 - Saved `#disabled` flags are honored. Call `stop()` before restarting a running runtime.
@@ -27,13 +27,15 @@ Missing exact names error; unmatched wildcards select nothing.
 Remote/static storage read `proj/<namespace>/ticlo.json`:
 
 ```json
-{"dependencies": ["shared"], "serviceLibraries": ["http", "scheduler"]}
+{"dependencies": ["shared"], "autoLoadLibraries": ["http", "scheduler"]}
 ```
 
-Dependencies name namespaces in the same storage; services are exact library
-names, not globs. Missing fields/files mean empty arrays; invalid metadata rejects
-activation. File-server `_proj.json` is separate project metadata; runtime storage
-never reads/writes it. Dependencies do not use a `#deps` directory.
+Dependencies name namespaces in the same storage; `autoLoadLibraries` lists exact
+library names, not globs. The old `serviceLibraries` field is read for compatibility
+and converted to `autoLoadLibraries` when metadata is saved. Missing fields/files
+mean empty arrays; invalid metadata rejects activation. File-server `_proj.json`
+is separate project metadata; runtime storage never reads/writes it. Dependencies
+do not use a `#deps` directory.
 
 | Adapter | Metadata and persistence |
 | --- | --- |
@@ -59,7 +61,7 @@ await root.unloadFlow(flow);
 
 root.getFlowState(flow); // unloaded | loading | enabled | disabled
 await root.listFlows('main'); // {name, state} entries
-await root.setServiceLibrary('shared', 'tools', true);
+await root.setAutoLoadLibrary('shared', 'tools', true);
 ```
 
 Loading requires an enabled namespace and honors saved `#disabled` before
@@ -70,12 +72,12 @@ execute according to their modes.
 
 Ordinary libraries load on demand in enabled namespaces and stay loaded until
 unloaded. Inactive namespaces return empty workers without reading files.
-Service Libraries load on activation; disabled services are read but neither run
+Auto-load libraries load on activation; disabled libraries are read but neither run
 nor expose callable definitions. Exported functions run only when called.
 
 Disabling/unloading a library stops workers and clears outputs. References remain
 subscribed and rebind when available. Explicit unload suppresses automatic reload
-until explicit load or namespace reactivation. Service flags persist; adding one
+until explicit load or namespace reactivation. Auto-load flags persist; adding one
 loads the library immediately in an active namespace, removing one does not unload it.
 
 ## Namespace operations
@@ -100,7 +102,7 @@ Changing dependencies saves `ticlo.json` and updates the active namespace at onc
 new dependencies activate before unused dependencies unload. Unsaved changes in
 dependencies to be removed reject the update.
 `#global` remains available for settings/context but its stored executable blocks
-are not started implicitly; put startup work in a Service Library.
+are not started implicitly; put startup work in an auto-load library.
 
 ## Namespace context
 
@@ -122,7 +124,7 @@ value. A binding producing `undefined` remains an override. Removing the local
 definition restores inheritance. Only local definitions and bindings are saved.
 
 `setStorage()` completes the root `#global` read before startup. Activation loads
-every used namespace's `#context` before Service Libraries and ordinary flows.
+every used namespace's `#context` before auto-load libraries and ordinary flows.
 When startup knows several required files, their storage reads may run together;
 the ordering applies to creating and running flows, not to network downloads.
 Context blocks execute while their context flow is enabled; asynchronous results

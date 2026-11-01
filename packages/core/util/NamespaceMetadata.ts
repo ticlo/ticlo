@@ -14,8 +14,8 @@ export function namespacePrefix(name: string): string {
 export function readNamespaceMetadata(value: unknown): NamespaceMetadata {
   if (value == null) return {};
   if (typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid namespace metadata');
-  const data = value as NamespaceMetadata;
-  for (const field of ['dependencies', 'serviceLibraries'] as const) {
+  const data = value as NamespaceMetadata & {serviceLibraries?: string[]};
+  for (const field of ['dependencies', 'autoLoadLibraries', 'serviceLibraries'] as const) {
     const entries = data[field];
     if (
       entries !== undefined &&
@@ -28,5 +28,8 @@ export function readNamespaceMetadata(value: unknown): NamespaceMetadata {
     )
       throw new Error(`Invalid namespace ${field}`);
   }
-  return {...data};
+  const {serviceLibraries, ...metadata} = data;
+  return serviceLibraries === undefined
+    ? metadata
+    : {...metadata, autoLoadLibraries: metadata.autoLoadLibraries ?? serviceLibraries};
 }

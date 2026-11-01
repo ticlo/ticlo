@@ -595,8 +595,8 @@ export class Root extends FlowFolder {
   listFlows(namespace: string) {
     return this._lifecycle.listFlows(namespace);
   }
-  setServiceLibrary(namespace: string, name: string, service: boolean) {
-    return this._lifecycle.setServiceLibrary(namespace, name, service);
+  setAutoLoadLibrary(namespace: string, name: string, autoLoad: boolean) {
+    return this._lifecycle.setAutoLoadLibrary(namespace, name, autoLoad);
   }
   getFlowState(ref: FlowRef) {
     return this._lifecycle.getFlowState(ref);
