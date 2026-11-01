@@ -92,7 +92,6 @@ export abstract class MapImpl extends StatefulFunction implements WorkerHost {
   }
 
   _funcBlock: Block;
-  // REFACTOR(design.md): MUST keep only active worker state and release event payloads after completion.
   _workers?: Map<string | number, RepeaterWorker>;
   _waitingWorker = 0;
 
@@ -114,7 +113,6 @@ export abstract class MapImpl extends StatefulFunction implements WorkerHost {
     return child;
   }
 
-  // REFACTOR(design.md): MUST cancel this worker's pending delivery before removing it.
   _removeWorker(key: string | number) {
     const worker = this._workers.get(key);
     if (worker) {
@@ -146,7 +144,6 @@ export class WorkerOutput implements FunctionOutput {
   timeout: any;
   onReady: (output: WorkerOutput, timeout: boolean) => void;
 
-  // REFACTOR(design.md): MUST clear the task reference on completion, timeout, reuse, or cancellation.
   task: Task;
 
   constructor(
@@ -188,7 +185,6 @@ export class WorkerOutput implements FunctionOutput {
     // do nothing
   }
 
-  // REFACTOR(design.md): MUST finish one delivery and release its task payload after notifying the host.
   workerReady(): void {
     if (this.timeout) {
       clearTimeout(this.timeout);
@@ -201,7 +197,6 @@ export class WorkerOutput implements FunctionOutput {
   }
 
   // reuse the output on a new Render
-  // REFACTOR(design.md): MUST cancel the previous delivery before reusing this output for another task.
   reset(
     field: string | number,
     timeoutSeconds: number,
@@ -214,7 +209,6 @@ export class WorkerOutput implements FunctionOutput {
     this.task = task;
   }
 
-  // REFACTOR(design.md): MUST release retained task and callback references when cancelling.
   cancel() {
     this.onReady = null;
   }

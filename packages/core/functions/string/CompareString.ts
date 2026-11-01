@@ -15,7 +15,6 @@ const descriptor: FunctionDesc = {
 };
 
 export class StartWithFunction extends PureFunction {
-  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('input');
     const v1 = this._data.getValue('search');
@@ -40,7 +39,6 @@ globalFunctions.addFactory(StartWithFunction, {
 });
 
 export class EndWithFunction extends PureFunction {
-  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('input');
     const v1 = this._data.getValue('search');
@@ -65,7 +63,6 @@ globalFunctions.addFactory(EndWithFunction, {
 });
 
 export class ContainFunction extends PureFunction {
-  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('input');
     const v1 = this._data.getValue('search');

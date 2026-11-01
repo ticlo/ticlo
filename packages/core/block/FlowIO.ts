@@ -42,7 +42,6 @@ export class InputsBlock extends Block {
     }
   }
 
-  // REFACTOR(design.md): MUST deliver worker inputs as transient port events unless the function declares retention.
   _setInputValue(val: unknown) {
     if (val instanceof Task) {
       this.updateValue('#value', val.getData());
@@ -79,13 +78,11 @@ export class InputsBlock extends Block {
 }
 
 export class OutputsBlock extends Block {
-  // REFACTOR(design.md): MUST forward each worker output delivery without caching it as a property value.
   inputChanged(input: BlockIO, val: unknown) {
     super.inputChanged(input, val);
     this._flow.outputChanged(input, val);
   }
 
-  // REFACTOR(design.md): MUST keep configuration updates distinct from transient output deliveries.
   configChanged(input: BlockConfig, val: unknown) {
     super.configChanged(input, val);
     switch (input._name) {

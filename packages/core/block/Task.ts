@@ -3,7 +3,6 @@ import {Block} from './Block.ts';
 import {ErrorEvent} from './Event.ts';
 
 export class Task {
-  // REFACTOR(design.md): MUST release handler references when the task completes or is cancelled.
   _handler: unknown = null;
 
   attachHandler(handler: unknown): boolean {
@@ -33,7 +32,6 @@ export class Task {
    * @param worker
    * @param output
    */
-  // REFACTOR(design.md): MUST release the input and output payloads after resolving the delivery.
   onResolve(worker: Block, output: unknown): DataMap {
     return convertToOutput(output);
   }
@@ -42,7 +40,6 @@ export class Task {
     return new ErrorEvent('timeout');
   }
 
-  // REFACTOR(design.md): MUST cancel owned work and release any retained event payload.
   onCancel(): void {}
 }
 

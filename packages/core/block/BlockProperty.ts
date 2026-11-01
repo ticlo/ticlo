@@ -22,9 +22,7 @@ export interface BlockPropertySubscriber {
 export class BlockProperty extends PropDispatcher<any> implements PropListener<any>, BlockBindingSource {
   readonly _block: Block;
   readonly _name: string;
-  // REFACTOR(design.md): MUST replace path-only bindings with explicit wire IDs and endpoint port IDs.
   _bindingPath: string;
-  // REFACTOR(design.md): Wire ownership MUST control subscription and pending-delivery cancellation.
   _bindingSource: BlockBindingSource;
   _helperProperty: HelperProperty;
 
@@ -71,7 +69,6 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
-  // REFACTOR(design.md): MUST separate persistent configuration/state updates from short-lived port deliveries.
   onChange(val: unknown, save?: boolean): boolean {
     if (Object.is(this._value, val)) {
       if (save && !Object.is(this._saved, val)) {
@@ -98,12 +95,10 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
 
   // output the value but doesn't notify the function
   // to be overriden in BlockIo
-  // REFACTOR(design.md): Emitting an output MUST NOT leave its payload in the property cache.
   setOutput(val: unknown): boolean {
     return this.onChange(val);
   }
 
-  // REFACTOR(design.md): MUST distinguish a persistent state edit from cancelling an attached wire.
   setValue(val: unknown) {
     if (this._bindingSource) {
       // A direct user value breaks both normal bindings and helper-block bindings.
@@ -126,12 +121,10 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     return this._bindingPath == null && this._saved === undefined;
   }
 
-  // REFACTOR(design.md): MUST NOT expose consumed input/output event payloads as latest values.
   getValue() {
     return this._value;
   }
 
-  // REFACTOR(design.md): MUST create or remove an explicit wire rather than storing only a source path.
   setBinding(path: string) {
     if (path === this._bindingPath) return;
 
@@ -156,7 +149,6 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
-  // REFACTOR(design.md): MUST replace implicit raw subscriptions with owned wires and cancellable deliveries.
   _listenRaw(source: BlockBindingSource) {
     if (this._bindingSource) {
       if (source === this._bindingSource) {
@@ -187,7 +179,6 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
-  // REFACTOR(design.md): MUST persist explicit wire identity and metadata instead of a binding path.
   _saveBinding(): unknown {
     if (this._helperProperty) {
       return this._helperProperty.__save();
@@ -195,7 +186,6 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     return this._bindingPath;
   }
 
-  // REFACTOR(design.md): MUST save wire IDs, endpoints, execution order, and route points with the flow.
   _saveToMap(map: DataMap) {
     if (this._bindingPath) {
       map[`~${this._name}`] = this._saveBinding();
@@ -207,7 +197,6 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
-  // REFACTOR(design.md): MUST load versioned port and wire records without converting an existing block's type in place.
   _load(val: unknown) {
     if (isSavedBlock(val)) {
       if (typeof val['#is'] === 'object') {
@@ -223,7 +212,6 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
-  // REFACTOR(design.md): MUST apply graph edits and wire subscriptions together; MUST NOT replay transient values.
   _liveUpdate(val: unknown) {
     if (this._bindingSource) {
       // Live updates represent authoritative saved data, so any local binding is
@@ -285,7 +273,6 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
-  // REFACTOR(design.md): Attaching a listener MUST NOT replay a consumed input or output event.
   listen(listener: PropListener<any>) {
     this._listeners.add(listener);
     listener?.onSourceChange(this);
@@ -307,7 +294,6 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
-  // REFACTOR(design.md): MUST create a fixed-type block with its own persistent identity.
   createBlock(save: boolean) {
     const block = new Block(this._block._flow, this._block, this);
     if (save) {
@@ -319,7 +305,6 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     return block;
   }
 
-  // REFACTOR(design.md): MUST detach owned wires and cancel their queued deliveries before releasing the property.
   destroy() {
     if (!this._listeners) {
       return;
@@ -354,7 +339,6 @@ export class BlockIO extends BlockProperty {
     }
   }
 
-  // REFACTOR(design.md): MUST treat the input as one delivery and release it after the function handles it.
   _valueChanged(saved?: boolean) {
     if (!this._outputing) {
       this._block.inputChanged(this, this._value);
@@ -367,7 +351,6 @@ export class BlockIO extends BlockProperty {
   _outputing: boolean = false;
 
   // outputs the value but doesn't notify the function
-  // REFACTOR(design.md): MUST forward an immutable output delivery without retaining it as the latest value.
   setOutput(val: unknown): boolean {
     this._outputing = true;
     const changed = this.onChange(val);

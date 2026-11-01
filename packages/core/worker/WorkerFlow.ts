@@ -29,7 +29,6 @@ export class WorkerFlow extends FlowWithStatic {
   }
 
   // make sure the input triggers a change
-  // REFACTOR(design.md): MUST handle the worker input as a transient delivery and release it on completion.
   updateInput(val: any) {
     super.updateInput(val);
     if (!this._waiting) {

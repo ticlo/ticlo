@@ -18,7 +18,6 @@ import {BlockBinding} from '../block/BlockBinding.ts';
 //   }
 // }
 
-// REFACTOR(design.md): MUST traverse explicit outbound wires by endpoint ID, not listener chains.
 function iterateListeners(listeners: Set<PropListener<any>>, callback: (property: BlockProperty) => void) {
   for (const listener of listeners) {
     if (listener instanceof BlockBinding) {
@@ -44,7 +43,6 @@ export class PropertyMover {
   // move the helper property
   helperMover: PropertyMover;
 
-  // REFACTOR(design.md): MUST capture stable port identity and attached wires before renaming a property.
   constructor(block: Block, oldName: string, moveOutboundLinks = false) {
     this.block = block;
     this.oldName = oldName;
@@ -103,7 +101,6 @@ export class PropertyMover {
     }
   }
 
-  // REFACTOR(design.md): MUST reconnect endpoints without changing wire IDs, order, or route points.
   moveTo(newName: string) {
     if (this.outboundLinks) {
       for (const {prop, preNames, postNames} of this.outboundLinks) {

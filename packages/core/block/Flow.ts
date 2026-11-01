@@ -65,11 +65,9 @@ export class Flow extends Block {
   _runtimeDisabled?: boolean;
   _loading: boolean = false;
 
-  // REFACTOR(design.md): MUST deliver worker outputs without retaining their event payloads on the flow.
   _outputObj?: FunctionOutput;
   private _outputFields = new Set<string>();
 
-  // REFACTOR(design.md): History snapshots MUST contain graph metadata but no transient event payloads.
   _history: FlowHistory;
 
   readonly _depth: number;
@@ -159,7 +157,6 @@ export class Flow extends Block {
   }
 
   // return true when the related output block need to be put in queue
-  // REFACTOR(design.md): MUST route output deliveries through explicit wires without retaining their values.
   outputChanged(input: BlockIO, val: unknown): boolean {
     if (this._outputObj) {
       this._outputFields.add(input._name);
@@ -168,9 +165,7 @@ export class Flow extends Block {
     return false;
   }
 
-  // REFACTOR(design.md): MUST NOT retain the last worker input unless its function declares state.
   _lastInput: unknown;
-  // REFACTOR(design.md): MUST admit worker input as a transient delivery and release it after handling.
   updateInput(val: unknown) {
     this._lastInput = val;
     const prop = this.getProperty('#inputs');
@@ -190,7 +185,6 @@ export class Flow extends Block {
     return undefined;
   }
 
-  // REFACTOR(design.md): MUST save a versioned graph with stable block/port IDs and ordered routed wires.
   save(): DataMap {
     return super._save();
   }
@@ -199,7 +193,6 @@ export class Flow extends Block {
   _onStateChange: (flow: Flow, state: FlowState) => void;
 
   _loaded: boolean;
-  // REFACTOR(design.md): MUST load or explicitly migrate the saved format before constructing fixed-type blocks.
   load(
     src?: DataMap,
     funcId?: string,
@@ -265,7 +258,6 @@ export class Flow extends Block {
     this.load(data, null, this._applyChange, this._onStateChange);
   }
 
-  // REFACTOR(design.md): MUST apply migrated graph data without changing existing block types implicitly.
   _loadFlowData(map: DataMap, funcId?: string) {
     if ('#disabled' in map) this._disabledChanged(map['#disabled']);
     super._load(map);
@@ -292,7 +284,6 @@ export class Flow extends Block {
     this.deleteValue('@has-change');
   }
 
-  // REFACTOR(design.md): MUST track structural edits, wire order, and route points without recording deliveries.
   trackChange() {
     if (this._applyChange) {
       if (this._history) {
@@ -303,12 +294,10 @@ export class Flow extends Block {
     }
   }
 
-  // REFACTOR(design.md): MUST restore graph identity and wire metadata without replaying transient values.
   undo() {
     this._history?.undo();
   }
 
-  // REFACTOR(design.md): MUST reapply graph identity and wire metadata without replaying transient values.
   redo() {
     this._history?.redo();
   }
@@ -364,7 +353,6 @@ export class Flow extends Block {
     throw error;
   }
 
-  // REFACTOR(design.md): MUST persist the versioned graph snapshot after edits and preserve migration failures.
   applyChange(): DataMap | Promise<DataMap> {
     if (this._applyChange) {
       try {
@@ -389,7 +377,6 @@ export class Flow extends Block {
 
   cancelChange() {}
 
-  // REFACTOR(design.md): MUST update connections and listeners atomically when applying graph history.
   liveUpdate(map: DataMap) {
     this._loading = true;
     this._liveUpdate(map);
@@ -626,7 +613,6 @@ export class Root extends FlowFolder {
     await storage.init(this);
   }
 
-  // REFACTOR(design.md): MUST advance one deterministic serial delivery queue per runtime turn.
   _run = () => {
     this._resolver.run();
     this._resolver._queued = false;
@@ -735,7 +721,6 @@ export class Root extends FlowFolder {
     return newGroup;
   }
 
-  // REFACTOR(design.md): MUST migrate stored flow data before creating fixed-type block instances.
   addFlow(path?: string, data?: DataMap, loader?: FlowLoader, autoCreateFolder?: boolean, fromStorage = false): Flow {
     if (!path) {
       path = Block.nextUid();
