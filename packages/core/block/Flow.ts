@@ -567,6 +567,16 @@ export class Root extends FlowFolder {
   enableNamespace(name: string, options?: {flows?: string[]}) {
     return this._lifecycle.enableNamespace(name, options);
   }
+  switchNamespace(name: string) {
+    return this._lifecycle.switchNamespace(name);
+  }
+  setNamespaceDependencies(name: string, dependencies: string[]) {
+    return this._lifecycle.setNamespaceDependencies(name, dependencies);
+  }
+  getNamespaceMetadata(name: string) {
+    if (!this._storage?.getNamespaceMetadata) throw new Error('Storage does not support namespace metadata');
+    return this._storage.getNamespaceMetadata(name);
+  }
   disableNamespace(name: string, options?: UnloadOptions & {cascade?: boolean}) {
     return this._lifecycle.disableNamespace(name, options);
   }

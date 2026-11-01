@@ -1,7 +1,7 @@
 import type {Flow, FlowNameSpace, Root} from './Flow.ts';
 import {Namespace} from './Namespace.ts';
 import type {NamespaceMetadata} from './Storage.ts';
-import {namespacePrefix, validateNamespace} from '../util/NamespaceMetadata.ts';
+import {namespacePrefix, readNamespaceMetadata, validateNamespace} from '../util/NamespaceMetadata.ts';
 import {validFlowEntry} from '../util/FlowStoragePath.ts';
 import {matchEditPath} from '../policy/EditPolicy.ts';
 import type {DataMap} from '../util/DataTypes.ts';
@@ -216,6 +216,72 @@ export class FlowRuntime {
     void selection.catch(() => {});
     await this.activate([name], generation);
     await this.loadSelected(await selection, generation);
+  }
+
+  async switchNamespace(name: string) {
+    validateNamespace(name);
+    const active = new Set(this.metadata.keys());
+    await this.enableNamespace(name);
+    const keep = new Set<string>();
+    const visit = (namespace: string) => {
+      if (keep.has(namespace)) return;
+      keep.add(namespace);
+      for (const dependency of this.metadata.get(namespace)?.dependencies ?? []) visit(dependency);
+    };
+    visit(name);
+    const removed = [...active].filter((namespace) => !keep.has(namespace));
+    try {
+      for (const {ref, flow} of this.loaded.values()) if (removed.includes(ref.namespace)) this.assertClean(flow, {});
+    } catch (error) {
+      for (const namespace of this.metadata.keys()) {
+        if (!active.has(namespace)) await this.disableNamespace(namespace, {cascade: true, discardChanges: true});
+      }
+      throw error;
+    }
+    for (const namespace of removed) {
+      if (this.metadata.has(namespace)) await this.disableNamespace(namespace, {cascade: true});
+    }
+  }
+
+  async setNamespaceDependencies(name: string, dependencies: string[]) {
+    validateNamespace(name);
+    const storage = this.root._storage;
+    if (!storage?.getNamespaceMetadata || !storage.saveNamespaceMetadata)
+      throw new Error('Storage does not support namespace metadata');
+    const updated = readNamespaceMetadata({
+      ...(await storage.getNamespaceMetadata(name)),
+      dependencies: [...new Set(dependencies)],
+    });
+    if (!this.metadata.has(name)) {
+      await storage.saveNamespaceMetadata(name, updated);
+      return;
+    }
+
+    const active = new Set(this.metadata.keys());
+    await this.activate(updated.dependencies ?? [], this.generation);
+    const keep = new Set<string>();
+    const visit = (namespace: string) => {
+      if (keep.has(namespace)) return;
+      keep.add(namespace);
+      const metadata = namespace === name ? updated : this.metadata.get(namespace);
+      for (const dependency of metadata?.dependencies ?? []) visit(dependency);
+    };
+    visit(name);
+    const removed = [...active].filter((namespace) => !keep.has(namespace));
+    try {
+      for (const {ref, flow} of this.loaded.values()) if (removed.includes(ref.namespace)) this.assertClean(flow, {});
+      await storage.saveNamespaceMetadata(name, updated);
+    } catch (error) {
+      for (const namespace of [...this.metadata.keys()]) {
+        if (!active.has(namespace) && this.metadata.has(namespace))
+          await this.disableNamespace(namespace, {cascade: true, discardChanges: true});
+      }
+      throw error;
+    }
+    this.metadata.set(name, updated);
+    for (const namespace of removed) {
+      if (this.metadata.has(namespace)) await this.disableNamespace(namespace, {cascade: true});
+    }
   }
 
   loadLibraryOnDemand(namespace: string, name: string) {

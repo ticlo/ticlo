@@ -38,6 +38,7 @@ import {StageConnection, StageConnectionContext, connectStageTab} from './StageC
 import {designerData} from './sample-data/designer.ts';
 import {EditorWindows} from './EditorWindows.ts';
 import {fileFlowPath, pageFlowPath} from './flow-path.ts';
+import {useNamespaceSelection} from './useNamespaceSelection.ts';
 
 const FileVersionContext = React.createContext(0);
 
@@ -102,6 +103,7 @@ function DesignerHeader({
   conn,
   files,
   onFilesChange,
+  onNamespaceChange,
 }: {
   language: string;
   onLanguageChange: (language: string) => void;
@@ -110,6 +112,7 @@ function DesignerHeader({
   conn: ClientConnection;
   files?: {storage: ProjectFiles; project: string};
   onFilesChange: () => void;
+  onNamespaceChange: (name: string) => Promise<void>;
 }) {
   const layout = useContext(DesignerLayoutContextType);
   const {designMode, setDesignMode} = layout;
@@ -131,6 +134,7 @@ function DesignerHeader({
         files={files}
         newPage
         onChange={onFilesChange}
+        onNamespaceChange={onNamespaceChange}
         onOpen={(path, flow) => openDesignerFlow(path, flow, conn, files.storage, layout)}
       >
         {content}
@@ -163,6 +167,7 @@ interface Props {
   conn: ClientConnection;
   initialFlow?: string;
   files?: {storage: ProjectFiles; project: string};
+  onNamespaceChange: (name: string) => Promise<void>;
 }
 
 interface State {
@@ -397,6 +402,7 @@ class App extends React.PureComponent<Props, State> {
                   conn={conn}
                   files={this.props.files}
                   onFilesChange={this.onFilesChange}
+                  onNamespaceChange={this.props.onNamespaceChange}
                 />
                 <DockLayout
                   defaultLayout={this.defaultDockLayout}
@@ -420,6 +426,30 @@ class App extends React.PureComponent<Props, State> {
       </AppTheme>
     );
   }
+}
+
+function DesignerWorkspace({
+  root,
+  conn,
+  initialFlow,
+  files,
+}: {
+  root: Root;
+  conn: ClientConnection;
+  initialFlow?: string;
+  files: {storage: ProjectFiles; project: string};
+}) {
+  const selection = useNamespaceSelection(root, files.project, initialFlow);
+  return (
+    <App
+      key={selection.project}
+      root={root}
+      conn={conn}
+      initialFlow={selection.initialFlow}
+      files={{...files, project: selection.project}}
+      onNamespaceChange={selection.switchNamespace}
+    />
+  );
 }
 
 window.addEventListener('hashchange', () => location.reload());
@@ -455,7 +485,8 @@ window.addEventListener('hashchange', () => location.reload());
     }
   } else {
     const storage = new StaticStorage(new URL('./storage', location.href).href);
-    files = {storage, project: selected?.ref.namespace ?? 'local'};
+    const project = selected?.ref.namespace ?? params.get('project') ?? 'local';
+    files = {storage, project};
     await root.setStorage(storage);
     if (selected) {
       const sample =
@@ -465,17 +496,19 @@ window.addEventListener('hashchange', () => location.reload());
       if (sample) root.addFlow(selected.path, designerData);
       initialFlow = selected.path;
     } else {
-      await root.start({local: {flows: ['**']}});
-      if (!(root.queryValue('+local.designer-example') instanceof Flow)) {
-        root.addFlow('+local.designer-example', designerData);
+      await root.start({[project]: {flows: params.has('project') ? [] : ['**']}});
+      if (project === 'local' && !params.has('project')) {
+        if (!(root.queryValue('+local.designer-example') instanceof Flow)) {
+          root.addFlow('+local.designer-example', designerData);
+        }
+        initialFlow = params.get('flow') || '+local.designer-example';
       }
-      initialFlow = params.get('flow') || '+local.designer-example';
     }
   }
 
   const [server, client] = makeLocalConnection(root, true, undefined, false);
   createRoot(document.getElementById('app')).render(
-    <App root={root} conn={client} initialFlow={initialFlow} files={files} />
+    <DesignerWorkspace root={root} conn={client} initialFlow={initialFlow} files={files} />
   );
 })().catch((error) => {
   console.error(error);

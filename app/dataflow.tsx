@@ -57,6 +57,7 @@ import {StageConnection, StageConnectionContext, connectStageTab} from './StageC
 import type {ClientConn, EditPolicy} from '@ticlo/core';
 import {fileFlowPath} from './flow-path.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
+import {useNamespaceSelection} from './useNamespaceSelection.ts';
 
 const FileVersionContext = React.createContext(0);
 
@@ -82,6 +83,7 @@ interface Props {
   conn: ClientConnection;
   initialFlow?: string;
   files?: {storage: ProjectFiles; project: string};
+  onNamespaceChange: (name: string) => Promise<void>;
 }
 
 interface State {
@@ -293,6 +295,7 @@ class App extends React.PureComponent<Props, State> {
                     files={this.props.files}
                     onOpen={this.openFlow}
                     onChange={this.onFilesChange}
+                    onNamespaceChange={this.props.onNamespaceChange}
                   />
                 ) : (
                   <AppHeader language={this.lng} onLanguageChange={this.switchLan} />
@@ -321,6 +324,27 @@ class App extends React.PureComponent<Props, State> {
   }
 }
 
+function DataflowWorkspace({
+  conn,
+  initialFlow,
+  files,
+}: {
+  conn: ClientConnection;
+  initialFlow?: string;
+  files: {storage: ProjectFiles; project: string};
+}) {
+  const selection = useNamespaceSelection(Root.instance, files.project, initialFlow);
+  return (
+    <App
+      key={selection.project}
+      conn={conn}
+      initialFlow={selection.initialFlow}
+      files={{...files, project: selection.project}}
+      onNamespaceChange={selection.switchNamespace}
+    />
+  );
+}
+
 window.addEventListener('hashchange', () => location.reload());
 
 (async () => {
@@ -346,11 +370,12 @@ window.addEventListener('hashchange', () => location.reload());
     if (firstFlow) initialFlow = project === '#root' ? firstFlow.name : `+${project}.${firstFlow.name}`;
   } else {
     const storage = new StaticStorage(new URL('./storage', location.href).href);
-    files = {storage, project: 'local'};
+    const project = params.get('project') || 'local';
+    files = {storage, project};
     await root.setStorage(storage);
-    await root.start({local: {flows: ['**']}});
+    await root.start({[project]: {flows: params.has('project') ? [] : ['**']}});
 
-    if (!(root.queryValue('+local.example') instanceof Flow)) {
+    if (project === 'local' && !params.has('project') && !(root.queryValue('+local.example') instanceof Flow)) {
       console.log('initialize the database');
       root.addFlow('+local.example', reactData);
       root.addFlow('+local.example0', data);
@@ -359,11 +384,13 @@ window.addEventListener('hashchange', () => location.reload());
     // create some global blocks
     root._globalRoot.createBlock('^gAdd')?.setValue('#is', 'add');
     root._globalRoot.createBlock('^gSub')?.setValue('#is', 'subtract');
-    initialFlow = '+local.example';
+    if (project === 'local' && !params.has('project')) initialFlow = '+local.example';
   }
 
   const [server, client] = makeLocalConnection(root);
-  createRoot(document.getElementById('app')).render(<App conn={client} initialFlow={initialFlow} files={files} />);
+  createRoot(document.getElementById('app')).render(
+    <DataflowWorkspace conn={client} initialFlow={initialFlow} files={files} />
+  );
 })().catch((error) => {
   console.error(error);
   document.getElementById('app').textContent = `Failed to load dataflow editor: ${error.message}`;

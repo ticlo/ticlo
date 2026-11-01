@@ -82,14 +82,23 @@ loads the library immediately in an active namespace, removing one does not unlo
 
 ```ts
 await root.enableNamespace('main', {flows: ['entry']});
+await root.switchNamespace('other');
+await root.setNamespaceDependencies('other', ['shared']);
 await root.disableNamespace('main');
 await root.disableNamespace('shared', {cascade: true});
 await root.stop();
 ```
 
-Disabling unloads the namespace's flows. Active dependents require `cascade: true`;
-shared dependencies remain when a consumer stops. Late reads cannot restore
-unloaded flows. Loaded sets, startup patterns, and unload suppression are not saved.
+Switching activates the target and its dependencies, then unloads other active
+namespaces. Shared dependencies stay active. Switching does not load ordinary
+target flows; load them explicitly. Unsaved edits in namespaces to be closed
+reject the switch. Disabling unloads the namespace's flows. Active dependents
+require `cascade: true`; shared dependencies remain when a consumer stops.
+Late reads cannot restore unloaded flows. Loaded sets, startup patterns, and
+unload suppression are not saved.
+Changing dependencies saves `ticlo.json` and updates the active namespace at once:
+new dependencies activate before unused dependencies unload. Unsaved changes in
+dependencies to be removed reject the update.
 `#global` remains available for settings/context but its stored executable blocks
 are not started implicitly; put startup work in a Service Library.
 

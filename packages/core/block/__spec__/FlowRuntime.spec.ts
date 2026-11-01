@@ -90,6 +90,69 @@ describe('runtime lifecycle', () => {
     expect(root.getFlowState(ref('main', 'entry'))).toBe('unloaded');
   });
 
+  it('switches namespaces while retaining shared dependencies and rejecting unsaved changes', async () => {
+    await storage.saveNamespaceMetadata('main', {dependencies: ['shared']});
+    await storage.saveNamespaceMetadata('other', {dependencies: ['shared']});
+    await storage.saveNamespaceMetadata('dependent', {dependencies: ['other']});
+    storage.saveFlow(null, {value: 1}, '+main.entry');
+    storage.saveFlow(null, {value: 2}, '+shared.entry');
+    storage.saveFlow(null, {value: 3}, '+other.entry');
+    await root.start({main: {flows: ['entry']}, shared: {flows: ['entry']}});
+    const main = await root.loadFlow(ref('main', 'entry'));
+    const shared = await root.loadFlow(ref('shared', 'entry'));
+    main.setValue('value', 4);
+    main.trackChange();
+
+    await expect(root.switchNamespace('other')).rejects.toThrow('unsaved changes');
+    expect(root.getFlowState(ref('main', 'entry'))).toBe('enabled');
+    expect(Namespace.getNameSpace('+other', root)._enabled).toBe(false);
+
+    await main.applyChange();
+    await root.switchNamespace('other');
+    expect(root.getFlowState(ref('main', 'entry'))).toBe('unloaded');
+    expect(root.queryValue('+shared.entry')).toBe(shared);
+    expect(Namespace.getNameSpace('+other', root)._enabled).toBe(true);
+    expect(root.getFlowState(ref('other', 'entry'))).toBe('unloaded');
+
+    const other = await root.loadFlow(ref('other', 'entry'));
+    await root.switchNamespace('dependent');
+    expect(root.queryValue('+other.entry')).toBe(other);
+    expect(root.queryValue('+shared.entry')).toBe(shared);
+    expect(Namespace.getNameSpace('+dependent', root)._enabled).toBe(true);
+  });
+
+  it('updates active namespace dependencies without unloading its flows', async () => {
+    await storage.saveNamespaceMetadata('main', {dependencies: ['shared'], serviceLibraries: ['service']});
+    await storage.saveNamespaceMetadata('other', {});
+    storage.saveLib('+main', 'service', libData);
+    storage.saveFlow(null, {value: 1}, '+main.entry');
+    storage.saveFlow(null, {value: 2}, '+shared.entry');
+    await root.start({main: {flows: ['entry']}, shared: {flows: ['entry']}});
+    const main = await root.loadFlow(ref('main', 'entry'));
+    const shared = await root.loadFlow(ref('shared', 'entry'));
+    shared.setValue('value', 3);
+    shared.trackChange();
+
+    await expect(root.setNamespaceDependencies('main', ['other'])).rejects.toThrow('unsaved changes');
+    expect((await storage.getNamespaceMetadata('main')).dependencies).toEqual(['shared']);
+    expect(Namespace.getNameSpace('+other', root)._enabled).toBe(false);
+
+    await shared.applyChange();
+    vi.spyOn(storage, 'saveNamespaceMetadata').mockRejectedValueOnce(new Error('write failed'));
+    await expect(root.setNamespaceDependencies('main', ['other'])).rejects.toThrow('write failed');
+    expect(Namespace.getNameSpace('+other', root)._enabled).toBe(false);
+    expect((await storage.getNamespaceMetadata('main')).dependencies).toEqual(['shared']);
+
+    await root.setNamespaceDependencies('main', ['other']);
+    expect(root.queryValue('+main.entry')).toBe(main);
+    expect(root.getFlowState(ref('shared', 'entry'))).toBe('unloaded');
+    expect(Namespace.getNameSpace('+other', root)._enabled).toBe(true);
+    expect(await storage.getNamespaceMetadata('main')).toEqual({
+      dependencies: ['other'],
+      serviceLibraries: ['service'],
+    });
+  });
+
   it('keeps inactive libraries empty, lazily loads on activation, and rebinds after disable and unload', async () => {
     storage.saveLib('+shared', 'tools', libData);
     storage.saveFlow(

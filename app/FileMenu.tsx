@@ -21,6 +21,7 @@ import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
 import {fileDestination, fileFlowPath} from './flow-path.ts';
 import {stageReadonly} from './AppLayout.ts';
 import {AppHeader} from './AppHeader.tsx';
+import {useNamespaceMenu} from './NamespaceMenu.tsx';
 
 type Dialog = 'open' | 'new-flow' | 'new-library' | 'save-as' | null;
 
@@ -32,6 +33,7 @@ export function FileMenuHeader({
   files,
   onOpen,
   onChange,
+  onNamespaceChange,
   newPage = false,
   children,
 }: {
@@ -42,6 +44,7 @@ export function FileMenuHeader({
   files: {storage: ProjectFiles; project: string};
   onOpen: (path: string, flow: Flow) => void;
   onChange?: () => void;
+  onNamespaceChange: (name: string) => Promise<void>;
   newPage?: boolean;
   children?: React.ReactNode;
 }) {
@@ -53,6 +56,14 @@ export function FileMenuHeader({
   const [selected, setSelected] = useState<FileEntry | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const namespaceMenu = useNamespaceMenu({
+    root,
+    storage,
+    project,
+    readonly: conn.getEditPolicyView().policy?.readonly,
+    onNamespaceChange,
+    onChange,
+  });
   const writable = storage.getCapabilities(project).write;
   const activePath = activeStage?.basePath;
   const activeFlow = activePath && root.queryValue(activePath);
@@ -168,9 +179,15 @@ export function FileMenuHeader({
 
   return (
     <>
-      <AppHeader language={language} onLanguageChange={onLanguageChange} fileItems={items}>
+      <AppHeader
+        language={language}
+        onLanguageChange={onLanguageChange}
+        fileItems={items}
+        namespaceItems={namespaceMenu.items}
+      >
         {children}
       </AppHeader>
+      {namespaceMenu.dialogs}
       <Modal
         title={t('Open')}
         open={dialog === 'open'}
