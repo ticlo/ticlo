@@ -4,6 +4,7 @@ import {DateTime} from 'luxon';
 import {getZoneObject, invalidDate} from '../../util/DateTime.ts';
 
 export class CreateDateFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run() {
     const year = Number(this._data.getValue('year'));
     const month = Number(this._data.getValue('month'));

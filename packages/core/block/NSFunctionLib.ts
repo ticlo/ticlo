@@ -50,6 +50,7 @@ export class FlowFunctionLib extends FunctionLib {
     return fullId;
   }
 
+  // REFACTOR(design.md): MUST save worker definitions with explicit format versions and stable ports.
   save() {
     let result: DataMap | undefined = undefined;
     for (const key in this._functions) {
@@ -63,6 +64,7 @@ export class FlowFunctionLib extends FunctionLib {
     }
     return result;
   }
+  // REFACTOR(design.md): MUST migrate worker definitions explicitly before updating their instances.
   load(data: DataMap) {
     this._loading = true;
     try {

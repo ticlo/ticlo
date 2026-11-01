@@ -22,8 +22,10 @@ const httpClient: HttpClient = {
 };
 
 export class FetchFunction extends BaseFunction {
+  // REFACTOR(design.md): MUST own each request's payload and cancellation for its active delivery only.
   _abortController: AbortController;
 
+  // REFACTOR(design.md): MUST capture request inputs for this operation and release them after completion.
   run(): any {
     let client: HttpClient = this._data.getValue('client') as HttpClient;
     const url = this._data.getValue('url');
@@ -68,6 +70,7 @@ export class FetchFunction extends BaseFunction {
     return new ErrorEvent('invalid url');
   }
 
+  // REFACTOR(design.md): MUST abort the request and prevent late output after block removal.
   cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto') {
     if (this._abortController?.signal.aborted === false) {
       this._abortController?.abort();

@@ -5,6 +5,7 @@ import {BlockBindingSource} from './BlockProperty.ts';
 /// a helper class to use async await on Dispatcher
 export class ListenPromise<T> implements PropListener<T> {
   // if source is set, it will be managed by the listener and unlistened automaticly
+  // REFACTOR(design.md): MUST tie this listener to a wire's lifetime and cancel it when the wire is removed.
   _source: BlockBindingSource;
   _valid = false;
   _promise: Promise<T>;
@@ -30,6 +31,7 @@ export class ListenPromise<T> implements PropListener<T> {
     }
   }
 
+  // REFACTOR(design.md): MUST consume one delivery without keeping its payload beyond resolution.
   onChange(val: T): void {
     if (this._valid) {
       let result: EventType | boolean;
@@ -54,6 +56,7 @@ export class ListenPromise<T> implements PropListener<T> {
     }
   }
 
+  // REFACTOR(design.md): MUST detach the listener and release references to pending event data.
   destroy() {
     if (this._source) {
       this._source.unlisten(this);

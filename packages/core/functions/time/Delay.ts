@@ -9,6 +9,7 @@ const MIN_DELAY = 0.001;
 const DEFAULT_DELAY = 1;
 
 export class DelayFunction extends BaseFunction<Block> {
+  // REFACTOR(design.md): MUST retain the delayed payload explicitly with this timer and release it on cancellation.
   private _timeout?: any;
   private _onTimer = () => {
     this._timeout = null;
@@ -17,6 +18,7 @@ export class DelayFunction extends BaseFunction<Block> {
   };
   private _inputChanged = false;
   private _timerTriggered = false;
+  // REFACTOR(design.md): MUST capture the incoming event for its timer instead of reading a cached input later.
   inputChanged(input: BlockIO, val: unknown): boolean {
     if (input._name === 'input') {
       this._inputChanged = true;
@@ -33,6 +35,7 @@ export class DelayFunction extends BaseFunction<Block> {
       }
     }
   }
+  // REFACTOR(design.md): MUST emit the delayed event once, then release its retained payload.
   run() {
     if (this._timerTriggered) {
       this._timerTriggered = false;
@@ -59,6 +62,7 @@ export class DelayFunction extends BaseFunction<Block> {
     return NO_EMIT;
   }
 
+  // REFACTOR(design.md): MUST cancel the timer and release the pending delivery payload.
   cancel(reason: EventType, mode: BlockMode): boolean {
     if (this._timeout) {
       clearTimeout(this._timeout);

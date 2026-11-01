@@ -601,17 +601,20 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
     }
   }
 
+  // REFACTOR(design.md): Undo MUST restore wire routes and order without event payloads.
   undo = () => {
     const {conn, basePath} = this.props;
     conn.undo(basePath);
     return true;
   };
+  // REFACTOR(design.md): Redo MUST restore wire routes and order without event payloads.
   redo = () => {
     const {conn, basePath} = this.props;
     conn.redo(basePath);
     return true;
   };
 
+  // REFACTOR(design.md): MUST render wires from saved graph records, including route-point controls.
   renderImpl() {
     const {style, conn, basePath, toolButtons} = this.props;
     const {zoom, contentWidth, contentHeight, stageWidth, stageHeight, modal} = this.state;
@@ -767,6 +770,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
     return true;
   };
 
+  // REFACTOR(design.md): MUST copy selected blocks with internal wire IDs and route metadata.
   async copyProps(props: string[]) {
     try {
       const {conn, basePath} = this.props;
@@ -812,6 +816,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
     }
     return true;
   };
+  // REFACTOR(design.md): MUST remap pasted graph identities and reconnect wires deliberately.
   async pasteData(data: DataMap, resolve?: 'overwrite' | 'rename') {
     const {conn, basePath} = this.props;
     const error = this.policy.check({cmd: 'paste', path: basePath, data, resolve}, (path) => this._blocks.has(path));

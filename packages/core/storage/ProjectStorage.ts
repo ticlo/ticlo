@@ -47,6 +47,7 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
     const namespace = key.startsWith('+') ? key.slice(1).split('.')[0].split(':')[0] : '#root';
     return this.getCapabilities(namespace).write;
   }
+  // REFACTOR(design.md): MUST validate the file version and migrate old binding paths explicitly.
   async loadFlow(key: string): Promise<DataMap | null> {
     return this.enqueue(key, async () => {
       const {files, path} = this.flowFile(key);
@@ -61,6 +62,7 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
       }
     });
   }
+  // REFACTOR(design.md): MUST persist versioned IDs, ports, ordered wires, and route points.
   saveFlow(flow: Flow | null, data: DataMap | null, key: string) {
     const text = encodeSorted(data ?? flow?.save());
     return this.enqueue(key, async () => {
@@ -96,6 +98,7 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
     await this.deleteFile(`${ns || '#root'}/${flowStoragePath(name, true)}`);
     for (const entry of this.revisions.keys()) if (entry.startsWith(`${key}.`)) this.revisions.delete(entry);
   }
+  // REFACTOR(design.md): MUST return the versioned graph snapshot used for save and undo history.
   getFlowLoader(key: string, _prop?: BlockProperty): FlowLoader {
     this.flowFile(key);
     return {

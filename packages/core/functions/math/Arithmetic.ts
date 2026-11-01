@@ -44,6 +44,7 @@ const descriptor1: FunctionDesc = {
 };
 
 export class AddFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     let sum = 0;
     for (const val of getInputsArray(this._data)) {
@@ -64,6 +65,7 @@ globalFunctions.addFactory(AddFunction, {
 });
 
 export class MultiplyFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     let product = 1;
     for (const val of getInputsArray(this._data)) {
@@ -84,6 +86,7 @@ globalFunctions.addFactory(MultiplyFunction, {
 });
 
 export class SubtractFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('0');
     const v1 = this._data.getValue('1');
@@ -102,6 +105,7 @@ globalFunctions.addFactory(SubtractFunction, {
 });
 
 export class DivideFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('0');
     const v1 = this._data.getValue('1');
@@ -120,6 +124,7 @@ globalFunctions.addFactory(DivideFunction, {
 });
 
 export class ModuloFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('0');
     const v1 = this._data.getValue('1');
@@ -138,6 +143,7 @@ globalFunctions.addFactory(ModuloFunction, {
 });
 
 export class PowerFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('0');
     const v1 = this._data.getValue('1');
@@ -156,6 +162,7 @@ globalFunctions.addFactory(PowerFunction, {
 });
 
 export class RoundFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const input = this._data.getValue('input');
     this._data.output(input == null ? undefined : Math.round(Number(input)));
@@ -169,6 +176,7 @@ globalFunctions.addFactory(RoundFunction, {
 });
 
 export class FloorFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const input = this._data.getValue('input');
     this._data.output(input == null ? undefined : Math.floor(Number(input)));
@@ -182,6 +190,7 @@ globalFunctions.addFactory(FloorFunction, {
 });
 
 export class CeilFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const input = this._data.getValue('input');
     this._data.output(input == null ? undefined : Math.ceil(Number(input)));
@@ -195,6 +204,7 @@ globalFunctions.addFactory(CeilFunction, {
 });
 
 export class AbsFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const input = this._data.getValue('input');
     this._data.output(input == null ? undefined : Math.abs(Number(input)));
@@ -208,6 +218,7 @@ globalFunctions.addFactory(AbsFunction, {
 });
 
 export class ClampFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const input = this._data.getValue('input');
     const min = this._data.getValue('min');
@@ -235,6 +246,7 @@ globalFunctions.addFactory(ClampFunction, {
 });
 
 export class MinFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     let result = Infinity;
     let hasValue = false;
@@ -257,6 +269,7 @@ globalFunctions.addFactory(MinFunction, {
 });
 
 export class MaxFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     let result = -Infinity;
     let hasValue = false;

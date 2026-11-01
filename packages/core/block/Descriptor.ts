@@ -40,6 +40,7 @@ export interface FunctionCommandDesc {
 }
 
 export interface PropDesc {
+  // REFACTOR(design.md): MUST give ports stable IDs independent of editable display names.
   name: string;
   type: ValueType;
   readonly?: boolean;
@@ -125,6 +126,7 @@ export interface FunctionDesc {
   mode?: BlockMode;
   // whether the function's output purely depends on input values.
   isPure?: boolean;
+  // REFACTOR(design.md): MUST define stable input/output port identities for each fixed function type.
   properties?: (PropDesc | PropGroupDesc)[];
   /** Initial property values for new blocks, overriding property descriptor init values. */
   init?: DataMap;

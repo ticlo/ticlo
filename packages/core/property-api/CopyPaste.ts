@@ -39,6 +39,7 @@ export function createStaticBlock(property: BlockProperty): StaticBlock {
   }
   return null;
 }
+// REFACTOR(design.md): MUST copy stable block/port IDs and internal routed wires without event payloads.
 export function copyProperties(parent: Block, fields: string[]): DataMap | string {
   const result: any = {};
   let staticResult: any;
@@ -65,6 +66,7 @@ export function copyProperties(parent: Block, fields: string[]): DataMap | strin
   return result;
 }
 
+// REFACTOR(design.md): MUST disconnect removed blocks' wires and cancel their pending deliveries.
 export function deleteProperties(parent: Block, fields: string[]) {
   for (const field of fields) {
     const [prop] = getProperty(parent, field);
@@ -74,10 +76,12 @@ export function deleteProperties(parent: Block, fields: string[]) {
   }
 }
 
+// REFACTOR(design.md): MUST paste graph records with new IDs and deliberate endpoint reconnection.
 export function pasteProperties(parent: Block, data: DataMap, resolve?: 'overwrite' | 'rename'): string | string[] {
   return pastePropertiesImpl(parent, data, resolve);
 }
 
+// REFACTOR(design.md): MUST preserve wire identity/order and route metadata when moving blocks.
 export function moveBlocks(
   source: Block,
   target: Block,
@@ -100,6 +104,7 @@ export function moveBlocks(
   return pastePropertiesImpl(target, data, resolve, () => deleteProperties(source, fields), renames);
 }
 
+// REFACTOR(design.md): MUST reconnect pasted wires and update graph subscriptions atomically.
 function pastePropertiesImpl(
   parent: Block,
   data: DataMap,
@@ -180,6 +185,7 @@ function pastePropertiesImpl(
   return result;
 }
 
+// REFACTOR(design.md): MUST translate explicit endpoint IDs instead of rewriting dotted binding paths.
 function adjustParentBindings(parent: Block, data: DataMap, sourcePath: unknown, staticData?: DataMap) {
   if (typeof sourcePath !== 'string') return;
   const flow = parent._flow;
@@ -232,6 +238,7 @@ function isParentBinding(str: string) {
   return str === '##';
 }
 
+// REFACTOR(design.md): MUST remap block and port IDs while preserving internal wire order and routes.
 function renameBlocks(parent: Block, data: DataMap, fields: string[], map = new Map<string, string>()) {
   const reservedNames: string[] = Object.keys(data);
   // move blocks

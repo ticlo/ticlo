@@ -49,6 +49,7 @@ export function getNextAlignedSecond(currentTs: number, interval: number) {
 }
 
 class TimerFunction extends AutoUpdateFunction<Block> {
+  // REFACTOR(design.md): MUST declare this counter as retained state separate from transient emissions.
   private _currentValue = 0;
   onCall(val: unknown): boolean {
     // timer is called, and should increase current value
@@ -61,6 +62,7 @@ class TimerFunction extends AutoUpdateFunction<Block> {
   }
 
   private _scheduleTriggered = false;
+  // REFACTOR(design.md): MUST admit timer ticks as events in the same serial queue.
   onSchedule = () => {
     this._scheduleTriggered = true;
     this._data._queueFunction();
@@ -80,6 +82,7 @@ class TimerFunction extends AutoUpdateFunction<Block> {
     return true;
   }
 
+  // REFACTOR(design.md): MUST emit each tick once and keep only declared counter state.
   run() {
     if (this._data.getValue('paused')) {
       return NO_EMIT;

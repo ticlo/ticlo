@@ -3,6 +3,7 @@ import {PureFunction} from '../../block/BlockFunction.ts';
 import {getInputsArray} from '../../block/FunctonData.ts';
 
 export class JoinFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     let arr: any[] = [];
     for (const val of getInputsArray(this._data)) {

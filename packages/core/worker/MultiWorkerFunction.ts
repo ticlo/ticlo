@@ -16,7 +16,9 @@ class MultiWorkerOutput implements FunctionOutput {
     public key: string
   ) {}
 
+  // REFACTOR(design.md): MUST release the override after its output delivery is accepted.
   _overrideValue: any;
+  // REFACTOR(design.md): MUST declare any retained aggregate result as explicit block state.
   _result: any = {};
   output(value: any, field?: string): void {
     if (field === '#return') {
@@ -37,6 +39,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
   readonly workerField = 'use';
   readonly control: WorkerControl;
 
+  // REFACTOR(design.md): MUST retain input only while its worker subscriptions are active.
   _input: any;
   _inputChanged: boolean = false;
   _key = '';
@@ -48,6 +51,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
 
   _workers: Map<string, RepeaterWorker>;
 
+  // REFACTOR(design.md): MUST make retained aggregate output explicit and release superseded copies.
   _outputCache: DataMap;
   _currentOutput: DataMap;
 
@@ -60,6 +64,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
     return MultiWorkerFunction.inputMap;
   }
 
+  // REFACTOR(design.md): MUST replace implicit latest-input storage with a deliberate state transition.
   _onInputChange(val: any): boolean {
     if (!Object.isExtensible(val)) {
       // validate the input
@@ -222,6 +227,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
   }
 
   _pendingOutput = false;
+  // REFACTOR(design.md): MUST emit through ordered wires while keeping only declared aggregate state.
   _output(key: string, value: any): any {
     if (value === this._currentOutput[key]) {
       if (value && value.constructor === Object) {
@@ -246,6 +252,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
       Resolver.callLater(this._applyPendingOutput);
     }
   }
+  // REFACTOR(design.md): MUST release the pending output snapshot after its delivery.
   _applyPendingOutput = () => {
     if (this._data && this._pendingOutput) {
       this._pendingOutput = false;
@@ -262,6 +269,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
     this._data.deleteValue('#output');
   }
 
+  // REFACTOR(design.md): MUST cancel child deliveries and clear retained input/output state.
   _clearWorkers() {
     if (this._workers) {
       for (const [key, worker] of this._workers) {

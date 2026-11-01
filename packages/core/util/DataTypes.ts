@@ -38,6 +38,7 @@ export function isBaseObject(val: object) {
   return constructor === undefined || constructor === Object;
 }
 
+// REFACTOR(design.md): MUST recognize versioned block records instead of inferring identity from #is.
 export function isSavedBlock(val: unknown): val is DataMap {
   return Object.isExtensible(val) && (Object.hasOwn(val as object, '#is') || Object.hasOwn(val as object, '~#is'));
 }

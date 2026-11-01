@@ -19,6 +19,7 @@ export class JsFunction extends BaseFunction<Block> {
     super(block);
   }
 
+  // REFACTOR(design.md): MUST expose event-scoped inputs and explicit state to scripts separately.
   getDataProxy() {
     return new Proxy(this._data, BlockDeepProxy);
   }
@@ -37,6 +38,7 @@ export class JsFunction extends BaseFunction<Block> {
   parseFunction(script: string): Function {
     return new Function(script);
   }
+  // REFACTOR(design.md): MUST prevent script reads from accessing consumed event values.
   applyFunction(): any {
     if (this._runFunction) {
       return this._runFunction.call(this.getDataProxy());
@@ -61,6 +63,7 @@ export class JsFunction extends BaseFunction<Block> {
     }
   }
 
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     let result: unknown;
     if (!this._preProcessed) {

@@ -4,12 +4,14 @@ import type {Flow} from './Flow.ts';
 import {deepEqual} from '../util/Compare.ts';
 
 // when a change is applied, need to restore history from the previous saved data
+// REFACTOR(design.md): MUST cache structural graph snapshots only; MUST NOT retain transient event payloads.
 const _historyCache = new Map<any, DataMap[]>();
 
 export class FlowHistory {
   static _debounceInterval = 1000;
 
   _savedData: DataMap;
+  // REFACTOR(design.md): MUST store versioned block and wire snapshots, including route and execution order.
   _history: DataMap[];
   _current = 0;
 
@@ -71,6 +73,7 @@ export class FlowHistory {
     }
   }
 
+  // REFACTOR(design.md): MUST restore the graph and subscriptions without replaying consumed deliveries.
   applyData(data: DataMap) {
     this.flow.liveUpdate(data);
     this.checkUndoRedo(data);
@@ -99,6 +102,7 @@ export class FlowHistory {
     return this._savedData;
   }
 
+  // REFACTOR(design.md): Undo MUST restore stable IDs and routed wire metadata without old values.
   undo() {
     if (this._tracking) {
       this.checkAndAdd(this.flow.save());
@@ -109,6 +113,7 @@ export class FlowHistory {
     }
   }
 
+  // REFACTOR(design.md): Redo MUST restore stable IDs and routed wire metadata without old values.
   redo() {
     if (this._tracking) {
       // a new change is going to be added, there is nothing to redo
@@ -132,6 +137,7 @@ export class FlowHistory {
     return !deepEqual(this.flow.save(), this._history[this._current]);
   }
   // return true when data is changed
+  // REFACTOR(design.md): MUST record only graph and explicit state changes in history.
   checkAndAdd(data: DataMap) {
     if (this._tracking) {
       this.cancelTrack();

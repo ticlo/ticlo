@@ -28,6 +28,7 @@ export class InfiniteQueue<T> extends Denque<T> {
     return this.peekAt(i - this.from);
   }
 
+  // REFACTOR(design.md): MUST bound retained out-of-order deliveries or apply backpressure.
   setAt(i: number, item: T) {
     i -= this.from;
     if (i !== (i | 0)) {
@@ -41,6 +42,7 @@ export class InfiniteQueue<T> extends Denque<T> {
     this._list[i] = item;
   }
 
+  // REFACTOR(design.md): MUST reserve slots only within the scheduler's bounded delivery policy.
   newSlot() {
     // Denque doesn't allow push(undefined), use the following trick as work around
     const tail = this._tail;

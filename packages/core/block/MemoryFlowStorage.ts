@@ -42,9 +42,11 @@ export class MemoryFlowStorage implements FlowStorage {
   deleteFolder(key: string) {
     for (const name of this.flows.keys()) if (name.startsWith(`${key}.`)) this.flows.delete(name);
   }
+  // REFACTOR(design.md): MUST read a versioned graph record for explicit migration by the loader.
   async loadFlow(key: string): Promise<DataMap | null> {
     return this.flows.has(key) ? decode(this.flows.get(key)) : null;
   }
+  // REFACTOR(design.md): MUST persist graph structure and route metadata without transient event values.
   saveFlow(flow: Flow | null, data: DataMap | null, key: string) {
     this.flows.set(key, encodeSorted(data ?? flow.save()));
   }

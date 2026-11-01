@@ -42,6 +42,7 @@ export interface Runnable {
 
 class PromiseWrapper {
   _block: Block;
+  // REFACTOR(design.md): MUST NOT retain completed async results after delivery or cancellation.
   _done: unknown;
 
   constructor(block: Block) {
@@ -52,6 +53,7 @@ class PromiseWrapper {
     promise.then((val: unknown) => this.onResolve(val)).catch((reason: unknown) => this.onError(reason));
   }
 
+  // REFACTOR(design.md): MUST drop asynchronous payload references on completion or cancellation.
   onResolve(val: unknown) {
     if (this._block._funcPromise === this) {
       this._block.emit(val);
@@ -59,6 +61,7 @@ class PromiseWrapper {
     }
   }
 
+  // REFACTOR(design.md): MUST release rejected async payloads after reporting the failure.
   onError(reason: unknown) {
     if (this._block._funcPromise === this) {
       this._block.emit(new ErrorEvent('rejected', reason));
@@ -77,6 +80,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return Block._uid.next();
   }
 
+  // REFACTOR(design.md): MUST persist a stable block ID instead of relying on this runtime-only UID.
   _blockId: string;
 
   _flow: Flow;
@@ -89,12 +93,18 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   _runOnLoad = false;
   _sync = false;
 
+  // REFACTOR(design.md): MUST separate declared configuration/state from transient input and output ports.
   _props: Map<string, BlockProperty> = new Map();
   // a cache for blockIO, generated on demand
+  // REFACTOR(design.md): MUST exclude consumed input/output events from cached port lookup.
   _ioCache: Map<string, BlockIO>;
+  // REFACTOR(design.md): MUST replace path-keyed subscriptions with explicit wire records.
   _bindings: Map<string, BlockBinding> = new Map();
+  // REFACTOR(design.md): MUST construct one fixed function type per block identity.
   private _function: BaseFunction;
+  // REFACTOR(design.md): MUST cancel pending async work and release its payload when replacing or removing the block.
   _funcPromise: PromiseWrapper;
+  // REFACTOR(design.md): MUST store the type ID as fixed block metadata, not an editable property.
   _funcId?: string;
   _funcSrc: FunctionDispatcher;
 
@@ -227,6 +237,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return false;
   }
 
+  // REFACTOR(design.md): MUST resolve declared ports by stable ID and keep configuration separate from events.
   getProperty(field: string, create: boolean = true): BlockProperty {
     if (this._destroyed) {
       if (_strictMode) {
@@ -321,6 +332,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return this._flow.getContextProperty(name);
   }
 
+  // REFACTOR(design.md): MUST resolve a stable source port and ordered wire instead of a cached dotted path.
   createBinding(path: string, listener: PropListener<any>): BlockBindingSource {
     if (this._destroyed) {
       if (_strictMode) {
@@ -381,6 +393,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return listenPromise._promise;
   }
 
+  // REFACTOR(design.md): MUST serialize stable IDs, fixed types, ports, and explicit wire metadata.
   _save(): DataMap {
     const result: DataMap = {};
     for (const [, prop] of this._props) {
@@ -389,6 +402,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return result;
   }
 
+  // REFACTOR(design.md): MUST migrate old binding-path data into versioned blocks and wires on load.
   _load(map: DataMap) {
     for (const key in map) {
       if (key.charCodeAt(0) === 126) {
@@ -416,6 +430,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   }
 
   // load the data but keep runtime values
+  // REFACTOR(design.md): MUST apply graph updates without silently replacing a block's function type.
   _liveUpdate(map: DataMap, clearUnused = true) {
     const loadedFields: DataMap = {'#is': true};
     for (const key in map) {
@@ -455,6 +470,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     }
   }
 
+  // REFACTOR(design.md): Replacing a function type MUST replace the block and reconnect its wires explicitly.
   setValue(field: string, val: unknown): void {
     this.getProperty(field, val !== undefined)?.setValue(val);
   }
@@ -463,6 +479,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     this.getProperty(field, val !== undefined)?.updateValue(val);
   }
 
+  // REFACTOR(design.md): MUST emit through the output port without retaining its transient payload.
   output(val: unknown, field: string = '#output'): void {
     this.getProperty(field, val !== undefined)?.setOutput(val);
   }
@@ -471,10 +488,12 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     const prop = this.getProperty(field, false)?.setValue(undefined);
   }
 
+  // REFACTOR(design.md): MUST create an explicit wire with ID, endpoints, order, and route metadata.
   setBinding(field: string, path: string): void {
     this.getProperty(field, path != null)?.setBinding(path);
   }
 
+  // REFACTOR(design.md): MUST expose event values only during handling and prior values only as explicit state.
   getValue(field: string): unknown {
     const prop = this.getProperty(field, false);
     if (prop) {
@@ -483,6 +502,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return undefined;
   }
 
+  // REFACTOR(design.md): MUST assign a persistent ID and immutable function type to each new block.
   createBlock(field: string, getIfExist = false): Block {
     const prop = this.getProperty(field);
     if (!(prop._saved instanceof Block) || prop._saved._prop !== prop) {
@@ -506,6 +526,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return this.getProperty(field).createBlock(false);
   }
 
+  // REFACTOR(design.md): MUST give helper blocks fixed identities and connect them through explicit wires.
   createHelperBlock(field: string): Block {
     const prop = this.getProperty(field);
     const helperProp = this.getProperty(`~${field}`) as HelperProperty;
@@ -520,6 +541,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return block;
   }
 
+  // REFACTOR(design.md): MUST own child-flow deliveries and cancel them when the host block is removed.
   createOutputFlow<T extends Flow>(
     FlowClass: new (parent: Block, output: FunctionOutput, property: BlockProperty) => T,
     field: string,
@@ -546,6 +568,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return flow;
   }
 
+  // REFACTOR(design.md): MUST consume the input event and release it unless the function explicitly retains it.
   inputChanged(input: BlockIO, val: unknown) {
     if (this._function && this._function.inputChanged(input, val)) {
       this._queueFunctionOnChange();
@@ -558,6 +581,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     }
   }
 
+  // REFACTOR(design.md): MUST cancel in-flight operations and release their event payloads.
   _cancelFunction(reason: EventType) {
     if (this._function) {
       const result = this._function.cancel(reason, this._mode);
@@ -570,6 +594,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return true;
   }
 
+  // REFACTOR(design.md): MUST run serially from the deterministic delivery queue, not only from block priority.
   run() {
     this._queueToRun = false;
     if (!this._flow._enabled) {
@@ -605,6 +630,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     }
   }
 
+  // REFACTOR(design.md): MUST send a transient result through ordered wires and then release its reference.
   emit(val: unknown) {
     if (val === WAIT) {
       this.updateValue('#wait', true);
@@ -624,6 +650,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   }
 
   // emit value but maintain the current #wait state
+  // REFACTOR(design.md): MUST keep wait state separate from transient event payloads.
   emitOnly(val: unknown) {
     const prop = this._props.get('#emit');
     if (prop) {
@@ -673,6 +700,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
 
   _called = false;
 
+  // REFACTOR(design.md): MUST admit calls into the same serial queue as input and wire deliveries.
   _onCall(val: unknown): void {
     if (!this._disabled) {
       if (val === WAIT) {
@@ -737,6 +765,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     }
   }
 
+  // REFACTOR(design.md): MUST queue individual bounded deliveries rather than coalescing only by block identity.
   _queueFunction() {
     // put it in queue
     if (!this._queued) {
@@ -793,6 +822,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     this._sync = !!sync;
   }
 
+  // REFACTOR(design.md): MUST make the function type immutable after construction.
   _funcidChanged(funcId: unknown) {
     if (typeof funcId !== 'string') {
       funcId = null;
@@ -804,6 +834,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     }
   }
 
+  // REFACTOR(design.md): MUST NOT swap factories on an existing block; MUST use explicit replacement and migration.
   _applyFuncid(funcId: string) {
     if (this._funcSrc) {
       this._funcSrc.unlisten(this);
@@ -828,6 +859,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     }
   }
 
+  // REFACTOR(design.md): MUST reconcile block priority with saved visible wire order.
   getPriority(): number {
     if (this._controlPriority >= 0) {
       return this._controlPriority;
@@ -853,6 +885,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   }
 
   // function factory changed
+  // REFACTOR(design.md): MUST replace the block when its type changes instead of destroying and recreating its function in place.
   onChange(factory: FunctionFactory | null): void {
     if (this._function) {
       this._function.cleanup();
@@ -939,6 +972,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     }
   }
 
+  // REFACTOR(design.md): MUST index stable declared port IDs without retaining previous delivery values.
   _initIoCache() {
     this._ioCache = new Map();
     for (const [field, prop] of this._props) {
@@ -949,6 +983,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   }
 
   // iterate all BlockIO with a value, ignores all undefined value
+  // REFACTOR(design.md): MUST enumerate only active event inputs and explicitly retained state.
   forEach(callback: (field: string, value: unknown, prop: BlockIO) => void) {
     if (!this._ioCache) {
       this._initIoCache();
@@ -961,6 +996,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   }
 
   // iterate all BlockIO with a value, ignores all undefined value
+  // REFACTOR(design.md): MUST search only active event inputs and explicitly retained state.
   findFirst(callback: (field: string, value: unknown, prop: BlockIO) => any): unknown {
     if (!this._ioCache) {
       this._initIoCache();
@@ -993,6 +1029,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return null;
   }
 
+  // REFACTOR(design.md): MUST disconnect wires, cancel queued work, and release retained state when removing a block.
   destroy(): void {
     if (this._destroyed) {
       return;

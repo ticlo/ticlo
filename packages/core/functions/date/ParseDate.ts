@@ -3,6 +3,7 @@ import {globalFunctions} from '../../block/FunctionLib.ts';
 import {toDateTime} from '../../util/DateTime.ts';
 
 export class ParseDateFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run() {
     const input = this._data.getValue('input');
     const d = toDateTime(input);

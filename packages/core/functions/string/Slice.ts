@@ -2,6 +2,7 @@ import {globalFunctions} from '../../block/FunctionLib.ts';
 import {PureFunction} from '../../block/BlockFunction.ts';
 
 export class SliceFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const input = this._data.getValue('input');
     if (typeof input === 'string') {
@@ -28,6 +29,7 @@ globalFunctions.addFactory(SliceFunction, {
 });
 
 export class SubstrFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const input = this._data.getValue('input');
     if (typeof input === 'string') {

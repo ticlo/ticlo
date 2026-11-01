@@ -25,6 +25,7 @@ function alignXY(val: number) {
   return Math.floor((val - 12) / 24) * 24 + 12;
 }
 
+// REFACTOR(design.md): MUST create a persistent block identity and fixed function type from the drop.
 export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateBlockCallback, bgElement: HTMLElement) {
   const blockData = DragState.getData('blockData', conn.getBaseConn());
   if (blockData && Object.hasOwn(blockData, '#is')) {

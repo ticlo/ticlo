@@ -29,6 +29,7 @@ export class FunctionLib {
 
   constructor(public flow?: Flow) {}
 
+  // REFACTOR(design.md): Updating a factory MUST NOT swap the type of existing block instances.
   add(factory: FunctionFactory, namespace?: string | null, functionApi?: FunctionApi) {
     const desc = factory.desc;
     if (!desc.properties) {
@@ -110,6 +111,7 @@ export class FunctionLib {
     this.dispatchDescChange(id, category);
   }
 
+  // REFACTOR(design.md): Retiring a type MUST clean up or migrate its instances explicitly.
   delete(id: string) {
     const func = this._functions[id];
 
@@ -131,6 +133,7 @@ export class FunctionLib {
     return null;
   }
 
+  // REFACTOR(design.md): MUST bind each block to its fixed type without live factory-driven type changes.
   listen(id: string, block: PropListener<FunctionFactory | null>): FunctionDispatcher {
     if (!id) {
       return null;

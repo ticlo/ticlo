@@ -3,6 +3,7 @@ import {PureFunction} from '../../block/BlockFunction.ts';
 import {getInputsArray} from '../../block/FunctonData.ts';
 
 export class AndFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     for (const val of getInputsArray(this._data)) {
       if (!val) {
@@ -31,6 +32,7 @@ globalFunctions.addFactory(AndFunction, {
 });
 
 export class OrFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     for (const val of getInputsArray(this._data)) {
       if (val) {
@@ -59,6 +61,7 @@ globalFunctions.addFactory(OrFunction, {
 });
 
 export class XorFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     let count = 0;
     for (const val of getInputsArray(this._data)) {
@@ -88,6 +91,7 @@ globalFunctions.addFactory(XorFunction, {
 });
 
 export class NotFunction extends PureFunction {
+  // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.
   run(): any {
     const v0 = this._data.getValue('input');
     this._data.output(!v0);

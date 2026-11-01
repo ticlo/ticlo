@@ -104,9 +104,12 @@ export class ScheduleValue {
  * - `timezone`: The specific timezone to use for all calculations (e.g. "America/New_York").
  */
 export class ScheduleFunction extends AutoUpdateFunction {
+  // REFACTOR(design.md): MUST distinguish cached schedule configuration from transient event values.
   private _cache = new WeakMap<object, ScheduleValue>();
+  // REFACTOR(design.md): MUST retain schedule values only as explicit state while their rules are active.
   private _events: ScheduleValue[];
 
+  // REFACTOR(design.md): MUST transfer input deliveries into declared schedule state when needed.
   inputChanged(input: BlockIO, val: unknown): boolean {
     if (input._name.startsWith('config') || input._name === '[]' || input._name === 'timezone') {
       // re-generate events when config changes.
@@ -120,6 +123,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
     return true;
   }
 
+  // REFACTOR(design.md): MUST compute output from current events and declared schedule state only.
   run() {
     // 1. Check for manual override
     const override = this._data.getValue('override');

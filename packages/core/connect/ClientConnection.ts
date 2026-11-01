@@ -211,6 +211,7 @@ export abstract class ClientConnection extends ClientConn {
     return id;
   }
 
+  // REFACTOR(design.md): MUST NOT merge distinct transient deliveries or ordered wire-edit commands.
   sendValueRequest(
     data: DataMap,
     important: boolean | ClientCallbacks = false,

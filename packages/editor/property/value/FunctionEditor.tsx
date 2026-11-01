@@ -19,6 +19,7 @@ interface State {
 export class FunctionEditor extends StringEditorBase {
   state: State = {opened: false};
 
+  // REFACTOR(design.md): MUST replace a block explicitly when changing its function type.
   commitChange(value: string) {
     super.commitChange(value);
     if (typeof value === 'string' && this.props.conn.watchDesc(value, getDescLib(value, this.props.funcLib))) {

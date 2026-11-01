@@ -20,11 +20,13 @@ export class BaseFunction<T extends FunctionData = FunctionData> {
   constructor(public _data?: T) {}
   initInputs() {}
 
+  // REFACTOR(design.md): MUST admit calls as transient events in the deterministic delivery queue.
   onCall(val: unknown): boolean {
     return val !== undefined;
   }
 
   // return true when it needs to be put in queue
+  // REFACTOR(design.md): MUST handle an input delivery without relying on an implicitly cached latest input.
   inputChanged(input: BlockIO, val: unknown): boolean {
     return true;
   }
@@ -34,6 +36,7 @@ export class BaseFunction<T extends FunctionData = FunctionData> {
   }
 
   // return stream output
+  // REFACTOR(design.md): MUST return or emit transient deliveries and keep prior values only in declared state.
   run(): unknown {
     return;
   }
@@ -45,6 +48,7 @@ export class BaseFunction<T extends FunctionData = FunctionData> {
    *  - #cancel is triggered
    *  return false when function does not need to be canceled
    */
+  // REFACTOR(design.md): MUST cancel owned async deliveries and release their retained payloads.
   cancel(reason: EventType = EventType.TRIGGER, mode: BlockMode = 'auto'): boolean {
     return true;
   }
@@ -52,6 +56,7 @@ export class BaseFunction<T extends FunctionData = FunctionData> {
   // cleanup when function is destroyed but data needs to be reused
   cleanup(): void {}
   // destroy the function, any change applied to _data will be handled in cleanup()
+  // REFACTOR(design.md): MUST prevent late emissions and release explicit state when removing this function.
   destroy(): void {
     /*
      * this.cancel() should be handled by the destroy() of each function
@@ -66,12 +71,14 @@ export class BaseFunction<T extends FunctionData = FunctionData> {
 
 export abstract class PureFunction<T extends FunctionData = FunctionData> extends BaseFunction<T> {
   isPure = true;
+  // REFACTOR(design.md): Cleanup MUST release explicit state; outputs MUST NOT require clearing a cached value.
   cleanup(): void {
     this._data.output(undefined);
   }
 }
 
 export abstract class StatefulFunction extends BaseFunction<Block> {
+  // REFACTOR(design.md): MUST initialize only explicitly declared retained state, not previous transient inputs.
   initInputs() {
     const inputMap = this.getInputMap();
     if (inputMap) {
@@ -86,6 +93,7 @@ export abstract class StatefulFunction extends BaseFunction<Block> {
   }
 
   // return true when it needs to be put in queue
+  // REFACTOR(design.md): MUST transfer event data only into state that the function declares.
   inputChanged(input: BlockIO, val: unknown): boolean {
     const inputMap = this.getInputMap();
     if (inputMap) {

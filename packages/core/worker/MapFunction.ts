@@ -59,8 +59,11 @@ class IndexIterator implements KeyIterator {
 }
 
 export class MapFunction extends MapImpl {
+  // REFACTOR(design.md): MUST retain input only as explicit state while its mapping is active.
   _input: any;
+  // REFACTOR(design.md): MUST bound pending input events and release superseded payloads.
   _pendingInput: any;
+  // REFACTOR(design.md): MUST release aggregate output after emitting it to downstream wires.
   _output: any;
 
   _pendingKeys?: KeyIterator;
@@ -78,6 +81,7 @@ export class MapFunction extends MapImpl {
     return MapFunction.inputMap;
   }
 
+  // REFACTOR(design.md): MUST admit input as an event rather than reading an implicit latest value later.
   _onInputChange(val: any): boolean {
     if (!Object.isExtensible(val)) {
       // validate the input
@@ -109,6 +113,7 @@ export class MapFunction extends MapImpl {
     }
   }
 
+  // REFACTOR(design.md): MUST process admitted mapping events in deterministic serial order.
   run(): any {
     if (this.control._srcChanged) {
       this._clearWorkers();
@@ -166,6 +171,7 @@ export class MapFunction extends MapImpl {
     return WAIT;
   }
 
+  // REFACTOR(design.md): MUST release each worker result after adding it to declared aggregate state.
   _onWorkerReady(output: WorkerOutput, timeout: boolean) {
     if (timeout) {
       this._output[output.field] = new ErrorEvent('timeout');
@@ -223,6 +229,7 @@ export class MapFunction extends MapImpl {
     return true;
   }
 
+  // REFACTOR(design.md): MUST cancel workers and release active and pending input payloads.
   _clearWorkers() {
     super._clearWorkers();
 

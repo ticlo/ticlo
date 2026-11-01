@@ -307,6 +307,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     }
     e.reject();
   };
+  // REFACTOR(design.md): MUST create or reconnect explicit wires using stable port IDs on property drops.
   onDrop = (e: DragState) => {
     const {conn, propDesc, paths, name, reorder} = this.props;
     if (e.dragType === 'right') {

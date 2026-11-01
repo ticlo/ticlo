@@ -31,6 +31,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     this._data.deleteValue('#worker');
   }
 
+  // REFACTOR(design.md): MUST generate fixed type and stable port identities from worker definitions.
   static generate(data: DataMap, funcId: string, namespace?: string): FunctionFactory {
     const desc = WorkerFunctionGen.collectDesc(funcId, data);
     class CustomWorkerFunction extends WorkerFunctionGen {
@@ -55,6 +56,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
     });
   }
 
+  // REFACTOR(design.md): MUST register a new versioned type without mutating existing block instances.
   static registerType(data: DataMap, desc: FunctionDesc, namespace?: string, functionLib?: FunctionLib) {
     const fullId = desc.id ?? `${namespace}::${desc.name}`;
     let functions: FunctionLib = functionLib;
@@ -73,6 +75,7 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
   /**
    * save the worker to a function
    */
+  // REFACTOR(design.md): MUST persist worker graph edits and migrate affected instances explicitly.
   static applyChangeToFunc(flow: Flow, funcId: string) {
     const data = flow.save();
 

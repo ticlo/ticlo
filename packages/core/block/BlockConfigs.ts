@@ -8,6 +8,7 @@ class BlockFuncIdConfig extends BlockProperty {
     this._saved = '';
   }
 
+  // REFACTOR(design.md): MUST reject in-place type changes; replacement MUST create a new block identity.
   onChange(val: unknown, save?: boolean): boolean {
     if (typeof val === 'string' && !val.startsWith('flow:')) {
       return super.onChange(val, save);
@@ -16,6 +17,7 @@ class BlockFuncIdConfig extends BlockProperty {
     }
   }
 
+  // REFACTOR(design.md): MUST resolve a fixed function type when the block is created, not on later value changes.
   _valueChanged() {
     this._block._funcidChanged(this._value);
   }
@@ -46,6 +48,7 @@ class BlockDisabledConfig extends BlockProperty {
 }
 
 class BlockPriorityConfig extends BlockProperty {
+  // REFACTOR(design.md): MUST schedule deliveries by persisted visible wire order.
   _valueChanged() {
     this._block._priorityChanged(this._value);
   }

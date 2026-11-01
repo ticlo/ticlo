@@ -92,11 +92,13 @@ export class MergedClientRequest extends ConnectionSend implements ClientCallbac
 }
 
 export interface ValueState {
+  // REFACTOR(design.md): MUST NOT cache transient input or output payloads for diagnostics.
   value?: any;
   // whether value is same as saved value
   temp?: boolean;
   // whether value is undefined
   undefined?: boolean;
+  // REFACTOR(design.md): MUST report stable wire identity and metadata instead of only a binding path.
   bindingPath?: string;
   hasListener?: boolean;
 }
@@ -121,6 +123,7 @@ const defaultValueState: ValueState = {
 };
 
 export class SubscribeRequest extends MergedClientRequest {
+  // REFACTOR(design.md): MUST retain only declared state and graph metadata, not consumed event values.
   _cache: ValueState = {...defaultValueState};
 
   constructor(
@@ -131,6 +134,7 @@ export class SubscribeRequest extends MergedClientRequest {
     super(data, null);
   }
 
+  // REFACTOR(design.md): MUST deliver transient updates once without replaying them to late subscribers.
   add(callbacks: SubscribeCallbacks) {
     super.add(callbacks);
     if (callbacks.onUpdate && this._hasUpdate) {
