@@ -45,12 +45,13 @@ import {requestCallbacks} from '../util/RequestCallbacks.ts';
 import {MenuItem} from '../component/ClickPopup.tsx';
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent.tsx';
 
-const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:test-case']);
+const saveAllowed = new Set<string>(['flow:editor', 'flow:worker', 'flow:main', 'flow:context', 'flow:test-case']);
 const quickOpenAllowed = new Set<string>([
   'group',
   'flow:editor',
   'flow:worker',
   'flow:main',
+  'flow:context',
   'flow:test-case',
   'flow:const',
   'flow:global',

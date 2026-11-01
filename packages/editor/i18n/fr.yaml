@@ -7,10 +7,16 @@
 "File": Fichier # translated from: File
 "Namespace": Espace de noms # translated from: Namespace
 "Select Namespace": Sélectionner un espace de noms # translated from: Select Namespace
+"Default Namespace": Espace de noms par défaut # translated from: Default Namespace
+"Set as Default Namespace": Définir comme espace de noms par défaut # translated from: Set as Default Namespace
+"Unload Other Namespaces": Décharger les autres espaces de noms # translated from: Unload Other Namespaces
+"Loaded Namespaces": Espaces de noms chargés # translated from: Loaded Namespaces
+"Unload Namespace": Décharger l’espace de noms # translated from: Unload Namespace
 "Namespace Properties": Propriétés de l’espace de noms # translated from: Namespace Properties
 "New Namespace": Nouvel espace de noms # translated from: New Namespace
 "Namespace Name": Nom de l’espace de noms # translated from: Namespace Name
 "Create": Créer # translated from: Create
+"Load": Charger # translated from: Load
 "Dependencies": Dépendances # translated from: Dependencies
 "View": Affichage # translated from: View
 "Open Flow": Ouvrir le flux # translated from: Open Flow

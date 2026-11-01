@@ -481,7 +481,13 @@ export class FlowLib extends Flow {
   }
 }
 
+const ContextTypeConfig = ConstTypeConfig('flow:context');
+
 export class NamespaceContextFlow extends Flow {
+  _createConfig(field: string): BlockProperty {
+    return field === '#is' ? new ContextTypeConfig(this, field) : super._createConfig(field);
+  }
+
   getParentContextProperty(name: string): BlockProperty {
     return Namespace.rootOf(this).getContextProperty(name);
   }
@@ -566,6 +572,15 @@ export class Root extends FlowFolder {
   }
   enableNamespace(name: string, options?: {flows?: string[]}) {
     return this._lifecycle.enableNamespace(name, options);
+  }
+  getNamespaceGraph() {
+    return this._lifecycle.getNamespaceGraph();
+  }
+  unloadNamespace(name: string) {
+    return this._lifecycle.unloadNamespace(name);
+  }
+  retainNamespaces(names: string[]) {
+    return this._lifecycle.retainNamespaces(names);
   }
   switchNamespace(name: string) {
     return this._lifecycle.switchNamespace(name);

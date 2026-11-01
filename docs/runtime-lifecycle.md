@@ -84,6 +84,10 @@ loads the library immediately in an active namespace, removing one does not unlo
 
 ```ts
 await root.enableNamespace('main', {flows: ['entry']});
+await root.enableNamespace('other');
+root.getNamespaceGraph(); // {roots, dependencies}
+await root.unloadNamespace('other');
+await root.retainNamespaces(['main']);
 await root.switchNamespace('other');
 await root.setNamespaceDependencies('other', ['shared']);
 await root.disableNamespace('main');
@@ -96,6 +100,13 @@ namespaces. Shared dependencies stay active. Switching does not load ordinary
 target flows; load them explicitly. Unsaved edits in namespaces to be closed
 reject the switch. Disabling unloads the namespace's flows. Active dependents
 require `cascade: true`; shared dependencies remain when a consumer stops.
+Selections passed to `start()` and calls to `enableNamespace()` are manual roots.
+`getNamespaceGraph()` reports those roots and active dependency edges; cycles are
+allowed. `unloadNamespace()` removes a manual root and unloads only namespaces no
+longer required by another root. `retainNamespaces()` applies the same rule to a
+set of roots and rejects dirty removals before unloading any of them.
+In Designer and Dataflow Editor, the default namespace is the current page's
+`project` URL parameter; it is not a stored user preference.
 Late reads cannot restore unloaded flows. Loaded sets, startup patterns, and
 unload suppression are not saved.
 Changing dependencies saves `ticlo.json` and updates the active namespace at once:
@@ -108,8 +119,9 @@ are not started implicitly; put startup work in an auto-load library.
 
 Each named namespace owns a reserved `#context` flow, such as `+main.#context`,
 saved as `#context.ticlo` in its namespace directory. A missing file supplies an
-empty context. It supports values, blocks, bindings, and local functions; its
-block names are independent of the namespace's ordinary flows and folders.
+empty context. Its runtime type is `flow:context`. It supports values, blocks,
+bindings, and local functions. Its block names are independent of the namespace's
+ordinary flows and folders.
 It is excluded from ordinary flow catalogs and startup patterns.
 
 Context inheritance is one chain: local flow, parent flows/folders, namespace

@@ -45,6 +45,7 @@ export class FlowRuntime {
   private generation = 0;
   private readonly namespaceVersions = new Map<string, number>();
   private readonly metadata = new Map<string, NamespaceMetadata>();
+  private readonly roots = new Set<string>();
   private readonly pending = new Map<string, {promise: Promise<Flow>; cancelled: boolean}>();
   private readonly suppressed = new Set<string>();
   private readonly loaded = new Map<string, {ref: FlowRef; flow: Flow}>();
@@ -80,6 +81,7 @@ export class FlowRuntime {
       await this.activate(Object.keys(selected), generation);
       for (const selection of selections) await this.loadSelected(await selection, generation);
       this.checkGeneration(generation);
+      for (const name of Object.keys(selected)) this.roots.add(name);
     } catch (error) {
       if (generation === this.generation) await this.stop({discardChanges: true});
       throw error;
@@ -216,23 +218,61 @@ export class FlowRuntime {
     void selection.catch(() => {});
     await this.activate([name], generation);
     await this.loadSelected(await selection, generation);
+    this.roots.add(name);
+  }
+
+  getNamespaceGraph() {
+    return {
+      roots: [...this.roots],
+      dependencies: Object.fromEntries(
+        [...this.metadata].map(([name, data]) => [name, [...(data.dependencies ?? [])]])
+      ) as Record<string, string[]>,
+    };
+  }
+
+  private requiredNamespaces(roots: Iterable<string>, updated?: {name: string; metadata: NamespaceMetadata}) {
+    const required = new Set<string>();
+    const visit = (name: string) => {
+      if (required.has(name)) return;
+      required.add(name);
+      const data = name === updated?.name ? updated.metadata : this.metadata.get(name);
+      for (const dependency of data?.dependencies ?? []) visit(dependency);
+    };
+    for (const name of roots) visit(name);
+    return required;
+  }
+
+  async retainNamespaces(roots: string[]) {
+    for (const name of roots) {
+      if (!this.roots.has(name)) throw new Error(`Namespace is not manually loaded: ${name}`);
+    }
+    const keep = this.requiredNamespaces(roots);
+    const removed = [...this.metadata.keys()].filter((namespace) => !keep.has(namespace));
+    for (const {ref, flow} of this.loaded.values()) if (removed.includes(ref.namespace)) this.assertClean(flow, {});
+    for (const namespace of removed) {
+      if (this.metadata.has(namespace)) await this.disableNamespace(namespace, {cascade: true});
+    }
+    this.roots.clear();
+    for (const name of roots) this.roots.add(name);
+  }
+
+  async unloadNamespace(name: string) {
+    if (!this.roots.has(name)) throw new Error(`Namespace is not manually loaded: ${name}`);
+    await this.retainNamespaces([...this.roots].filter((root) => root !== name));
   }
 
   async switchNamespace(name: string) {
     validateNamespace(name);
     const active = new Set(this.metadata.keys());
+    const roots = new Set(this.roots);
     await this.enableNamespace(name);
-    const keep = new Set<string>();
-    const visit = (namespace: string) => {
-      if (keep.has(namespace)) return;
-      keep.add(namespace);
-      for (const dependency of this.metadata.get(namespace)?.dependencies ?? []) visit(dependency);
-    };
-    visit(name);
+    const keep = this.requiredNamespaces([name]);
     const removed = [...active].filter((namespace) => !keep.has(namespace));
     try {
       for (const {ref, flow} of this.loaded.values()) if (removed.includes(ref.namespace)) this.assertClean(flow, {});
     } catch (error) {
+      this.roots.clear();
+      for (const root of roots) this.roots.add(root);
       for (const namespace of this.metadata.keys()) {
         if (!active.has(namespace)) await this.disableNamespace(namespace, {cascade: true, discardChanges: true});
       }
@@ -241,6 +281,8 @@ export class FlowRuntime {
     for (const namespace of removed) {
       if (this.metadata.has(namespace)) await this.disableNamespace(namespace, {cascade: true});
     }
+    this.roots.clear();
+    this.roots.add(name);
   }
 
   async setNamespaceDependencies(name: string, dependencies: string[]) {
@@ -259,14 +301,7 @@ export class FlowRuntime {
 
     const active = new Set(this.metadata.keys());
     await this.activate(updated.dependencies ?? [], this.generation);
-    const keep = new Set<string>();
-    const visit = (namespace: string) => {
-      if (keep.has(namespace)) return;
-      keep.add(namespace);
-      const metadata = namespace === name ? updated : this.metadata.get(namespace);
-      for (const dependency of metadata?.dependencies ?? []) visit(dependency);
-    };
-    visit(name);
+    const keep = this.requiredNamespaces(this.roots, {name, metadata: updated});
     const removed = [...active].filter((namespace) => !keep.has(namespace));
     try {
       for (const {ref, flow} of this.loaded.values()) if (removed.includes(ref.namespace)) this.assertClean(flow, {});
@@ -479,6 +514,7 @@ export class FlowRuntime {
       this.namespaceVersions.set(ns, (this.namespaceVersions.get(ns) ?? 0) + 1);
       this.namespace(ns)._enabled = false;
       this.metadata.delete(ns);
+      this.roots.delete(ns);
     }
     for (const {ref} of [...this.loaded.values()]) {
       if (removed.has(ref.namespace) && ref.name !== '#context') await this.unloadFlow(ref, options);
@@ -513,6 +549,7 @@ export class FlowRuntime {
     }
     for (const {ref} of [...this.loaded.values()]) await this.unloadFlow(ref, options);
     this.metadata.clear();
+    this.roots.clear();
     this.suppressed.clear();
     this.started = false;
   }

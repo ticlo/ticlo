@@ -39,6 +39,7 @@ import {designerData} from './sample-data/designer.ts';
 import {EditorWindows} from './EditorWindows.ts';
 import {fileFlowPath, pageFlowPath} from './flow-path.ts';
 import {useNamespaceSelection} from './useNamespaceSelection.ts';
+import type {NamespaceSelectionOptions} from '@ticlo/editor/namespace/NamespaceSelectDialog.tsx';
 import {createLibraryAutoLoad} from './library-auto-load.ts';
 
 const FileVersionContext = React.createContext(0);
@@ -105,6 +106,8 @@ function DesignerHeader({
   files,
   onFilesChange,
   onNamespaceChange,
+  onNamespaceUnload,
+  onSetDefaultNamespace,
 }: {
   language: string;
   onLanguageChange: (language: string) => void;
@@ -113,7 +116,9 @@ function DesignerHeader({
   conn: ClientConnection;
   files?: {storage: ProjectFiles; project: string};
   onFilesChange: () => void;
-  onNamespaceChange: (name: string) => Promise<void>;
+  onNamespaceChange: (name: string, options: NamespaceSelectionOptions) => Promise<void>;
+  onNamespaceUnload: (name: string) => Promise<void>;
+  onSetDefaultNamespace: (name: string) => Promise<void>;
 }) {
   const layout = useContext(DesignerLayoutContextType);
   const {currentPath} = useContext(TicloCurrentFlowContext);
@@ -142,6 +147,8 @@ function DesignerHeader({
         newPage
         onChange={onFilesChange}
         onNamespaceChange={onNamespaceChange}
+        onNamespaceUnload={onNamespaceUnload}
+        onSetDefaultNamespace={onSetDefaultNamespace}
         onOpen={(path, flow) => openDesignerFlow(path, flow, conn, files.storage, layout)}
         viewItems={viewItems}
       >
@@ -166,7 +173,9 @@ interface Props {
   conn: ClientConnection;
   initialFlow?: string;
   files?: {storage: ProjectFiles; project: string};
-  onNamespaceChange: (name: string) => Promise<void>;
+  onNamespaceChange: (name: string, options: NamespaceSelectionOptions) => Promise<void>;
+  onNamespaceUnload: (name: string) => Promise<void>;
+  onSetDefaultNamespace: (name: string) => Promise<void>;
 }
 
 interface State {
@@ -405,6 +414,8 @@ class App extends React.PureComponent<Props, State> {
                   files={this.props.files}
                   onFilesChange={this.onFilesChange}
                   onNamespaceChange={this.props.onNamespaceChange}
+                  onNamespaceUnload={this.props.onNamespaceUnload}
+                  onSetDefaultNamespace={this.props.onSetDefaultNamespace}
                 />
                 <DockLayout
                   defaultLayout={this.defaultDockLayout}
@@ -449,7 +460,9 @@ function DesignerWorkspace({
       conn={conn}
       initialFlow={selection.initialFlow}
       files={{...files, project: selection.project}}
-      onNamespaceChange={selection.switchNamespace}
+      onNamespaceChange={selection.selectNamespace}
+      onNamespaceUnload={selection.unloadNamespace}
+      onSetDefaultNamespace={selection.setDefaultNamespace}
     />
   );
 }

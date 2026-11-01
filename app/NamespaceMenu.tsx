@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
-import {ApartmentOutlined, PlusOutlined, SettingOutlined} from '@ant-design/icons';
-import {Button, Input, Modal, Select, type MenuProps} from 'antd';
+import {ApartmentOutlined, SettingOutlined} from '@ant-design/icons';
+import {Modal, Select, type MenuProps} from 'antd';
 import type {Root} from '@ticlo/core';
-import {translateEditor} from '@ticlo/core/editor.ts';
 import {projectId, type ProjectFiles} from '@ticlo/core/storage/FileAccess.ts';
 import {validateNamespace} from '@ticlo/core/util/NamespaceMetadata.ts';
 import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
+import {NamespaceSelectDialog, type NamespaceSelectionOptions} from '@ticlo/editor/namespace/NamespaceSelectDialog.tsx';
 
 type Dialog = 'select' | 'properties' | null;
 
@@ -15,19 +15,21 @@ export function useNamespaceMenu({
   project,
   readonly,
   onNamespaceChange,
+  onNamespaceUnload,
+  onSetDefaultNamespace,
   onChange,
 }: {
   root: Root;
   storage: ProjectFiles;
   project: string;
   readonly?: boolean;
-  onNamespaceChange: (name: string) => Promise<void>;
+  onNamespaceChange: (name: string, options: NamespaceSelectionOptions) => Promise<void>;
+  onNamespaceUnload: (name: string) => Promise<void>;
+  onSetDefaultNamespace: (name: string) => Promise<void>;
   onChange?: () => void;
 }) {
   const [dialog, setDialog] = useState<Dialog>(null);
   const [projects, setProjects] = useState<string[]>([]);
-  const [selected, setSelected] = useState(project);
-  const [newName, setNewName] = useState('');
   const [dependencies, setDependencies] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
@@ -37,19 +39,15 @@ export function useNamespaceMenu({
 
   const open = async (next: Exclude<Dialog, null>) => {
     setDialog(next);
-    setSelected(project);
-    setNewName('');
     setDependencies([]);
     setError('');
+    if (next === 'select') return;
     setLoading(true);
     setReady(false);
     try {
-      const [listed, metadata] = await Promise.all([
-        storage.listProjects(),
-        next === 'properties' ? root.getNamespaceMetadata(project) : undefined,
-      ]);
+      const [listed, metadata] = await Promise.all([storage.listProjects(), root.getNamespaceMetadata(project)]);
       setProjects([...new Set([project, ...listed.map(({id}) => id)])].sort());
-      if (next === 'properties') setDependencies(metadata?.dependencies ?? []);
+      setDependencies(metadata?.dependencies ?? []);
       setReady(true);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
@@ -70,32 +68,21 @@ export function useNamespaceMenu({
       setBusy(false);
     }
   };
-  const select = () =>
-    run(async () => {
-      if (selected !== project) await onNamespaceChange(selected);
-    });
-  const name = newName.trim();
-  let canCreate = false;
-  try {
-    canCreate =
-      !!name &&
-      ready &&
-      !readonly &&
-      name !== '#root' &&
-      !projects.includes(name) &&
-      !!validateNamespace(name) &&
-      !!projectId(name) &&
-      storage.getCapabilities(name).write;
-  } catch {}
-  const create = () =>
-    run(async () => {
-      if (!canCreate) throw new Error('Invalid namespace name or storage is read-only.');
-      await storage.createProject(name);
-      setProjects((current) => [...current, name].sort());
-      setSelected(name);
-      setNewName('');
-      await onNamespaceChange(name);
-    });
+  const canCreate = (name: string, existing: string[]) => {
+    try {
+      return (
+        !!name &&
+        !readonly &&
+        name !== '#root' &&
+        !existing.includes(name) &&
+        !!validateNamespace(name) &&
+        !!projectId(name) &&
+        storage.getCapabilities(name).write
+      );
+    } catch {
+      return false;
+    }
+  };
   const saveProperties = () =>
     run(async () => {
       await root.setNamespaceDependencies(project, dependencies);
@@ -113,38 +100,22 @@ export function useNamespaceMenu({
   ];
   const dialogs = (
     <>
-      <Modal
-        title={t('Select Namespace')}
-        open={dialog === 'select'}
-        onOk={select}
-        onCancel={() => !busy && setDialog(null)}
-        okButtonProps={{disabled: !ready || !selected}}
-        confirmLoading={busy}
-        destroyOnHidden
-      >
-        <Select
-          value={selected}
-          options={projects.map((id) => ({value: id, label: id}))}
-          onChange={setSelected}
-          loading={loading}
-          disabled={busy || loading}
-          style={{width: '100%', marginBottom: 16}}
+      {dialog === 'select' && (
+        <NamespaceSelectDialog
+          defaultNamespace={project}
+          graph={root.getNamespaceGraph()}
+          listNamespaces={async () => (await storage.listProjects()).map(({id}) => id)}
+          canCreate={canCreate}
+          onCreate={async (name) => {
+            await storage.createProject(name);
+            onChange?.();
+          }}
+          onSelect={onNamespaceChange}
+          onUnload={onNamespaceUnload}
+          onSetDefault={onSetDefaultNamespace}
+          onClose={() => setDialog(null)}
         />
-        <div style={{marginBottom: 8}}>{t('New Namespace')}</div>
-        <div style={{display: 'flex', gap: 8}}>
-          <Input
-            value={newName}
-            placeholder={translateEditor('Namespace Name')}
-            onChange={(event) => setNewName(event.target.value)}
-            onPressEnter={() => canCreate && void create()}
-            disabled={busy}
-          />
-          <Button icon={<PlusOutlined />} disabled={!canCreate || busy || loading} onClick={create}>
-            {t('Create')}
-          </Button>
-        </div>
-        {error && <div className="ticl-e-file-error">{error}</div>}
-      </Modal>
+      )}
       <Modal
         title={t('Namespace Properties')}
         open={dialog === 'properties'}

@@ -59,6 +59,7 @@ import {fileFlowPath} from './flow-path.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {useNamespaceSelection} from './useNamespaceSelection.ts';
 import {createLibraryAutoLoad} from './library-auto-load.ts';
+import type {NamespaceSelectionOptions} from '@ticlo/editor/namespace/NamespaceSelectDialog.tsx';
 
 const FileVersionContext = React.createContext(0);
 
@@ -84,7 +85,9 @@ interface Props {
   conn: ClientConnection;
   initialFlow?: string;
   files?: {storage: ProjectFiles; project: string};
-  onNamespaceChange: (name: string) => Promise<void>;
+  onNamespaceChange: (name: string, options: NamespaceSelectionOptions) => Promise<void>;
+  onNamespaceUnload: (name: string) => Promise<void>;
+  onSetDefaultNamespace: (name: string) => Promise<void>;
 }
 
 interface State {
@@ -307,6 +310,8 @@ class App extends React.PureComponent<Props, State> {
                     onOpen={this.openFlow}
                     onChange={this.onFilesChange}
                     onNamespaceChange={this.props.onNamespaceChange}
+                    onNamespaceUnload={this.props.onNamespaceUnload}
+                    onSetDefaultNamespace={this.props.onSetDefaultNamespace}
                   />
                 ) : (
                   <AppHeader language={this.lng} onLanguageChange={this.switchLan} />
@@ -351,7 +356,9 @@ function DataflowWorkspace({
       conn={conn}
       initialFlow={selection.initialFlow}
       files={{...files, project: selection.project}}
-      onNamespaceChange={selection.switchNamespace}
+      onNamespaceChange={selection.selectNamespace}
+      onNamespaceUnload={selection.unloadNamespace}
+      onSetDefaultNamespace={selection.setDefaultNamespace}
     />
   );
 }

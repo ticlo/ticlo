@@ -32,6 +32,10 @@ describe('namespace context', () => {
     const context = ns._contextRoot;
     const value = context.getContextProperty('^value');
 
+    expect(context.getValue('#is')).toBe('flow:context');
+    expect(root._globalRoot.getValue('#is')).toBe('flow:global');
+    expect(entry.getValue('#is')).toBe('flow:main');
+
     expect(entry.getValue('value')).toBe(1);
     expect(entry.getContextProperty('^value')._bindingSource).toBe(folder.getContextProperty('^value'));
     expect(folder.getContextProperty('^value')._bindingSource).toBe(value);

@@ -17,10 +17,16 @@
 "File": 文件 # translated from: File
 "Namespace": 命名空间 # translated from: Namespace
 "Select Namespace": 选择命名空间 # translated from: Select Namespace
+"Default Namespace": 默认命名空间 # translated from: Default Namespace
+"Set as Default Namespace": 设为默认命名空间 # translated from: Set as Default Namespace
+"Unload Other Namespaces": 卸载其他命名空间 # translated from: Unload Other Namespaces
+"Loaded Namespaces": 已加载的命名空间 # translated from: Loaded Namespaces
+"Unload Namespace": 卸载命名空间 # translated from: Unload Namespace
 "Namespace Properties": 命名空间属性 # translated from: Namespace Properties
 "New Namespace": 新建命名空间 # translated from: New Namespace
 "Namespace Name": 命名空间名称 # translated from: Namespace Name
 "Create": 创建 # translated from: Create
+"Load": 加载 # translated from: Load
 "Dependencies": 依赖项 # translated from: Dependencies
 "View": 视图 # translated from: View
 "Open Flow": 打开数据流 # translated from: Open Flow

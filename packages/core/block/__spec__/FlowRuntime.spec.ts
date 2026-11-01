@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import '../../index.ts';
-import {Root} from '../Flow.ts';
+import {Flow, Root} from '../Flow.ts';
 import {MemoryFlowStorage} from '../MemoryFlowStorage.ts';
 import type {FlowRef} from '../FlowRuntime.ts';
 import {Namespace} from '../Namespace.ts';
@@ -121,13 +121,47 @@ describe('runtime lifecycle', () => {
     expect(Namespace.getNameSpace('+dependent', root)._enabled).toBe(true);
   });
 
+  it('tracks manually loaded roots and retains dependencies shared by other roots', async () => {
+    await storage.saveNamespaceMetadata('main', {dependencies: ['shared']});
+    await storage.saveNamespaceMetadata('other', {dependencies: ['shared']});
+    await storage.saveNamespaceMetadata('shared', {dependencies: ['main']});
+    storage.saveFlow(null, {value: 1}, '+main.entry');
+    await root.start({main: {flows: ['entry']}});
+    await root.enableNamespace('other');
+    expect(root.getNamespaceGraph()).toEqual({
+      roots: ['main', 'other'],
+      dependencies: {main: ['shared'], shared: ['main'], other: ['shared']},
+    });
+
+    await root.unloadNamespace('main');
+    expect(root.getNamespaceGraph().roots).toEqual(['other']);
+    expect(root.getFlowState(ref('main', 'entry'))).toBe('enabled');
+
+    await root.unloadNamespace('other');
+    expect(root.getNamespaceGraph()).toEqual({roots: [], dependencies: {}});
+    expect(root.getFlowState(ref('main', 'entry'))).toBe('unloaded');
+  });
+
+  it('checks every removed root for unsaved changes before retaining a selection', async () => {
+    storage.saveFlow(null, {value: 1}, '+main.entry');
+    await root.start({main: {flows: ['entry']}});
+    await root.enableNamespace('shared');
+    const flow = root.queryValue('+main.entry') as Flow;
+    flow.setValue('value', 2);
+    flow.trackChange();
+
+    await expect(root.retainNamespaces(['shared'])).rejects.toThrow('unsaved changes');
+    expect(root.getNamespaceGraph().roots).toEqual(['main', 'shared']);
+    expect(root.getFlowState(ref('main', 'entry'))).toBe('enabled');
+  });
+
   it('updates active namespace dependencies without unloading its flows', async () => {
     await storage.saveNamespaceMetadata('main', {dependencies: ['shared'], autoLoadLibraries: ['service']});
     await storage.saveNamespaceMetadata('other', {});
     storage.saveLib('+main', 'service', libData);
     storage.saveFlow(null, {value: 1}, '+main.entry');
     storage.saveFlow(null, {value: 2}, '+shared.entry');
-    await root.start({main: {flows: ['entry']}, shared: {flows: ['entry']}});
+    await root.start({main: {flows: ['entry']}});
     const main = await root.loadFlow(ref('main', 'entry'));
     const shared = await root.loadFlow(ref('shared', 'entry'));
     shared.setValue('value', 3);

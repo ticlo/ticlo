@@ -22,6 +22,7 @@ import {fileDestination, fileFlowPath} from './flow-path.ts';
 import {stageReadonly} from './AppLayout.ts';
 import {AppHeader} from './AppHeader.tsx';
 import {useNamespaceMenu} from './NamespaceMenu.tsx';
+import type {NamespaceSelectionOptions} from '@ticlo/editor/namespace/NamespaceSelectDialog.tsx';
 
 type Dialog = 'open' | 'new-flow' | 'new-library' | 'save-as' | null;
 
@@ -34,6 +35,8 @@ export function FileMenuHeader({
   onOpen,
   onChange,
   onNamespaceChange,
+  onNamespaceUnload,
+  onSetDefaultNamespace,
   newPage = false,
   viewItems,
   children,
@@ -45,7 +48,9 @@ export function FileMenuHeader({
   files: {storage: ProjectFiles; project: string};
   onOpen: (path: string, flow: Flow) => void;
   onChange?: () => void;
-  onNamespaceChange: (name: string) => Promise<void>;
+  onNamespaceChange: (name: string, options: NamespaceSelectionOptions) => Promise<void>;
+  onNamespaceUnload: (name: string) => Promise<void>;
+  onSetDefaultNamespace: (name: string) => Promise<void>;
   newPage?: boolean;
   viewItems?: MenuProps['items'];
   children?: React.ReactNode;
@@ -64,6 +69,8 @@ export function FileMenuHeader({
     project,
     readonly: conn.getEditPolicyView().policy?.readonly,
     onNamespaceChange,
+    onNamespaceUnload,
+    onSetDefaultNamespace,
     onChange,
   });
   const writable = storage.getCapabilities(project).write;
