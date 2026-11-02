@@ -15,6 +15,11 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
   children: FunctionTreeItem[] = [];
 
   static sort(a: FunctionTreeItem, b: FunctionTreeItem): number {
+    const aIsCategory = a.key.endsWith(':');
+    const bIsCategory = b.key.endsWith(':');
+    if (aIsCategory !== bIsCategory) {
+      return aIsCategory ? -1 : 1;
+    }
     return a.name.localeCompare(b.name);
   }
 
@@ -232,6 +237,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
       catItem = new FunctionTreeItem(parentItem, this, catKey, name, desc);
       this.typeMap.set(catKey, catItem);
       parentItem.children.push(catItem);
+      parentItem.children.sort(FunctionTreeItem.sort);
       this.onListChange();
     }
     return catItem;

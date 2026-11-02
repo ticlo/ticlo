@@ -36,9 +36,17 @@ globalFunctions.addCategory({
 });
 
 globalFunctions.addCategory({
+  id: 'react:elements',
+  name: 'Elements',
+  icon: '20:⚛',
+  color: '5ce',
+  ns: 'react',
+});
+
+globalFunctions.addCategory({
   id: 'react:svg',
   name: 'SVG',
-  icon: '20:◇',
+  icon: '20:⬠',
   color: '5ce',
   ns: 'react',
 });
