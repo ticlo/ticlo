@@ -266,7 +266,7 @@ class App extends React.PureComponent<Props, State> {
             children: [
               {
                 size: 400,
-                tabs: [{id: 'Navigation'}, ...(props.files ? [{id: 'Files'}] : [])],
+                tabs: [...(props.files ? [{id: 'Files'}] : []), {id: 'Navigation'}],
               },
               {
                 size: 300,
