@@ -147,6 +147,7 @@ class App extends React.PureComponent<Props, State> {
             onSelect={this.onSelect}
             showMenu={true}
             libraryAutoLoad={this.libraryAutoLoad}
+            showStoredFlows
           />
         ),
       },
@@ -382,7 +383,11 @@ function DataflowWorkspace({
     files = {storage, project};
     await root.setStorage(storage);
     await root.start(
-      params.has('project') || params.has('flow') ? {[project]: {flows: params.getAll('flow')}} : undefined
+      params.has('flow')
+        ? {[project]: {flows: params.getAll('flow')}}
+        : params.has('project')
+          ? {[project]: {}}
+          : undefined
     );
     const firstFlow = (await root.listFlows(project)).find(({state}) => state !== 'unloaded');
     if (firstFlow) initialFlow = project === '#root' ? firstFlow.name : `+${project}.${firstFlow.name}`;
@@ -391,7 +396,7 @@ function DataflowWorkspace({
     const project = params.get('project') || 'local';
     files = {storage, project};
     await root.setStorage(storage);
-    await root.start({[project]: {flows: params.has('project') ? [] : ['**']}});
+    await root.start({[project]: params.has('project') ? {} : {flows: ['**']}});
 
     if (project === 'local' && !params.has('project') && !(root.queryValue('+local.example') instanceof Flow)) {
       console.log('initialize the database');

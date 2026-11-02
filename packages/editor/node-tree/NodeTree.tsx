@@ -11,6 +11,8 @@ import {
 } from './NodeRenderer.tsx';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
+import type {MainFlowEntry} from '@ticlo/core/block/FlowRuntime.ts';
+import {StoredFlowRenderer, type StoredFlowItem} from './StoredFlowItem.tsx';
 
 export type {NodeTreeOpenAction} from './NodeRenderer.tsx';
 export type {LibraryAutoLoad} from './NodeRenderer.tsx';
@@ -27,6 +29,8 @@ interface Props {
   /** Custom open actions; double-click uses the first action. */
   openActions?: readonly NodeTreeOpenAction[];
   libraryAutoLoad?: LibraryAutoLoad;
+  showStoredFlows?: boolean;
+  onOpenStoredFlow?: (path: string, canApply: boolean) => void;
 }
 
 export class NodeTree extends LazyUpdateComponent<Props, any> {
@@ -36,7 +40,95 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
 
   rootList: NodeTreeItem[] = [];
   list: NodeTreeItem[] = [];
+  rows: (NodeTreeItem | StoredFlowItem)[] = [];
   private pendingExpansion: string[] = [];
+  private storedRoot: StoredFlowItem = {key: '', name: '', level: -1, children: new Map()};
+  private expandedStored = new Set<string>();
+  private storedRequest = 0;
+
+  refreshStoredFlows = async () => {
+    if (!this.props.showStoredFlows) return;
+    const request = ++this.storedRequest;
+    try {
+      const {flows} = (await this.props.conn.listMainFlows()) as {flows: MainFlowEntry[]};
+      if (request !== this.storedRequest) return;
+      const root: StoredFlowItem = {key: '', name: '', level: -1, children: new Map()};
+      for (const flow of flows) {
+        const parts =
+          flow.namespace === '#root' ? flow.name.split('.') : [`+${flow.namespace}`, ...flow.name.split('.')];
+        let parent = root;
+        for (const name of parts) {
+          const key = parent.key ? `${parent.key}.${name}` : name;
+          let item = parent.children.get(key);
+          if (!item) {
+            item = {key, name, level: parent.level + 1, children: new Map()};
+            parent.children.set(key, item);
+          }
+          parent = item;
+        }
+        parent.autoLoad = flow.autoLoad;
+        parent.canAutoLoad = flow.canAutoLoad;
+      }
+      this.storedRoot = root;
+      this.forceUpdate();
+    } catch (error) {
+      if (request === this.storedRequest) requestCallbacks.onError(String(error));
+    }
+  };
+
+  onStoredOpen = async (item: StoredFlowItem) => {
+    if (!this.props.conn.getEditPolicyView().can({cmd: 'loadFlow', path: item.key})) return;
+    try {
+      await this.props.conn.loadFlow(item.key);
+      const dot = item.key.lastIndexOf('.');
+      const parent = dot < 0 ? '' : item.key.slice(0, dot);
+      this.props.conn.childrenChangeStream().dispatch({path: parent, showNode: true});
+      if (this.props.onOpenStoredFlow) {
+        let canApply = false;
+        try {
+          const escaped = item.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const result = await this.props.conn.list(parent, `^${escaped}$`, 1);
+          canApply = Boolean(result?.children?.[item.name]?.canApply);
+        } catch {
+          // A scoped read policy may allow the flow but not its parent listing.
+        }
+        this.props.onOpenStoredFlow(item.key, canApply);
+      }
+    } catch (error) {
+      requestCallbacks.onError(String(error));
+    }
+  };
+
+  onStoredAutoLoad = async (item: StoredFlowItem) => {
+    if (!this.props.conn.getEditPolicyView().can({cmd: 'setAutoLoadFlow', path: item.key})) return;
+    try {
+      await this.props.conn.setAutoLoadFlow(item.key, !item.autoLoad);
+      const dot = item.key.lastIndexOf('.');
+      this.props.conn.childrenChangeStream().dispatch({path: dot < 0 ? '' : item.key.slice(0, dot), showNode: true});
+    } catch (error) {
+      requestCallbacks.onError(String(error));
+    }
+  };
+
+  private appendStored(item: StoredFlowItem) {
+    this.rows.push(item);
+    if (this.expandedStored.has(item.key)) {
+      for (const child of item.children.values()) this.appendStored(child);
+    }
+  }
+
+  private appendLive(item: NodeTreeItem, stored?: StoredFlowItem) {
+    if (item.level >= 0) this.rows.push(item);
+    if (item.opened !== 'opened') return;
+    const live = new Set<string>();
+    for (const child of item.children ?? []) {
+      live.add(child.key);
+      this.appendLive(child, stored?.children.get(child.key));
+    }
+    for (const child of stored?.children.values() ?? []) {
+      if (!live.has(child.key)) this.appendStored(child);
+    }
+  }
 
   lastClickedItem: NodeTreeItem;
   onItemClick = (item: NodeTreeItem, event: React.MouseEvent) => {
@@ -61,7 +153,9 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
       if (event.shiftKey) {
         // shift click, select range
         if (item.parent.children && this.lastClickedItem?.parent === item.parent) {
-          const siblings = this.list.filter((child) => child.parent === item.parent);
+          const siblings = this.rows.filter(
+            (child): child is NodeTreeItem => child instanceof NodeTreeItem && child.parent === item.parent
+          );
           let idx0 = siblings.indexOf(item);
           let idx1 = siblings.indexOf(this.lastClickedItem);
           if (idx0 < 0 || idx1 < 0 || idx0 === idx1) {
@@ -169,7 +263,27 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
 
   renderChild = (idx: number, style: React.CSSProperties) => {
     const {selectedKeys} = this.props;
-    const item = this.list[idx];
+    const item = this.rows[idx];
+    if (!(item instanceof NodeTreeItem)) {
+      const policy = this.props.conn.getEditPolicyView();
+      return (
+        <StoredFlowRenderer
+          item={item}
+          key={item.key}
+          style={style}
+          expanded={this.expandedStored.has(item.key)}
+          onExpand={() => {
+            if (this.expandedStored.has(item.key)) this.expandedStored.delete(item.key);
+            else this.expandedStored.add(item.key);
+            this.forceUpdate();
+          }}
+          onOpen={() => void this.onStoredOpen(item)}
+          onAutoLoad={() => void this.onStoredAutoLoad(item)}
+          canLoad={policy.can({cmd: 'loadFlow', path: item.key})}
+          canAutoLoad={Boolean(item.canAutoLoad && policy.can({cmd: 'setAutoLoadFlow', path: item.key}))}
+        />
+      );
+    }
     return (
       <NodeTreeRenderer
         item={item}
@@ -192,6 +306,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     for (const node of this.rootList) {
       node.onChildrenChange(path, false, showNode);
     }
+    void this.refreshStoredFlows();
   };
 
   forceUpdateLambda = () => {
@@ -230,6 +345,12 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     for (const item of this.rootList) {
       item.addToList(this.list, this.props.tags);
     }
+    if (this.props.showStoredFlows && !this.props.tags) {
+      this.rows = [];
+      for (const item of this.rootList) this.appendLive(item, this.storedRoot);
+    } else {
+      this.rows = this.list;
+    }
   }
 
   constructor(props: Props) {
@@ -249,6 +370,9 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     ) {
       this.clearRoot(previous.conn);
       this.buildRoot();
+      void this.refreshStoredFlows();
+    } else if (previous.showStoredFlows !== this.props.showStoredFlows) {
+      void this.refreshStoredFlows();
     } else if (
       previous.autoExpandSelected !== this.props.autoExpandSelected ||
       previous.tags !== this.props.tags ||
@@ -262,6 +386,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     for (const node of this.rootList) {
       node.open();
     }
+    void this.refreshStoredFlows();
   }
 
   buildRoot() {
@@ -279,6 +404,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     }
     conn.childrenChangeStream().listen(this.onChildrenChange);
     this.updateSelectedExpansion();
+    void this.refreshStoredFlows();
     this.forceUpdate();
   }
 
@@ -289,13 +415,16 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
         className="ticl-e-node-tree"
         style={this.props.style}
         renderer={this.renderChild}
-        itemCount={this.list.length}
+        itemCount={this.rows.length}
         itemHeight={30}
       />
     );
   }
 
   clearRoot(conn: ClientConn) {
+    ++this.storedRequest;
+    this.storedRoot = {key: '', name: '', level: -1, children: new Map()};
+    this.expandedStored.clear();
     conn.childrenChangeStream().unlisten(this.onChildrenChange);
     for (const node of this.rootList) {
       node.destroy();

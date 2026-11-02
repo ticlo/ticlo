@@ -91,6 +91,58 @@ describe('runtime lifecycle', () => {
     expect(root.getFlowState(ref('main', 'entry'))).toBe('unloaded');
   });
 
+  it('loads auto-load flows only for main roots and leaves manually opened dependency flows running', async () => {
+    await storage.saveNamespaceMetadata('main', {dependencies: ['shared'], autoLoadFlows: ['entry']});
+    await storage.saveNamespaceMetadata('shared', {autoLoadFlows: ['entry']});
+    storage.saveFlow(null, {value: 'main'}, '+main.entry');
+    storage.saveFlow(null, {value: 'shared'}, '+shared.entry');
+    storage.saveFlow(null, {value: 'other'}, '+main.other');
+
+    await root.start({main: {}});
+    expect(root.getFlowState(ref('main', 'entry'))).toBe('enabled');
+    expect(root.getFlowState(ref('main', 'other'))).toBe('unloaded');
+    expect(root.getFlowState(ref('shared', 'entry'))).toBe('unloaded');
+    expect(await root.listMainFlows()).toEqual([
+      {namespace: 'main', name: 'entry', state: 'enabled', autoLoad: true, canAutoLoad: true},
+      {namespace: 'main', name: 'other', state: 'unloaded', autoLoad: false, canAutoLoad: true},
+    ]);
+
+    await root.enableNamespace('shared');
+    expect(root.getFlowState(ref('shared', 'entry'))).toBe('enabled');
+    const shared = root.queryValue('+shared.entry') as Flow;
+    shared.setValue('value', 'edited');
+    shared.trackChange();
+    await expect(root.retainNamespaces(['main'])).rejects.toThrow('unsaved changes');
+    expect(root.getFlowState(ref('shared', 'entry'))).toBe('enabled');
+    await shared.applyChange();
+    await root.retainNamespaces(['main']);
+    expect(root.getFlowState(ref('shared', 'entry'))).toBe('unloaded');
+
+    await root.loadFlow(ref('shared', 'entry'));
+    await root.enableNamespace('shared');
+    await root.retainNamespaces(['main']);
+    expect(root.getFlowState(ref('shared', 'entry'))).toBe('enabled');
+  });
+
+  it('uses explicit flow selection instead of auto-load flows and applies flag changes only to main roots', async () => {
+    await storage.saveNamespaceMetadata('main', {dependencies: ['shared'], autoLoadFlows: ['entry']});
+    await storage.saveNamespaceMetadata('shared', {autoLoadFlows: ['entry']});
+    storage.saveFlow(null, {value: 1}, '+main.entry');
+    storage.saveFlow(null, {value: 2}, '+main.other');
+    storage.saveFlow(null, {value: 3}, '+shared.entry');
+
+    await root.start({main: {flows: ['other']}});
+    expect(root.getFlowState(ref('main', 'entry'))).toBe('unloaded');
+    expect(root.getFlowState(ref('main', 'other'))).toBe('enabled');
+    await root.setAutoLoadFlow('shared', 'entry', true);
+    expect(root.getFlowState(ref('shared', 'entry'))).toBe('unloaded');
+    await root.setAutoLoadFlow('main', 'entry', true);
+    expect(root.getFlowState(ref('main', 'entry'))).toBe('enabled');
+    await root.setAutoLoadFlow('main', 'entry', false);
+    expect(root.getFlowState(ref('main', 'entry'))).toBe('enabled');
+    expect((await storage.getNamespaceMetadata('main')).autoLoadFlows).toEqual([]);
+  });
+
   it('switches namespaces while retaining shared dependencies and rejecting unsaved changes', async () => {
     await storage.saveNamespaceMetadata('main', {dependencies: ['shared']});
     await storage.saveNamespaceMetadata('other', {dependencies: ['shared']});
@@ -136,7 +188,7 @@ describe('runtime lifecycle', () => {
 
     await root.unloadNamespace('main');
     expect(root.getNamespaceGraph().roots).toEqual(['other']);
-    expect(root.getFlowState(ref('main', 'entry'))).toBe('enabled');
+    expect(root.getFlowState(ref('main', 'entry'))).toBe('unloaded');
 
     await root.unloadNamespace('other');
     expect(root.getNamespaceGraph()).toEqual({roots: [], dependencies: {}});

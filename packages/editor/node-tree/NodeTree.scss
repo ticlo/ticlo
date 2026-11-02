@@ -28,6 +28,10 @@
   }
 }
 
+.ticl-e-stored-flow {
+  opacity: 0.6;
+}
+
 .ticl-e-tree-node-ordered > .ticl-e-tree-node-content::before {
   content: '';
   position: absolute;

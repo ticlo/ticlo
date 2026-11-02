@@ -69,7 +69,16 @@ class App extends React.PureComponent<Props, State> {
         group: 'tool',
         title: t('Navigation'),
         cached: true,
-        content: <NodeTreePane conn={conn} basePaths={['']} hideRoot={true} onSelect={this.onSelect} showMenu={true} />,
+        content: (
+          <NodeTreePane
+            conn={conn}
+            basePaths={['']}
+            hideRoot={true}
+            onSelect={this.onSelect}
+            showMenu={true}
+            showStoredFlows
+          />
+        ),
       },
       Functions: {
         group: 'tool',

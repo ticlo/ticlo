@@ -338,6 +338,7 @@ interface State {
   error?: string;
   dropPosition?: 'before' | 'after' | 'inside';
   autoLoad?: boolean;
+  canAutoLoad?: boolean;
 }
 
 export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
@@ -403,12 +404,17 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   autoLoadRequest = 0;
   readAutoLoad = async () => {
     const {item, libraryAutoLoad} = this.props;
-    if (item.functionId !== 'flow:lib' || !libraryAutoLoad) return;
+    if (item.functionId !== 'flow:main' && (item.functionId !== 'flow:lib' || !libraryAutoLoad)) return;
     const request = ++this.autoLoadRequest;
-    this.safeSetState({autoLoad: undefined});
+    this.safeSetState({autoLoad: undefined, canAutoLoad: undefined});
     try {
-      const autoLoad = await libraryAutoLoad.get(item.key);
-      if (request === this.autoLoadRequest) this.safeSetState({autoLoad});
+      if (item.functionId === 'flow:main') {
+        const {autoLoad, canAutoLoad} = await item.getConn().getAutoLoadFlow(item.key);
+        if (request === this.autoLoadRequest) this.safeSetState({autoLoad, canAutoLoad});
+      } else {
+        const autoLoad = await libraryAutoLoad.get(item.key);
+        if (request === this.autoLoadRequest) this.safeSetState({autoLoad});
+      }
     } catch (error) {
       requestCallbacks.onError(String(error));
     }
@@ -416,9 +422,17 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
   toggleAutoLoad = async () => {
     const {item, libraryAutoLoad} = this.props;
-    if (!libraryAutoLoad) return;
     ++this.autoLoadRequest;
     try {
+      if (item.functionId === 'flow:main') {
+        const conn = item.getConn();
+        const autoLoad = !(this.state.autoLoad ?? (await conn.getAutoLoadFlow(item.key)).autoLoad);
+        await conn.setAutoLoadFlow(item.key, autoLoad);
+        this.safeSetState({autoLoad});
+        conn.childrenChangeStream().dispatch({path: item.parent?.key ?? ''});
+        return;
+      }
+      if (!libraryAutoLoad) return;
       const autoLoad = !(this.state.autoLoad ?? (await libraryAutoLoad.get(item.key)));
       await libraryAutoLoad.set(item.key, autoLoad);
       this.safeSetState({autoLoad});
@@ -443,6 +457,14 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (item.functionId === 'flow:lib' && this.props.libraryAutoLoad) {
       menuItems.push(
         <MenuItem key="autoLoad" onClick={() => void this.toggleAutoLoad()}>
+          <CheckOutlined style={{visibility: this.state.autoLoad ? 'visible' : 'hidden'}} />
+          {t('Auto Load')}
+        </MenuItem>
+      );
+    }
+    if (item.functionId === 'flow:main' && this.state.canAutoLoad) {
+      menuItems.push(
+        <MenuItem key="autoLoadFlow" onClick={() => void this.toggleAutoLoad()}>
           <CheckOutlined style={{visibility: this.state.autoLoad ? 'visible' : 'hidden'}} />
           {t('Auto Load')}
         </MenuItem>
@@ -665,7 +687,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
           functionId={item.functionId}
           canApply={item.canApply}
           getMenu={this.getMenu}
-          menuVersion={this.state.autoLoad}
+          menuVersion={item.functionId === 'flow:main' && !this.state.canAutoLoad ? undefined : this.state.autoLoad}
           onMenuOpen={this.readAutoLoad}
           disabled={disabled}
           funcLib={item.funcLib}

@@ -49,6 +49,7 @@ export interface FlowStorage {
 export interface NamespaceMetadata {
   dependencies?: string[];
   autoLoadLibraries?: string[];
+  autoLoadFlows?: string[];
 }
 
 export const voidStorage = {

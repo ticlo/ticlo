@@ -12,6 +12,13 @@ export interface FlowRef {
   kind: 'flow' | 'library';
   name: string;
 }
+export interface MainFlowEntry {
+  namespace: string;
+  name: string;
+  state: 'unloaded' | 'loading' | 'enabled' | 'disabled';
+  autoLoad: boolean;
+  canAutoLoad: boolean;
+}
 export interface UnloadOptions {
   discardChanges?: boolean;
 }
@@ -49,6 +56,7 @@ export class FlowRuntime {
   private readonly pending = new Map<string, {promise: Promise<Flow>; cancelled: boolean}>();
   private readonly suppressed = new Set<string>();
   private readonly loaded = new Map<string, {ref: FlowRef; flow: Flow}>();
+  private readonly rootFlows = new Set<string>();
 
   constructor(private readonly root: Root) {}
 
@@ -71,15 +79,25 @@ export class FlowRuntime {
     this.started = true;
     const generation = this.generation;
     try {
-      const selected = Object.keys(options).length ? options : {'#root': {flows: this.root._storage ? ['**'] : []}};
+      const defaultRoot = !Object.keys(options).length;
+      const selected = defaultRoot ? {'#root': {}} : options;
       this.checkGeneration(generation);
       const selections = Object.entries(selected).map(([name, config]) =>
-        this.prepareSelected(name, config.flows ?? [], generation)
+        config.flows === undefined ? null : this.prepareSelected(name, config.flows, generation)
       );
-      for (const selection of selections) void selection.catch(() => {});
+      for (const selection of selections) void selection?.catch(() => {});
       // Discover every dependency before running anything, including cyclic graphs.
       await this.activate(Object.keys(selected), generation);
-      for (const selection of selections) await this.loadSelected(await selection, generation);
+      for (const [index, [name, config]] of Object.entries(selected).entries()) {
+        const patterns =
+          config.flows ??
+          this.metadata.get(name)?.autoLoadFlows ??
+          (defaultRoot && name === '#root' && this.root._storage ? ['**'] : []);
+        await this.loadSelected(
+          await (selections[index] ?? this.prepareSelected(name, patterns, generation)),
+          generation
+        );
+      }
       this.checkGeneration(generation);
       for (const name of Object.keys(selected)) this.roots.add(name);
     } catch (error) {
@@ -204,7 +222,10 @@ export class FlowRuntime {
       if (!this.root.queryValue(path)) this.root.addFlowFolder(path, {}, true);
     }
     for (const {ref, data} of flows) {
+      const key = this.key(ref);
+      const alreadyLoaded = this.loaded.has(key);
       await this.loadFlow(ref, data);
+      if (!alreadyLoaded) this.rootFlows.add(key);
       this.checkGeneration(generation);
       if (version !== this.namespaceVersions.get(namespace))
         throw new Error(`Namespace selection cancelled: ${namespace}`);
@@ -214,10 +235,13 @@ export class FlowRuntime {
   async enableNamespace(name: string, options: {flows?: string[]} = {}) {
     this.started = true;
     const generation = this.generation;
-    const selection = this.prepareSelected(name, options.flows ?? [], generation);
-    void selection.catch(() => {});
+    const selection = options.flows === undefined ? null : this.prepareSelected(name, options.flows, generation);
+    void selection?.catch(() => {});
     await this.activate([name], generation);
-    await this.loadSelected(await selection, generation);
+    await this.loadSelected(
+      await (selection ?? this.prepareSelected(name, this.metadata.get(name)?.autoLoadFlows ?? [], generation)),
+      generation
+    );
     this.roots.add(name);
   }
 
@@ -248,7 +272,17 @@ export class FlowRuntime {
     }
     const keep = this.requiredNamespaces(roots);
     const removed = [...this.metadata.keys()].filter((namespace) => !keep.has(namespace));
+    const demoted = [...this.roots].filter((namespace) => !roots.includes(namespace));
     for (const {ref, flow} of this.loaded.values()) if (removed.includes(ref.namespace)) this.assertClean(flow, {});
+    for (const key of this.rootFlows) {
+      const entry = this.loaded.get(key);
+      if (entry && demoted.includes(entry.ref.namespace)) this.assertClean(entry.flow, {});
+    }
+    for (const key of [...this.rootFlows]) {
+      const entry = this.loaded.get(key);
+      if (entry && demoted.includes(entry.ref.namespace) && keep.has(entry.ref.namespace))
+        await this.unloadFlow(entry.ref);
+    }
     for (const namespace of removed) {
       if (this.metadata.has(namespace)) await this.disableNamespace(namespace, {cascade: true});
     }
@@ -268,8 +302,13 @@ export class FlowRuntime {
     await this.enableNamespace(name);
     const keep = this.requiredNamespaces([name]);
     const removed = [...active].filter((namespace) => !keep.has(namespace));
+    const demoted = [...roots].filter((namespace) => namespace !== name);
     try {
       for (const {ref, flow} of this.loaded.values()) if (removed.includes(ref.namespace)) this.assertClean(flow, {});
+      for (const key of this.rootFlows) {
+        const entry = this.loaded.get(key);
+        if (entry && demoted.includes(entry.ref.namespace)) this.assertClean(entry.flow, {});
+      }
     } catch (error) {
       this.roots.clear();
       for (const root of roots) this.roots.add(root);
@@ -277,6 +316,11 @@ export class FlowRuntime {
         if (!active.has(namespace)) await this.disableNamespace(namespace, {cascade: true, discardChanges: true});
       }
       throw error;
+    }
+    for (const key of [...this.rootFlows]) {
+      const entry = this.loaded.get(key);
+      if (entry && demoted.includes(entry.ref.namespace) && keep.has(entry.ref.namespace))
+        await this.unloadFlow(entry.ref);
     }
     for (const namespace of removed) {
       if (this.metadata.has(namespace)) await this.disableNamespace(namespace, {cascade: true});
@@ -341,6 +385,7 @@ export class FlowRuntime {
 
   loadFlow(ref: FlowRef, prefetched?: Promise<DataMap | null>): Promise<Flow> {
     const key = this.key(ref);
+    if (!prefetched && ref.kind === 'flow') this.rootFlows.delete(key);
     if (!this.namespace(ref.namespace)._enabled)
       return Promise.reject(new Error(`Namespace is not enabled: ${ref.namespace}`));
     const existing = this.loaded.get(key)?.flow;
@@ -408,6 +453,27 @@ export class FlowRuntime {
     }));
   }
 
+  async listMainFlows(): Promise<MainFlowEntry[]> {
+    const groups = await Promise.all(
+      [...this.roots].map(async (namespace) => {
+        const flows = await this.listFlows(namespace);
+        const metadata = this.metadata.get(namespace);
+        const storage = this.root._storage;
+        return flows.map(({name, state}) => ({
+          namespace,
+          name,
+          state,
+          autoLoad: metadata?.autoLoadFlows?.includes(name) ?? namespace === '#root',
+          canAutoLoad: Boolean(
+            storage?.saveNamespaceMetadata &&
+            (storage.isPersistent ? storage.isPersistent(namespace) : storage.persistent !== false)
+          ),
+        }));
+      })
+    );
+    return groups.flat();
+  }
+
   async setAutoLoadLibrary(namespace: string, name: string, autoLoad: boolean) {
     this.key({namespace, name, kind: 'library'});
     const storage = this.root._storage;
@@ -428,6 +494,39 @@ export class FlowRuntime {
     }
   }
 
+  async setAutoLoadFlow(namespace: string, name: string, autoLoad: boolean) {
+    const ref: FlowRef = {namespace, name, kind: 'flow'};
+    this.key(ref);
+    const storage = this.root._storage;
+    if (
+      !storage?.saveNamespaceMetadata ||
+      (storage.isPersistent ? !storage.isPersistent(namespace) : storage.persistent === false)
+    )
+      throw new Error('Storage does not support persistence');
+    const metadata = await storage.getNamespaceMetadata(namespace);
+    if (autoLoad && storage.listFlows && !(await storage.listFlows(namespace)).includes(name)) {
+      throw new Error(`Missing flow: ${namespace}/${name}`);
+    }
+    // A missing #root setting retains the legacy start() behavior of loading all flows.
+    const flows = new Set(
+      metadata.autoLoadFlows ?? (namespace === '#root' ? await storage.listFlows?.(namespace) : [])
+    );
+    if (autoLoad) flows.add(name);
+    else flows.delete(name);
+    const updated = {...metadata, autoLoadFlows: [...flows]};
+    await storage.saveNamespaceMetadata(namespace, updated);
+    if (this.namespace(namespace)._enabled) {
+      this.metadata.set(namespace, updated);
+      if (autoLoad && this.roots.has(namespace)) {
+        const alreadyLoaded = this.loaded.has(this.key(ref));
+        if (!alreadyLoaded) {
+          await this.loadFlow(ref);
+          this.rootFlows.add(this.key(ref));
+        }
+      }
+    }
+  }
+
   private assertClean(flow: Flow, options: UnloadOptions) {
     if (!flow._destroyed && !options.discardChanges && (flow.getValue('@has-change') || flow._history?._tracking)) {
       throw new Error(`Flow has unsaved changes: ${flow.getFullPath()}`);
@@ -438,6 +537,7 @@ export class FlowRuntime {
     const key = this.key(ref);
     const flow = this.loaded.get(key)?.flow;
     if (flow) this.assertClean(flow, options);
+    this.rootFlows.delete(key);
     this.suppressed.add(key);
     const pending = this.pending.get(key);
     if (pending) {
@@ -547,6 +647,7 @@ export class FlowRuntime {
     this.metadata.clear();
     this.roots.clear();
     this.suppressed.clear();
+    this.rootFlows.clear();
     this.started = false;
   }
 }
