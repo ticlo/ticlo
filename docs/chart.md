@@ -1,61 +1,105 @@
 # Charts
 
-`@ticlo/chart` renders charts with Chart.js. A `chart:chart` Block is a React
-component. Its ordered `chart:series` children are Chart.js datasets; a Series
-is data and configuration, not a separate page element. The `#order` list sets
-dataset order. A chart can contain Column, Bar, Line, Bubble, Pie, or Doughnut
-data. Column and Bar share Chart.js's bar controller, with different index axes.
-Line Series can set `fill` to `origin`, `start`, `end`, or `stack` to create an area.
-`fill` can also name another Series in the same chart; the chart resolves that
-name to the current dataset index. Pie and Doughnut currently use the first
-Series and are drawn entirely by Chart.js.
+`@ticlo/chart` renders Chart.js charts as React components. A `chart:chart`
+Block owns an ordered list of `chart:series` children. Each Series represents
+one Chart.js dataset. Chart.js renders axes, grids, legends, lines, areas, and
+native marks. A Series can optionally use a Ticlo component for bars or point
+markers.
 
-## Data
+## Chart.js configuration
 
-Each Series has a `data` array. A row is an object, or a primitive normalized
-to `{value: primitive}`. `labelField`, `valueField`, `xField`, `yField`, and
-`radiusField` select the row properties; their defaults are `label`, `value`,
-`x`, `y`, and `r`. `keyField` defaults to `id`. Within a categorical Series,
-labels must be unique. `chart.labels` fixes category order when provided;
-otherwise categories follow their first occurrence across the Series. Missing
-categories produce gaps. Bubble `r` is a radius in CSS pixels, as in Chart.js.
+The Chart Block accepts the native Chart.js `data`, `options`, and `plugins`
+objects. Its `type` selects the default controller. All built-in Chart.js
+controllers are registered; `column` is Ticlo's alias for a vertical
+Chart.js `bar`, while `bar` defaults to a horizontal bar. Native
+`options.indexAxis` can override that orientation.
 
-For a custom renderer, give the Series `renderer` property a named Ticlo worker
-component. Its worker must return its root Block through `#outputs.#return`.
-The chart runs one instance per visible data item, keyed by `keyField` when
-available. An item without that field uses its category label or row index as
-its key. Supply unique keys when rows may move or repeat. The renderer's
-`#inputs.#value` receives the full object below; individual fields can be
-declared in `#inputs.#custom` for direct bindings:
+Chart.js `data.datasets` are kept as native datasets. Series children append
+datasets in `#order`. A Series can instead set `targetDatasetIndex` to merge
+with one of the native datasets. The target must exist and may be used by only
+one Series. Each Series also accepts a native `dataset` object, including
+its own `type` for mixed charts. Chart.js dataset and option fields such as
+`parsing`, `order`, `hidden`, scales, legend position, and legend label
+styles pass through.
+
+The Chart shortcuts `labels`, `stacked`, `legend`, `tooltip`, and
+`animationDuration` override only their corresponding native fields when
+explicitly set. Series shortcuts `type`, `label`, `color`, `stack`,
+`fill`, and `data` work the same way. Unset shortcuts leave the native
+value intact. Objects merge by property, arrays replace as a whole, and
+`false` is a value rather than an absent setting. Inputs are not mutated.
+New Blocks do not store shortcut defaults.
+
+For example, `options.plugins.legend.position = 'bottom'` and
+`options.plugins.legend.labels.font.size = 14` remain effective when the
+`legend` shortcut changes `display`. A custom legend `onClick` callback
+is called; Ticlo then remembers the resulting dataset visibility by stable
+Series key. Native datasets can supply an `id` for the same purpose.
+
+## Data and renderer inputs
+
+When Series `data` is set, it is treated as Ticlo rows and mapped into
+`dataset.data`. The default row fields are `id`, `label`, `value`,
+`x`, `y`, and `r`; the corresponding `*Field` properties select other
+fields. Missing categories produce gaps. If Series `data` is absent,
+`dataset.data` goes directly to Chart.js, so its native data formats and
+`parsing` settings remain available. Use native `dataset.data` for formats
+that the Ticlo row mapper does not handle, including datasets with
+`parsing: false`.
+
+The optional `renderer` is a named Ticlo worker component returning its root
+Block through `#outputs.#return`. The chart runs one instance per visible
+mark, keyed by `keyField` when available. Keys must be unique within a
+Series. `rendererMode` is `replace` by default; `overlay` keeps the
+native mark under the HTML component. Custom rendering is supported for
+bar rectangles, line points, and bubble points. Other dataset types retain
+their native rendering.
+
+The renderer's `#inputs.#value` receives the following object. Fields can
+also be declared in `#inputs.#custom` for direct binding:
 
 | Input | Scope |
 | --- | --- |
 | `data`, `key`, `label`, `chartType`, `seriesKey`, `seriesLabel`, `datasetIndex`, `chartIndex`, `dataIndex` | Every custom mark |
 | `left`, `top`, `width`, `height`, `active` | Every custom mark; geometry is in Canvas CSS pixels |
 | `seriesVisible`, `interactive`, `color`, `stack` | Every custom mark; hidden Series have no rendered marks |
-| `value`, `startValue`, `endValue`, `orientation` | Column and Bar |
-| `xValue`, `yValue`, `radius` | Line points and Bubble |
+| `value`, `startValue`, `endValue`, `orientation` | Bars |
+| `xValue`, `yValue`, `radius` | Line points and bubbles |
 | `sizeValue` | Bubble source radius |
 
-The chart positions and sizes an HTML wrapper for each mark. The component
-returned by the worker should have one DOM root; that root fills the wrapper.
-Custom renderers replace only rectangular Column/Bar marks, Line point markers,
-and Bubble points. Chart.js continues to draw lines, area fills, axes, grids,
-legends, and native Series. Pie and Doughnut do not use custom renderers.
+The chart sizes and positions an HTML wrapper for each mark; the returned
+component's root fills it. `interactive` defaults to true. An interactive
+mark receives pointer input and can show a Chart.js tooltip. Overlay gaps
+pass pointer events to the Canvas, leaving its legend usable.
+Set `interactive` to false when Canvas click and hover handlers or event
+plugins must receive events over that mark; its Ticlo component will then
+let those pointer events through.
+Native object-map dataset data can still be used with a Series, but a custom
+renderer requires an array so its marks can be matched to source rows.
 
-## Interaction and animation
+## Plugins, callbacks, and integration
 
-`interactive` defaults to true on a Series. When it has a renderer, the mark
-receives pointer input and its Ticlo component handlers can run. The chart
-also maps pointer movement back to Chart.js active elements and shows an HTML
-tooltip above the marks. Setting `interactive` to false lets pointer events
-pass through to the Canvas. The overlay outside mark wrappers always lets
-events through, so the Canvas legend remains usable.
+`plugins` accepts runtime Chart.js plugin objects or IDs registered with
+`registerChartPlugin(id, plugin)`. To save synchronous JavaScript callbacks
+in a flow, register them with `registerChartCallback(id, fn)` and use
+`callbackRefs`. Chart callback paths are JSON Pointers from the full
+configuration, such as
+`/options/plugins/tooltip/callbacks/label` or
+`/data/datasets/0/backgroundColor`. Series callback paths are relative to
+its dataset, such as `/backgroundColor`. Runtime function values in native
+objects also pass through, but are not portable flow data.
 
-Existing marks use CSS transitions for position and size changes. The chart
-and wrapper use the same duration and linear easing, but their frames need
-not align exactly. Initial marks, removed marks, resize, and visibility changes
-do not animate through the overlay. `animationDuration` defaults to 300 ms.
-Automatic Chart.js decimation is disabled because it changes data indices used
-to match rows with renderer instances. Chart.js Canvas image exports contain
-the Canvas layer only, not HTML renderers.
+`tooltipMode` is `auto`, `html`, or `native`. Auto uses Ticlo's HTML
+tooltip for custom marks when no native tooltip configuration is supplied;
+otherwise Chart.js tooltip options are used. HTML mode uses Chart.js tooltip
+content and callbacks but renders above the HTML marks. Native mode leaves
+Chart.js tooltip rendering in control.
+
+The wrapper uses a CSS transition for mark geometry. Custom-rendered charts
+default to 200 ms for both Chart.js and the wrapper; an explicit animation
+duration applies to both. The frames need not match exactly. When
+`options.plugins = false` or line decimation is enabled for a custom line
+marker, the conflicting marks fall back to native
+drawing and emit a warning. A custom renderer with non-array dataset data
+also falls back to native drawing. All native Chart.js settings remain available
+without a custom renderer. Chart.js Canvas image exports omit HTML marks.

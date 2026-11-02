@@ -1,23 +1,32 @@
 import type {Block} from '@ticlo/core';
-
-export type TicloChartType = 'column' | 'bar' | 'line' | 'bubble' | 'pie' | 'doughnut';
+import {applyCallbackRefs, asObject, cloneConfig, mergeConfig} from './ChartConfig.ts';
 
 export interface ChartOptions {
-  type: TicloChartType;
-  stacked: boolean;
-  legend: boolean;
-  tooltip: boolean;
-  animationDuration: number;
-  labels?: string[];
+  type: string;
+  data: Record<string, unknown>;
+  options: Record<string, unknown>;
+  plugins: unknown;
+  callbackRefs: unknown;
+  labels?: unknown[];
+  stacked?: boolean;
+  legend?: boolean;
+  tooltip?: boolean;
+  animationDuration?: number;
+  tooltipMode: 'auto' | 'html' | 'native';
 }
 
 export interface ChartSeries {
   block: Block;
   key: string;
-  label: string;
-  data: unknown[];
+  dataset: Record<string, unknown>;
+  targetDatasetIndex?: number;
+  type?: string;
+  label?: string;
+  data?: unknown[];
   renderer?: string;
+  rendererMode: 'replace' | 'overlay';
   interactive: boolean;
+  callbackRefs: unknown;
   keyField: string;
   labelField: string;
   valueField: string;
@@ -26,7 +35,7 @@ export interface ChartSeries {
   radiusField: string;
   color?: string;
   stack?: string;
-  fill: string | false;
+  fill?: unknown;
   markerSize: number;
 }
 
@@ -42,13 +51,12 @@ export interface ChartItem {
 }
 
 export interface ChartDataset {
-  series: ChartSeries;
+  key: string;
+  type: string;
+  series?: ChartSeries;
   items: (ChartItem | null)[];
-  data: Record<string, unknown>[] | number[];
   config: Record<string, unknown>;
 }
-
-const chartTypes = new Set<TicloChartType>(['column', 'bar', 'line', 'bubble', 'pie', 'doughnut']);
 
 function textValue(value: unknown, fallback: string): string {
   return typeof value === 'string' && value ? value : fallback;
@@ -59,17 +67,41 @@ function numberValue(value: unknown): number | undefined {
   return Number.isFinite(number) ? number : undefined;
 }
 
+export function chartJsType(type: string): string {
+  return type === 'column' ? 'bar' : type;
+}
+
+export function overlayAvailable(options: ChartOptions, type: string, data?: unknown): boolean {
+  if (
+    !['bar', 'line', 'bubble'].includes(type) ||
+    options.options.plugins === false ||
+    (data != null && !Array.isArray(data))
+  )
+    return false;
+  const decimation = asObject(asObject(options.options.plugins).decimation);
+  return !(type === 'line' && decimation.enabled === true);
+}
+
 export function readChartOptions(block: Block): ChartOptions {
-  const rawType = block.getValue('type') as TicloChartType;
-  const duration = numberValue(block.getValue('animationDuration'));
+  const type = block.getValue('type');
   const labels = block.getValue('labels');
+  const mode = block.getValue('tooltipMode');
+  const duration = numberValue(block.getValue('animationDuration'));
+  const stacked = block.getValue('stacked');
+  const legend = block.getValue('legend');
+  const tooltip = block.getValue('tooltip');
   return {
-    type: chartTypes.has(rawType) ? rawType : 'column',
-    stacked: block.getValue('stacked') === true,
-    legend: block.getValue('legend') !== false,
-    tooltip: block.getValue('tooltip') !== false,
-    animationDuration: duration == null ? 300 : Math.max(0, duration),
-    labels: Array.isArray(labels) ? labels.map(String) : undefined,
+    type: typeof type === 'string' && type ? type : 'column',
+    data: asObject(block.getValue('data')),
+    options: asObject(block.getValue('options')),
+    plugins: block.getValue('plugins'),
+    callbackRefs: block.getValue('callbackRefs'),
+    labels: Array.isArray(labels) ? labels : undefined,
+    stacked: typeof stacked === 'boolean' ? stacked : undefined,
+    legend: typeof legend === 'boolean' ? legend : undefined,
+    tooltip: typeof tooltip === 'boolean' ? tooltip : undefined,
+    animationDuration: duration == null ? undefined : Math.max(0, duration),
+    tooltipMode: mode === 'html' || mode === 'native' ? mode : 'auto',
   };
 }
 
@@ -82,15 +114,23 @@ export function readChartSeries(block: Block): ChartSeries[] {
     if (!child || typeof child !== 'object' || (child as Block).getValue?.('#is') !== 'chart:series') return [];
     const series = child as Block;
     const data = series.getValue('data');
-    const fill = series.getValue('fill');
+    const type = series.getValue('type');
+    const label = series.getValue('label');
+    const target = numberValue(series.getValue('targetDatasetIndex'));
+    const rendererMode = series.getValue('rendererMode');
     return [
       {
         block: series,
         key,
-        label: textValue(series.getValue('label'), key),
-        data: Array.isArray(data) ? data : [],
+        dataset: asObject(series.getValue('dataset')),
+        targetDatasetIndex: target != null && Number.isInteger(target) && target >= 0 ? target : undefined,
+        type: typeof type === 'string' && type ? type : undefined,
+        label: typeof label === 'string' ? label : undefined,
+        data: Array.isArray(data) ? data : undefined,
         renderer: typeof series.getValue('renderer') === 'string' ? (series.getValue('renderer') as string) : undefined,
+        rendererMode: rendererMode === 'overlay' ? 'overlay' : 'replace',
         interactive: series.getValue('interactive') !== false,
+        callbackRefs: series.getValue('callbackRefs'),
         keyField: textValue(series.getValue('keyField'), 'id'),
         labelField: textValue(series.getValue('labelField'), 'label'),
         valueField: textValue(series.getValue('valueField'), 'value'),
@@ -99,7 +139,7 @@ export function readChartSeries(block: Block): ChartSeries[] {
         radiusField: textValue(series.getValue('radiusField'), 'r'),
         color: typeof series.getValue('color') === 'string' ? (series.getValue('color') as string) : undefined,
         stack: typeof series.getValue('stack') === 'string' ? (series.getValue('stack') as string) : undefined,
-        fill: typeof fill === 'string' && fill ? fill : false,
+        fill: series.getValue('fill'),
         markerSize: Math.max(0, numberValue(series.getValue('markerSize')) ?? 12),
       },
     ];
@@ -115,84 +155,147 @@ function rowLabel(row: Record<string, unknown>, series: ChartSeries, index: numb
   return label == null ? String(index) : String(label);
 }
 
-function rowKey(row: Record<string, unknown>, series: ChartSeries, label: string): string {
+function makeItem(row: Record<string, unknown>, series: ChartSeries, index: number, label: string): ChartItem {
   const key = row[series.keyField];
-  return key == null ? label : String(key);
+  return {
+    key: key == null ? label : String(key),
+    data: row,
+    label,
+    value: numberValue(row[series.valueField]),
+    xValue: numberValue(row[series.xField]),
+    yValue: numberValue(row[series.yField]),
+    sizeValue: numberValue(row[series.radiusField]),
+    dataIndex: index,
+  };
+}
+
+function mappedData(series: ChartSeries, type: string, labels: unknown[], horizontal: boolean) {
+  const rows = series.data.map(asRow);
+  const categorical = type === 'bar' || type === 'column' || type === 'line';
+  const radial = type === 'pie' || type === 'doughnut' || type === 'polarArea';
+  let items: (ChartItem | null)[];
+  if (categorical || radial) {
+    const byLabel = new Map<string, {row: Record<string, unknown>; index: number}>();
+    rows.forEach((row, index) => {
+      const label = rowLabel(row, series, index);
+      if (!byLabel.has(label)) byLabel.set(label, {row, index});
+    });
+    items = labels.map((label) => {
+      const match = byLabel.get(String(label));
+      return match ? makeItem(match.row, series, match.index, String(label)) : null;
+    });
+  } else {
+    items = rows.map((row, index) => makeItem(row, series, index, rowLabel(row, series, index)));
+  }
+  const data = radial
+    ? items.map((item) => item?.value ?? 0)
+    : categorical
+      ? items.map((item) => {
+          const label = item?.label;
+          const value = item?.value ?? null;
+          return horizontal ? {y: label, x: value} : {x: label, y: value};
+        })
+      : items.map((item) => ({x: item?.xValue ?? null, y: item?.yValue ?? null, r: item?.sizeValue ?? 0}));
+  return {items, data};
+}
+
+function rawItems(data: unknown, series: ChartSeries, labels: unknown[]): ChartItem[] {
+  if (!Array.isArray(data)) return [];
+  return data.map((raw, index) => {
+    const row = asRow(raw);
+    return makeItem(row, series, index, labels[index] == null ? rowLabel(row, series, index) : String(labels[index]));
+  });
 }
 
 export function buildChartData(options: ChartOptions, seriesList: ChartSeries[]) {
-  const radial = options.type === 'pie' || options.type === 'doughnut';
-  const categorical = options.type === 'column' || options.type === 'bar' || options.type === 'line';
-  const series = radial ? seriesList.slice(0, 1) : seriesList;
-  const labels = options.labels ? [...options.labels] : [];
-  if (categorical && !options.labels) {
+  const rawData = cloneConfig(options.data);
+  const hasRawLabels = Array.isArray(rawData.labels);
+  const labels = options.labels
+    ? cloneConfig(options.labels)
+    : hasRawLabels
+      ? cloneConfig(rawData.labels as unknown[])
+      : [];
+  if (!options.labels && !hasRawLabels) {
     const seen = new Set<string>();
-    for (const item of series) {
-      item.data.forEach((raw, index) => {
-        const label = rowLabel(asRow(raw), item, index);
+    for (const series of seriesList) {
+      if (!series.data) continue;
+      const type = series.type ?? (typeof series.dataset.type === 'string' ? series.dataset.type : options.type);
+      if (!['column', 'bar', 'line', 'pie', 'doughnut', 'polarArea'].includes(type)) continue;
+      series.data.forEach((raw, index) => {
+        const label = rowLabel(asRow(raw), series, index);
         if (!seen.has(label)) {
-          labels.push(label);
           seen.add(label);
+          labels.push(label);
         }
       });
     }
   }
-  if (radial && !options.labels && series[0]) {
-    series[0].data.forEach((raw, index) => labels.push(rowLabel(asRow(raw), series[0], index)));
-  }
-  const indexBySeries = new Map(series.map((item, index) => [item.key, index]));
-  const datasets: ChartDataset[] = series.map((item) => {
-    const rows = item.data.map(asRow);
-    const createItem = (row: Record<string, unknown>, index: number, label: string): ChartItem => ({
-      key: rowKey(row, item, label),
-      data: row,
-      label,
-      value: numberValue(row[item.valueField]),
-      xValue: numberValue(row[item.xField]),
-      yValue: numberValue(row[item.yField]),
-      sizeValue: numberValue(row[item.radiusField]),
-      dataIndex: index,
-    });
-    let items: (ChartItem | null)[];
-    let data: Record<string, unknown>[] | number[];
-    if (categorical) {
-      const byLabel = new Map<string, {row: Record<string, unknown>; index: number}>();
-      rows.forEach((row, index) => {
-        const label = rowLabel(row, item, index);
-        if (!byLabel.has(label)) byLabel.set(label, {row, index});
-      });
-      items = labels.map((label) => {
-        const match = byLabel.get(label);
-        return match ? createItem(match.row, match.index, label) : null;
-      });
-      data = items.map((entry) => {
-        const category = entry?.label;
-        const value = entry?.value ?? null;
-        return options.type === 'bar' ? {y: category, x: value} : {x: category, y: value};
-      });
-    } else {
-      items = rows.map((row, index) => createItem(row, index, rowLabel(row, item, index)));
-      data = radial
-        ? items.map((entry) => entry?.value ?? 0)
-        : items.map((entry) => ({x: entry?.xValue ?? null, y: entry?.yValue ?? null, r: entry?.sizeValue ?? 0}));
-    }
-    const config: Record<string, unknown> = {label: item.label, data};
-    if (item.color) {
-      config.backgroundColor = item.color;
-      config.borderColor = item.color;
-    }
-    if (item.stack) config.stack = item.stack;
-    if (options.type === 'line') {
-      config.fill =
-        typeof item.fill === 'string' && indexBySeries.has(item.fill) ? indexBySeries.get(item.fill) : item.fill;
-      if (item.renderer) {
-        config.pointStyle = false;
-        config.pointRadius = item.markerSize / 2;
-        config.pointHitRadius = item.markerSize / 2;
-      }
-    }
-    if (options.type === 'bubble' && item.renderer) config.pointStyle = false;
-    return {series: item, items, data, config};
+  const rawDatasets = Array.isArray(rawData.datasets) ? rawData.datasets : [];
+  const datasets: ChartDataset[] = rawDatasets.map((value, index) => {
+    const config = asObject(value);
+    return {
+      key: `raw:${textValue(config.id, String(index))}`,
+      type: typeof config.type === 'string' ? config.type : chartJsType(options.type),
+      items: [] as ChartItem[],
+      config,
+    };
   });
-  return {labels, datasets};
+  const targets = new Set<number>();
+  for (const series of seriesList) {
+    const target = series.targetDatasetIndex;
+    if (target != null && (target >= rawDatasets.length || targets.has(target))) {
+      throw new Error(`Invalid or repeated chart dataset target: ${target}`);
+    }
+    if (target != null) targets.add(target);
+    const config = mergeConfig(target == null ? {} : datasets[target].config, series.dataset);
+    if (series.type != null) config.type = chartJsType(series.type);
+    if (series.type === 'bar' && config.indexAxis === undefined) config.indexAxis = 'y';
+    if (series.type === 'column' && config.indexAxis === undefined) config.indexAxis = 'x';
+    if (series.label != null) config.label = series.label;
+    if (series.color != null) {
+      config.backgroundColor = series.color;
+      config.borderColor = series.color;
+    }
+    if (series.stack != null) config.stack = series.stack;
+    if (series.fill !== undefined) config.fill = series.fill;
+    const type = series.type ?? (typeof config.type === 'string' ? config.type : options.type);
+    let items: (ChartItem | null)[];
+    if (series.data) {
+      const horizontal =
+        (config.indexAxis ?? options.options.indexAxis ?? (options.type === 'bar' ? 'y' : 'x')) === 'y';
+      const mapped = mappedData(series, type, labels, horizontal);
+      config.data = mapped.data;
+      items = mapped.items;
+    } else {
+      items = rawItems(config.data, series, labels);
+    }
+    if (
+      series.renderer &&
+      series.rendererMode === 'replace' &&
+      overlayAvailable(options, chartJsType(type), config.data)
+    ) {
+      if (type === 'line') {
+        config.pointStyle = false;
+        config.pointRadius = series.markerSize / 2;
+        config.pointHitRadius = series.markerSize / 2;
+      } else if (type === 'bubble') config.pointStyle = false;
+    }
+    applyCallbackRefs(config, series.callbackRefs);
+    const entry: ChartDataset = {key: `series:${series.key}`, type: chartJsType(type), series, items, config};
+    if (target == null) datasets.push(entry);
+    else datasets[target] = entry;
+  }
+  const indexBySeries = new Map(datasets.map((entry, index) => [entry.series?.key ?? entry.config.id, index]));
+  for (const entry of datasets) {
+    const fill = entry.series?.fill;
+    if (
+      typeof fill === 'string' &&
+      !['origin', 'start', 'end', 'stack', 'shape'].includes(fill) &&
+      indexBySeries.has(fill)
+    )
+      entry.config.fill = indexBySeries.get(fill);
+  }
+  if (options.labels || hasRawLabels || labels.length) rawData.labels = labels;
+  rawData.datasets = datasets.map((entry) => entry.config);
+  return {data: rawData, datasets};
 }

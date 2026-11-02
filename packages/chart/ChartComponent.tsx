@@ -1,29 +1,12 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Block} from '@ticlo/core';
-import {
-  Chart,
-  type ChartConfiguration,
-  type ChartType,
-  type Plugin,
-  ArcElement,
-  BarController,
-  BarElement,
-  BubbleController,
-  CategoryScale,
-  Colors,
-  DoughnutController,
-  Filler,
-  Legend,
-  LineController,
-  LineElement,
-  LinearScale,
-  PieController,
-  PointElement,
-  Tooltip,
-} from 'chart.js';
+import Chart from 'chart.js/auto';
+import type {BarElement, ChartConfiguration, ChartType, Plugin, PointElement} from 'chart.js';
 import {TicloComp, useBlockValue, useTicloComp} from '@ticlo/react';
 import {
   buildChartData,
+  chartJsType,
+  overlayAvailable,
   readChartOptions,
   readChartSeries,
   type ChartDataset,
@@ -31,24 +14,7 @@ import {
   type ChartOptions,
   type ChartSeries,
 } from './ChartData.ts';
-
-Chart.register(
-  ArcElement,
-  BarController,
-  BarElement,
-  BubbleController,
-  CategoryScale,
-  Colors,
-  DoughnutController,
-  Filler,
-  Legend,
-  LineController,
-  LineElement,
-  LinearScale,
-  PieController,
-  PointElement,
-  Tooltip
-);
+import {applyCallbackRefs, asObject, cloneConfig, mergeConfig, resolveChartPlugins} from './ChartConfig.ts';
 
 interface Mark extends ChartItem {
   seriesKey: string;
@@ -148,23 +114,15 @@ function useChartSnapshot(block: Block) {
   return snapshot;
 }
 
-function chartJsType(type: ChartOptions['type']): ChartType {
-  return type === 'column' ? 'bar' : type;
-}
-
 function makeMarks(chart: Chart, datasets: ChartDataset[], options: ChartOptions, mode: string): Geometry {
   const marks: Mark[] = [];
   const area = chart.chartArea;
   for (let datasetIndex = 0; datasetIndex < datasets.length; datasetIndex++) {
-    const {series, items} = datasets[datasetIndex];
-    if (
-      !series.renderer ||
-      options.type === 'pie' ||
-      options.type === 'doughnut' ||
-      !chart.isDatasetVisible(datasetIndex)
-    )
+    const {series, items, type, config} = datasets[datasetIndex];
+    if (!series?.renderer || !overlayAvailable(options, type, config.data) || !chart.isDatasetVisible(datasetIndex))
       continue;
-    const elements = chart.getDatasetMeta(datasetIndex).data;
+    const meta = chart.getDatasetMeta(datasetIndex);
+    const elements = meta.data;
     for (let index = 0; index < elements.length; index++) {
       const item = items[index];
       const element = elements[index];
@@ -172,22 +130,22 @@ function makeMarks(chart: Chart, datasets: ChartDataset[], options: ChartOptions
       let left: number, top: number, width: number, height: number, radius: number | undefined;
       let startValue: number | undefined, endValue: number | undefined;
       let orientation: Mark['orientation'];
-      if (options.type === 'column' || options.type === 'bar') {
+      if (type === 'bar') {
         const bar = element as BarElement;
         const position = bar.getProps(['x', 'y', 'base', 'width', 'height'], true);
-        const horizontal = options.type === 'bar';
+        const horizontal = meta.iScale?.axis === 'y';
         orientation = horizontal ? 'horizontal' : 'vertical';
         left = horizontal ? Math.min(position.x, position.base) : position.x - position.width / 2;
         top = horizontal ? position.y - position.height / 2 : Math.min(position.y, position.base);
         width = horizontal ? Math.abs(position.x - position.base) : position.width;
         height = horizontal ? position.height : Math.abs(position.y - position.base);
-        const scale = chart.getDatasetMeta(datasetIndex).vScale;
+        const scale = meta.vScale;
         startValue = scale?.getValueForPixel(position.base) as number | undefined;
         endValue = scale?.getValueForPixel(horizontal ? position.x : position.y) as number | undefined;
       } else {
         const point = element as PointElement;
         const position = point.getProps(['x', 'y'], true);
-        radius = options.type === 'line' ? series.markerSize / 2 : (item.sizeValue ?? point.options.radius ?? 0);
+        radius = type === 'line' ? series.markerSize / 2 : (item.sizeValue ?? point.options.radius ?? 0);
         left = position.x - radius;
         top = position.y - radius;
         width = radius * 2;
@@ -197,7 +155,7 @@ function makeMarks(chart: Chart, datasets: ChartDataset[], options: ChartOptions
       marks.push({
         ...item,
         seriesKey: series.key,
-        seriesLabel: series.label,
+        seriesLabel: typeof config.label === 'string' ? config.label : series.key,
         datasetIndex,
         chartIndex: index,
         left,
@@ -229,6 +187,45 @@ function updateTooltip(host: HTMLDivElement | null, tooltip: Chart['tooltip'], e
   host.style.left = `${tooltip.caretX}px`;
   host.style.top = `${tooltip.caretY}px`;
   host.style.display = 'block';
+}
+
+function buildOptions(options: ChartOptions, hasRenderer: boolean) {
+  const value = mergeConfig({responsive: true, maintainAspectRatio: false}, options.options);
+  if (options.type === 'bar' && value.indexAxis === undefined) value.indexAxis = 'y';
+  if (options.stacked !== undefined) {
+    const scales = asObject(value.scales);
+    scales.x = mergeConfig(asObject(scales.x), {stacked: options.stacked});
+    scales.y = mergeConfig(asObject(scales.y), {stacked: options.stacked});
+    value.scales = scales;
+  }
+  if (options.animationDuration !== undefined) {
+    value.animation = mergeConfig(asObject(value.animation), {duration: options.animationDuration});
+  }
+  if (hasRenderer && value.animation !== false && typeof asObject(value.animation).duration !== 'number') {
+    value.animation = mergeConfig(asObject(value.animation), {duration: 200});
+  }
+  const rawPlugins = asObject(value.plugins);
+  const htmlTooltip =
+    options.tooltipMode === 'html' ||
+    (options.tooltipMode === 'auto' && hasRenderer && value.plugins !== false && !Object.hasOwn(rawPlugins, 'tooltip'));
+  if (options.legend !== undefined || options.tooltip !== undefined) {
+    const plugins = asObject(value.plugins);
+    if (options.legend !== undefined) plugins.legend = mergeConfig(asObject(plugins.legend), {display: options.legend});
+    if (options.tooltip !== undefined && !htmlTooltip)
+      plugins.tooltip = mergeConfig(asObject(plugins.tooltip), {enabled: options.tooltip});
+    value.plugins = plugins;
+  }
+  const animation = value.animation;
+  const defaultAnimation = Chart.defaults.animation;
+  const duration =
+    animation === false
+      ? 0
+      : typeof asObject(animation).duration === 'number'
+        ? (asObject(animation).duration as number)
+        : defaultAnimation && typeof defaultAnimation.duration === 'number'
+          ? defaultAnimation.duration
+          : 0;
+  return {value, htmlTooltip, duration};
 }
 
 function RendererResults({
@@ -266,8 +263,9 @@ function RendererResults({
           pointerEvents: interactive ? 'auto' : 'none',
           transition:
             animate && duration
-              ? `left ${duration}ms linear, top ${duration}ms linear, width ${duration}ms linear, height ${duration}ms linear`
+              ? `left ${duration}ms, top ${duration}ms, width ${duration}ms, height ${duration}ms`
               : 'none',
+          transitionTimingFunction: 'cubic-bezier(0.25, 1, 0.5, 1)',
         }}
       >
         <div className="ticl-chart-renderer">
@@ -392,6 +390,7 @@ export function ChartComponent({block}: {block: Block}) {
   const {style, className, optionalHandlers} = useTicloComp(block, {noChildren: true, ref: rootRef});
   const snapshot = useChartSnapshot(block);
   const data = useMemo(() => buildChartData(snapshot.options, snapshot.series), [snapshot]);
+  const overlayDuration = buildOptions(snapshot.options, true).duration;
   const latest = useRef({data, options: snapshot.options});
   latest.current = {data, options: snapshot.options};
   const [geometry, setGeometry] = useState<Geometry>({
@@ -403,6 +402,7 @@ export function ChartComponent({block}: {block: Block}) {
   const activeRef = useRef('');
   const seriesVisibility = useRef(new Map<string, boolean>());
   const itemVisibility = useRef(new Map<string, boolean>());
+  const warnedOverlay = useRef(false);
   const updateActive = useCallback((elements: {datasetIndex: number; index: number}[]) => {
     const ids = elements.map(({datasetIndex, index}) => `${datasetIndex}:${index}`);
     const signature = ids.join('|');
@@ -412,107 +412,131 @@ export function ChartComponent({block}: {block: Block}) {
     }
   }, []);
 
+  const rememberVisibility = (chart: Chart) => {
+    const current = latest.current;
+    current.data.datasets.forEach((entry, index) =>
+      seriesVisibility.current.set(entry.key, chart.isDatasetVisible(index))
+    );
+    if (['pie', 'doughnut', 'polarArea'].includes(current.options.type)) {
+      const labels = current.data.data.labels as unknown[] | undefined;
+      labels?.forEach((label, index) => {
+        const key = current.data.datasets[0]?.items[index]?.key ?? String(label);
+        itemVisibility.current.set(key, chart.getDataVisibility(index));
+      });
+    }
+  };
+
+  const configuration = (plugin: Plugin): ChartConfiguration => {
+    const {data, options} = latest.current;
+    const hasRenderer = data.datasets.some(
+      (entry) => entry.series?.renderer && overlayAvailable(options, entry.type, entry.config.data)
+    );
+    const incompatible = data.datasets.some(
+      (entry) =>
+        entry.series?.renderer &&
+        ['bar', 'line', 'bubble'].includes(entry.type) &&
+        !overlayAvailable(options, entry.type, entry.config.data)
+    );
+    if (incompatible && !warnedOverlay.current) {
+      console.warn(
+        'Ticlo chart uses native drawing when plugins are disabled, line decimation is enabled, or dataset data is not an array.'
+      );
+      warnedOverlay.current = true;
+    }
+    const runtime = buildOptions(options, hasRenderer);
+    const config = {
+      type: chartJsType(options.type) as ChartType,
+      data: cloneConfig(data.data),
+      options: runtime.value,
+      plugins: [...resolveChartPlugins(options.plugins), plugin],
+    };
+    applyCallbackRefs(config, options.callbackRefs);
+    const plugins = asObject(asObject(config.options).plugins);
+    if (config.options.plugins !== false && plugins.legend !== false) {
+      const legendOptions = asObject(plugins.legend);
+      const onClick = typeof legendOptions.onClick === 'function' ? legendOptions.onClick : null;
+      legendOptions.onClick = (
+        event: unknown,
+        item: {datasetIndex?: number; index?: number},
+        legend: {chart: Chart}
+      ) => {
+        const chart = legend.chart;
+        if (onClick) onClick.call(legend, event, item, legend);
+        else if (['pie', 'doughnut', 'polarArea'].includes(latest.current.options.type)) {
+          if (item.index != null) chart.toggleDataVisibility(item.index);
+          chart.update();
+        } else if (item.datasetIndex != null) {
+          chart.setDatasetVisibility(item.datasetIndex, !chart.isDatasetVisible(item.datasetIndex));
+          chart.update();
+        }
+        rememberVisibility(chart);
+      };
+      plugins.legend = legendOptions;
+      config.options.plugins = plugins;
+    }
+    if (runtime.htmlTooltip && config.options.plugins !== false) {
+      const tooltip = asObject(plugins.tooltip);
+      if (typeof tooltip.external !== 'function') {
+        tooltip.external = ({tooltip}: {tooltip: Chart['tooltip']}) =>
+          updateTooltip(tooltipRef.current, tooltip, latest.current.options.tooltip !== false);
+      }
+      tooltip.enabled = false;
+      plugins.tooltip = tooltip;
+      config.options.plugins = plugins;
+    }
+    return config as unknown as ChartConfiguration;
+  };
+
   useEffect(() => {
     if (!canvasRef.current) return;
     const plugin: Plugin = {
       id: 'ticloChartOverlay',
       beforeDatasetDraw(_chart, args) {
-        const {data, options} = latest.current;
-        if ((options.type === 'column' || options.type === 'bar') && data.datasets[args.index]?.series.renderer)
+        const entry = latest.current.data.datasets[args.index];
+        if (
+          entry?.type === 'bar' &&
+          entry.series?.renderer &&
+          entry.series.rendererMode === 'replace' &&
+          overlayAvailable(latest.current.options, entry.type, entry.config.data)
+        )
           return false;
       },
       afterUpdate(chart, args) {
-        const {data, options} = latest.current;
-        const next = makeMarks(chart, data.datasets, options, args.mode);
+        const next = makeMarks(chart, latest.current.data.datasets, latest.current.options, args.mode);
         setGeometry((previous) => (sameGeometry(previous, next) ? previous : next));
       },
       afterEvent(chart) {
         updateActive(chart.getActiveElements());
       },
     };
-    const {options, data} = latest.current;
-    const chart = new Chart(canvasRef.current, {
-      type: chartJsType(options.type),
-      data: {labels: data.labels, datasets: data.datasets.map((entry) => entry.config)},
-      plugins: [plugin],
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        indexAxis: options.type === 'bar' ? 'y' : 'x',
-        animation: false,
-        scales:
-          options.type === 'pie' || options.type === 'doughnut'
-            ? undefined
-            : {
-                x: {stacked: options.stacked},
-                y: {stacked: options.stacked},
-              },
-        plugins: {
-          legend: {
-            display: options.legend,
-            onClick: (_event: unknown, item: {datasetIndex?: number; index?: number}, legend: {chart: Chart}) => {
-              const target = legend.chart;
-              const current = latest.current;
-              if (current.options.type === 'pie' || current.options.type === 'doughnut') {
-                const index = item.index;
-                const dataItem = index == null ? null : current.data.datasets[0]?.items[index];
-                if (!dataItem) return;
-                target.toggleDataVisibility(index);
-                itemVisibility.current.set(dataItem.key, target.getDataVisibility(index));
-              } else {
-                const index = item.datasetIndex;
-                const dataset = index == null ? null : current.data.datasets[index];
-                if (!dataset) return;
-                const visible = !target.isDatasetVisible(index);
-                target.setDatasetVisibility(index, visible);
-                seriesVisibility.current.set(dataset.series.key, visible);
-              }
-              target.update();
-            },
-          },
-          tooltip: {
-            enabled: false,
-            external: ({tooltip}: {tooltip: Chart['tooltip']}) =>
-              updateTooltip(tooltipRef.current, tooltip, latest.current.options.tooltip),
-          },
-          decimation: {enabled: false},
-        },
-      },
-    } as unknown as ChartConfiguration);
+    const chart = new Chart(canvasRef.current, configuration(plugin));
     chartRef.current = chart;
-    chart.options.animation = {duration: options.animationDuration, easing: 'linear'};
     return () => {
       chartRef.current = null;
       chart.destroy();
       activeRef.current = '';
     };
-  }, [block, snapshot.options.type, updateActive]);
+  }, [block, snapshot.options.type, snapshot.options.plugins, updateActive]);
 
   useEffect(() => {
     const chart = chartRef.current;
     if (!chart) return;
-    const {options} = snapshot;
-    chart.data.labels = data.labels;
-    chart.data.datasets = data.datasets.map((entry) => entry.config) as unknown as Chart['data']['datasets'];
+    const plugin = chart.config.plugins?.find((item) => item.id === 'ticloChartOverlay');
+    const next = configuration(plugin);
+    chart.data = next.data;
+    chart.options = next.options;
     data.datasets.forEach((entry, index) => {
-      chart.setDatasetVisibility(index, seriesVisibility.current.get(entry.series.key) ?? true);
+      const visible = seriesVisibility.current.get(entry.key);
+      if (visible !== undefined) chart.setDatasetVisibility(index, visible);
+      else chart.getDatasetMeta(index).hidden = null;
     });
-    if (options.type === 'pie' || options.type === 'doughnut') {
-      data.datasets[0]?.items.forEach((item, index) => {
-        const visible = item && itemVisibility.current.get(item.key);
+    if (['pie', 'doughnut', 'polarArea'].includes(snapshot.options.type)) {
+      (data.data.labels as unknown[] | undefined)?.forEach((label, index) => {
+        const key = data.datasets[0]?.items[index]?.key ?? String(label);
+        const visible = itemVisibility.current.get(key);
         if (visible !== undefined && chart.getDataVisibility(index) !== visible) chart.toggleDataVisibility(index);
       });
     }
-    chart.options.indexAxis = options.type === 'bar' ? 'y' : 'x';
-    chart.options.scales =
-      options.type === 'pie' || options.type === 'doughnut'
-        ? undefined
-        : {
-            x: {stacked: options.stacked},
-            y: {stacked: options.stacked},
-          };
-    chart.options.plugins.legend.display = options.legend;
-    chart.options.animation = {duration: options.animationDuration, easing: 'linear'};
     chart.update();
   }, [data, snapshot]);
 
@@ -560,22 +584,20 @@ export function ChartComponent({block}: {block: Block}) {
           clipPath: `inset(${geometry.area.top}px ${geometry.area.right}px ${geometry.area.bottom}px ${geometry.area.left}px)`,
         }}
       >
-        {data.datasets
-          .filter(
-            ({series}) => series.renderer && snapshot.options.type !== 'pie' && snapshot.options.type !== 'doughnut'
-          )
-          .map(({series}) => (
+        {data.datasets.map(({series, type, config}) =>
+          series?.renderer && overlayAvailable(snapshot.options, type, config.data) ? (
             <SeriesOverlay
               key={series.key}
               chartBlock={block}
-              chartType={snapshot.options.type}
+              chartType={type}
               series={series}
               marks={geometry.marks.filter((mark) => mark.seriesKey === series.key)}
-              duration={snapshot.options.animationDuration}
+              duration={overlayDuration}
               animate={geometry.animate}
               activeKeys={activeKeys}
             />
-          ))}
+          ) : null
+        )}
       </div>
       <div ref={tooltipRef} className="ticl-chart-tooltip" />
     </div>

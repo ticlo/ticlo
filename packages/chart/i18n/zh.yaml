@@ -13,6 +13,17 @@ chart:
       bubble: 气泡图 # translated from: Bubble
       pie: 饼图 # translated from: Pie
       doughnut: 环形图 # translated from: Doughnut
+      scatter: 散点图 # translated from: Scatter
+      radar: 雷达图 # translated from: Radar
+      polarArea: 极区图 # translated from: Polar Area
+  data:
+    '@name': 数据 # translated from: Data
+  options:
+    '@name': 选项 # translated from: Options
+  plugins:
+    '@name': 插件 # translated from: Plugins
+  callbackRefs:
+    '@name': 回调引用 # translated from: Callback References
   labels:
     '@name': 标签 # translated from: Labels
   stacked:
@@ -23,17 +34,46 @@ chart:
     '@name': 提示框 # translated from: Tooltip
   animationDuration:
     '@name': 动画时长 # translated from: Animation Duration
+  tooltipMode:
+    '@name': 提示框模式 # translated from: Tooltip Mode
+    '@options':
+      auto: 自动 # translated from: Auto
+      html: HTML # translated from: HTML
+      native: 原生 # translated from: Native
 
 series:
   '@name': 数据系列 # translated from: Series
+  dataset:
+    '@name': 数据集 # translated from: Dataset
+  targetDatasetIndex:
+    '@name': 目标数据集索引 # translated from: Target Dataset Index
+  type:
+    '@name': 类型 # translated from: Type
+    '@options':
+      column: 柱形图 # translated from: Column
+      bar: 条形图 # translated from: Bar
+      line: 折线／面积图 # translated from: Line / Area
+      bubble: 气泡图 # translated from: Bubble
+      pie: 饼图 # translated from: Pie
+      doughnut: 环形图 # translated from: Doughnut
+      scatter: 散点图 # translated from: Scatter
+      radar: 雷达图 # translated from: Radar
+      polarArea: 极区图 # translated from: Polar Area
   label:
     '@name': 名称 # translated from: Label
   data:
     '@name': 数据 # translated from: Data
   renderer:
     '@name': 渲染组件 # translated from: Renderer
+  rendererMode:
+    '@name': 渲染模式 # translated from: Renderer Mode
+    '@options':
+      replace: 替换 # translated from: Replace
+      overlay: 叠加 # translated from: Overlay
   interactive:
     '@name': 可交互 # translated from: Interactive
+  callbackRefs:
+    '@name': 回调引用 # translated from: Callback References
   keyField:
     '@name': 标识字段 # translated from: Key Field
   labelField:
