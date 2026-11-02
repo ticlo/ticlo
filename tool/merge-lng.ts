@@ -20,7 +20,7 @@ function mergeData(to: DataMap, from: DataMap) {
 function mergeI18n(src: string, dest: string) {
   const outputs: Map<string, any> = new Map<string, any>();
 
-  const files: string[] = glob.sync(`${src}/*.yaml`, {posix: true});
+  const files: string[] = glob.sync(`${src}/*.yaml`, {posix: true, ignore: '**/node_modules/**'});
 
   for (const path of files) {
     if (path.endsWith('en.base.yaml')) {
@@ -50,7 +50,7 @@ function mergeI18n(src: string, dest: string) {
   }
 }
 
-for (const pkg of ['editor', 'core', 'web-server', 'html', 'node', 'react', 'test']) {
+for (const pkg of ['editor', 'core', 'web-server', 'html', 'node', 'react', 'chart', 'test']) {
   const outdir = `./i18n/${pkg}`;
   fs.mkdirSync(outdir, {recursive: true});
   mergeI18n(`./packages/${pkg}/**/i18n`, outdir);

@@ -4,7 +4,7 @@ import {fileURLToPath} from 'node:url';
 import {compile} from 'sass';
 
 const workspaceDir = fileURLToPath(new URL('..', import.meta.url));
-export const stylePackages = ['editor', 'react', 'designer'];
+export const stylePackages = ['editor', 'react', 'designer', 'chart'];
 
 export function buildPackageCss(name: string, targetDir = path.join(workspaceDir, 'packages', name)) {
   const entry = path.join(workspaceDir, 'packages', name, 'style/index.scss');

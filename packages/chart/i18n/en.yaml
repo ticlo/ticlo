@@ -1,0 +1,56 @@
+'@namespace':
+  chart:
+    '@name': Chart
+
+chart:
+  '@name': Chart
+  type:
+    '@name': Type
+    '@options':
+      column: Column
+      bar: Bar
+      line: Line / Area
+      bubble: Bubble
+      pie: Pie
+      doughnut: Doughnut
+  labels:
+    '@name': Labels
+  stacked:
+    '@name': Stacked
+  legend:
+    '@name': Legend
+  tooltip:
+    '@name': Tooltip
+  animationDuration:
+    '@name': Animation Duration
+
+series:
+  '@name': Series
+  label:
+    '@name': Label
+  data:
+    '@name': Data
+  renderer:
+    '@name': Renderer
+  interactive:
+    '@name': Interactive
+  keyField:
+    '@name': Key Field
+  labelField:
+    '@name': Label Field
+  valueField:
+    '@name': Value Field
+  xField:
+    '@name': X Field
+  yField:
+    '@name': Y Field
+  radiusField:
+    '@name': Radius Field
+  markerSize:
+    '@name': Marker Size
+  fill:
+    '@name': Fill
+  stack:
+    '@name': Stack
+  color:
+    '@name': Color

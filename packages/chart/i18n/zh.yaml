@@ -1,0 +1,56 @@
+'@namespace':
+  chart:
+    '@name': 图表 # translated from: Chart
+
+chart:
+  '@name': 图表 # translated from: Chart
+  type:
+    '@name': 类型 # translated from: Type
+    '@options':
+      column: 柱形图 # translated from: Column
+      bar: 条形图 # translated from: Bar
+      line: 折线／面积图 # translated from: Line / Area
+      bubble: 气泡图 # translated from: Bubble
+      pie: 饼图 # translated from: Pie
+      doughnut: 环形图 # translated from: Doughnut
+  labels:
+    '@name': 标签 # translated from: Labels
+  stacked:
+    '@name': 堆叠 # translated from: Stacked
+  legend:
+    '@name': 图例 # translated from: Legend
+  tooltip:
+    '@name': 提示框 # translated from: Tooltip
+  animationDuration:
+    '@name': 动画时长 # translated from: Animation Duration
+
+series:
+  '@name': 数据系列 # translated from: Series
+  label:
+    '@name': 名称 # translated from: Label
+  data:
+    '@name': 数据 # translated from: Data
+  renderer:
+    '@name': 渲染组件 # translated from: Renderer
+  interactive:
+    '@name': 可交互 # translated from: Interactive
+  keyField:
+    '@name': 标识字段 # translated from: Key Field
+  labelField:
+    '@name': 标签字段 # translated from: Label Field
+  valueField:
+    '@name': 数值字段 # translated from: Value Field
+  xField:
+    '@name': X 字段 # translated from: X Field
+  yField:
+    '@name': Y 字段 # translated from: Y Field
+  radiusField:
+    '@name': 半径字段 # translated from: Radius Field
+  markerSize:
+    '@name': 标记尺寸 # translated from: Marker Size
+  fill:
+    '@name': 填充 # translated from: Fill
+  stack:
+    '@name': 堆叠组 # translated from: Stack
+  color:
+    '@name': 颜色 # translated from: Color

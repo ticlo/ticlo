@@ -1,4 +1,6 @@
 import '@ticlo/react/style/index.css';
+import '@ticlo/chart';
+import '@ticlo/chart/style/index.css';
 import './viewer.scss';
 import React from 'react';
 import {createRoot} from 'react-dom/client';

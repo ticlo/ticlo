@@ -7,6 +7,7 @@ import './sample-blocks.ts';
 import {Logger} from '@ticlo/core/util/Logger.ts';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 import '../packages/react/index.ts';
+import '@ticlo/chart';
 import {FrameServerConnection} from '@ticlo/html';
 import {StaticStorage} from '@ticlo/remote-storage';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';

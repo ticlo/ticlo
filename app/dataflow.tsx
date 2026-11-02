@@ -41,6 +41,8 @@ import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.tsx
 import {NodeTreePane} from '@ticlo/editor/dock/node-tree/NodeTreePane.tsx';
 import '@ticlo/html';
 import '@ticlo/react';
+import '@ticlo/chart';
+import '@ticlo/chart/style/index.css';
 import '@ticlo/test';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
 
