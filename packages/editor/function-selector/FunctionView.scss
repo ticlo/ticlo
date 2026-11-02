@@ -55,10 +55,26 @@
     cursor: context-menu;
   }
 
-  & > .tico {
+  & > .ticl-e-func-folder {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 auto;
     margin-right: 4px;
-    border-radius: 0 4px 4px;
-    transform: scale(0.8, 0.8);
+
+    & > .anticon {
+      position: absolute;
+      inset: 0;
+      font-size: 24px;
+      color: var(--ticl-block-color);
+    }
+
+    & > .tico {
+      position: absolute;
+      top: 1px;
+      left: 0;
+      transform: scale(0.75);
+    }
   }
 }
 
