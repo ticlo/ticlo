@@ -1,6 +1,6 @@
 import React from 'react';
 import {Dropdown} from 'antd';
-import {CheckOutlined, FileOutlined, FolderOpenOutlined} from '@ant-design/icons';
+import {CheckOutlined, FileFilled, FileOutlined, FolderOpenOutlined} from '@ant-design/icons';
 import {ExpandIcon} from '../component/Tree.tsx';
 import {t} from '../component/LocalizedLabel.tsx';
 
@@ -35,7 +35,7 @@ export function StoredFlowRenderer({
   const folder = item.children.size > 0;
   const content = (
     <div className="ticl-e-tree-node-content ticl-e-stored-flow" onDoubleClick={folder ? onExpand : onOpen}>
-      {folder ? <FolderOpenOutlined /> : <FileOutlined />}
+      {folder ? <FolderOpenOutlined /> : item.autoLoad ? <FileFilled /> : <FileOutlined />}
       <div className="ticl-e-tree-node-text">{item.name}</div>
     </div>
   );

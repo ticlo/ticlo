@@ -2,11 +2,14 @@ import React from 'react';
 
 import {
   BookFilled,
+  BookOutlined,
   BuildOutlined,
   CheckOutlined,
   DeleteOutlined,
   FileAddOutlined,
+  FileFilled,
   FileOutlined,
+  FileTextFilled,
   FileTextOutlined,
   FolderOpenOutlined,
   FolderOpenFilled,
@@ -402,11 +405,35 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   };
 
   autoLoadRequest = 0;
+  autoLoadItem?: NodeTreeItem;
+  autoLoadFunctionId?: string;
+  autoLoadProvider?: LibraryAutoLoad;
+  syncAutoLoad = () => {
+    const {item, libraryAutoLoad} = this.props;
+    if (
+      this.autoLoadItem === item &&
+      this.autoLoadFunctionId === item.functionId &&
+      this.autoLoadProvider === libraryAutoLoad
+    )
+      return;
+    this.autoLoadItem = item;
+    this.autoLoadFunctionId = item.functionId;
+    this.autoLoadProvider = libraryAutoLoad;
+    ++this.autoLoadRequest;
+    if (item.functionId !== 'flow:main' && (item.functionId !== 'flow:lib' || !libraryAutoLoad)) {
+      if (this.state.autoLoad !== undefined || this.state.canAutoLoad !== undefined) {
+        this.safeSetState({autoLoad: undefined, canAutoLoad: undefined});
+      }
+      return;
+    }
+    this.safeSetState({autoLoad: undefined, canAutoLoad: undefined});
+    void this.readAutoLoad();
+  };
+
   readAutoLoad = async () => {
     const {item, libraryAutoLoad} = this.props;
     if (item.functionId !== 'flow:main' && (item.functionId !== 'flow:lib' || !libraryAutoLoad)) return;
     const request = ++this.autoLoadRequest;
-    this.safeSetState({autoLoad: undefined, canAutoLoad: undefined});
     try {
       if (item.functionId === 'flow:main') {
         const {autoLoad, canAutoLoad} = await item.getConn().getAutoLoadFlow(item.key);
@@ -576,6 +603,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       this.unsubscribeValues();
       this.subscribeValues();
     }
+    this.syncAutoLoad();
   }
 
   subscribeValues() {
@@ -591,6 +619,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   descCallback = (desc: FunctionDesc) => {
     desc = desc || blankFuncDesc;
     this.safeSetState({desc});
+    this.syncAutoLoad();
     if (desc.dynamicStyle) {
       const {item} = this.props;
       this.styleListener.subscribe(item.connection, `${item.key}.@b-style`, true);
@@ -630,9 +659,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     if (!dynamicStyle) {
       if (saveAllowed.has(item.functionId)) {
         if (this.hasChangeListener.value) {
-          icon = <FileTextOutlined />;
+          icon = item.functionId === 'flow:main' && this.state.autoLoad ? <FileTextFilled /> : <FileTextOutlined />;
         } else {
-          icon = <FileOutlined />;
+          icon = item.functionId === 'flow:main' && this.state.autoLoad ? <FileFilled /> : <FileOutlined />;
         }
       } else if (item.functionId === 'flow:const' || item.functionId === 'flow:global') {
         icon = <GlobalOutlined />;
@@ -641,7 +670,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       } else if (item.functionId === 'flow:namespace') {
         icon = <FolderOpenFilled />;
       } else if (item.functionId === 'flow:lib') {
-        icon = <BookFilled />;
+        icon = this.state.autoLoad ? <BookFilled /> : <BookOutlined />;
       }
     }
 
@@ -719,6 +748,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   }
 
   componentWillUnmount() {
+    ++this.autoLoadRequest;
     this.unsubscribeValues();
     super.componentWillUnmount();
   }
