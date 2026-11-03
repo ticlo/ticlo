@@ -1,0 +1,20 @@
+{
+  "name": "@ticlo/chart",
+  "version": "0.0.1",
+  "description": "Ticlo charts powered by Chart.js",
+  "license": "MPL-2.0",
+  "type": "module",
+  "main": "./index.js",
+  "module": "./index.js",
+  "types": "./index.d.ts",
+  "style": "./style/index.css",
+  "dependencies": {
+    "@ticlo/core": "workspace:^",
+    "@ticlo/react": "workspace:^",
+    "chart.js": "^4.5.1"
+  },
+  "peerDependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}

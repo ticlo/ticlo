@@ -44,6 +44,8 @@ const unrestrictedCommands = new Set([
   'watchDesc',
   'getSettings',
   'getFlowState',
+  'getAutoLoadFlow',
+  'listMainFlows',
   'close',
   'undo',
   'redo',
@@ -336,6 +338,7 @@ export function checkEditPolicy(
     case 'unloadFlow':
     case 'enableFlow':
     case 'disableFlow':
+    case 'setAutoLoadFlow':
     case 'applyFlowChange':
       return checkWhole(path);
     case 'callFunction':

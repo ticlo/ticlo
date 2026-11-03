@@ -2,7 +2,7 @@ import React from 'react';
 import {ExpandIcon} from '../component/Tree.tsx';
 import {TIcon} from '../icon/Icon.tsx';
 import {Dropdown, MenuProps} from 'antd';
-import {PlusOutlined} from '@ant-design/icons';
+import {FolderFilled, PlusOutlined} from '@ant-design/icons';
 import {blankFuncDesc, FunctionDesc} from '@ticlo/core';
 import {FunctionView} from './FunctionView.tsx';
 import {FunctionTreeItem} from './FunctionTreeItem.ts';
@@ -97,7 +97,10 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
           className={isFunctionLib ? 'ticl-e-tree-type ticl-e-func-lib' : 'ticl-e-tree-type'}
         >
           <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
-          <TIcon icon={iconName} style={colorStyle} />
+          <div className="ticl-e-func-folder" style={colorStyle}>
+            <FolderFilled />
+            <TIcon icon={iconName} />
+          </div>
           <LocalizedFunctionName desc={desc} />
         </div>
       );

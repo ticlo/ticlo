@@ -9,6 +9,7 @@ import {AddNewFlowDialog} from '../../popup/AddNewFlowDialog.tsx';
 import {DragDrop, DragState} from 'rc-dock';
 import {t} from '../../component/LocalizedLabel.tsx';
 import {showModal} from '../../popup/ShowModal.tsx';
+import {requestCallbacks} from '../../util/RequestCallbacks.ts';
 
 interface Props {
   conn: ClientConn;
@@ -18,6 +19,7 @@ interface Props {
   showMenu?: boolean;
   openActions?: readonly NodeTreeOpenAction[];
   libraryAutoLoad?: LibraryAutoLoad;
+  showStoredFlows?: boolean;
 }
 
 interface State {
@@ -89,7 +91,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     }
   };
   render() {
-    const {conn, basePaths, hideRoot, onSelect, showMenu, openActions, libraryAutoLoad} = this.props;
+    const {conn, basePaths, hideRoot, onSelect, showMenu, openActions, libraryAutoLoad, showStoredFlows} = this.props;
     const {selectedKeys} = this.state;
 
     return (
@@ -120,6 +122,13 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
           onSelect={onSelect}
           openActions={openActions}
           libraryAutoLoad={libraryAutoLoad}
+          showStoredFlows={showStoredFlows}
+          onOpenStoredFlow={(path, canApply) =>
+            this.context.editFlow?.(
+              path,
+              canApply ? () => conn.applyFlowChange(path, undefined, requestCallbacks) : null
+            )
+          }
         />
       </div>
     );

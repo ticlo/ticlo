@@ -426,6 +426,8 @@ class ServerConnectionCore extends Connection {
         'watchDesc',
         'getSettings',
         'getFlowState',
+        'getAutoLoadFlow',
+        'listMainFlows',
         'close',
         'loadFlow',
         'unloadFlow',
@@ -445,7 +447,7 @@ class ServerConnectionCore extends Connection {
       const [owner, name] = this.root.queryBlockField(path);
       if (owner && owner !== this.root && !canWrite(`${owner.getFullPath()}.${name}`)) return 'Storage is read-only';
     }
-    if (this._editPolicy?.readonly) {
+    if (this._editPolicy?.readonly && cmd !== 'listMainFlows') {
       const error = this.checkRequestPolicy(request);
       if (error) return error;
     }
@@ -770,6 +772,42 @@ export class ServerConnection extends ServerConnectionCore {
 
   getFlowState({path}: {path: string}) {
     return {state: this.root.getFlowState(flowRefFromPath(path))};
+  }
+
+  async getAutoLoadFlow({path}: {path: string}) {
+    const ref = flowRefFromPath(path);
+    if (ref.kind !== 'flow') return 'invalid flow';
+    const storage = this.root._storage;
+    if (!storage?.getNamespaceMetadata) return {autoLoad: false, canAutoLoad: false};
+    const metadata = await storage.getNamespaceMetadata(ref.namespace);
+    return {
+      autoLoad: metadata.autoLoadFlows?.includes(ref.name) ?? ref.namespace === '#root',
+      canAutoLoad: Boolean(
+        storage.saveNamespaceMetadata &&
+        (storage.isPersistent ? storage.isPersistent(ref.namespace) : storage.persistent !== false) &&
+        (await storage.listFlows?.(ref.namespace))?.includes(ref.name)
+      ),
+    };
+  }
+
+  async listMainFlows({path}: {path: string}) {
+    if (path !== '') return 'invalid path';
+    const flows = await this.root.listMainFlows();
+    const policy = this.getEditPolicy();
+    if (!policy?.readonly) return {flows};
+    return {
+      flows: flows.filter(({namespace, name}) => {
+        const flowPath = namespace === '#root' ? name : `+${namespace}.${name}`;
+        return !checkEditPolicy(policy, {cmd: 'getFlowState', path: flowPath}, undefined, 'server');
+      }),
+    };
+  }
+
+  async setAutoLoadFlow({path, enabled}: {path: string; enabled: boolean}) {
+    const ref = flowRefFromPath(path);
+    if (ref.kind !== 'flow' || typeof enabled !== 'boolean') return 'invalid flow';
+    await this.root.setAutoLoadFlow(ref.namespace, ref.name, enabled);
+    return null;
   }
 
   addFlow({path, data}: {path: string; data?: DataMap}): string | DataMap {

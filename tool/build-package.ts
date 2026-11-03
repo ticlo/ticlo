@@ -119,6 +119,7 @@ async function main() {
     // shelljs.cp('./dist/*.css', './build/editor');
     //
     await buildPackage('react');
+    await buildPackage('chart');
     //
     // await buildPackage('node');
     //

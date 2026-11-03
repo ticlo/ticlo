@@ -15,7 +15,7 @@ export function readNamespaceMetadata(value: unknown): NamespaceMetadata {
   if (value == null) return {};
   if (typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid namespace metadata');
   const data = value as NamespaceMetadata & {serviceLibraries?: string[]};
-  for (const field of ['dependencies', 'autoLoadLibraries', 'serviceLibraries'] as const) {
+  for (const field of ['dependencies', 'autoLoadLibraries', 'autoLoadFlows', 'serviceLibraries'] as const) {
     const entries = data[field];
     if (
       entries !== undefined &&
@@ -23,7 +23,11 @@ export function readNamespaceMetadata(value: unknown): NamespaceMetadata {
         !entries.every(
           (entry) =>
             typeof entry === 'string' &&
-            (field === 'dependencies' ? entry === '#root' || validFlowEntry(entry) : validFlowEntry(entry))
+            (field === 'dependencies'
+              ? entry === '#root' || validFlowEntry(entry)
+              : field === 'autoLoadFlows'
+                ? entry.split('.').every(validFlowEntry)
+                : validFlowEntry(entry))
         ))
     )
       throw new Error(`Invalid namespace ${field}`);

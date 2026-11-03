@@ -6,6 +6,7 @@ import type {DataMap} from '../../util/DataTypes.ts';
 import {makeLocalConnection} from '../../connect/LocalConnection.ts';
 import {shouldHappen} from '../../util/test-util.ts';
 import {checkEditPolicy, type EditPolicy} from '../EditPolicy.ts';
+import {MemoryFlowStorage} from '../../block/MemoryFlowStorage.ts';
 
 describe('Readonly server edit policy', () => {
   let root: Root;
@@ -67,6 +68,17 @@ describe('Readonly server edit policy', () => {
     expect(typeof server.executeRequest({cmd: 'getSettings', path: ''})).toBe('object');
   });
 
+  it('filters the stored-flow catalog to readable paths', async () => {
+    const storage = new MemoryFlowStorage();
+    storage.saveFlow(null, {value: 1}, 'Main');
+    storage.saveFlow(null, {value: 2}, 'Other');
+    await root.setStorage(storage);
+    await root.start({'#root': {flows: []}});
+    server.setEditPolicy({readonly: true, allowPaths: ['Main']});
+
+    expect((await client.listMainFlows()).flows.map(({name}: {name: string}) => name)).toEqual(['Main']);
+  });
+
   it('rejects all editing commands before resolving paths or inspecting payloads', () => {
     server.setEditPolicy({readonly: true, allowPaths: ['**']});
     const query = vi.spyOn(root, 'queryBlockField');
@@ -104,6 +116,7 @@ describe('Readonly server edit policy', () => {
       'unloadFlow',
       'enableFlow',
       'disableFlow',
+      'setAutoLoadFlow',
       'undo',
       'redo',
     ]) {

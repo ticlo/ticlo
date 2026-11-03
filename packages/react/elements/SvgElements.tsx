@@ -52,7 +52,7 @@ function registerSvgElement({name, icon, init, suggestions, childrenTags, conten
 
 registerSvgElement({
   name: 'svg',
-  icon: '20:◇',
+  icon: '20:⬠',
   childrenTags: ['react-svg'],
   suggestions: ['viewBox', 'width', 'height', 'preserveAspectRatio', 'fill', 'stroke'],
   init: {'style': {width: 200, height: 200}, '#optional': ['viewBox'], 'viewBox': '0 0 100 100'},

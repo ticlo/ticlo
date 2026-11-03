@@ -1,20 +1,21 @@
 # Runtime lifecycle
 
 `setStorage()` attaches storage and reads global settings without starting stored
-flows. Startup selects namespaces and ordinary flows:
+flows. Startup selects main namespaces and ordinary flows:
 
 ```ts
 await root.setStorage(storage);
 await root.start({main: {flows: ['entry', 'jobs.**']}, shared: {}});
 ```
 
-- `start()` / `start({})` select all ordinary `#root` flows, including nested
-  folders: equivalent to `start({'#root': {flows: ['**']}})`.
-- Explicit selections take precedence. Empty/omitted `flows` loads no ordinary
-  flows; `start({'#root': {}})` starts only its auto-load libraries.
-- Dependencies activate recursively with their auto-load libraries; their ordinary
-  flows need explicit selection. Cycles are allowed. Missing dependencies or
-  required libraries reject startup and tear down the new runtime.
+- Main namespaces load their configured `autoLoadFlows`. Explicit `flows`
+  selections take precedence, including `flows: []` to load none. For
+  compatibility, bare `start()` / `start({})` still select all `#root` flows when
+  `autoLoadFlows` is absent.
+- Dependencies activate recursively with their auto-load libraries, but do not
+  auto-load ordinary flows. A namespace selected as a main root loads its
+  auto-load flows even if another root depends on it. Cycles are allowed.
+  Missing dependencies, required libraries, or selected flows reject startup.
 - Saved `#disabled` flags are honored. Call `stop()` before restarting a running runtime.
 
 Patterns use policy `matchEditPath`: dot-separated paths, `*` within a segment,
@@ -27,13 +28,14 @@ Missing exact names error; unmatched wildcards select nothing.
 Remote/static storage read `proj/<namespace>/ticlo.json`:
 
 ```json
-{"dependencies": ["shared"], "autoLoadLibraries": ["http", "scheduler"]}
+{"dependencies": ["shared"], "autoLoadLibraries": ["http", "scheduler"], "autoLoadFlows": ["entry", "jobs.daily"]}
 ```
 
-Dependencies name namespaces in the same storage; `autoLoadLibraries` lists exact
-library names, not globs. The old `serviceLibraries` field is read for compatibility
-and converted to `autoLoadLibraries` when metadata is saved. Missing fields/files
-mean empty arrays; invalid metadata rejects activation. File-server `_proj.json`
+Dependencies name namespaces in the same storage; `autoLoadLibraries` and
+`autoLoadFlows` list exact names, not globs. The old `serviceLibraries` field is
+read for compatibility and converted to `autoLoadLibraries` when metadata is
+saved. Missing fields/files mean empty arrays, except for the legacy `#root`
+startup behavior above. Invalid metadata rejects activation. File-server `_proj.json`
 is separate project metadata; runtime storage never reads/writes it. Dependencies
 do not use a `#deps` directory.
 
@@ -61,7 +63,9 @@ await root.unloadFlow(flow);
 
 root.getFlowState(flow); // unloaded | loading | enabled | disabled
 await root.listFlows('main'); // {name, state} entries
+await root.listMainFlows(); // stored flows in manually selected namespaces, with state and auto-load flag
 await root.setAutoLoadLibrary('shared', 'tools', true);
+await root.setAutoLoadFlow('main', 'entry', true);
 ```
 
 Loading requires an enabled namespace and honors saved `#disabled` before
@@ -74,6 +78,11 @@ Ordinary libraries load on demand in enabled namespaces and stay loaded until
 unloaded. Inactive namespaces return empty workers without reading files.
 Auto-load libraries load on activation; disabled libraries are read but neither run
 nor expose callable definitions. Exported functions run only when called.
+Auto-load flows load when their namespace is a main root. A saved `#disabled` flow
+is loaded but does not run. Turning an auto-load flag on loads the flow immediately
+only in a main namespace; turning it off leaves an already loaded flow open.
+When a main root becomes dependency-only, flows started for that root are unloaded
+after the unsaved-change check; manually loaded flows remain.
 
 Disabling/unloading a library stops workers and clears outputs. References remain
 subscribed and rebind when available. Explicit unload suppresses automatic reload
@@ -96,8 +105,8 @@ await root.stop();
 ```
 
 Switching activates the target and its dependencies, then unloads other active
-namespaces. Shared dependencies stay active. Switching does not load ordinary
-target flows; load them explicitly. Unsaved edits in namespaces to be closed
+namespaces. Shared dependencies stay active. Switching loads the target's
+auto-load flows. Unsaved edits in namespaces to be closed
 reject the switch. Disabling unloads the namespace's flows. Active dependents
 require `cascade: true`; shared dependencies remain when a consumer stops.
 Selections passed to `start()` and calls to `enableNamespace()` are manual roots.
@@ -109,6 +118,9 @@ In Designer and Dataflow Editor, the default namespace is the current page's
 `project` query parameter; it is not a stored user preference.
 Late reads cannot restore unloaded flows. Loaded sets, startup patterns, and
 unload suppression are not saved.
+Dataflow navigation can list every stored flow in a main namespace without loading
+its file. An unloaded entry has no runtime block; opening it loads the flow and
+then opens the live node. React page navigation shows loaded nodes only.
 Changing dependencies saves `ticlo.json` and updates the active namespace at once:
 new dependencies activate before unused dependencies unload. Unsaved changes in
 dependencies to be removed reject the update.

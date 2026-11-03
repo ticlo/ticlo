@@ -46,6 +46,15 @@ export abstract class ClientConn {
   getFlowState(path: string): Promise<any> {
     return this.simpleRequest({cmd: 'getFlowState', path});
   }
+  getAutoLoadFlow(path: string): Promise<any> {
+    return this.simpleRequest({cmd: 'getAutoLoadFlow', path});
+  }
+  listMainFlows(): Promise<any> {
+    return this.simpleRequest({cmd: 'listMainFlows', path: ''});
+  }
+  setAutoLoadFlow(path: string, enabled: boolean): Promise<any> {
+    return this.simpleRequest({cmd: 'setAutoLoadFlow', path, enabled});
+  }
 
   /**
    * Sets the value of a property at the given path.

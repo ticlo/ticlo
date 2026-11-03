@@ -3,6 +3,7 @@ import {Root} from '@ticlo/core';
 import {FrameServerConnection} from '@ticlo/html';
 import {RemoteStorage} from '@ticlo/remote-storage';
 import '@ticlo/react';
+import '@ticlo/chart';
 import '@ticlo/test';
 import './sample-blocks.ts';
 import {initialUrlParams} from './url-state.ts';

@@ -32,6 +32,8 @@ import {FileMenuHeader} from './FileMenu.tsx';
 import {createRoot} from 'react-dom/client';
 import i18next from 'i18next';
 import '@ticlo/react';
+import '@ticlo/chart';
+import '@ticlo/chart/style/index.css';
 import '@ticlo/test';
 import './sample-blocks.ts';
 import {StageConnection, StageConnectionContext, connectStageTab} from './StageConnection.tsx';
@@ -266,7 +268,7 @@ class App extends React.PureComponent<Props, State> {
             children: [
               {
                 size: 400,
-                tabs: [{id: 'Navigation'}, ...(props.files ? [{id: 'Files'}] : [])],
+                tabs: [...(props.files ? [{id: 'Files'}] : []), {id: 'Navigation'}],
               },
               {
                 size: 300,

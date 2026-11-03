@@ -1,0 +1,96 @@
+'@namespace':
+  chart:
+    '@name': Chart
+
+chart:
+  '@name': Chart
+  type:
+    '@name': Type
+    '@options':
+      column: Column
+      bar: Bar
+      line: Line / Area
+      bubble: Bubble
+      pie: Pie
+      doughnut: Doughnut
+      scatter: Scatter
+      radar: Radar
+      polarArea: Polar Area
+  data:
+    '@name': Data
+  options:
+    '@name': Options
+  plugins:
+    '@name': Plugins
+  callbackRefs:
+    '@name': Callback References
+  labels:
+    '@name': Labels
+  stacked:
+    '@name': Stacked
+  legend:
+    '@name': Legend
+  tooltip:
+    '@name': Tooltip
+  animationDuration:
+    '@name': Animation Duration
+  tooltipMode:
+    '@name': Tooltip Mode
+    '@options':
+      auto: Auto
+      html: HTML
+      native: Native
+
+series:
+  '@name': Series
+  dataset:
+    '@name': Dataset
+  targetDatasetIndex:
+    '@name': Target Dataset Index
+  type:
+    '@name': Type
+    '@options':
+      column: Column
+      bar: Bar
+      line: Line / Area
+      bubble: Bubble
+      pie: Pie
+      doughnut: Doughnut
+      scatter: Scatter
+      radar: Radar
+      polarArea: Polar Area
+  label:
+    '@name': Label
+  data:
+    '@name': Data
+  renderer:
+    '@name': Renderer
+  rendererMode:
+    '@name': Renderer Mode
+    '@options':
+      replace: Replace
+      overlay: Overlay
+  interactive:
+    '@name': Interactive
+  callbackRefs:
+    '@name': Callback References
+  keyField:
+    '@name': Key Field
+  labelField:
+    '@name': Label Field
+  valueField:
+    '@name': Value Field
+  xField:
+    '@name': X Field
+  yField:
+    '@name': Y Field
+  radiusField:
+    '@name': Radius Field
+  markerSize:
+    '@name': Marker Size
+  fill:
+    '@name': Fill
+  stack:
+    '@name': Stack
+  color:
+    '@name': Color

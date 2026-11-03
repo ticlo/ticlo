@@ -101,6 +101,7 @@ export default defineConfig({
       'packages/html/**/*.spec.ts',
       'packages/remote-storage/**/*.browser.test.ts',
       'packages/react/**/*.spec.(ts|tsx)',
+      'packages/chart/**/*.spec.(ts|tsx)',
       'packages/editor/**/*.spec.(ts|tsx)',
       'packages/designer/**/*.spec.(ts|tsx)',
     ],
