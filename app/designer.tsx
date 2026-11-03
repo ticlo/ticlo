@@ -489,9 +489,11 @@ function DesignerWorkspace({
     await root.start(
       selected
         ? {[project]: {flows: [selected.ref.name]}}
-        : params.has('project') || params.has('flow')
+        : params.has('flow')
           ? {[project]: {flows: params.getAll('flow')}}
-          : undefined
+          : params.has('project')
+            ? {[project]: {}}
+            : undefined
     );
     if (selected) initialFlow = selected.path;
     else {
@@ -511,7 +513,7 @@ function DesignerWorkspace({
       if (sample) root.addFlow(selected.path, designerData);
       initialFlow = selected.path;
     } else {
-      await root.start({[project]: {flows: params.has('project') ? [] : ['**']}});
+      await root.start({[project]: params.has('project') ? {} : {flows: ['**']}});
       if (project === 'local' && !params.has('project')) {
         if (!(root.queryValue('+local.designer-example') instanceof Flow)) {
           root.addFlow('+local.designer-example', designerData);
