@@ -40,7 +40,15 @@ describe('TypeEditor', function () {
     simulate(div.querySelector('.anticon-down'), 'click');
     await shouldHappen(() => querySingle("//div.ticl-e-tree-type/span[text()='math']", document.body));
 
-    simulate(querySingle("//div.ticl-e-tree-type/span[text()='math']/../div.ticl-e-tree-arr", document.body), 'click');
+    const mathArrow = querySingle(
+      "//div.ticl-e-tree-type/span[text()='math']/../div.ticl-e-tree-arr",
+      document.body
+    ) as HTMLElement;
+    simulate(mathArrow, 'click');
+    await shouldHappen(() => mathArrow.style.transform === 'rotate(90deg)');
+    const tree = mathArrow.closest('.ticl-e-func-tree') as HTMLElement;
+    tree.scrollTop = mathArrow.parentElement.offsetTop;
+    tree.dispatchEvent(new Event('scroll'));
 
     await shouldHappen(() => querySingle("//div.ticl-e-func-view/span[text()='add']", document.body));
 
