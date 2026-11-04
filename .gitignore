@@ -11,6 +11,7 @@ node_modules
 build
 /dist
 /packages/**/*.js
+/connectors/**/*.js
 /test/**/*.js
 *.map
 *.jsx
@@ -22,6 +23,7 @@ build
 /app/server/files/
 /css/*.css
 /packages/*/style/index.css
+/connectors/*/style/index.css
 en.base.yaml
 /i18n/*
 /es
@@ -33,4 +35,5 @@ en.base.yaml
 /.vscode/
 /app/**/*.d.ts
 /packages/**/*.d.ts
+/connectors/**/*.d.ts
 /tool/**/*.d.ts

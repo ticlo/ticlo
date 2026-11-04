@@ -50,8 +50,13 @@ function mergeI18n(src: string, dest: string) {
   }
 }
 
-for (const pkg of ['editor', 'core', 'web-server', 'html', 'node', 'react', 'chart', 'test']) {
+const packageDirs = [
+  ...['editor', 'core', 'web-server', 'html', 'node', 'react', 'chart', 'test'].map((pkg) => `packages/${pkg}`),
+  ...glob.sync('connectors/*/package.json', {posix: true}).map((path) => path.slice(0, -'/package.json'.length)),
+];
+for (const dir of packageDirs) {
+  const pkg = dir.split('/').at(-1);
   const outdir = `./i18n/${pkg}`;
   fs.mkdirSync(outdir, {recursive: true});
-  mergeI18n(`./packages/${pkg}/**/i18n`, outdir);
+  mergeI18n(`./${dir}/**/i18n`, outdir);
 }

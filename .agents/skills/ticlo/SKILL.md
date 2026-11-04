@@ -6,8 +6,9 @@ description: Navigate Ticlo packages and find task-specific runtime, flow-format
 # Ticlo architecture
 
 Ticlo combines a reactive dataflow runtime, React visual editor, and browser/Node
-integrations. Packages live in `packages/`; demos and dev servers in `app/`;
-build and translation tools in `tool/`.
+integrations. Runtime and UI packages live in `packages/`; external service
+packages live in `connectors/`. Demos and dev servers live in `app/`; build and
+translation tools live in `tool/`.
 
 | Package (`@ticlo/…`) | Responsibility                                                                            |
 | -------------------- | ----------------------------------------------------------------------------------------- |
@@ -37,4 +38,5 @@ Read only the references relevant to the task:
 - [Block controls](../../../docs/block-configs.md) and [property editors](../../../docs/editor.md).
 - [Remote storage](../../../docs/remote-storage.md): project layout, writes, conflicts, dev server.
 - [Static storage](../../../docs/static-storage.md): HTTP indexes, read-only files, and the writable local project.
+- [Connectors](../../../docs/connectors.md): workspace, build, and test conventions for service packages.
 - [Translations](../ticlo-translation/SKILL.md): locale ownership and generation.

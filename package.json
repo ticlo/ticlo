@@ -109,8 +109,8 @@
     "ticlo-test": "tsx app/test/test-server --serve --run --quitOnFinish",
     "ticlo-test-server": "tsx app/test/test-server --serve --run",
     "ticlo-test-c8": "c8 tsx ./app/test/test-server.ts --run --quitOnFinish && c8 report --reporter=text-lcov > coverage/nyc-ticlo.lcov",
-    "oxfmt-check": "oxfmt --check \"{packages,tool,app}/**/*.{ts,tsx,scss}\"",
-    "oxfmt-write": "oxfmt --write \"{packages,tool,app}/**/*.{ts,tsx,scss}\"",
+    "oxfmt-check": "oxfmt --check \"{packages,connectors,tool,app}/**/*.{ts,tsx,scss}\"",
+    "oxfmt-write": "oxfmt --write \"{packages,connectors,tool,app}/**/*.{ts,tsx,scss}\"",
     "oxlint": "oxlint .",
     "oxlint-fix": "oxlint . --fix"
   },

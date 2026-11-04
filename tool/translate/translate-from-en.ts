@@ -15,7 +15,9 @@ async function main() {
     return;
   }
 
-  const pkgs = glob.sync(`./packages/**/i18n/en.yaml`, {posix: true}).map((str: string) => new TranslatePkg(str));
+  const pkgs = glob
+    .sync(`./{packages,connectors}/**/i18n/en.yaml`, {posix: true})
+    .map((str: string) => new TranslatePkg(str));
 
   for (const pkg of pkgs) {
     pkg.collectEn();
