@@ -53,6 +53,7 @@ async function buildPackage(fromDir: string) {
   console.log(targetDir);
   shelljs.rm('-rf', targetDir);
   makeDir(targetDir);
+  fs.copyFileSync('./LICENSE', `${targetDir}/LICENSE`);
   // copy tsconfig
   shelljs.cp('./tool/package-tsconfig.json', targetDir);
   shelljs.mv(`${targetDir}/package-tsconfig.json`, `${targetDir}/tsconfig.json`);
@@ -113,6 +114,8 @@ async function main() {
   makeDir('build');
   try {
     await buildPackage('packages/core');
+
+    await buildPackage('packages/file-server');
 
     await buildPackage('packages/html');
     await buildPackage('packages/remote-storage');
