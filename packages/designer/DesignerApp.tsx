@@ -1,9 +1,19 @@
-import React, {useMemo, useState} from 'react';
+import React, {useContext, useMemo, useState, type ReactNode} from 'react';
 import {TicloApp, type TicloAppProps} from '@ticlo/editor/component/TicloApp.tsx';
-import type {DesignerLayoutContext} from './DesignerContext.tsx';
+import {TicloLayoutContextType} from '@ticlo/editor/component/LayoutContext.ts';
+import {DesignerLayoutContextType, type DesignerLayoutContext} from './DesignerContext.tsx';
 
-export function DesignerApp({value, ...props}: TicloAppProps<DesignerLayoutContext>) {
+function DesignerContextProvider({children}: {children?: ReactNode}) {
   const [designMode, setDesignMode] = useState(true);
-  const context = useMemo<DesignerLayoutContext>(() => ({...value, designMode, setDesignMode}), [value, designMode]);
-  return <TicloApp value={context} {...props} />;
+  const layout = useContext(TicloLayoutContextType);
+  const context = useMemo(() => ({...layout, designMode, setDesignMode}), [layout, designMode, setDesignMode]);
+  return <DesignerLayoutContextType.Provider value={context}>{children}</DesignerLayoutContextType.Provider>;
+}
+
+export function DesignerApp({value, children, ...props}: TicloAppProps<DesignerLayoutContext>) {
+  return (
+    <TicloApp value={value} {...props}>
+      <DesignerContextProvider>{children}</DesignerContextProvider>
+    </TicloApp>
+  );
 }

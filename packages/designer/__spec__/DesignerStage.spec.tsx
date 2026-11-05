@@ -463,6 +463,39 @@ describe('DesignerStage', () => {
     await shouldHappen(() => div.querySelectorAll('.ticl-d-selection-rect').length === 1);
   });
 
+  it('does not update editor contexts when only design mode changes', async () => {
+    let layoutRenders = 0;
+    let currentFlowRenders = 0;
+    function LayoutPanel(): React.ReactNode {
+      useContext(TicloLayoutContextType);
+      layoutRenders++;
+      return null;
+    }
+    function CurrentFlowPanel(): React.ReactNode {
+      useContext(TicloCurrentFlowContext);
+      currentFlowRenders++;
+      return null;
+    }
+    function Toggle() {
+      const {designMode, setDesignMode} = useContext(DesignerLayoutContextType);
+      return <button onClick={() => setDesignMode(!designMode)}>{designMode ? 'Design' : 'Preview'}</button>;
+    }
+    const [, div] = loadTemplate(
+      <DesignerApp value={{}}>
+        <LayoutPanel />
+        <CurrentFlowPanel />
+        <Toggle />
+      </DesignerApp>
+    );
+    await shouldHappen(() => div.querySelector('button')?.textContent === 'Design');
+    const initialLayoutRenders = layoutRenders;
+    const initialCurrentFlowRenders = currentFlowRenders;
+    div.querySelector('button').click();
+    await shouldHappen(() => div.querySelector('button')?.textContent === 'Preview');
+    expect(layoutRenders).toBe(initialLayoutRenders);
+    expect(currentFlowRenders).toBe(initialCurrentFlowRenders);
+  });
+
   it('synchronizes the main node tree with both selection caches and the active stage', async () => {
     const flow = Root.instance.addFlow(path, {
       '#main': {

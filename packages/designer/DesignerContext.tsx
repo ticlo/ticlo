@@ -1,9 +1,8 @@
-import {useContext, type Context} from 'react';
+import {createContext, useContext} from 'react';
 import type {Block, ClientConn, Flow} from '@ticlo/core';
 import type {ElementMap} from '@ticlo/react';
 import {
   TicloCurrentFlowContext,
-  TicloLayoutContextType,
   type TicloLayoutContext,
   type TicloSelection,
   type TicloStage,
@@ -16,8 +15,7 @@ export interface DesignerLayoutContext extends TicloLayoutContext {
   setDesignMode?: (designMode: boolean) => void;
 }
 
-// A typed view of the shared context; DesignerApp supplies the extra fields.
-export const DesignerLayoutContextType = TicloLayoutContextType as Context<DesignerLayoutContext>;
+export const DesignerLayoutContextType = createContext<DesignerLayoutContext>({});
 
 export interface DesignerSelection extends TicloSelection {
   blocks: Block[];
