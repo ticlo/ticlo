@@ -17,7 +17,13 @@ import {
   SnippetsOutlined,
   UploadOutlined,
 } from '@ant-design/icons';
-import {type FileEntry, type FileAccess} from '@ticlo/core/storage/FileAccess.ts';
+import {
+  type FileEntry,
+  type FileAccess,
+  type GitCommit,
+  type GitInfo,
+  type ProjectGit,
+} from '@ticlo/core/storage/FileAccess.ts';
 import {translateEditor} from '@ticlo/core/editor.ts';
 import {ExpandIcon} from '../component/Tree.tsx';
 import VirtualList from '../component/Virtual.tsx';
@@ -52,6 +58,11 @@ interface State {
   dropPath?: string;
   dialog?: {entry?: FileEntry; directory?: string};
   name: string;
+  gitInfo?: GitInfo;
+  gitDialog?: 'commit' | 'history';
+  gitMessage: string;
+  gitHistory: GitCommit[];
+  rootInfo?: FileEntry;
 }
 
 export function FileManager(props: FileManagerProps) {
@@ -82,7 +93,14 @@ export function FileManager(props: FileManagerProps) {
 }
 
 class FileManagerPanel extends React.Component<PanelProps, State> {
-  state: State = {selected: [], preview: this.props.defaultPreview ?? true, busy: false, name: ''};
+  state: State = {
+    selected: [],
+    preview: this.props.defaultPreview ?? true,
+    busy: false,
+    name: '',
+    gitMessage: '',
+    gitHistory: [],
+  };
   private controller = new AbortController();
   private files = new FileOperations(this.props.storage, this.props.project, this.controller.signal);
   private folders = new Map<string, FileEntry[]>();
@@ -100,7 +118,14 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   private rows: {entry: FileEntry; level: number}[] = [];
 
   private get rootEntry(): FileEntry {
-    return {type: 'folder', path: this.files.root, name: this.props.project, created: 0, modified: 0};
+    return (
+      this.state.rootInfo ?? {type: 'folder', path: this.files.root, name: this.props.project, created: 0, modified: 0}
+    );
+  }
+
+  private git(): ProjectGit | undefined {
+    const storage = this.props.storage as FileAccess & Partial<ProjectGit>;
+    return storage.supportsGit?.(this.props.project) ? (storage as ProjectGit) : undefined;
   }
 
   componentDidMount() {
@@ -114,7 +139,16 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   componentDidUpdate(previous: PanelProps) {
     if (previous.storage !== this.props.storage || previous.project !== this.props.project) {
       this.reset();
-      this.setState({selected: [], error: undefined, dialog: undefined, dropPath: undefined, busy: false});
+      this.setState({
+        selected: [],
+        error: undefined,
+        dialog: undefined,
+        dropPath: undefined,
+        busy: false,
+        gitInfo: undefined,
+        gitDialog: undefined,
+        rootInfo: undefined,
+      });
       this.props.onSelect?.([]);
       this.reload();
     }
@@ -200,6 +234,10 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
       }
     };
     await visit(this.files.root);
+    const git = this.git();
+    const rootInfo = git ? ((await this.files.info(this.files.root)) ?? undefined) : undefined;
+    const gitInfo = git ? await git.getGitInfo(this.props.project, {signal: this.files.signal}) : undefined;
+    if (this.current(generation)) this.setState({gitInfo, rootInfo});
     if (this.current(generation)) this.select(this.state.selected.filter((path) => this.entry(path)));
   }
 
@@ -239,22 +277,20 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
       this.forceUpdate();
     } else {
       this.expanded.add(path);
-      if (this.folders.has(path)) this.forceUpdate();
-      else {
-        const generation = this.generation;
-        const version = this.folderVersion;
-        void this.loadFolder(path).catch((error) => {
-          if (this.current(generation) && version === this.folderVersion) {
-            this.expanded.delete(path);
-            this.setState({error: fileError(error)});
-          }
-        });
-      }
+      this.folders.delete(path);
+      const generation = this.generation;
+      const version = this.folderVersion;
+      void this.loadFolder(path).catch((error) => {
+        if (this.current(generation) && version === this.folderVersion) {
+          this.expanded.delete(path);
+          this.setState({error: fileError(error)});
+        }
+      });
     }
   }
 
   private open(entry: FileEntry) {
-    if (entry.type === 'file' && entry.name.endsWith('.ticlo') && this.props.onOpen) {
+    if (entry.gitStatus !== 'deleted' && entry.type === 'file' && entry.name.endsWith('.ticlo') && this.props.onOpen) {
       void this.run(() => Promise.resolve(this.props.onOpen(entry)), false, false);
     }
   }
@@ -284,7 +320,12 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
 
   private copy = (move: boolean) => {
     const entries = this.selected();
-    if (!entries.length || entries.some((entry) => entry.path === this.files.root) || this.locked) return;
+    if (
+      !entries.length ||
+      entries.some((entry) => entry.path === this.files.root || entry.gitStatus === 'deleted') ||
+      this.locked
+    )
+      return;
     this.clipboard = {entries: topEntries(entries), move};
     this.forceUpdate();
   };
@@ -314,7 +355,8 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
 
   private remove = () => {
     const entries = this.selected();
-    if (!entries.length || entries.some((entry) => entry.path === this.files.root)) return;
+    if (!entries.length || entries.some((entry) => entry.path === this.files.root || entry.gitStatus === 'deleted'))
+      return;
     const files = this.files;
     return this.run(async () => {
       if (
@@ -336,7 +378,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   private newFolder = () => this.setState({dialog: {directory: this.directory()}, name: '', error: undefined});
   private rename = () => {
     const entries = this.selected();
-    if (entries.length === 1 && entries[0].path !== this.files.root) {
+    if (entries.length === 1 && entries[0].path !== this.files.root && entries[0].gitStatus !== 'deleted') {
       this.setState({dialog: {entry: entries[0]}, name: entries[0].name, error: undefined});
     }
   };
@@ -379,10 +421,29 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     return this.run(async () => files.upload(await entries, directory, this.confirmOverwrite));
   };
 
-  private menu(): MenuProps {
+  private gitMenu(): MenuProps {
+    const disabled = this.state.busy;
+    const readonly = !this.props.storage.getCapabilities(this.files.root).write;
+    return {
+      onClick: ({key}) => this.command(key),
+      items: this.state.gitInfo?.initialized
+        ? [
+            {key: 'gitCommit', label: t('Git Commit'), disabled: disabled || readonly},
+            {key: 'gitHistory', label: t('Git History'), disabled},
+          ]
+        : [{key: 'gitInit', label: t('Initialize Git'), disabled: disabled || readonly}],
+    };
+  }
+
+  private fileMenu(): MenuProps {
     const entries = this.selected();
-    const openable = entries.length === 1 && entries[0].type === 'file' && entries[0].name.endsWith('.ticlo');
-    const mutable = entries.length > 0 && entries.every((entry) => entry.path !== this.files.root);
+    const openable =
+      entries.length === 1 &&
+      entries[0].type === 'file' &&
+      entries[0].gitStatus !== 'deleted' &&
+      entries[0].name.endsWith('.ticlo');
+    const mutable =
+      entries.length > 0 && entries.every((entry) => entry.path !== this.files.root && entry.gitStatus !== 'deleted');
     const collapse = entries.length === 1 && entries[0].type === 'folder' && this.expanded.has(entries[0].path);
     const disabled = this.state.busy;
     const readonly = !this.props.storage.getCapabilities(this.files.root).write;
@@ -421,7 +482,10 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           key: 'download',
           label: t('Download'),
           icon: <DownloadOutlined />,
-          disabled: disabled || !entries.length || entries.some((entry) => entry.type !== 'file'),
+          disabled:
+            disabled ||
+            !entries.length ||
+            entries.some((entry) => entry.type !== 'file' || entry.gitStatus === 'deleted'),
         },
         {key: 'path', label: t('Copy Path'), disabled: disabled || !entries.length},
         ...(collapse ? [{key: 'collapse', label: t('Collapse Children'), disabled}] : []),
@@ -485,6 +549,27 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           if (path.startsWith(`${entries[0].path}/`)) this.expanded.delete(path);
         }
         this.forceUpdate();
+        break;
+      }
+      case 'gitInit': {
+        const git = this.git();
+        if (git) void this.run(() => git.initGit(this.props.project, {signal: this.files.signal}), true, false);
+        break;
+      }
+      case 'gitCommit':
+        this.setState({gitDialog: 'commit', gitMessage: ''});
+        break;
+      case 'gitHistory': {
+        const git = this.git();
+        if (git)
+          void this.run(
+            async () => {
+              const gitHistory = await git.getGitHistory(this.props.project, {signal: this.files.signal});
+              this.setState({gitHistory, gitDialog: 'history'});
+            },
+            false,
+            false
+          );
         break;
       }
     }
@@ -621,7 +706,13 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             this.select([entry.path]);
           }
         }}
-        draggable={!this.props.picker && !this.state.busy && entry.path !== this.files.root}
+        draggable={
+          !this.props.picker &&
+          !this.state.busy &&
+          entry.path !== this.files.root &&
+          entry.gitStatus !== 'deleted' &&
+          (!selected || this.selected().every((item) => item.gitStatus !== 'deleted'))
+        }
         onDragStart={(event) => {
           const entries = selected ? this.selected() : [entry];
           if (!selected) this.select([entry.path]);
@@ -649,7 +740,9 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             this.toggle(entry);
           }}
         />
-        {entry.type === 'folder' ? opened ? <FolderOpenOutlined /> : <FolderOutlined /> : <FileOutlined />}
+        <span className={`ticl-e-file-git-${entry.gitStatus ?? 'clean'}`}>
+          {entry.type === 'folder' ? opened ? <FolderOpenOutlined /> : <FolderOutlined /> : <FileOutlined />}
+        </span>
         <span>{entry.name}</span>
       </div>
     );
@@ -669,7 +762,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     };
     add(this.rootEntry, 0);
     const selected = this.selected();
-    const entry = selected.length === 1 ? selected[0] : undefined;
+    const entry = selected.length === 1 && selected[0].gitStatus !== 'deleted' ? selected[0] : undefined;
     return (
       <div
         className={`ticl-e-file-manager${className ? ` ${className}` : ''}`}
@@ -722,9 +815,11 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
               icon={<EyeOutlined />}
               onClick={() => this.setState({preview: !preview})}
             />
-            <Dropdown menu={this.menu()} trigger={['click']}>
-              <Button size="small" title={translateEditor('Actions')} icon={<EllipsisOutlined />} />
-            </Dropdown>
+            {this.git() ? (
+              <Dropdown menu={this.gitMenu()} trigger={['click']}>
+                <Button size="small" title={translateEditor('Actions')} icon={<EllipsisOutlined />} />
+              </Dropdown>
+            ) : null}
             <input
               ref={(value) => {
                 this.uploadInput = value;
@@ -752,7 +847,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             />
           </div>
         ) : null}
-        <Dropdown menu={picker ? {items: []} : this.menu()} trigger={picker ? [] : ['contextMenu']}>
+        <Dropdown menu={picker ? {items: []} : this.fileMenu()} trigger={picker ? [] : ['contextMenu']}>
           <div
             className="ticl-e-file-tree-area"
             onMouseDown={() => this.container.focus()}
@@ -808,6 +903,51 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
               }}
             />
             {error ? <div className="ticl-e-file-error">{error}</div> : null}
+          </Modal>
+        )}
+        {!picker && (
+          <Modal
+            title={t('Git Commit')}
+            open={this.state.gitDialog === 'commit'}
+            onOk={() => {
+              const git = this.git();
+              if (git)
+                void this.run(
+                  async () => {
+                    await git.commitGit(project, this.state.gitMessage, {signal: this.files.signal});
+                    this.setState({gitDialog: undefined, gitMessage: ''});
+                  },
+                  true,
+                  false
+                );
+            }}
+            onCancel={() => this.setState({gitDialog: undefined})}
+            confirmLoading={busy}
+            cancelButtonProps={{disabled: busy}}
+            destroyOnHidden
+          >
+            <Input.TextArea
+              value={this.state.gitMessage}
+              onChange={(event) => this.setState({gitMessage: event.target.value})}
+            />
+          </Modal>
+        )}
+        {!picker && (
+          <Modal
+            title={t('Git History')}
+            open={this.state.gitDialog === 'history'}
+            onCancel={() => this.setState({gitDialog: undefined})}
+            footer={null}
+            destroyOnHidden
+          >
+            {this.state.gitHistory.map((commit) => (
+              <div className="ticl-e-git-commit" key={commit.hash}>
+                <div>
+                  {commit.hash.slice(0, 8)} · {commit.author} · {new Date(commit.date).toLocaleString()}
+                </div>
+                <pre>{commit.message}</pre>
+              </div>
+            ))}
           </Modal>
         )}
       </div>

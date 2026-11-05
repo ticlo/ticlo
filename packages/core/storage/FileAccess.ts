@@ -6,6 +6,27 @@ export interface FileEntry {
   size?: number;
   created?: number;
   modified?: number;
+  gitStatus?: 'added' | 'modified' | 'deleted';
+}
+
+export interface GitInfo {
+  initialized: boolean;
+  branch?: string;
+}
+export interface GitCommit {
+  hash: string;
+  author: string;
+  email: string;
+  date: string;
+  message: string;
+}
+/** Optional project capability; file access remains usable without Git. */
+export interface ProjectGit {
+  supportsGit(project: string): boolean;
+  getGitInfo(project: string, options?: FileRequest): Promise<GitInfo>;
+  initGit(project: string, options?: FileRequest): Promise<GitInfo>;
+  commitGit(project: string, message: string, options?: FileRequest): Promise<GitCommit>;
+  getGitHistory(project: string, options?: FileRequest): Promise<GitCommit[]>;
 }
 export interface FileRequest {
   signal?: AbortSignal;
@@ -75,7 +96,15 @@ export function filePath(path: string, allowRoot = false): string {
 }
 export function projectId(id: string): string {
   filePath(id);
-  if (id.includes('/') || id.includes('.')) throw new StorageError('Invalid project ID', 'invalid-path');
+  if (
+    id.includes('/') ||
+    id.includes('.') ||
+    id === 'HEAD' ||
+    id.includes('@{') ||
+    id.startsWith('-') ||
+    /[\u0000-\u0020\u007f~^:?*[\\]/.test(id)
+  )
+    throw new StorageError('Invalid project ID', 'invalid-path');
   return id;
 }
 export async function fileBytes(data: FilePayload): Promise<ArrayBuffer> {

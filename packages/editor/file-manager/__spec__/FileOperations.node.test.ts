@@ -19,7 +19,7 @@ describe('File manager with the file server', () => {
     for (const project of ['demo', '#root']) {
       const path = join(directory, 'proj', project);
       await mkdir(path, {recursive: true});
-      await writeFile(join(path, '_proj.json'), JSON.stringify({id: project}));
+      await writeFile(join(path, '.proj'), JSON.stringify({id: project}));
     }
     const app = new Hono();
     routeFileStorage(app, {rootDir: directory, authProvider: () => devUserAuth});

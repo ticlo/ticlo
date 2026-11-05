@@ -77,6 +77,25 @@
   opacity: 0.5;
 }
 
+.ticl-e-file-git-added {
+  color: var(--ant-color-success, #52c41a);
+}
+.ticl-e-file-git-modified {
+  color: var(--ant-color-warning, #faad14);
+}
+.ticl-e-file-git-deleted {
+  color: var(--ant-color-error, #ff4d4f);
+}
+
+.ticl-e-git-commit {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ant-color-border-secondary, #eee);
+  > pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
+
 .ticl-e-file-preview {
   display: flex;
   flex-direction: column;

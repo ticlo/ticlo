@@ -43,14 +43,14 @@ it('serves files, runtime commands, WebSockets and flow routes on one port with 
     expect(preflight.status).toBe(204);
     expect(preflight.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3003');
     expect(preflight.headers.get('Access-Control-Allow-Headers')).toContain('If-Match');
-    expect(await readdir(join(dir, 'proj/#root'))).toEqual(['_proj.json']);
+    expect(await readdir(join(dir, 'proj/#root'))).toEqual(['.proj']);
     const files = new RemoteStorage({baseURL: `${base}/file`});
     const remote = new Root();
     try {
       await remote.setStorage(files);
       await remote.start();
       expect(remote._globalRoot.save()).toEqual({'#is': ''});
-      expect(await readdir(join(dir, 'proj/#root'))).toEqual(['_proj.json']);
+      expect(await readdir(join(dir, 'proj/#root'))).toEqual(['.proj']);
     } finally {
       await remote.stop({discardChanges: true});
       remote.destroy();
@@ -116,14 +116,29 @@ it('leaves existing root projects unchanged, including projects without metadata
     await first.app.request('/file?op=listProj');
     const project = join(dir, 'proj/#root');
     const metadata = '{"id":"#root","name":"My root","owner":"existing"}';
-    await writeFile(join(project, '_proj.json'), metadata);
+    await writeFile(join(project, '.proj'), metadata);
     const second = await createServerApp(dir);
     await second.app.request('/file?op=listProj');
-    expect(await readFile(join(project, '_proj.json'), 'utf8')).toBe(metadata);
-    await rm(join(project, '_proj.json'));
+    expect(await readFile(join(project, '.proj'), 'utf8')).toBe(metadata);
+    await rm(join(project, '.proj'));
     const third = await createServerApp(dir);
     await third.app.request('/file?op=listProj');
     expect(await readdir(project)).toEqual([]);
+  } finally {
+    Root.instance._globalRoot.deleteValue('^local-server');
+    await rm(dir, {recursive: true, force: true});
+  }
+});
+
+it('serves project Git operations from the installed file server', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'ticlo-git-server-'));
+  try {
+    const {app} = await createServerApp(dir);
+    const info = await app.request('/file?op=gitInfo&id=%23root');
+    expect(await info.json()).toEqual({initialized: false});
+    const initialized = await app.request('/file?op=gitInit&id=%23root', {method: 'POST'});
+    expect(initialized.status).toBe(200);
+    expect((await initialized.json()).branch).toBe('#root');
   } finally {
     Root.instance._globalRoot.deleteValue('^local-server');
     await rm(dir, {recursive: true, force: true});

@@ -17,7 +17,7 @@ export async function createServerApp(
 ) {
   const rootProject = join(rootDir, 'proj/#root');
   if (await mkdir(rootProject, {recursive: true})) {
-    await writeFile(join(rootProject, '_proj.json'), JSON.stringify({id: '#root', name: 'Root'}), {flag: 'wx'});
+    await writeFile(join(rootProject, '.proj'), JSON.stringify({id: '#root', name: 'Root'}), {flag: 'wx'});
   }
 
   const app = new Hono();

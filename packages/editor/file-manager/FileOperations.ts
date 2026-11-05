@@ -51,7 +51,8 @@ export class FileOperations {
   async info(path: string) {
     this.checkPath(path, true);
     try {
-      return await this.storage.getFileInfo(path, {signal: this.signal});
+      const info = await this.storage.getFileInfo(path, {signal: this.signal});
+      return info.gitStatus === 'deleted' ? null : info;
     } catch (error) {
       if (error instanceof StorageError && error.code === 'not-found') return null;
       throw error;

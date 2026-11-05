@@ -75,6 +75,11 @@ describe('FileManager', () => {
     await shouldHappen(() => div.querySelectorAll('.ticl-e-file-selected').length === 2);
     row('demo/folder').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
     await shouldHappen(() => !row('demo/folder/b.txt'));
+    fixture.entries.delete('demo/folder/b.txt');
+    fixture.entries.set('demo/folder/c.txt', file('demo/folder/c.txt'));
+    row('demo/folder').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
+    await shouldHappen(() => row('demo/folder/c.txt') && !row('demo/folder/b.txt'));
+    expect(fixture.methods.listFiles.mock.calls.filter(([path]) => path === 'demo/folder')).toHaveLength(2);
   });
 
   it('automatically previews small text read-only and leaves unsupported files unloaded', async () => {
@@ -96,7 +101,8 @@ describe('FileManager', () => {
     mount({storage: fixture.client, project: 'demo', onOpen});
     await ready('demo/entry.ticlo');
     await click('demo/other.ticlo');
-    button('Actions').click();
+    expect(button('Actions')).toBeNull();
+    row('demo/other.ticlo').dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, button: 2}));
     await shouldHappen(() =>
       [...document.querySelectorAll('.ant-dropdown-menu-item')].some((item) => item.textContent.trim() === 'Open')
     );
@@ -109,6 +115,80 @@ describe('FileManager', () => {
     row('demo/entry.ticlo').dispatchEvent(new MouseEvent('dblclick', {bubbles: true}));
     await shouldHappen(() => onOpen.mock.calls.length === 2);
     expect(onOpen).toHaveBeenLastCalledWith(file('demo/entry.ticlo'));
+  });
+
+  it('runs Git commands for the displayed project and allows an empty commit message', async () => {
+    const fixture = fixtureClient([file('demo/a.txt')]);
+    let initialized = false;
+    const initGit = vi.fn(async () => {
+      initialized = true;
+      return {initialized: true, branch: 'demo'};
+    });
+    const commitGit = vi.fn(async () => ({
+      hash: 'abc',
+      author: 'alice',
+      email: 'alice@ticlo.app',
+      date: new Date().toISOString(),
+      message: 'Update project files',
+    }));
+    Object.assign(fixture.client, {
+      supportsGit: () => true,
+      getGitInfo: async () => ({initialized, branch: initialized ? 'demo' : undefined}),
+      initGit,
+      commitGit,
+      getGitHistory: async (): Promise<[]> => [],
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready();
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === 'Initialize Git'
+      )
+    );
+    expect(
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].map((item) => item.textContent.trim())
+    ).toEqual(['Initialize Git']);
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Initialize Git')
+      .click();
+    await shouldHappen(() => initGit.mock.calls.length === 1 && !button('Reload')?.disabled);
+    expect(initGit).toHaveBeenCalledWith('demo', expect.anything());
+
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === 'Git Commit'
+      )
+    );
+    expect(
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].map((item) => item.textContent.trim())
+    ).toEqual(['Git Commit', 'Git History']);
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Git Commit')
+      .click();
+    await shouldHappen(() => document.querySelector('.ant-modal textarea'));
+    await modalButton(true);
+    await shouldHappen(() => commitGit.mock.calls.length === 1);
+    expect(commitGit).toHaveBeenCalledWith('demo', '', expect.anything());
+  });
+
+  it('keeps Initialize Git visible when Git status cannot be loaded', async () => {
+    const fixture = fixtureClient([file('demo/a.txt')]);
+    Object.assign(fixture.client, {
+      supportsGit: () => true,
+      getGitInfo: async () => {
+        throw new Error('Git unavailable');
+      },
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready();
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].some(
+        (item) => item.textContent.trim() === 'Initialize Git'
+      )
+    );
   });
 
   it('uses the file tree as a single-file picker without file actions', async () => {

@@ -18,7 +18,7 @@ describe('FileServerStorage integration', () => {
   async function project(id: string, files: Record<string, unknown> = {}) {
     const path = join(dir, 'proj', id);
     await mkdir(path, {recursive: true});
-    await writeFile(join(path, '_proj.json'), JSON.stringify({id, name: id}));
+    await writeFile(join(path, '.proj'), JSON.stringify({id, name: id}));
     for (const [file, data] of Object.entries(files)) {
       await mkdir(join(path, file, '..'), {recursive: true});
       await writeFile(join(path, file), encodeSorted(data));
@@ -206,7 +206,7 @@ describe('FileServerStorage integration', () => {
 
   it('reads and writes ticlo.json without fetching or changing project management metadata', async () => {
     await project('main', {'#libs/service.ticlo': {'#disabled': true}, 'unused.ticlo': {value: 9}});
-    const projectPath = join(dir, 'proj/main/_proj.json');
+    const projectPath = join(dir, 'proj/main/.proj');
     const original = await readFile(projectPath, 'utf8');
     const get = vi.spyOn(client, 'getFile');
     const readProject = vi.spyOn(client, 'readProject');
@@ -225,7 +225,7 @@ describe('FileServerStorage integration', () => {
     expect(await storage.getNamespaceMetadata('main')).toEqual({autoLoadLibraries: []});
     expect(await readFile(projectPath, 'utf8')).toBe(original);
     expect(readProject).not.toHaveBeenCalled();
-    expect(get.mock.calls.every(([path]) => !path.endsWith('_proj.json') && !path.endsWith('#proj.json'))).toBe(true);
+    expect(get.mock.calls.every(([path]) => !path.endsWith('.proj') && !path.endsWith('#proj.json'))).toBe(true);
     await root.stop();
     expect(await storage.loadLib('+main', 'service')).toEqual({'#disabled': true});
   });

@@ -28,7 +28,7 @@ For example, `proj/main/.list.json`:
 
 `folder/.list.json` can contain `["child.ticlo"]`; empty folders use `[]`.
 Indexes use literal `#`; the storage encodes URL components. Project listing uses
-`proj/.list.json`. Indexes omit file-server metadata `_proj.json`, which remains
+`proj/.list.json`. Indexes omit file-server metadata `.proj`, which remains
 readable directly. Optional file timestamps and sizes are unknown in these
 indexes. Missing or malformed indexes reject catalog reads.
 

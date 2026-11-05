@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
-import {mkdtemp, mkdir, readFile, readdir, rm, symlink} from 'node:fs/promises';
+import {mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {Root, FlowFolder} from '@ticlo/core';
@@ -69,5 +69,11 @@ describe('NodeStorage', () => {
     await root.setStorage(storage);
     await root.start({main: {}});
     expect(root.queryValue('+main.#context.^setting')).toBe(10);
+  });
+  it('migrates legacy project metadata when read', async () => {
+    await mkdir(join(dir, 'main'));
+    await writeFile(join(dir, 'main/_proj.json'), JSON.stringify({id: 'main', name: 'Legacy'}));
+    expect(await storage.readProject('main')).toEqual({id: 'main', name: 'Legacy'});
+    expect(await readdir(join(dir, 'main'))).toEqual(['.proj']);
   });
 });

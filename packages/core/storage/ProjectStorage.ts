@@ -169,7 +169,17 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
     projectId(id);
     await this.getFileInfo(id, options);
     try {
-      return {...JSON.parse(new TextDecoder().decode((await this.getFile(`${id}/_proj.json`, options)).data)), id};
+      return {...JSON.parse(new TextDecoder().decode((await this.getFile(`${id}/.proj`, options)).data)), id};
+    } catch (error) {
+      if (!(error instanceof StorageError) || error.code !== 'not-found') throw error;
+    }
+    try {
+      const legacy = await this.getFile(`${id}/_proj.json`, options);
+      if (this.getCapabilities(id).write) {
+        await this.uploadFile(`${id}/.proj`, legacy.data, {revision: null});
+        await this.deleteFile(`${id}/_proj.json`, {revision: legacy.revision});
+      }
+      return {...JSON.parse(new TextDecoder().decode(legacy.data)), id};
     } catch (error) {
       if (error instanceof StorageError && error.code === 'not-found') return {id};
       throw error;
@@ -182,7 +192,7 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
     } catch (error) {
       if (!(error instanceof StorageError) || error.code !== 'not-found') throw error;
       await this.createDirectory(id);
-      await this.uploadFile(`${id}/_proj.json`, JSON.stringify({...metadata, id}), {revision: null});
+      await this.uploadFile(`${id}/.proj`, JSON.stringify({...metadata, id}), {revision: null});
       return {...metadata, id};
     }
     throw new StorageError('Project already exists', 'conflict');
@@ -190,7 +200,7 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
   async updateProject(id: string, metadata: Record<string, unknown>) {
     const previous = await this.readProject(id);
     const value = {...previous, ...metadata, id};
-    await this.uploadFile(`${id}/_proj.json`, JSON.stringify(value));
+    await this.uploadFile(`${id}/.proj`, JSON.stringify(value));
     return value;
   }
   async deleteProject(id: string) {
