@@ -21,21 +21,10 @@ export async function createServerApp(
   }
 
   const app = new Hono();
-  app.use(
-    '/file/*',
-    cors({
-      origin: (origin) => (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ? origin : undefined),
-      allowMethods: ['GET', 'POST', 'OPTIONS'],
-      allowHeaders: ['Content-Type', 'If-Match', 'If-None-Match'],
-      exposeHeaders: ['ETag'],
-    })
-  );
+  const devCors = cors({exposeHeaders: ['ETag']});
+  app.use('*', (c, next) => (c.req.header('upgrade') === 'websocket' ? next() : devCors(c, next)));
   routeFileStorage(app, {rootDir, authProvider});
 
-  const runtimeCors = cors({allowMethods: ['GET', 'POST', 'OPTIONS'], allowHeaders: ['Content-Type']});
-  for (const path of ['/ticlo', '/ticlo/*', '/api', '/api/*']) {
-    app.use(path, (c, next) => (c.req.header('upgrade') === 'websocket' ? next() : runtimeCors(c, next)));
-  }
   app.get('/health', (c) => c.json({status: 'ok'}));
   app.get('/', (c) =>
     c.text(
