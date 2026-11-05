@@ -191,6 +191,54 @@ describe('FileManager', () => {
     );
   });
 
+  it('shows commit summaries in the history grid and the selected full message beside it', async () => {
+    const fixture = fixtureClient([file('demo/a.txt')]);
+    const commits = [
+      {
+        hash: 'first',
+        author: 'alice',
+        email: 'alice@example.com',
+        date: '2026-11-04T01:00:00Z',
+        message: 'First commit\n\nfirst detail',
+      },
+      {
+        hash: 'second',
+        author: 'bob',
+        email: 'bob@example.com',
+        date: '2026-11-03T01:00:00Z',
+        message: 'Second commit\n\nsecond detail',
+      },
+    ];
+    Object.assign(fixture.client, {
+      supportsGit: () => true,
+      getGitInfo: async () => ({initialized: true, branch: 'demo'}),
+      getGitHistory: async () => commits,
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready();
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === 'Git History'
+      )
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Git History')
+      .click();
+    await shouldHappen(
+      () => document.querySelectorAll('.ticl-e-git-history .ant-table-tbody tr[data-row-key]').length === 2
+    );
+    const rows = [...document.querySelectorAll<HTMLElement>('.ticl-e-git-history .ant-table-tbody tr[data-row-key]')];
+    expect(rows[0].textContent).toContain('First commit');
+    expect(rows[0].textContent).not.toContain('first detail');
+    expect(document.querySelector('.ticl-e-git-history-message').textContent).toContain('first detail');
+    rows[1].click();
+    await shouldHappen(() =>
+      document.querySelector('.ticl-e-git-history-message')?.textContent.includes('second detail')
+    );
+    expect(rows[1].textContent).not.toContain('second detail');
+  });
+
   it('uses the file tree as a single-file picker without file actions', async () => {
     const fixture = fixtureClient([file('demo/entry.ticlo'), file('demo/other.ticlo')]);
     const onOpen = vi.fn();

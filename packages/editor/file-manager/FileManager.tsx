@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {Button, Dropdown, Input, Modal, Spin, type MenuProps} from 'antd';
+import {Button, Dropdown, Input, Modal, Spin, Table, type MenuProps} from 'antd';
 import {
   CloseOutlined,
   CopyOutlined,
@@ -62,6 +62,7 @@ interface State {
   gitDialog?: 'commit' | 'history';
   gitMessage: string;
   gitHistory: GitCommit[];
+  gitSelected?: string;
   rootInfo?: FileEntry;
 }
 
@@ -147,6 +148,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         busy: false,
         gitInfo: undefined,
         gitDialog: undefined,
+        gitSelected: undefined,
         rootInfo: undefined,
       });
       this.props.onSelect?.([]);
@@ -565,7 +567,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           void this.run(
             async () => {
               const gitHistory = await git.getGitHistory(this.props.project, {signal: this.files.signal});
-              this.setState({gitHistory, gitDialog: 'history'});
+              this.setState({gitHistory, gitSelected: gitHistory[0]?.hash, gitDialog: 'history'});
             },
             false,
             false
@@ -763,6 +765,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     add(this.rootEntry, 0);
     const selected = this.selected();
     const entry = selected.length === 1 && selected[0].gitStatus !== 'deleted' ? selected[0] : undefined;
+    const selectedCommit = this.state.gitHistory.find((commit) => commit.hash === this.state.gitSelected);
     return (
       <div
         className={`ticl-e-file-manager${className ? ` ${className}` : ''}`}
@@ -938,16 +941,38 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             open={this.state.gitDialog === 'history'}
             onCancel={() => this.setState({gitDialog: undefined})}
             footer={null}
+            width="min(1100px, calc(100vw - 32px))"
             destroyOnHidden
           >
-            {this.state.gitHistory.map((commit) => (
-              <div className="ticl-e-git-commit" key={commit.hash}>
-                <div>
-                  {commit.hash.slice(0, 8)} · {commit.author} · {new Date(commit.date).toLocaleString()}
-                </div>
-                <pre>{commit.message}</pre>
+            <div className="ticl-e-git-history">
+              <Table<GitCommit>
+                size="small"
+                rowKey="hash"
+                dataSource={this.state.gitHistory}
+                pagination={false}
+                scroll={{x: 580, y: 440}}
+                columns={[
+                  {
+                    title: t('Date'),
+                    dataIndex: 'date',
+                    width: 170,
+                    render: (date: string) => new Date(date).toLocaleString(),
+                  },
+                  {title: t('Author'), dataIndex: 'author', width: 120, ellipsis: true},
+                  {
+                    title: t('Message'),
+                    dataIndex: 'message',
+                    ellipsis: true,
+                    render: (message: string) => message.split(/\r?\n/, 1)[0],
+                  },
+                ]}
+                rowClassName={(commit) => (commit.hash === this.state.gitSelected ? 'ticl-e-git-history-selected' : '')}
+                onRow={(commit) => ({onClick: () => this.setState({gitSelected: commit.hash})})}
+              />
+              <div className="ticl-e-git-history-message">
+                <pre>{selectedCommit?.message}</pre>
               </div>
-            ))}
+            </div>
           </Modal>
         )}
       </div>

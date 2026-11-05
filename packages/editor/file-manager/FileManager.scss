@@ -87,12 +87,48 @@
   color: var(--ant-color-error, #ff4d4f);
 }
 
-.ticl-e-git-commit {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--ant-color-border-secondary, #eee);
+.ticl-e-git-history {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 16px;
+  min-height: 360px;
+
+  > .ant-table-wrapper {
+    min-width: 0;
+  }
+
+  .ant-table-row {
+    cursor: pointer;
+  }
+
+  .ticl-e-git-history-selected > td {
+    background: var(--ant-control-item-bg-active, #e6f4ff);
+  }
+}
+
+.ticl-e-git-history-message {
+  min-width: 0;
+  max-height: 480px;
+  padding-left: 16px;
+  overflow: auto;
+  border-left: 1px solid var(--ant-color-border-secondary, #eee);
+
   > pre {
+    margin: 0;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 700px) {
+  .ticl-e-git-history {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ticl-e-git-history-message {
+    padding: 16px 0 0;
+    border-top: 1px solid var(--ant-color-border-secondary, #eee);
+    border-left: 0;
   }
 }
 

@@ -195,3 +195,6 @@
 "Initialize Git": "初始化 Git"
 "Git Commit": "Git 提交"
 "Git History": "Git 历史"
+"Date": "日期" # translated from: Date
+"Author": "作者" # translated from: Author
+"Message": "提交说明" # translated from: Message
