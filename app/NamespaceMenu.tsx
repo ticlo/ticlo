@@ -86,7 +86,7 @@ export function useNamespaceMenu({
   const saveProperties = () =>
     run(async () => {
       await root.setNamespaceDependencies(project, dependencies);
-      onChange?.();
+      if (!storage.subscribeFileChanges) onChange?.();
     });
 
   const items: MenuProps['items'] = [
@@ -108,7 +108,7 @@ export function useNamespaceMenu({
           canCreate={canCreate}
           onCreate={async (name) => {
             await storage.createProject(name);
-            onChange?.();
+            if (!storage.subscribeFileChanges) onChange?.();
           }}
           onSelect={onNamespaceChange}
           onUnload={onNamespaceUnload}

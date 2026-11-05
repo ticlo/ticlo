@@ -86,6 +86,11 @@ project and guest files cannot be modified, even temporarily. Copy them to
 deleted. Missing timestamps and sizes are left undefined; static previews with
 unknown sizes require an explicit load.
 
+Browser storage instances expose `subscribeFileChanges(listener)` for successful
+writes through that instance. The listener receives the public file path and can
+unsubscribe using the returned function. It does not watch other browser tabs,
+server writers, or direct filesystem changes.
+
 `read-storage` and `write-storage` use the calling flow's project under
 `#storage/<encoded-key>.str`, through the same storage instance. Their listeners
 are notified after successful changes. Detached/in-memory runtimes use memory

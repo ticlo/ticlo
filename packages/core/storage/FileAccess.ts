@@ -54,6 +54,8 @@ export interface ProjectMetadata extends Record<string, unknown> {
 }
 export interface FileAccess {
   getCapabilities(path: string): StorageCapabilities;
+  /** Reports successful writes made through this file access instance. */
+  subscribeFileChanges?(listener: (path: string) => void): () => void;
   getFile(path: string, options?: FileRequest): Promise<FileReadResult>;
   getFileInfo(path: string, options?: FileRequest): Promise<FileEntry>;
   listFiles(path: string, options?: FileRequest): Promise<FileEntry[]>;

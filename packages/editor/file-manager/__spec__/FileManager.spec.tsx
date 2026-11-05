@@ -36,6 +36,16 @@ describe('FileManager', () => {
   function mount(props: FileManagerProps) {
     [, div] = loadTemplate(view(props), 'editor');
   }
+  function notifyFiles(fixture: ReturnType<typeof fixtureClient>) {
+    const listeners = new Set<(path: string) => void>();
+    Object.assign(fixture.client, {
+      subscribeFileChanges: (listener: (path: string) => void) => {
+        listeners.add(listener);
+        return () => listeners.delete(listener);
+      },
+    });
+    return (path: string) => listeners.forEach((listener) => listener(path));
+  }
   const row = (path: string) => div.querySelector<HTMLElement>(`[data-path="${path}"]`);
   const button = (title: string) => div.querySelector<HTMLButtonElement>(`button[title="${title}"]`);
   async function ready(path = 'demo/a.txt') {
@@ -80,6 +90,92 @@ describe('FileManager', () => {
     row('demo/folder').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
     await shouldHappen(() => row('demo/folder/c.txt') && !row('demo/folder/b.txt'));
     expect(fixture.methods.listFiles.mock.calls.filter(([path]) => path === 'demo/folder')).toHaveLength(2);
+  });
+
+  it('refreshes expanded folders after file changes made elsewhere', async () => {
+    const fixture = fixtureClient([
+      folder('demo/source'),
+      file('demo/source/a.txt'),
+      folder('demo/target'),
+      folder('demo/closed'),
+    ]);
+    const changed = notifyFiles(fixture);
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready('demo/source');
+    row('demo/source').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
+    row('demo/target').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
+    await shouldHappen(() => row('demo/source/a.txt'));
+
+    const listFolder = fixture.methods.listFiles.getMockImplementation()!;
+    let delaySource = true;
+    let releaseSource: () => void;
+    fixture.methods.listFiles.mockImplementation(async (path) => {
+      if (path === 'demo/source' && delaySource) {
+        delaySource = false;
+        await new Promise<void>((resolve) => {
+          releaseSource = resolve;
+        });
+      }
+      return listFolder(path);
+    });
+    fixture.entries.set('demo/source/a.txt', {...file('demo/source/a.txt'), gitStatus: 'modified'});
+    changed('demo/source/a.txt');
+    await shouldHappen(() => releaseSource);
+    expect(row('demo/source/a.txt')).not.toBeNull();
+    releaseSource();
+    await shouldHappen(() => row('demo/source/a.txt')?.querySelector('.ticl-e-file-git-modified'));
+
+    fixture.entries.delete('demo/source/a.txt');
+    fixture.entries.set('demo/target/a.txt', {...file('demo/target/a.txt'), gitStatus: 'added'});
+    changed('demo/source/a.txt');
+    changed('demo/target/a.txt');
+    await shouldHappen(() => !row('demo/source/a.txt') && row('demo/target/a.txt'));
+    expect(row('demo/target/a.txt').querySelector('.ticl-e-file-git-added')).not.toBeNull();
+    expect(fixture.methods.listFiles.mock.calls.some(([path]) => path === 'demo/closed')).toBe(false);
+    expect(fixture.methods.listFiles.mock.calls.filter(([path]) => path === 'demo').length).toBeGreaterThan(1);
+    expect(fixture.methods.listFiles.mock.calls.filter(([path]) => path === 'demo/source').length).toBeGreaterThan(1);
+    expect(fixture.methods.listFiles.mock.calls.filter(([path]) => path === 'demo/target').length).toBeGreaterThan(1);
+
+    fixture.entries.delete('demo/source');
+    changed('demo/source');
+    await shouldHappen(() => !row('demo/source'));
+    fixture.entries.set('demo/source', folder('demo/source'));
+    fixture.entries.set('demo/source/new.txt', file('demo/source/new.txt'));
+    changed('demo/source');
+    await shouldHappen(() => row('demo/source'));
+    expect(row('demo/source/new.txt')).toBeNull();
+    row('demo/source').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
+    await shouldHappen(() => row('demo/source/new.txt'));
+  });
+
+  it('keeps an expanded folder visible until its deletion reload finishes', async () => {
+    const fixture = fixtureClient([folder('demo/folder'), file('demo/folder/a.txt')]);
+    const changed = notifyFiles(fixture);
+    const listFolder = fixture.methods.listFiles.getMockImplementation()!;
+    let delayRoot = false;
+    let releaseRoot: () => void;
+    fixture.methods.listFiles.mockImplementation(async (path) => {
+      if (path === 'demo' && delayRoot) {
+        delayRoot = false;
+        await new Promise<void>((resolve) => {
+          releaseRoot = resolve;
+        });
+      }
+      return listFolder(path);
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready('demo/folder');
+    row('demo/folder').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
+    await shouldHappen(() => row('demo/folder/a.txt'));
+
+    fixture.entries.delete('demo/folder/a.txt');
+    fixture.entries.delete('demo/folder');
+    delayRoot = true;
+    changed('demo/folder');
+    await shouldHappen(() => releaseRoot);
+    expect(row('demo/folder/a.txt')).not.toBeNull();
+    releaseRoot();
+    await shouldHappen(() => !row('demo/folder'));
   });
 
   it('automatically previews small text read-only and leaves unsupported files unloaded', async () => {

@@ -175,6 +175,10 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   private container: HTMLDivElement;
   private uploadInput: HTMLInputElement;
   private rows: {entry: FileEntry; level: number}[] = [];
+  private stopFileChanges?: () => void;
+  private pendingFileChanges = new Set<string>();
+  private fileChangeTimer?: ReturnType<typeof setTimeout>;
+  private refreshingFileChanges = false;
 
   private get rootEntry(): FileEntry {
     return (
@@ -191,13 +195,16 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     this.live = true;
     // StrictMode may remount this instance after aborting the initial requests.
     if (this.controller.signal.aborted) this.reset();
+    this.stopFileChanges = this.props.storage.subscribeFileChanges?.(this.fileChanged);
     this.props.onSelect?.([]);
     this.reload();
   }
 
   componentDidUpdate(previous: PanelProps) {
     if (previous.storage !== this.props.storage || previous.project !== this.props.project) {
+      this.stopFileChanges?.();
       this.reset();
+      this.stopFileChanges = this.props.storage.subscribeFileChanges?.(this.fileChanged);
       this.setState({
         selected: [],
         error: undefined,
@@ -217,6 +224,8 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
 
   componentWillUnmount() {
     this.live = false;
+    this.stopFileChanges?.();
+    clearTimeout(this.fileChangeTimer);
     ++this.generation;
     ++this.folderVersion;
     this.controller.abort();
@@ -225,6 +234,10 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   private reset() {
     this.controller.abort();
     ++this.generation;
+    clearTimeout(this.fileChangeTimer);
+    this.fileChangeTimer = undefined;
+    this.pendingFileChanges.clear();
+    this.refreshingFileChanges = false;
     this.controller = new AbortController();
     this.files = new FileOperations(this.props.storage, this.props.project, this.controller.signal);
     this.folders.clear();
@@ -302,6 +315,77 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     if (this.current(generation)) this.select(this.state.selected.filter((path) => this.entry(path)));
   }
 
+  private fileChanged = (path: string) => {
+    if (path !== this.files.root && !path.startsWith(`${this.files.root}/`)) return;
+    this.pendingFileChanges.add(path);
+    this.scheduleFileChanges();
+  };
+
+  private scheduleFileChanges() {
+    if (
+      !this.live ||
+      this.locked ||
+      this.refreshingFileChanges ||
+      this.fileChangeTimer ||
+      !this.pendingFileChanges.size
+    )
+      return;
+    this.fileChangeTimer = setTimeout(() => {
+      this.fileChangeTimer = undefined;
+      if (!this.live || this.locked) return;
+      void this.refreshFileChanges();
+    }, 30);
+  }
+
+  private async refreshFileChanges() {
+    this.refreshingFileChanges = true;
+    const changed = [...this.pendingFileChanges];
+    this.pendingFileChanges.clear();
+    const generation = this.generation;
+    const version = this.folderVersion;
+    const folders = [...this.expanded].filter((folder) =>
+      changed.some((path) => (path === folder ? folder === this.files.root : path.startsWith(`${folder}/`)))
+    );
+    try {
+      await Promise.all(
+        folders.map(async (folder) => {
+          await this.loading.get(folder)?.catch(() => {});
+          if (!this.current(generation) || version !== this.folderVersion || !this.expanded.has(folder)) return;
+          await this.loadFolder(folder);
+        })
+      );
+      if (this.current(generation) && version === this.folderVersion) {
+        for (const path of changed) {
+          if (path === this.files.root || !this.expanded.has(path)) continue;
+          const parent = parentPath(path);
+          if (
+            !this.expanded.has(parent) ||
+            !this.folders.get(parent)?.some((entry) => entry.path === path && entry.type === 'folder')
+          ) {
+            for (const folder of this.expanded) {
+              if (folder === path || folder.startsWith(`${path}/`)) {
+                this.expanded.delete(folder);
+                this.folders.delete(folder);
+              }
+            }
+          }
+        }
+        const rootInfo = this.git() ? ((await this.files.info(this.files.root)) ?? undefined) : undefined;
+        if (this.current(generation) && version === this.folderVersion) {
+          if (this.git()) this.setState({rootInfo});
+          this.select(this.state.selected.filter((path) => this.entry(path)));
+        }
+      }
+    } catch (error) {
+      if (this.current(generation) && version === this.folderVersion) this.setState({error: fileError(error)});
+    } finally {
+      if (generation === this.generation) {
+        this.refreshingFileChanges = false;
+        this.scheduleFileChanges();
+      }
+    }
+  }
+
   private run = async (operation: () => Promise<unknown>, refresh = true, changed = true) => {
     if (this.locked) return;
     this.locked = true;
@@ -315,6 +399,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     }
     if (!this.current(generation)) return;
     if (refresh) {
+      this.pendingFileChanges.clear();
       try {
         await this.refresh();
       } catch (reason) {
@@ -324,6 +409,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     if (!this.current(generation)) return;
     this.locked = false;
     this.setState({busy: false, error});
+    this.scheduleFileChanges();
     if (changed) this.props.onChange?.();
   };
 

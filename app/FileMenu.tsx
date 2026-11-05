@@ -137,7 +137,7 @@ export function FileMenuHeader({
     run(async () => {
       if (!canSave) throw new Error('This flow cannot be saved.');
       await conn.applyFlowChange(activePath);
-      onChange?.();
+      if (!storage.subscribeFileChanges) onChange?.();
     });
   const create = () =>
     run(async () => {
@@ -153,7 +153,7 @@ export function FileMenuHeader({
       if (!conn.getEditPolicyView().can({cmd: 'addFlow', path: destination.path, data}))
         throw new Error('Creating this flow is not permitted.');
       await storage.uploadFile(destination.file, encodeSorted(data), {revision: null});
-      onChange?.();
+      if (!storage.subscribeFileChanges) onChange?.();
       const flow = await root.loadFlow(destination.ref);
       onOpen(destination.path, flow);
     });
