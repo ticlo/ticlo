@@ -1,5 +1,6 @@
 import React, {useContext} from 'react';
 import {Button, Dropdown, Input, Modal, Spin, Table, type MenuProps} from 'antd';
+import {DateTime} from 'luxon';
 import {
   CloseOutlined,
   CopyOutlined,
@@ -942,6 +943,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             onCancel={() => this.setState({gitDialog: undefined})}
             footer={null}
             width="min(1100px, calc(100vw - 32px))"
+            style={{top: 24}}
             destroyOnHidden
           >
             <div className="ticl-e-git-history">
@@ -950,13 +952,13 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
                 rowKey="hash"
                 dataSource={this.state.gitHistory}
                 pagination={false}
-                scroll={{x: 580, y: 440}}
+                scroll={{x: 555, y: 'min(840px, calc(100vh - 205px))'}}
                 columns={[
                   {
                     title: t('Date'),
                     dataIndex: 'date',
-                    width: 170,
-                    render: (date: string) => new Date(date).toLocaleString(),
+                    width: 145,
+                    render: (date: string) => DateTime.fromISO(date).toLocal().toFormat('yyyy-LL-dd HH:mm'),
                   },
                   {title: t('Author'), dataIndex: 'author', width: 120, ellipsis: true},
                   {

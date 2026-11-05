@@ -91,7 +91,7 @@
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: 16px;
-  min-height: 360px;
+  height: min(900px, calc(100vh - 145px));
 
   > .ant-table-wrapper {
     min-width: 0;
@@ -108,7 +108,7 @@
 
 .ticl-e-git-history-message {
   min-width: 0;
-  max-height: 480px;
+  height: 100%;
   padding-left: 16px;
   overflow: auto;
   border-left: 1px solid var(--ant-color-border-secondary, #eee);
@@ -123,9 +123,11 @@
 @media (max-width: 700px) {
   .ticl-e-git-history {
     grid-template-columns: minmax(0, 1fr);
+    height: auto;
   }
 
   .ticl-e-git-history-message {
+    max-height: 300px;
     padding: 16px 0 0;
     border-top: 1px solid var(--ant-color-border-secondary, #eee);
     border-left: 0;
