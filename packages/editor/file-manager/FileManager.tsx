@@ -24,6 +24,7 @@ import {
   type GitCommit,
   type GitInfo,
   type ProjectGit,
+  StorageError,
 } from '@ticlo/core/storage/FileAccess.ts';
 import {translateEditor} from '@ticlo/core/editor.ts';
 import {ExpandIcon} from '../component/Tree.tsx';
@@ -63,8 +64,63 @@ interface State {
   gitDialog?: 'commit' | 'history';
   gitMessage: string;
   gitHistory: GitCommit[];
+  gitLog: string;
   gitSelected?: string;
   rootInfo?: FileEntry;
+}
+
+interface GitLogRow {
+  key: number;
+  date: string;
+  user: string;
+  change: string;
+  file: string;
+}
+
+const pendingHash = 'uncommitted';
+const logSeparator = '\n\n--- --- ---\n';
+
+function parseGitLog(log: string): GitLogRow[] | null {
+  const rows: GitLogRow[] = [];
+  let fields: string[] = [];
+  let field = '';
+  let quoted = false;
+  for (let index = 0; index <= log.length; index++) {
+    if (index === log.length && quoted) return null;
+    const char = log[index] ?? '\n';
+    if (quoted) {
+      if (char === '"' && log[index + 1] === '"') {
+        field += '"';
+        index++;
+      } else if (char === '"') quoted = false;
+      else field += char;
+    } else if (char === '"') {
+      if (field) return null;
+      quoted = true;
+    } else if (char === ',') {
+      fields.push(field);
+      field = '';
+    } else if (char === '\r' && log[index + 1] === '\n') {
+      continue;
+    } else if (char === '\n') {
+      fields.push(field);
+      if (fields.length !== 1 || fields[0]) {
+        if (fields.length !== 4) return null;
+        rows.push({key: rows.length, date: fields[0], user: fields[1], change: fields[2], file: fields[3]});
+      }
+      fields = [];
+      field = '';
+    } else field += char;
+  }
+  return rows;
+}
+
+function splitCommitMessage(message: string) {
+  const normalized = message.replaceAll('\r\n', '\n').trimEnd();
+  const separator = normalized.lastIndexOf(logSeparator);
+  return separator < 0
+    ? {comment: normalized, log: ''}
+    : {comment: normalized.slice(0, separator), log: normalized.slice(separator + logSeparator.length)};
 }
 
 export function FileManager(props: FileManagerProps) {
@@ -102,6 +158,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     name: '',
     gitMessage: '',
     gitHistory: [],
+    gitLog: '',
   };
   private controller = new AbortController();
   private files = new FileOperations(this.props.storage, this.props.project, this.controller.signal);
@@ -150,6 +207,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         gitInfo: undefined,
         gitDialog: undefined,
         gitSelected: undefined,
+        gitLog: '',
         rootInfo: undefined,
       });
       this.props.onSelect?.([]);
@@ -567,8 +625,22 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         if (git)
           void this.run(
             async () => {
-              const gitHistory = await git.getGitHistory(this.props.project, {signal: this.files.signal});
-              this.setState({gitHistory, gitSelected: gitHistory[0]?.hash, gitDialog: 'history'});
+              const [gitHistory, gitLog] = await Promise.all([
+                git.getGitHistory(this.props.project, {signal: this.files.signal}),
+                this.props.storage
+                  .getFile(`${this.files.root}/.gitlog`, {signal: this.files.signal})
+                  .then(({data}) => new TextDecoder().decode(data))
+                  .catch((error) => {
+                    if (error instanceof StorageError && error.code === 'not-found') return '';
+                    throw error;
+                  }),
+              ]);
+              this.setState({
+                gitHistory,
+                gitLog,
+                gitSelected: gitLog.trim() ? pendingHash : gitHistory[0]?.hash,
+                gitDialog: 'history',
+              });
             },
             false,
             false
@@ -766,7 +838,25 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     add(this.rootEntry, 0);
     const selected = this.selected();
     const entry = selected.length === 1 && selected[0].gitStatus !== 'deleted' ? selected[0] : undefined;
+    const pendingLog = this.state.gitLog.trim();
+    const historyRows = pendingLog
+      ? [
+          {
+            hash: pendingHash,
+            author: '',
+            email: '',
+            date: '',
+            message: translateEditor('Uncommitted changes'),
+          },
+          ...this.state.gitHistory,
+        ]
+      : this.state.gitHistory;
     const selectedCommit = this.state.gitHistory.find((commit) => commit.hash === this.state.gitSelected);
+    const details =
+      this.state.gitSelected === pendingHash
+        ? {comment: '', log: pendingLog}
+        : selectedCommit && splitCommitMessage(selectedCommit.message);
+    const changes = details?.log ? parseGitLog(details.log) : [];
     return (
       <div
         className={`ticl-e-file-manager${className ? ` ${className}` : ''}`}
@@ -950,17 +1040,17 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
               <Table<GitCommit>
                 size="small"
                 rowKey="hash"
-                dataSource={this.state.gitHistory}
+                dataSource={historyRows}
                 pagination={false}
-                scroll={{x: 555, y: 'min(840px, calc(100vh - 205px))'}}
+                scroll={{x: 470, y: 'min(840px, calc(100vh - 205px))'}}
                 columns={[
                   {
                     title: t('Date'),
                     dataIndex: 'date',
-                    width: 145,
-                    render: (date: string) => DateTime.fromISO(date).toLocal().toFormat('yyyy-LL-dd HH:mm'),
+                    width: 140,
+                    render: (date: string) => date && DateTime.fromISO(date).toLocal().toFormat('yyyy-LL-dd HH:mm'),
                   },
-                  {title: t('Author'), dataIndex: 'author', width: 120, ellipsis: true},
+                  {title: t('Author'), dataIndex: 'author', width: 110, ellipsis: true},
                   {
                     title: t('Message'),
                     dataIndex: 'message',
@@ -968,11 +1058,49 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
                     render: (message: string) => message.split(/\r?\n/, 1)[0],
                   },
                 ]}
-                rowClassName={(commit) => (commit.hash === this.state.gitSelected ? 'ticl-e-git-history-selected' : '')}
+                rowClassName={(commit) =>
+                  [
+                    commit.hash === pendingHash && 'ticl-e-git-history-pending',
+                    commit.hash === this.state.gitSelected && 'ticl-e-git-history-selected',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')
+                }
                 onRow={(commit) => ({onClick: () => this.setState({gitSelected: commit.hash})})}
               />
-              <div className="ticl-e-git-history-message">
-                <pre>{selectedCommit?.message}</pre>
+              <div className="ticl-e-git-history-details">
+                {this.state.gitSelected === pendingHash ? (
+                  <div className="ticl-e-git-history-heading">{t('Uncommitted changes')}</div>
+                ) : selectedCommit ? (
+                  <div className="ticl-e-git-history-comment">
+                    <div className="ticl-e-git-history-heading">{t('Message')}</div>
+                    <pre>{details?.comment}</pre>
+                  </div>
+                ) : null}
+                {changes?.length ? (
+                  <Table<GitLogRow>
+                    className="ticl-e-git-history-changes"
+                    size="small"
+                    bordered
+                    rowKey="key"
+                    dataSource={changes}
+                    pagination={false}
+                    tableLayout="fixed"
+                    columns={[
+                      {
+                        title: t('Date'),
+                        dataIndex: 'date',
+                        width: 130,
+                        render: (date: string) => DateTime.fromISO(date).toLocal().toFormat('yyyy-LL-dd HH:mm'),
+                      },
+                      {title: t('User'), dataIndex: 'user', width: 110, ellipsis: true},
+                      {title: t('Change'), dataIndex: 'change', width: 75},
+                      {title: t('File'), dataIndex: 'file'},
+                    ]}
+                  />
+                ) : details?.log ? (
+                  <pre className="ticl-e-git-history-raw">{details.log}</pre>
+                ) : null}
               </div>
             </div>
           </Modal>

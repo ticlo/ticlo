@@ -89,16 +89,21 @@
 
 .ticl-e-git-history {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 20px;
   height: min(900px, calc(100vh - 145px));
 
   > .ant-table-wrapper {
     min-width: 0;
   }
 
-  .ant-table-row {
+  > .ant-table-wrapper .ant-table-row {
     cursor: pointer;
+  }
+
+  .ticl-e-git-history-pending > td {
+    background: var(--ant-color-warning-bg, #fffbe6);
+    font-weight: 600;
   }
 
   .ticl-e-git-history-selected > td {
@@ -106,31 +111,57 @@
   }
 }
 
-.ticl-e-git-history-message {
+.ticl-e-git-history-details {
   min-width: 0;
-  height: 100%;
-  padding-left: 16px;
+  min-height: 0;
+  padding: 14px;
   overflow: auto;
-  border-left: 1px solid var(--ant-color-border-secondary, #eee);
+  border: 1px solid var(--ant-color-border-secondary, #eee);
+  border-radius: 8px;
+  background: var(--ant-color-fill-quaternary, #fafafa);
 
-  > pre {
-    margin: 0;
+  pre {
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
 }
 
-@media (max-width: 700px) {
+.ticl-e-git-history-heading {
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.ticl-e-git-history-comment {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ant-color-border-secondary, #eee);
+
+  pre {
+    margin: 0;
+    font-family: inherit;
+  }
+}
+
+.ticl-e-git-history-changes .ant-table-thead > tr > th {
+  background: var(--ant-color-fill-tertiary, #f5f5f5);
+}
+
+.ticl-e-git-history-changes .ant-table-tbody > tr > td:last-child {
+  overflow-wrap: anywhere;
+}
+
+.ticl-e-git-history-raw {
+  margin: 0;
+}
+
+@media (max-width: 960px) {
   .ticl-e-git-history {
     grid-template-columns: minmax(0, 1fr);
     height: auto;
   }
 
-  .ticl-e-git-history-message {
+  .ticl-e-git-history-details {
     max-height: 300px;
-    padding: 16px 0 0;
-    border-top: 1px solid var(--ant-color-border-secondary, #eee);
-    border-left: 0;
   }
 }
 

@@ -198,3 +198,5 @@
 "Date": "日期" # translated from: Date
 "Author": "作者" # translated from: Author
 "Message": "提交说明" # translated from: Message
+"User": "用户" # translated from: User
+"Uncommitted changes": "未提交的改动" # translated from: Uncommitted changes

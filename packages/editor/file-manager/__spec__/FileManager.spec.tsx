@@ -191,15 +191,19 @@ describe('FileManager', () => {
     );
   });
 
-  it('shows commit summaries in the history grid and the selected full message beside it', async () => {
+  it('shows pending edits and separates commit comments from logged changes', async () => {
     const fixture = fixtureClient([file('demo/a.txt')]);
+    fixture.methods.getFile.mockResolvedValue({
+      data: new TextEncoder().encode('2026-11-04T02:00:00Z,alice <alice@example.com>,edit,"docs/a,b.txt"\n').buffer,
+      headers: {},
+    });
     const commits = [
       {
         hash: 'first',
         author: 'alice',
         email: 'alice@example.com',
         date: '2026-11-04T01:00:00Z',
-        message: 'First commit\n\nfirst detail',
+        message: 'First commit\n\nfirst detail\n\n--- --- ---\n2026-11-04T01:00:00Z,alice,create,"docs/""quoted"".txt"',
       },
       {
         hash: 'second',
@@ -226,17 +230,60 @@ describe('FileManager', () => {
       .find((item) => item.textContent.trim() === 'Git History')
       .click();
     await shouldHappen(
-      () => document.querySelectorAll('.ticl-e-git-history .ant-table-tbody tr[data-row-key]').length === 2
+      () =>
+        document.querySelectorAll('.ticl-e-git-history > .ant-table-wrapper .ant-table-tbody tr[data-row-key]')
+          .length === 3
     );
-    const rows = [...document.querySelectorAll<HTMLElement>('.ticl-e-git-history .ant-table-tbody tr[data-row-key]')];
-    expect(rows[0].textContent).toContain('First commit');
-    expect(rows[0].textContent).not.toContain('first detail');
-    expect(document.querySelector('.ticl-e-git-history-message').textContent).toContain('first detail');
+    expect(fixture.methods.getFile).toHaveBeenCalledWith('demo/.gitlog', expect.anything());
+    const rows = [
+      ...document.querySelectorAll<HTMLElement>(
+        '.ticl-e-git-history > .ant-table-wrapper .ant-table-tbody tr[data-row-key]'
+      ),
+    ];
+    expect(rows[0].textContent).toContain('Uncommitted changes');
+    expect(document.querySelector('.ticl-e-git-history-changes').textContent).toContain('docs/a,b.txt');
     rows[1].click();
     await shouldHappen(() =>
-      document.querySelector('.ticl-e-git-history-message')?.textContent.includes('second detail')
+      document.querySelector('.ticl-e-git-history-comment')?.textContent.includes('first detail')
     );
-    expect(rows[1].textContent).not.toContain('second detail');
+    expect(rows[1].textContent).toContain('First commit');
+    expect(rows[1].textContent).not.toContain('first detail');
+    expect(document.querySelector('.ticl-e-git-history-comment').textContent).not.toContain('--- --- ---');
+    expect(document.querySelector('.ticl-e-git-history-changes').textContent).toContain('docs/"quoted".txt');
+    rows[2].click();
+    await shouldHappen(() =>
+      document.querySelector('.ticl-e-git-history-comment')?.textContent.includes('second detail')
+    );
+    expect(document.querySelector('.ticl-e-git-history-changes')).toBeNull();
+  });
+
+  it('omits the pending history row when .gitlog is empty', async () => {
+    const fixture = fixtureClient([file('demo/a.txt')]);
+    fixture.methods.getFile.mockResolvedValue({data: new ArrayBuffer(0), headers: {}});
+    Object.assign(fixture.client, {
+      supportsGit: () => true,
+      getGitInfo: async () => ({initialized: true, branch: 'demo'}),
+      getGitHistory: async () => [
+        {hash: 'first', author: 'alice', email: '', date: '2026-11-04T01:00:00Z', message: 'First'},
+      ],
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready();
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === 'Git History'
+      )
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Git History')
+      .click();
+    await shouldHappen(
+      () =>
+        document.querySelectorAll('.ticl-e-git-history > .ant-table-wrapper .ant-table-tbody tr[data-row-key]')
+          .length === 1
+    );
+    expect(document.querySelector('.ticl-e-git-history-details').textContent).toContain('First');
   });
 
   it('uses the file tree as a single-file picker without file actions', async () => {
