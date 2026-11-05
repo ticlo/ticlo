@@ -1,4 +1,5 @@
 import React, {StrictMode, useContext, useState} from 'react';
+import {vi} from 'vitest';
 import '../style/index.css';
 import {Block, Root, globalFunctions, type DataMap} from '@ticlo/core';
 import {ComponentContext, type ComponentContextValue} from '@ticlo/react';
@@ -13,6 +14,7 @@ import {
 } from '../DesignerContext.tsx';
 import {DesignerApp} from '../DesignerApp.tsx';
 import {DesignerNodeTree} from '../DesignerNodeTree.tsx';
+import {NodeTree} from '@ticlo/editor/node-tree/NodeTree.tsx';
 import {FunctionTree} from '@ticlo/editor/function-selector/FunctionTree.tsx';
 import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {
@@ -494,6 +496,35 @@ describe('DesignerStage', () => {
     await shouldHappen(() => div.querySelector('button')?.textContent === 'Preview');
     expect(layoutRenders).toBe(initialLayoutRenders);
     expect(currentFlowRenders).toBe(initialCurrentFlowRenders);
+  });
+
+  it('keeps the outline tree stable when design mode changes without changing its inputs', async () => {
+    const flow = Root.instance.addFlow(path, {'#main': {'#is': 'react:p', 'content': 'Page'}});
+    const [, conn] = makeLocalConnection(Root.instance, true, undefined, false);
+    let stage: DesignerStageContextValue;
+    function Toggle() {
+      const {designMode, setDesignMode} = useContext(DesignerLayoutContextType);
+      stage = useActiveDesignerStage();
+      return <button onClick={() => setDesignMode(!designMode)}>Toggle</button>;
+    }
+    const renderTree = vi.spyOn(NodeTree.prototype, 'renderImpl');
+    try {
+      const [, div] = loadTemplate(
+        <DesignerApp value={{}}>
+          <DesignerStage root={Root.instance} conn={conn} basePath={path} />
+          <DesignerNodeTree />
+          <Toggle />
+        </DesignerApp>,
+        'editor'
+      );
+      await shouldHappen(() => stage?.main === flow.getValue('#main') && div.querySelector('.ticl-e-tree-node'));
+      const previousRenders = renderTree.mock.calls.length;
+      div.querySelector('button').click();
+      await shouldHappen(() => stage && !stage.designMode);
+      expect(renderTree).toHaveBeenCalledTimes(previousRenders);
+    } finally {
+      renderTree.mockRestore();
+    }
   });
 
   it('synchronizes the main node tree with both selection caches and the active stage', async () => {

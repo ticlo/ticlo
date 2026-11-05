@@ -84,13 +84,14 @@ function DesignerFiles({
   conn,
   storage,
   project,
+  layout,
 }: {
   root: Root;
   conn: ClientConnection;
   storage: ProjectFiles;
   project: string;
+  layout: DesignerLayoutContext;
 }) {
-  const layout = useContext(DesignerLayoutContextType);
   const version = useContext(FileVersionContext);
   const open = async (entry: FileEntry) => {
     const target = fileFlowPath(project, entry.path);
@@ -251,7 +252,7 @@ class App extends React.PureComponent<Props, State> {
           group: 'tool',
           title: t('Files'),
           cached: true,
-          content: <DesignerFiles root={props.root} conn={conn} {...props.files} />,
+          content: <DesignerFiles root={props.root} conn={conn} {...props.files} layout={this.ticloContext} />,
         },
       };
     }

@@ -70,7 +70,7 @@ function useOptionalHandlers(
   const cache = useRef<Record<string, Function>>({});
   return useMemoUpdate(() => {
     const result: Record<string, unknown> = {};
-    if (Array.isArray(optionalList)) {
+    if (Array.isArray(optionalList) && optionalList.length) {
       for (const name of optionalList) {
         if (cache.current[name]) {
           result[name] = cache.current[name];
@@ -109,7 +109,7 @@ function useOptionalHandlers(
       return result;
     }
     return undefined;
-  }, [block, optionalList, optionalHandler, designMode]);
+  }, [block, optionalList, optionalHandler, optionalList?.length ? designMode : null]);
 }
 
 export function useTicloComp(

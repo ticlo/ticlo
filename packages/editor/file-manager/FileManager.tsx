@@ -29,7 +29,7 @@ import {
 import {translateEditor} from '@ticlo/core/editor.ts';
 import {ExpandIcon} from '../component/Tree.tsx';
 import VirtualList from '../component/Virtual.tsx';
-import {TicloLayoutContextType} from '../component/LayoutContext.ts';
+import {TicloI18NContext} from '../component/LayoutContext.ts';
 import {t} from '../component/LocalizedLabel.tsx';
 import {FilePreview} from './FilePreview.tsx';
 import {droppedUploads, fileError, FileOperations, parentPath, topEntries, validFileName} from './FileOperations.ts';
@@ -124,7 +124,7 @@ function splitCommitMessage(message: string) {
 }
 
 export function FileManager(props: FileManagerProps) {
-  useContext(TicloLayoutContextType);
+  useContext(TicloI18NContext);
   const [modal, holder] = Modal.useModal();
   const confirm: PanelProps['confirm'] = (title, content, signal) => {
     if (signal.aborted) return Promise.resolve(false);
