@@ -1,7 +1,7 @@
 import './styles.ts';
 import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext} from 'react';
-import {App as AntdApp, Checkbox} from 'antd';
+import {App as AntdApp, Switch} from 'antd';
 import {EditOutlined} from '@ant-design/icons';
 import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
@@ -136,9 +136,7 @@ function DesignerHeader({
     },
   ];
   const content = (
-    <Checkbox checked={designMode} onChange={(e) => setDesignMode?.(e.target.checked)}>
-      Design mode
-    </Checkbox>
+    <Switch checked={designMode} onChange={setDesignMode} checkedChildren="Design" unCheckedChildren="Preview" />
   );
   if (files) {
     return (

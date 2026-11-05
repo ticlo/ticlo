@@ -591,7 +591,6 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
       entries[0].name.endsWith('.ticlo');
     const mutable =
       entries.length > 0 && entries.every((entry) => entry.path !== this.files.root && entry.gitStatus !== 'deleted');
-    const collapse = entries.length === 1 && entries[0].type === 'folder' && this.expanded.has(entries[0].path);
     const disabled = this.state.busy;
     const readonly = !this.props.storage.getCapabilities(this.files.root).write;
     return {
@@ -635,7 +634,6 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             entries.some((entry) => entry.type !== 'file' || entry.gitStatus === 'deleted'),
         },
         {key: 'path', label: t('Copy Path'), disabled: disabled || !entries.length},
-        ...(collapse ? [{key: 'collapse', label: t('Collapse Children'), disabled}] : []),
       ],
     };
   }
@@ -689,15 +687,6 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           false
         );
         break;
-      case 'collapse': {
-        const entries = this.selected();
-        if (entries.length !== 1 || entries[0].type !== 'folder' || !this.expanded.has(entries[0].path)) break;
-        for (const path of this.expanded) {
-          if (path.startsWith(`${entries[0].path}/`)) this.expanded.delete(path);
-        }
-        this.forceUpdate();
-        break;
-      }
       case 'gitInit': {
         const git = this.git();
         if (git) void this.run(() => git.initGit(this.props.project, {signal: this.files.signal}), true, false);
