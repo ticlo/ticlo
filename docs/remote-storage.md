@@ -4,8 +4,8 @@
 from `@ticlo/node`, provide file operations and implement the runtime's
 `FlowStorage` interface. The same instance can be passed to `Root.setStorage`
 and the editor's `FileManager`.
-`RemoteStorage` uses the client in this package for remote HTTP requests while retaining
-its file, revision, and local-project interface.
+The package also exports `TicloFileClient` for direct access to the HTTP API.
+`RemoteStorage` accepts a custom `fetch(url, init)` and preserves native fetch cancellation.
 
 ```tsx
 import {Root} from '@ticlo/core';
@@ -49,7 +49,8 @@ remains `<project>/#context.ticlo`.
 `getFile`, `getFileInfo`, `listFiles`, `uploadFile`, `createDirectory`,
 `deleteFile`, `copyFile`, `moveFile`, and `renameFile` use the same interface
 across backends. `listProjects`, `readProject`, `createProject`, `updateProject`,
-and `deleteProject` manage projects. `.proj` is project metadata; runtime
+and `deleteProject` manage projects through the remote project APIs or local files.
+Remote `.proj` writes remain protected by the file server. `.proj` is project metadata; runtime
 namespace configuration remains in `ticlo.json`.
 Writable storage renames legacy `_proj.json` metadata when a project is read;
 the file server also migrates existing project directories at startup.

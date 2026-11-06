@@ -9,7 +9,7 @@ const MIME_TYPES: Record<string, string> = {
   '.ico': 'image/x-icon',
   '.jpeg': 'image/jpeg',
   '.jpg': 'image/jpeg',
-  '.ts': 'application/javascript',
+  '.js': 'application/javascript',
   '.json': 'application/json',
   '.map': 'application/json',
   '.mp4': 'video/mp4',

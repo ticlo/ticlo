@@ -26,7 +26,7 @@ export abstract class BrowserStorage extends ProjectStorage {
     this.fileChangeListeners.add(listener);
     return () => this.fileChangeListeners.delete(listener);
   }
-  private fileChanged(path: string) {
+  protected fileChanged(path: string) {
     for (const listener of this.fileChangeListeners) listener(path);
   }
   private route(path: string) {

@@ -38,6 +38,14 @@ describe('project Git API', () => {
     expect(await request('GET', 'user', {}).then((response) => response.json())).toEqual({id: 'alice'});
   });
 
+  it('serves JavaScript downloads with the JavaScript content type', async () => {
+    await writeFile(join(root, 'proj/main/script.js'), 'export const value = 1;');
+    const response = await app.request('/file/proj/main/script.js');
+    expect(response.status).toBe(200);
+    expect(response.headers.get('Content-Type')).toBe('application/javascript');
+    expect(await response.text()).toBe('export const value = 1;');
+  });
+
   it('migrates old metadata on startup', async () => {
     await request('GET', 'gitInfo', {id: 'main'});
     await rm(join(root, 'proj/main/.proj'));

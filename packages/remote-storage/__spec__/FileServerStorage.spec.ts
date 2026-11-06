@@ -69,6 +69,35 @@ describe('FileServerStorage integration', () => {
     await api.deleteProject('client');
   });
 
+  it('creates and deletes projects through the project API', async () => {
+    const api = new TicloFileClient({baseURL});
+    const created = await client.createProject('created', {description: 'New project'});
+    expect(created).toMatchObject({id: 'created', name: 'created', owner: 'alice', description: 'New project'});
+    expect(await client.readProject('created')).toEqual(created);
+    expect(await api.listProjects()).toContainEqual(created);
+    await expect(client.createProject('created')).rejects.toMatchObject({code: 'conflict'});
+    await client.deleteProject('created');
+    await expect(client.readProject('created')).rejects.toMatchObject({code: 'not-found'});
+    expect(await api.listProjects()).not.toContainEqual(created);
+  });
+
+  it('updates protected project metadata through the project API and preserves other fields', async () => {
+    await project('main');
+    await project('other');
+    const changes: string[] = [];
+    client.subscribeFileChanges((path) => changes.push(path));
+
+    await expect(client.uploadFile('main/.proj', '{}')).rejects.toMatchObject({code: 'permission-denied'});
+    const updated = await client.updateProject('main', {description: 'Updated', id: 'other'});
+    expect(updated).toEqual({id: 'main', name: 'main', description: 'Updated'});
+    expect(await client.readProject('main')).toEqual(updated);
+    expect(await client.readProject('other')).toEqual({id: 'other', name: 'other'});
+    expect(changes).toEqual(['main/.proj']);
+
+    await expect(client.updateProject('missing', {description: 'Missing'})).rejects.toMatchObject({code: 'not-found'});
+    expect(changes).toEqual(['main/.proj']);
+  });
+
   it('loads recursive and circular deps once, skips invalid files, and reads globals from the authenticated user', async () => {
     await project('#root', {'#global.ticlo': {'#is': '', '^value': -1}, 'unused.ticlo': {value: 9}});
     await project('main', {'run.ticlo': {value: 1}, 'bad:name.ticlo': {value: 99}, '#global.ticlo': {'^value': 99}});
