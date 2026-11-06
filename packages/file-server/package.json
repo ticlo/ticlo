@@ -1,0 +1,16 @@
+{
+  "name": "@ticlo/file-server",
+  "version": "0.1.5",
+  "description": "Ticlo project and user file server",
+  "license": "MPL-2.0",
+  "type": "module",
+  "main": "./index.js",
+  "module": "./index.js",
+  "types": "./index.d.ts",
+  "dependencies": {
+    "adm-zip": "^0.5.16"
+  },
+  "peerDependencies": {
+    "hono": "^4.13.7"
+  }
+}

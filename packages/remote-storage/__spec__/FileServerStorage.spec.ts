@@ -6,7 +6,7 @@ import {serve} from '@hono/node-server';
 import {Hono} from 'hono';
 import {routeFileStorage} from '@ticlo/web-server/file-storage.ts';
 import {Root, Flow, FlowFolder, encodeSorted} from '@ticlo/core';
-import {RemoteStorage} from '../index.ts';
+import {RemoteStorage, TicloFileClient} from '../index.ts';
 
 describe('FileServerStorage integration', () => {
   let dir: string;
@@ -51,6 +51,22 @@ describe('FileServerStorage integration', () => {
     root?.destroy();
     await close?.();
     await rm(dir, {recursive: true, force: true});
+  });
+
+  it('uses the embedded file client for project and conditional file APIs', async () => {
+    const api = new TicloFileClient({baseURL});
+    expect(await api.getCurrentUser()).toEqual({id: 'alice'});
+    const created = await api.createProject('client');
+    expect(created.id).toBe('client');
+    expect((await api.updateProject('client', {description: 'test'})).description).toBe('test');
+
+    const path = 'proj/client/new.txt';
+    const first = await api.uploadFileResponse(path, 'first', {}, {headers: {'If-None-Match': '*'}});
+    await expect(api.uploadFile(path, 'stale', {}, {headers: {'If-Match': '"stale"'}})).rejects.toMatchObject({
+      response: {status: 412},
+    });
+    expect((await api.getFile(path)).headers.etag).toBe(first.headers.etag);
+    await api.deleteProject('client');
   });
 
   it('loads recursive and circular deps once, skips invalid files, and reads globals from the authenticated user', async () => {

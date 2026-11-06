@@ -1,3 +1,4 @@
+import {TicloFileClient} from './TicloFileClient.ts';
 import {
   FileAccessBase,
   StorageError,
@@ -20,9 +21,52 @@ export interface RemoteStorageOptions {
   headers?: HeadersInit;
   fetch?: typeof fetch;
 }
+
+function requestOptions(options: FileWriteOptions = {}) {
+  const headers: Record<string, string> = {};
+  if (options.revision === null) headers['If-None-Match'] = '*';
+  else if (options.revision !== undefined) headers['If-Match'] = options.revision;
+  return {signal: options.signal, headers};
+}
+
+async function withStorageErrors<T>(request: Promise<T>): Promise<T> {
+  try {
+    return await request;
+  } catch (error) {
+    const response = (error as {response?: {status: number; data: unknown}})?.response;
+    if (!response) throw error;
+    let body = response.data;
+    if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
+      body = new TextDecoder().decode(body);
+    }
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch {
+        // Keep the response text as the error message.
+      }
+    }
+    const message =
+      (typeof body === 'object' && body && 'message' in body && String(body.message)) ||
+      (typeof body === 'string' && body) ||
+      `HTTP ${response.status}`;
+    throw new StorageError(
+      message,
+      response.status === 404
+        ? 'not-found'
+        : response.status === 409 || response.status === 412
+          ? 'conflict'
+          : response.status === 401 || response.status === 403
+            ? 'permission-denied'
+            : 'io',
+      {cause: error}
+    );
+  }
+}
+
 class RemoteFiles extends FileAccessBase {
   constructor(
-    private readonly options: RemoteStorageOptions,
+    private readonly client: TicloFileClient,
     private readonly prefix: () => Promise<string>
   ) {
     super();
@@ -34,113 +78,87 @@ class RemoteFiles extends FileAccessBase {
     filePath(path, true);
     return [await this.prefix(), path].filter(Boolean).join('/');
   }
-  async request(
-    operation: string,
-    params: Record<string, string> = {},
-    body?: BodyInit,
-    options: FileWriteOptions = {}
-  ) {
-    options.signal?.throwIfAborted();
-    const query = new URLSearchParams({op: operation, ...params});
-    const headers = new Headers(this.options.headers);
-    if (options.existsBehavior === 'fail') query.set('exists', 'fail');
-    if (options.revision === null) headers.set('If-None-Match', '*');
-    else if (options.revision !== undefined) headers.set('If-Match', options.revision);
-    const write = !['get', 'list', 'info', 'listProj', 'readProj', 'user', 'gitInfo', 'gitHistory'].includes(operation);
-    if (body !== undefined)
-      headers.set('Content-Type', operation === 'gitCommit' ? 'application/json' : 'application/octet-stream');
-    const response = await (this.options.fetch ?? fetch)(`${this.options.baseURL.replace(/\/$/, '')}?${query}`, {
-      method: write ? 'POST' : 'GET',
-      body,
-      headers,
-      credentials: this.options.credentials,
-      signal: options.signal,
-    });
-    if (!response.ok) {
-      const message = await response.text();
-      throw new StorageError(
-        message || `HTTP ${response.status}`,
-        response.status === 404
-          ? 'not-found'
-          : response.status === 409 || response.status === 412
-            ? 'conflict'
-            : response.status === 401 || response.status === 403
-              ? 'permission-denied'
-              : 'io'
-      );
-    }
-    return response;
-  }
   async getFile(path: string, options?: FileRequest) {
-    const response = await this.request('get', {path: await this.path(path)}, undefined, options);
+    const response = await withStorageErrors(this.client.getFile(await this.path(path), requestOptions(options)));
     return {
-      data: await response.arrayBuffer(),
-      revision: this.revision(response),
-      contentType: response.headers.get('Content-Type') ?? undefined,
+      data: new Uint8Array(response.data).slice().buffer,
+      revision: this.revision(response.headers),
+      contentType: response.headers['content-type'] ? String(response.headers['content-type']) : undefined,
     };
   }
   async getFileInfo(path: string, options?: FileRequest): Promise<FileEntry> {
-    const response = await this.request('info', {path: await this.path(path)}, undefined, options);
-    return {...(await response.json()), path};
+    return {
+      ...(await withStorageErrors(this.client.getFileInfo(await this.path(path), requestOptions(options)))),
+      path,
+    };
   }
   async listFiles(path: string, options?: FileRequest): Promise<FileEntry[]> {
-    if (!path && (await this.prefix()) === 'proj') {
-      const projects: {id: string}[] = await (await this.request('listProj', {}, undefined, options)).json();
+    const prefix = await this.prefix();
+    if (!path && prefix === 'proj') {
+      const projects = await withStorageErrors(this.client.listProjects(requestOptions(options)));
       return projects.map((project) => ({name: project.id, path: project.id, type: 'folder'}));
     }
-    const prefix = await this.prefix();
-    const entries: FileEntry[] = await (
-      await this.request('list', {path: await this.path(path)}, undefined, options)
-    ).json();
+    const entries = await withStorageErrors(this.client.listFiles(await this.path(path), requestOptions(options)));
     return entries.map((entry) => ({...entry, path: entry.path.slice(prefix.length + 1)}));
   }
   async uploadFile(path: string, data: FilePayload, options?: FileWriteOptions) {
     assertWritable(this, path);
-    const response = await this.request('upload', {path: await this.path(path)}, await fileBytes(data), options);
-    return {revision: this.revision(response)};
+    const response = await withStorageErrors(
+      this.client.uploadFileResponse(
+        await this.path(path),
+        new Uint8Array(await fileBytes(data)),
+        {existsBehavior: options?.existsBehavior},
+        requestOptions(options)
+      )
+    );
+    return {revision: this.revision(response.headers)};
   }
-  private revision(response: Response) {
-    const revision = response.headers.get('ETag');
+  private revision(headers: unknown) {
+    const revision = (headers as {etag?: unknown})?.etag;
     if (!revision) throw new StorageError('Missing ETag in file response', 'io');
-    return revision;
+    return String(revision);
   }
   async createDirectory(path: string, options?: FileRequest) {
     assertWritable(this, path);
-    await this.request('mkdir', {path: await this.path(path)}, undefined, options);
+    await withStorageErrors(this.client.createDirectory(await this.path(path), requestOptions(options)));
   }
   async deleteFile(path: string, options?: FileWriteOptions) {
     assertWritable(this, path);
-    await this.request('delete', {path: await this.path(path)}, undefined, options);
+    await withStorageErrors(this.client.deleteFile(await this.path(path), requestOptions(options)));
   }
 }
 
 /** The server selects the current user; local project operations never contact it. */
 export class RemoteStorage extends BrowserStorage implements ProjectGit {
-  private readonly projectFiles: RemoteFiles;
+  private readonly client: TicloFileClient;
   constructor(options: RemoteStorageOptions) {
-    const projects = new RemoteFiles(options, async () => 'proj');
+    const client = new TicloFileClient({
+      baseURL: options.baseURL,
+      headers: Object.fromEntries(new Headers(options.headers)),
+      ...(options.credentials === 'include' ? {withCredentials: true} : {}),
+      ...(options.credentials === 'omit' ? {withCredentials: false} : {}),
+      ...(options.fetch ? {adapter: 'fetch', env: {fetch: options.fetch}} : {}),
+    });
+    const projects = new RemoteFiles(client, async () => 'proj');
     let user: Promise<string>;
-    const files = new RemoteFiles(options, async () => {
-      user ??= projects
-        .request('user')
-        .then((response) => response.json())
-        .then((info: {id: string}) => {
-          filePath(info.id);
-          if (info.id.includes('/')) throw new StorageError('Invalid user ID', 'invalid-path');
-          return info.id;
-        });
+    const files = new RemoteFiles(client, async () => {
+      user ??= withStorageErrors(client.getCurrentUser()).then((info) => {
+        filePath(info.id);
+        if (info.id.includes('/')) throw new StorageError('Invalid user ID', 'invalid-path');
+        return info.id;
+      });
       return `usr/${await user}`;
     });
     super(projects, files);
-    this.projectFiles = projects;
+    this.client = client;
   }
 
   supportsGit(project: string) {
     return project !== 'local';
   }
-  private async gitRequest(operation: string, project: string, body?: string, options?: FileRequest) {
+  private async gitRequest<T>(request: Promise<T>): Promise<T> {
     try {
-      return await this.projectFiles.request(operation, {id: project}, body, options);
+      return await withStorageErrors(request);
     } catch (error) {
       if (error instanceof StorageError && /Operation requires POST|Unsupported op: git/.test(error.message)) {
         throw new StorageError('This file server does not support Git', 'io', {cause: error});
@@ -149,15 +167,15 @@ export class RemoteStorage extends BrowserStorage implements ProjectGit {
     }
   }
   async getGitInfo(project: string, options?: FileRequest): Promise<GitInfo> {
-    return (await this.gitRequest('gitInfo', project, undefined, options)).json();
+    return this.gitRequest(this.client.getGitInfo(project, requestOptions(options)));
   }
   async initGit(project: string, options?: FileRequest): Promise<GitInfo> {
-    return (await this.gitRequest('gitInit', project, undefined, options)).json();
+    return this.gitRequest(this.client.initGit(project, requestOptions(options)));
   }
   async commitGit(project: string, message: string, options?: FileRequest): Promise<GitCommit> {
-    return (await this.gitRequest('gitCommit', project, JSON.stringify({message}), options)).json();
+    return this.gitRequest(this.client.commitGit(project, message, requestOptions(options)));
   }
   async getGitHistory(project: string, options?: FileRequest): Promise<GitCommit[]> {
-    return (await this.gitRequest('gitHistory', project, undefined, options)).json();
+    return this.gitRequest(this.client.getGitHistory(project, requestOptions(options)));
   }
 }

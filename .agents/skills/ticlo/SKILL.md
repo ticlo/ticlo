@@ -17,7 +17,8 @@ translation tools live in `tool/`.
 | `designer`           | React page stages, design input, and selection; reuses editor tools                       |
 | `html`               | Browser connections and DOM integrations                                                  |
 | `node`               | Direct filesystem project storage, WebSocket/REST connections, secrets, flow test loading |
-| `remote-storage`     | Browser file/flow storage: Remote, read-only Static, and IndexedDB-backed local project   |
+| `file-server`        | Hono project and user file routes, including Git operations                               |
+| `remote-storage`     | Browser file/flow storage and HTTP client: Remote, read-only Static, and local IndexedDB  |
 | `react`              | Flow bindings and components                                                              |
 | `test`               | Flow assertions and test utilities                                                        |
 | `web-server`         | Hono HTTP/WebSocket server using `@hono/node-server` and `@hono/node-ws`                  |

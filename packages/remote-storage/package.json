@@ -8,6 +8,7 @@
   "module": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
-    "@ticlo/core": "workspace:^"
+    "@ticlo/core": "workspace:^",
+    "axios": "^1.7.7"
   }
 }

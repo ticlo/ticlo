@@ -4,6 +4,8 @@
 from `@ticlo/node`, provide file operations and implement the runtime's
 `FlowStorage` interface. The same instance can be passed to `Root.setStorage`
 and the editor's `FileManager`.
+`RemoteStorage` uses the client in this package for remote HTTP requests while retaining
+its file, revision, and local-project interface.
 
 ```tsx
 import {Root} from '@ticlo/core';
@@ -114,10 +116,11 @@ flows. See [runtime lifecycle](./runtime-lifecycle.md) for startup and dependenc
 ## Server identity and local development
 
 The Ticlo host installs `routeFileStorage` from `@ticlo/web-server/file-storage`
-around the file-server routes. It adds `GET /file?op=user`, using the same
+around the file-server routes. It provides `GET /file?op=user` using the same
 `authProvider` as file operations, and rejects access to another user's `usr`
-directory. The client discovers its user ID through this endpoint; it contains
-no admin default. There is no account or login system in this adapter.
+directory. The standalone file server also provides this endpoint. The client
+discovers its user ID through it; it contains no admin default. There is no
+account or login system in this adapter.
 Cross-origin hosts must allow conditional request headers and expose `ETag`;
 the bundled server configures this for local development.
 
