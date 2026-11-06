@@ -5,6 +5,7 @@ import {
   projectId,
   type FileAccess,
   type FilePayload,
+  type FileReadResult,
   type FileRequest,
   type FileWriteOptions,
 } from '@ticlo/core/storage/FileAccess.ts';
@@ -39,7 +40,7 @@ export abstract class BrowserStorage extends ProjectStorage {
     const target = this.route(path);
     return target.files.getCapabilities(target.path);
   }
-  async getFile(path: string, options?: FileRequest) {
+  async getFile(path: string, options?: FileRequest): Promise<FileReadResult> {
     const target = this.route(path);
     return target.files.getFile(target.path, options);
   }
