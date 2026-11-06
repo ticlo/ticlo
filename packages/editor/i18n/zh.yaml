@@ -128,6 +128,7 @@
 "date-range": 日期范围
 "password": 密码 # generated
 "dynamic": 动态类型
+"table": 表格
 "group": 属性组
 "Comma separated": 逗号分隔
 "Add Property": 添加属性
@@ -183,7 +184,16 @@
 
 # property/value/TableEditor.tsx
 "Edit table": "编辑表格" # translated from: Edit table
+"View table": "查看表格" # translated from: View table
 "Add row": "新增行" # translated from: Add row
+"Add column": "新增列" # translated from: Add column
+"Columns": "列" # translated from: Columns
+"Column name": "列名" # translated from: Column name
+"Find all columns": "扫描所有行补全列" # translated from: Find all columns
+"Delete column": "删除列" # translated from: Delete column
+"String": "字符串" # translated from: String
+"Number": "数字" # translated from: Number
+"Boolean": "布尔值" # translated from: Boolean
 "Actions": "操作" # translated from: Actions
 "Move up": "上移" # translated from: Move up
 "Move down": "下移" # translated from: Move down

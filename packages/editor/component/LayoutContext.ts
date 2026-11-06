@@ -1,5 +1,6 @@
 import React, {createContext} from 'react';
 import {PropDesc, PropDispatcher, voidFunction, type ClientConn} from '@ticlo/core';
+import type {ValueEditorProps} from '../property/value/ValueEditorBase.ts';
 
 export interface TicloStageCommands {
   save(): boolean;
@@ -46,6 +47,7 @@ export interface TicloLayoutContext<Stage extends TicloStage = TicloStage> exten
 
   editProperty?(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void;
   editSchedule?(path: string, scheduleName?: string, index?: number): void;
+  editTable?(props: ValueEditorProps): void;
 
   showObjectTree?(path: string, value: any, element: HTMLElement, source: any): void;
   closeObjectTree?(path: string, source: any): void;

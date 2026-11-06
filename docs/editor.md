@@ -50,7 +50,7 @@ defined in [DynamicEditor.tsx](../packages/editor/property/value/DynamicEditor.t
 | `date-range` | Date range picker |
 | `time` | Time picker |
 | `object`, `array` | Structured value editor |
-| `table` | Structured editor for arrays of objects or arrays |
+| `table` | Dialog editor for arrays of objects or `{columns, rows}` tables |
 | `type` | Function selector |
 | `worker` | Worker source selector and flow editor |
 | `event` | Event controls |
@@ -95,9 +95,31 @@ the oldest name breaks eviction ties.
 
 ## Table editor
 
-Use `type: 'table'` with an explicit `rowType` and `columns`. A column's `type`
-selects its cell editor; object rows use string keys, array rows use nonnegative
-integer indices. Column titles are optional and default to the key.
+Use `type: 'table'` for an array of objects. Columns come from the first and
+last row. The column popover can scan every row to reveal less common fields,
+including in read-only tables.
+Columns added to an empty array exist only in the window until a row stores them.
+The alternative shape stores its schema with the value:
+
+```ts
+{
+  columns: [
+    {name: 'label', type: 'string'},
+    {name: 'count', type: 'number'},
+    {name: 'enabled', type: 'toggle'},
+  ],
+  rows: [['First', 1, true], ['Second', 2, false]],
+}
+```
+
+`columns` uses property descriptors and `rows` is an array of arrays. The
+editor opens an rc-dock window and adds or removes columns and rows in a draft.
+It shows read-only tables in the same window, using the Block stage's value
+display for each cell.
+
+Existing descriptors with `rowType` and `columns` remain supported. Object rows
+use string keys; legacy array rows use nonnegative integer keys. Column titles
+are optional and default to the key.
 
 ```ts
 {
@@ -112,17 +134,18 @@ integer indices. Column titles are optional and default to the key.
 }
 ```
 
-Edits use a draft and submit the entire array through the parent property's
-change handler. Unlisted fields are preserved; new rows use column `init`
+Edits use a draft and save the entire value to the original property paths.
+Unlisted fields are preserved; new rows use column `init`
 values, while `default` only affects display. Connected properties load their
 complete value before editing. External changes require reloading the draft
 before submitting it.
 
-Cells reuse value editors. Connected worker cells support function selection
-and flow editing: inline workers stay in the draft until submission; named
-workers save to their function library. Local function lookup uses `funcLib`.
-Editors requiring a separate Block property path, including nested object/array
-editing, remain read-only. Property and column edit restrictions apply.
+Clicking a cell opens a string, number, or boolean editor according to the
+column descriptor or current value. Other values use a string editor.
+Connected worker cells support function selection and flow editing: inline
+workers stay in the draft until submission; named workers save to their function
+library. Local function lookup uses `funcLib`. Property and column edit
+restrictions apply.
 
 ## File manager
 

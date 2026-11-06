@@ -180,6 +180,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
             <Option value="date-range">{t('date-range')}</Option>
             <Option value="password">{t('password')}</Option>
             <Option value="any">{t('dynamic')}</Option>
+            <Option value="table">{t('table')}</Option>
             {
               group == null ? <Option value="group">{t('group')}</Option> : null // dont add group if it's in already a group
             }
