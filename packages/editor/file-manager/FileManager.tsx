@@ -9,6 +9,7 @@ import {
   EditOutlined,
   EllipsisOutlined,
   EyeOutlined,
+  FileAddOutlined,
   FileOutlined,
   FolderAddOutlined,
   FolderOpenOutlined,
@@ -27,6 +28,7 @@ import {
   StorageError,
 } from '@ticlo/core/storage/FileAccess.ts';
 import {translateEditor} from '@ticlo/core/editor.ts';
+import {validFlowEntry} from '@ticlo/core/util/FlowStoragePath.ts';
 import {ExpandIcon} from '../component/Tree.tsx';
 import VirtualList from '../component/Virtual.tsx';
 import {TicloI18NContext} from '../component/LayoutContext.ts';
@@ -58,7 +60,7 @@ interface State {
   busy: boolean;
   error?: string;
   dropPath?: string;
-  dialog?: {entry?: FileEntry; directory?: string};
+  dialog?: {entry?: FileEntry; directory?: string; flow?: boolean};
   name: string;
   gitInfo?: GitInfo;
   gitDialog?: 'commit' | 'history';
@@ -174,6 +176,8 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   private locked = false;
   private container: HTMLDivElement;
   private uploadInput: HTMLInputElement;
+  private uploadDirectory?: string;
+  private menuDirectory: string;
   private rows: {entry: FileEntry; level: number}[] = [];
   private stopFileChanges?: () => void;
   private pendingFileChanges = new Set<string>();
@@ -245,6 +249,8 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     this.expanded = new Set([this.files.root]);
     this.clipboard = undefined;
     this.dragged = undefined;
+    this.uploadDirectory = undefined;
+    this.menuDirectory = undefined;
     this.anchor = undefined;
     this.locked = false;
   }
@@ -487,11 +493,10 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
       this.files.signal
     );
 
-  private paste = () => {
+  private paste = (directory = this.directory()) => {
     const clipboard = this.clipboard;
     if (!clipboard?.entries.length) return;
     const files = this.files;
-    const directory = this.directory();
     this.expanded.add(directory);
     return this.run(async () => {
       await files.transfer(clipboard.entries, directory, clipboard.move, this.confirmOverwrite, (completed) => {
@@ -522,7 +527,8 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     });
   };
 
-  private newFolder = () => this.setState({dialog: {directory: this.directory()}, name: '', error: undefined});
+  private newFolder = (directory: string) => this.setState({dialog: {directory}, name: '', error: undefined});
+  private newFlow = (directory: string) => this.setState({dialog: {directory, flow: true}, name: '', error: undefined});
   private rename = () => {
     const entries = this.selected();
     if (entries.length === 1 && entries[0].path !== this.files.root && entries[0].gitStatus !== 'deleted') {
@@ -535,7 +541,13 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     const files = this.files;
     return this.run(async () => {
       if (dialog.entry) await files.rename(dialog.entry, name.trim());
-      else await files.createFolder(dialog.directory, name.trim());
+      else if (dialog.flow) {
+        const entry = await files.createFlow(dialog.directory, name.trim());
+        files.signal.throwIfAborted();
+        this.expanded.add(dialog.directory);
+        this.setState({dialog: undefined});
+        await this.props.onOpen?.(entry);
+      } else await files.createFolder(dialog.directory, name.trim());
       if (!files.signal.aborted) this.setState({dialog: undefined});
     });
   };
@@ -568,6 +580,11 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     return this.run(async () => files.upload(await entries, directory, this.confirmOverwrite));
   };
 
+  private chooseUpload(directory: string) {
+    this.uploadDirectory = directory;
+    this.uploadInput.click();
+  }
+
   private gitMenu(): MenuProps {
     const disabled = this.state.busy;
     const readonly = !this.props.storage.getCapabilities(this.files.root).write;
@@ -599,6 +616,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         ...(this.props.onOpen && openable
           ? [{key: 'open', label: t('Open'), icon: <FolderOpenOutlined />, disabled}]
           : []),
+        {key: 'new-flow', label: t('New Dataflow'), icon: <FileAddOutlined />, disabled: disabled || readonly},
         {key: 'new', label: t('New Folder'), icon: <FolderAddOutlined />, disabled: disabled || readonly},
         {key: 'upload', label: t('Upload'), icon: <UploadOutlined />, disabled: disabled || readonly},
         {type: 'divider'},
@@ -641,7 +659,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   private command(key: string) {
     if (this.locked) return;
     if (
-      ['new', 'upload', 'cut', 'paste', 'rename', 'delete'].includes(key) &&
+      ['new-flow', 'new', 'upload', 'cut', 'paste', 'rename', 'delete'].includes(key) &&
       !this.props.storage.getCapabilities(this.files.root).write
     )
       return;
@@ -651,11 +669,14 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         if (entries.length === 1) this.open(entries[0]);
         break;
       }
+      case 'new-flow':
+        this.newFlow(this.menuDirectory ?? this.files.root);
+        break;
       case 'new':
-        this.newFolder();
+        this.newFolder(this.menuDirectory ?? this.files.root);
         break;
       case 'upload':
-        this.uploadInput.click();
+        this.chooseUpload(this.menuDirectory ?? this.files.root);
         break;
       case 'cut':
         this.copy(true);
@@ -664,7 +685,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         this.copy(false);
         break;
       case 'paste':
-        void this.paste();
+        void this.paste(this.menuDirectory ?? this.files.root);
         break;
       case 'rename':
         this.rename();
@@ -851,6 +872,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         onClick={(event) => this.selectRow(entry, event)}
         onDoubleClick={() => (entry.type === 'folder' ? this.toggle(entry) : this.open(entry))}
         onContextMenu={() => {
+          this.menuDirectory = entry.type === 'folder' ? entry.path : parentPath(entry.path);
           if (!selected) {
             this.anchor = entry.path;
             this.select([entry.path]);
@@ -965,17 +987,24 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             />
             <Button
               size="small"
+              title={translateEditor('New Dataflow')}
+              icon={<FileAddOutlined />}
+              disabled={busy || readonly}
+              onClick={() => this.newFlow(this.files.root)}
+            />
+            <Button
+              size="small"
               title={translateEditor('New Folder')}
               icon={<FolderAddOutlined />}
               disabled={busy || readonly}
-              onClick={this.newFolder}
+              onClick={() => this.newFolder(this.files.root)}
             />
             <Button
               size="small"
               title={translateEditor('Upload')}
               icon={<UploadOutlined />}
               disabled={busy || readonly}
-              onClick={() => this.uploadInput.click()}
+              onClick={() => this.chooseUpload(this.files.root)}
             />
             <Button
               size="small"
@@ -998,8 +1027,10 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
               multiple
               onChange={(event) => {
                 const entries = Array.from(event.target.files).map((file) => ({path: file.name, file}));
+                const directory = this.uploadDirectory;
+                this.uploadDirectory = undefined;
                 event.target.value = '';
-                if (entries.length) void this.upload(Promise.resolve(entries));
+                if (entries.length && directory) void this.upload(Promise.resolve(entries), directory);
               }}
             />
           </div>
@@ -1021,7 +1052,10 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             className="ticl-e-file-tree-area"
             onMouseDown={() => this.container.focus()}
             onContextMenu={(event) => {
-              if (!picker && !(event.target as HTMLElement).closest('.ticl-e-file-row')) this.select([this.files.root]);
+              if (!picker && !(event.target as HTMLElement).closest('.ticl-e-file-row')) {
+                this.menuDirectory = this.files.root;
+                this.select([this.files.root]);
+              }
             }}
             onDragOver={picker ? undefined : this.dragOver}
             onDrop={picker ? undefined : this.drop}
@@ -1052,14 +1086,16 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         ) : null}
         {!picker && (
           <Modal
-            title={dialog?.entry ? t('Rename') : t('New Folder')}
+            title={dialog?.entry ? t('Rename') : dialog?.flow ? t('New Dataflow') : t('New Folder')}
             open={Boolean(dialog)}
             onOk={this.saveName}
             onCancel={() => {
               if (!busy) this.setState({dialog: undefined});
             }}
             confirmLoading={busy}
-            okButtonProps={{disabled: busy || !validFileName(name.trim())}}
+            okButtonProps={{
+              disabled: busy || !validFileName(name.trim()) || (dialog?.flow && !validFlowEntry(name.trim())),
+            }}
             cancelButtonProps={{disabled: busy}}
             destroyOnHidden
           >
@@ -1068,7 +1104,8 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
               autoFocus
               onChange={(event) => this.setState({name: event.target.value})}
               onPressEnter={() => {
-                if (!busy && validFileName(name.trim())) void this.saveName();
+                if (!busy && validFileName(name.trim()) && (!dialog?.flow || validFlowEntry(name.trim())))
+                  void this.saveName();
               }}
             />
             {error ? <div className="ticl-e-file-error">{error}</div> : null}

@@ -73,6 +73,23 @@ describe('FileManager', () => {
     document.querySelector<HTMLButtonElement>(`.ant-modal .ant-btn${confirm ? '-primary' : '-default'}`).click();
   }
 
+  async function contextCommand(path: string, label: string) {
+    row(path).dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, button: 2}));
+    const item = () =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === label
+      );
+    await shouldHappen(item);
+    item().click();
+  }
+
+  async function submitName(name: string) {
+    await shouldHappen(() => document.querySelector('.ant-modal input'));
+    setName(name);
+    await shouldHappen(() => !document.querySelector<HTMLButtonElement>('.ant-modal .ant-btn-primary').disabled);
+    await modalButton(true);
+  }
+
   it('lazily expands folders, supports multi-selection, and collapses them', async () => {
     const fixture = fixtureClient([file('demo/a.txt'), folder('demo/folder'), file('demo/folder/b.txt')]);
     mount({storage: fixture.client, project: 'demo', defaultPreview: false});
@@ -211,6 +228,50 @@ describe('FileManager', () => {
     row('demo/entry.ticlo').dispatchEvent(new MouseEvent('dblclick', {bubbles: true}));
     await shouldHappen(() => onOpen.mock.calls.length === 2);
     expect(onOpen).toHaveBeenLastCalledWith(file('demo/entry.ticlo'));
+  });
+
+  it('persists dataflows before opening them and uses root toolbar and folder menu destinations', async () => {
+    const fixture = fixtureClient([file('demo/a.txt'), folder('demo/folder')]);
+    const upload = fixture.methods.uploadFile.getMockImplementation();
+    let finishUpload: () => void;
+    fixture.methods.uploadFile.mockImplementationOnce(async (...args) => {
+      await new Promise<void>((resolve) => {
+        finishUpload = resolve;
+      });
+      return upload(...args);
+    });
+    const onOpen = vi.fn(async (entry) => {
+      expect(fixture.entries.has(entry.path)).toBe(true);
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false, onOpen});
+    await ready();
+    await click('demo/folder');
+    button('New Dataflow').click();
+    await submitName('root-flow');
+    await shouldHappen(() => finishUpload);
+    expect(onOpen).not.toHaveBeenCalled();
+    finishUpload();
+    await ready('demo/root-flow.ticlo');
+    await shouldHappen(() => onOpen.mock.calls.length === 1 && !document.querySelector('.ant-modal'));
+    expect(onOpen.mock.calls[0][0].path).toBe('demo/root-flow.ticlo');
+
+    await click('demo/a.txt');
+    row('demo/folder').dispatchEvent(new MouseEvent('click', {bubbles: true, ctrlKey: true}));
+    await shouldHappen(() => div.querySelectorAll('.ticl-e-file-selected').length === 2);
+    await contextCommand('demo/folder', 'New Dataflow');
+    await submitName('nested');
+    await ready('demo/folder/nested.ticlo');
+    await shouldHappen(() => onOpen.mock.calls.length === 2 && !document.querySelector('.ant-modal'));
+    expect(onOpen.mock.calls[1][0].path).toBe('demo/folder/nested.ticlo');
+
+    fixture.methods.uploadFile.mockRejectedValueOnce(new Error('Write failed'));
+    button('New Dataflow').click();
+    await submitName('failed');
+    await shouldHappen(
+      () => div.querySelector('.ticl-e-file-error')?.textContent.includes('Write failed') && !button('Reload').disabled
+    );
+    expect(onOpen).toHaveBeenCalledTimes(2);
+    expect(fixture.entries.has('demo/failed.ticlo')).toBe(false);
   });
 
   it('runs Git commands for the displayed project and allows an empty commit message', async () => {
@@ -469,6 +530,24 @@ describe('FileManager', () => {
       .querySelector('.ticl-e-file-manager')
       .dispatchEvent(new ClipboardEvent('paste', {bubbles: true, clipboardData: clipboard}));
     await ready('demo/folder/pasted.txt');
+
+    const input = div.querySelector<HTMLInputElement>('input[type="file"]');
+    vi.spyOn(input, 'click').mockImplementation(() => {});
+    button('Upload').click();
+    const toolbarFiles = new DataTransfer();
+    toolbarFiles.items.add(new File(['root'], 'toolbar.txt'));
+    Object.defineProperty(input, 'files', {value: toolbarFiles.files, configurable: true});
+    input.dispatchEvent(new Event('change', {bubbles: true}));
+    await ready('demo/toolbar.txt');
+    expect(fixture.entries.has('demo/folder/toolbar.txt')).toBe(false);
+
+    await contextCommand('demo/folder', 'Upload');
+    await click('demo');
+    const folderFiles = new DataTransfer();
+    folderFiles.items.add(new File(['folder'], 'context.txt'));
+    Object.defineProperty(input, 'files', {value: folderFiles.files, configurable: true});
+    input.dispatchEvent(new Event('change', {bubbles: true}));
+    await ready('demo/folder/context.txt');
   });
 
   it('requires confirmation before replacing uploaded files', async () => {
@@ -493,15 +572,17 @@ describe('FileManager', () => {
   });
 
   it('creates, renames and deletes entries through the dialogs, while protecting the project root', async () => {
-    const fixture = fixtureClient([file('demo/a.txt')]);
+    const fixture = fixtureClient([file('demo/a.txt'), folder('demo/folder')]);
     mount({storage: fixture.client, project: 'demo', defaultPreview: false});
     await ready();
+    await click('demo/folder');
     button('New Folder').click();
     await shouldHappen(() => document.querySelector('.ant-modal input'), 2000);
     setName('new');
     await shouldHappen(() => !document.querySelector<HTMLButtonElement>('.ant-modal .ant-btn-primary').disabled);
     await modalButton(true);
     await ready('demo/new');
+    expect(fixture.methods.createDirectory).toHaveBeenCalledWith('demo/new', expect.anything());
     await shouldHappen(() => !document.querySelector('.ant-modal'), 2000);
     await click('demo/new');
     key('F2');

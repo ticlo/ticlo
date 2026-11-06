@@ -1,4 +1,6 @@
 import {StorageError, assertWritable, type FileEntry, type FileAccess} from '@ticlo/core/storage/FileAccess.ts';
+import {validFlowEntry} from '@ticlo/core/util/FlowStoragePath.ts';
+import {encodeSorted} from '@ticlo/core/util/Serialize.ts';
 
 export type ConfirmOverwrite = (entry: FileEntry) => Promise<boolean>;
 export interface UploadEntry {
@@ -76,6 +78,17 @@ export class FileOperations {
     const path = `${directory}/${name}`;
     if (await this.info(path)) throw new Error('An entry with this name already exists');
     await this.storage.createDirectory(path, {signal: this.signal});
+  }
+
+  async createFlow(directory: string, name: string) {
+    this.checkPath(directory, true);
+    assertWritable(this.storage, directory);
+    const folders = directory === this.root ? [] : directory.slice(this.root.length + 1).split('/');
+    if (!validFileName(name) || ![...folders, name].every(validFlowEntry)) throw new Error('Invalid dataflow path');
+    const path = `${directory}/${name}.ticlo`;
+    if (await this.info(path)) throw new Error('An entry with this name already exists');
+    await this.storage.uploadFile(path, encodeSorted({'#is': ''}), {revision: null, signal: this.signal});
+    return this.storage.getFileInfo(path, {signal: this.signal});
   }
 
   async rename(entry: FileEntry, name: string) {

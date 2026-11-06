@@ -1,4 +1,4 @@
-import {afterEach, beforeEach, describe, expect, it} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {mkdtemp, mkdir, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -39,6 +39,38 @@ describe('File manager with the file server', () => {
   });
 
   const text = async (path: string) => new TextDecoder().decode((await client.getFile(path)).data);
+
+  it('persists new dataflows at the project root and inside folders', async () => {
+    const operations = new FileOperations(client, 'demo');
+    await operations.createFolder(operations.root, 'jobs');
+    expect(await operations.createFlow(operations.root, 'entry')).toMatchObject({
+      type: 'file',
+      path: 'demo/entry.ticlo',
+      name: 'entry.ticlo',
+    });
+    expect(await operations.createFlow('demo/jobs', 'daily')).toMatchObject({
+      type: 'file',
+      path: 'demo/jobs/daily.ticlo',
+      name: 'daily.ticlo',
+    });
+    expect(await client.loadFlow('+demo.entry')).toEqual({'#is': ''});
+    expect(await client.loadFlow('+demo.jobs.daily')).toEqual({'#is': ''});
+    await expect(operations.createFlow('demo', '../escape')).rejects.toThrow('Invalid dataflow path');
+    await expect(operations.createFlow('#root', 'entry')).rejects.toThrow('inside the project');
+  });
+
+  it('preserves an existing dataflow when another writer creates it first', async () => {
+    const operations = new FileOperations(client, 'demo');
+    const upload = client.uploadFile.bind(client);
+    const race = vi.spyOn(client, 'uploadFile').mockImplementationOnce(async (path, data, options) => {
+      await upload(path, '{"value":42}');
+      return upload(path, data, options);
+    });
+    await expect(operations.createFlow('demo', 'entry')).rejects.toMatchObject({code: 'conflict'});
+    race.mockRestore();
+    await expect(operations.createFlow('demo', 'entry')).rejects.toThrow('already exists');
+    expect(await text('demo/entry.ticlo')).toBe('{"value":42}');
+  });
 
   it('uploads, recursively copies, moves, renames, and deletes real files and empty folders', async () => {
     const operations = new FileOperations(client, 'demo');
