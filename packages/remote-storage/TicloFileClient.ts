@@ -179,6 +179,10 @@ class TicloFileClient {
     return this.requestOp<GitCommit[]>('GET', 'gitHistory', {id: normalizeIdentifier(id)}, undefined, config);
   }
 
+  async restoreGitFile(path: string, config?: AxiosRequestConfig): Promise<void> {
+    await this.requestOp<void>('POST', 'gitRestore', {path: normalizeOpPath(path)}, undefined, config);
+  }
+
   async exportProject(id: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse<ArrayBuffer>> {
     const {params: configParams, responseType, headers: configHeaders, ...restConfig} = config;
     const params = mergeQuery(configParams, 'exportProj', {id: normalizeIdentifier(id)});

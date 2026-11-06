@@ -18,12 +18,19 @@ describe('RemoteStorage Git operations', () => {
     expect(await storage.getGitInfo('main')).toEqual({initialized: false});
     expect(await storage.initGit('main')).toEqual({initialized: true, branch: 'main'});
     expect((await storage.commitGit('main', '')).hash).toBe('abc');
+    const changed = vi.fn();
+    storage.subscribeFileChanges(changed);
+    await storage.restoreGitFile('main/a.txt');
     expect(fetch.mock.calls[0][0]).toContain('op=gitInfo&id=main');
     expect(fetch.mock.calls[0][1].method).toBe('GET');
     expect(fetch.mock.calls[1][0]).toContain('op=gitInit&id=main');
     expect(fetch.mock.calls[1][1].method).toBe('POST');
     expect(fetch.mock.calls[2][1].body).toBe('{"message":""}');
     expect(new Headers(fetch.mock.calls[2][1].headers).get('Content-Type')).toBe('application/json');
+    expect(fetch.mock.calls[3][0]).toContain('op=gitRestore&path=proj%2Fmain%2Fa.txt');
+    expect(fetch.mock.calls[3][1].method).toBe('POST');
+    expect(changed).toHaveBeenCalledWith('main/a.txt');
+    await expect(storage.restoreGitFile('local/a.txt')).rejects.toMatchObject({code: 'readonly'});
   });
 
   it('reports an old file server clearly', async () => {

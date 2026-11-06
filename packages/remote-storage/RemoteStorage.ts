@@ -201,4 +201,11 @@ export class RemoteStorage extends BrowserStorage implements ProjectGit {
   async getGitHistory(project: string, options?: FileRequest): Promise<GitCommit[]> {
     return (await this.gitRequest('gitHistory', project, undefined, options)).json();
   }
+  async restoreGitFile(path: string, options?: FileRequest): Promise<void> {
+    filePath(path);
+    if (path === 'local' || path.startsWith('local/'))
+      throw new StorageError('Git is not available for local files', 'readonly');
+    await this.projectFiles.request('gitRestore', {path: `proj/${path}`}, undefined, options);
+    this.fileChanged(path);
+  }
 }

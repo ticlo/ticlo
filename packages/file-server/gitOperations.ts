@@ -235,19 +235,42 @@ async function logChange(
     file: destination ? `${relativePath} -> ${destination}` : relativePath,
   };
   const entries = await readGitlog(projectRoot);
-  if (action === 'edit') {
-    const previous = entries.findLastIndex((item) => item.file === relativePath);
-    if (
-      previous >= 0 &&
-      entries[previous].action === 'edit' &&
-      logUser(entries[previous].user) === author.user &&
-      Date.parse(entry.time) - Date.parse(entries[previous].time) < 60 * 60 * 1000
-    ) {
+  const previous = entries.findLastIndex((item) => item.file === relativePath);
+  const recent = (index: number) => {
+    const elapsed = Date.parse(entry.time) - Date.parse(entries[index].time);
+    return elapsed >= 0 && elapsed < 60 * 60 * 1000 && logUser(entries[index].user) === author.user;
+  };
+  if (previous >= 0 && recent(previous)) {
+    if (action === 'delete') {
+      const created = entries.findLastIndex(
+        (item, index) => index <= previous && item.file === relativePath && item.action === 'create'
+      );
+      if (
+        created >= 0 &&
+        recent(created) &&
+        entries.slice(created).every((item) => item.file !== relativePath || logUser(item.user) === author.user)
+      ) {
+        await writeGitlog(
+          projectRoot,
+          entries.filter((item, index) => index < created || item.file !== relativePath)
+        );
+        return;
+      }
+    }
+    if (action === 'restore' || (action === 'edit' && entries[previous].action === 'edit')) {
       entries.splice(previous, 1);
     }
   }
   entries.push(entry);
   await writeGitlog(projectRoot, entries);
+}
+
+async function restoreGitFile(projectRoot: string, relativePath: string, auth: UserAuth): Promise<void> {
+  await ensureGit(projectRoot);
+  const status = (await gitStatus(projectRoot)).get(relativePath);
+  if (status !== 'modified' && status !== 'deleted') throw new StorageError('File has no change to restore', 409);
+  await git(projectRoot, 'restore', '--source=HEAD', '--staged', '--worktree', '--', relativePath);
+  await logChange(projectRoot, auth, 'restore', relativePath);
 }
 
 async function gitStatus(projectRoot: string): Promise<Map<string, GitStatus>> {
@@ -340,5 +363,17 @@ async function commitGit(projectRoot: string, auth: UserAuth, message: string): 
   return (await gitHistory(projectRoot))[0];
 }
 
-export {commitGit, ensureGit, forkGit, gitHistory, gitInfo, gitStatus, hasGit, initGit, logChange, statusForPath};
+export {
+  commitGit,
+  ensureGit,
+  forkGit,
+  gitHistory,
+  gitInfo,
+  gitStatus,
+  hasGit,
+  initGit,
+  logChange,
+  restoreGitFile,
+  statusForPath,
+};
 export type {GitCommit, GitLogEntry, GitStatus};

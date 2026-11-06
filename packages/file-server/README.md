@@ -47,14 +47,18 @@ using the project ID, creates `.gitignore` with `/.gitlog`, and stages the
 existing files without committing. `gitInfo` returns `{initialized, branch?}`.
 `gitHistory` returns commits with hash, author, email, date, and full
 message. `gitCommit` accepts `{message: string}`; the message may be empty.
-The client exposes these as `initGit`, `getGitInfo`, `getGitHistory`, and
-`commitGit`.
+`gitRestore` accepts a `proj/<id>/<file>` path and restores a modified or deleted
+tracked file from `HEAD`. The client exposes these operations as `initGit`,
+`getGitInfo`, `getGitHistory`, `commitGit`, and `restoreGitFile`.
 
 File and project API writes four-column CSV rows to `.gitlog`: datetime, user,
 change type, and file. The user field includes a real email when available;
 generated `@ticlo.app` emails are omitted. Moved, renamed, and copied files
 show source and destination in the file column. Repeated edits by the same user
-to the same file within an hour replace the previous edit entry. `.proj` updates
+to the same file within an hour replace the previous edit entry. A restore
+replaces the preceding log entry for that file within an hour when both actions
+have the same user. Deleting a newly created file within an hour removes its
+create and edit entries when they all have the same user. `.proj` updates
 are logged. Existing JSONL logs convert to CSV on the next edit or commit. Git
 status in `list` and `info` is `added`, `modified`, or `deleted` when applicable;
 deleted tracked entries remain visible in listings and info until committed.

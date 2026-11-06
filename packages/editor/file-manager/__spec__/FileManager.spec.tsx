@@ -330,6 +330,38 @@ describe('FileManager', () => {
     expect(commitGit).toHaveBeenCalledWith('demo', '', expect.anything());
   });
 
+  it('confirms restoring a modified file and restores a deleted file immediately', async () => {
+    const modified = {...file('demo/changed.txt'), gitStatus: 'modified' as const};
+    const deleted = {...file('demo/deleted.txt'), gitStatus: 'deleted' as const};
+    const fixture = fixtureClient([modified, deleted]);
+    const restoreGitFile = vi.fn(async (path: string) => {
+      fixture.entries.set(path, {...fixture.entries.get(path), gitStatus: undefined});
+    });
+    Object.assign(fixture.client, {
+      supportsGit: () => true,
+      getGitInfo: async () => ({initialized: true, branch: 'demo'}),
+      restoreGitFile,
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready('demo/changed.txt');
+
+    await contextCommand('demo/changed.txt', 'Discard Changes');
+    await shouldHappen(() => document.querySelector('.ant-modal-confirm'));
+    expect(restoreGitFile).not.toHaveBeenCalled();
+    await modalButton(false);
+    await shouldHappen(() => !document.querySelector('.ant-modal-confirm'));
+    await contextCommand('demo/changed.txt', 'Discard Changes');
+    await modalButton(true);
+    await shouldHappen(() => restoreGitFile.mock.calls.length === 1 && !button('Reload')?.disabled);
+    expect(restoreGitFile).toHaveBeenCalledWith('demo/changed.txt', expect.anything());
+    await shouldHappen(() => !document.querySelector('.ant-modal-confirm'));
+
+    await contextCommand('demo/deleted.txt', 'Restore');
+    await shouldHappen(() => restoreGitFile.mock.calls.length === 2 && !button('Reload')?.disabled);
+    expect(document.querySelector('.ant-modal-confirm')).toBeNull();
+    expect(restoreGitFile).toHaveBeenLastCalledWith('demo/deleted.txt', expect.anything());
+  });
+
   it('keeps Initialize Git visible when Git status cannot be loaded', async () => {
     const fixture = fixtureClient([file('demo/a.txt')]);
     Object.assign(fixture.client, {

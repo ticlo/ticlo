@@ -213,6 +213,77 @@ describe('project Git API', () => {
     ).toBe('deleted');
   });
 
+  it('restores modified and deleted tracked files and records the restore', async () => {
+    await request('POST', 'gitInit', {id: 'main'});
+    await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Initial'}));
+    await request('POST', 'upload', {path: 'proj/main/a.txt'}, 'changed');
+    const readonly = new Hono();
+    routeRemoteStorage(readonly, {
+      rootDir: root,
+      authProvider: () => ({getUserId: () => 'reader', canRead: () => true, canWrite: () => false}),
+    });
+    expect((await readonly.request('/file?op=gitRestore&path=proj/main/a.txt', {method: 'POST'})).status).toBe(403);
+    expect((await request('POST', 'gitRestore', {path: 'proj/main/a.txt'})).status).toBe(204);
+    expect(await readFile(join(root, 'proj/main/a.txt'), 'utf8')).toBe('initial');
+    expect(await readFile(join(root, 'proj/main/.gitlog'), 'utf8')).toMatch(/,restore,a\.txt\n$/);
+    expect(await readFile(join(root, 'proj/main/.gitlog'), 'utf8')).not.toContain(',edit,a.txt');
+
+    const restoredCommit = await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Restore'}));
+    expect((await restoredCommit.json()).message).toContain(',restore,a.txt');
+    await request('POST', 'delete', {path: 'proj/main/a.txt'});
+    expect((await request('POST', 'gitRestore', {path: 'proj/main/a.txt'})).status).toBe(204);
+    expect(await readFile(join(root, 'proj/main/a.txt'), 'utf8')).toBe('initial');
+    expect(await readFile(join(root, 'proj/main/.gitlog'), 'utf8')).toMatch(/,restore,a\.txt\n$/);
+    expect(await readFile(join(root, 'proj/main/.gitlog'), 'utf8')).not.toContain(',delete,a.txt');
+    expect(
+      (await request('GET', 'info', {path: 'proj/main/a.txt'}).then((response) => response.json())).gitStatus
+    ).toBeUndefined();
+    expect((await request('POST', 'gitRestore', {path: 'proj/main/a.txt'})).status).toBe(409);
+    expect((await request('POST', 'gitRestore', {path: 'proj/main/.proj'})).status).toBe(403);
+  });
+
+  it('coalesces a new file deleted within an hour only when every edit belongs to the same user', async () => {
+    await request('POST', 'gitInit', {id: 'main'});
+    await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Initial'}));
+    await request('POST', 'upload', {path: 'proj/main/new.txt'}, 'new');
+    await request('POST', 'upload', {path: 'proj/main/new.txt'}, 'edited');
+    await request('POST', 'delete', {path: 'proj/main/new.txt'});
+    expect(await readFile(join(root, 'proj/main/.gitlog'), 'utf8')).toBe('');
+
+    await request('POST', 'upload', {path: 'proj/main/new.txt'}, 'new');
+    user = 'bob';
+    await request('POST', 'delete', {path: 'proj/main/new.txt'});
+    const differentUsers = await readFile(join(root, 'proj/main/.gitlog'), 'utf8');
+    expect(differentUsers).toContain(',alice <alice@example.com>,create,new.txt');
+    expect(differentUsers).toContain(',bob,delete,new.txt');
+
+    user = 'alice';
+    await request('POST', 'upload', {path: 'proj/main/old.txt'}, 'new');
+    const logPath = join(root, 'proj/main/.gitlog');
+    await writeFile(
+      logPath,
+      (await readFile(logPath, 'utf8')).replace(
+        /^[^,]+(?=,alice <alice@example.com>,create,old\.txt$)/m,
+        '2000-01-01T00:00:00.000Z'
+      )
+    );
+    await request('POST', 'delete', {path: 'proj/main/old.txt'});
+    expect(await readFile(logPath, 'utf8')).toContain(',delete,old.txt');
+  });
+
+  it('does not merge edits or restores across users', async () => {
+    await request('POST', 'gitInit', {id: 'main'});
+    await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Initial'}));
+    await request('POST', 'upload', {path: 'proj/main/a.txt'}, 'alice edit');
+    user = 'bob';
+    await request('POST', 'upload', {path: 'proj/main/a.txt'}, 'bob edit');
+    user = 'alice';
+    await request('POST', 'gitRestore', {path: 'proj/main/a.txt'});
+    const log = await readFile(join(root, 'proj/main/.gitlog'), 'utf8');
+    expect(log.match(/,edit,a\.txt/g)).toHaveLength(2);
+    expect(log).toContain(',alice <alice@example.com>,restore,a.txt');
+  });
+
   it('commits an empty-directory operation recorded only in the log', async () => {
     await request('POST', 'gitInit', {id: 'main'});
     await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Initial'}));

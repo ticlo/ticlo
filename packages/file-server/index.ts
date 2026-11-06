@@ -10,6 +10,7 @@ import {
   handleUploadOp,
   handleMkdirOp,
   handleDeleteOp,
+  handleGitRestoreOp,
   handleMoveOp,
   handleCopyOp,
   handleRenameOp,
@@ -129,6 +130,10 @@ export function routeRemoteStorage(app: Hono, options: FileStorageOptions = {}):
       }
       case 'delete': {
         await handleDeleteOp(query, request, reply, fileContext);
+        return;
+      }
+      case 'gitRestore': {
+        await handleGitRestoreOp(query, request, reply, fileContext);
         return;
       }
       case 'move': {

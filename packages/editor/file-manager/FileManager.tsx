@@ -16,6 +16,7 @@ import {
   FolderOpenOutlined,
   FolderOutlined,
   ReloadOutlined,
+  RollbackOutlined,
   ScissorOutlined,
   SnippetsOutlined,
   UploadOutlined,
@@ -530,6 +531,36 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     });
   };
 
+  private restore = () => {
+    const entries = this.selected();
+    const [entry] = entries;
+    const git = this.git();
+    if (
+      !git ||
+      !this.state.gitInfo?.initialized ||
+      entries.length !== 1 ||
+      entry.type !== 'file' ||
+      (entry.gitStatus !== 'modified' && entry.gitStatus !== 'deleted')
+    )
+      return;
+    const files = this.files;
+    return this.run(async () => {
+      if (
+        entry.gitStatus === 'modified' &&
+        !(await this.props.confirm(
+          t('Discard changes?'),
+          <>
+            {t('Discard uncommitted changes to this file?')}
+            <div>{entry.path}</div>
+          </>,
+          files.signal
+        ))
+      )
+        return;
+      await git.restoreGitFile(entry.path, {signal: files.signal});
+    });
+  };
+
   private newFolder = (directory: string) => this.setState({dialog: {directory}, name: '', error: undefined});
   private newFlow = (directory: string) => this.setState({dialog: {directory, flow: true}, name: '', error: undefined});
   private rename = () => {
@@ -613,6 +644,12 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     const mutable =
       entries.length > 0 && entries.every((entry) => entry.path !== this.files.root && entry.gitStatus !== 'deleted');
     const downloadable = entries.length > 0 && entries.every((entry) => entry.type === 'file');
+    const restorable =
+      this.git() &&
+      this.state.gitInfo?.initialized &&
+      entries.length === 1 &&
+      entries[0].type === 'file' &&
+      (entries[0].gitStatus === 'modified' || entries[0].gitStatus === 'deleted');
     const disabled = this.state.busy;
     const readonly = !this.props.storage.getCapabilities(this.files.root).write;
     return {
@@ -654,6 +691,16 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           danger: true,
           disabled: disabled || readonly || !mutable,
         },
+        ...(restorable
+          ? [
+              {
+                key: 'restore',
+                label: entries[0].gitStatus === 'modified' ? t('Discard Changes') : t('Restore'),
+                icon: <RollbackOutlined />,
+                disabled: disabled || readonly,
+              },
+            ]
+          : []),
         ...(downloadable
           ? [
               {type: 'divider' as const},
@@ -672,7 +719,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   private command(key: string) {
     if (this.locked) return;
     if (
-      ['new-flow', 'new', 'upload', 'cut', 'paste', 'rename', 'delete'].includes(key) &&
+      ['new-flow', 'new', 'upload', 'cut', 'paste', 'rename', 'delete', 'restore'].includes(key) &&
       !this.props.storage.getCapabilities(this.files.root).write
     )
       return;
@@ -705,6 +752,9 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         break;
       case 'delete':
         void this.remove();
+        break;
+      case 'restore':
+        void this.restore();
         break;
       case 'download':
         void this.download();

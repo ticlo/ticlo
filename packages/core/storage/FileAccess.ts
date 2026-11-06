@@ -27,6 +27,8 @@ export interface ProjectGit {
   initGit(project: string, options?: FileRequest): Promise<GitInfo>;
   commitGit(project: string, message: string, options?: FileRequest): Promise<GitCommit>;
   getGitHistory(project: string, options?: FileRequest): Promise<GitCommit[]>;
+  /** Restore one tracked file from HEAD; path includes the project ID. */
+  restoreGitFile(path: string, options?: FileRequest): Promise<void>;
 }
 export interface FileRequest {
   signal?: AbortSignal;

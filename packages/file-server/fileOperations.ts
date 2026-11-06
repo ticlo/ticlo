@@ -3,7 +3,7 @@ import {constants as fsConstants, promises as fs, type Dirent} from 'node:fs';
 import path from 'node:path';
 import type {UserAuth} from './auth.ts';
 import {lookUpMimeType} from './mimeTypes.ts';
-import {gitStatus, logChange, statusForPath, type GitStatus} from './gitOperations.ts';
+import {gitStatus, logChange, restoreGitFile, statusForPath, type GitStatus} from './gitOperations.ts';
 import {buildEtag, handleErrors, normalizeInput, toPosix, type HonoReply, type StorageLogger} from './utils.ts';
 import {AuthProvider, FileQuerystring, StorageContext, StorageError, StoragePath, StorageScope} from './types.ts';
 
@@ -498,6 +498,26 @@ async function handleDeleteOp(
   );
 }
 
+async function handleGitRestoreOp(
+  query: FileQuerystring,
+  request: StorageContext,
+  reply: HonoReply,
+  context: FileRouteContext
+): Promise<void> {
+  await handleErrors(
+    reply,
+    async (): Promise<void> => {
+      if (!query.path) throw new StorageError('Path is required', 400);
+      const {storage, auth} = await resolveStorageContext(query.path, request, context);
+      if (storage.scope !== 'proj' || !storage.relative) throw new StorageError('Project file is required', 400);
+      await ensureWrite(auth, storage.id);
+      ensureMutable(storage);
+      await restoreGitFile(storage.projectRoot, storage.relative, auth);
+    },
+    context.logger
+  );
+}
+
 async function handleMoveOp(
   query: FileQuerystring,
   request: StorageContext,
@@ -642,6 +662,7 @@ export {
   handleUploadOp,
   handleMkdirOp,
   handleDeleteOp,
+  handleGitRestoreOp,
   handleMoveOp,
   handleCopyOp,
   handleRenameOp,

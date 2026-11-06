@@ -66,6 +66,11 @@ describe('FileServerStorage integration', () => {
       response: {status: 412},
     });
     expect((await api.getFile(path)).headers.etag).toBe(first.headers.etag);
+    await api.initGit('client');
+    await api.commitGit('client', 'Initial');
+    await api.uploadFile(path, 'changed');
+    await api.restoreGitFile(path);
+    expect(new TextDecoder().decode((await api.getFile(path)).data)).toBe('first');
     await api.deleteProject('client');
   });
 
