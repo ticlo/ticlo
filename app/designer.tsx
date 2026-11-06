@@ -211,6 +211,7 @@ class App extends React.PureComponent<Props, State> {
             onSelect={this.onSelect}
             showMenu={true}
             libraryAutoLoad={this.libraryAutoLoad}
+            showStoredFlows
           />
         ),
       },
