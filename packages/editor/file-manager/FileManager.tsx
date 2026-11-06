@@ -10,6 +10,7 @@ import {
   EllipsisOutlined,
   EyeOutlined,
   FileAddOutlined,
+  FileImageOutlined,
   FileOutlined,
   FolderAddOutlined,
   FolderOpenOutlined,
@@ -33,7 +34,7 @@ import {ExpandIcon} from '../component/Tree.tsx';
 import VirtualList from '../component/Virtual.tsx';
 import {TicloI18NContext} from '../component/LayoutContext.ts';
 import {t} from '../component/LocalizedLabel.tsx';
-import {FilePreview} from './FilePreview.tsx';
+import {FilePreview, previewType} from './FilePreview.tsx';
 import {droppedUploads, fileError, FileOperations, parentPath, topEntries, validFileName} from './FileOperations.ts';
 
 export interface FileManagerProps {
@@ -56,6 +57,7 @@ interface PanelProps extends FileManagerProps {
 
 interface State {
   selected: string[];
+  folderMenu?: boolean;
   preview: boolean;
   busy: boolean;
   error?: string;
@@ -211,6 +213,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
       this.stopFileChanges = this.props.storage.subscribeFileChanges?.(this.fileChanged);
       this.setState({
         selected: [],
+        folderMenu: undefined,
         error: undefined,
         dialog: undefined,
         dropPath: undefined,
@@ -601,6 +604,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
 
   private fileMenu(): MenuProps {
     const entries = this.selected();
+    const folderMenu = this.state.folderMenu;
     const openable =
       entries.length === 1 &&
       entries[0].type === 'file' &&
@@ -608,6 +612,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
       entries[0].name.endsWith('.ticlo');
     const mutable =
       entries.length > 0 && entries.every((entry) => entry.path !== this.files.root && entry.gitStatus !== 'deleted');
+    const downloadable = entries.length > 0 && entries.every((entry) => entry.type === 'file');
     const disabled = this.state.busy;
     const readonly = !this.props.storage.getCapabilities(this.files.root).write;
     return {
@@ -616,18 +621,26 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         ...(this.props.onOpen && openable
           ? [{key: 'open', label: t('Open'), icon: <FolderOpenOutlined />, disabled}]
           : []),
-        {key: 'new-flow', label: t('New Dataflow'), icon: <FileAddOutlined />, disabled: disabled || readonly},
-        {key: 'new', label: t('New Folder'), icon: <FolderAddOutlined />, disabled: disabled || readonly},
-        {key: 'upload', label: t('Upload'), icon: <UploadOutlined />, disabled: disabled || readonly},
-        {type: 'divider'},
+        ...(folderMenu
+          ? [
+              {key: 'new-flow', label: t('New Dataflow'), icon: <FileAddOutlined />, disabled: disabled || readonly},
+              {key: 'new', label: t('New Folder'), icon: <FolderAddOutlined />, disabled: disabled || readonly},
+              {key: 'upload', label: t('Upload'), icon: <UploadOutlined />, disabled: disabled || readonly},
+              {type: 'divider' as const},
+            ]
+          : []),
         {key: 'cut', label: t('Cut'), icon: <ScissorOutlined />, disabled: disabled || readonly || !mutable},
         {key: 'copy', label: t('Copy'), icon: <CopyOutlined />, disabled: disabled || !mutable},
-        {
-          key: 'paste',
-          label: t('Paste'),
-          icon: <SnippetsOutlined />,
-          disabled: disabled || readonly || !this.clipboard?.entries.length,
-        },
+        ...(folderMenu
+          ? [
+              {
+                key: 'paste',
+                label: t('Paste'),
+                icon: <SnippetsOutlined />,
+                disabled: disabled || readonly || !this.clipboard?.entries.length,
+              },
+            ]
+          : []),
         {
           key: 'rename',
           label: t('Rename'),
@@ -641,17 +654,17 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           danger: true,
           disabled: disabled || readonly || !mutable,
         },
-        {type: 'divider'},
-        {
-          key: 'download',
-          label: t('Download'),
-          icon: <DownloadOutlined />,
-          disabled:
-            disabled ||
-            !entries.length ||
-            entries.some((entry) => entry.type !== 'file' || entry.gitStatus === 'deleted'),
-        },
-        {key: 'path', label: t('Copy Path'), disabled: disabled || !entries.length},
+        ...(downloadable
+          ? [
+              {type: 'divider' as const},
+              {
+                key: 'download',
+                label: t('Download'),
+                icon: <DownloadOutlined />,
+                disabled: disabled || entries.some((entry) => entry.gitStatus === 'deleted'),
+              },
+            ]
+          : []),
       ],
     };
   }
@@ -695,18 +708,6 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         break;
       case 'download':
         void this.download();
-        break;
-      case 'path':
-        void this.run(
-          () =>
-            navigator.clipboard.writeText(
-              this.selected()
-                .map((entry) => entry.path)
-                .join('\n')
-            ),
-          false,
-          false
-        );
         break;
       case 'gitInit': {
         const git = this.git();
@@ -873,6 +874,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         onDoubleClick={() => (entry.type === 'folder' ? this.toggle(entry) : this.open(entry))}
         onContextMenu={() => {
           this.menuDirectory = entry.type === 'folder' ? entry.path : parentPath(entry.path);
+          this.setState({folderMenu: entry.type === 'folder' && entry.gitStatus !== 'deleted'});
           if (!selected) {
             this.anchor = entry.path;
             this.select([entry.path]);
@@ -913,7 +915,17 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           }}
         />
         <span className={`ticl-e-file-git-${entry.gitStatus ?? 'clean'}`}>
-          {entry.type === 'folder' ? opened ? <FolderOpenOutlined /> : <FolderOutlined /> : <FileOutlined />}
+          {entry.type === 'folder' ? (
+            opened ? (
+              <FolderOpenOutlined />
+            ) : (
+              <FolderOutlined />
+            )
+          ) : previewType(entry.name) === 'image' ? (
+            <FileImageOutlined />
+          ) : (
+            <FileOutlined />
+          )}
         </span>
         <span>{entry.name}</span>
       </div>
@@ -1054,6 +1066,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             onContextMenu={(event) => {
               if (!picker && !(event.target as HTMLElement).closest('.ticl-e-file-row')) {
                 this.menuDirectory = this.files.root;
+                this.setState({folderMenu: true});
                 this.select([this.files.root]);
               }
             }}
