@@ -147,6 +147,12 @@ files. The callback receives that file entry and may return a promise. The
 designer maps the entry to a flow, loads it if needed, and opens its stage. This
 also covers namespace `#context.ticlo` and files in `#libs/`.
 
+Toolbar creation and uploads target the project root. Folder context actions
+target that folder. Creating a dataflow in the file panel writes the blank `.ticlo` file before
+calling `onOpen(entry)`. Creation fails if the file already exists, including
+when another writer creates it concurrently. Navigation creates an in-memory
+flow whose file is written only when saved.
+
 The panel supports file and folder operations, including recursive folder copies
 and uploads that preserve empty folders. Copies include entries exposed by the
 file-server listing API. Same-directory copies receive an unused

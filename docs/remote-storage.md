@@ -4,6 +4,8 @@
 from `@ticlo/node`, provide file operations and implement the runtime's
 `FlowStorage` interface. The same instance can be passed to `Root.setStorage`
 and the editor's `FileManager`.
+The package also exports `TicloFileClient` for direct access to the HTTP API.
+`RemoteStorage` accepts a custom `fetch(url, init)` and preserves native fetch cancellation.
 
 ```tsx
 import {Root} from '@ticlo/core';
@@ -47,8 +49,19 @@ remains `<project>/#context.ticlo`.
 `getFile`, `getFileInfo`, `listFiles`, `uploadFile`, `createDirectory`,
 `deleteFile`, `copyFile`, `moveFile`, and `renameFile` use the same interface
 across backends. `listProjects`, `readProject`, `createProject`, `updateProject`,
-and `deleteProject` manage projects. `_proj.json` is project metadata; runtime
+and `deleteProject` manage projects through the remote project APIs or local files.
+Remote `.proj` writes remain protected by the file server. `.proj` is project metadata; runtime
 namespace configuration remains in `ticlo.json`.
+Writable storage renames legacy `_proj.json` metadata when a project is read;
+the file server also migrates existing project directories at startup.
+
+`RemoteStorage` also exposes optional project Git operations: `getGitInfo`,
+`initGit`, `commitGit`, and `getGitHistory`. Git belongs to remote projects;
+browser `local`, static, and direct Node storage do not provide these methods.
+Remote file entries may include `gitStatus` (`added`, `modified`, or `deleted`).
+Status reflects the working tree before files are staged. Commit stages the
+project first; direct filesystem changes may be committed without a `.gitlog`
+entry. Deleted tracked files appear in listings until committed.
 
 ```ts
 const read = await storage.user.getFile('#global.ticlo');
@@ -76,6 +89,11 @@ project and guest files cannot be modified, even temporarily. Copy them to
 deleted. Missing timestamps and sizes are left undefined; static previews with
 unknown sizes require an explicit load.
 
+Browser storage instances expose `subscribeFileChanges(listener)` for successful
+writes through that instance. The listener receives the public file path and can
+unsubscribe using the returned function. It does not watch other browser tabs,
+server writers, or direct filesystem changes.
+
 `read-storage` and `write-storage` use the calling flow's project under
 `#storage/<encoded-key>.str`, through the same storage instance. Their listeners
 are notified after successful changes. Detached/in-memory runtimes use memory
@@ -99,10 +117,11 @@ flows. See [runtime lifecycle](./runtime-lifecycle.md) for startup and dependenc
 ## Server identity and local development
 
 The Ticlo host installs `routeFileStorage` from `@ticlo/web-server/file-storage`
-around the file-server routes. It adds `GET /file?op=user`, using the same
+around the file-server routes. It provides `GET /file?op=user` using the same
 `authProvider` as file operations, and rejects access to another user's `usr`
-directory. The client discovers its user ID through this endpoint; it contains
-no admin default. There is no account or login system in this adapter.
+directory. The standalone file server also provides this endpoint. The client
+discovers its user ID through it; it contains no admin default. There is no
+account or login system in this adapter.
 Cross-origin hosts must allow conditional request headers and expose `ETag`;
 the bundled server configures this for local development.
 

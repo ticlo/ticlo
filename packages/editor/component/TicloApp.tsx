@@ -3,6 +3,7 @@ import {ConfigProvider, theme} from 'antd';
 import {DragLayerContext} from 'rc-dock';
 import {
   TicloCurrentFlowContext,
+  TicloI18NContext,
   TicloLayoutContext,
   TicloLayoutContextType,
   TicloStage,
@@ -77,10 +78,12 @@ function useTicloContext(value: TicloLayoutContext) {
     return stage?.[command[0]]?.() ?? false;
   }, []);
 
+  const activeStage = registry.stages.get(registry.activeId) ?? null;
+  // Background stage snapshots stay in registryRef without notifying active-stage consumers.
   const currentFlow = useMemo(
     () => ({
       currentPath: registry.currentPath,
-      activeStage: registry.stages.get(registry.activeId) ?? null,
+      activeStage,
       activateStage,
       runStageCommand,
       onFlowFocus: (path: string) => {
@@ -89,18 +92,18 @@ function useTicloContext(value: TicloLayoutContext) {
           const stage = [...previous.stages.values()].findLast((stage) => stage.basePath === path);
           return {...previous, currentPath: path, activeId: stage?.id ?? null};
         });
-        value.onFlowFocus?.(path);
+        valueRef.current.onFlowFocus?.(path);
       },
       onFlowClosed: (path: string) => {
         updateRegistry((previous) =>
           previous.currentPath === path ? {...previous, activeId: null, currentPath: null} : previous
         );
-        value.onFlowClosed?.(path);
+        valueRef.current.onFlowClosed?.(path);
       },
       registerStage,
       unregisterStage,
     }),
-    [registry, activateStage, runStageCommand, updateRegistry, registerStage, unregisterStage, value]
+    [registry.currentPath, activeStage, activateStage, runStageCommand, updateRegistry, registerStage, unregisterStage]
   );
 
   const wrappedLayoutContext: TicloLayoutContext = useMemo(
@@ -220,13 +223,15 @@ export function TicloApp<Context extends TicloLayoutContext>({
 
   return (
     <DragLayerContext.Provider value={initDragLayer}>
-      <TicloCurrentFlowContext.Provider value={currentFlow}>
-        <TicloLayoutContextType.Provider value={wrappedLayoutContext}>
-          <div className={className} style={rootStyle} onKeyDown={onKeyDown} onPaste={onPaste}>
-            {children}
-          </div>
-        </TicloLayoutContextType.Provider>
-      </TicloCurrentFlowContext.Provider>
+      <TicloI18NContext.Provider value={value}>
+        <TicloCurrentFlowContext.Provider value={currentFlow}>
+          <TicloLayoutContextType.Provider value={wrappedLayoutContext}>
+            <div className={className} style={rootStyle} onKeyDown={onKeyDown} onPaste={onPaste}>
+              {children}
+            </div>
+          </TicloLayoutContextType.Provider>
+        </TicloCurrentFlowContext.Provider>
+      </TicloI18NContext.Provider>
     </DragLayerContext.Provider>
   );
 }

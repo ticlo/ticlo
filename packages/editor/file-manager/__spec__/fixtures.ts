@@ -1,5 +1,11 @@
 import {vi} from 'vitest';
-import {StorageError, type FileEntry, type FileAccess} from '@ticlo/core/storage/FileAccess.ts';
+import {
+  StorageError,
+  fileBytes,
+  type FileEntry,
+  type FileAccess,
+  type FilePayload,
+} from '@ticlo/core/storage/FileAccess.ts';
 import {parentPath} from '../FileOperations.ts';
 
 export function file(path: string, size = 12): FileEntry {
@@ -46,10 +52,12 @@ export function fixtureClient(initial: FileEntry[]) {
     deleteFile: vi.fn(async (path: string) => {
       for (const key of entries.keys()) if (key === path || key.startsWith(`${path}/`)) entries.delete(key);
     }),
-    uploadFile: vi.fn(async (path: string, payload: File, _options?: {existsBehavior: string}) => {
-      entries.set(path, file(path, payload.size));
-      return path;
-    }),
+    uploadFile: vi.fn(
+      async (path: string, payload: FilePayload, _options?: {existsBehavior?: string; revision?: string | null}) => {
+        entries.set(path, file(path, (await fileBytes(payload)).byteLength));
+        return path;
+      }
+    ),
   };
   return {client: methods as unknown as FileAccess, methods, entries};
 }

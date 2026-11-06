@@ -33,6 +33,18 @@ describe('mixed browser storage', () => {
     vi.unstubAllGlobals();
   });
   fileStorageContract(() => storage, 'local');
+  it('reports successful file writes through the storage instance', async () => {
+    const changed: string[] = [];
+    const unsubscribe = storage.subscribeFileChanges((path) => changed.push(path));
+    await storage.uploadFile('local/a.txt', 'one');
+    await storage.createDirectory('local/folder');
+    await storage.moveFile('local/a.txt', 'local/folder/a.txt');
+    await storage.deleteFile('local/folder/a.txt');
+    expect(changed).toEqual(['local/a.txt', 'local/folder', 'local/folder/a.txt', 'local/a.txt', 'local/folder/a.txt']);
+    unsubscribe();
+    await storage.uploadFile('local/after.txt', 'two');
+    expect(changed).toHaveLength(5);
+  });
   it('persists only the local project and never accesses the remote local project', async () => {
     await storage.saveFlow(null, {value: 7}, '+local.folder.entry');
     await storage.createDirectory('local/empty');
@@ -40,6 +52,9 @@ describe('mixed browser storage', () => {
     try {
       expect(await next.loadFlow('+local.folder.entry')).toEqual({value: 7});
       expect(await next.getFileInfo('local/empty')).toMatchObject({type: 'folder'});
+      const updated = await next.updateProject('local', {name: 'My local project'});
+      expect(updated).toEqual({id: 'local', name: 'My local project'});
+      expect(await storage.readProject('local')).toEqual(updated);
       expect(fetch).not.toHaveBeenCalled();
     } finally {
       await next.close();

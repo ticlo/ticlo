@@ -12,6 +12,7 @@ import {LocalProjectFiles} from './LocalProjectFiles.ts';
 
 export abstract class BrowserStorage extends ProjectStorage {
   private readonly local = new LocalProjectFiles();
+  private readonly fileChangeListeners = new Set<(path: string) => void>();
   constructor(
     private readonly remote: FileAccess,
     readonly user: FileAccess
@@ -20,6 +21,13 @@ export abstract class BrowserStorage extends ProjectStorage {
   }
   close() {
     return this.local.close();
+  }
+  subscribeFileChanges(listener: (path: string) => void) {
+    this.fileChangeListeners.add(listener);
+    return () => this.fileChangeListeners.delete(listener);
+  }
+  protected fileChanged(path: string) {
+    for (const listener of this.fileChangeListeners) listener(path);
   }
   private route(path: string) {
     filePath(path, true);
@@ -51,17 +59,21 @@ export abstract class BrowserStorage extends ProjectStorage {
   }
   async uploadFile(path: string, data: FilePayload, options?: FileWriteOptions) {
     const target = this.route(path);
-    return target.files.uploadFile(target.path, data, options);
+    const result = await target.files.uploadFile(target.path, data, options);
+    this.fileChanged(path);
+    return result;
   }
   async createDirectory(path: string, options?: FileRequest) {
     const target = this.route(path);
-    return target.files.createDirectory(target.path, options);
+    await target.files.createDirectory(target.path, options);
+    this.fileChanged(path);
   }
   async deleteFile(path: string, options?: FileWriteOptions) {
     if (path === 'local')
       return Promise.reject(new StorageError('The local project cannot be deleted', 'permission-denied'));
     const target = this.route(path);
-    return target.files.deleteFile(target.path, options);
+    await target.files.deleteFile(target.path, options);
+    this.fileChanged(path);
   }
   async readProject(id: string, options?: FileRequest) {
     return {...(id === 'local' ? {name: 'Local'} : {}), ...(await super.readProject(id, options))};

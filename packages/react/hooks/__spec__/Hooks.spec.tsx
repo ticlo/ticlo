@@ -94,14 +94,27 @@ describe('react hooks', function () {
   it('provides a root ref outside the designer without requiring an optional ref property', async () => {
     const flow = new Flow();
     const ref = vi.fn();
+    let handlers: Record<string, unknown>;
     function Probe() {
       const {optionalHandlers} = useTicloComp(flow, {ref});
+      handlers = optionalHandlers;
       return <div {...optionalHandlers} />;
     }
     try {
-      await root.waitRender(<Probe />);
+      await root.waitRender(
+        <ComponentContext.Provider value={{designMode: false, select: () => false, addSelection: () => false}}>
+          <Probe />
+        </ComponentContext.Provider>
+      );
+      const initialHandlers = handlers;
       expect(ref).toHaveBeenCalledWith(root.div.firstElementChild);
       expect(flow.getValue('ref')).toBeUndefined();
+      await root.waitRender(
+        <ComponentContext.Provider value={{designMode: true, select: () => false, addSelection: () => false}}>
+          <Probe />
+        </ComponentContext.Provider>
+      );
+      expect(handlers).toBe(initialHandlers);
       await root.waitRender(<></>);
       expect(ref).toHaveBeenLastCalledWith(null);
     } finally {

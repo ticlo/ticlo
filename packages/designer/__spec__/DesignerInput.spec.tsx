@@ -1,13 +1,14 @@
 import React, {StrictMode, useEffect, useRef} from 'react';
 import {vi} from 'vitest';
 import {userEvent} from 'vitest/browser';
-import {Switch} from 'antd';
+import {Dropdown, Switch} from 'antd';
 import '../style/index.css';
 import {Block, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {DesignerApp} from '../DesignerApp.tsx';
 import {loadTemplate, removeLastTemplate} from '@ticlo/editor/util/test-util.ts';
+import {Popup} from '@ticlo/editor/component/ClickPopup.tsx';
 import {DesignerStage} from '../DesignerStage.tsx';
 import {useActiveDesignerStage, type DesignerStageContextValue} from '../DesignerContext.tsx';
 
@@ -119,6 +120,12 @@ describe('Designer input', () => {
             <DesignerStage root={Root.instance} conn={conn} basePath={path} />
           </div>
           <button onClick={outsideClick}>Outside panel</button>
+          <Popup popup={<div data-testid="popup-menu">Menu</div>}>
+            <button data-testid="popup-trigger">Open menu</button>
+          </Popup>
+          <Dropdown menu={{items: [{key: 'one', label: 'One'}]}} trigger={['click']}>
+            <button data-testid="dropdown-trigger">Open dropdown</button>
+          </Dropdown>
           <Panel />
         </DesignerApp>
       </StrictMode>
@@ -218,6 +225,24 @@ describe('Designer input', () => {
 
     await userEvent.click(div.querySelector<HTMLButtonElement>('.ticl-e-app > button'));
     expect(outsideClick).toHaveBeenCalledOnce();
+  });
+
+  it('closes an outside popup when the stage is pressed', async () => {
+    const {div, host} = await createPage();
+    await userEvent.click(div.querySelector<HTMLButtonElement>('[data-testid="popup-trigger"]'));
+    await shouldHappen(() => document.querySelector('[data-testid="popup-menu"]'));
+    const popup = document.querySelector('[data-testid="popup-menu"]').parentElement;
+    await shouldHappen(() => !popup.classList.contains('ticl-e-dropdown-hidden'));
+    await userEvent.click(host, {force: true});
+    await shouldHappen(() => popup.classList.contains('ticl-e-dropdown-hidden'));
+  });
+
+  it('closes an outside dropdown when the stage is pressed', async () => {
+    const {div, host} = await createPage();
+    await userEvent.click(div.querySelector<HTMLButtonElement>('[data-testid="dropdown-trigger"]'));
+    await shouldHappen(() => document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden)'));
+    await userEvent.click(host, {force: true});
+    await shouldHappen(() => !document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden)'));
   });
 
   it('restores input and original styles in preview, redirects focus when returning to design, and removes listeners', async () => {

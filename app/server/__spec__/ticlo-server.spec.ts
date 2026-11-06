@@ -10,7 +10,7 @@ import {AsyncClientPromise} from '@ticlo/core/connect/__spec__/AsyncClientPromis
 import {RemoteStorage} from '@ticlo/remote-storage';
 import {createServerApp} from '../ticlo-server.ts';
 
-it('serves files, runtime commands, WebSockets and flow routes on one port with scoped CORS', async () => {
+it('serves files, runtime commands, WebSockets and flow routes on one port with open CORS', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'ticlo-server-'));
   const root = Root.instance;
   const storage = new MemoryFlowStorage();
@@ -27,7 +27,9 @@ it('serves files, runtime commands, WebSockets and flow routes on one port with 
     const address = server.address();
     if (typeof address !== 'object' || !address) throw new Error('Missing server address');
     const base = `http://127.0.0.1:${address.port}`;
-    expect(await (await fetch(`${base}/health`)).json()).toEqual({status: 'ok'});
+    const health = await fetch(`${base}/health`, {headers: {Origin: 'https://example.com'}});
+    expect(await health.json()).toEqual({status: 'ok'});
+    expect(health.headers.get('Access-Control-Allow-Origin')).toBe('*');
     expect(await (await fetch(base)).text()).toContain('/file');
     expect(await (await fetch(`${base}/file?op=user`)).json()).toEqual({id: 'admin'});
     expect((await fetch(`${base}/file/usr/another-user/private.txt`)).status).toBe(403);
@@ -35,34 +37,33 @@ it('serves files, runtime commands, WebSockets and flow routes on one port with 
     const preflight = await fetch(`${base}/file?op=upload`, {
       method: 'OPTIONS',
       headers: {
-        'Origin': 'http://localhost:3003',
+        'Origin': 'https://example.com',
         'Access-Control-Request-Method': 'POST',
         'Access-Control-Request-Headers': 'Content-Type,If-Match,If-None-Match',
       },
     });
     expect(preflight.status).toBe(204);
-    expect(preflight.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3003');
+    expect(preflight.headers.get('Access-Control-Allow-Origin')).toBe('*');
     expect(preflight.headers.get('Access-Control-Allow-Headers')).toContain('If-Match');
-    expect(await readdir(join(dir, 'proj/#root'))).toEqual(['_proj.json']);
+    expect(await readdir(join(dir, 'proj/#root'))).toEqual(['.proj']);
     const files = new RemoteStorage({baseURL: `${base}/file`});
     const remote = new Root();
     try {
       await remote.setStorage(files);
       await remote.start();
       expect(remote._globalRoot.save()).toEqual({'#is': ''});
-      expect(await readdir(join(dir, 'proj/#root'))).toEqual(['_proj.json']);
+      expect(await readdir(join(dir, 'proj/#root'))).toEqual(['.proj']);
     } finally {
       await remote.stop({discardChanges: true});
       remote.destroy();
     }
     await files.uploadFile('#root/download.txt', 'test fixture', {revision: null});
     const fileUrl = `${base}/file/proj/%23root/download.txt`;
-    const file = await fetch(fileUrl, {headers: {Origin: 'http://localhost:3003'}});
+    const file = await fetch(fileUrl, {headers: {Origin: 'https://example.com'}});
     expect(file.status).toBe(200);
+    expect(file.headers.get('Access-Control-Allow-Origin')).toBe('*');
     expect(file.headers.get('ETag')).toBeTruthy();
     expect(file.headers.get('Access-Control-Expose-Headers')).toContain('ETag');
-    const deniedOrigin = await fetch(fileUrl, {headers: {Origin: 'https://untrusted.example'}});
-    expect(deniedOrigin.headers.get('Access-Control-Allow-Origin')).toBeNull();
     expect((await files.readProject('#root')).id).toBe('#root');
     const upload = await files.uploadFile('#root/check.txt', 'stored', {revision: null});
     await files.uploadFile('#root/check.txt', 'updated', {revision: upload.revision});
@@ -84,10 +85,11 @@ it('serves files, runtime commands, WebSockets and flow routes on one port with 
     root.runAll();
     const response = await fetch(`${base}/ticlo`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'Origin': 'https://example.com'},
       body: JSON.stringify({cmd: 'getFlowState', path: 'combinedServer'}),
     });
     expect(await response.json()).toEqual({state: 'enabled'});
+    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
     client = new WsClientConnection(`ws://127.0.0.1:${address.port}/ticlo`, false);
     client.subscribe('combinedServer.value', callbacks);
     expect((await callbacks.promise).cache.value).toBe(42);
@@ -116,14 +118,29 @@ it('leaves existing root projects unchanged, including projects without metadata
     await first.app.request('/file?op=listProj');
     const project = join(dir, 'proj/#root');
     const metadata = '{"id":"#root","name":"My root","owner":"existing"}';
-    await writeFile(join(project, '_proj.json'), metadata);
+    await writeFile(join(project, '.proj'), metadata);
     const second = await createServerApp(dir);
     await second.app.request('/file?op=listProj');
-    expect(await readFile(join(project, '_proj.json'), 'utf8')).toBe(metadata);
-    await rm(join(project, '_proj.json'));
+    expect(await readFile(join(project, '.proj'), 'utf8')).toBe(metadata);
+    await rm(join(project, '.proj'));
     const third = await createServerApp(dir);
     await third.app.request('/file?op=listProj');
     expect(await readdir(project)).toEqual([]);
+  } finally {
+    Root.instance._globalRoot.deleteValue('^local-server');
+    await rm(dir, {recursive: true, force: true});
+  }
+});
+
+it('serves project Git operations from the installed file server', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'ticlo-git-server-'));
+  try {
+    const {app} = await createServerApp(dir);
+    const info = await app.request('/file?op=gitInfo&id=%23root');
+    expect(await info.json()).toEqual({initialized: false});
+    const initialized = await app.request('/file?op=gitInit&id=%23root', {method: 'POST'});
+    expect(initialized.status).toBe(200);
+    expect((await initialized.json()).branch).toBe('#root');
   } finally {
     Root.instance._globalRoot.deleteValue('^local-server');
     await rm(dir, {recursive: true, force: true});

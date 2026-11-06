@@ -11,8 +11,10 @@ export default defineConfig({
       'packages/node/**/*.spec.ts',
       'packages/test/**/*.spec.ts',
       'packages/web-server/**/*.spec.ts',
+      'packages/file-server/**/*.spec.ts',
       'packages/remote-storage/**/*.spec.ts',
       'packages/editor/**/*.node.test.ts',
+      'connectors/**/*.node.test.ts',
     ],
     coverage: {
       provider: 'v8',

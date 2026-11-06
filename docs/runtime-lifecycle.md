@@ -35,7 +35,7 @@ Dependencies name namespaces in the same storage; `autoLoadLibraries` and
 `autoLoadFlows` list exact names, not globs. The old `serviceLibraries` field is
 read for compatibility and converted to `autoLoadLibraries` when metadata is
 saved. Missing fields/files mean empty arrays, except for the legacy `#root`
-startup behavior above. Invalid metadata rejects activation. File-server `_proj.json`
+startup behavior above. Invalid metadata rejects activation. File-server `.proj`
 is separate project metadata; runtime storage never reads/writes it. Dependencies
 do not use a `#deps` directory.
 

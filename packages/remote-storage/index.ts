@@ -1,4 +1,6 @@
 export {RemoteStorage, type RemoteStorageOptions} from './RemoteStorage.ts';
+export {TicloFileClient} from './TicloFileClient.ts';
+export type {TicloFileClientOptions, UploadOptions, UploadPayload, ImportPayload} from './TicloFileClient.ts';
 export {StaticStorage} from './StaticStorage.ts';
 export type {
   FileAccess,

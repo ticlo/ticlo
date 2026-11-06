@@ -1,4 +1,5 @@
 import React, {StrictMode, useContext, useState} from 'react';
+import {flushSync} from 'react-dom';
 import {expectTypeOf, vi} from 'vitest';
 import {Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -7,6 +8,7 @@ import {TicloApp} from '../TicloApp.tsx';
 import {useTicloStage} from '../useTicloStage.ts';
 import {
   TicloCurrentFlowContext,
+  TicloI18NContext,
   TicloLayoutContextType,
   type TicloCurrentFlow,
   type TicloLayoutContext,
@@ -20,6 +22,86 @@ describe('TicloApp stage registry', () => {
     removeLastTemplate();
     destroyLastLocalConnection();
     Root.instance.deleteValue('TicloAppSelection');
+  });
+
+  it('updates translations for language changes without refreshing them for stage snapshots', async () => {
+    let stageContext: TicloLayoutContext;
+    let changeLanguage: (language: string) => void;
+    let translationRenders = 0;
+    let layoutRenders = 0;
+    let language: string;
+    let focusedLanguage: string;
+    function Translation(): React.ReactNode {
+      language = useContext(TicloI18NContext).language;
+      translationRenders++;
+      return null;
+    }
+    function Layout(): React.ReactNode {
+      stageContext = useContext(TicloLayoutContextType);
+      layoutRenders++;
+      return null;
+    }
+    function App() {
+      const [language, setLanguage] = useState('en');
+      changeLanguage = setLanguage;
+      return (
+        <TicloApp value={{language, onFlowFocus: () => (focusedLanguage = language)}}>
+          <Translation />
+          <Layout />
+        </TicloApp>
+      );
+    }
+    loadTemplate(<App />);
+    await shouldHappen(() => language === 'en' && stageContext != null);
+    const stage: TicloStage = {id: 'stage', basePath: 'stage', kind: 'test', selection: {paths: []}, select: vi.fn()};
+    stageContext.registerStage(stage);
+    stageContext.activateStage(stage.id);
+    await shouldHappen(() => stageContext.activeStage === stage);
+    const initialTranslationRenders = translationRenders;
+    const initialLayoutRenders = layoutRenders;
+    stageContext.registerStage({...stage, selection: {paths: ['stage.child']}});
+    await shouldHappen(() => layoutRenders > initialLayoutRenders);
+    expect(translationRenders).toBe(initialTranslationRenders);
+    changeLanguage('fr');
+    await shouldHappen(() => language === 'fr' && translationRenders > initialTranslationRenders);
+    stageContext.onFlowFocus('stage');
+    expect(focusedLanguage).toBe('fr');
+  });
+
+  it('keeps current-flow consumers stable when a background stage updates', async () => {
+    let context: TicloCurrentFlow;
+    let renders = 0;
+    function Panel(): React.ReactNode {
+      context = useContext(TicloCurrentFlowContext);
+      renders++;
+      return null;
+    }
+    loadTemplate(
+      <TicloApp value={{}}>
+        <Panel />
+      </TicloApp>
+    );
+    await shouldHappen(() => context != null);
+    const first: TicloStage = {id: 'first', basePath: 'first', kind: 'test', selection: {paths: []}, select: vi.fn()};
+    const background: TicloStage = {
+      id: 'background',
+      basePath: 'background',
+      kind: 'test',
+      selection: {paths: []},
+      select: vi.fn(),
+    };
+    flushSync(() => {
+      context.registerStage(first);
+      context.registerStage(background);
+      context.activateStage(first.id);
+    });
+    expect(context.activeStage).toBe(first);
+    const previousRenders = renders;
+    const updated = {...background, selection: {paths: ['background.child']}};
+    flushSync(() => context.registerStage(updated));
+    expect(renders).toBe(previousRenders);
+    flushSync(() => context.activateStage(background.id));
+    expect(context.activeStage).toBe(updated);
   });
 
   it('shares active stages and preserves keyboard commands when stages change or close', async () => {

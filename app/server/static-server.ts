@@ -8,7 +8,7 @@ const dir = fileURLToPath(new URL('./files/', import.meta.url));
 async function indexFolder(folder: string) {
   const files: string[] = [];
   for (const entry of await Fs.readdir(folder, {withFileTypes: true})) {
-    if (entry.name.startsWith('.') || entry.name === '_proj.json') {
+    if (entry.name.startsWith('.')) {
       continue;
     }
     if (entry.isDirectory()) {
@@ -24,7 +24,24 @@ async function indexFolder(folder: string) {
 async function start() {
   const rootProject = Path.join(dir, 'proj/#root');
   if (await Fs.mkdir(rootProject, {recursive: true})) {
-    await Fs.writeFile(Path.join(rootProject, '_proj.json'), JSON.stringify({id: '#root', name: 'Root'}), {flag: 'wx'});
+    await Fs.writeFile(Path.join(rootProject, '.proj'), JSON.stringify({id: '#root', name: 'Root'}), {flag: 'wx'});
+  }
+  for (const project of await Fs.readdir(Path.join(dir, 'proj'), {withFileTypes: true})) {
+    if (!project.isDirectory()) continue;
+    const folder = Path.join(dir, 'proj', project.name);
+    try {
+      await Fs.access(Path.join(folder, '_proj.json'));
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') continue;
+      throw error;
+    }
+    try {
+      await Fs.access(Path.join(folder, '.proj'));
+      throw new Error(`Project ${project.name} has both metadata files`);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+    }
+    await Fs.rename(Path.join(folder, '_proj.json'), Path.join(folder, '.proj'));
   }
   await Fs.mkdir(Path.join(dir, 'usr'), {recursive: true});
   await indexFolder(dir);

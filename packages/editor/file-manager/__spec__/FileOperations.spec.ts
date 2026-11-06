@@ -45,6 +45,18 @@ describe('File manager operations', () => {
     expect(fixture.methods.uploadFile.mock.calls[0][2]).toEqual({existsBehavior: 'overwrite'});
   });
 
+  it('treats a deleted Git entry as vacant when uploading a replacement', async () => {
+    const fixture = fixtureClient([{...file('demo/a.txt'), gitStatus: 'deleted'}]);
+    const confirm = vi.fn(async () => true);
+    await new FileOperations(fixture.client, 'demo').upload(
+      [{path: 'a.txt', file: new File(['restored'], 'a.txt')}],
+      'demo',
+      confirm
+    );
+    expect(confirm).not.toHaveBeenCalled();
+    expect(fixture.methods.uploadFile.mock.calls[0][2]).toEqual({existsBehavior: 'fail'});
+  });
+
   it('rejects project-root mutations, traversal, cross-project entries and self-descendant transfers before writes', async () => {
     const fixture = fixtureClient([folder('demo/src'), file('demo/a.txt')]);
     const operations = new FileOperations(fixture.client, 'demo');

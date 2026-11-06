@@ -104,6 +104,7 @@ export default defineConfig({
       'packages/chart/**/*.spec.(ts|tsx)',
       'packages/editor/**/*.spec.(ts|tsx)',
       'packages/designer/**/*.spec.(ts|tsx)',
+      'connectors/**/*.browser.test.(ts|tsx)',
     ],
     setupFiles: ['packages/html/vitest.setup.ts'],
 

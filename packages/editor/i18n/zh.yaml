@@ -192,3 +192,11 @@
 "Invalid table columns": "表格列配置无效" # translated from: Invalid table columns
 "Invalid table rows": "表格行结构无效" # translated from: Invalid table rows
 "Value changed. Reload to continue.": "值已改变，请重新载入后继续。" # translated from: Value changed. Reloa-kqB2bmX2
+"Initialize Git": "初始化 Git"
+"Git Commit": "Git 提交"
+"Git History": "Git 历史"
+"Date": "日期" # translated from: Date
+"Author": "作者" # translated from: Author
+"Message": "提交说明" # translated from: Message
+"User": "用户" # translated from: User
+"Uncommitted changes": "未提交的改动" # translated from: Uncommitted changes

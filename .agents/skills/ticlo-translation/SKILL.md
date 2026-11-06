@@ -5,7 +5,7 @@ description: Edit Ticlo translations and i18n tooling while preserving manual tr
 
 # Ticlo translation
 
-Edit `packages/**/i18n/*.yaml`, then run `pnpm build-i18n` to generate
+Edit `packages/**/i18n/*.yaml` or `connectors/**/i18n/*.yaml`, then run `pnpm build-i18n` to generate
 `i18n/<package>/<locale>.json`. Hand-edit JSON only when explicitly working on
 generated output. English sources are `en.yaml`; the merger skips `en.base.yaml`.
 

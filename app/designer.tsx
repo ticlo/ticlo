@@ -1,7 +1,7 @@
 import './styles.ts';
 import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext} from 'react';
-import {App as AntdApp, Checkbox} from 'antd';
+import {App as AntdApp, Switch} from 'antd';
 import {EditOutlined} from '@ant-design/icons';
 import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
@@ -84,13 +84,14 @@ function DesignerFiles({
   conn,
   storage,
   project,
+  layout,
 }: {
   root: Root;
   conn: ClientConnection;
   storage: ProjectFiles;
   project: string;
+  layout: DesignerLayoutContext;
 }) {
-  const layout = useContext(DesignerLayoutContextType);
   const version = useContext(FileVersionContext);
   const open = async (entry: FileEntry) => {
     const target = fileFlowPath(project, entry.path);
@@ -136,9 +137,7 @@ function DesignerHeader({
     },
   ];
   const content = (
-    <Checkbox checked={designMode} onChange={(e) => setDesignMode?.(e.target.checked)}>
-      Design mode
-    </Checkbox>
+    <Switch checked={designMode} onChange={setDesignMode} checkedChildren="Design" unCheckedChildren="Preview" />
   );
   if (files) {
     return (
@@ -212,6 +211,7 @@ class App extends React.PureComponent<Props, State> {
             onSelect={this.onSelect}
             showMenu={true}
             libraryAutoLoad={this.libraryAutoLoad}
+            showStoredFlows
           />
         ),
       },
@@ -253,7 +253,7 @@ class App extends React.PureComponent<Props, State> {
           group: 'tool',
           title: t('Files'),
           cached: true,
-          content: <DesignerFiles root={props.root} conn={conn} {...props.files} />,
+          content: <DesignerFiles root={props.root} conn={conn} {...props.files} layout={this.ticloContext} />,
         },
       };
     }

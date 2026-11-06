@@ -36,6 +36,16 @@ describe('FileManager', () => {
   function mount(props: FileManagerProps) {
     [, div] = loadTemplate(view(props), 'editor');
   }
+  function notifyFiles(fixture: ReturnType<typeof fixtureClient>) {
+    const listeners = new Set<(path: string) => void>();
+    Object.assign(fixture.client, {
+      subscribeFileChanges: (listener: (path: string) => void) => {
+        listeners.add(listener);
+        return () => listeners.delete(listener);
+      },
+    });
+    return (path: string) => listeners.forEach((listener) => listener(path));
+  }
   const row = (path: string) => div.querySelector<HTMLElement>(`[data-path="${path}"]`);
   const button = (title: string) => div.querySelector<HTMLButtonElement>(`button[title="${title}"]`);
   async function ready(path = 'demo/a.txt') {
@@ -63,6 +73,23 @@ describe('FileManager', () => {
     document.querySelector<HTMLButtonElement>(`.ant-modal .ant-btn${confirm ? '-primary' : '-default'}`).click();
   }
 
+  async function contextCommand(path: string, label: string) {
+    row(path).dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, button: 2}));
+    const item = () =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === label
+      );
+    await shouldHappen(item);
+    item().click();
+  }
+
+  async function submitName(name: string) {
+    await shouldHappen(() => document.querySelector('.ant-modal input'));
+    setName(name);
+    await shouldHappen(() => !document.querySelector<HTMLButtonElement>('.ant-modal .ant-btn-primary').disabled);
+    await modalButton(true);
+  }
+
   it('lazily expands folders, supports multi-selection, and collapses them', async () => {
     const fixture = fixtureClient([file('demo/a.txt'), folder('demo/folder'), file('demo/folder/b.txt')]);
     mount({storage: fixture.client, project: 'demo', defaultPreview: false});
@@ -75,6 +102,97 @@ describe('FileManager', () => {
     await shouldHappen(() => div.querySelectorAll('.ticl-e-file-selected').length === 2);
     row('demo/folder').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
     await shouldHappen(() => !row('demo/folder/b.txt'));
+    fixture.entries.delete('demo/folder/b.txt');
+    fixture.entries.set('demo/folder/c.txt', file('demo/folder/c.txt'));
+    row('demo/folder').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
+    await shouldHappen(() => row('demo/folder/c.txt') && !row('demo/folder/b.txt'));
+    expect(fixture.methods.listFiles.mock.calls.filter(([path]) => path === 'demo/folder')).toHaveLength(2);
+  });
+
+  it('refreshes expanded folders after file changes made elsewhere', async () => {
+    const fixture = fixtureClient([
+      folder('demo/source'),
+      file('demo/source/a.txt'),
+      folder('demo/target'),
+      folder('demo/closed'),
+    ]);
+    const changed = notifyFiles(fixture);
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready('demo/source');
+    row('demo/source').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
+    row('demo/target').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
+    await shouldHappen(() => row('demo/source/a.txt'));
+
+    const listFolder = fixture.methods.listFiles.getMockImplementation()!;
+    let delaySource = true;
+    let releaseSource: () => void;
+    fixture.methods.listFiles.mockImplementation(async (path) => {
+      if (path === 'demo/source' && delaySource) {
+        delaySource = false;
+        await new Promise<void>((resolve) => {
+          releaseSource = resolve;
+        });
+      }
+      return listFolder(path);
+    });
+    fixture.entries.set('demo/source/a.txt', {...file('demo/source/a.txt'), gitStatus: 'modified'});
+    changed('demo/source/a.txt');
+    await shouldHappen(() => releaseSource);
+    expect(row('demo/source/a.txt')).not.toBeNull();
+    releaseSource();
+    await shouldHappen(() => row('demo/source/a.txt')?.querySelector('.ticl-e-file-git-modified'));
+
+    fixture.entries.delete('demo/source/a.txt');
+    fixture.entries.set('demo/target/a.txt', {...file('demo/target/a.txt'), gitStatus: 'added'});
+    changed('demo/source/a.txt');
+    changed('demo/target/a.txt');
+    await shouldHappen(() => !row('demo/source/a.txt') && row('demo/target/a.txt'));
+    expect(row('demo/target/a.txt').querySelector('.ticl-e-file-git-added')).not.toBeNull();
+    expect(fixture.methods.listFiles.mock.calls.some(([path]) => path === 'demo/closed')).toBe(false);
+    expect(fixture.methods.listFiles.mock.calls.filter(([path]) => path === 'demo').length).toBeGreaterThan(1);
+    expect(fixture.methods.listFiles.mock.calls.filter(([path]) => path === 'demo/source').length).toBeGreaterThan(1);
+    expect(fixture.methods.listFiles.mock.calls.filter(([path]) => path === 'demo/target').length).toBeGreaterThan(1);
+
+    fixture.entries.delete('demo/source');
+    changed('demo/source');
+    await shouldHappen(() => !row('demo/source'));
+    fixture.entries.set('demo/source', folder('demo/source'));
+    fixture.entries.set('demo/source/new.txt', file('demo/source/new.txt'));
+    changed('demo/source');
+    await shouldHappen(() => row('demo/source'));
+    expect(row('demo/source/new.txt')).toBeNull();
+    row('demo/source').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
+    await shouldHappen(() => row('demo/source/new.txt'));
+  });
+
+  it('keeps an expanded folder visible until its deletion reload finishes', async () => {
+    const fixture = fixtureClient([folder('demo/folder'), file('demo/folder/a.txt')]);
+    const changed = notifyFiles(fixture);
+    const listFolder = fixture.methods.listFiles.getMockImplementation()!;
+    let delayRoot = false;
+    let releaseRoot: () => void;
+    fixture.methods.listFiles.mockImplementation(async (path) => {
+      if (path === 'demo' && delayRoot) {
+        delayRoot = false;
+        await new Promise<void>((resolve) => {
+          releaseRoot = resolve;
+        });
+      }
+      return listFolder(path);
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready('demo/folder');
+    row('demo/folder').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
+    await shouldHappen(() => row('demo/folder/a.txt'));
+
+    fixture.entries.delete('demo/folder/a.txt');
+    fixture.entries.delete('demo/folder');
+    delayRoot = true;
+    changed('demo/folder');
+    await shouldHappen(() => releaseRoot);
+    expect(row('demo/folder/a.txt')).not.toBeNull();
+    releaseRoot();
+    await shouldHappen(() => !row('demo/folder'));
   });
 
   it('automatically previews small text read-only and leaves unsupported files unloaded', async () => {
@@ -96,7 +214,8 @@ describe('FileManager', () => {
     mount({storage: fixture.client, project: 'demo', onOpen});
     await ready('demo/entry.ticlo');
     await click('demo/other.ticlo');
-    button('Actions').click();
+    expect(button('Actions')).toBeNull();
+    row('demo/other.ticlo').dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, button: 2}));
     await shouldHappen(() =>
       [...document.querySelectorAll('.ant-dropdown-menu-item')].some((item) => item.textContent.trim() === 'Open')
     );
@@ -109,6 +228,219 @@ describe('FileManager', () => {
     row('demo/entry.ticlo').dispatchEvent(new MouseEvent('dblclick', {bubbles: true}));
     await shouldHappen(() => onOpen.mock.calls.length === 2);
     expect(onOpen).toHaveBeenLastCalledWith(file('demo/entry.ticlo'));
+  });
+
+  it('persists dataflows before opening them and uses root toolbar and folder menu destinations', async () => {
+    const fixture = fixtureClient([file('demo/a.txt'), folder('demo/folder')]);
+    const upload = fixture.methods.uploadFile.getMockImplementation();
+    let finishUpload: () => void;
+    fixture.methods.uploadFile.mockImplementationOnce(async (...args) => {
+      await new Promise<void>((resolve) => {
+        finishUpload = resolve;
+      });
+      return upload(...args);
+    });
+    const onOpen = vi.fn(async (entry) => {
+      expect(fixture.entries.has(entry.path)).toBe(true);
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false, onOpen});
+    await ready();
+    await click('demo/folder');
+    button('New Dataflow').click();
+    await submitName('root-flow');
+    await shouldHappen(() => finishUpload);
+    expect(onOpen).not.toHaveBeenCalled();
+    finishUpload();
+    await ready('demo/root-flow.ticlo');
+    await shouldHappen(() => onOpen.mock.calls.length === 1 && !document.querySelector('.ant-modal'));
+    expect(onOpen.mock.calls[0][0].path).toBe('demo/root-flow.ticlo');
+
+    await click('demo/a.txt');
+    row('demo/folder').dispatchEvent(new MouseEvent('click', {bubbles: true, ctrlKey: true}));
+    await shouldHappen(() => div.querySelectorAll('.ticl-e-file-selected').length === 2);
+    await contextCommand('demo/folder', 'New Dataflow');
+    await submitName('nested');
+    await ready('demo/folder/nested.ticlo');
+    await shouldHappen(() => onOpen.mock.calls.length === 2 && !document.querySelector('.ant-modal'));
+    expect(onOpen.mock.calls[1][0].path).toBe('demo/folder/nested.ticlo');
+
+    fixture.methods.uploadFile.mockRejectedValueOnce(new Error('Write failed'));
+    button('New Dataflow').click();
+    await submitName('failed');
+    await shouldHappen(
+      () => div.querySelector('.ticl-e-file-error')?.textContent.includes('Write failed') && !button('Reload').disabled
+    );
+    expect(onOpen).toHaveBeenCalledTimes(2);
+    expect(fixture.entries.has('demo/failed.ticlo')).toBe(false);
+  });
+
+  it('runs Git commands for the displayed project and allows an empty commit message', async () => {
+    const fixture = fixtureClient([file('demo/a.txt')]);
+    let initialized = false;
+    const initGit = vi.fn(async () => {
+      initialized = true;
+      return {initialized: true, branch: 'demo'};
+    });
+    const commitGit = vi.fn(async () => ({
+      hash: 'abc',
+      author: 'alice',
+      email: 'alice@ticlo.app',
+      date: new Date().toISOString(),
+      message: 'Update project files',
+    }));
+    Object.assign(fixture.client, {
+      supportsGit: () => true,
+      getGitInfo: async () => ({initialized, branch: initialized ? 'demo' : undefined}),
+      initGit,
+      commitGit,
+      getGitHistory: async (): Promise<[]> => [],
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready();
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === 'Initialize Git'
+      )
+    );
+    expect(
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].map((item) => item.textContent.trim())
+    ).toEqual(['Initialize Git']);
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Initialize Git')
+      .click();
+    await shouldHappen(() => initGit.mock.calls.length === 1 && !button('Reload')?.disabled);
+    expect(initGit).toHaveBeenCalledWith('demo', expect.anything());
+
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === 'Git Commit'
+      )
+    );
+    expect(
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].map((item) => item.textContent.trim())
+    ).toEqual(['Git Commit', 'Git History']);
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Git Commit')
+      .click();
+    await shouldHappen(() => document.querySelector('.ant-modal textarea'));
+    await modalButton(true);
+    await shouldHappen(() => commitGit.mock.calls.length === 1);
+    expect(commitGit).toHaveBeenCalledWith('demo', '', expect.anything());
+  });
+
+  it('keeps Initialize Git visible when Git status cannot be loaded', async () => {
+    const fixture = fixtureClient([file('demo/a.txt')]);
+    Object.assign(fixture.client, {
+      supportsGit: () => true,
+      getGitInfo: async () => {
+        throw new Error('Git unavailable');
+      },
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready();
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].some(
+        (item) => item.textContent.trim() === 'Initialize Git'
+      )
+    );
+  });
+
+  it('shows pending edits and separates commit comments from logged changes', async () => {
+    const fixture = fixtureClient([file('demo/a.txt')]);
+    fixture.methods.getFile.mockResolvedValue({
+      data: new TextEncoder().encode('2026-11-04T02:00:00Z,alice <alice@example.com>,edit,"docs/a,b.txt"\n').buffer,
+      headers: {},
+    });
+    const commits = [
+      {
+        hash: 'first',
+        author: 'alice',
+        email: 'alice@example.com',
+        date: '2026-11-04T01:00:00Z',
+        message: 'First commit\n\nfirst detail\n\n--- --- ---\n2026-11-04T01:00:00Z,alice,create,"docs/""quoted"".txt"',
+      },
+      {
+        hash: 'second',
+        author: 'bob',
+        email: 'bob@example.com',
+        date: '2026-11-03T01:00:00Z',
+        message: 'Second commit\n\nsecond detail',
+      },
+    ];
+    Object.assign(fixture.client, {
+      supportsGit: () => true,
+      getGitInfo: async () => ({initialized: true, branch: 'demo'}),
+      getGitHistory: async () => commits,
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready();
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === 'Git History'
+      )
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Git History')
+      .click();
+    await shouldHappen(
+      () =>
+        document.querySelectorAll('.ticl-e-git-history > .ant-table-wrapper .ant-table-tbody tr[data-row-key]')
+          .length === 3
+    );
+    expect(fixture.methods.getFile).toHaveBeenCalledWith('demo/.gitlog', expect.anything());
+    const rows = [
+      ...document.querySelectorAll<HTMLElement>(
+        '.ticl-e-git-history > .ant-table-wrapper .ant-table-tbody tr[data-row-key]'
+      ),
+    ];
+    expect(rows[0].textContent).toContain('Uncommitted changes');
+    expect(document.querySelector('.ticl-e-git-history-changes').textContent).toContain('docs/a,b.txt');
+    rows[1].click();
+    await shouldHappen(() =>
+      document.querySelector('.ticl-e-git-history-comment')?.textContent.includes('first detail')
+    );
+    expect(rows[1].textContent).toContain('First commit');
+    expect(rows[1].textContent).not.toContain('first detail');
+    expect(document.querySelector('.ticl-e-git-history-comment').textContent).not.toContain('--- --- ---');
+    expect(document.querySelector('.ticl-e-git-history-changes').textContent).toContain('docs/"quoted".txt');
+    rows[2].click();
+    await shouldHappen(() =>
+      document.querySelector('.ticl-e-git-history-comment')?.textContent.includes('second detail')
+    );
+    expect(document.querySelector('.ticl-e-git-history-changes')).toBeNull();
+  });
+
+  it('omits the pending history row when .gitlog is empty', async () => {
+    const fixture = fixtureClient([file('demo/a.txt')]);
+    fixture.methods.getFile.mockResolvedValue({data: new ArrayBuffer(0), headers: {}});
+    Object.assign(fixture.client, {
+      supportsGit: () => true,
+      getGitInfo: async () => ({initialized: true, branch: 'demo'}),
+      getGitHistory: async () => [
+        {hash: 'first', author: 'alice', email: '', date: '2026-11-04T01:00:00Z', message: 'First'},
+      ],
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready();
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === 'Git History'
+      )
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Git History')
+      .click();
+    await shouldHappen(
+      () =>
+        document.querySelectorAll('.ticl-e-git-history > .ant-table-wrapper .ant-table-tbody tr[data-row-key]')
+          .length === 1
+    );
+    expect(document.querySelector('.ticl-e-git-history-details').textContent).toContain('First');
   });
 
   it('uses the file tree as a single-file picker without file actions', async () => {
@@ -198,6 +530,24 @@ describe('FileManager', () => {
       .querySelector('.ticl-e-file-manager')
       .dispatchEvent(new ClipboardEvent('paste', {bubbles: true, clipboardData: clipboard}));
     await ready('demo/folder/pasted.txt');
+
+    const input = div.querySelector<HTMLInputElement>('input[type="file"]');
+    vi.spyOn(input, 'click').mockImplementation(() => {});
+    button('Upload').click();
+    const toolbarFiles = new DataTransfer();
+    toolbarFiles.items.add(new File(['root'], 'toolbar.txt'));
+    Object.defineProperty(input, 'files', {value: toolbarFiles.files, configurable: true});
+    input.dispatchEvent(new Event('change', {bubbles: true}));
+    await ready('demo/toolbar.txt');
+    expect(fixture.entries.has('demo/folder/toolbar.txt')).toBe(false);
+
+    await contextCommand('demo/folder', 'Upload');
+    await click('demo');
+    const folderFiles = new DataTransfer();
+    folderFiles.items.add(new File(['folder'], 'context.txt'));
+    Object.defineProperty(input, 'files', {value: folderFiles.files, configurable: true});
+    input.dispatchEvent(new Event('change', {bubbles: true}));
+    await ready('demo/folder/context.txt');
   });
 
   it('requires confirmation before replacing uploaded files', async () => {
@@ -222,15 +572,17 @@ describe('FileManager', () => {
   });
 
   it('creates, renames and deletes entries through the dialogs, while protecting the project root', async () => {
-    const fixture = fixtureClient([file('demo/a.txt')]);
+    const fixture = fixtureClient([file('demo/a.txt'), folder('demo/folder')]);
     mount({storage: fixture.client, project: 'demo', defaultPreview: false});
     await ready();
+    await click('demo/folder');
     button('New Folder').click();
     await shouldHappen(() => document.querySelector('.ant-modal input'), 2000);
     setName('new');
     await shouldHappen(() => !document.querySelector<HTMLButtonElement>('.ant-modal .ant-btn-primary').disabled);
     await modalButton(true);
     await ready('demo/new');
+    expect(fixture.methods.createDirectory).toHaveBeenCalledWith('demo/new', expect.anything());
     await shouldHappen(() => !document.querySelector('.ant-modal'), 2000);
     await click('demo/new');
     key('F2');

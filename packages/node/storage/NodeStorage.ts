@@ -114,7 +114,7 @@ export class NodeStorage extends ProjectStorage {
       }
       return Promise.all(
         names
-          .filter((name) => !name.startsWith('.') && name !== '_proj.json')
+          .filter((name) => !name.startsWith('.'))
           .map((name) => this.getFileInfo(path ? `${path}/${name}` : name, options))
       );
     });

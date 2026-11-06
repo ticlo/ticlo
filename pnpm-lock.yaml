@@ -206,8 +206,8 @@ importers:
         specifier: workspace:*
         version: link:packages/editor
       '@ticlo/file-server':
-        specifier: ^0.1.2
-        version: 0.1.2(hono@4.13.7)
+        specifier: workspace:*
+        version: link:packages/file-server
       '@ticlo/html':
         specifier: workspace:*
         version: link:packages/html
@@ -392,8 +392,8 @@ importers:
         specifier: workspace:*
         version: link:../packages/editor
       '@ticlo/file-server':
-        specifier: ^0.1.2
-        version: 0.1.2(hono@4.13.7)
+        specifier: workspace:*
+        version: link:../packages/file-server
       '@ticlo/html':
         specifier: workspace:*
         version: link:../packages/html
@@ -606,6 +606,15 @@ importers:
         specifier: ^2.9.0
         version: 2.9.0
 
+  packages/file-server:
+    dependencies:
+      adm-zip:
+        specifier: ^0.5.16
+        version: 0.5.18
+      hono:
+        specifier: ^4.13.7
+        version: 4.13.7
+
   packages/html:
     dependencies:
       '@ticlo/core':
@@ -656,6 +665,9 @@ importers:
       '@ticlo/core':
         specifier: workspace:^
         version: link:../core
+      axios:
+        specifier: ^1.7.7
+        version: 1.20.0(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0)
 
   packages/test:
     dependencies:
@@ -678,8 +690,8 @@ importers:
         specifier: workspace:^
         version: link:../core
       '@ticlo/file-server':
-        specifier: ^0.1.2
-        version: 0.1.2(hono@4.13.7)
+        specifier: workspace:^
+        version: link:../file-server
       '@ticlo/node':
         specifier: workspace:^
         version: link:../node
@@ -2344,11 +2356,6 @@ packages:
 
   '@sinclair/typebox@0.34.52':
     resolution: {integrity: sha512-XiMQh7qqVlxZzcVD+kkGMNGMzcTrDMLWI7S4x7z1MkCkbDPrekpZXEUK0eZqZFMuHQg2a2DZOcDIh9o5v3Gonw==}
-
-  '@ticlo/file-server@0.1.2':
-    resolution: {integrity: sha512-GNuUMaACrdznhUFeLXO3uPFNEl0lRnQ3U4G7rWFfHR3hvo23/sk501SVUnZezhincH8wKirh2uE1hutgbrkLOA==}
-    peerDependencies:
-      hono: ^4.13.7
 
   '@types/adm-zip@0.5.8':
     resolution: {integrity: sha512-RVVH7QvZYbN+ihqZ4kX/dMiowf6o+Jk1fNwiSdx0NahBJLU787zkULhGhJM8mf/obmLGmgdMM0bXsQTmyfbR7Q==}
@@ -6152,11 +6159,6 @@ snapshots:
       picomatch: 4.0.7
 
   '@sinclair/typebox@0.34.52': {}
-
-  '@ticlo/file-server@0.1.2(hono@4.13.7)':
-    dependencies:
-      adm-zip: 0.5.18
-      hono: 4.13.7
 
   '@types/adm-zip@0.5.8':
     dependencies:

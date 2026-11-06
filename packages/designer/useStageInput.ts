@@ -341,7 +341,13 @@ export function useStageInput(
         forwardedEvents.set(forwarded, event);
         stage.dispatchEvent(forwarded);
         // Preserve native scrolling, while preventing page focus and other default input.
-        if (event.type !== 'wheel' || forwarded.defaultPrevented) event.preventDefault();
+        // Let a mouse pointerdown produce its native mousedown, which outside menus use to close.
+        // The mousedown itself is still redirected and canceled before page controls receive it.
+        if (
+          (event.type !== 'wheel' || forwarded.defaultPrevented) &&
+          (event.type !== 'pointerdown' || (event as PointerEvent).pointerType !== 'mouse')
+        )
+          event.preventDefault();
         return;
       }
       const target =

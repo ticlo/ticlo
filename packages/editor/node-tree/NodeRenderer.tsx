@@ -1,8 +1,6 @@
 import React from 'react';
 
 import {
-  BookFilled,
-  BookOutlined,
   BuildOutlined,
   CheckOutlined,
   DeleteOutlined,
@@ -15,8 +13,10 @@ import {
   FolderOpenFilled,
   GlobalOutlined,
   PauseCircleOutlined,
+  ProfileOutlined,
   SaveOutlined,
   SearchOutlined,
+  WalletOutlined,
 } from '@ant-design/icons';
 
 import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree.tsx';
@@ -657,7 +657,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     icon = <TIcon icon={iconName} style={colorStyle} />;
 
     if (!dynamicStyle) {
-      if (saveAllowed.has(item.functionId)) {
+      if (item.functionId === 'flow:context') {
+        icon = <ProfileOutlined />;
+      } else if (saveAllowed.has(item.functionId)) {
         if (this.hasChangeListener.value) {
           icon = item.functionId === 'flow:main' && this.state.autoLoad ? <FileTextFilled /> : <FileTextOutlined />;
         } else {
@@ -670,7 +672,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
       } else if (item.functionId === 'flow:namespace') {
         icon = <FolderOpenFilled />;
       } else if (item.functionId === 'flow:lib') {
-        icon = this.state.autoLoad ? <BookFilled /> : <BookOutlined />;
+        icon = <WalletOutlined />;
       }
     }
 

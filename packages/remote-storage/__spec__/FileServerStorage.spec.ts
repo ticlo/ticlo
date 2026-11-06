@@ -6,7 +6,7 @@ import {serve} from '@hono/node-server';
 import {Hono} from 'hono';
 import {routeFileStorage} from '@ticlo/web-server/file-storage.ts';
 import {Root, Flow, FlowFolder, encodeSorted} from '@ticlo/core';
-import {RemoteStorage} from '../index.ts';
+import {RemoteStorage, TicloFileClient} from '../index.ts';
 
 describe('FileServerStorage integration', () => {
   let dir: string;
@@ -18,7 +18,7 @@ describe('FileServerStorage integration', () => {
   async function project(id: string, files: Record<string, unknown> = {}) {
     const path = join(dir, 'proj', id);
     await mkdir(path, {recursive: true});
-    await writeFile(join(path, '_proj.json'), JSON.stringify({id, name: id}));
+    await writeFile(join(path, '.proj'), JSON.stringify({id, name: id}));
     for (const [file, data] of Object.entries(files)) {
       await mkdir(join(path, file, '..'), {recursive: true});
       await writeFile(join(path, file), encodeSorted(data));
@@ -51,6 +51,51 @@ describe('FileServerStorage integration', () => {
     root?.destroy();
     await close?.();
     await rm(dir, {recursive: true, force: true});
+  });
+
+  it('uses the embedded file client for project and conditional file APIs', async () => {
+    const api = new TicloFileClient({baseURL});
+    expect(await api.getCurrentUser()).toEqual({id: 'alice'});
+    const created = await api.createProject('client');
+    expect(created.id).toBe('client');
+    expect((await api.updateProject('client', {description: 'test'})).description).toBe('test');
+
+    const path = 'proj/client/new.txt';
+    const first = await api.uploadFileResponse(path, 'first', {}, {headers: {'If-None-Match': '*'}});
+    await expect(api.uploadFile(path, 'stale', {}, {headers: {'If-Match': '"stale"'}})).rejects.toMatchObject({
+      response: {status: 412},
+    });
+    expect((await api.getFile(path)).headers.etag).toBe(first.headers.etag);
+    await api.deleteProject('client');
+  });
+
+  it('creates and deletes projects through the project API', async () => {
+    const api = new TicloFileClient({baseURL});
+    const created = await client.createProject('created', {description: 'New project'});
+    expect(created).toMatchObject({id: 'created', name: 'created', owner: 'alice', description: 'New project'});
+    expect(await client.readProject('created')).toEqual(created);
+    expect(await api.listProjects()).toContainEqual(created);
+    await expect(client.createProject('created')).rejects.toMatchObject({code: 'conflict'});
+    await client.deleteProject('created');
+    await expect(client.readProject('created')).rejects.toMatchObject({code: 'not-found'});
+    expect(await api.listProjects()).not.toContainEqual(created);
+  });
+
+  it('updates protected project metadata through the project API and preserves other fields', async () => {
+    await project('main');
+    await project('other');
+    const changes: string[] = [];
+    client.subscribeFileChanges((path) => changes.push(path));
+
+    await expect(client.uploadFile('main/.proj', '{}')).rejects.toMatchObject({code: 'permission-denied'});
+    const updated = await client.updateProject('main', {description: 'Updated', id: 'other'});
+    expect(updated).toEqual({id: 'main', name: 'main', description: 'Updated'});
+    expect(await client.readProject('main')).toEqual(updated);
+    expect(await client.readProject('other')).toEqual({id: 'other', name: 'other'});
+    expect(changes).toEqual(['main/.proj']);
+
+    await expect(client.updateProject('missing', {description: 'Missing'})).rejects.toMatchObject({code: 'not-found'});
+    expect(changes).toEqual(['main/.proj']);
   });
 
   it('loads recursive and circular deps once, skips invalid files, and reads globals from the authenticated user', async () => {
@@ -206,7 +251,7 @@ describe('FileServerStorage integration', () => {
 
   it('reads and writes ticlo.json without fetching or changing project management metadata', async () => {
     await project('main', {'#libs/service.ticlo': {'#disabled': true}, 'unused.ticlo': {value: 9}});
-    const projectPath = join(dir, 'proj/main/_proj.json');
+    const projectPath = join(dir, 'proj/main/.proj');
     const original = await readFile(projectPath, 'utf8');
     const get = vi.spyOn(client, 'getFile');
     const readProject = vi.spyOn(client, 'readProject');
@@ -225,7 +270,7 @@ describe('FileServerStorage integration', () => {
     expect(await storage.getNamespaceMetadata('main')).toEqual({autoLoadLibraries: []});
     expect(await readFile(projectPath, 'utf8')).toBe(original);
     expect(readProject).not.toHaveBeenCalled();
-    expect(get.mock.calls.every(([path]) => !path.endsWith('_proj.json') && !path.endsWith('#proj.json'))).toBe(true);
+    expect(get.mock.calls.every(([path]) => !path.endsWith('.proj') && !path.endsWith('#proj.json'))).toBe(true);
     await root.stop();
     expect(await storage.loadLib('+main', 'service')).toEqual({'#disabled': true});
   });

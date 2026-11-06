@@ -8,7 +8,7 @@ const dirHistory = new Set<string>();
 const temporaryPaths: string[] = [];
 const workspaceVersions = new Map<string, string>();
 
-for (const manifestPath of glob.sync('packages/*/package.json', {posix: true})) {
+for (const manifestPath of glob.sync('{packages,connectors}/*/package.json', {posix: true})) {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
   workspaceVersions.set(manifest.name, manifest.version);
 }
@@ -45,14 +45,15 @@ function makeDir(path: string) {
   shelljs.mkdir('-p', path);
 }
 
-async function buildPackage(name: string) {
-  const fromDir = `packages/${name}`;
+async function buildPackage(fromDir: string) {
+  const name = fromDir.split('/').at(-1);
   console.log(`building ${fromDir}`);
   // Build packages in dependency order so later packages can use earlier output.
   const targetDir = `./build/${name}`;
   console.log(targetDir);
   shelljs.rm('-rf', targetDir);
   makeDir(targetDir);
+  fs.copyFileSync('./LICENSE', `${targetDir}/LICENSE`);
   // copy tsconfig
   shelljs.cp('./tool/package-tsconfig.json', targetDir);
   shelljs.mv(`${targetDir}/package-tsconfig.json`, `${targetDir}/tsconfig.json`);
@@ -86,13 +87,15 @@ async function buildPackage(name: string) {
   resolveWorkspaceDependencies(packageJson);
   fs.writeFileSync(`${targetDir}/package.json`, JSON.stringify(packageJson, null, 2));
 
-  buildPackageCss(name, targetDir);
+  buildPackageCss(fromDir, targetDir);
 
   // pnpm keeps dependencies under each workspace package. Make them available
   // while compiling the copied sources, then remove the temporary link.
   const nodeModulesPath = `${targetDir}/node_modules`;
-  shelljs.ln('-s', normalize(`../../${fromDir}/node_modules`), nodeModulesPath);
-  temporaryPaths.push(nodeModulesPath);
+  if (fs.existsSync(`${fromDir}/node_modules`)) {
+    shelljs.ln('-s', normalize(`../../${fromDir}/node_modules`), nodeModulesPath);
+    temporaryPaths.push(nodeModulesPath);
+  }
 
   // run tsc
   shelljs.pushd('-q', targetDir);
@@ -110,20 +113,25 @@ async function buildPackage(name: string) {
 async function main() {
   makeDir('build');
   try {
-    await buildPackage('core');
+    await buildPackage('packages/core');
 
-    await buildPackage('html');
-    await buildPackage('remote-storage');
+    await buildPackage('packages/file-server');
 
-    // await buildPackage('editor');
+    await buildPackage('packages/html');
+    await buildPackage('packages/remote-storage');
+
+    // await buildPackage('packages/editor');
     // shelljs.cp('./dist/*.css', './build/editor');
     //
-    await buildPackage('react');
-    await buildPackage('chart');
+    await buildPackage('packages/react');
+    await buildPackage('packages/chart');
+    for (const manifestPath of glob.sync('connectors/*/package.json', {posix: true})) {
+      await buildPackage(manifestPath.slice(0, -'/package.json'.length));
+    }
     //
-    // await buildPackage('node');
+    // await buildPackage('packages/node');
     //
-    // await buildPackage('express');
+    // await buildPackage('packages/express');
   } finally {
     shelljs.rm(temporaryPaths);
   }
