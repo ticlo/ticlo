@@ -190,8 +190,18 @@ class TicloFileClient {
     );
   }
 
-  async getGitHistory(id: string, config?: AxiosRequestConfig): Promise<GitCommit[]> {
-    return this.requestOp<GitCommit[]>('GET', 'gitHistory', {id: normalizeIdentifier(id)}, undefined, config);
+  async getGitBranches(id: string, config?: AxiosRequestConfig): Promise<string[]> {
+    return this.requestOp<string[]>('GET', 'gitBranches', {id: normalizeIdentifier(id)}, undefined, config);
+  }
+
+  async getGitHistory(id: string, config?: AxiosRequestConfig, branch?: string): Promise<GitCommit[]> {
+    return this.requestOp<GitCommit[]>(
+      'GET',
+      'gitHistory',
+      {id: normalizeIdentifier(id), ...(branch ? {branch} : {})},
+      undefined,
+      config
+    );
   }
 
   async resetGitToCommit(id: string, commit: string, config?: AxiosRequestConfig): Promise<{backupBranch: string}> {

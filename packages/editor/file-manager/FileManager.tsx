@@ -1,10 +1,11 @@
 import React, {useContext} from 'react';
-import {Button, Dropdown, Input, Modal, Spin, Table, type MenuProps} from 'antd';
+import {Button, Dropdown, Input, Modal, Popover, Spin, Table, Tree, type MenuProps} from 'antd';
 import {DateTime} from 'luxon';
 import {
   CloseOutlined,
   CopyOutlined,
   DeleteOutlined,
+  DownOutlined,
   DownloadOutlined,
   EditOutlined,
   EllipsisOutlined,
@@ -74,6 +75,9 @@ interface State {
   gitDialog?: 'commit' | 'history';
   gitMessage: string;
   gitHistory: GitCommit[];
+  gitBranches: string[];
+  gitBranch?: string;
+  gitBranchOpen?: boolean;
   gitLog: string;
   gitSelected?: string;
   gitCreate?: {commit: string; name: string};
@@ -86,6 +90,32 @@ interface GitLogRow {
   user: string;
   change: string;
   file: string;
+}
+
+interface GitBranchNode {
+  key: string;
+  title: string;
+  selectable?: boolean;
+  children?: GitBranchNode[];
+}
+
+function branchTree(branches: string[]): GitBranchNode[] {
+  const roots: GitBranchNode[] = [];
+  for (const branch of [...branches].sort().reverse()) {
+    let nodes = roots;
+    let key = '';
+    const parts = branch.split('/');
+    for (const [index, part] of parts.entries()) {
+      key = key ? `${key}/${part}` : part;
+      let node = nodes.find((item) => item.key === key);
+      if (!node) {
+        node = {key, title: part, selectable: index === parts.length - 1, children: []};
+        nodes.push(node);
+      }
+      nodes = node.children;
+    }
+  }
+  return roots;
 }
 
 const pendingHash = 'uncommitted';
@@ -177,6 +207,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     name: '',
     gitMessage: '',
     gitHistory: [],
+    gitBranches: [],
     gitLog: '',
   };
   private controller = new AbortController();
@@ -455,13 +486,41 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           return;
         await git.resetGitToCommit(this.props.project, commit, {signal: this.files.signal});
         await this.props.onProjectReset?.();
+        const [gitInfo, gitBranches, gitHistory] = await Promise.all([
+          git.getGitInfo(this.props.project, {signal: this.files.signal}),
+          git.getGitBranches(this.props.project, {signal: this.files.signal}),
+          git.getGitHistory(this.props.project, {signal: this.files.signal}),
+        ]);
         this.setState({
-          gitHistory: await git.getGitHistory(this.props.project, {signal: this.files.signal}),
+          gitInfo,
+          gitBranches,
+          gitBranch: gitInfo.branch,
+          gitHistory,
           gitLog: '',
           gitSelected: commit,
         });
       },
       true,
+      false
+    );
+  };
+
+  private selectGitBranch = (branch: string) => {
+    this.setState({gitBranchOpen: false});
+    if (branch === this.state.gitBranch) return;
+    const git = this.git();
+    if (!git) return;
+    void this.run(
+      async () => {
+        const gitHistory = await git.getGitHistory(this.props.project, {signal: this.files.signal, branch});
+        this.setState({
+          gitBranch: branch,
+          gitHistory,
+          gitSelected:
+            branch === this.state.gitInfo?.branch && this.state.gitLog.trim() ? pendingHash : gitHistory[0]?.hash,
+        });
+      },
+      false,
       false
     );
   };
@@ -873,7 +932,9 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         if (git)
           void this.run(
             async () => {
-              const [gitHistory, gitLog] = await Promise.all([
+              const [gitInfo, gitBranches, gitHistory, gitLog] = await Promise.all([
+                git.getGitInfo(this.props.project, {signal: this.files.signal}),
+                git.getGitBranches(this.props.project, {signal: this.files.signal}),
                 git.getGitHistory(this.props.project, {signal: this.files.signal}),
                 this.props.storage
                   .getFile(`${this.files.root}/.gitlog`, {signal: this.files.signal})
@@ -884,9 +945,13 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
                   }),
               ]);
               this.setState({
+                gitInfo,
+                gitBranches,
+                gitBranch: gitInfo.branch,
                 gitHistory,
                 gitLog,
                 gitSelected: gitLog.trim() ? pendingHash : gitHistory[0]?.hash,
+                gitBranchOpen: false,
                 gitDialog: 'history',
               });
             },
@@ -1100,7 +1165,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     add(this.rootEntry, 0);
     const selected = this.selected();
     const entry = selected.length === 1 && selected[0].gitStatus !== 'deleted' ? selected[0] : undefined;
-    const pendingLog = this.state.gitLog.trim();
+    const pendingLog = this.state.gitBranch === this.state.gitInfo?.branch ? this.state.gitLog.trim() : '';
     const historyRows = pendingLog
       ? [
           {
@@ -1308,7 +1373,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           <Modal
             title={t('Git History')}
             open={this.state.gitDialog === 'history'}
-            onCancel={() => this.setState({gitDialog: undefined})}
+            onCancel={() => this.setState({gitDialog: undefined, gitBranchOpen: false})}
             footer={null}
             width="min(1100px, calc(100vw - 32px))"
             style={{top: 24}}
@@ -1342,12 +1407,31 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
                     this.gitContextHash = row.dataset.rowKey;
                   }}
                 >
+                  <Popover
+                    trigger="click"
+                    placement="bottomLeft"
+                    open={this.state.gitBranchOpen}
+                    onOpenChange={(open) => this.setState({gitBranchOpen: open})}
+                    content={
+                      <Tree
+                        showLine
+                        defaultExpandAll
+                        selectedKeys={this.state.gitBranch ? [this.state.gitBranch] : []}
+                        treeData={branchTree(this.state.gitBranches)}
+                        onSelect={(_, {node}) => this.selectGitBranch(String(node.key))}
+                      />
+                    }
+                  >
+                    <Button className="ticl-e-git-branch-button" disabled={busy}>
+                      {this.state.gitBranch || 'HEAD'} <DownOutlined />
+                    </Button>
+                  </Popover>
                   <Table<GitCommit>
                     size="small"
                     rowKey="hash"
                     dataSource={historyRows}
                     pagination={false}
-                    scroll={{x: 470, y: 'min(840px, calc(100vh - 205px))'}}
+                    scroll={{x: 470, y: 'min(800px, calc(100vh - 250px))'}}
                     columns={[
                       {
                         title: t('Date'),

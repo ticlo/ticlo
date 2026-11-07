@@ -14,6 +14,7 @@ interface FileQuerystring {
   id?: string;
   template?: string;
   commit?: string;
+  branch?: string;
 }
 
 interface FileStorageOptions {

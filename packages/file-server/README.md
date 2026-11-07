@@ -36,7 +36,8 @@ If both names exist in one project, startup fails instead of overwriting either 
 Project archives import either `_proj.json` or `.proj` metadata and export only `.proj`.
 Other dot-prefixed files, including `.gitignore`, `.gitlog`, and `.gitkeep`, are omitted from exports.
 
-Read operations (`get`, `list`, `info`, `listProj`, `readProj`, `exportProj`, `gitInfo`, `gitHistory`, `user`)
+Read operations (`get`, `list`, `info`, `listProj`, `readProj`, `exportProj`,
+`gitInfo`, `gitBranches`, `gitHistory`, `user`)
 support GET. Mutating operations require POST; GET returns HTTP 405.
 `user` and the client's `getCurrentUser` return the authenticated user's ID for accessing `usr/<id>` files.
 
@@ -45,11 +46,12 @@ support GET. Mutating operations require POST; GET returns HTTP 405.
 Each project can have its own Git repository. `gitInit` initializes the `main` branch,
 creates `.gitignore` with `/.gitlog`, and stages the
 existing files without committing. `gitInfo` returns `{initialized, branch?}`.
-`gitHistory` returns commits with hash, author, email, date, and full
-message. `gitCommit` accepts `{message: string}`; the message may be empty.
+`gitBranches` lists local branches. `gitHistory` accepts an optional `branch`
+and returns commits with hash, author, email, date, and full message.
+`gitCommit` accepts `{message: string}`; the message may be empty.
 `gitRestore` accepts a `proj/<id>/<file>` path and restores a modified or deleted
 tracked file from `HEAD`. The client exposes these operations as `initGit`,
-`getGitInfo`, `getGitHistory`, `commitGit`, and `restoreGitFile`.
+`getGitInfo`, `getGitBranches`, `getGitHistory`, `commitGit`, and `restoreGitFile`.
 `gitReset` resets `main` to a history commit after creating a dated `backup/` branch.
 It discards uncommitted changes. `createProj` accepts `template` and `commit`
 to create an unversioned project from that commit's file snapshot.

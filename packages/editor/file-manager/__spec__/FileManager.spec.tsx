@@ -383,6 +383,7 @@ describe('FileManager', () => {
       getGitInfo: async () => ({initialized, branch: initialized ? 'demo' : undefined}),
       initGit,
       commitGit,
+      getGitBranches: async () => ['demo'],
       getGitHistory: async (): Promise<[]> => [],
     });
     mount({storage: fixture.client, project: 'demo', defaultPreview: false});
@@ -499,6 +500,7 @@ describe('FileManager', () => {
     Object.assign(fixture.client, {
       supportsGit: () => true,
       getGitInfo: async () => ({initialized: true, branch: 'demo'}),
+      getGitBranches: async () => ['demo'],
       getGitHistory: async () => commits,
     });
     mount({storage: fixture.client, project: 'demo', defaultPreview: false});
@@ -546,6 +548,7 @@ describe('FileManager', () => {
     Object.assign(fixture.client, {
       supportsGit: () => true,
       getGitInfo: async () => ({initialized: true, branch: 'demo'}),
+      getGitBranches: async () => ['demo'],
       getGitHistory: async () => [
         {hash: 'first', author: 'alice', email: '', date: '2026-11-04T01:00:00Z', message: 'First'},
       ],
@@ -569,6 +572,64 @@ describe('FileManager', () => {
     expect(document.querySelector('.ticl-e-git-history-details').textContent).toContain('First');
   });
 
+  it('switches branch history from the tree and shows pending edits only on the current branch', async () => {
+    const fixture = fixtureClient([file('demo/a.txt')]);
+    fixture.methods.getFile.mockResolvedValue({
+      data: new TextEncoder().encode('2026-11-04T02:00:00Z,alice,edit,a.txt\n').buffer,
+      headers: {},
+    });
+    const current = [{hash: 'current', author: 'alice', email: '', date: '', message: 'Current commit'}];
+    const backup = [{hash: 'backup', author: 'bob', email: '', date: '', message: 'Backup commit'}];
+    const branch = 'backup/2026-11-07-01-00';
+    const getGitHistory = vi.fn(async (_project: string, options?: {branch?: string}) =>
+      options?.branch === branch ? backup : current
+    );
+    Object.assign(fixture.client, {
+      supportsGit: () => true,
+      getGitInfo: async () => ({initialized: true, branch: 'main'}),
+      getGitBranches: async () => [branch, 'main'],
+      getGitHistory,
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready();
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === 'Git History'
+      )
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Git History')
+      .click();
+    await shouldHappen(() => document.querySelector('.ticl-e-git-branch-button')?.textContent.includes('main'));
+    expect(document.querySelectorAll('.ticl-e-git-history-list tr[data-row-key]')).toHaveLength(2);
+
+    document.querySelector<HTMLButtonElement>('.ticl-e-git-branch-button').click();
+    const leaf = await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-popover .ant-tree-title')].find(
+        (item) => item.textContent === '2026-11-07-01-00'
+      )
+    );
+    expect(document.querySelector('.ant-popover .ant-tree')?.textContent).toContain('backup');
+    leaf.click();
+    await shouldHappen(() => document.querySelector('.ticl-e-git-branch-button')?.textContent.includes(branch));
+    expect(getGitHistory).toHaveBeenCalledWith('demo', expect.objectContaining({branch}));
+    expect(document.querySelectorAll('.ticl-e-git-history-list tr[data-row-key]')).toHaveLength(1);
+    expect(document.querySelector('.ticl-e-git-history-list').textContent).toContain('Backup commit');
+    expect(document.querySelector('.ticl-e-git-history-list').textContent).not.toContain('Uncommitted changes');
+
+    document.querySelector<HTMLButtonElement>('.ticl-e-git-branch-button').click();
+    (
+      await shouldHappen(() =>
+        [...document.querySelectorAll<HTMLElement>('.ant-popover .ant-tree-title')].find(
+          (item) => item.textContent === 'main'
+        )
+      )
+    ).click();
+    await shouldHappen(() => document.querySelector('.ticl-e-git-branch-button')?.textContent.includes('main'));
+    expect(document.querySelectorAll('.ticl-e-git-history-list tr[data-row-key]')).toHaveLength(2);
+  });
+
   it('uses the right-clicked commit for namespace creation and reset', async () => {
     const fixture = fixtureClient([file('demo/a.txt')]);
     fixture.methods.getFile.mockResolvedValue({data: new ArrayBuffer(0), headers: {}});
@@ -585,6 +646,7 @@ describe('FileManager', () => {
     Object.assign(fixture.client, {
       supportsGit: () => true,
       getGitInfo: async () => ({initialized: true, branch: 'main'}),
+      getGitBranches: async () => ['main'],
       getGitHistory: async () => commits,
       createProjectFromCommit,
       resetGitToCommit,

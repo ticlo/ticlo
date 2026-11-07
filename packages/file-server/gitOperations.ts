@@ -99,7 +99,9 @@ async function verifyHistoryCommit(projectRoot: string, commit: string): Promise
     throw new StorageError('Invalid history commit', 400);
   }
   try {
-    await git(projectRoot, 'merge-base', '--is-ancestor', commit, 'HEAD');
+    if (!(await git(projectRoot, 'branch', '--contains', commit, '--format=%(refname)')).trim()) {
+      throw new Error('Commit is not on a local branch');
+    }
   } catch {
     throw new StorageError('Commit is not in this project history', 400);
   }
@@ -357,10 +359,29 @@ async function gitInfo(projectRoot: string): Promise<{initialized: boolean; bran
   return {initialized: true, branch: (await git(projectRoot, 'branch', '--show-current')).trim()};
 }
 
-async function gitHistory(projectRoot: string): Promise<GitCommit[]> {
+async function gitBranches(projectRoot: string): Promise<string[]> {
   await ensureGit(projectRoot);
-  if (!(await hasCommit(projectRoot))) return [];
-  const output = await git(projectRoot, 'log', '--format=%H%x00%an%x00%ae%x00%aI%x00%B%x00');
+  const branches = (await git(projectRoot, 'for-each-ref', '--format=%(refname:short)', 'refs/heads'))
+    .trim()
+    .split('\n')
+    .filter(Boolean);
+  const current = (await git(projectRoot, 'branch', '--show-current')).trim();
+  if (current && !branches.includes(current)) branches.push(current);
+  return branches.sort();
+}
+
+async function gitHistory(projectRoot: string, branch?: string): Promise<GitCommit[]> {
+  await ensureGit(projectRoot);
+  if (branch && !(await gitBranches(projectRoot)).includes(branch)) throw new StorageError('Branch not found', 404);
+  const current = (await git(projectRoot, 'branch', '--show-current')).trim();
+  if ((!branch || branch === current) && !(await hasCommit(projectRoot))) return [];
+  const output = await git(
+    projectRoot,
+    'log',
+    '--format=%H%x00%an%x00%ae%x00%aI%x00%B%x00',
+    branch ? `refs/heads/${branch}` : 'HEAD',
+    '--'
+  );
   return output
     .split('\0\n')
     .filter(Boolean)
@@ -414,6 +435,7 @@ export {
   verifyHistoryCommit,
   withCommitWorktree,
   gitHistory,
+  gitBranches,
   gitInfo,
   gitStatus,
   hasGit,

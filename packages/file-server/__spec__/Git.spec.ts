@@ -134,6 +134,10 @@ describe('project Git API', () => {
   it('shows unstaged status, protects internal files, and commits the log with its author', async () => {
     expect((await request('POST', 'gitInit', {id: 'main'})).status).toBe(200);
     expect((await request('GET', 'gitInfo', {id: 'main'}).then((response) => response.json())).branch).toBe('main');
+    expect(await request('GET', 'gitBranches', {id: 'main'}).then((response) => response.json())).toEqual(['main']);
+    expect(
+      await request('GET', 'gitHistory', {id: 'main', branch: 'main'}).then((response) => response.json())
+    ).toEqual([]);
     expect(
       (await request('GET', 'list', {path: 'proj/main'}).then((response) => response.json())).find(
         (entry: {name: string}) => entry.name === 'a.txt'
@@ -259,6 +263,22 @@ describe('project Git API', () => {
     expect(await readdir(join(root, 'proj/main'))).not.toContain('pending.txt');
     expect(await readFile(join(root, 'proj/main/.gitlog'), 'utf8')).toBe('');
     expect(await request('GET', 'gitHistory', {id: 'main'}).then((result) => result.json())).toHaveLength(1);
+    expect(await request('GET', 'gitBranches', {id: 'main'}).then((result) => result.json())).toEqual([
+      backupBranch,
+      'main',
+    ]);
+    const backupHistory = await request('GET', 'gitHistory', {id: 'main', branch: backupBranch}).then((result) =>
+      result.json()
+    );
+    expect(backupHistory.map((commit: {hash: string}) => commit.hash)).toEqual([later, initial]);
+    expect((await request('GET', 'gitHistory', {id: 'main', branch: 'missing'})).status).toBe(404);
+    expect((await request('GET', 'gitHistory', {id: 'main', branch: '--all'})).status).toBe(404);
+    expect((await request('POST', 'createProj', {name: 'from-backup', template: 'main', commit: later})).status).toBe(
+      200
+    );
+    expect(await readFile(join(root, 'proj/from-backup/a.txt'), 'utf8')).toBe('later');
+    expect((await request('POST', 'gitReset', {id: 'main', commit: later})).status).toBe(200);
+    expect(await readFile(join(root, 'proj/main/a.txt'), 'utf8')).toBe('later');
     expect((await request('GET', 'gitInfo', {id: 'main'}).then((result) => result.json())).branch).toBe('main');
     expect((await exec('git', ['-C', join(root, 'proj/main'), 'status', '--porcelain'])).stdout).toBe('');
   });

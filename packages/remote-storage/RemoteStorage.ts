@@ -54,7 +54,17 @@ class RemoteFiles extends FileAccessBase {
     if (options.existsBehavior === 'fail') query.set('exists', 'fail');
     if (options.revision === null) headers.set('If-None-Match', '*');
     else if (options.revision !== undefined) headers.set('If-Match', options.revision);
-    const write = !['get', 'list', 'info', 'listProj', 'readProj', 'user', 'gitInfo', 'gitHistory'].includes(operation);
+    const write = ![
+      'get',
+      'list',
+      'info',
+      'listProj',
+      'readProj',
+      'user',
+      'gitInfo',
+      'gitHistory',
+      'gitBranches',
+    ].includes(operation);
     if (body !== undefined)
       headers.set(
         'Content-Type',
@@ -321,9 +331,15 @@ export class RemoteStorage extends BrowserStorage implements ProjectGit, LocalBa
   supportsGit(project: string) {
     return project !== 'local';
   }
-  private async gitRequest(operation: string, project: string, body?: string, options?: FileRequest) {
+  private async gitRequest(
+    operation: string,
+    project: string,
+    body?: string,
+    options?: FileRequest,
+    params: Record<string, string> = {}
+  ) {
     try {
-      return await this.projectFiles.request(operation, {id: project}, body, options);
+      return await this.projectFiles.request(operation, {id: project, ...params}, body, options);
     } catch (error) {
       if (error instanceof StorageError && /Operation requires POST|Unsupported op: git/.test(error.message)) {
         throw new StorageError('This file server does not support Git', 'io', {cause: error});
@@ -340,8 +356,13 @@ export class RemoteStorage extends BrowserStorage implements ProjectGit, LocalBa
   async commitGit(project: string, message: string, options?: FileRequest): Promise<GitCommit> {
     return (await this.gitRequest('gitCommit', project, JSON.stringify({message}), options)).json();
   }
-  async getGitHistory(project: string, options?: FileRequest): Promise<GitCommit[]> {
-    return (await this.gitRequest('gitHistory', project, undefined, options)).json();
+  async getGitBranches(project: string, options?: FileRequest): Promise<string[]> {
+    return (await this.gitRequest('gitBranches', project, undefined, options)).json();
+  }
+  async getGitHistory(project: string, options?: FileRequest & {branch?: string}): Promise<GitCommit[]> {
+    return (
+      await this.gitRequest('gitHistory', project, undefined, options, options?.branch ? {branch: options.branch} : {})
+    ).json();
   }
   async resetGitToCommit(project: string, commit: string, options?: FileRequest): Promise<{backupBranch: string}> {
     projectId(project);

@@ -27,6 +27,7 @@ import {
 } from './projectRouteHandlers.ts';
 import {
   handleGitCommitOp,
+  handleGitBranchesOp,
   handleGitHistoryOp,
   handleGitInfoOp,
   handleGitInitOp,
@@ -67,7 +68,20 @@ export function routeRemoteStorage(app: Hono, options: FileStorageOptions = {}):
       reply.code(400).send({message: 'Missing op parameter'});
       return reply.toResponse();
     }
-    if (!['get', 'list', 'info', 'listProj', 'readProj', 'exportProj', 'gitInfo', 'gitHistory', 'user'].includes(op)) {
+    if (
+      ![
+        'get',
+        'list',
+        'info',
+        'listProj',
+        'readProj',
+        'exportProj',
+        'gitInfo',
+        'gitHistory',
+        'gitBranches',
+        'user',
+      ].includes(op)
+    ) {
       return reply.code(405).header('Allow', 'POST').send({message: 'Operation requires POST'});
     }
     await dispatchOperation(op, query, request, reply);
@@ -193,6 +207,9 @@ export function routeRemoteStorage(app: Hono, options: FileStorageOptions = {}):
         return;
       case 'gitHistory':
         await handleGitHistoryOp(query, request, reply, fileContext);
+        return;
+      case 'gitBranches':
+        await handleGitBranchesOp(query, request, reply, fileContext);
         return;
       case 'gitReset':
         await handleGitResetOp(query, request, reply, fileContext);

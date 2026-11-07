@@ -27,7 +27,8 @@ export interface ProjectGit {
   getGitInfo(project: string, options?: FileRequest): Promise<GitInfo>;
   initGit(project: string, options?: FileRequest): Promise<GitInfo>;
   commitGit(project: string, message: string, options?: FileRequest): Promise<GitCommit>;
-  getGitHistory(project: string, options?: FileRequest): Promise<GitCommit[]>;
+  getGitBranches(project: string, options?: FileRequest): Promise<string[]>;
+  getGitHistory(project: string, options?: FileRequest & {branch?: string}): Promise<GitCommit[]>;
   resetGitToCommit(project: string, commit: string, options?: FileRequest): Promise<{backupBranch: string}>;
   createProjectFromCommit(
     project: string,

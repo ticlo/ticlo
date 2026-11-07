@@ -1,5 +1,5 @@
 import {lstat} from 'node:fs/promises';
-import {commitGit, gitHistory, gitInfo, initGit, resetGitToCommit} from './gitOperations.ts';
+import {commitGit, gitBranches, gitHistory, gitInfo, initGit, resetGitToCommit} from './gitOperations.ts';
 import {ensureRead, ensureWrite, resolveAuth, streamToBuffer, type FileRouteContext} from './fileOperations.ts';
 import {projectDirectoryExists, projectRootPath, sanitizeProjectId} from './projectOperations.ts';
 import {FileQuerystring, StorageContext, StorageError} from './types.ts';
@@ -94,7 +94,23 @@ async function handleGitHistoryOp(
     reply,
     async () => {
       const project = await projectContext(query, request, context);
-      return gitHistory(project.root);
+      return gitHistory(project.root, query.branch);
+    },
+    context.logger
+  );
+}
+
+async function handleGitBranchesOp(
+  query: FileQuerystring,
+  request: StorageContext,
+  reply: HonoReply,
+  context: FileRouteContext
+) {
+  await handleErrors(
+    reply,
+    async () => {
+      const project = await projectContext(query, request, context);
+      return gitBranches(project.root);
     },
     context.logger
   );
@@ -117,4 +133,4 @@ async function handleGitResetOp(
   );
 }
 
-export {handleGitInfoOp, handleGitInitOp, handleGitCommitOp, handleGitHistoryOp, handleGitResetOp};
+export {handleGitInfoOp, handleGitInitOp, handleGitCommitOp, handleGitHistoryOp, handleGitBranchesOp, handleGitResetOp};

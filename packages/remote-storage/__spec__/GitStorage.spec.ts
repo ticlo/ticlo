@@ -2,6 +2,15 @@ import {describe, expect, it, vi} from 'vitest';
 import {RemoteStorage} from '../RemoteStorage.ts';
 
 describe('RemoteStorage Git operations', () => {
+  it('reads the branch list and history for a selected branch', async () => {
+    const fetch = vi.fn(async (_url: string) => Response.json([]));
+    const storage = new RemoteStorage({baseURL: 'https://example.com/file', fetch: fetch as typeof globalThis.fetch});
+    expect(await storage.getGitBranches('main')).toEqual([]);
+    expect(await storage.getGitHistory('main', {branch: 'backup/old'})).toEqual([]);
+    expect(fetch.mock.calls[0][0]).toContain('op=gitBranches&id=main');
+    expect(fetch.mock.calls[1][0]).toContain('op=gitHistory&id=main&branch=backup%2Fold');
+  });
+
   it('uses the project Git endpoints and leaves local without Git support', async () => {
     const fetch = vi.fn(async (url: string, options: RequestInit) =>
       Response.json(
