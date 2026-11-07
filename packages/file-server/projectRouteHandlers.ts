@@ -15,7 +15,7 @@ import {
   writeProjectMetadata,
 } from './projectOperations.ts';
 import {handleErrors, type HonoReply} from './utils.ts';
-import {forkGit, hasGit, logChange} from './gitOperations.ts';
+import {logChange, verifyHistoryCommit, withCommitWorktree} from './gitOperations.ts';
 import {ensureRead, ensureWrite, resolveAuth, streamToBuffer, type FileRouteContext} from './fileOperations.ts';
 import {FileQuerystring, ProjectMetadata, StorageContext, StorageError} from './types.ts';
 
@@ -73,6 +73,9 @@ async function handleCreateProjectOp(
         throw new StorageError('Project name is required', 400);
       }
       const templateId = query.template ? sanitizeProjectId(query.template, 'Template id') : undefined;
+      const commit = query.commit;
+      if (commit === '') throw new StorageError('Commit is required', 400);
+      if (commit && !templateId) throw new StorageError('A source project is required for a commit', 400);
       const auth = await resolveAuth(context.authProvider, request);
       if (templateId) {
         await ensureRead(auth, templateId);
@@ -85,10 +88,14 @@ async function handleCreateProjectOp(
       await ensureWrite(auth, projectId);
       const projectDir = projectRootPath(context.rootDir, projectId);
       const templateRoot = templateId ? projectRootPath(context.rootDir, templateId) : undefined;
-      const fork = templateRoot ? await hasGit(templateRoot) : false;
+      if (commit && templateRoot) await verifyHistoryCommit(templateRoot, commit);
       const templateMeta = templateId ? await readProjectMetadata(context.rootDir, templateId) : null;
       await mkdir(projectDir, {recursive: true});
-      if (templateRoot) await copyTemplateDirectory(templateRoot, projectDir, fork);
+      if (templateRoot) {
+        if (commit) {
+          await withCommitWorktree(templateRoot, commit, (directory) => copyTemplateDirectory(directory, projectDir));
+        } else await copyTemplateDirectory(templateRoot, projectDir);
+      }
       const owner = await safeGetUserId(auth);
       const metadata: Record<string, unknown> = {
         owner,
@@ -101,10 +108,6 @@ async function handleCreateProjectOp(
         metadata.category = templateMeta.category;
       }
       const saved = await writeProjectMetadata(context.rootDir, projectId, metadata);
-      if (fork && templateRoot) {
-        await forkGit(templateRoot, projectDir, projectId);
-        await logChange(projectDir, auth, 'fork', '.proj', templateId);
-      }
       return saved;
     },
     context.logger

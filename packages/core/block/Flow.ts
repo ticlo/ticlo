@@ -610,6 +610,10 @@ export class Root extends FlowFolder {
     return this._lifecycle.getFlowState(ref);
   }
 
+  getLoadedFlowRefs(namespace: string) {
+    return this._lifecycle.getLoadedFlowRefs(namespace);
+  }
+
   queueBlock(block: Runnable) {
     this._resolver.queueBlock(block);
   }

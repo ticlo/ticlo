@@ -143,6 +143,21 @@ class TicloFileClient {
     return this.requestOp<ProjectMetadata>('POST', 'createProj', query, undefined, config);
   }
 
+  async createProjectFromCommit(
+    name: string,
+    templateId: string,
+    commit: string,
+    config?: AxiosRequestConfig
+  ): Promise<ProjectMetadata> {
+    return this.requestOp<ProjectMetadata>(
+      'POST',
+      'createProj',
+      {name: validateProjectName(name), template: normalizeIdentifier(templateId), commit: normalizeIdentifier(commit)},
+      undefined,
+      config
+    );
+  }
+
   async updateProject(
     id: string,
     metadata: Record<string, unknown>,
@@ -177,6 +192,16 @@ class TicloFileClient {
 
   async getGitHistory(id: string, config?: AxiosRequestConfig): Promise<GitCommit[]> {
     return this.requestOp<GitCommit[]>('GET', 'gitHistory', {id: normalizeIdentifier(id)}, undefined, config);
+  }
+
+  async resetGitToCommit(id: string, commit: string, config?: AxiosRequestConfig): Promise<{backupBranch: string}> {
+    return this.requestOp<{backupBranch: string}>(
+      'POST',
+      'gitReset',
+      {id: normalizeIdentifier(id), commit: normalizeIdentifier(commit)},
+      undefined,
+      config
+    );
   }
 
   async restoreGitFile(path: string, config?: AxiosRequestConfig): Promise<void> {

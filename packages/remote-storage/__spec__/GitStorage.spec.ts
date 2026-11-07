@@ -7,9 +7,13 @@ describe('RemoteStorage Git operations', () => {
       Response.json(
         url.includes('gitCommit')
           ? {hash: 'abc', author: 'alice', email: 'alice@ticlo.app', date: '', message: ''}
-          : options.method === 'GET'
-            ? {initialized: false}
-            : {initialized: true, branch: 'main'}
+          : url.includes('gitReset')
+            ? {backupBranch: 'backup/2026-11-07-01-00'}
+            : url.includes('createProj')
+              ? {id: 'snapshot'}
+              : options.method === 'GET'
+                ? {initialized: false}
+                : {initialized: true, branch: 'main'}
       )
     );
     const storage = new RemoteStorage({baseURL: 'https://example.com/file', fetch: fetch as typeof globalThis.fetch});
@@ -21,6 +25,8 @@ describe('RemoteStorage Git operations', () => {
     const changed = vi.fn();
     storage.subscribeFileChanges(changed);
     await storage.restoreGitFile('main/a.txt');
+    expect(await storage.resetGitToCommit('main', 'abc')).toEqual({backupBranch: 'backup/2026-11-07-01-00'});
+    expect(await storage.createProjectFromCommit('main', 'snapshot', 'abc')).toEqual({id: 'snapshot'});
     expect(fetch.mock.calls[0][0]).toContain('op=gitInfo&id=main');
     expect(fetch.mock.calls[0][1].method).toBe('GET');
     expect(fetch.mock.calls[1][0]).toContain('op=gitInit&id=main');
@@ -30,7 +36,13 @@ describe('RemoteStorage Git operations', () => {
     expect(fetch.mock.calls[3][0]).toContain('op=gitRestore&path=proj%2Fmain%2Fa.txt');
     expect(fetch.mock.calls[3][1].method).toBe('POST');
     expect(changed).toHaveBeenCalledWith('main/a.txt');
+    expect(changed).toHaveBeenCalledWith('main');
+    expect(changed).toHaveBeenCalledWith('snapshot');
+    expect(fetch.mock.calls[4][0]).toContain('op=gitReset&id=main&commit=abc');
+    expect(fetch.mock.calls[5][0]).toContain('op=createProj&name=snapshot&template=main&commit=abc');
     await expect(storage.restoreGitFile('local/a.txt')).rejects.toMatchObject({code: 'readonly'});
+    await expect(storage.resetGitToCommit('local', 'abc')).rejects.toMatchObject({code: 'readonly'});
+    await expect(storage.createProjectFromCommit('local', 'snapshot', 'abc')).rejects.toMatchObject({code: 'readonly'});
   });
 
   it('reports an old file server clearly', async () => {

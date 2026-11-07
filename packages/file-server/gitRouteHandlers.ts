@@ -1,5 +1,5 @@
 import {lstat} from 'node:fs/promises';
-import {commitGit, gitHistory, gitInfo, initGit} from './gitOperations.ts';
+import {commitGit, gitHistory, gitInfo, initGit, resetGitToCommit} from './gitOperations.ts';
 import {ensureRead, ensureWrite, resolveAuth, streamToBuffer, type FileRouteContext} from './fileOperations.ts';
 import {projectDirectoryExists, projectRootPath, sanitizeProjectId} from './projectOperations.ts';
 import {FileQuerystring, StorageContext, StorageError} from './types.ts';
@@ -47,7 +47,7 @@ async function handleGitInitOp(
     reply,
     async () => {
       const project = await projectContext(query, request, context, true);
-      await initGit(project.root, project.id);
+      await initGit(project.root);
       return gitInfo(project.root);
     },
     context.logger
@@ -100,4 +100,21 @@ async function handleGitHistoryOp(
   );
 }
 
-export {handleGitInfoOp, handleGitInitOp, handleGitCommitOp, handleGitHistoryOp};
+async function handleGitResetOp(
+  query: FileQuerystring,
+  request: StorageContext,
+  reply: HonoReply,
+  context: FileRouteContext
+) {
+  await handleErrors(
+    reply,
+    async () => {
+      const project = await projectContext(query, request, context, true);
+      if (!query.commit) throw new StorageError('Commit is required', 400);
+      return {backupBranch: await resetGitToCommit(project.root, query.commit)};
+    },
+    context.logger
+  );
+}
+
+export {handleGitInfoOp, handleGitInitOp, handleGitCommitOp, handleGitHistoryOp, handleGitResetOp};

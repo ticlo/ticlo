@@ -514,13 +514,13 @@ describe('FileManager', () => {
       .click();
     await shouldHappen(
       () =>
-        document.querySelectorAll('.ticl-e-git-history > .ant-table-wrapper .ant-table-tbody tr[data-row-key]')
+        document.querySelectorAll('.ticl-e-git-history-list > .ant-table-wrapper .ant-table-tbody tr[data-row-key]')
           .length === 3
     );
     expect(fixture.methods.getFile).toHaveBeenCalledWith('demo/.gitlog', expect.anything());
     const rows = [
       ...document.querySelectorAll<HTMLElement>(
-        '.ticl-e-git-history > .ant-table-wrapper .ant-table-tbody tr[data-row-key]'
+        '.ticl-e-git-history-list > .ant-table-wrapper .ant-table-tbody tr[data-row-key]'
       ),
     ];
     expect(rows[0].textContent).toContain('Uncommitted changes');
@@ -563,10 +563,75 @@ describe('FileManager', () => {
       .click();
     await shouldHappen(
       () =>
-        document.querySelectorAll('.ticl-e-git-history > .ant-table-wrapper .ant-table-tbody tr[data-row-key]')
+        document.querySelectorAll('.ticl-e-git-history-list > .ant-table-wrapper .ant-table-tbody tr[data-row-key]')
           .length === 1
     );
     expect(document.querySelector('.ticl-e-git-history-details').textContent).toContain('First');
+  });
+
+  it('uses the right-clicked commit for namespace creation and reset', async () => {
+    const fixture = fixtureClient([file('demo/a.txt')]);
+    fixture.methods.getFile.mockResolvedValue({data: new ArrayBuffer(0), headers: {}});
+    const commits = ['newer', 'older'].map((hash) => ({
+      hash,
+      author: 'alice',
+      email: '',
+      date: '2026-11-04T01:00:00Z',
+      message: hash,
+    }));
+    const createProjectFromCommit = vi.fn(async () => ({id: 'snapshot'}));
+    const resetGitToCommit = vi.fn(async () => ({backupBranch: 'backup/2026-11-04-01-00'}));
+    const onProjectReset = vi.fn();
+    Object.assign(fixture.client, {
+      supportsGit: () => true,
+      getGitInfo: async () => ({initialized: true, branch: 'main'}),
+      getGitHistory: async () => commits,
+      createProjectFromCommit,
+      resetGitToCommit,
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false, onProjectReset});
+    await ready();
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].some(
+        (item) => item.textContent.trim() === 'Git History'
+      )
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Git History')
+      .click();
+    await shouldHappen(() => document.querySelectorAll('.ticl-e-git-history-list tr[data-row-key]').length === 2);
+    const older = document.querySelector<HTMLElement>('.ticl-e-git-history-list tr[data-row-key="older"]');
+    older.dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, button: 2}));
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === 'Create Namespace from This Commit'
+      )
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Create Namespace from This Commit')
+      .click();
+    await shouldHappen(() => document.querySelector('.ant-modal input'));
+    setName('snapshot');
+    await modalButton(true);
+    await shouldHappen(() => createProjectFromCommit.mock.calls.length === 1);
+    expect(createProjectFromCommit).toHaveBeenCalledWith('demo', 'snapshot', 'older', expect.anything());
+
+    await shouldHappen(() => !document.querySelector('.ant-modal input') && !button('Reload')?.disabled);
+    const newer = document.querySelector<HTMLElement>('.ticl-e-git-history-list tr[data-row-key="newer"]');
+    newer.dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, button: 2}));
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === 'Reset to This Commit'
+      )
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Reset to This Commit')
+      .click();
+    await modalButton(true);
+    await shouldHappen(() => resetGitToCommit.mock.calls.length === 1);
+    expect(resetGitToCommit).toHaveBeenCalledWith('demo', 'newer', expect.anything());
+    expect(onProjectReset).toHaveBeenCalledOnce();
   });
 
   it('uses the file tree as a single-file picker without file actions', async () => {

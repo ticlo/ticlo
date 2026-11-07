@@ -592,6 +592,10 @@ export class FlowRuntime {
     return !flow || flow._destroyed ? 'unloaded' : flow._disabled ? 'disabled' : 'enabled';
   }
 
+  getLoadedFlowRefs(namespace: string): FlowRef[] {
+    return [...this.loaded.values()].filter(({ref}) => ref.namespace === namespace).map(({ref}) => ({...ref}));
+  }
+
   async disableNamespace(name: string, options: UnloadOptions & {cascade?: boolean} = {}) {
     validateNamespace(name);
     const removed = new Set([name]);

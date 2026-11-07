@@ -29,6 +29,7 @@ import {
   type LocalBackupAccess,
   type ProjectGit,
   StorageError,
+  projectId,
 } from '@ticlo/core/storage/FileAccess.ts';
 import {translateEditor} from '@ticlo/core/editor.ts';
 import {validFlowEntry} from '@ticlo/core/util/FlowStoragePath.ts';
@@ -50,6 +51,7 @@ export interface FileManagerProps {
   onOpen?: (entry: FileEntry) => void | Promise<void>;
   onFilesDeleted?: (paths: string[]) => void | Promise<void>;
   onFileDiscarded?: (path: string) => void | Promise<void>;
+  onProjectReset?: () => void | Promise<void>;
   onChange?: () => void;
   className?: string;
   style?: React.CSSProperties;
@@ -74,6 +76,7 @@ interface State {
   gitHistory: GitCommit[];
   gitLog: string;
   gitSelected?: string;
+  gitCreate?: {commit: string; name: string};
   rootInfo?: FileEntry;
 }
 
@@ -87,6 +90,14 @@ interface GitLogRow {
 
 const pendingHash = 'uncommitted';
 const logSeparator = '\n\n--- --- ---\n';
+
+function validNamespaceName(name: string) {
+  try {
+    return validFlowEntry(name) && projectId(name) === name;
+  } catch {
+    return false;
+  }
+}
 
 function parseGitLog(log: string): GitLogRow[] | null {
   const rows: GitLogRow[] = [];
@@ -189,6 +200,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   private pendingFileChanges = new Set<string>();
   private fileChangeTimer?: ReturnType<typeof setTimeout>;
   private refreshingFileChanges = false;
+  private gitContextHash?: string;
 
   private get rootEntry(): FileEntry {
     return (
@@ -427,6 +439,49 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   };
 
   private reload = () => this.run(() => this.refresh(), false, false);
+
+  private resetToCommit = (commit: string) => {
+    const git = this.git();
+    if (!git) return;
+    return this.run(
+      async () => {
+        if (
+          !(await this.props.confirm(
+            t('Reset to This Commit?'),
+            t('A backup branch will preserve the current commit history. All uncommitted changes will be discarded.'),
+            this.files.signal
+          ))
+        )
+          return;
+        await git.resetGitToCommit(this.props.project, commit, {signal: this.files.signal});
+        await this.props.onProjectReset?.();
+        this.setState({
+          gitHistory: await git.getGitHistory(this.props.project, {signal: this.files.signal}),
+          gitLog: '',
+          gitSelected: commit,
+        });
+      },
+      true,
+      false
+    );
+  };
+
+  private createFromCommit = () => {
+    const {gitCreate} = this.state;
+    const git = this.git();
+    if (!git || !gitCreate || !validNamespaceName(gitCreate.name.trim())) return;
+    return this.run(
+      async () => {
+        await git.createProjectFromCommit(this.props.project, gitCreate.name.trim(), gitCreate.commit, {
+          signal: this.files.signal,
+        });
+        this.setState({gitCreate: undefined});
+        this.props.onChange?.();
+      },
+      false,
+      false
+    );
+  };
 
   private toggle(entry: FileEntry) {
     if (entry.type !== 'folder' || this.locked) return;
@@ -1260,37 +1315,66 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             destroyOnHidden
           >
             <div className="ticl-e-git-history">
-              <Table<GitCommit>
-                size="small"
-                rowKey="hash"
-                dataSource={historyRows}
-                pagination={false}
-                scroll={{x: 470, y: 'min(840px, calc(100vh - 205px))'}}
-                columns={[
-                  {
-                    title: t('Date'),
-                    dataIndex: 'date',
-                    width: 140,
-                    render: (date: string) => date && DateTime.fromISO(date).toLocal().toFormat('yyyy-LL-dd HH:mm'),
+              <Dropdown
+                trigger={['contextMenu']}
+                menu={{
+                  items: [
+                    {key: 'reset', label: t('Reset to This Commit'), danger: true},
+                    {key: 'create', label: t('Create Namespace from This Commit')},
+                  ],
+                  onClick: ({key}) => {
+                    const commit = this.gitContextHash;
+                    if (!commit) return;
+                    if (key === 'reset') void this.resetToCommit(commit);
+                    else if (key === 'create') this.setState({gitCreate: {commit, name: ''}, error: undefined});
                   },
-                  {title: t('Author'), dataIndex: 'author', width: 110, ellipsis: true},
-                  {
-                    title: t('Message'),
-                    dataIndex: 'message',
-                    ellipsis: true,
-                    render: (message: string) => message.split(/\r?\n/, 1)[0],
-                  },
-                ]}
-                rowClassName={(commit) =>
-                  [
-                    commit.hash === pendingHash && 'ticl-e-git-history-pending',
-                    commit.hash === this.state.gitSelected && 'ticl-e-git-history-selected',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')
-                }
-                onRow={(commit) => ({onClick: () => this.setState({gitSelected: commit.hash})})}
-              />
+                }}
+              >
+                <div
+                  className="ticl-e-git-history-list"
+                  onContextMenuCapture={(event) => {
+                    const row = (event.target as HTMLElement).closest<HTMLElement>('tr[data-row-key]');
+                    if (!row || row.dataset.rowKey === pendingHash || busy) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      return;
+                    }
+                    this.gitContextHash = row.dataset.rowKey;
+                  }}
+                >
+                  <Table<GitCommit>
+                    size="small"
+                    rowKey="hash"
+                    dataSource={historyRows}
+                    pagination={false}
+                    scroll={{x: 470, y: 'min(840px, calc(100vh - 205px))'}}
+                    columns={[
+                      {
+                        title: t('Date'),
+                        dataIndex: 'date',
+                        width: 140,
+                        render: (date: string) => date && DateTime.fromISO(date).toLocal().toFormat('yyyy-LL-dd HH:mm'),
+                      },
+                      {title: t('Author'), dataIndex: 'author', width: 110, ellipsis: true},
+                      {
+                        title: t('Message'),
+                        dataIndex: 'message',
+                        ellipsis: true,
+                        render: (message: string) => message.split(/\r?\n/, 1)[0],
+                      },
+                    ]}
+                    rowClassName={(commit) =>
+                      [
+                        commit.hash === pendingHash && 'ticl-e-git-history-pending',
+                        commit.hash === this.state.gitSelected && 'ticl-e-git-history-selected',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')
+                    }
+                    onRow={(commit) => ({onClick: () => this.setState({gitSelected: commit.hash})})}
+                  />
+                </div>
+              </Dropdown>
               <div className="ticl-e-git-history-details">
                 {this.state.gitSelected === pendingHash ? (
                   <div className="ticl-e-git-history-heading">{t('Uncommitted changes')}</div>
@@ -1326,6 +1410,28 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
                 ) : null}
               </div>
             </div>
+            {error && <div className="ticl-e-file-error">{error}</div>}
+          </Modal>
+        )}
+        {!picker && (
+          <Modal
+            title={t('Create Namespace from This Commit')}
+            open={Boolean(this.state.gitCreate)}
+            onOk={this.createFromCommit}
+            onCancel={() => !busy && this.setState({gitCreate: undefined, error: undefined})}
+            okButtonProps={{
+              disabled: busy || !validNamespaceName(this.state.gitCreate?.name.trim() ?? ''),
+            }}
+            confirmLoading={busy}
+            destroyOnHidden
+          >
+            <Input
+              placeholder={translateEditor('Namespace name')}
+              value={this.state.gitCreate?.name ?? ''}
+              onChange={(event) => this.setState({gitCreate: {...this.state.gitCreate, name: event.target.value}})}
+              onPressEnter={this.createFromCommit}
+            />
+            {error && <div className="ticl-e-file-error">{error}</div>}
           </Modal>
         )}
       </div>

@@ -13,6 +13,7 @@ interface FileQuerystring {
   crc?: string;
   id?: string;
   template?: string;
+  commit?: string;
 }
 
 interface FileStorageOptions {

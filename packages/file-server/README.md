@@ -24,7 +24,7 @@ const project = await client.createProject('example');
 await client.createDirectory(`proj/${project.id}/deps/shared`);
 ```
 
-Project IDs must be valid Git branch names and cannot contain dots. `createProject(name, templateId?, config?)`
+Project IDs cannot contain dots or path separators. `createProject(name, templateId?, config?)`
 creates an empty project when the template is omitted; supplying a template
 retains template-copy behavior. Projects live in `proj/<id>` with `.proj`
 metadata. User files live in `usr/<id>`. Empty directories are preserved and
@@ -42,14 +42,17 @@ support GET. Mutating operations require POST; GET returns HTTP 405.
 
 ## Project Git
 
-Each project can have its own Git repository. `gitInit` initializes its branch
-using the project ID, creates `.gitignore` with `/.gitlog`, and stages the
+Each project can have its own Git repository. `gitInit` initializes the `main` branch,
+creates `.gitignore` with `/.gitlog`, and stages the
 existing files without committing. `gitInfo` returns `{initialized, branch?}`.
 `gitHistory` returns commits with hash, author, email, date, and full
 message. `gitCommit` accepts `{message: string}`; the message may be empty.
 `gitRestore` accepts a `proj/<id>/<file>` path and restores a modified or deleted
 tracked file from `HEAD`. The client exposes these operations as `initGit`,
 `getGitInfo`, `getGitHistory`, `commitGit`, and `restoreGitFile`.
+`gitReset` resets `main` to a history commit after creating a dated `backup/` branch.
+It discards uncommitted changes. `createProj` accepts `template` and `commit`
+to create an unversioned project from that commit's file snapshot.
 
 File and project API writes four-column CSV rows to `.gitlog`: datetime, user,
 change type, and file. The user field includes a real email when available;
@@ -77,9 +80,8 @@ the server derives an address under `ticlo.app` from the user identity. After a
 successful commit, `.gitlog` is cleared.
 Git does not track empty directories.
 
-Creating a project from a Git-enabled template copies its Git history and the
-current working files, including uncommitted changes and empty directories.
-The new project gets its own repository and a branch named for its project ID.
+Creating a project from a template copies its current working files, including
+uncommitted changes and empty directories, without Git metadata or history.
 
 ## Conditional writes
 

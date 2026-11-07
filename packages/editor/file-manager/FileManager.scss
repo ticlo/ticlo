@@ -96,11 +96,11 @@
   gap: 20px;
   height: min(900px, calc(100vh - 145px));
 
-  > .ant-table-wrapper {
+  > .ticl-e-git-history-list {
     min-width: 0;
   }
 
-  > .ant-table-wrapper .ant-table-row {
+  > .ticl-e-git-history-list .ant-table-row {
     cursor: pointer;
   }
 

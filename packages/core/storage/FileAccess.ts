@@ -28,6 +28,13 @@ export interface ProjectGit {
   initGit(project: string, options?: FileRequest): Promise<GitInfo>;
   commitGit(project: string, message: string, options?: FileRequest): Promise<GitCommit>;
   getGitHistory(project: string, options?: FileRequest): Promise<GitCommit[]>;
+  resetGitToCommit(project: string, commit: string, options?: FileRequest): Promise<{backupBranch: string}>;
+  createProjectFromCommit(
+    project: string,
+    name: string,
+    commit: string,
+    options?: FileRequest
+  ): Promise<ProjectMetadata>;
   /** Restore one tracked file from HEAD; path includes the project ID. */
   restoreGitFile(path: string, options?: FileRequest): Promise<void>;
 }
@@ -106,14 +113,7 @@ export function filePath(path: string, allowRoot = false): string {
 }
 export function projectId(id: string): string {
   filePath(id);
-  if (
-    id.includes('/') ||
-    id.includes('.') ||
-    id === 'HEAD' ||
-    id.includes('@{') ||
-    id.startsWith('-') ||
-    /[\u0000-\u0020\u007f~^:?*[\\]/.test(id)
-  )
+  if (id.includes('/') || id.includes('.') || /[\u0000-\u0020\u007f:?*\\]/.test(id))
     throw new StorageError('Invalid project ID', 'invalid-path');
   return id;
 }

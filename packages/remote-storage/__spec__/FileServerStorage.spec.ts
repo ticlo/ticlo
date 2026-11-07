@@ -68,9 +68,15 @@ describe('FileServerStorage integration', () => {
     expect((await api.getFile(path)).headers.etag).toBe(first.headers.etag);
     await api.initGit('client');
     await api.commitGit('client', 'Initial');
+    const [{hash}] = await api.getGitHistory('client');
+    expect((await api.createProjectFromCommit('snapshot', 'client', hash)).id).toBe('snapshot');
     await api.uploadFile(path, 'changed');
     await api.restoreGitFile(path);
     expect(new TextDecoder().decode((await api.getFile(path)).data)).toBe('first');
+    await api.uploadFile(path, 'changed again');
+    expect((await api.resetGitToCommit('client', hash)).backupBranch).toMatch(/^backup\//);
+    expect(new TextDecoder().decode((await api.getFile(path)).data)).toBe('first');
+    await api.deleteProject('snapshot');
     await api.deleteProject('client');
   });
 

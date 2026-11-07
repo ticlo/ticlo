@@ -20,14 +20,7 @@ function sanitizeProjectId(rawId?: string | null, field = 'Project id'): string 
   if (!trimmed) {
     throw new StorageError(`${field} is required`, 400);
   }
-  if (
-    trimmed.includes('/') ||
-    trimmed.includes('.') ||
-    trimmed === 'HEAD' ||
-    trimmed.includes('@{') ||
-    trimmed.startsWith('-') ||
-    /[\u0000-\u0020\u007f~^:?*[\\]/.test(trimmed)
-  ) {
+  if (trimmed.includes('/') || trimmed.includes('.') || /[\u0000-\u0020\u007f:?*\\]/.test(trimmed)) {
     throw new StorageError('Invalid project id', 400);
   }
   return trimmed;
@@ -141,17 +134,17 @@ async function listProjectsForAuth(baseDir: string, auth: UserAuth): Promise<Pro
   return visibleProjects;
 }
 
-async function copyTemplateDirectory(sourceDir: string, targetDir: string, includeHidden = false): Promise<void> {
+async function copyTemplateDirectory(sourceDir: string, targetDir: string): Promise<void> {
   const entries = await readdir(sourceDir, {withFileTypes: true});
   for (const entry of entries) {
-    if (entry.name === '.git' || (entry.name.startsWith('.') && !includeHidden)) {
+    if (['.git', '.gitignore', '.gitlog', '.gitkeep'].includes(entry.name)) {
       continue;
     }
     const sourcePath = path.join(sourceDir, entry.name);
     const targetPath = path.join(targetDir, entry.name);
     if (entry.isDirectory()) {
       await mkdir(targetPath, {recursive: true});
-      await copyTemplateDirectory(sourcePath, targetPath, includeHidden);
+      await copyTemplateDirectory(sourcePath, targetPath);
     } else if (entry.isFile()) {
       await ensureParentDirectory(targetPath);
       await copyFile(sourcePath, targetPath);

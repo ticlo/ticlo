@@ -190,6 +190,13 @@ class RemoteFiles extends FileAccessBase {
     await this.backups.delete(await this.backupScope(), await this.path(path));
     this.changed(path);
   }
+  async discardProjectBackups(project: string) {
+    const scope = await this.backupScope();
+    const prefix = await this.path(project);
+    for (const backup of await this.backups.list(scope)) {
+      if (backup.path.startsWith(`${prefix}/`)) await this.backups.delete(scope, backup.path);
+    }
+  }
   private revision(response: Response) {
     const revision = response.headers.get('ETag');
     if (!revision) throw new StorageError('Missing ETag in file response', 'io');
@@ -335,6 +342,26 @@ export class RemoteStorage extends BrowserStorage implements ProjectGit, LocalBa
   }
   async getGitHistory(project: string, options?: FileRequest): Promise<GitCommit[]> {
     return (await this.gitRequest('gitHistory', project, undefined, options)).json();
+  }
+  async resetGitToCommit(project: string, commit: string, options?: FileRequest): Promise<{backupBranch: string}> {
+    projectId(project);
+    if (!this.supportsGit(project)) throw new StorageError('Git is not available for local files', 'readonly');
+    const result = await (
+      await this.projectFiles.request('gitReset', {id: project, commit}, undefined, options)
+    ).json();
+    await this.projectFiles.discardProjectBackups(project);
+    this.fileChanged(project);
+    return result;
+  }
+  async createProjectFromCommit(project: string, name: string, commit: string, options?: FileRequest) {
+    projectId(project);
+    if (!this.supportsGit(project)) throw new StorageError('Git is not available for local files', 'readonly');
+    projectId(name);
+    const created = await (
+      await this.projectFiles.request('createProj', {name, template: project, commit}, undefined, options)
+    ).json();
+    this.fileChanged(created.id);
+    return created as ProjectMetadata;
   }
   async restoreGitFile(path: string, options?: FileRequest): Promise<void> {
     filePath(path);

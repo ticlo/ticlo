@@ -1,7 +1,8 @@
 import {describe, expect, it, vi} from 'vitest';
 import type {Root} from '@ticlo/core';
 import type {DockLayout, TabData} from 'rc-dock';
-import {reloadDiscardedFileFlow, unloadDeletedFileFlows} from './file-flow-lifecycle.ts';
+import {StorageError, type FileAccess} from '@ticlo/core/storage/FileAccess.ts';
+import {reloadDiscardedFileFlow, resetProjectFlows, unloadDeletedFileFlows} from './file-flow-lifecycle.ts';
 
 describe('file flow lifecycle', () => {
   it('unloads a deleted flow and closes its editor and designer tabs', async () => {
@@ -40,5 +41,31 @@ describe('file flow lifecycle', () => {
     getFlowState.mockReturnValue('unloaded');
     await reloadDiscardedFileFlow(root, 'demo', 'demo/jobs/run.ticlo');
     expect(loadFlow).toHaveBeenCalledTimes(1);
+  });
+
+  it('refreshes loaded flows and closes tabs for files removed by a project reset', async () => {
+    const refs = ['keep', 'removed'].map((name) => ({namespace: 'demo', kind: 'flow' as const, name}));
+    const root = {
+      getLoadedFlowRefs: () => refs,
+      getFlowState: () => 'enabled',
+      unloadFlow: vi.fn(async () => {}),
+      loadFlow: vi.fn(async () => {}),
+    } as unknown as Root;
+    const storage = {
+      getFileInfo: vi.fn(async (file: string) => {
+        if (file.endsWith('removed.ticlo')) throw new StorageError('missing', 'not-found');
+        return {path: file, name: 'keep.ticlo', type: 'file'};
+      }),
+    } as unknown as FileAccess;
+    const tab = {id: 'blockEditor:+demo.removed'} as TabData;
+    const layout = {
+      find: (id: string) => (id === tab.id ? tab : undefined),
+      dockMove: vi.fn(),
+    } as unknown as DockLayout;
+
+    await resetProjectFlows(root, layout, storage, 'demo');
+    expect(root.loadFlow).toHaveBeenCalledWith(refs[0]);
+    expect(root.unloadFlow).toHaveBeenCalledWith(refs[1], {discardChanges: true});
+    expect(layout.dockMove).toHaveBeenCalledWith(tab, null, 'remove');
   });
 });

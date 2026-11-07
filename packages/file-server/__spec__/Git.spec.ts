@@ -1,12 +1,15 @@
 import {mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
 import AdmZip from 'adm-zip';
 import {Hono} from 'hono';
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 import {routeRemoteStorage} from '@ticlo/file-server';
 
 describe('project Git API', () => {
+  const exec = promisify(execFile);
   let root: string;
   let app: Hono;
   let user = 'alice';
@@ -36,6 +39,12 @@ describe('project Git API', () => {
 
   it('returns the authenticated user ID', async () => {
     expect(await request('GET', 'user', {}).then((response) => response.json())).toEqual({id: 'alice'});
+  });
+
+  it('uses main even when a project ID would not be a Git branch name', async () => {
+    const created = await request('POST', 'createProj', {name: 'HEAD'});
+    expect((await created.json()).id).toBe('HEAD');
+    expect((await request('POST', 'gitInit', {id: 'HEAD'}).then((response) => response.json())).branch).toBe('main');
   });
 
   it('serves JavaScript downloads with the JavaScript content type', async () => {
@@ -182,7 +191,7 @@ describe('project Git API', () => {
     expect(await fallback.json()).toMatchObject({author: 'bob', email: 'bob@ticlo.app'});
   });
 
-  it('shows deleted files and forks history, pending changes, and empty directories', async () => {
+  it('copies current files without Git, including pending changes and empty directories', async () => {
     await request('POST', 'gitInit', {id: 'main'});
     await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Initial'}));
     await request('POST', 'delete', {path: 'proj/main/a.txt'});
@@ -197,20 +206,61 @@ describe('project Git API', () => {
 
     const fork = await request('POST', 'createProj', {name: 'fork', template: 'main'});
     expect(fork.status).toBe(200);
-    expect((await request('GET', 'gitInfo', {id: 'fork'}).then((response) => response.json())).branch).toBe('fork');
+    expect(await request('GET', 'gitInfo', {id: 'fork'}).then((response) => response.json())).toEqual({
+      initialized: false,
+    });
     expect(await readdir(join(root, 'proj/fork'))).toContain('empty');
     expect(await readFile(join(root, 'proj/fork/pending.txt'), 'utf8')).toBe('pending');
-    expect(await request('GET', 'gitHistory', {id: 'fork'}).then((response) => response.json())).toHaveLength(1);
-    expect(
-      (await request('GET', 'list', {path: 'proj/fork'}).then((response) => response.json())).find(
-        (entry: {name: string}) => entry.name === 'pending.txt'
-      ).gitStatus
-    ).toBe('added');
-    expect(
-      (await request('GET', 'list', {path: 'proj/fork'}).then((response) => response.json())).find(
-        (entry: {name: string}) => entry.name === 'a.txt'
-      ).gitStatus
-    ).toBe('deleted');
+    expect(await readdir(join(root, 'proj/fork'))).not.toEqual(
+      expect.arrayContaining(['.git', '.gitignore', '.gitlog'])
+    );
+    expect((await request('POST', 'gitInit', {id: 'fork'}).then((response) => response.json())).branch).toBe('main');
+  });
+
+  it('creates an unversioned namespace from a chosen history commit', async () => {
+    await request('POST', 'gitInit', {id: 'main'});
+    await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Initial'}));
+    const initial = (await request('GET', 'gitHistory', {id: 'main'}).then((response) => response.json()))[0].hash;
+    await request('POST', 'upload', {path: 'proj/main/a.txt'}, 'later');
+    await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Later'}));
+    await request('POST', 'upload', {path: 'proj/main/pending.txt'}, 'pending');
+
+    const created = await request('POST', 'createProj', {name: 'snapshot', template: 'main', commit: initial});
+    expect(created.status).toBe(200);
+    expect(await readFile(join(root, 'proj/snapshot/a.txt'), 'utf8')).toBe('initial');
+    expect(await readdir(join(root, 'proj/snapshot'))).not.toEqual(
+      expect.arrayContaining(['.git', '.gitignore', '.gitlog', 'pending.txt'])
+    );
+    expect((await request('GET', 'gitInfo', {id: 'snapshot'}).then((response) => response.json())).initialized).toBe(
+      false
+    );
+    expect((await request('POST', 'createProj', {name: 'bad', template: 'main', commit: '0'.repeat(40)})).status).toBe(
+      400
+    );
+    expect(await readdir(join(root, 'proj'))).not.toContain('bad');
+  });
+
+  it('backs up the current HEAD before resetting history and working files', async () => {
+    await request('POST', 'gitInit', {id: 'main'});
+    await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Initial'}));
+    const initial = (await request('GET', 'gitHistory', {id: 'main'}).then((response) => response.json()))[0].hash;
+    await request('POST', 'upload', {path: 'proj/main/a.txt'}, 'later');
+    await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Later'}));
+    const later = (await request('GET', 'gitHistory', {id: 'main'}).then((response) => response.json()))[0].hash;
+    await request('POST', 'upload', {path: 'proj/main/pending.txt'}, 'pending');
+    expect((await request('POST', 'gitReset', {id: 'main', commit: '0'.repeat(40)})).status).toBe(400);
+    expect(await readFile(join(root, 'proj/main/pending.txt'), 'utf8')).toBe('pending');
+    const response = await request('POST', 'gitReset', {id: 'main', commit: initial});
+    expect(response.status).toBe(200);
+    const {backupBranch} = await response.json();
+    expect(backupBranch).toMatch(/^backup\/\d{4}-\d{2}-\d{2}-\d{2}-\d{2}$/);
+    expect((await exec('git', ['-C', join(root, 'proj/main'), 'rev-parse', backupBranch])).stdout.trim()).toBe(later);
+    expect(await readFile(join(root, 'proj/main/a.txt'), 'utf8')).toBe('initial');
+    expect(await readdir(join(root, 'proj/main'))).not.toContain('pending.txt');
+    expect(await readFile(join(root, 'proj/main/.gitlog'), 'utf8')).toBe('');
+    expect(await request('GET', 'gitHistory', {id: 'main'}).then((result) => result.json())).toHaveLength(1);
+    expect((await request('GET', 'gitInfo', {id: 'main'}).then((result) => result.json())).branch).toBe('main');
+    expect((await exec('git', ['-C', join(root, 'proj/main'), 'status', '--porcelain'])).stdout).toBe('');
   });
 
   it('restores modified and deleted tracked files and records the restore', async () => {
@@ -324,12 +374,12 @@ describe('project Git API', () => {
     expect((await response.json()).message.trim()).toBe('commit1');
   });
 
-  it('forks an initialized project before its first commit', async () => {
+  it('copies an initialized project before its first commit without initializing Git', async () => {
     await request('POST', 'gitInit', {id: 'main'});
     await request('POST', 'mkdir', {path: 'proj/main/empty'});
     await request('POST', 'upload', {path: 'proj/main/new.txt'}, 'pending');
     expect((await request('POST', 'createProj', {name: 'fork', template: 'main'})).status).toBe(200);
-    expect(await request('GET', 'gitHistory', {id: 'fork'}).then((response) => response.json())).toEqual([]);
+    expect((await request('GET', 'gitInfo', {id: 'fork'}).then((response) => response.json())).initialized).toBe(false);
     expect(await readdir(join(root, 'proj/fork/empty'))).toEqual([]);
     expect(await readFile(join(root, 'proj/fork/new.txt'), 'utf8')).toBe('pending');
   });

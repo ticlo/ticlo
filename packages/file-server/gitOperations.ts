@@ -3,6 +3,7 @@ import {createHash} from 'node:crypto';
 import {promisify} from 'node:util';
 import {promises as fs} from 'node:fs';
 import path from 'node:path';
+import {tmpdir} from 'node:os';
 import type {UserAuth} from './auth.ts';
 import {StorageError} from './types.ts';
 
@@ -86,22 +87,65 @@ async function ensureGitignore(projectRoot: string): Promise<void> {
   await fs.writeFile(path.join(projectRoot, LOG_FILE), '', {flag: 'a'});
 }
 
-async function initGit(projectRoot: string, projectId: string): Promise<void> {
+async function initGit(projectRoot: string): Promise<void> {
   if (await hasGit(projectRoot)) throw new StorageError('Git is already initialized', 409);
-  await git(projectRoot, 'check-ref-format', '--branch', projectId);
-  await git(projectRoot, 'init', '-b', projectId);
+  await git(projectRoot, 'init', '-b', 'main');
   await ensureGitignore(projectRoot);
   await git(projectRoot, 'add', '-A');
 }
 
-async function forkGit(sourceRoot: string, targetRoot: string, projectId: string): Promise<void> {
-  await git(targetRoot, 'init', '-b', projectId);
-  await ensureGitignore(targetRoot);
-  if (await hasCommit(sourceRoot)) {
-    await git(targetRoot, 'fetch', '--no-tags', sourceRoot, 'HEAD');
-    await git(targetRoot, 'reset', '--mixed', 'FETCH_HEAD');
+async function verifyHistoryCommit(projectRoot: string, commit: string): Promise<void> {
+  if (!/^[0-9a-f]{40}$|^[0-9a-f]{64}$/.test(commit) || !(await hasGit(projectRoot))) {
+    throw new StorageError('Invalid history commit', 400);
   }
-  await git(targetRoot, 'add', '-A');
+  try {
+    await git(projectRoot, 'merge-base', '--is-ancestor', commit, 'HEAD');
+  } catch {
+    throw new StorageError('Commit is not in this project history', 400);
+  }
+}
+
+async function withCommitWorktree(
+  projectRoot: string,
+  commit: string,
+  copy: (directory: string) => Promise<void>
+): Promise<void> {
+  await verifyHistoryCommit(projectRoot, commit);
+  const directory = await fs.mkdtemp(path.join(tmpdir(), 'ticlo-commit-'));
+  let attached = false;
+  try {
+    await git(projectRoot, 'worktree', 'add', '--detach', directory, commit);
+    attached = true;
+    await copy(directory);
+  } finally {
+    try {
+      if (attached) await git(projectRoot, 'worktree', 'remove', '--force', directory);
+    } finally {
+      await fs.rm(directory, {recursive: true, force: true});
+    }
+  }
+}
+
+async function resetGitToCommit(projectRoot: string, commit: string): Promise<string> {
+  await verifyHistoryCommit(projectRoot, commit);
+  if ((await git(projectRoot, 'branch', '--show-current')).trim() !== 'main') {
+    throw new StorageError('The main branch must be checked out', 409);
+  }
+  const now = new Date();
+  const stamp = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes()]
+    .map((part, index) => String(part).padStart(index === 0 ? 4 : 2, '0'))
+    .join('-');
+  const base = `backup/${stamp}`;
+  let backup = base;
+  for (let suffix = 2; (await git(projectRoot, 'branch', '--list', backup)).trim(); suffix++) {
+    backup = `${base}-${suffix}`;
+  }
+  await git(projectRoot, 'branch', backup, 'HEAD');
+  await git(projectRoot, 'reset', '--hard', commit);
+  await git(projectRoot, 'clean', '-fdx');
+  await ensureGitignore(projectRoot);
+  await fs.writeFile(path.join(projectRoot, LOG_FILE), '');
+  return backup;
 }
 
 function virtualEmail(user: string, name: string): string {
@@ -366,7 +410,9 @@ async function commitGit(projectRoot: string, auth: UserAuth, message: string): 
 export {
   commitGit,
   ensureGit,
-  forkGit,
+  resetGitToCommit,
+  verifyHistoryCommit,
+  withCommitWorktree,
   gitHistory,
   gitInfo,
   gitStatus,

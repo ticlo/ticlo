@@ -87,6 +87,35 @@ describe('remote file backups', () => {
     await expect(storage.getFileInfo('main/photo.png')).rejects.toMatchObject({code: 'permission-denied'});
   });
 
+  it('discards this project’s local backups after a successful history reset', async () => {
+    const baseURL = `https://backup-${crypto.randomUUID()}.example/file`;
+    const fetch = vi.fn(async (url: string) => {
+      switch (new URL(url).searchParams.get('op')) {
+        case 'user':
+          return Response.json({id: 'alice'});
+        case 'get':
+          return new Response('{"value":1}', {headers: {ETag: '"first"'}});
+        case 'upload':
+          return new Response('Permission denied', {status: 403});
+        case 'gitReset':
+          return Response.json({backupBranch: 'backup/2026-11-07-01-00'});
+        case 'info':
+          return Response.json({path: 'proj/main/entry.ticlo', name: 'entry.ticlo', type: 'file'});
+        default:
+          throw new Error('Unexpected file request');
+      }
+    });
+    const storage = new RemoteStorage({baseURL, fetch: fetch as typeof globalThis.fetch});
+    opened.push(storage);
+    expect(await storage.loadFlow('+main.entry')).toEqual({value: 1});
+    await expect(storage.saveFlow(null, {value: 2}, '+main.entry')).rejects.toMatchObject({code: 'permission-denied'});
+    expect(await storage.getFileInfo('main/entry.ticlo')).toMatchObject({localBackup: true});
+
+    await storage.resetGitToCommit('main', 'abc');
+    expect(await storage.getFileInfo('main/entry.ticlo')).not.toHaveProperty('localBackup');
+    expect(await storage.loadFlow('+main.entry')).toEqual({value: 1});
+  });
+
   it('adds the backup store without losing files from the existing local project', async () => {
     const name = `ticlo-backup-upgrade-${crypto.randomUUID()}`;
     const old = await new Promise<IDBDatabase>((resolve, reject) => {

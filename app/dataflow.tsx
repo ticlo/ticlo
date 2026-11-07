@@ -58,7 +58,7 @@ import {PolicyPanel} from './PolicyPanel.tsx';
 import {StageConnection, StageConnectionContext, connectStageTab} from './StageConnection.tsx';
 import type {ClientConn, EditPolicy} from '@ticlo/core';
 import {fileFlowPath} from './flow-path.ts';
-import {reloadDiscardedFileFlow, unloadDeletedFileFlows} from './file-flow-lifecycle.ts';
+import {reloadDiscardedFileFlow, resetProjectFlows, unloadDeletedFileFlows} from './file-flow-lifecycle.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {useNamespaceSelection} from './useNamespaceSelection.ts';
 import {createLibraryAutoLoad} from './library-auto-load.ts';
@@ -74,12 +74,14 @@ function DataflowFiles({
   onOpen,
   onFilesDeleted,
   onFileDiscarded,
+  onProjectReset,
 }: {
   storage: ProjectFiles;
   project: string;
   onOpen: (entry: FileEntry) => Promise<void>;
   onFilesDeleted: (paths: string[]) => Promise<void>;
   onFileDiscarded: (path: string) => Promise<void>;
+  onProjectReset: () => Promise<void>;
 }) {
   const version = React.useContext(FileVersionContext);
   return (
@@ -90,6 +92,7 @@ function DataflowFiles({
       onOpen={onOpen}
       onFilesDeleted={onFilesDeleted}
       onFileDiscarded={onFileDiscarded}
+      onProjectReset={onProjectReset}
     />
   );
 }
@@ -143,6 +146,8 @@ class App extends React.PureComponent<Props, State> {
   onFilesDeleted = (paths: string[]) =>
     unloadDeletedFileFlows(Root.instance, this.layout, this.props.files.project, paths);
   onFileDiscarded = (path: string) => reloadDiscardedFileFlow(Root.instance, this.props.files.project, path);
+  onProjectReset = () =>
+    resetProjectFlows(Root.instance, this.layout, this.props.files.storage, this.props.files.project);
   defaultDockLayout: LayoutBase;
   tabs: TabDefinitions;
   constructor(props: Props) {
@@ -224,6 +229,7 @@ class App extends React.PureComponent<Props, State> {
               onOpen={this.openStoredFile}
               onFilesDeleted={this.onFilesDeleted}
               onFileDiscarded={this.onFileDiscarded}
+              onProjectReset={this.onProjectReset}
             />
           ),
         },

@@ -25,7 +25,13 @@ import {
   handleReadProjectOp,
   handleUpdateProjectOp,
 } from './projectRouteHandlers.ts';
-import {handleGitCommitOp, handleGitHistoryOp, handleGitInfoOp, handleGitInitOp} from './gitRouteHandlers.ts';
+import {
+  handleGitCommitOp,
+  handleGitHistoryOp,
+  handleGitInfoOp,
+  handleGitInitOp,
+  handleGitResetOp,
+} from './gitRouteHandlers.ts';
 import {migrateProjectMetadata} from './projectOperations.ts';
 import {HonoReply, handleErrors, withStorageLock} from './utils.ts';
 import {AuthProvider, FileQuerystring, FileStorageOptions, StorageContext, StorageError} from './types.ts';
@@ -187,6 +193,9 @@ export function routeRemoteStorage(app: Hono, options: FileStorageOptions = {}):
         return;
       case 'gitHistory':
         await handleGitHistoryOp(query, request, reply, fileContext);
+        return;
+      case 'gitReset':
+        await handleGitResetOp(query, request, reply, fileContext);
         return;
       default:
         reply.code(400).send({message: 'Unsupported op: ' + op});

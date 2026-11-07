@@ -40,7 +40,7 @@ import {StageConnection, StageConnectionContext, connectStageTab} from './StageC
 import {designerData} from './sample-data/designer.ts';
 import {EditorWindows} from './EditorWindows.ts';
 import {fileFlowPath, pageFlowPath} from './flow-path.ts';
-import {reloadDiscardedFileFlow, unloadDeletedFileFlows} from './file-flow-lifecycle.ts';
+import {reloadDiscardedFileFlow, resetProjectFlows, unloadDeletedFileFlows} from './file-flow-lifecycle.ts';
 import {useNamespaceSelection} from './useNamespaceSelection.ts';
 import type {NamespaceSelectionOptions} from '@ticlo/editor/namespace/NamespaceSelectDialog.tsx';
 import {createLibraryAutoLoad} from './library-auto-load.ts';
@@ -88,6 +88,7 @@ function DesignerFiles({
   layout,
   onFilesDeleted,
   onFileDiscarded,
+  onProjectReset,
 }: {
   root: Root;
   conn: ClientConnection;
@@ -96,6 +97,7 @@ function DesignerFiles({
   layout: DesignerLayoutContext;
   onFilesDeleted: (paths: string[]) => Promise<void>;
   onFileDiscarded: (path: string) => Promise<void>;
+  onProjectReset: () => Promise<void>;
 }) {
   const version = useContext(FileVersionContext);
   const open = async (entry: FileEntry) => {
@@ -112,6 +114,7 @@ function DesignerFiles({
       onOpen={open}
       onFilesDeleted={onFilesDeleted}
       onFileDiscarded={onFileDiscarded}
+      onProjectReset={onProjectReset}
     />
   );
 }
@@ -275,6 +278,7 @@ class App extends React.PureComponent<Props, State> {
               layout={this.ticloContext}
               onFilesDeleted={this.onFilesDeleted}
               onFileDiscarded={this.onFileDiscarded}
+              onProjectReset={this.onProjectReset}
             />
           ),
         },
@@ -343,6 +347,8 @@ class App extends React.PureComponent<Props, State> {
   onFilesDeleted = (paths: string[]) =>
     unloadDeletedFileFlows(this.props.root, this.layout, this.props.files.project, paths);
   onFileDiscarded = (path: string) => reloadDiscardedFileFlow(this.props.root, this.props.files.project, path);
+  onProjectReset = () =>
+    resetProjectFlows(this.props.root, this.layout, this.props.files.storage, this.props.files.project);
 
   layout: DockLayout;
   getLayout = (layout: DockLayout) => {
