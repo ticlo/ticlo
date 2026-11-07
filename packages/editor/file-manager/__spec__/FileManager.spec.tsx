@@ -168,7 +168,7 @@ describe('FileManager', () => {
   });
 
   it('discards a local file backup from the file menu', async () => {
-    const path = 'demo/a.txt';
+    const path = 'demo/a.ticlo';
     const fixture = fixtureClient([{...file(path), localBackup: true}]);
     const changed = notifyFiles(fixture);
     const discardLocalBackup = vi.fn(async (filePath: string) => {
@@ -176,13 +176,33 @@ describe('FileManager', () => {
       changed(filePath);
     });
     Object.assign(fixture.client, {discardLocalBackup});
-    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
-    await ready();
+    const onFileDiscarded = vi.fn();
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false, onFileDiscarded});
+    await ready(path);
     expect(row(path).querySelector('.ticl-e-file-local-backup')).not.toBeNull();
     await contextCommand(path, 'Discard Local Backup');
     await modalButton(true);
     await shouldHappen(() => !row(path)?.querySelector('.ticl-e-file-local-backup'));
     expect(discardLocalBackup).toHaveBeenCalledWith(path);
+    expect(onFileDiscarded).toHaveBeenCalledWith(path);
+  });
+
+  it('notifies the workspace only after a flow file is deleted', async () => {
+    const path = 'demo/a.ticlo';
+    const fixture = fixtureClient([file(path)]);
+    const onFilesDeleted = vi.fn();
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false, onFilesDeleted});
+    await ready(path);
+
+    await contextCommand(path, 'Delete');
+    await modalButton(false);
+    await shouldHappen(() => !document.querySelector('.ant-modal-confirm') && !button('Reload')?.disabled);
+    expect(onFilesDeleted).not.toHaveBeenCalled();
+    await contextCommand(path, 'Delete');
+    await modalButton(true);
+    await shouldHappen(() => onFilesDeleted.mock.calls.length === 1);
+    expect(onFilesDeleted).toHaveBeenCalledWith([path]);
+    expect(fixture.entries.has(path)).toBe(false);
   });
 
   it('marks a failed editor save purple when the file server disconnects', async () => {
@@ -401,8 +421,8 @@ describe('FileManager', () => {
   });
 
   it('confirms restoring a modified file and restores a deleted file immediately', async () => {
-    const modified = {...file('demo/changed.txt'), gitStatus: 'modified' as const};
-    const deleted = {...file('demo/deleted.txt'), gitStatus: 'deleted' as const};
+    const modified = {...file('demo/changed.ticlo'), gitStatus: 'modified' as const};
+    const deleted = {...file('demo/deleted.ticlo'), gitStatus: 'deleted' as const};
     const fixture = fixtureClient([modified, deleted]);
     const restoreGitFile = vi.fn(async (path: string) => {
       fixture.entries.set(path, {...fixture.entries.get(path), gitStatus: undefined});
@@ -412,24 +432,28 @@ describe('FileManager', () => {
       getGitInfo: async () => ({initialized: true, branch: 'demo'}),
       restoreGitFile,
     });
-    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
-    await ready('demo/changed.txt');
+    const onFileDiscarded = vi.fn();
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false, onFileDiscarded});
+    await ready('demo/changed.ticlo');
 
-    await contextCommand('demo/changed.txt', 'Discard Changes');
+    await contextCommand('demo/changed.ticlo', 'Discard Changes');
     await shouldHappen(() => document.querySelector('.ant-modal-confirm'));
     expect(restoreGitFile).not.toHaveBeenCalled();
+    expect(onFileDiscarded).not.toHaveBeenCalled();
     await modalButton(false);
     await shouldHappen(() => !document.querySelector('.ant-modal-confirm'));
-    await contextCommand('demo/changed.txt', 'Discard Changes');
+    await contextCommand('demo/changed.ticlo', 'Discard Changes');
     await modalButton(true);
     await shouldHappen(() => restoreGitFile.mock.calls.length === 1 && !button('Reload')?.disabled);
-    expect(restoreGitFile).toHaveBeenCalledWith('demo/changed.txt', expect.anything());
+    expect(restoreGitFile).toHaveBeenCalledWith('demo/changed.ticlo', expect.anything());
+    expect(onFileDiscarded).toHaveBeenCalledWith('demo/changed.ticlo');
     await shouldHappen(() => !document.querySelector('.ant-modal-confirm'));
 
-    await contextCommand('demo/deleted.txt', 'Restore');
+    await contextCommand('demo/deleted.ticlo', 'Restore');
     await shouldHappen(() => restoreGitFile.mock.calls.length === 2 && !button('Reload')?.disabled);
     expect(document.querySelector('.ant-modal-confirm')).toBeNull();
-    expect(restoreGitFile).toHaveBeenLastCalledWith('demo/deleted.txt', expect.anything());
+    expect(restoreGitFile).toHaveBeenLastCalledWith('demo/deleted.ticlo', expect.anything());
+    expect(onFileDiscarded).toHaveBeenLastCalledWith('demo/deleted.ticlo');
   });
 
   it('keeps Initialize Git visible when Git status cannot be loaded', async () => {

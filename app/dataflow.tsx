@@ -58,6 +58,7 @@ import {PolicyPanel} from './PolicyPanel.tsx';
 import {StageConnection, StageConnectionContext, connectStageTab} from './StageConnection.tsx';
 import type {ClientConn, EditPolicy} from '@ticlo/core';
 import {fileFlowPath} from './flow-path.ts';
+import {reloadDiscardedFileFlow, unloadDeletedFileFlows} from './file-flow-lifecycle.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {useNamespaceSelection} from './useNamespaceSelection.ts';
 import {createLibraryAutoLoad} from './library-auto-load.ts';
@@ -71,13 +72,26 @@ function DataflowFiles({
   storage,
   project,
   onOpen,
+  onFilesDeleted,
+  onFileDiscarded,
 }: {
   storage: ProjectFiles;
   project: string;
   onOpen: (entry: FileEntry) => Promise<void>;
+  onFilesDeleted: (paths: string[]) => Promise<void>;
+  onFileDiscarded: (path: string) => Promise<void>;
 }) {
   const version = React.useContext(FileVersionContext);
-  return <FileManager key={version} storage={storage} project={project} onOpen={onOpen} />;
+  return (
+    <FileManager
+      key={version}
+      storage={storage}
+      project={project}
+      onOpen={onOpen}
+      onFilesDeleted={onFilesDeleted}
+      onFileDiscarded={onFileDiscarded}
+    />
+  );
 }
 
 const layoutGroups = {
@@ -126,6 +140,9 @@ class App extends React.PureComponent<Props, State> {
     await Root.instance.loadFlow(target.ref);
     this.openFlow(target.path);
   };
+  onFilesDeleted = (paths: string[]) =>
+    unloadDeletedFileFlows(Root.instance, this.layout, this.props.files.project, paths);
+  onFileDiscarded = (path: string) => reloadDiscardedFileFlow(Root.instance, this.props.files.project, path);
   defaultDockLayout: LayoutBase;
   tabs: TabDefinitions;
   constructor(props: Props) {
@@ -201,7 +218,14 @@ class App extends React.PureComponent<Props, State> {
           group: 'tool',
           title: t('Files'),
           cached: true,
-          content: <DataflowFiles {...props.files} onOpen={this.openStoredFile} />,
+          content: (
+            <DataflowFiles
+              {...props.files}
+              onOpen={this.openStoredFile}
+              onFilesDeleted={this.onFilesDeleted}
+              onFileDiscarded={this.onFileDiscarded}
+            />
+          ),
         },
       };
     }

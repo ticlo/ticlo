@@ -48,6 +48,8 @@ export interface FileManagerProps {
   picker?: boolean;
   onSelect?: (entries: FileEntry[]) => void;
   onOpen?: (entry: FileEntry) => void | Promise<void>;
+  onFilesDeleted?: (paths: string[]) => void | Promise<void>;
+  onFileDiscarded?: (path: string) => void | Promise<void>;
   onChange?: () => void;
   className?: string;
   style?: React.CSSProperties;
@@ -527,7 +529,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           files.signal
         )
       ) {
-        await files.remove(entries);
+        await files.remove(entries, this.props.onFilesDeleted);
       }
     });
   };
@@ -559,6 +561,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
       )
         return;
       await git.restoreGitFile(entry.path, {signal: files.signal});
+      if (entry.path.endsWith('.ticlo')) await this.props.onFileDiscarded?.(entry.path);
     });
   };
 
@@ -577,8 +580,10 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           </>,
           files.signal
         )
-      )
+      ) {
         await storage.discardLocalBackup(entry.path);
+        if (entry.path.endsWith('.ticlo')) await this.props.onFileDiscarded?.(entry.path);
+      }
     });
   };
 

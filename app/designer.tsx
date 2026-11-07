@@ -40,6 +40,7 @@ import {StageConnection, StageConnectionContext, connectStageTab} from './StageC
 import {designerData} from './sample-data/designer.ts';
 import {EditorWindows} from './EditorWindows.ts';
 import {fileFlowPath, pageFlowPath} from './flow-path.ts';
+import {reloadDiscardedFileFlow, unloadDeletedFileFlows} from './file-flow-lifecycle.ts';
 import {useNamespaceSelection} from './useNamespaceSelection.ts';
 import type {NamespaceSelectionOptions} from '@ticlo/editor/namespace/NamespaceSelectDialog.tsx';
 import {createLibraryAutoLoad} from './library-auto-load.ts';
@@ -85,12 +86,16 @@ function DesignerFiles({
   storage,
   project,
   layout,
+  onFilesDeleted,
+  onFileDiscarded,
 }: {
   root: Root;
   conn: ClientConnection;
   storage: ProjectFiles;
   project: string;
   layout: DesignerLayoutContext;
+  onFilesDeleted: (paths: string[]) => Promise<void>;
+  onFileDiscarded: (path: string) => Promise<void>;
 }) {
   const version = useContext(FileVersionContext);
   const open = async (entry: FileEntry) => {
@@ -99,7 +104,16 @@ function DesignerFiles({
     const flow = await root.loadFlow(target.ref);
     openDesignerFlow(target.path, flow, conn, storage, layout);
   };
-  return <FileManager key={version} storage={storage} project={project} onOpen={open} />;
+  return (
+    <FileManager
+      key={version}
+      storage={storage}
+      project={project}
+      onOpen={open}
+      onFilesDeleted={onFilesDeleted}
+      onFileDiscarded={onFileDiscarded}
+    />
+  );
 }
 
 function DesignerHeader({
@@ -253,7 +267,16 @@ class App extends React.PureComponent<Props, State> {
           group: 'tool',
           title: t('Files'),
           cached: true,
-          content: <DesignerFiles root={props.root} conn={conn} {...props.files} layout={this.ticloContext} />,
+          content: (
+            <DesignerFiles
+              root={props.root}
+              conn={conn}
+              {...props.files}
+              layout={this.ticloContext}
+              onFilesDeleted={this.onFilesDeleted}
+              onFileDiscarded={this.onFileDiscarded}
+            />
+          ),
         },
       };
     }
@@ -317,6 +340,9 @@ class App extends React.PureComponent<Props, State> {
     this.props.conn.callImmediate(this.forceUpdateLambda);
   };
   onFilesChange = () => this.setState(({fileVersion}) => ({fileVersion: fileVersion + 1}));
+  onFilesDeleted = (paths: string[]) =>
+    unloadDeletedFileFlows(this.props.root, this.layout, this.props.files.project, paths);
+  onFileDiscarded = (path: string) => reloadDiscardedFileFlow(this.props.root, this.props.files.project, path);
 
   layout: DockLayout;
   getLayout = (layout: DockLayout) => {

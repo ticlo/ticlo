@@ -106,14 +106,23 @@ export class FileOperations {
     await this.storage.renameFile(entry.path, name, {signal: this.signal});
   }
 
-  async remove(entries: FileEntry[]) {
+  private async flowFiles(entry: FileEntry): Promise<string[]> {
+    if (entry.gitStatus === 'deleted') return [];
+    if (entry.type === 'file') return entry.name.endsWith('.ticlo') ? [entry.path] : [];
+    const children = await this.list(entry.path);
+    return (await Promise.all(children.map((child) => this.flowFiles(child)))).flat();
+  }
+
+  async remove(entries: FileEntry[], onDeleted?: (paths: string[]) => void | Promise<void>) {
     for (const entry of entries) {
       this.checkPath(entry.path);
       assertWritable(this.storage, entry.path);
     }
     for (const entry of topEntries(entries)) {
       this.checkPath(entry.path);
+      const flowFiles = onDeleted ? await this.flowFiles(entry) : [];
       await this.storage.deleteFile(entry.path, {signal: this.signal});
+      if (flowFiles.length) await onDeleted?.(flowFiles);
     }
   }
 
