@@ -13,6 +13,7 @@ export interface FileEntry {
 export interface GitInfo {
   initialized: boolean;
   branch?: string;
+  hasUncommittedChanges?: boolean;
 }
 export interface GitCommit {
   hash: string;
@@ -28,6 +29,7 @@ export interface ProjectGit {
   initGit(project: string, options?: FileRequest): Promise<GitInfo>;
   commitGit(project: string, message: string, options?: FileRequest): Promise<GitCommit>;
   getGitBranches(project: string, options?: FileRequest): Promise<string[]>;
+  deleteGitBranch(project: string, branch: string, options?: FileRequest): Promise<void>;
   getGitHistory(project: string, options?: FileRequest & {branch?: string}): Promise<GitCommit[]>;
   resetGitToCommit(project: string, commit: string, options?: FileRequest): Promise<{backupBranch: string}>;
   createProjectFromCommit(

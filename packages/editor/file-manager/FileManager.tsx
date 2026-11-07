@@ -476,7 +476,9 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     if (!git) return;
     return this.run(
       async () => {
+        const currentGitInfo = await git.getGitInfo(this.props.project, {signal: this.files.signal});
         if (
+          currentGitInfo.hasUncommittedChanges !== false &&
           !(await this.props.confirm(
             t('Reset to This Commit?'),
             t('A backup branch will preserve the current commit history. All uncommitted changes will be discarded.'),
@@ -519,6 +521,46 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           gitSelected:
             branch === this.state.gitInfo?.branch && this.state.gitLog.trim() ? pendingHash : gitHistory[0]?.hash,
         });
+      },
+      false,
+      false
+    );
+  };
+
+  private deleteGitBranch = (branch: string) => {
+    const git = this.git();
+    if (!git || branch === 'main' || branch === this.state.gitInfo?.branch) return;
+    this.setState({gitBranchOpen: false});
+    void this.run(
+      async () => {
+        if (
+          !(await this.props.confirm(
+            t('Delete Branch?'),
+            <>
+              <div>{branch}</div>
+              {t('Commits only on this branch may become unavailable.')}
+            </>,
+            this.files.signal
+          ))
+        )
+          return;
+        await git.deleteGitBranch(this.props.project, branch, {signal: this.files.signal});
+        const [gitInfo, gitBranches] = await Promise.all([
+          git.getGitInfo(this.props.project, {signal: this.files.signal}),
+          git.getGitBranches(this.props.project, {signal: this.files.signal}),
+        ]);
+        if (this.state.gitBranch === branch) {
+          const gitHistory = await git.getGitHistory(this.props.project, {signal: this.files.signal});
+          this.setState({
+            gitInfo,
+            gitBranches,
+            gitBranch: gitInfo.branch,
+            gitHistory,
+            gitSelected: this.state.gitLog.trim() ? pendingHash : gitHistory[0]?.hash,
+          });
+        } else {
+          this.setState({gitInfo, gitBranches});
+        }
       },
       false,
       false
@@ -1418,6 +1460,27 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
                         defaultExpandAll
                         selectedKeys={this.state.gitBranch ? [this.state.gitBranch] : []}
                         treeData={branchTree(this.state.gitBranches)}
+                        titleRender={(node) => (
+                          <span className="ticl-e-git-branch-node">
+                            <span>{node.title}</span>
+                            {node.selectable &&
+                              node.key !== 'main' &&
+                              node.key !== this.state.gitInfo?.branch &&
+                              !readonly && (
+                                <Button
+                                  type="text"
+                                  size="small"
+                                  danger
+                                  icon={<DeleteOutlined />}
+                                  title={translateEditor('Delete Branch')}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    this.deleteGitBranch(String(node.key));
+                                  }}
+                                />
+                              )}
+                          </span>
+                        )}
                         onSelect={(_, {node}) => this.selectGitBranch(String(node.key))}
                       />
                     }

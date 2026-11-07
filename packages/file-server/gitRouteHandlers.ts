@@ -1,5 +1,13 @@
 import {lstat} from 'node:fs/promises';
-import {commitGit, gitBranches, gitHistory, gitInfo, initGit, resetGitToCommit} from './gitOperations.ts';
+import {
+  commitGit,
+  deleteGitBranch,
+  gitBranches,
+  gitHistory,
+  gitInfo,
+  initGit,
+  resetGitToCommit,
+} from './gitOperations.ts';
 import {ensureRead, ensureWrite, resolveAuth, streamToBuffer, type FileRouteContext} from './fileOperations.ts';
 import {projectDirectoryExists, projectRootPath, sanitizeProjectId} from './projectOperations.ts';
 import {FileQuerystring, StorageContext, StorageError} from './types.ts';
@@ -116,6 +124,23 @@ async function handleGitBranchesOp(
   );
 }
 
+async function handleGitDeleteBranchOp(
+  query: FileQuerystring,
+  request: StorageContext,
+  reply: HonoReply,
+  context: FileRouteContext
+) {
+  await handleErrors(
+    reply,
+    async () => {
+      if (!query.branch) throw new StorageError('Branch is required', 400);
+      const project = await projectContext(query, request, context, true);
+      await deleteGitBranch(project.root, query.branch);
+    },
+    context.logger
+  );
+}
+
 async function handleGitResetOp(
   query: FileQuerystring,
   request: StorageContext,
@@ -133,4 +158,12 @@ async function handleGitResetOp(
   );
 }
 
-export {handleGitInfoOp, handleGitInitOp, handleGitCommitOp, handleGitHistoryOp, handleGitBranchesOp, handleGitResetOp};
+export {
+  handleGitInfoOp,
+  handleGitInitOp,
+  handleGitCommitOp,
+  handleGitHistoryOp,
+  handleGitBranchesOp,
+  handleGitDeleteBranchOp,
+  handleGitResetOp,
+};

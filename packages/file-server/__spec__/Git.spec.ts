@@ -5,7 +5,7 @@ import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import AdmZip from 'adm-zip';
 import {Hono} from 'hono';
-import {afterEach, beforeEach, describe, expect, it} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {routeRemoteStorage} from '@ticlo/file-server';
 
 describe('project Git API', () => {
@@ -134,6 +134,9 @@ describe('project Git API', () => {
   it('shows unstaged status, protects internal files, and commits the log with its author', async () => {
     expect((await request('POST', 'gitInit', {id: 'main'})).status).toBe(200);
     expect((await request('GET', 'gitInfo', {id: 'main'}).then((response) => response.json())).branch).toBe('main');
+    expect(
+      (await request('GET', 'gitInfo', {id: 'main'}).then((response) => response.json())).hasUncommittedChanges
+    ).toBe(true);
     expect(await request('GET', 'gitBranches', {id: 'main'}).then((response) => response.json())).toEqual(['main']);
     expect(
       await request('GET', 'gitHistory', {id: 'main', branch: 'main'}).then((response) => response.json())
@@ -152,6 +155,9 @@ describe('project Git API', () => {
     expect((await request('GET', 'get', {path: 'proj/main/alias'})).status).toBe(403);
 
     expect((await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: ''}))).status).toBe(200);
+    expect(
+      (await request('GET', 'gitInfo', {id: 'main'}).then((response) => response.json())).hasUncommittedChanges
+    ).toBe(false);
     expect((await request('POST', 'upload', {path: 'proj/main/a.txt'}, 'first edit')).status).toBe(200);
     expect((await request('POST', 'upload', {path: 'proj/main/a.txt'}, 'second edit')).status).toBe(200);
     expect((await request('POST', 'upload', {path: 'proj/main/name,"quoted".txt'}, 'quoted')).status).toBe(200);
@@ -160,6 +166,9 @@ describe('project Git API', () => {
     ).toBe(204);
     expect((await request('POST', 'updateProj', {id: 'main'}, JSON.stringify({name: 'Renamed'}))).status).toBe(200);
     const log = (await readFile(join(root, 'proj/main/.gitlog'), 'utf8')).trim().split('\n');
+    expect(
+      (await request('GET', 'gitInfo', {id: 'main'}).then((response) => response.json())).hasUncommittedChanges
+    ).toBe(true);
     expect(log.filter((line) => line.endsWith(',edit,a.txt'))).toHaveLength(1);
     expect(log.some((line) => line.endsWith(',edit,.proj'))).toBe(true);
     expect(log[0]).toContain(',alice <alice@example.com>,');
@@ -257,7 +266,7 @@ describe('project Git API', () => {
     const response = await request('POST', 'gitReset', {id: 'main', commit: initial});
     expect(response.status).toBe(200);
     const {backupBranch} = await response.json();
-    expect(backupBranch).toMatch(/^backup\/\d{4}-\d{2}-\d{2}-\d{2}-\d{2}$/);
+    expect(backupBranch).toMatch(/^backup\/\d{4}-\d{2}-\d{2}_\d{2}-\d{2}$/);
     expect((await exec('git', ['-C', join(root, 'proj/main'), 'rev-parse', backupBranch])).stdout.trim()).toBe(later);
     expect(await readFile(join(root, 'proj/main/a.txt'), 'utf8')).toBe('initial');
     expect(await readdir(join(root, 'proj/main'))).not.toContain('pending.txt');
@@ -281,6 +290,62 @@ describe('project Git API', () => {
     expect(await readFile(join(root, 'proj/main/a.txt'), 'utf8')).toBe('later');
     expect((await request('GET', 'gitInfo', {id: 'main'}).then((result) => result.json())).branch).toBe('main');
     expect((await exec('git', ['-C', join(root, 'proj/main'), 'status', '--porcelain'])).stdout).toBe('');
+  });
+
+  it('numbers backup branches from -2 when resetting repeatedly in the same minute', async () => {
+    await request('POST', 'gitInit', {id: 'main'});
+    await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Initial'}));
+    const commit = (await request('GET', 'gitHistory', {id: 'main'}).then((response) => response.json()))[0].hash;
+    vi.useFakeTimers({toFake: ['Date']});
+    vi.setSystemTime(new Date('2026-11-07T12:34:00Z'));
+    try {
+      const branches: string[] = [];
+      for (let index = 0; index < 3; index++) {
+        const response = await request('POST', 'gitReset', {id: 'main', commit});
+        expect(response.status).toBe(200);
+        branches.push((await response.json()).backupBranch);
+      }
+      expect(branches).toEqual([branches[0], `${branches[0]}-2`, `${branches[0]}-3`]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('deletes a backup branch only with write access and keeps main', async () => {
+    await request('POST', 'gitInit', {id: 'main'});
+    await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Initial'}));
+    const initial = (await request('GET', 'gitHistory', {id: 'main'}).then((response) => response.json()))[0].hash;
+    await request('POST', 'upload', {path: 'proj/main/a.txt'}, 'later');
+    await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Later'}));
+    const {backupBranch} = await request('POST', 'gitReset', {id: 'main', commit: initial}).then((response) =>
+      response.json()
+    );
+    expect((await request('POST', 'gitDeleteBranch', {id: 'main'})).status).toBe(400);
+    expect((await request('POST', 'gitDeleteBranch', {id: 'main', branch: 'main'})).status).toBe(403);
+    expect((await request('POST', 'gitDeleteBranch', {id: 'main', branch: 'missing'})).status).toBe(404);
+
+    const readonly = new Hono();
+    routeRemoteStorage(readonly, {
+      rootDir: root,
+      authProvider: () => ({getUserId: () => 'reader', canRead: () => true, canWrite: () => false}),
+    });
+    expect(
+      (
+        await readonly.request(
+          `/file?${new URLSearchParams({op: 'gitDeleteBranch', id: 'main', branch: backupBranch})}`,
+          {
+            method: 'POST',
+          }
+        )
+      ).status
+    ).toBe(403);
+
+    await exec('git', ['-C', join(root, 'proj/main'), 'checkout', backupBranch]);
+    expect((await request('POST', 'gitDeleteBranch', {id: 'main', branch: backupBranch})).status).toBe(409);
+    await exec('git', ['-C', join(root, 'proj/main'), 'checkout', 'main']);
+    expect((await request('POST', 'gitDeleteBranch', {id: 'main', branch: backupBranch})).status).toBe(204);
+    expect(await request('GET', 'gitBranches', {id: 'main'}).then((response) => response.json())).toEqual(['main']);
+    expect((await request('GET', 'gitHistory', {id: 'main', branch: backupBranch})).status).toBe(404);
   });
 
   it('restores modified and deleted tracked files and records the restore', async () => {
@@ -358,6 +423,9 @@ describe('project Git API', () => {
     await request('POST', 'gitInit', {id: 'main'});
     await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Initial'}));
     await request('POST', 'mkdir', {path: 'proj/main/empty'});
+    expect(
+      (await request('GET', 'gitInfo', {id: 'main'}).then((response) => response.json())).hasUncommittedChanges
+    ).toBe(true);
     const response = await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: ''}));
     expect(response.status).toBe(200);
     expect((await response.json()).message).toContain(',alice <alice@example.com>,mkdir,empty');

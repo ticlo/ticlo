@@ -73,6 +73,14 @@ export class LocalFileBackups {
     );
   }
 
+  hasPrefix(scope: string, prefix: string) {
+    if (typeof indexedDB === 'undefined') return Promise.resolve(false);
+    return this.operation(
+      'readonly',
+      async (store) => (await request(store.count(IDBKeyRange.bound([scope, prefix], [scope, `${prefix}\uffff`])))) > 0
+    );
+  }
+
   put(backup: LocalFileBackup) {
     if (typeof indexedDB === 'undefined') return Promise.resolve();
     return this.operation('readwrite', async (store) => {

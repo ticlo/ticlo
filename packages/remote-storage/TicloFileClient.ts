@@ -194,6 +194,10 @@ class TicloFileClient {
     return this.requestOp<string[]>('GET', 'gitBranches', {id: normalizeIdentifier(id)}, undefined, config);
   }
 
+  async deleteGitBranch(id: string, branch: string, config?: AxiosRequestConfig): Promise<void> {
+    await this.requestOp<void>('POST', 'gitDeleteBranch', {id: normalizeIdentifier(id), branch}, undefined, config);
+  }
+
   async getGitHistory(id: string, config?: AxiosRequestConfig, branch?: string): Promise<GitCommit[]> {
     return this.requestOp<GitCommit[]>(
       'GET',

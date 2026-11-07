@@ -59,7 +59,7 @@ Writable storage renames legacy `_proj.json` metadata when a project is read;
 the file server also migrates existing project directories at startup.
 
 `RemoteStorage` also exposes optional project Git operations: `getGitInfo`,
-`initGit`, `commitGit`, `getGitBranches`, `getGitHistory`, `restoreGitFile`, `resetGitToCommit`,
+`initGit`, `commitGit`, `getGitBranches`, `deleteGitBranch`, `getGitHistory`, `restoreGitFile`, `resetGitToCommit`,
 and `createProjectFromCommit`. Git belongs to remote projects;
 browser `local`, static, and direct Node storage do not provide these methods.
 Remote file entries may include `gitStatus` (`added`, `modified`, or `deleted`).
@@ -72,8 +72,13 @@ history commit copies only that committed snapshot, also without Git.
 `getGitBranches(project)` lists local branch names. `getGitHistory(project,
 {branch})` reads the selected branch; without `branch`, it reads the current
 checked-out branch. Uncommitted `.gitlog` entries belong to the current branch.
+`deleteGitBranch(project, branch)` removes a local branch, except `main` or the
+checked-out branch; it requires project write permission.
 Resetting to a commit first preserves the current HEAD on a dated `backup/`
 branch, then discards working changes and resets `main` to the selected commit.
+The history dialog asks for confirmation only when `getGitInfo` reports pending
+working files, `.gitlog` entries, or local backups. Older servers without this
+status keep the confirmation.
 `restoreGitFile('<project>/<file>')` replaces a modified or deleted tracked
 file with the version in `HEAD` and records the action in `.gitlog`.
 

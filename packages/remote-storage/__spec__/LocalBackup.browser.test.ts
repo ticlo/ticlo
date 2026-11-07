@@ -26,6 +26,8 @@ describe('remote file backups', () => {
       switch (query.get('op')) {
         case 'user':
           return new Response(JSON.stringify({id: 'alice'}));
+        case 'gitInfo':
+          return Response.json({initialized: true, branch: 'main', hasUncommittedChanges: false});
         case 'get':
           return new Response(saved, {headers: {ETag: revision}});
         case 'list':
@@ -52,6 +54,7 @@ describe('remote file backups', () => {
     });
     expect(await storage.loadFlow('+main.entry')).toEqual({value: 2});
     expect(await storage.getFileInfo('main/entry.ticlo')).toMatchObject({localBackup: true});
+    expect((await storage.getGitInfo('main')).hasUncommittedChanges).toBe(true);
     expect(await storage.listFiles('main')).toMatchObject([{localBackup: true, gitStatus: undefined}]);
 
     const otherUser = new RemoteStorage({
@@ -91,6 +94,7 @@ describe('remote file backups', () => {
     expect(flow.getValue('@has-change')).toBeUndefined();
     expect(await reopened.loadFlow('+main.entry')).toMatchObject({value: 3});
     expect(await reopened.getFileInfo('main/entry.ticlo')).not.toHaveProperty('localBackup');
+    expect((await reopened.getGitInfo('main')).hasUncommittedChanges).toBe(false);
     expect(JSON.parse(saved)).toMatchObject({value: 3});
   });
 

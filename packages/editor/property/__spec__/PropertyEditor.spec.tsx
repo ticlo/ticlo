@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {userEvent} from 'vitest/browser';
+import {page, userEvent} from 'vitest/browser';
 import {simulate} from 'simulate-event';
 import React from 'react';
 import '../../index.ts';
@@ -47,22 +47,21 @@ describe('PropertyEditor', function () {
     try {
       await shouldHappen(() => list.current && div.querySelector('.ticl-e-property-divider'));
       list.current.onShowAttributeClick();
-      const misc = Array.from(div.querySelectorAll('.ticl-e-property-divider')).find(
-        (element) => element.textContent === 'Misc'
-      );
-      await shouldHappen(() => misc.nextElementSibling?.querySelector('textarea'));
-      const input = misc.nextElementSibling.querySelector('textarea');
+      const input = () =>
+        Array.from(div.querySelectorAll('.ticl-e-property-divider'))
+          .find((element) => element.textContent === 'Misc')
+          ?.nextElementSibling?.querySelector('textarea');
       const header = () => div.querySelector('.ticl-e-block-head-label')?.textContent;
       const node = () => div.querySelector('.ticl-e-tree-node-text')?.textContent;
 
-      await userEvent.fill(input, 'Friendly label');
+      await userEvent.fill(page.elementLocator(await shouldHappen(input)), 'Friendly label');
       await userEvent.keyboard('{Enter}');
       await shouldHappen(() => header() === 'Friendly label' && node() === 'Friendly label');
       expect(flow.queryValue('block.#label')).toBe('Friendly label');
       expect(flow.queryValue('block.#name')).toBe('block');
       expect((flow.save().block as Record<string, unknown>)['#label']).toBe('Friendly label');
 
-      await userEvent.fill(input, '');
+      await userEvent.fill(page.elementLocator(await shouldHappen(input)), '');
       await userEvent.keyboard('{Enter}');
       await shouldHappen(() => header() === 'block' && node() === 'block');
       expect(flow.queryValue('block.#label')).toBe('');

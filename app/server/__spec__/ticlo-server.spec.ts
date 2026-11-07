@@ -140,7 +140,7 @@ it('serves project Git operations from the installed file server', async () => {
     expect(await info.json()).toEqual({initialized: false});
     const initialized = await app.request('/file?op=gitInit&id=%23root', {method: 'POST'});
     expect(initialized.status).toBe(200);
-    expect((await initialized.json()).branch).toBe('#root');
+    expect((await initialized.json()).branch).toBe('main');
   } finally {
     Root.instance._globalRoot.deleteValue('^local-server');
     await rm(dir, {recursive: true, force: true});

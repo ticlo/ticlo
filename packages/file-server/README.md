@@ -45,14 +45,16 @@ support GET. Mutating operations require POST; GET returns HTTP 405.
 
 Each project can have its own Git repository. `gitInit` initializes the `main` branch,
 creates `.gitignore` with `/.gitlog`, and stages the
-existing files without committing. `gitInfo` returns `{initialized, branch?}`.
+existing files without committing. `gitInfo` returns `{initialized, branch?, hasUncommittedChanges?}`;
+the change flag includes working files and pending `.gitlog` entries.
 `gitBranches` lists local branches. `gitHistory` accepts an optional `branch`
 and returns commits with hash, author, email, date, and full message.
 `gitCommit` accepts `{message: string}`; the message may be empty.
 `gitRestore` accepts a `proj/<id>/<file>` path and restores a modified or deleted
 tracked file from `HEAD`. The client exposes these operations as `initGit`,
-`getGitInfo`, `getGitBranches`, `getGitHistory`, `commitGit`, and `restoreGitFile`.
+`getGitInfo`, `getGitBranches`, `deleteGitBranch`, `getGitHistory`, `commitGit`, and `restoreGitFile`.
 `gitReset` resets `main` to a history commit after creating a dated `backup/` branch.
+Same-minute backups use `-2`, `-3`, and later suffixes.
 It discards uncommitted changes. `createProj` accepts `template` and `commit`
 to create an unversioned project from that commit's file snapshot.
 

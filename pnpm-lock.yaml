@@ -614,6 +614,9 @@ importers:
       hono:
         specifier: ^4.13.7
         version: 4.13.7
+      luxon:
+        specifier: ^3.7.2
+        version: 3.7.2
 
   packages/html:
     dependencies:

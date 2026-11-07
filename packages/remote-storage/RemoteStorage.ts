@@ -207,6 +207,10 @@ class RemoteFiles extends FileAccessBase {
       if (backup.path.startsWith(`${prefix}/`)) await this.backups.delete(scope, backup.path);
     }
   }
+  async hasProjectBackups(project: string) {
+    const prefix = `${await this.path(project)}/`;
+    return this.backups.hasPrefix(await this.backupScope(), prefix);
+  }
   private revision(response: Response) {
     const revision = response.headers.get('ETag');
     if (!revision) throw new StorageError('Missing ETag in file response', 'io');
@@ -348,7 +352,11 @@ export class RemoteStorage extends BrowserStorage implements ProjectGit, LocalBa
     }
   }
   async getGitInfo(project: string, options?: FileRequest): Promise<GitInfo> {
-    return (await this.gitRequest('gitInfo', project, undefined, options)).json();
+    const info: GitInfo = await (await this.gitRequest('gitInfo', project, undefined, options)).json();
+    if (info.initialized && !info.hasUncommittedChanges && (await this.projectFiles.hasProjectBackups(project))) {
+      return {...info, hasUncommittedChanges: true};
+    }
+    return info;
   }
   async initGit(project: string, options?: FileRequest): Promise<GitInfo> {
     return (await this.gitRequest('gitInit', project, undefined, options)).json();
@@ -358,6 +366,9 @@ export class RemoteStorage extends BrowserStorage implements ProjectGit, LocalBa
   }
   async getGitBranches(project: string, options?: FileRequest): Promise<string[]> {
     return (await this.gitRequest('gitBranches', project, undefined, options)).json();
+  }
+  async deleteGitBranch(project: string, branch: string, options?: FileRequest): Promise<void> {
+    await this.gitRequest('gitDeleteBranch', project, undefined, options, {branch});
   }
   async getGitHistory(project: string, options?: FileRequest & {branch?: string}): Promise<GitCommit[]> {
     return (

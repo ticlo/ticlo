@@ -581,14 +581,19 @@ describe('FileManager', () => {
     const current = [{hash: 'current', author: 'alice', email: '', date: '', message: 'Current commit'}];
     const backup = [{hash: 'backup', author: 'bob', email: '', date: '', message: 'Backup commit'}];
     const branch = 'backup/2026-11-07-01-00';
+    let branches = [branch, 'main'];
     const getGitHistory = vi.fn(async (_project: string, options?: {branch?: string}) =>
       options?.branch === branch ? backup : current
     );
+    const deleteGitBranch = vi.fn(async (_project: string, name: string) => {
+      branches = branches.filter((item) => item !== name);
+    });
     Object.assign(fixture.client, {
       supportsGit: () => true,
       getGitInfo: async () => ({initialized: true, branch: 'main'}),
-      getGitBranches: async () => [branch, 'main'],
+      getGitBranches: async () => branches,
       getGitHistory,
+      deleteGitBranch,
     });
     mount({storage: fixture.client, project: 'demo', defaultPreview: false});
     await ready();
@@ -619,15 +624,26 @@ describe('FileManager', () => {
     expect(document.querySelector('.ticl-e-git-history-list').textContent).not.toContain('Uncommitted changes');
 
     document.querySelector<HTMLButtonElement>('.ticl-e-git-branch-button').click();
-    (
-      await shouldHappen(() =>
-        [...document.querySelectorAll<HTMLElement>('.ant-popover .ant-tree-title')].find(
-          (item) => item.textContent === 'main'
-        )
+    const mainNode = await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-popover .ant-tree-title')].find(
+        (item) => item.textContent === 'main'
       )
-    ).click();
+    );
+    expect(mainNode.querySelector('button')).toBeNull();
+    const deleteButton = document.querySelector<HTMLButtonElement>(
+      '.ant-popover .ticl-e-git-branch-node button[title="Delete Branch"]'
+    );
+    deleteButton.click();
+    await shouldHappen(() => document.querySelector('.ant-modal-confirm'));
+    expect(deleteGitBranch).not.toHaveBeenCalled();
+    await modalButton(true);
+    await shouldHappen(() => deleteGitBranch.mock.calls.length === 1);
+    expect(deleteGitBranch).toHaveBeenCalledWith('demo', branch, expect.anything());
     await shouldHappen(() => document.querySelector('.ticl-e-git-branch-button')?.textContent.includes('main'));
     expect(document.querySelectorAll('.ticl-e-git-history-list tr[data-row-key]')).toHaveLength(2);
+    document.querySelector<HTMLButtonElement>('.ticl-e-git-branch-button').click();
+    await shouldHappen(() => document.querySelector('.ant-popover .ant-tree'));
+    expect(document.querySelector('.ant-popover .ant-tree').textContent).not.toContain('backup');
   });
 
   it('uses the right-clicked commit for namespace creation and reset', async () => {
@@ -643,9 +659,10 @@ describe('FileManager', () => {
     const createProjectFromCommit = vi.fn(async () => ({id: 'snapshot'}));
     const resetGitToCommit = vi.fn(async () => ({backupBranch: 'backup/2026-11-04-01-00'}));
     const onProjectReset = vi.fn();
+    let hasUncommittedChanges = true;
     Object.assign(fixture.client, {
       supportsGit: () => true,
-      getGitInfo: async () => ({initialized: true, branch: 'main'}),
+      getGitInfo: async () => ({initialized: true, branch: 'main', hasUncommittedChanges}),
       getGitBranches: async () => ['main'],
       getGitHistory: async () => commits,
       createProjectFromCommit,
@@ -694,6 +711,21 @@ describe('FileManager', () => {
     await shouldHappen(() => resetGitToCommit.mock.calls.length === 1);
     expect(resetGitToCommit).toHaveBeenCalledWith('demo', 'newer', expect.anything());
     expect(onProjectReset).toHaveBeenCalledOnce();
+
+    hasUncommittedChanges = false;
+    await shouldHappen(() => !button('Reload')?.disabled);
+    document
+      .querySelector<HTMLElement>('.ticl-e-git-history-list tr[data-row-key="newer"]')
+      .dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, button: 2}));
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].some(
+        (item) => item.textContent.trim() === 'Reset to This Commit'
+      )
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Reset to This Commit')
+      .click();
+    await shouldHappen(() => resetGitToCommit.mock.calls.length === 2);
   });
 
   it('uses the file tree as a single-file picker without file actions', async () => {

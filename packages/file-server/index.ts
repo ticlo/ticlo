@@ -28,6 +28,7 @@ import {
 import {
   handleGitCommitOp,
   handleGitBranchesOp,
+  handleGitDeleteBranchOp,
   handleGitHistoryOp,
   handleGitInfoOp,
   handleGitInitOp,
@@ -210,6 +211,9 @@ export function routeRemoteStorage(app: Hono, options: FileStorageOptions = {}):
         return;
       case 'gitBranches':
         await handleGitBranchesOp(query, request, reply, fileContext);
+        return;
+      case 'gitDeleteBranch':
+        await handleGitDeleteBranchOp(query, request, reply, fileContext);
         return;
       case 'gitReset':
         await handleGitResetOp(query, request, reply, fileContext);

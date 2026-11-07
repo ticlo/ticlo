@@ -104,6 +104,14 @@
     margin-bottom: 8px;
   }
 
+  .ticl-e-git-branch-node {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 200px;
+    gap: 12px;
+  }
+
   > .ticl-e-git-history-list .ant-table-row {
     cursor: pointer;
   }

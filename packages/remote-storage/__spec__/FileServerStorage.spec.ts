@@ -76,7 +76,10 @@ describe('FileServerStorage integration', () => {
     await api.restoreGitFile(path);
     expect(new TextDecoder().decode((await api.getFile(path)).data)).toBe('first');
     await api.uploadFile(path, 'changed again');
-    expect((await api.resetGitToCommit('client', hash)).backupBranch).toMatch(/^backup\//);
+    const {backupBranch} = await api.resetGitToCommit('client', hash);
+    expect(backupBranch).toMatch(/^backup\//);
+    await api.deleteGitBranch('client', backupBranch);
+    expect(await api.getGitBranches('client')).toEqual(['main']);
     expect(new TextDecoder().decode((await api.getFile(path)).data)).toBe('first');
     await api.deleteProject('snapshot');
     await api.deleteProject('client');

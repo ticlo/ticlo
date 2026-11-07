@@ -4,6 +4,7 @@ import {promisify} from 'node:util';
 import {promises as fs} from 'node:fs';
 import path from 'node:path';
 import {tmpdir} from 'node:os';
+import {DateTime} from 'luxon';
 import type {UserAuth} from './auth.ts';
 import {StorageError} from './types.ts';
 
@@ -133,11 +134,7 @@ async function resetGitToCommit(projectRoot: string, commit: string): Promise<st
   if ((await git(projectRoot, 'branch', '--show-current')).trim() !== 'main') {
     throw new StorageError('The main branch must be checked out', 409);
   }
-  const now = new Date();
-  const stamp = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes()]
-    .map((part, index) => String(part).padStart(index === 0 ? 4 : 2, '0'))
-    .join('-');
-  const base = `backup/${stamp}`;
+  const base = `backup/${DateTime.now().toFormat('yyyy-LL-dd_HH-mm')}`;
   let backup = base;
   for (let suffix = 2; (await git(projectRoot, 'branch', '--list', backup)).trim(); suffix++) {
     backup = `${base}-${suffix}`;
@@ -354,9 +351,21 @@ function statusForPath(statuses: Map<string, GitStatus>, relativePath: string): 
       : 'modified';
 }
 
-async function gitInfo(projectRoot: string): Promise<{initialized: boolean; branch?: string}> {
+async function gitInfo(
+  projectRoot: string
+): Promise<{initialized: boolean; branch?: string; hasUncommittedChanges?: boolean}> {
   if (!(await hasGit(projectRoot))) return {initialized: false};
-  return {initialized: true, branch: (await git(projectRoot, 'branch', '--show-current')).trim()};
+  let log = '';
+  try {
+    log = await fs.readFile(path.join(projectRoot, LOG_FILE), 'utf8');
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+  }
+  return {
+    initialized: true,
+    branch: (await git(projectRoot, 'branch', '--show-current')).trim(),
+    hasUncommittedChanges: Boolean(log.trim()) || (await gitStatus(projectRoot)).size > 0,
+  };
 }
 
 async function gitBranches(projectRoot: string): Promise<string[]> {
@@ -368,6 +377,16 @@ async function gitBranches(projectRoot: string): Promise<string[]> {
   const current = (await git(projectRoot, 'branch', '--show-current')).trim();
   if (current && !branches.includes(current)) branches.push(current);
   return branches.sort();
+}
+
+async function deleteGitBranch(projectRoot: string, branch: string): Promise<void> {
+  await ensureGit(projectRoot);
+  if (branch === 'main') throw new StorageError('The main branch cannot be deleted', 403);
+  if (!(await gitBranches(projectRoot)).includes(branch)) throw new StorageError('Branch not found', 404);
+  if ((await git(projectRoot, 'branch', '--show-current')).trim() === branch) {
+    throw new StorageError('The checked-out branch cannot be deleted', 409);
+  }
+  await git(projectRoot, 'branch', '-D', '--', branch);
 }
 
 async function gitHistory(projectRoot: string, branch?: string): Promise<GitCommit[]> {
@@ -436,6 +455,7 @@ export {
   withCommitWorktree,
   gitHistory,
   gitBranches,
+  deleteGitBranch,
   gitInfo,
   gitStatus,
   hasGit,

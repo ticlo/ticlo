@@ -3,12 +3,15 @@ import {RemoteStorage} from '../RemoteStorage.ts';
 
 describe('RemoteStorage Git operations', () => {
   it('reads the branch list and history for a selected branch', async () => {
-    const fetch = vi.fn(async (_url: string) => Response.json([]));
+    const fetch = vi.fn(async (_url: string, _options: RequestInit) => Response.json([]));
     const storage = new RemoteStorage({baseURL: 'https://example.com/file', fetch: fetch as typeof globalThis.fetch});
     expect(await storage.getGitBranches('main')).toEqual([]);
     expect(await storage.getGitHistory('main', {branch: 'backup/old'})).toEqual([]);
+    await storage.deleteGitBranch('main', 'backup/old');
     expect(fetch.mock.calls[0][0]).toContain('op=gitBranches&id=main');
     expect(fetch.mock.calls[1][0]).toContain('op=gitHistory&id=main&branch=backup%2Fold');
+    expect(fetch.mock.calls[2][0]).toContain('op=gitDeleteBranch&id=main&branch=backup%2Fold');
+    expect(fetch.mock.calls[2][1].method).toBe('POST');
   });
 
   it('uses the project Git endpoints and leaves local without Git support', async () => {
