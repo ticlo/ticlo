@@ -7,6 +7,7 @@ export interface FileEntry {
   created?: number;
   modified?: number;
   gitStatus?: 'added' | 'modified' | 'deleted';
+  localBackup?: boolean;
 }
 
 export interface GitInfo {
@@ -37,6 +38,11 @@ export interface FileWriteOptions extends FileRequest {
   existsBehavior?: 'fail' | 'overwrite';
   /** null means the file must not exist. */
   revision?: string | null;
+  /** Preserve an editor-generated file locally when its remote save fails. */
+  backupOnFailure?: boolean;
+}
+export interface LocalBackupAccess {
+  discardLocalBackup(path: string): Promise<void>;
 }
 export interface FileReadResult {
   data: ArrayBuffer;

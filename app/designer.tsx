@@ -368,8 +368,7 @@ class App extends React.PureComponent<Props, State> {
     const save =
       onSave ??
       (() => {
-        const flow = this.props.root.queryValue(path);
-        if (flow instanceof Flow) flow.applyChange();
+        this.conn.applyFlowChange(path, undefined, requestCallbacks);
       });
     return {
       id,

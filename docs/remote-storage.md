@@ -35,10 +35,13 @@ return promises, accept `AbortSignal`, and support binary data as well as text.
 
 Browser `local` is reserved: reads and writes never access a remote project with
 that name, even when a local file is missing. It is always available, including
-when empty, and cannot be deleted or moved as a project. The `ticlo-local-files`
-IndexedDB database stores only this project: `entries` contains metadata and a
-parent-directory index, while `contents` holds binary data. Empty directories
-are real entries. Metadata and contents change in one transaction.
+when empty, and cannot be deleted or moved as a project. In the
+`ticlo-local-files` IndexedDB database, `entries` stores local project metadata
+and a parent-directory index, while `contents` holds its binary data. Empty
+directories are real entries. Metadata and contents change in one transaction.
+The same database has a separate `backups` store for remote files whose editor
+save failed. Its keys include the file server URL, user ID, and file path; it is
+not part of the `local` project.
 
 `#global` always uses `storage.user`. A missing global file produces an empty
 global flow; there is no fallback to a project's global file. Project context
@@ -95,6 +98,15 @@ Browser storage instances expose `subscribeFileChanges(listener)` for successful
 writes through that instance. The listener receives the public file path and can
 unsubscribe using the returned function. It does not watch other browser tabs,
 server writers, or direct filesystem changes.
+
+Editor-generated flow, namespace metadata, and new-flow saves keep a local
+backup when the remote upload fails. The save still reports the original error.
+Reads, file info, and directory lists prefer the backup across reloads, including
+while the server is unavailable. The file tree marks backed-up files in purple.
+A later successful editor save removes the backup; the file's context menu can
+also discard it. Native file uploads do not create backups. Backups remain in
+this browser until cleared. The last authenticated user ID is retained locally
+so backups can still be found while the server is unreachable after a reload.
 
 `read-storage` and `write-storage` use the calling flow's project under
 `#storage/<encoded-key>.str`, through the same storage instance. Their listeners

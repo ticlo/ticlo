@@ -26,6 +26,7 @@ import {
   type FileAccess,
   type GitCommit,
   type GitInfo,
+  type LocalBackupAccess,
   type ProjectGit,
   StorageError,
 } from '@ticlo/core/storage/FileAccess.ts';
@@ -561,6 +562,26 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     });
   };
 
+  private discardLocalBackup = () => {
+    const [entry] = this.selected();
+    const storage = this.props.storage as FileAccess & Partial<LocalBackupAccess>;
+    if (!entry?.localBackup || !storage.discardLocalBackup) return;
+    const files = this.files;
+    return this.run(async () => {
+      if (
+        await this.props.confirm(
+          t('Discard Local Backup'),
+          <>
+            {t('Discard the locally saved copy of this file?')}
+            <div>{entry.path}</div>
+          </>,
+          files.signal
+        )
+      )
+        await storage.discardLocalBackup(entry.path);
+    });
+  };
+
   private newFolder = (directory: string) => this.setState({dialog: {directory}, name: '', error: undefined});
   private newFlow = (directory: string) => this.setState({dialog: {directory, flow: true}, name: '', error: undefined});
   private rename = () => {
@@ -650,6 +671,11 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
       entries.length === 1 &&
       entries[0].type === 'file' &&
       (entries[0].gitStatus === 'modified' || entries[0].gitStatus === 'deleted');
+    const hasLocalBackup =
+      entries.length === 1 &&
+      entries[0].type === 'file' &&
+      entries[0].localBackup &&
+      typeof (this.props.storage as Partial<LocalBackupAccess>).discardLocalBackup === 'function';
     const disabled = this.state.busy;
     const readonly = !this.props.storage.getCapabilities(this.files.root).write;
     return {
@@ -697,7 +723,19 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
                 key: 'restore',
                 label: entries[0].gitStatus === 'modified' ? t('Discard Changes') : t('Restore'),
                 icon: <RollbackOutlined />,
+                danger: entries[0].gitStatus === 'modified',
                 disabled: disabled || readonly,
+              },
+            ]
+          : []),
+        ...(hasLocalBackup
+          ? [
+              {
+                key: 'discardLocalBackup',
+                label: t('Discard Local Backup'),
+                icon: <RollbackOutlined />,
+                danger: true,
+                disabled,
               },
             ]
           : []),
@@ -755,6 +793,9 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         break;
       case 'restore':
         void this.restore();
+        break;
+      case 'discardLocalBackup':
+        void this.discardLocalBackup();
         break;
       case 'download':
         void this.download();
@@ -964,7 +1005,9 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             this.toggle(entry);
           }}
         />
-        <span className={`ticl-e-file-git-${entry.gitStatus ?? 'clean'}`}>
+        <span
+          className={entry.localBackup ? 'ticl-e-file-local-backup' : `ticl-e-file-git-${entry.gitStatus ?? 'clean'}`}
+        >
           {entry.type === 'folder' ? (
             opened ? (
               <FolderOpenOutlined />

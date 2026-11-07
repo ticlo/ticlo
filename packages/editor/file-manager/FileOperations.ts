@@ -87,7 +87,11 @@ export class FileOperations {
     if (!validFileName(name) || ![...folders, name].every(validFlowEntry)) throw new Error('Invalid dataflow path');
     const path = `${directory}/${name}.ticlo`;
     if (await this.info(path)) throw new Error('An entry with this name already exists');
-    await this.storage.uploadFile(path, encodeSorted({'#is': ''}), {revision: null, signal: this.signal});
+    await this.storage.uploadFile(path, encodeSorted({'#is': ''}), {
+      revision: null,
+      signal: this.signal,
+      backupOnFailure: true,
+    });
     return this.storage.getFileInfo(path, {signal: this.signal});
   }
 

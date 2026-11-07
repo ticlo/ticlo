@@ -210,3 +210,5 @@
 "Message": "提交说明" # translated from: Message
 "User": "用户" # translated from: User
 "Uncommitted changes": "未提交的改动" # translated from: Uncommitted changes
+"Discard Local Backup": "丢弃本地备份"
+"Discard the locally saved copy of this file?": "确定丢弃此文件的本地备份吗？"

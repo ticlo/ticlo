@@ -35,11 +35,17 @@ export class LocalProjectFiles extends FileAccessBase {
   }
   private db() {
     return (this.database ??= new Promise<IDBDatabase>((resolve, reject) => {
-      const open = indexedDB.open(this.name, 1);
+      const open = indexedDB.open(this.name, 2);
       open.onupgradeneeded = () => {
-        const entries = open.result.createObjectStore('entries', {keyPath: 'path'});
-        entries.createIndex('parent', 'parent');
-        open.result.createObjectStore('contents');
+        if (!open.result.objectStoreNames.contains('entries')) {
+          const entries = open.result.createObjectStore('entries', {keyPath: 'path'});
+          entries.createIndex('parent', 'parent');
+          open.result.createObjectStore('contents');
+        }
+        if (!open.result.objectStoreNames.contains('backups')) {
+          const backups = open.result.createObjectStore('backups', {keyPath: ['scope', 'path']});
+          backups.createIndex('scope', 'scope');
+        }
       };
       open.onerror = () => reject(open.error);
       open.onsuccess = () => {

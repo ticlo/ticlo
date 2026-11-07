@@ -86,6 +86,9 @@
 .ticl-e-file-git-deleted {
   color: var(--ant-color-error, #ff4d4f);
 }
+.ticl-e-file-local-backup {
+  color: #cc77ff;
+}
 
 .ticl-e-git-history {
   display: grid;

@@ -65,7 +65,10 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
     const text = encodeSorted(data ?? flow?.save());
     return this.enqueue(key, async () => {
       const {files, path} = this.flowFile(key);
-      const result = await files.uploadFile(path, text, {revision: this.revisions.get(key) ?? null});
+      const result = await files.uploadFile(path, text, {
+        revision: this.revisions.get(key) ?? null,
+        backupOnFailure: true,
+      });
       this.revisions.set(key, result.revision ?? null);
     });
   }
@@ -137,7 +140,7 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
       } catch (error) {
         if (!(error instanceof StorageError) || error.code !== 'not-found') throw error;
       }
-      await this.uploadFile(path, JSON.stringify(metadata, null, 2), {revision});
+      await this.uploadFile(path, JSON.stringify(metadata, null, 2), {revision, backupOnFailure: true});
     });
   }
   async listFlows(namespace: string, folders?: string[]) {

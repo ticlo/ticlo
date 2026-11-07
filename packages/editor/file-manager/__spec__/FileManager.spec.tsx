@@ -7,6 +7,8 @@ import {loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {initEditor} from '../../index.ts';
 import {FileManager} from '../FileManager.tsx';
+import {RemoteStorage} from '@ticlo/remote-storage';
+import {Flow, Root as TicloRoot} from '@ticlo/core';
 import {file, fixtureClient, folder} from './fixtures.ts';
 import type {FileManagerProps} from '../FileManager.tsx';
 
@@ -163,6 +165,74 @@ describe('FileManager', () => {
     expect(row('demo/source/new.txt')).toBeNull();
     row('demo/source').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
     await shouldHappen(() => row('demo/source/new.txt'));
+  });
+
+  it('discards a local file backup from the file menu', async () => {
+    const path = 'demo/a.txt';
+    const fixture = fixtureClient([{...file(path), localBackup: true}]);
+    const changed = notifyFiles(fixture);
+    const discardLocalBackup = vi.fn(async (filePath: string) => {
+      fixture.entries.set(filePath, file(filePath));
+      changed(filePath);
+    });
+    Object.assign(fixture.client, {discardLocalBackup});
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
+    await ready();
+    expect(row(path).querySelector('.ticl-e-file-local-backup')).not.toBeNull();
+    await contextCommand(path, 'Discard Local Backup');
+    await modalButton(true);
+    await shouldHappen(() => !row(path)?.querySelector('.ticl-e-file-local-backup'));
+    expect(discardLocalBackup).toHaveBeenCalledWith(path);
+  });
+
+  it('marks a failed editor save purple when the file server disconnects', async () => {
+    const baseURL = `https://file-tree-${crypto.randomUUID()}.example/file`;
+    let online = true;
+    const fetch = vi.fn(async (url: string) => {
+      if (!online) throw new TypeError('Network unavailable');
+      const {searchParams} = new URL(url);
+      const path = searchParams.get('path');
+      switch (searchParams.get('op')) {
+        case 'user':
+          return new Response(JSON.stringify({id: 'alice'}));
+        case 'get':
+          return path === 'proj/demo/a.ticlo'
+            ? new Response('{"value":1}', {headers: {ETag: '"first"'}})
+            : new Response('Not found', {status: 404});
+        case 'info':
+          return new Response(JSON.stringify({path, name: 'demo', type: 'folder'}));
+        case 'list':
+          return new Response(
+            JSON.stringify([
+              {path: 'proj/demo/a.ticlo', name: 'a.ticlo', type: 'file'},
+              {path: 'proj/demo/other.ticlo', name: 'other.ticlo', type: 'file'},
+            ])
+          );
+        case 'gitInfo':
+          return new Response(JSON.stringify({initialized: false}));
+        default:
+          throw new Error(`Unexpected operation ${searchParams.get('op')}`);
+      }
+    });
+    const storage = new RemoteStorage({baseURL, fetch: fetch as typeof globalThis.fetch});
+    const runtime = new TicloRoot();
+    try {
+      await runtime.setStorage(storage);
+      await runtime.start({demo: {flows: ['a']}});
+      mount({storage, project: 'demo', defaultPreview: false});
+      await ready('demo/a.ticlo');
+      online = false;
+      const flow = runtime.queryValue('+demo.a') as Flow;
+      flow.setValue('value', 2);
+      await expect(flow.applyChange()).rejects.toThrow('Network unavailable');
+      await shouldHappen(() => row('demo/a.ticlo')?.querySelector('.ticl-e-file-local-backup'), 3000);
+      expect(row('demo/other.ticlo')).not.toBeNull();
+    } finally {
+      root?.unmount();
+      root = undefined;
+      runtime.destroy();
+      await storage.close();
+    }
   });
 
   it('keeps an expanded folder visible until its deletion reload finishes', async () => {

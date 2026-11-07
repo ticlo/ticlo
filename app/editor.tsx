@@ -37,6 +37,7 @@ import {createRoot} from 'react-dom/client';
 import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection.ts';
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
 import {initialUrlParams} from './url-state.ts';
+import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 
 const layoutGroups = {
   main: stageGroup,
@@ -62,7 +63,7 @@ class App extends React.PureComponent<Props, State> {
     super(props);
     const {conn, initialFlow} = props;
     const initialTab = initialFlow
-      ? this.createBlockEditorTab(initialFlow, () => conn.applyFlowChange(initialFlow))
+      ? this.createBlockEditorTab(initialFlow, () => conn.applyFlowChange(initialFlow, undefined, requestCallbacks))
       : undefined;
     this.tabs = {
       Navigation: {

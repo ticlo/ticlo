@@ -1,5 +1,5 @@
 import React, {useContext, useState} from 'react';
-import {Input, message, Modal, type MenuProps} from 'antd';
+import {App as AntdApp, Input, Modal, type MenuProps} from 'antd';
 import {
   BookOutlined,
   CopyOutlined,
@@ -56,6 +56,7 @@ export function FileMenuHeader({
   children?: React.ReactNode;
 }) {
   const {storage, project} = files;
+  const {message} = AntdApp.useApp();
   const {activeStage} = useContext(TicloCurrentFlowContext);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [name, setName] = useState('');
@@ -152,7 +153,7 @@ export function FileMenuHeader({
       }
       if (!conn.getEditPolicyView().can({cmd: 'addFlow', path: destination.path, data}))
         throw new Error('Creating this flow is not permitted.');
-      await storage.uploadFile(destination.file, encodeSorted(data), {revision: null});
+      await storage.uploadFile(destination.file, encodeSorted(data), {revision: null, backupOnFailure: true});
       if (!storage.subscribeFileChanges) onChange?.();
       const flow = await root.loadFlow(destination.ref);
       onOpen(destination.path, flow);

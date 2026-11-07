@@ -132,7 +132,9 @@ class App extends React.PureComponent<Props, State> {
     super(props);
     const {conn, initialFlow} = props;
     const initialTab = initialFlow
-      ? this.createBlockEditorTab(initialFlow, () => this.conn.applyFlowChange(initialFlow))
+      ? this.createBlockEditorTab(initialFlow, () =>
+          this.conn.applyFlowChange(initialFlow, undefined, requestCallbacks)
+        )
       : undefined;
     this.tabs = {
       'Navigation': {
