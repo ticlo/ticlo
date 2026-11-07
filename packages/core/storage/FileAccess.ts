@@ -55,6 +55,7 @@ export interface FileReadResult {
   data: ArrayBuffer;
   revision?: string;
   contentType?: string;
+  localBackup?: boolean;
 }
 export interface FileWriteResult {
   revision?: string;

@@ -389,7 +389,10 @@ export class FlowRuntime {
     if (!this.namespace(ref.namespace)._enabled)
       return Promise.reject(new Error(`Namespace is not enabled: ${ref.namespace}`));
     const existing = this.loaded.get(key)?.flow;
-    if (existing && !existing._destroyed) return Promise.resolve(existing);
+    if (existing && !existing._destroyed) {
+      if (this.root._storage?.hasLocalBackup?.(key)) existing.updateValue('@has-change', true);
+      return Promise.resolve(existing);
+    }
     if (this.pending.has(key)) return this.pending.get(key).promise;
     this.suppressed.delete(key);
     const operation = {promise: undefined as Promise<Flow>, cancelled: false};
@@ -431,6 +434,7 @@ export class FlowRuntime {
           flow = this.root.addFlow(key, data, undefined, true, true);
           if (!flow) throw new Error(`Conflicting flow: ${key}`);
         }
+        if (storage?.hasLocalBackup?.(key)) flow.updateValue('@has-change', true);
         this.loaded.set(key, {ref: {...ref}, flow});
         return flow;
       })

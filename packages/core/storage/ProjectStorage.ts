@@ -22,6 +22,7 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
   inited = false;
   readonly projects = new Set<string>();
   private readonly revisions = new Map<string, string | null>();
+  private readonly localBackupFlows = new Set<string>();
   private readonly pending = new Map<string, Promise<unknown>>();
   private readonly values = new Map<string, Storage>();
   private readonly changes = new Map<string, StreamDispatcher<string>>();
@@ -47,16 +48,22 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
     const namespace = key.startsWith('+') ? key.slice(1).split('.')[0].split(':')[0] : '#root';
     return this.getCapabilities(namespace).write;
   }
+  hasLocalBackup(key: string) {
+    return this.localBackupFlows.has(key);
+  }
   async loadFlow(key: string): Promise<DataMap | null> {
     return this.enqueue(key, async () => {
       const {files, path} = this.flowFile(key);
       try {
         const result = await files.getFile(path);
         this.revisions.set(key, result.revision ?? null);
+        if (result.localBackup) this.localBackupFlows.add(key);
+        else this.localBackupFlows.delete(key);
         return decode(new TextDecoder().decode(result.data));
       } catch (error) {
         if (!(error instanceof StorageError) || error.code !== 'not-found') throw error;
         this.revisions.set(key, null);
+        this.localBackupFlows.delete(key);
         return null;
       }
     });
@@ -70,6 +77,7 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
         backupOnFailure: true,
       });
       this.revisions.set(key, result.revision ?? null);
+      this.localBackupFlows.delete(key);
     });
   }
   delete(key: string) {
@@ -87,6 +95,7 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
       }
       await files.deleteFile(path, {revision});
       this.revisions.delete(key);
+      this.localBackupFlows.delete(key);
     });
   }
   createFolder(key: string) {
@@ -162,6 +171,7 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
   }
   async init(root: Root) {
     root.loadGlobal((await this.loadFlow('#global')) ?? {'#is': ''}, this.getFlowLoader('#global').applyChange);
+    if (this.hasLocalBackup('#global')) root._globalRoot.updateValue('@has-change', true);
     this.inited = true;
   }
   async listProjects(options?: FileRequest): Promise<ProjectMetadata[]> {

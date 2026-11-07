@@ -1,11 +1,15 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
+import {Root, type Flow} from '@ticlo/core';
 import {LocalFileBackups} from '../LocalFileBackups.ts';
 import {LocalProjectFiles} from '../LocalProjectFiles.ts';
 import {RemoteStorage} from '../RemoteStorage.ts';
 
 describe('remote file backups', () => {
   const opened: RemoteStorage[] = [];
+  const roots: Root[] = [];
   afterEach(async () => {
+    for (const root of roots) root.destroy();
+    roots.length = 0;
     await Promise.all(opened.map((storage) => storage.close()));
     opened.length = 0;
   });
@@ -69,10 +73,25 @@ describe('remote file backups', () => {
 
     online = true;
     writable = true;
-    await reopened.saveFlow(null, {value: 3}, '+main.entry');
-    expect(await reopened.loadFlow('+main.entry')).toEqual({value: 3});
+    const root = new Root();
+    roots.push(root);
+    await root.setStorage(reopened);
+    await root.start({main: {flows: ['entry']}});
+    const flow = root.queryValue('+main.entry') as Flow;
+    expect(flow.getValue('value')).toBe(2);
+    expect(flow.getValue('@has-change')).toBe(true);
+    flow.startHistory();
+    flow.destroyHistory();
+    expect(flow.getValue('@has-change')).toBeUndefined();
+    expect(await root.loadFlow({namespace: 'main', kind: 'flow', name: 'entry'})).toBe(flow);
+    expect(flow.getValue('@has-change')).toBe(true);
+    flow.startHistory();
+    flow.setValue('value', 3);
+    await flow.applyChange();
+    expect(flow.getValue('@has-change')).toBeUndefined();
+    expect(await reopened.loadFlow('+main.entry')).toMatchObject({value: 3});
     expect(await reopened.getFileInfo('main/entry.ticlo')).not.toHaveProperty('localBackup');
-    expect(JSON.parse(saved)).toEqual({value: 3});
+    expect(JSON.parse(saved)).toMatchObject({value: 3});
   });
 
   it('does not back up an ordinary file upload', async () => {

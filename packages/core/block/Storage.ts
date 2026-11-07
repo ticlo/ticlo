@@ -33,6 +33,8 @@ export interface FlowStorage {
 
   loadFlow(name: string): Promise<DataMap | null>;
 
+  hasLocalBackup?(name: string): boolean;
+
   initNamespace?: (ns: string) => any;
 
   saveLib(ns: string, lib: string, data: DataMap): any;

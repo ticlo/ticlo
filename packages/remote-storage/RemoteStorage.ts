@@ -87,7 +87,7 @@ class RemoteFiles extends FileAccessBase {
     const fullPath = await this.path(path);
     const backup = await this.backups.get(await this.backupScope(), fullPath);
     options?.signal?.throwIfAborted();
-    if (backup) return {data: backup.data, revision: backup.revision};
+    if (backup) return {data: backup.data, revision: backup.revision, localBackup: true};
     const response = await this.request('get', {path: fullPath}, undefined, options);
     return {
       data: await response.arrayBuffer(),
