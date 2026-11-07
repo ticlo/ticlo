@@ -28,7 +28,8 @@ return promises, accept `AbortSignal`, and support binary data as well as text.
 
 | Scope | Remote | Static | Node |
 | --- | --- | --- | --- |
-| Project `main` | `proj/main/` | `proj/main/`, read-only | `<dir>/main/` |
+| Browser project `main` | `proj/main/` | `proj/main/`, read-only | — |
+| Server project `main` | File API `serv/main/` | — | `<dir>/main/` when `dir` is `files/serv` |
 | Project `local` | IndexedDB | IndexedDB | `<dir>/local/` |
 | Current user | `usr/<authenticated-id>/` | `usr/guest/`, read-only | `<dir>/#root/` |
 | `#global` | `usr/<authenticated-id>/#global.ticlo` | `usr/guest/#global.ticlo` | `<dir>/#root/#global.ticlo` |
@@ -60,8 +61,11 @@ the file server also migrates existing project directories at startup.
 
 `RemoteStorage` also exposes optional project Git operations: `getGitInfo`,
 `initGit`, `commitGit`, `getGitBranches`, `deleteGitBranch`, `getGitHistory`, `restoreGitFile`, `resetGitToCommit`,
-and `createProjectFromCommit`. Git belongs to remote projects;
-browser `local`, static, and direct Node storage do not provide these methods.
+and `createProjectFromCommit`. `NodeStorage` provides the same Git operations for
+its direct project directories. Browser `local` and static storage do not.
+The file server's project and Git APIs accept `scope=serv` for server-side Node.js
+projects; omitting `scope` selects `proj`. The shared Git commands live in
+`@ticlo/node-git`, separate from browser storage and HTTP routing.
 Remote file entries may include `gitStatus` (`added`, `modified`, or `deleted`).
 Status reflects the working tree before files are staged. Commit stages the
 project first; direct filesystem changes may be committed without a `.gitlog`
@@ -167,8 +171,8 @@ routeFileStorage(app, {
 The bundled server uses `devUserAuth` (admin). Run `pnpm server` and
 `pnpm vite-dev`, then open `file-server.html`, or use
 `designer.html?host=http://127.0.0.1:8010/file&path=main/entry`.
-The combined server's runtime and file API now share `app/server/files/proj`;
-Node accesses those files directly. Uploading a file does not automatically
+The combined server's runtime uses `app/server/files/serv` through `NodeStorage`;
+the file API can also access that scope. Uploading a file does not automatically
 reload an already running flow.
 
 ## Migration
@@ -184,9 +188,8 @@ APIs are replaced. There is no legacy-layout fallback.
   results. User files go through `storage.user`.
 - Move browser globals from `proj/#root/#global.ticlo` to the appropriate
   `usr/<user>/#global.ticlo`; static deployments use `usr/guest/`.
-- Pass the project collection directory to `new NodeStorage(dir)`. Move the old
-  unqualified Node files into `#root/`, and rename `+main/` to `main/`. Existing
-  file-server data can be used directly by passing its `files/proj` directory.
+- Pass `files/serv` to `new NodeStorage(dir)`. Move the old unqualified Node files
+  into `#root/`, and rename `+main/` to `main/`.
 - The previous IndexedDB database is not deleted or automatically imported.
   Export old data before retiring it. When moving flows to project `local`,
   review namespace-qualified references; multiple old namespaces must not be

@@ -15,6 +15,7 @@ interface FileQuerystring {
   template?: string;
   commit?: string;
   branch?: string;
+  scope?: string;
 }
 
 interface FileStorageOptions {
@@ -23,7 +24,7 @@ interface FileStorageOptions {
   authProvider?: AuthProvider;
 }
 
-type StorageScope = 'proj' | 'usr';
+type StorageScope = 'proj' | 'serv' | 'usr';
 
 interface ProjectMetadata extends Record<string, unknown> {
   id: string;

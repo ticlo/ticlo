@@ -17,6 +17,7 @@
   "types": "./index.d.ts",
   "dependencies": {
     "@ticlo/core": "workspace:^",
+    "@ticlo/node-git": "workspace:^",
     "ws": "^8.21.3"
   },
   "peerDependencies": {

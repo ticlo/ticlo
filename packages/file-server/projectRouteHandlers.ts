@@ -9,6 +9,7 @@ import {
   normalizeProjectIdFromName,
   projectDirectoryExists,
   projectRootPath,
+  projectScopeDir,
   readProjectMetadata,
   sanitizeProjectId,
   safeGetUserId,
@@ -22,7 +23,7 @@ import {FileQuerystring, ProjectMetadata, StorageContext, StorageError} from './
 const {mkdir, rm} = fs;
 
 async function handleListProjectsOp(
-  _query: FileQuerystring,
+  query: FileQuerystring,
   request: StorageContext,
   reply: HonoReply,
   context: FileRouteContext
@@ -31,7 +32,7 @@ async function handleListProjectsOp(
     reply,
     async (): Promise<ProjectMetadata[]> => {
       const auth = await resolveAuth(context.authProvider, request);
-      return listProjectsForAuth(context.rootDir, auth);
+      return listProjectsForAuth(projectScopeDir(context.rootDir, query.scope), auth);
     },
     context.logger
   );
@@ -46,10 +47,11 @@ async function handleReadProjectOp(
   await handleErrors(
     reply,
     async (): Promise<ProjectMetadata> => {
+      const baseDir = projectScopeDir(context.rootDir, query.scope);
       const projectId = sanitizeProjectId(query.id);
       const auth = await resolveAuth(context.authProvider, request);
       await ensureRead(auth, projectId);
-      const metadata = await readProjectMetadata(context.rootDir, projectId);
+      const metadata = await readProjectMetadata(baseDir, projectId);
       if (!metadata) {
         throw new StorageError('Project not found', 404);
       }
@@ -68,6 +70,7 @@ async function handleCreateProjectOp(
   await handleErrors(
     reply,
     async (): Promise<ProjectMetadata> => {
+      const baseDir = projectScopeDir(context.rootDir, query.scope);
       const nameParam = query.name;
       if (!nameParam) {
         throw new StorageError('Project name is required', 400);
@@ -79,17 +82,17 @@ async function handleCreateProjectOp(
       const auth = await resolveAuth(context.authProvider, request);
       if (templateId) {
         await ensureRead(auth, templateId);
-        if (!(await projectDirectoryExists(context.rootDir, templateId))) {
+        if (!(await projectDirectoryExists(baseDir, templateId))) {
           throw new StorageError('Template project not found', 404);
         }
       }
       const desiredId = normalizeProjectIdFromName(nameParam);
-      const projectId = await generateUniqueProjectId(context.rootDir, desiredId);
+      const projectId = await generateUniqueProjectId(baseDir, desiredId);
       await ensureWrite(auth, projectId);
-      const projectDir = projectRootPath(context.rootDir, projectId);
-      const templateRoot = templateId ? projectRootPath(context.rootDir, templateId) : undefined;
+      const projectDir = projectRootPath(baseDir, projectId);
+      const templateRoot = templateId ? projectRootPath(baseDir, templateId) : undefined;
       if (commit && templateRoot) await verifyHistoryCommit(templateRoot, commit);
-      const templateMeta = templateId ? await readProjectMetadata(context.rootDir, templateId) : null;
+      const templateMeta = templateId ? await readProjectMetadata(baseDir, templateId) : null;
       await mkdir(projectDir, {recursive: true});
       if (templateRoot) {
         if (commit) {
@@ -107,7 +110,7 @@ async function handleCreateProjectOp(
       if (templateMeta && typeof templateMeta.category !== 'undefined') {
         metadata.category = templateMeta.category;
       }
-      const saved = await writeProjectMetadata(context.rootDir, projectId, metadata);
+      const saved = await writeProjectMetadata(baseDir, projectId, metadata);
       return saved;
     },
     context.logger
@@ -123,10 +126,11 @@ async function handleUpdateProjectOp(
   await handleErrors(
     reply,
     async (): Promise<ProjectMetadata> => {
+      const baseDir = projectScopeDir(context.rootDir, query.scope);
       const projectId = sanitizeProjectId(query.id);
       const auth = await resolveAuth(context.authProvider, request);
       await ensureWrite(auth, projectId);
-      if (!(await projectDirectoryExists(context.rootDir, projectId))) {
+      if (!(await projectDirectoryExists(baseDir, projectId))) {
         throw new StorageError('Project not found', 404);
       }
       const buffer = await streamToBuffer(request);
@@ -145,8 +149,8 @@ async function handleUpdateProjectOp(
       }
       const data = {...(payload as Record<string, unknown>)};
       delete data.id;
-      const saved = await writeProjectMetadata(context.rootDir, projectId, data);
-      await logChange(projectRootPath(context.rootDir, projectId), auth, 'edit', '.proj');
+      const saved = await writeProjectMetadata(baseDir, projectId, data);
+      await logChange(projectRootPath(baseDir, projectId), auth, 'edit', '.proj');
       return saved;
     },
     context.logger
@@ -162,10 +166,11 @@ async function handleDeleteProjectOp(
   await handleErrors(
     reply,
     async (): Promise<void> => {
+      const baseDir = projectScopeDir(context.rootDir, query.scope);
       const projectId = sanitizeProjectId(query.id);
       const auth = await resolveAuth(context.authProvider, request);
       await ensureWrite(auth, projectId);
-      const projectDir = projectRootPath(context.rootDir, projectId);
+      const projectDir = projectRootPath(baseDir, projectId);
       try {
         await rm(projectDir, {recursive: true, force: false});
       } catch (error) {
@@ -189,10 +194,11 @@ async function handleExportProjectOp(
   await handleErrors(
     reply,
     async (): Promise<void> => {
+      const baseDir = projectScopeDir(context.rootDir, query.scope);
       const projectId = sanitizeProjectId(query.id);
       const auth = await resolveAuth(context.authProvider, request);
       await ensureRead(auth, projectId);
-      const archive = await createProjectArchiveBuffer(context.rootDir, projectId);
+      const archive = await createProjectArchiveBuffer(baseDir, projectId);
       reply.header('Content-Type', 'application/zip');
       reply.header('Content-Disposition', 'attachment; filename="' + projectId + '.zip"');
       reply.header('Content-Length', archive.length);
@@ -204,7 +210,7 @@ async function handleExportProjectOp(
 }
 
 async function handleImportProjectOp(
-  _query: FileQuerystring,
+  query: FileQuerystring,
   request: StorageContext,
   reply: HonoReply,
   context: FileRouteContext
@@ -212,11 +218,12 @@ async function handleImportProjectOp(
   await handleErrors(
     reply,
     async (): Promise<ProjectMetadata[]> => {
+      const baseDir = projectScopeDir(context.rootDir, query.scope);
       const auth = await resolveAuth(context.authProvider, request);
       const payload = await streamToBuffer(request);
-      const imported = await importProjectsFromArchive(context.rootDir, auth, payload);
+      const imported = await importProjectsFromArchive(baseDir, auth, payload);
       for (const project of imported) {
-        await logChange(projectRootPath(context.rootDir, project.id), auth, 'import', '.proj');
+        await logChange(projectRootPath(baseDir, project.id), auth, 'import', '.proj');
       }
       return imported;
     },

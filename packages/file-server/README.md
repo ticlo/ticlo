@@ -26,8 +26,11 @@ await client.createDirectory(`proj/${project.id}/deps/shared`);
 
 Project IDs cannot contain dots or path separators. `createProject(name, templateId?, config?)`
 creates an empty project when the template is omitted; supplying a template
-retains template-copy behavior. Projects live in `proj/<id>` with `.proj`
-metadata. User files live in `usr/<id>`. Empty directories are preserved and
+retains template-copy behavior. Browser projects live in `proj/<id>` and server
+Node.js projects live in `serv/<id>`, each with `.proj` metadata. Project and Git
+operations accept `scope=serv` to select server projects; the default is `proj`.
+File operations use `serv/<id>/<path>` directly. User files live in `usr/<id>`.
+Empty directories are preserved and
 returned by the listing API. Dot-prefixed entries are omitted from file listings
 but remain readable by path. Existing projects with dotted IDs are not listed or accessible.
 
@@ -43,14 +46,16 @@ support GET. Mutating operations require POST; GET returns HTTP 405.
 
 ## Project Git
 
-Each project can have its own Git repository. `gitInit` initializes the `main` branch,
+Each `proj` or `serv` project can have its own Git repository. The Git command
+implementation is shared with `NodeStorage` in the Node-only `@ticlo/node-git`
+package. `gitInit` initializes the `main` branch,
 creates `.gitignore` with `/.gitlog`, and stages the
 existing files without committing. `gitInfo` returns `{initialized, branch?, hasUncommittedChanges?}`;
 the change flag includes working files and pending `.gitlog` entries.
 `gitBranches` lists local branches. `gitHistory` accepts an optional `branch`
 and returns commits with hash, author, email, date, and full message.
 `gitCommit` accepts `{message: string}`; the message may be empty.
-`gitRestore` accepts a `proj/<id>/<file>` path and restores a modified or deleted
+`gitRestore` accepts a `proj/<id>/<file>` or `serv/<id>/<file>` path and restores a modified or deleted
 tracked file from `HEAD`. The client exposes these operations as `initGit`,
 `getGitInfo`, `getGitBranches`, `deleteGitBranch`, `getGitHistory`, `commitGit`, and `restoreGitFile`.
 `gitReset` resets `main` to a history commit after creating a dated `backup/` branch.

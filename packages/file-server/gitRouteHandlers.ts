@@ -9,7 +9,7 @@ import {
   resetGitToCommit,
 } from './gitOperations.ts';
 import {ensureRead, ensureWrite, resolveAuth, streamToBuffer, type FileRouteContext} from './fileOperations.ts';
-import {projectDirectoryExists, projectRootPath, sanitizeProjectId} from './projectOperations.ts';
+import {projectDirectoryExists, projectRootPath, projectScopeDir, sanitizeProjectId} from './projectOperations.ts';
 import {FileQuerystring, StorageContext, StorageError} from './types.ts';
 import {handleErrors, type HonoReply} from './utils.ts';
 
@@ -20,11 +20,12 @@ async function projectContext(
   write = false
 ) {
   const id = sanitizeProjectId(query.id);
+  const baseDir = projectScopeDir(context.rootDir, query.scope);
   const auth = await resolveAuth(context.authProvider, request);
   if (write) await ensureWrite(auth, id);
   else await ensureRead(auth, id);
-  if (!(await projectDirectoryExists(context.rootDir, id))) throw new StorageError('Project not found', 404);
-  const root = projectRootPath(context.rootDir, id);
+  if (!(await projectDirectoryExists(baseDir, id))) throw new StorageError('Project not found', 404);
+  const root = projectRootPath(baseDir, id);
   if ((await lstat(root)).isSymbolicLink()) throw new StorageError('Symlinks are not supported', 403);
   return {id, auth, root};
 }

@@ -47,6 +47,51 @@ describe('project Git API', () => {
     expect((await request('POST', 'gitInit', {id: 'HEAD'}).then((response) => response.json())).branch).toBe('main');
   });
 
+  it('manages server projects and Git separately from browser projects', async () => {
+    const scope = {scope: 'serv'};
+    expect((await request('POST', 'createProj', {scope: '', name: 'bad'})).status).toBe(400);
+    expect((await request('POST', 'createProj', {scope: 'usr', name: 'bad'})).status).toBe(400);
+    const created = await request('POST', 'createProj', {...scope, name: 'main'});
+    expect(created.status).toBe(200);
+    expect(await readFile(join(root, 'serv/main/.proj'), 'utf8')).toContain('main');
+    expect(await request('GET', 'listProj', scope).then((response) => response.json())).toContainEqual(
+      expect.objectContaining({id: 'main'})
+    );
+    expect((await request('GET', 'readProj', {...scope, id: 'main'})).status).toBe(200);
+    expect(
+      (await request('POST', 'updateProj', {...scope, id: 'main'}, JSON.stringify({name: 'Server main'}))).status
+    ).toBe(200);
+    expect((await request('POST', 'gitInit', {...scope, id: 'main'}).then((response) => response.json())).branch).toBe(
+      'main'
+    );
+    expect((await request('POST', 'upload', {path: 'serv/main/server.js'}, 'export const x = 1')).status).toBe(200);
+    expect(
+      (await request('GET', 'list', {path: 'serv/main'}).then((response) => response.json())).find(
+        (entry: {name: string}) => entry.name === 'server.js'
+      ).gitStatus
+    ).toBe('added');
+    expect((await request('POST', 'upload', {path: 'serv/main/.gitlog'}, 'bad')).status).toBe(403);
+    const commit = await request('POST', 'gitCommit', {...scope, id: 'main'}, JSON.stringify({message: 'Server'}));
+    expect(commit.status).toBe(200);
+    const hash = (await commit.json()).hash;
+    expect(
+      (await request('GET', 'gitHistory', {...scope, id: 'main'}).then((response) => response.json()))[0].hash
+    ).toBe(hash);
+    expect((await request('GET', 'gitInfo', {id: 'main'}).then((response) => response.json())).initialized).toBe(false);
+    await request('POST', 'upload', {path: 'serv/main/server.js'}, 'changed');
+    expect((await request('POST', 'gitRestore', {path: 'serv/main/server.js'})).status).toBe(204);
+    expect(await readFile(join(root, 'serv/main/server.js'), 'utf8')).toBe('export const x = 1');
+    expect(
+      (await request('POST', 'createProj', {...scope, name: 'snapshot', template: 'main', commit: hash})).status
+    ).toBe(200);
+    expect(await readFile(join(root, 'serv/snapshot/server.js'), 'utf8')).toBe('export const x = 1');
+    expect(
+      (await request('GET', 'gitInfo', {...scope, id: 'snapshot'}).then((response) => response.json())).initialized
+    ).toBe(false);
+    expect((await request('POST', 'deleteProj', {...scope, id: 'snapshot'})).status).toBe(204);
+    expect((await request('GET', 'readProj', {...scope, id: 'snapshot'})).status).toBe(404);
+  });
+
   it('serves JavaScript downloads with the JavaScript content type', async () => {
     await writeFile(join(root, 'proj/main/script.js'), 'export const value = 1;');
     const response = await app.request('/file/proj/main/script.js');

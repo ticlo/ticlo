@@ -8,9 +8,14 @@ import {ProjectMetadata, StorageError} from './types.ts';
 
 const {access, readdir, mkdir, copyFile, writeFile, readFile, rm, rename} = fs;
 
-const PROJECT_SCOPE = 'proj';
 const PROJECT_METADATA_FILE = '.proj';
 const KEEP_DIRECTORY_PLACEHOLDER = '.DGSERVER_KEEP_DIRECTORY';
+
+function projectScopeDir(rootDir: string, scope?: string): string {
+  if (scope !== undefined && scope !== 'proj' && scope !== 'serv')
+    throw new StorageError('Unsupported project scope', 400);
+  return path.join(rootDir, scope ?? 'proj');
+}
 
 function sanitizeProjectId(rawId?: string | null, field = 'Project id'): string {
   if (typeof rawId !== 'string') {
@@ -27,7 +32,7 @@ function sanitizeProjectId(rawId?: string | null, field = 'Project id'): string 
 }
 
 function projectRootPath(baseDir: string, projectId: string): string {
-  return path.join(baseDir, PROJECT_SCOPE, projectId);
+  return path.join(baseDir, projectId);
 }
 
 async function projectDirectoryExists(baseDir: string, projectId: string): Promise<boolean> {
@@ -92,7 +97,7 @@ async function writeProjectMetadata(
 }
 
 async function listProjectsForAuth(baseDir: string, auth: UserAuth): Promise<ProjectMetadata[]> {
-  const projectsDir = path.join(baseDir, PROJECT_SCOPE);
+  const projectsDir = baseDir;
   let entries: Dirent[];
   try {
     entries = await readdir(projectsDir, {withFileTypes: true});
@@ -343,9 +348,9 @@ async function importProjectsFromArchive(
 }
 
 export {
+  projectScopeDir,
   KEEP_DIRECTORY_PLACEHOLDER,
   PROJECT_METADATA_FILE,
-  PROJECT_SCOPE,
   copyTemplateDirectory,
   createProjectArchiveBuffer,
   generateUniqueProjectId,

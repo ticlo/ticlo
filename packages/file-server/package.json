@@ -8,8 +8,8 @@
   "module": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
-    "adm-zip": "^0.5.16",
-    "luxon": "^3.7.2"
+    "@ticlo/node-git": "workspace:^",
+    "adm-zip": "^0.5.16"
   },
   "peerDependencies": {
     "hono": "^4.13.7"

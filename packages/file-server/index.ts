@@ -227,10 +227,14 @@ export function routeRemoteStorage(app: Hono, options: FileStorageOptions = {}):
 async function initStorageRoot(rootDir: string): Promise<void> {
   await mkdir(rootDir, {recursive: true});
   const projectsDir = path.join(rootDir, 'proj');
+  const serverProjectsDir = path.join(rootDir, 'serv');
   await mkdir(projectsDir, {recursive: true});
+  await mkdir(serverProjectsDir, {recursive: true});
   await mkdir(path.join(rootDir, 'usr'), {recursive: true});
-  for (const entry of await readdir(projectsDir, {withFileTypes: true})) {
-    if (entry.isDirectory()) await migrateProjectMetadata(rootDir, entry.name);
+  for (const directory of [projectsDir, serverProjectsDir]) {
+    for (const entry of await readdir(directory, {withFileTypes: true})) {
+      if (entry.isDirectory()) await migrateProjectMetadata(directory, entry.name);
+    }
   }
 }
 

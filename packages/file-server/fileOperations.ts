@@ -38,15 +38,15 @@ function buildStoragePath(rawPath: string, baseDir: string): StoragePath {
     throw new StorageError('Path must include scope and identifier', 400);
   }
   const [rawScope, id, ...rest] = segments;
-  if (rawScope !== 'proj' && rawScope !== 'usr') {
+  if (rawScope !== 'proj' && rawScope !== 'serv' && rawScope !== 'usr') {
     throw new StorageError('Unsupported storage scope', 400);
   }
   const scope = rawScope as StorageScope;
-  if (scope === 'proj' && id.includes('.')) {
+  if (scope !== 'usr' && id.includes('.')) {
     throw new StorageError('Project id cannot contain dots', 400);
   }
   if (
-    scope === 'proj' &&
+    scope !== 'usr' &&
     (id === 'HEAD' || id.includes('@{') || id.startsWith('-') || /[\u0000-\u0020\u007f~^:?*[\\]/.test(id))
   ) {
     throw new StorageError('Invalid project id', 400);
@@ -106,7 +106,7 @@ async function logFileChange(
   action: string,
   destination?: StoragePath
 ): Promise<void> {
-  if (storage.scope === 'proj')
+  if (storage.scope !== 'usr')
     await logChange(storage.projectRoot, auth, action, storage.relative, destination?.relative);
 }
 
@@ -204,7 +204,7 @@ async function listDirectory(storage: StoragePath): Promise<unknown[]> {
     else if (err.code === 'ENOTDIR') throw new StorageError('Path is not a directory', 400);
     else throw error;
   }
-  const statuses = storage.scope === 'proj' ? await gitStatus(storage.projectRoot) : new Map<string, GitStatus>();
+  const statuses = storage.scope !== 'usr' ? await gitStatus(storage.projectRoot) : new Map<string, GitStatus>();
   const results: Record<string, unknown>[] = [];
   for (const entry of entries) {
     if (entry.isSymbolicLink()) continue;
@@ -256,7 +256,7 @@ async function listDirectory(storage: StoragePath): Promise<unknown[]> {
 }
 
 async function describeFile(storage: StoragePath): Promise<unknown> {
-  const statuses = storage.scope === 'proj' ? await gitStatus(storage.projectRoot) : new Map<string, GitStatus>();
+  const statuses = storage.scope !== 'usr' ? await gitStatus(storage.projectRoot) : new Map<string, GitStatus>();
   const info = await stat(storage.absolute);
   if (info.isDirectory()) {
     return {
@@ -374,7 +374,7 @@ async function handleInfoOp(
         return await describeFile(storage);
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-          if (storage.scope === 'proj') {
+          if (storage.scope !== 'usr') {
             const statuses = await gitStatus(storage.projectRoot);
             const status = statusForPath(statuses, storage.relative);
             if (status === 'deleted') {
@@ -509,7 +509,7 @@ async function handleGitRestoreOp(
     async (): Promise<void> => {
       if (!query.path) throw new StorageError('Path is required', 400);
       const {storage, auth} = await resolveStorageContext(query.path, request, context);
-      if (storage.scope !== 'proj' || !storage.relative) throw new StorageError('Project file is required', 400);
+      if (storage.scope === 'usr' || !storage.relative) throw new StorageError('Project file is required', 400);
       await ensureWrite(auth, storage.id);
       ensureMutable(storage);
       await restoreGitFile(storage.projectRoot, storage.relative, auth);

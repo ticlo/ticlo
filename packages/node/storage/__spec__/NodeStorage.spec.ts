@@ -76,4 +76,39 @@ describe('NodeStorage', () => {
     expect(await storage.readProject('main')).toEqual({id: 'main', name: 'Legacy'});
     expect(await readdir(join(dir, 'main'))).toEqual(['.proj']);
   });
+  it('uses direct file changes for Git status and commit without writing gitlog', async () => {
+    await storage.createProject('main');
+    await storage.uploadFile('main/entry.ticlo', '{"value":1}');
+    expect(await storage.initGit('main')).toMatchObject({initialized: true, branch: 'main'});
+    expect((await storage.getFileInfo('main/entry.ticlo')).gitStatus).toBe('added');
+    const first = await storage.commitGit('main', 'Initial');
+    expect(first.author).toBe('node');
+    expect(await readFile(join(dir, 'main/.gitlog'), 'utf8')).toBe('');
+
+    await storage.uploadFile('main/entry.ticlo', '{"value":2}');
+    expect((await storage.listFiles('main')).find((entry) => entry.name === 'entry.ticlo')?.gitStatus).toBe('modified');
+    await storage.restoreGitFile('main/entry.ticlo');
+    expect(await readFile(join(dir, 'main/entry.ticlo'), 'utf8')).toBe('{"value":1}');
+    expect(await readFile(join(dir, 'main/.gitlog'), 'utf8')).toBe('');
+
+    await storage.deleteFile('main/entry.ticlo');
+    expect((await storage.listFiles('main')).find((entry) => entry.name === 'entry.ticlo')?.gitStatus).toBe('deleted');
+    await storage.restoreGitFile('main/entry.ticlo');
+    expect(await readFile(join(dir, 'main/entry.ticlo'), 'utf8')).toBe('{"value":1}');
+
+    await storage.uploadFile('main/entry.ticlo', '{"value":3}');
+    await storage.commitGit('main', 'Later');
+    expect(await storage.getGitHistory('main')).toHaveLength(2);
+    expect(await storage.getGitBranches('main')).toEqual(['main']);
+    await storage.createDirectory('main/empty');
+    const snapshot = await storage.createProjectFromCommit('main', 'snapshot', first.hash);
+    expect(snapshot.id).toBe('snapshot');
+    expect((await storage.getGitInfo('snapshot')).initialized).toBe(false);
+    expect(await readFile(join(dir, 'snapshot/entry.ticlo'), 'utf8')).toBe('{"value":1}');
+    const {backupBranch} = await storage.resetGitToCommit('main', first.hash);
+    expect(await readFile(join(dir, 'main/entry.ticlo'), 'utf8')).toBe('{"value":1}');
+    expect(await storage.getGitBranches('main')).toContain(backupBranch);
+    await storage.deleteGitBranch('main', backupBranch);
+    expect(await storage.getGitBranches('main')).toEqual(['main']);
+  });
 });
