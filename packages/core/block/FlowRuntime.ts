@@ -7,6 +7,10 @@ import {matchEditPath} from '../policy/EditPolicy.ts';
 import type {DataMap} from '../util/DataTypes.ts';
 
 export type StartOptions = Record<string, {flows?: string[]}>;
+export interface LibraryGraph {
+  roots: string[];
+  dependencies: Record<string, string[]>;
+}
 export interface FlowRef {
   library: string;
   kind: 'flow' | 'module';

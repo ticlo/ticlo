@@ -9,7 +9,7 @@ import {initEditor, PropertyList, BlockStage, NodeTree, FileManager} from '@ticl
 import {DockLayout, type LayoutBase, type TabDefinitions, type TabData} from 'rc-dock';
 import {leftSideColumns, stageGroup, toolGroup, createLayoutActions} from './AppLayout.ts';
 import {antdLocales, initAppI18n} from './AppI18n.tsx';
-import {AppHeader, AppTheme, appHeaderHeight} from './AppHeader.tsx';
+import {AppTheme, appHeaderHeight} from './AppHeader.tsx';
 import {ClientConnection, type CompletedRequest} from '@ticlo/core/connect/ClientConnection.ts';
 import {globalFunctions} from '@ticlo/core';
 import {FunctionTree} from '@ticlo/editor/function-selector/FunctionTree.tsx';
@@ -45,6 +45,10 @@ import {type FileAccess, type FileEntry, StorageError} from '@ticlo/core/storage
 import {fileFlowPath} from './flow-path.ts';
 import {editorHostUrls} from './editor-host.ts';
 import {RemoteStorage, ScopedFileServerFiles, StaticStorage} from '@ticlo/remote-storage';
+import {LibraryMenuHeader, type LibraryFiles} from './LibraryMenu.tsx';
+import {useLibrarySelection} from './useLibrarySelection.ts';
+import type {LibrarySelectionOptions} from '@ticlo/editor/library/LibrarySelectDialog.tsx';
+import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
 
 const layoutGroups = {
   main: stageGroup,
@@ -54,8 +58,14 @@ const layoutGroups = {
 interface Props {
   conn: ClientConnection;
   initialFlow?: string;
-  files?: {storage: FileAccess; project: string};
+  files?: {storage: FileAccess & LibraryFiles; project: string};
+  project: string;
+  onLibraryChange: (name: string, options: LibrarySelectionOptions) => Promise<void>;
+  onLibraryUnload: (name: string) => Promise<void>;
+  onSetDefaultLibrary: (name: string) => Promise<void>;
 }
+
+const EditorFilesContext = React.createContext<Props['files']>(undefined);
 
 interface State {
   modal?: React.ReactElement;
@@ -159,14 +169,20 @@ class App extends React.PureComponent<Props, State> {
           title: t('Files'),
           cached: true,
           content: (
-            <FileManager
-              storage={props.files.storage}
-              project={props.files.project}
-              onOpen={this.openFile}
-              onFilesDeleted={this.onFilesDeleted}
-              onFileDiscarded={this.onFileDiscarded}
-              onProjectReset={this.onProjectReset}
-            />
+            <EditorFilesContext.Consumer>
+              {(files) =>
+                files && (
+                  <FileManager
+                    storage={files.storage}
+                    project={files.project}
+                    onOpen={this.openFile}
+                    onFilesDeleted={this.onFilesDeleted}
+                    onFileDiscarded={this.onFileDiscarded}
+                    onProjectReset={this.onProjectReset}
+                  />
+                )
+              }
+            </EditorFilesContext.Consumer>
           ),
         },
       };
@@ -306,22 +322,55 @@ class App extends React.PureComponent<Props, State> {
     return (
       <AppTheme locale={this.lngConfig}>
         <AntdApp style={{height: '100%', backgroundColor: 'var(--ant-color-bg-layout)'}}>
-          <TicloApp value={this.ticloContext}>
-            <AppHeader language={this.lng} onLanguageChange={this.switchLan} showProjectMenus={false} />
-            <DockLayout
-              defaultLayout={this.defaultDockLayout}
-              tabs={this.tabs}
-              sideColumns={leftSideColumns}
-              ref={this.getLayout}
-              groups={layoutGroups}
-              style={{position: 'absolute', left: 0, top: appHeaderHeight + 4, right: 4, bottom: 4}}
-            />
-            {modal}
-          </TicloApp>
+          <EditPolicyProvider conn={conn}>
+            <TicloApp value={this.ticloContext}>
+              <EditorFilesContext.Provider value={this.props.files}>
+                <LibraryMenuHeader
+                  language={this.lng}
+                  onLanguageChange={this.switchLan}
+                  conn={conn}
+                  project={this.props.project}
+                  storage={this.props.files?.storage}
+                  onLibraryChange={this.props.onLibraryChange}
+                  onLibraryUnload={this.props.onLibraryUnload}
+                  onSetDefaultLibrary={this.props.onSetDefaultLibrary}
+                />
+                <DockLayout
+                  defaultLayout={this.defaultDockLayout}
+                  tabs={this.tabs}
+                  sideColumns={leftSideColumns}
+                  ref={this.getLayout}
+                  groups={layoutGroups}
+                  style={{position: 'absolute', left: 0, top: appHeaderHeight + 4, right: 4, bottom: 4}}
+                />
+                {modal}
+              </EditorFilesContext.Provider>
+            </TicloApp>
+          </EditPolicyProvider>
         </AntdApp>
       </AppTheme>
     );
   }
+}
+
+function EditorWorkspace({
+  conn,
+  project,
+  initialFlow,
+  files,
+}: Pick<Props, 'conn' | 'project' | 'initialFlow' | 'files'>) {
+  const selection = useLibrarySelection(conn, project, initialFlow);
+  return (
+    <App
+      conn={conn}
+      project={selection.project}
+      initialFlow={selection.initialFlow}
+      files={files && {...files, project: selection.project}}
+      onLibraryChange={selection.selectLibrary}
+      onLibraryUnload={selection.unloadLibrary}
+      onSetDefaultLibrary={selection.setDefaultLibrary}
+    />
+  );
 }
 
 (async () => {
@@ -343,7 +392,9 @@ class App extends React.PureComponent<Props, State> {
       : host?.fileUrl
         ? {storage: new ScopedFileServerFiles(host.fileUrl, 'serv'), project}
         : undefined;
-  createRoot(document.getElementById('app')).render(<App conn={client} initialFlow={initialFlow} files={files} />);
+  createRoot(document.getElementById('app')).render(
+    <EditorWorkspace conn={client} project={project} initialFlow={initialFlow} files={files} />
+  );
 })();
 
 (window as any).Logger = Logger;

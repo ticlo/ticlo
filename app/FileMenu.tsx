@@ -65,10 +65,9 @@ export function FileMenuHeader({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const libraryMenu = useLibraryMenu({
-    root,
+    conn,
     storage,
     project,
-    readonly: conn.getEditPolicyView().policy?.readonly,
     onLibraryChange,
     onLibraryUnload,
     onSetDefaultLibrary,

@@ -384,7 +384,7 @@ function DataflowWorkspace({
   initialFlow?: string;
   files: {storage: ProjectFiles; project: string};
 }) {
-  const selection = useLibrarySelection(Root.instance, conn, files.project, initialFlow);
+  const selection = useLibrarySelection(conn, files.project, initialFlow);
   return (
     <App
       key={selection.project}

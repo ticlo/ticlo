@@ -44,6 +44,8 @@ For server runtime editing, `editor.html?host=http://127.0.0.1:8010/` resolves
 its sibling file endpoint. `RemoteStorage` uses `proj`; `ScopedFileServerFiles`
 implements file and Git access for `serv`, while the server runtime uses
 `NodeStorage`. It does not implement `FlowStorage`.
+Its `listProjects` and `createProject` methods use that same scope for Library
+catalog access; they do not activate the created Library.
 
 `project=<id>` selects the file tree; a qualified Flow path selects its Library.
 The default is `#root`. Hosts notify external writes with

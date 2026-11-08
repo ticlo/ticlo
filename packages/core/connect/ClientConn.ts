@@ -7,7 +7,14 @@ import {Query} from './Query.ts';
 import type {EditPolicy, EditPolicyView} from '../policy/EditPolicy.ts';
 import type {ClientConnection} from './ClientConnection.ts';
 import {hashData} from '../util/Serialize.ts';
-import type {FlowRef} from '../block/FlowRuntime.ts';
+import type {FlowRef, LibraryGraph} from '../block/FlowRuntime.ts';
+import type {LibraryMetadata} from '../block/Storage.ts';
+import {libraryPath} from '../util/LibraryMetadata.ts';
+
+export interface LibraryRuntimeInfo extends LibraryGraph {
+  canLoad: boolean;
+  hasMetadata: boolean;
+}
 
 /** Shared command API for physical connections and policy views. */
 
@@ -58,6 +65,25 @@ export abstract class ClientConn {
   }
   setAutoLoadFlow(path: string, enabled: boolean): Promise<any> {
     return this.simpleRequest({cmd: 'setAutoLoadFlow', path, enabled});
+  }
+
+  getLibraryGraph(): Promise<LibraryRuntimeInfo> {
+    return this.simpleRequest({cmd: 'getLibraryGraph', path: ''});
+  }
+  enableLibrary(name: string): Promise<null> {
+    return this.simpleRequest({cmd: 'enableLibrary', path: libraryPath(name)});
+  }
+  unloadLibrary(name: string): Promise<null> {
+    return this.simpleRequest({cmd: 'unloadLibrary', path: libraryPath(name)});
+  }
+  retainLibraries(names: string[]): Promise<null> {
+    return this.simpleRequest({cmd: 'retainLibraries', path: '', names});
+  }
+  getLibraryMetadata(name: string): Promise<{metadata?: LibraryMetadata; canWrite: boolean}> {
+    return this.simpleRequest({cmd: 'getLibraryMetadata', path: libraryPath(name)});
+  }
+  setLibraryDependencies(name: string, dependencies: string[]): Promise<null> {
+    return this.simpleRequest({cmd: 'setLibraryDependencies', path: libraryPath(name), dependencies});
   }
 
   /**

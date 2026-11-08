@@ -489,7 +489,7 @@ function DesignerWorkspace({
   initialFlow?: string;
   files: {storage: ProjectFiles; project: string};
 }) {
-  const selection = useLibrarySelection(root, conn, files.project, initialFlow);
+  const selection = useLibrarySelection(conn, files.project, initialFlow);
   return (
     <App
       key={selection.project}

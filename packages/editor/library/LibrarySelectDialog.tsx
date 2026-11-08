@@ -12,10 +12,8 @@ import {AutoComplete, Button, Checkbox, Divider, Dropdown, Modal} from 'antd';
 import {translateEditor} from '@ticlo/core/editor.ts';
 import {t} from '../component/LocalizedLabel.tsx';
 
-export interface LibraryGraph {
-  roots: string[];
-  dependencies: Record<string, string[]>;
-}
+import type {LibraryGraph} from '@ticlo/core/block/FlowRuntime.ts';
+export type {LibraryGraph} from '@ticlo/core/block/FlowRuntime.ts';
 
 export interface LibrarySelectionOptions {
   setDefault: boolean;
@@ -27,7 +25,12 @@ interface Props {
   graph: LibraryGraph;
   listLibraries: () => Promise<string[]>;
   canCreate: (name: string, existing: string[]) => boolean;
-  onCreate: (name: string) => Promise<void>;
+  onCreate?: (name: string) => Promise<void>;
+  canLoad?: (name: string) => boolean;
+  canUnload?: (name: string) => boolean;
+  canRetain?: boolean;
+  catalogComplete?: boolean;
+  selectOnly?: boolean;
   onSelect: (name: string, options: LibrarySelectionOptions) => Promise<void>;
   onUnload: (name: string) => Promise<void>;
   onSetDefault: (name: string) => Promise<void>;
@@ -41,6 +44,7 @@ function LibraryNode({
   defaultLibrary,
   onUnload,
   onSetDefault,
+  canUnload,
 }: {
   name: string;
   ancestors: string[];
@@ -48,6 +52,7 @@ function LibraryNode({
   defaultLibrary: string;
   onUnload: (name: string) => void;
   onSetDefault: (name: string) => void;
+  canUnload?: (name: string) => boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const root = ancestors.length === 0;
@@ -88,7 +93,7 @@ function LibraryNode({
                 key: 'unload',
                 icon: <CloseOutlined />,
                 label: t('Unload Library'),
-                disabled: isDefault,
+                disabled: isDefault || canUnload?.(name) === false,
                 onClick: () => onUnload(name),
               },
             ],
@@ -110,6 +115,7 @@ function LibraryNode({
               defaultLibrary={defaultLibrary}
               onUnload={onUnload}
               onSetDefault={onSetDefault}
+              canUnload={canUnload}
             />
           ))}
         </div>
@@ -123,11 +129,13 @@ export function LibraryTree({
   defaultLibrary,
   onUnload,
   onSetDefault,
+  canUnload,
 }: {
   graph: LibraryGraph;
   defaultLibrary: string;
   onUnload: (name: string) => void;
   onSetDefault: (name: string) => void;
+  canUnload?: (name: string) => boolean;
 }) {
   return graph.roots.map((root) => (
     <LibraryNode
@@ -138,6 +146,7 @@ export function LibraryTree({
       defaultLibrary={defaultLibrary}
       onUnload={onUnload}
       onSetDefault={onSetDefault}
+      canUnload={canUnload}
     />
   ));
 }
@@ -148,6 +157,11 @@ export function LibrarySelectDialog({
   listLibraries,
   canCreate,
   onCreate,
+  canLoad,
+  canUnload,
+  canRetain = true,
+  catalogComplete = true,
+  selectOnly = false,
   onSelect,
   onUnload,
   onSetDefault,
@@ -209,16 +223,19 @@ export function LibrarySelectDialog({
   };
   const name = input.trim();
   const exists = projects.includes(name);
-  const creating = !!name && !exists;
-  const canRun = ready && !!name && (exists || canCreate(name, projects));
+  const creating = catalogComplete && !!onCreate && !!name && !exists;
+  const canRun = ready && !!name && (creating ? canCreate(name, projects) : (canLoad?.(name) ?? exists));
   const load = () => {
     if (!canRun) return;
     return run(async () => {
-      if (!exists) {
+      if (creating) {
         await onCreate(name);
         setProjects((current) => [...current, name].sort());
       }
-      await onSelect(name, {setDefault, unloadOthers});
+      await onSelect(name, {
+        setDefault: selectOnly || setDefault,
+        unloadOthers: !selectOnly && canRetain && unloadOthers,
+      });
     });
   };
 
@@ -229,14 +246,20 @@ export function LibrarySelectDialog({
       onCancel={() => !busy && onClose()}
       destroyOnHidden
       footer={
-        <div style={{display: 'flex', flexWrap: 'wrap', gap: '4px 12px', textAlign: 'left'}}>
-          <Checkbox checked={setDefault} onChange={(event) => setSetDefault(event.target.checked)} disabled={busy}>
-            {t('Set as Default Library')}
-          </Checkbox>
-          <Checkbox checked={unloadOthers} onChange={(event) => setUnloadOthers(event.target.checked)} disabled={busy}>
-            {t('Unload Other Libraries')}
-          </Checkbox>
-        </div>
+        !selectOnly && (
+          <div style={{display: 'flex', flexWrap: 'wrap', gap: '4px 12px', textAlign: 'left'}}>
+            <Checkbox checked={setDefault} onChange={(event) => setSetDefault(event.target.checked)} disabled={busy}>
+              {t('Set as Default Library')}
+            </Checkbox>
+            <Checkbox
+              checked={canRetain && unloadOthers}
+              onChange={(event) => setUnloadOthers(event.target.checked)}
+              disabled={busy || !canRetain}
+            >
+              {t('Unload Other Libraries')}
+            </Checkbox>
+          </div>
+        )
       }
     >
       <div
@@ -252,6 +275,7 @@ export function LibrarySelectDialog({
           defaultLibrary={defaultLibrary}
           onUnload={(name) => void runTreeAction(() => onUnload(name))}
           onSetDefault={(name) => void runTreeAction(() => onSetDefault(name))}
+          canUnload={canUnload}
         />
       </div>
       <Divider style={{margin: '12px 0'}} />
@@ -266,7 +290,7 @@ export function LibrarySelectDialog({
           style={{flex: 1}}
         />
         <Button icon={creating ? <PlusOutlined /> : <ApartmentOutlined />} disabled={!canRun || busy} onClick={load}>
-          {t(creating ? 'Create' : 'Load')}
+          {t(creating ? 'Create' : selectOnly ? 'Open' : 'Load')}
         </Button>
       </div>
       {error && <div className="ticl-e-file-error">{error}</div>}

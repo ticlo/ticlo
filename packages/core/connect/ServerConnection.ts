@@ -52,6 +52,7 @@ import {getGlobalSettingsData} from '../util/Settings.ts';
 import {DoneEvent} from '../block/Event.ts';
 import {Library} from '../block/Library.ts';
 import {checkEditPolicy, type EditPolicy} from '../policy/EditPolicy.ts';
+import {libraryFromPath, libraryPath, validateLibrary} from '../util/LibraryMetadata.ts';
 
 export class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -388,6 +389,17 @@ class ServerConnectionCore extends Connection {
     return this._editPolicy;
   }
 
+  protected canWriteLibraryMetadata(path: string) {
+    const storage = this.root._storage;
+    return Boolean(
+      !this._editPolicy?.readonly &&
+      storage?.getLibraryMetadata &&
+      storage.saveLibraryMetadata &&
+      (storage.isPersistent ? storage.isPersistent(libraryFromPath(path)) : storage.persistent !== false) &&
+      storage.canWriteFlow?.(path) !== false
+    );
+  }
+
   setEditPolicy(policy?: EditPolicy) {
     this._editPolicy = policy;
     this.sendEditPolicy();
@@ -427,11 +439,16 @@ class ServerConnectionCore extends Connection {
         'getAutoLoadFlow',
         'listMainFlows',
         'listLoadedFlows',
+        'getLibraryGraph',
+        'getLibraryMetadata',
         'close',
         'loadFlow',
         'unloadFlow',
         'enableFlow',
         'disableFlow',
+        'enableLibrary',
+        'unloadLibrary',
+        'retainLibraries',
         'callFunction',
       ].includes(cmd) &&
       !(cmd === 'copy' && !request.cut)
@@ -446,7 +463,7 @@ class ServerConnectionCore extends Connection {
       const [owner, name] = this.root.queryBlockField(path);
       if (owner && owner !== this.root && !canWrite(`${owner.getFullPath()}.${name}`)) return 'Storage is read-only';
     }
-    if (this._editPolicy?.readonly && cmd !== 'listMainFlows' && cmd !== 'listLoadedFlows') {
+    if (this._editPolicy?.readonly && !['listMainFlows', 'listLoadedFlows', 'getLibraryGraph'].includes(cmd)) {
       const error = this.checkRequestPolicy(request);
       if (error) return error;
     }
@@ -768,6 +785,63 @@ export class ServerConnection extends ServerConnectionCore {
 
   getFlowState({path}: {path: string}) {
     return {state: this.root.getFlowState(flowRefFromPath(path))};
+  }
+
+  getLibraryGraph({path}: {path: string}) {
+    if (path !== '') return 'invalid path';
+    const graph = this.root.getLibraryGraph();
+    const policy = this.getEditPolicy();
+    if (policy?.readonly) {
+      const visible = new Set(
+        Object.keys(graph.dependencies).filter(
+          (name) => !checkEditPolicy(policy, {cmd: 'getLibraryMetadata', path: libraryPath(name)}, undefined, 'server')
+        )
+      );
+      graph.roots = graph.roots.filter((name) => visible.has(name));
+      graph.dependencies = Object.fromEntries(
+        Object.entries(graph.dependencies)
+          .filter(([name]) => visible.has(name))
+          .map(([name, dependencies]) => [name, dependencies.filter((name) => visible.has(name))])
+      );
+    }
+    return {
+      ...graph,
+      canLoad: !policy?.readonly && Boolean(this.root._storage),
+      hasMetadata: Boolean(this.root._storage?.getLibraryMetadata),
+    };
+  }
+
+  async enableLibrary({path}: {path: string}): Promise<null> {
+    await this.root.enableLibrary(libraryFromPath(path));
+    return null;
+  }
+
+  async unloadLibrary({path}: {path: string}): Promise<null> {
+    await this.root.unloadLibrary(libraryFromPath(path));
+    return null;
+  }
+
+  async retainLibraries({path, names}: {path: string; names: string[]}) {
+    if (path !== '' || !isStringArray(names)) return 'invalid libraries';
+    names.forEach(validateLibrary);
+    await this.root.retainLibraries(names);
+    return null;
+  }
+
+  async getLibraryMetadata({path}: {path: string}) {
+    const name = libraryFromPath(path);
+    return {
+      metadata: await this.root._storage?.getLibraryMetadata?.(name),
+      canWrite: this.canWriteLibraryMetadata(path),
+    };
+  }
+
+  async setLibraryDependencies({path, dependencies}: {path: string; dependencies: string[]}) {
+    const name = libraryFromPath(path);
+    if (!isStringArray(dependencies)) return 'invalid dependencies';
+    if (!this.canWriteLibraryMetadata(path)) return 'Storage is read-only';
+    await this.root.setLibraryDependencies(name, dependencies);
+    return null;
   }
 
   async getAutoLoadFlow({path}: {path: string}) {

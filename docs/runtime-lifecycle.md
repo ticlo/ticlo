@@ -172,6 +172,13 @@ propagate its possible promise. Destroying runtime flows does not delete saved f
 
 ## Client commands
 
+`ClientConn` also exposes `getLibraryGraph`, `enableLibrary`, `unloadLibrary`,
+`retainLibraries`, `getLibraryMetadata`, and `setLibraryDependencies`. Library
+operations use names, such as `main` or `#root`; the connection maps them to
+canonical runtime paths. Graph reads include `canLoad` and `hasMetadata`;
+metadata reads include `canWrite`. These operations do not require an HTTP file
+API. Readonly server connections filter graph reads and reject lifecycle edits.
+
 `ClientConnection` exposes `loadFlow`, `unloadFlow`, `enableFlow`, `disableFlow`,
 and `getFlowState` using paths (plus options where supported). Server policies
 check these commands. Paths use the runtime tree: `+main.jobs.daily`,

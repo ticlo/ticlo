@@ -69,6 +69,14 @@ column permissions apply throughout.
 
 ## File manager
 
+The Library menu uses runtime commands independently of file access. Without a
+file catalog, a supported runtime can show loaded libraries and load a name
+entered by the user. Catalog access adds browsing and project creation; a
+file-only connection can change the browsing Library without loading it.
+Unavailable capabilities are omitted or disabled. Menu state refreshes on open
+without polling. `editor.html` keeps its open tabs when the browsing Library changes.
+Explicit load/unload operations affect the connected server's runtime.
+
 `FileManager` accepts a storage instance and project ID, including `#root`:
 
 ```tsx

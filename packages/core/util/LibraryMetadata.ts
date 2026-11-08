@@ -11,6 +11,16 @@ export function libraryPrefix(name: string): string {
   return name === '#root' ? '' : `+${name}.`;
 }
 
+export function libraryPath(name: string): string {
+  return libraryPrefix(name).slice(0, -1);
+}
+
+export function libraryFromPath(path: string): string {
+  if (path === '') return '#root';
+  if (!path.startsWith('+') || path === '+#root') throw new Error('Invalid library path');
+  return validateLibrary(path.slice(1));
+}
+
 export function readLibraryMetadata(value: unknown): LibraryMetadata {
   if (value == null) return {};
   if (typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid library metadata');

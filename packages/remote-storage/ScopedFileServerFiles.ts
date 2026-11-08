@@ -75,6 +75,16 @@ export class ScopedFileServerFiles extends RemoteFiles implements ProjectGit {
     return true;
   }
 
+  listProjects(options?: FileRequest) {
+    return this.client.listProjects(this.config(options));
+  }
+
+  async createProject(name: string) {
+    const project = await this.client.createProject(name, undefined, this.config());
+    this.notifyFileChange(name);
+    return project;
+  }
+
   async getGitInfo(project: string, options?: FileRequest) {
     const info = await this.client.getGitInfo(project, this.config(options));
     if (info.initialized && !info.hasUncommittedChanges && (await this.hasProjectBackups(project))) {

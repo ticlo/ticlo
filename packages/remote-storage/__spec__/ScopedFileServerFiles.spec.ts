@@ -30,6 +30,9 @@ describe('ScopedFileServerFiles', () => {
       close = () => new Promise<void>((done) => server.close(() => done()));
     });
     files = new ScopedFileServerFiles(baseURL, 'serv');
+    await files.createProject('other');
+    expect((await files.listProjects()).map(({id}) => id)).toEqual(expect.arrayContaining(['main', 'other']));
+    expect(await (await app.request('/file?op=listProj')).json()).toEqual([]);
     expect((await files.listFiles('')).map((entry) => entry.path)).toContain('main');
     await files.uploadFile('main/entry.ticlo', '{}');
     expect((await files.listFiles('main')).map((entry) => entry.path)).toContain('main/entry.ticlo');
