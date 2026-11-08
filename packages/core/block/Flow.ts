@@ -23,6 +23,8 @@ import {LibraryFunctionModule, FlowFunctionModule} from './LibraryFunctionModule
 import {deepEqual} from '../util/Compare.ts';
 import {voidFunction} from '../util/Functions.ts';
 import {FlowRuntime, type StartOptions, type FlowRef, type UnloadOptions} from './FlowRuntime.ts';
+import {DefinedBlock} from './DefinedBlock.ts';
+import {validateNodePath} from '../util/Path.ts';
 
 export enum FlowState {
   enabled,
@@ -661,6 +663,13 @@ export class Root extends FlowFolder {
     this._tempRoot = this._createConstBlock('#temp', (prop) => new ConstBlock(this, this._globalRoot, prop))._value;
 
     this._props.set('', new BlockConstConfig(this, '', this));
+  }
+
+  defineGlobal(name: string, data: DataMap): DefinedBlock {
+    if (this._storage || this._globalRoot._loaded) throw new Error('Define global blocks before loading storage');
+    if (!name.startsWith('^')) name = `^${name}`;
+    if (!validateNodePath(name) || name === '^') throw new Error('Invalid global block name');
+    return DefinedBlock.create(this._globalRoot, name, data);
   }
 
   loadGlobal(data: DataMap, applyChange?: FlowLoader['applyChange']) {

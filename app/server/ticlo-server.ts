@@ -13,7 +13,8 @@ import {join} from 'node:path';
 
 export async function createServerApp(
   rootDir = fileURLToPath(new URL('./files/', import.meta.url)),
-  authProvider: AuthProvider = () => devUserAuth
+  authProvider: AuthProvider = () => devUserAuth,
+  root = Root.instance
 ) {
   const rootProject = join(rootDir, 'serv/#root');
   if (await mkdir(rootProject, {recursive: true})) {
@@ -31,14 +32,13 @@ export async function createServerApp(
       'Ticlo server\n/ticlo — runtime WebSocket and HTTP commands\n/file — project and file storage\n/api/* — flow-defined endpoints\n/health — server health\n'
     )
   );
-  return createTicloApp({app, enableEditor: true, cors: false, rootRoute: false});
+  return createTicloApp({app, root, enableEditor: true, cors: false, rootRoute: false});
 }
 
 async function start() {
+  const {app, ticloWs} = await createServerApp();
   await Root.instance.setStorage(new NodeStorage(fileURLToPath(new URL('./files/serv/', import.meta.url))));
   await Root.instance.start();
-
-  const {app, ticloWs} = await createServerApp();
 
   const server = serve({fetch: app.fetch, port: 8010, hostname: '127.0.0.1'});
   ticloWs?.injectWebSocket(server);

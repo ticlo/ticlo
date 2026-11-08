@@ -401,7 +401,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
         } else if (Object.isExtensible(val)) {
           // binding helper
           const name = key.substring(1);
-          this.createHelperBlock(name)._load(val as DataMap);
+          this.getProperty(name)._loadHelper(val as DataMap);
         }
       } else {
         this.getProperty(key)._load(map[key]);
@@ -429,7 +429,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
         } else if (Object.isExtensible(val)) {
           // binding helper
           const name = key.substring(1);
-          this.createHelperBlock(name)._liveUpdate(val as DataMap);
+          this.getProperty(name)._loadHelper(val as DataMap, true);
           loadedFields[name] = true;
           loadedFields[key] = true;
         }

@@ -5,6 +5,7 @@ import {globalFunctions} from '../block/FunctionModule.ts';
 import {hideProperties, showProperties} from './PropertyShowHide.ts';
 import {PropertyMover} from './PropertyMover.ts';
 import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.ts';
+import {DefinedBlock, isDefinedProperty} from '../block/DefinedBlock.ts';
 
 function findGroupDesc(block: Block, group: string): PropGroupDesc {
   let groupDesc: PropGroupDesc;
@@ -26,6 +27,17 @@ function findGroupDesc(block: Block, group: string): PropGroupDesc {
     const customProps = block.getValue('#custom');
     if (Array.isArray(customProps)) {
       groupDesc = findGroup(customProps);
+    }
+  }
+  if (groupDesc && block instanceof DefinedBlock) {
+    if (isDefinedProperty(block.getProperty(`${group}[]`, false))) throw new Error('Code-defined group is read-only');
+    const length = getInputsLength(block, group, groupDesc.defaultLen, groupDesc.maxLen);
+    for (let i = 0; i <= length; ++i) {
+      for (const prop of groupDesc.properties) {
+        if (isDefinedProperty(block.getProperty(`${prop.name}${i}`, false))) {
+          throw new Error('Code-defined group is read-only');
+        }
+      }
     }
   }
   return groupDesc;

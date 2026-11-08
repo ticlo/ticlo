@@ -5,6 +5,7 @@ import {globalFunctions} from '../block/FunctionModule.ts';
 import {configList} from './PropertyShowHide.ts';
 import {PropertyMover} from './PropertyMover.ts';
 import {isStringArray} from '../util/DataTypes.ts';
+import {isDefinedProperty} from '../block/DefinedBlock.ts';
 
 const trailingNumberReg = /\d+$/;
 
@@ -94,6 +95,7 @@ export function findPropertyForNewBlock(block: Block, baseName: string, reserved
 }
 
 export function renameProperty(block: Block, oldName: string, newName: string, moveOutboundLinks = false) {
+  if (isDefinedProperty(block.getProperty(newName, false))) throw new Error('Code-defined property is read-only');
   new PropertyMover(block, oldName, moveOutboundLinks).moveTo(newName);
   const property = block.getProperty('#order', false);
   const order = property?.getValue();

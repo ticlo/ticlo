@@ -3,8 +3,9 @@
 A Library groups flows, modules, dependencies, and a shared context. A FlowModule
 is a flow that exports reusable functions within a Library.
 
-`setStorage()` attaches storage and reads global settings without starting stored
-flows. Startup selects main libraries and ordinary flows:
+Code can define resident global Blocks before attaching storage. `setStorage()`
+then reads global settings without starting stored flows. Startup selects main
+libraries and ordinary flows:
 
 ```ts
 await root.setStorage(storage);
@@ -25,6 +26,42 @@ Patterns use policy `matchEditPath`: dot-separated paths, `*` within a segment,
 `**` across segments, `?` for one or more digits. Trailing `.**` requires a
 descendant. Selection runs once and excludes modules, folders, and future flows.
 Missing exact names error; unmatched wildcards select nothing.
+
+## Code-defined globals
+
+Use `Root.defineGlobal()` in TS/TSX before `setStorage()` or `loadGlobal()`, in
+either the browser or Node runtime:
+
+```ts
+const root = new Root();
+root.defineGlobal('^environment', {
+  apiBase: 'https://example.com/api',
+  limits: {'#is': '', maxItems: 100},
+});
+await root.setStorage(storage);
+await root.start();
+```
+
+The name may omit `^`. Ordinary flows inherit these Blocks through context, for
+example `^environment.limits.maxItems`. The Block and every field declared by
+code are read-only, including explicitly declared `undefined` values. Plain
+objects and arrays are copied and frozen; class instances and `NoSerialize`
+service objects keep their identity. Nested Block definitions use the usual
+`#is` format and protect their declared fields independently.
+
+Stored `#global` data and later reloads ignore overlapping values and bindings.
+Fields absent from the code definition remain editable, including fields inside
+nested Blocks. Saves contain only these editable additions, so code definitions
+must be installed on every deployment. Definitions survive global disable/enable
+and runtime stop/start; `root.destroy()` releases them. Duplicate definitions are
+rejected.
+
+A code-defined Block's `#is` describes its type without constructing or running
+the ordinary function. Supply constant values or an already-created service
+through fields such as `#output`; bindings in code definitions are not accepted.
+This keeps host-owned services independent of executable Blocks loaded from
+flows. For example, the HTTP host defines `^web-server` with type
+`web-server:server` and the host's route service as its fixed `#output`.
 
 ## Library metadata
 

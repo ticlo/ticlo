@@ -1,4 +1,5 @@
 export {Block} from './block/Block.ts';
+export {DefinedBlock} from './block/DefinedBlock.ts';
 export {BlockOrder, getBlockOrder} from './block/BlockOrder.ts';
 export {Root, Flow, FlowFolder} from './block/Flow.ts';
 export type {StartOptions, FlowRef, UnloadOptions} from './block/FlowRuntime.ts';

@@ -212,6 +212,12 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
+  _loadHelper(data: DataMap, live = false) {
+    const helper = this._block.createHelperBlock(this._name);
+    if (live) helper._liveUpdate(data);
+    else helper._load(data);
+  }
+
   _liveUpdate(val: unknown) {
     if (this._bindingSource) {
       // Live updates represent authoritative saved data, so any local binding is

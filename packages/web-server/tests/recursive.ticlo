@@ -238,6 +238,6 @@
   "GET"
  ],
  "path": "/plus1",
- "~server": "^local-server.#output"
+ "~server": "^web-server.#output"
 }
 }

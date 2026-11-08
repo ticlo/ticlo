@@ -656,7 +656,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     icon = <TIcon icon={iconName} style={colorStyle} />;
 
     if (!dynamicStyle) {
-      if (item.functionId === 'flow:context') {
+      if (item.functionId === 'flow:context' || item.functionId === 'flow:global') {
         icon = <ProductFilled />;
       } else if (saveAllowed.has(item.functionId)) {
         if (this.hasChangeListener.value) {
@@ -664,7 +664,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         } else {
           icon = item.functionId === 'flow:main' && this.state.autoLoad ? <FileTicloFilled /> : <FileTicloOutlined />;
         }
-      } else if (item.functionId === 'flow:const' || item.functionId === 'flow:global') {
+      } else if (item.functionId === 'flow:const') {
         icon = <GlobalOutlined />;
       } else if (item.functionId === 'flow:folder') {
         icon = <FolderOpenOutlined />;
