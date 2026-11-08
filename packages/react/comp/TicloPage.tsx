@@ -15,7 +15,7 @@ export interface TicloPageProps extends BaseProps {
 }
 
 /** Render a flow's #main or a component's #return, retaining its root DOM ownership. */
-export function TicloPage<T extends TicloPageProps = TicloPageProps>({block, context, fallback = null, ...others}: T) {
+function TicloPageView<T extends TicloPageProps = TicloPageProps>({block, context, fallback = null, ...others}: T) {
   const main = useBlockValue(block, block instanceof Flow ? '#main' : '#return');
   const parentContext = useContext(ComponentContext);
   const parent = useContext(ComponentRenderContext);
@@ -45,3 +45,5 @@ export function TicloPage<T extends TicloPageProps = TicloPageProps>({block, con
     </ComponentRenderContext.Provider>
   );
 }
+
+export const TicloPage = React.memo(TicloPageView) as typeof TicloPageView;

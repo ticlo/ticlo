@@ -1,5 +1,8 @@
 # React containers
 
+`react:horizontal` and `react:vertical` use row and column flex layouts.
+`react:absolute` positions children absolutely in a relative container.
+
 React containers resolve their children from `content` and `#order`. Content can
 be a Block, React element, string, number, or an array of those values. Arrays
 expand into individual children; unsupported values are omitted. An explicit

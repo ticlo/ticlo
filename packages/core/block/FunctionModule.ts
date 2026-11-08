@@ -172,10 +172,12 @@ export class FunctionModule {
     return result;
   }
 
-  getDescToSend(id: string): [FunctionDesc, number] {
-    const functionDispatcher = this._functions[id];
-    const desc = functionDispatcher?.getValue()?.desc;
+  getDesc(id: string): FunctionDesc {
+    return this._functions[id]?.getValue()?.desc ?? null;
+  }
 
+  getDescToSend(id: string): [FunctionDesc, number] {
+    const desc = this.getDesc(id);
     if (desc) {
       return [desc, encode(desc).length];
     }

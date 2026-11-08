@@ -1,18 +1,20 @@
 # Agent instructions
 
-- Keep changes minimal and scoped; prefer simple, readable code.
-- Pause on errors, blockers, or unclear requirements; don't guess.
-- See `.agents/skills/ticlo/SKILL.md` for package architecture.
+- Keep changes minimal; prefer simple code. Pause on errors, blockers, or unclear requirements; don't guess.
+- Start with `.agents/skills/ticlo/SKILL.md` for task routing. Search the relevant package before widening a search; read only the needed source and reference sections.
+- Core runtime performance takes priority. Avoid whole-flow serialization, deep comparisons, and repeated allocations on execution, notification, and loading paths. Measure changes to scaling or hot paths.
+- React components should subscribe only to the values they render and keep unchanged snapshots stable. Keep designer selection and gesture state out of component contexts.
 - Editor must not depend on designer; use generics for shared types and keep designer behavior in designer.
 - `packages/editor` and `packages/designer` do not need a11y support; avoid ARIA and a11y-only roles.
 - React components must work without designer styles.
-- Document concepts, contracts, and setup; omit incidental UI choices and implementation walkthroughs.
 
-## Editor and designer testing
+## Testing
 
-Applies to `packages/editor` and `packages/designer`; core testing requirements are unchanged.
+- Protect runtime semantics, data integrity, wrong-target edits, undo/redo, permissions, and complex interactions with representative tests and reusable fixtures.
+- Remove obsolete or duplicate tests. Wording, icons, spacing, menu order, visibility, and exact default layouts do not need tests unless they protect a distinct functional risk.
+- Validate the affected package first. Broaden for shared behavior; repeat passed checks only after new changes or failures. Commands and test routing are in `docs/development.md`.
 
-- Ordinary UI changes affect wording, icons, spacing, layout, menu order, or control visibility, without changing value parsing/commit, stored data, command targets, permissions, or interaction algorithms. They do not need new tests; use existing tests or manual checks.
-- When designs change, update or replace existing tests and remove obsolete or redundant coverage.
-- Add tests only for distinct, lasting risks (data loss, wrong-target edits, undo/redo, permissions, complex interactions), or when explicitly requested.
-- Prefer representative cases and reusable fixtures. Avoid duplicate coverage and assertions about incidental UI choices such as labels, menu order, defaults, or styling.
+## Documentation
+
+- Treat code as the authority. Keep each contract in one reference and link to it elsewhere.
+- Keep READMEs introductory. Document concepts, contracts, and setup; omit incidental UI choices and implementation walkthroughs.

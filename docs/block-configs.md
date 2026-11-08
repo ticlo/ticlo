@@ -2,7 +2,7 @@
 
 Implementation: [BlockConfigs.ts](../packages/core/block/BlockConfigs.ts) and
 [Block.ts](../packages/core/block/Block.ts). For saved block markers, function IDs,
-and object wrappers, see the [file format](../.agents/skills/ticlo/file-format.md).
+and object wrappers, see the [file format](flow-format.md).
 
 ## `#mode` and `#disabled`
 
@@ -93,16 +93,13 @@ A worker's `#static` references the same Block as
 that function reference the same static block. Different function modules own
 separate `#shared` containers, even when their local function IDs match.
 
-The name `FlowWithStatic` follows the `#static` property it adds. `SharedBlock`
-names the owning container; `StaticBlock` names each function's content.
-
 Static content loads before the worker's other data so bindings can resolve it.
 Destroying a worker instance detaches its reference; the static block remains
 owned by `#shared`. Replacing or deleting the function invalidates the block.
 Inline workers do not support static content.
 
 See [StaticBlock.ts](../packages/core/block/StaticBlock.ts) and
-[worker architecture](../.agents/skills/ticlo/worker-architecture.md#flow-classes-and-static-content).
+[worker architecture](worker-functions.md#flow-classes-and-static-content).
 
 ## Component root
 
@@ -169,5 +166,5 @@ the node tree.
 `#wait` signals pending work. Clearing it lets `WorkerFlow` report readiness
 after resolution; setting it on `#outputs` forwards readiness to the flow.
 `map`, `multi-worker`, and `handler` use this when collecting results or reusing
-workers. See [worker architecture](../.agents/skills/ticlo/worker-architecture.md)
+workers. See [worker architecture](worker-functions.md)
 for sources and host behavior.

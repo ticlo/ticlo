@@ -225,7 +225,7 @@ export class Flow extends Block {
       const functions = this.getFuncModule();
       const workerData = functions.getWorkerData(funcId);
       if (workerData) {
-        const [desc] = functions.getDescToSend(funcId);
+        const desc = functions.getDesc(funcId);
         this._library = desc?.libraryId;
         this._loadFrom = funcId;
         this._loadFlowData(workerData, funcId);

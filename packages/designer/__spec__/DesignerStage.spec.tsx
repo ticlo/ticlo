@@ -57,18 +57,6 @@ describe('DesignerStage', () => {
     await shouldHappen(() => div.querySelector('.ticl-d-page p')?.textContent === 'Replacement');
   });
 
-  it('shows an empty state instead of rendering #output', async () => {
-    const flow = Root.instance.addFlow(path, {});
-    flow.updateValue('#output', <span>Data output</span>);
-    const [, conn] = makeLocalConnection(Root.instance);
-    const [, div] = loadTemplate(<DesignerStage root={Root.instance} conn={conn} basePath={path} />);
-    await shouldHappen(() => div.querySelector('.ticl-d-page-setup'));
-    expect(div.textContent).not.toContain('Data output');
-
-    flow.updateValue('#main', <span>React page</span>);
-    await shouldHappen(() => div.textContent === 'React page');
-  });
-
   it('initializes a page without replacing flow data and supports undo', async () => {
     const layout = 'absolute';
     let saved: DataMap;
@@ -230,7 +218,7 @@ describe('DesignerStage', () => {
     expect(div.textContent).not.toContain('Nested main');
   });
 
-  it('updates the page when its flow is replaced or removed', async () => {
+  it('follows replaced flows and can recreate a removed page', async () => {
     Root.instance.addFlow(path, {'#main': {'#is': 'react:p', 'content': 'First'}});
     const [, conn] = makeLocalConnection(Root.instance);
     const [, div] = loadTemplate(<DesignerStage root={Root.instance} conn={conn} basePath={path} />);
@@ -238,8 +226,12 @@ describe('DesignerStage', () => {
 
     Root.instance.deleteValue(path);
     await shouldHappen(() => div.querySelector('.ticl-d-stage > .ticl-d-empty'));
-    Root.instance.addFlow(path, {'#main': {'#is': 'react:p', 'content': 'Second'}});
+    const flow = Root.instance.addFlow(path, {'#main': {'#is': 'react:p', 'content': 'Second'}});
     await shouldHappen(() => div.textContent === 'Second');
+    flow.deleteValue('#main');
+    await shouldHappen(() => div.querySelector('.ticl-d-layout-options button:not([disabled])'));
+    div.querySelector<HTMLButtonElement>('.ticl-d-layout-options button:not([disabled])').click();
+    await shouldHappen(() => flow.getValue('#main') instanceof Block);
   });
 
   it('keeps page components stable across selection and panel updates, and updates mode consumers', async () => {

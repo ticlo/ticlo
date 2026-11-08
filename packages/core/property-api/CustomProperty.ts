@@ -46,7 +46,7 @@ export function copyCustomPropertyDescriptor(block: Block, name: string, group?:
 
   const sourceBlock = connected._block;
   const getFuncDesc = (id: unknown) =>
-    typeof id === 'string' ? Library.getFunctions(id, sourceBlock._flow)?.getDescToSend(id)[0] : undefined;
+    typeof id === 'string' ? Library.getFunctions(id, sourceBlock._flow)?.getDesc(id) : undefined;
   const funcDesc = getFuncDesc(sourceBlock.getValue('#is')) ?? blankFuncDesc;
   const sourceCustom = sourceBlock.getValue('#custom');
   const cache = buildPropDescCache(funcDesc, Array.isArray(sourceCustom) ? sourceCustom : []);

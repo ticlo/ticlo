@@ -1,215 +1,108 @@
 # File and flow storage
 
-`RemoteStorage` and `StaticStorage` from `@ticlo/remote-storage`, and `NodeStorage`
-from `@ticlo/node`, provide file operations and implement the runtime's
-`FlowStorage` interface. The same instance can be passed to `Root.setStorage`
-and the editor's `FileManager`.
-The package also exports `TicloFileClient` for direct access to the HTTP API.
-`RemoteStorage` accepts a custom `fetch(url, init)` and preserves native fetch cancellation.
+`RemoteStorage`, `StaticStorage`, and `NodeStorage` implement `FlowStorage` and
+the shared file interfaces. Pass the same instance to `Root.setStorage()` and
+`FileManager`. Remote and static adapters live in `@ticlo/remote-storage`; the
+filesystem adapter lives in `@ticlo/node`.
 
-For the server runtime, open `editor.html?host=http://127.0.0.1:8010/`.
-The trailing slash identifies the server root: the editor connects to `/ticlo`
-and its file panel accesses `/file` in the `serv` scope. An explicit `/ticlo`
-host also resolves the sibling `/file` endpoint. `RemoteStorage` continues to
-use only `proj`; the editor file panel uses `ScopedFileServerFiles` for `serv`.
-`ScopedFileServerFiles` implements file and Git access, but does not implement
-`FlowStorage`; the server runtime keeps using `NodeStorage` for flows. Successful
-editor requests that may change stored flows call `notifyFileChange(project)` so
-the file panel refreshes the expanded folders in that library. A file access
-implementation can expose `subscribeFileChanges` and `notifyFileChange` to
-support the same notification contract for writes made outside its own file
-methods.
-Use `project=<id>` to select its file tree, or pass a qualified `flow` path to
-select that flow's library. With neither parameter, the file tree shows `#root`.
-After a Git reset, the editor uses `listLoadedFlows(library)` to reload every
-loaded flow and module in that library, including ones without an open tab.
-
-```tsx
-import {Root} from '@ticlo/core';
-import {RemoteStorage} from '@ticlo/remote-storage';
-import {FileManager} from '@ticlo/editor';
-
+```ts
 const storage = new RemoteStorage({baseURL: 'http://127.0.0.1:8010/file'});
-await Root.instance.setStorage(storage);
-await Root.instance.start({main: {flows: ['entry']}, local: {flows: ['**']}});
-
-<FileManager storage={storage} project="main" />;
+await root.setStorage(storage);
+await root.start({main: {flows: ['entry']}});
 ```
+
+`RemoteStorage` accepts a custom `fetch` and preserves native cancellation.
+`TicloFileClient` exposes the lower-level Axios HTTP API. Server hosting,
+authentication, conditional HTTP headers, and Git logging are defined in
+[file server](file-server.md); startup and Flow state are in
+[runtime lifecycle](runtime-lifecycle.md).
 
 ## Paths and scopes
 
-Public project paths are `<project>/<relative-file-path>`, without `proj/`.
-`storage.user` exposes the same file operations with paths relative to the
-current user's directory. Paths reject traversal and backslashes. File APIs
-return promises, accept `AbortSignal`, and support binary data as well as text.
+Public storage paths use `<project>/<relative-path>`, without `proj/`.
+`storage.user` uses paths relative to the current user's directory. Paths reject
+traversal and backslashes. Operations return promises and accept `AbortSignal`.
 
 | Scope | Remote | Static | Node |
 | --- | --- | --- | --- |
 | Browser project `main` | `proj/main/` | `proj/main/`, read-only | — |
-| Server project `main` | File API `serv/main/` | — | `<dir>/main/` when `dir` is `files/serv` |
+| Server project `main` | `ScopedFileServerFiles` with `serv` | — | `<dir>/main/` |
 | Project `local` | IndexedDB | IndexedDB | `<dir>/local/` |
 | Current user | `usr/<authenticated-id>/` | `usr/guest/`, read-only | `<dir>/#root/` |
-| `#global` | `usr/<authenticated-id>/#global.ticlo` | `usr/guest/#global.ticlo` | `<dir>/#root/#global.ticlo` |
+| Global flow | `storage.user/#global.ticlo` | `storage.user/#global.ticlo` | `<dir>/#root/#global.ticlo` |
 
-Browser `local` is reserved: reads and writes never access a remote project with
-that name, even when a local file is missing. It is always available, including
-when empty, and cannot be deleted or moved as a project. In the
-`ticlo-local-files` IndexedDB database, `entries` stores local project metadata
-and a parent-directory index, while `contents` holds its binary data. Empty
-directories are real entries. Metadata and contents change in one transaction.
-The same database has a separate `backups` store for remote files whose editor
-save failed. Its keys include the file server URL, user ID, and file path; it is
-not part of the `local` project.
+Browser `local` is reserved, always available, and cannot be deleted or moved as
+a project. Its files never fall back to a remote project. Local file metadata and
+contents change in one IndexedDB transaction; empty directories are preserved.
+Backups of failed remote saves are separate from this project.
 
-`#global` always uses `storage.user`. A missing global file produces an empty
-global flow; there is no fallback to a project's global file. Project context
-remains `<project>/#context.ticlo`.
+`#global` always uses `storage.user`; a missing file means an empty global Flow.
+Library context remains `<project>/#context.ticlo`.
 
-## File operations
+For server runtime editing, `editor.html?host=http://127.0.0.1:8010/` resolves
+`/ticlo` and `/file` in the `serv` scope. An explicit `/ticlo` URL also resolves
+its sibling file endpoint. `RemoteStorage` uses `proj`; `ScopedFileServerFiles`
+implements file and Git access for `serv`, while the server runtime uses
+`NodeStorage`. It does not implement `FlowStorage`.
 
-`getFile`, `getFileInfo`, `listFiles`, `uploadFile`, `createDirectory`,
-`deleteFile`, `copyFile`, `moveFile`, and `renameFile` use the same interface
-across backends. `listProjects`, `readProject`, `createProject`, `updateProject`,
-and `deleteProject` manage projects through the remote project APIs or local files.
-Remote `.proj` writes remain protected by the file server. `.proj` is project metadata; runtime
-library configuration remains in `ticlo.json`.
-Writable storage renames legacy `_proj.json` metadata when a project is read;
-the file server also migrates existing project directories at startup.
+`project=<id>` selects the file tree; a qualified Flow path selects its Library.
+The default is `#root`. Hosts notify external writes with
+`notifyFileChange(path)`; passing a project invalidates its expanded tree.
+After Git reset, the editor reloads `listLoadedFlows(library)`, including modules
+and Flows without open tabs. Uploading files alone does not reload running Flows.
 
-`RemoteStorage` also exposes optional project Git operations: `getGitInfo`,
-`initGit`, `commitGit`, `getGitBranches`, `deleteGitBranch`, `getGitHistory`, `restoreGitFile`, `resetGitToCommit`,
-and `createProjectFromCommit`. `NodeStorage` provides the same Git operations for
-its direct project directories. Browser `local` and static storage do not.
-The file server's project and Git APIs accept `scope=serv` for server-side Node.js
-projects; omitting `scope` selects `proj`. The shared Git commands live in
-`@ticlo/node-git`, separate from browser storage and HTTP routing.
-Remote file entries may include `gitStatus` (`added`, `modified`, or `deleted`).
-Status reflects the working tree before files are staged. Commit stages the
-project first; direct filesystem changes may be committed without a `.gitlog`
-entry. Deleted tracked files appear in listings until committed.
-New repositories use the `main` branch. Copying a project copies its working
-files and empty directories without Git history. Creating a library from a
-history commit copies only that committed snapshot, also without Git.
-`getGitBranches(project)` lists local branch names. `getGitHistory(project,
-{branch})` reads the selected branch; without `branch`, it reads the current
-checked-out branch. Uncommitted `.gitlog` entries belong to the current branch.
-`deleteGitBranch(project, branch)` removes a local branch, except `main` or the
-checked-out branch; it requires project write permission.
-Resetting to a commit first preserves the current HEAD on a dated `backup/`
-branch, then discards working changes and resets `main` to the selected commit.
-The history dialog asks for confirmation only when `getGitInfo` reports pending
-working files, `.gitlog` entries, or local backups. Older servers without this
-status keep the confirmation.
-`restoreGitFile('<project>/<file>')` replaces a modified or deleted tracked
-file with the version in `HEAD` and records the action in `.gitlog`.
+## File operations and persistence
 
-```ts
-const read = await storage.user.getFile('#global.ticlo');
-await storage.user.uploadFile('#global.ticlo', read.data, {revision: read.revision});
-await storage.uploadFile('local/images/logo.png', imageBytes, {revision: null});
-await storage.copyFile('main/assets', 'local/assets');
-```
+[FileAccess.ts](../packages/core/storage/FileAccess.ts) defines file operations,
+project metadata, optional Git capabilities, and errors. `.proj` is project
+management metadata; `ticlo.json` is runtime Library metadata. Writable adapters
+migrate legacy `_proj.json` when a project is read.
 
-Reads return `{data: ArrayBuffer, revision?, contentType?}`. Writes return
-`{revision?}`. `revision: null` creates only; a string requires the matching
-revision. Omitting it permits an intentional overwrite. Runtime flow saves
-retain their own loaded revision, independent of file preview reads, and report
-conflicts without clearing unsaved changes. Flow mutations are ordered per key.
+Reads return `{data, revision?, contentType?, localBackup?}`; writes return
+`{revision?}`. `revision: null` creates only; a string requires that revision;
+omitting it overwrites intentionally. Runtime saves retain their own revision,
+independent of file preview reads. Conflicts preserve unsaved state. Flow writes
+are ordered per key.
 
-Copies include directories and empty folders. Cross-project copies use the same
-interface, including between remote and local. Moves copy successfully before
-removing the source; they are not an atomic transaction across backends. A failed
-or conflicting operation must be handled by the caller; there is no automatic
-retry or overwrite. `StorageError.code` distinguishes `not-found`, `conflict`,
-`readonly`, `permission-denied`, `invalid-path`, and `io`.
+Copies preserve directories, including empty ones. Moves copy before removing
+the source and can partially succeed across backends. Failures do not retry or
+overwrite automatically. `StorageError.code` distinguishes not-found, conflict,
+read-only, permission, path, and I/O failures. `getCapabilities(path)` reports
+write and persistence support. Static sources cannot be modified; copy to `local`
+to edit. See [static indexes](static-storage.md) for deployment requirements.
 
-`getCapabilities(path)` reports `write` and `persistent` for that scope. Static
-project and guest files cannot be modified, even temporarily. Copy them to
-`local` to edit. Static-to-local moves are rejected because the source cannot be
-deleted. Missing timestamps and sizes are left undefined; static previews with
-unknown sizes require an explicit load.
+`subscribeFileChanges(listener)` reports successful writes through that instance
+and returns an unsubscribe function. It does not watch other tabs or external
+writers. Those hosts must notify changes explicitly.
 
-Browser storage instances expose `subscribeFileChanges(listener)` for successful
-writes through that instance. The listener receives the public file path and can
-unsubscribe using the returned function. It does not watch other browser tabs,
-server writers, or direct filesystem changes.
+## Backups and Git
 
-Editor-generated flow, library metadata, and new-flow saves keep a local
-backup when the remote upload fails. The save still reports the original error.
-Reads, file info, and directory lists prefer the backup across reloads, including
-while the server is unavailable. The file tree marks backed-up files in purple.
-A later successful editor save removes the backup; the file's context menu can
-also discard it. Native file uploads do not create backups. Backups remain in
-this browser until cleared. The last authenticated user ID is retained locally
-so backups can still be found while the server is unreachable after a reload.
+Failed editor-generated Flow, metadata, and new-file saves retain a browser backup
+and report the original error. Reads prefer that backup across reloads, including
+offline. Keys include server URL, user, and path; the last known user is retained
+for offline discovery. A successful save or explicit discard clears the backup.
+Native file uploads do not create editor backups.
 
-`read-storage` and `write-storage` use the calling flow's project under
-`#storage/<encoded-key>.str`, through the same storage instance. Their listeners
-are notified after successful changes. Detached/in-memory runtimes use memory
-value storage. These listeners do not watch external filesystem or HTTP writers.
+`RemoteStorage`, `ScopedFileServerFiles`, and `NodeStorage` offer the shared
+`ProjectGit` API. Browser `local` and static projects do not. Working-tree status
+is independent of editor backups; remote adapters include backups in pending
+changes. Git reset discards those backups after the server reset succeeds.
+See [Git contracts](file-server.md#project-git).
 
 ## Runtime file layout
 
 | Relative project path | Purpose |
 | --- | --- |
-| `ticlo.json` | Library dependencies, auto-load modules, and auto-load flows |
+| `ticlo.json` | Library dependencies and auto-load settings |
 | `#context.ticlo` | Library context |
-| `folder/child.ticlo` | Ordinary flow `folder.child` |
+| `folder/child.ticlo` | Flow `folder.child` |
 | `#modules/tools.ticlo` | Module `tools` |
 | `#storage/key.str` | String storage functions |
 
-`#root` holds unqualified flows. Named projects map to `+project.flow` runtime
-paths. `#modules`, `#deps`, and `#storage` are reserved root folder names; ordinary
-folders named `modules`, `deps`, and `storage` are allowed. Catalog reads do not run
-flows. See [runtime lifecycle](./runtime-lifecycle.md) for startup and dependencies.
+`#root` holds unqualified Flows; named projects map to `+project.flow`.
+`#modules`, `#deps`, and `#storage` are reserved root folder names. Ordinary
+`modules`, `deps`, and `storage` folders are allowed. Catalog reads do not run
+Flows. `read-storage` and `write-storage` use the caller's project; detached
+runtimes use memory. Their listeners report writes through that instance.
 
-## Server identity and local development
-
-The Ticlo host installs `routeFileStorage` from `@ticlo/web-server/file-storage`
-around the file-server routes. It provides `GET /file?op=user` using the same
-`authProvider` as file operations, and rejects access to another user's `usr`
-directory. The standalone file server also provides this endpoint. The client
-discovers its user ID through it; it contains no admin default. There is no
-account or login system in this adapter.
-Cross-origin hosts must allow conditional request headers and expose `ETag`;
-the bundled server configures this for local development.
-
-```ts
-routeFileStorage(app, {
-  rootDir: './files',
-  authProvider: () => ({
-    getUserId: () => 'admin',
-    canRead: () => true,
-    canWrite: () => true,
-  }),
-});
-```
-
-The bundled server uses `devUserAuth` (admin). Run `pnpm server` and
-`pnpm vite-dev`, then open `file-server.html`, or use
-`designer.html?host=http://127.0.0.1:8010/file&path=main/entry`.
-The combined server's runtime uses `app/server/files/serv` through `NodeStorage`;
-the file API can also access that scope. Uploading a file does not automatically
-reload an already running flow.
-
-## Migration
-
-The old `FileServerStorage`, `FileServerFlowStorage`, `StaticFlowStorage`,
-`IndexDbStorage`, `IndexDbFlowStorage`, and Node `FileStorage`/`FileFlowStorage`
-APIs are replaced. There is no legacy-layout fallback.
-
-- Replace remote construction with `new RemoteStorage({baseURL})`; update servers
-  to use `routeFileStorage` so current-user discovery is available.
-- Pass the storage instance to `FileManager` using `storage`, and remove `proj/`
-  from file API paths. Axios options/responses are replaced by file options and
-  results. User files go through `storage.user`.
-- Move browser globals from `proj/#root/#global.ticlo` to the appropriate
-  `usr/<user>/#global.ticlo`; static deployments use `usr/guest/`.
-- Pass `files/serv` to `new NodeStorage(dir)`. Move the old unqualified Node files
-  into `#root/`, and rename `+main/` to `main/`.
-- The previous IndexedDB database is not deleted or automatically imported.
-  Export old data before retiring it. When moving flows to project `local`,
-  review library-qualified references; multiple old libraries must not be
-  silently flattened into one project.
-- Browser demo flows now belong to `+local`; previous demo data remains in the
-  old database. Static storage no longer accepts temporary memory-only writes.
+See [development](development.md) for local hosts and style/build commands.

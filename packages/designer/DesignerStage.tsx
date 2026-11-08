@@ -115,16 +115,35 @@ export function DesignerStage({
     flow
   );
   const {dropPoints, ...dropHandlers} = useStageDrop(stageRef, stage, activate, {onDragOverT, onDropT});
-  const canCreatePage = (data: DataMap) =>
-    flow &&
-    !flow.isDestroyed() &&
-    flow.getValue('#main') == null &&
-    [policy, conn.getEditPolicyView()].every((view) => view.can({cmd: 'addBlock', path: `${basePath}.#main`, data}));
-  const createPage = (data: DataMap) => {
-    if (!designMode || !canCreatePage(data)) return;
-    activate();
-    conn.addBlock(`${basePath}.#main`, data, false, undefined, requestCallbacks);
-  };
+  const fallback = useMemo(() => {
+    const canCreatePage = (data: DataMap) =>
+      flow &&
+      !flow.isDestroyed() &&
+      flow.getValue('#main') == null &&
+      [policy, conn.getEditPolicyView()].every((view) => view.can({cmd: 'addBlock', path: `${basePath}.#main`, data}));
+    const createPage = (data: DataMap) => {
+      if (!designMode || !canCreatePage(data)) return;
+      activate();
+      conn.addBlock(`${basePath}.#main`, data, false, undefined, requestCallbacks);
+    };
+    return (
+      <div className="ticl-d-empty ticl-d-page-setup">
+        <h3>This flow has no page yet.</h3>
+        {designMode && (
+          <>
+            <p>Choose a layout to start designing.</p>
+            <div className="ticl-d-layout-options">
+              {pageLayouts.map(({label, data}) => (
+                <Button key={label} disabled={value != null || !canCreatePage(data)} onClick={() => createPage(data)}>
+                  {label}
+                </Button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }, [flow, policy, conn, basePath, designMode, activate, value]);
   return (
     <DragDrop
       className={designMode ? 'ticl-d-stage ticl-d-stage-design' : 'ticl-d-stage'}
@@ -136,28 +155,7 @@ export function DesignerStage({
       {flow ? (
         <div className={flow instanceof FlowWithStatic ? 'ticl-d-page ticl-d-page-worker' : 'ticl-d-page'}>
           {designMode && hasPage && <div className="ticl-d-input-layer" />}
-          <TicloPage
-            block={flow}
-            key={flow._blockId}
-            context={componentContext}
-            fallback={
-              <div className="ticl-d-empty ticl-d-page-setup">
-                <h3>This flow has no page yet.</h3>
-                {designMode && (
-                  <>
-                    <p>Choose a layout to start designing.</p>
-                    <div className="ticl-d-layout-options">
-                      {pageLayouts.map(({label, data}) => (
-                        <Button key={label} disabled={!canCreatePage(data)} onClick={() => createPage(data)}>
-                          {label}
-                        </Button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            }
-          />
+          <TicloPage block={flow} key={flow._blockId} context={componentContext} fallback={fallback} />
         </div>
       ) : (
         <div className="ticl-d-empty">This flow is not available.</div>

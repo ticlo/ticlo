@@ -886,12 +886,10 @@ export class ServerConnection extends ServerConnectionCore {
       if (!Number.isInteger(orderIndex) || orderIndex < 0 || orderIndex > order.length) return 'invalid index';
       const funcId = data?.['#is'];
       const desc =
-        typeof funcId === 'string'
-          ? Library.getFunctions(funcId, parentBlock._flow)?.getDescToSend(funcId)[0]
-          : undefined;
+        typeof funcId === 'string' ? Library.getFunctions(funcId, parentBlock._flow)?.getDesc(funcId) : undefined;
       const parentId = parentBlock._funcId;
       const childrenTags = parentId
-        ? Library.getFunctions(parentId, parentBlock._flow)?.getDescToSend(parentId)[0]?.childrenTags
+        ? Library.getFunctions(parentId, parentBlock._flow)?.getDesc(parentId)?.childrenTags
         : undefined;
       if (!childrenTags?.some((tag) => desc?.tags?.includes(tag))) return 'incompatible children tags';
     }
@@ -973,7 +971,7 @@ export class ServerConnection extends ServerConnectionCore {
 
       if (typeof funcId === 'string' && data) {
         (property._value as Block)._load(data);
-        const desc = Library.getDescToSend(funcId, this.root)[0];
+        const desc = Library.getDesc(funcId, this.root);
         if (desc && desc.recipient && !Object.hasOwn(data, desc.recipient)) {
           // transfer parent property to the recipient
           if (keepSaved !== undefined) {

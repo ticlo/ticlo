@@ -97,6 +97,10 @@ export class Library {
     return result;
   }
 
+  static getDesc(id: string, root = getGlobalFunctionRoot()): FunctionDesc {
+    return globalFunctions.getDesc(id) ?? Library.getFunctionModule(id, root, false)?.getDesc(id) ?? null;
+  }
+
   static getDescToSend(id: string, root = getGlobalFunctionRoot()): [FunctionDesc, number] {
     // Try globalFunctions first
     const [desc, size] = globalFunctions.getDescToSend(id);
@@ -153,7 +157,7 @@ export class Library {
     if (functions) {
       const workerData = functions.getWorkerData(id);
       if (workerData) {
-        const [desc] = functions.getDescToSend(id);
+        const desc = functions.getDesc(id);
         return [desc, workerData, functions];
       }
     }

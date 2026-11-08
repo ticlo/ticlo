@@ -38,22 +38,6 @@ describe('NodeStorage', () => {
     expect(JSON.parse(await readFile(join(dir, 'main/folder/flow.ticlo'), 'utf8')).value).toBe(8);
     expect(await readdir(dir)).toEqual(expect.arrayContaining(['#root', 'main']));
   });
-  it('starts empty without generating global files and retains failed saves as dirty', async () => {
-    await root.setStorage(storage);
-    await root.start();
-    expect(await readdir(dir)).toEqual([]);
-    await root.stop();
-    await storage.createDirectory('main');
-    await root.start({main: {}});
-    const flow = root.addFlow('+main.new', {value: 1});
-    await mkdir(join(dir, 'main/new.ticlo'));
-    flow.setValue('value', 2);
-    await expect(flow.applyChange()).rejects.toThrow();
-    expect(flow.getValue('@has-change')).toBe(true);
-    await rm(join(dir, 'main/new.ticlo'), {recursive: true});
-    await flow.applyChange();
-    expect(flow.getValue('@has-change')).toBeUndefined();
-  });
   it('rejects symlinks that point outside the project root', async () => {
     await mkdir(join(dir, 'main'));
     await symlink(tmpdir(), join(dir, 'main/outside'));

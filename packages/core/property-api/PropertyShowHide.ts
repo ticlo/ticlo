@@ -26,7 +26,7 @@ export function buildPropertiesOrder(block: Block): string[] {
     }
   }
 
-  const [desc, size] = globalFunctions.getDescToSend(block.getValue('#is')?.toString());
+  const desc = globalFunctions.getDesc(block.getValue('#is')?.toString());
   if (desc) {
     addProps(desc.properties);
   }

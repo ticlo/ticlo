@@ -40,5 +40,5 @@ open the editor. The server serves `app/server/files`, sharing project data with
 files. Provide user globals under `usr/guest/` as needed.
 
 Designer and Dataflow Editor without a remote host use bundled static defaults plus
-the IndexedDB local project. See [file storage](./remote-storage.md) for API
-contracts, scope routing, and migration.
+the IndexedDB local project. See [file storage](remote-storage.md) for API
+contracts, scope routing, and revisions.

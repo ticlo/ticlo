@@ -32,13 +32,13 @@ export class FlowFunctionModule extends FunctionModule {
   }
 
   add(factory: FunctionFactory, library?: string | null) {
-    const previous = this.flow?.save();
+    const previous = this._loading ? undefined : this.flow?.save();
     super.add(factory, library);
     this.trackFlowChange(previous);
   }
 
   delete(id: string): void {
-    const previous = this.flow?.save();
+    const previous = this._loading ? undefined : this.flow?.save();
     super.delete(id);
     this.trackFlowChange(previous);
   }
@@ -71,14 +71,19 @@ export class FlowFunctionModule extends FunctionModule {
         const funcData = data[localFuncId];
         if (isDataMap(funcData) && typeof funcData.type === 'string') {
           const fullId = this.getFullId(localFuncId);
+          const localId = this.getLocalId(fullId);
           usedFullId[fullId] = true;
-          if (this._functions[fullId]?.getValue()?.equals?.(funcData)) {
+          usedFullId[localId] = true;
+          if (
+            this._functions[fullId]?.getValue()?.equals?.(funcData) &&
+            (localId === fullId || this._functions[localId]?.getValue()?.equals?.(funcData))
+          ) {
             // no need to update existing function
             continue;
           }
           const loader = FlowFunctionModule._loaders.get(funcData.type);
           if (loader) {
-            this.add(loader.load(funcData, localFuncId, fullId, this.library), this.library);
+            this.add(loader.load(funcData, localId, fullId, this.library), this.library);
           }
         }
       }
@@ -100,10 +105,14 @@ export class LibraryFunctionModule extends FlowFunctionModule {
   private readonly runtimeFunctions = new Map<string, FunctionDispatcher>();
 
   hasRuntimeListeners() {
-    return [...this.runtimeFunctions.values()].some((dispatcher) => dispatcher._listeners.size > 0);
+    for (const dispatcher of this.runtimeFunctions.values()) {
+      if (dispatcher._listeners.size) return true;
+    }
+    return false;
   }
 
   setAvailable(available: boolean) {
+    if (this.available === available) return;
     this.available = available;
     for (const [id, dispatcher] of this.runtimeFunctions) {
       dispatcher.updateValue(available ? (this._functions[id]?.getValue() ?? null) : null);
@@ -128,8 +137,8 @@ export class LibraryFunctionModule extends FlowFunctionModule {
     return super.getWorkerData(this.getFullId(id));
   }
 
-  getDescToSend(id: string): [import('./Descriptor.ts').FunctionDesc, number] {
-    return super.getDescToSend(id.startsWith('+:') ? this.getFullId(id) : id);
+  getDesc(id: string) {
+    return super.getDesc(id.startsWith('+:') ? this.getFullId(id) : id);
   }
 
   dispatchDescChange(id: string, desc: import('./Descriptor.ts').FunctionDesc) {
@@ -137,7 +146,6 @@ export class LibraryFunctionModule extends FlowFunctionModule {
     this.runtimeFunctions.get(id)?.updateValue(this.available ? (this._functions[id]?.getValue() ?? null) : null);
   }
 
-  _loaded: boolean | 'loading' = false;
   pendingSave: Promise<void> | undefined;
 
   readonly prefix: string;
@@ -204,47 +212,12 @@ export class LibraryFunctionModule extends FlowFunctionModule {
       this.pendingSave = undefined;
     }
   }
-  load(data: DataMap) {
-    this._loaded = 'loading';
-    this._loading = true;
-    try {
-      const usedFullId: Record<string, boolean> = {};
-      for (const localFuncId in data) {
-        const funcData = data[localFuncId];
-        if (isDataMap(funcData) && typeof funcData.type === 'string') {
-          const fullId = this.getFullId(localFuncId);
-          const localId = this.getLocalId(fullId);
-          usedFullId[fullId] = true;
-          usedFullId[localId] = true;
-          if (
-            this._functions[fullId]?.getValue()?.equals?.(funcData) &&
-            this._functions[localId]?.getValue()?.equals?.(funcData)
-          ) {
-            continue;
-          }
-          const loader = FlowFunctionModule._loaders.get(funcData.type);
-          if (loader) {
-            this.add(loader.load(funcData, localId, fullId, this.library), this.library);
-          }
-        }
-      }
-      for (const existingId in this._functions) {
-        if (!(existingId in usedFullId)) {
-          this.delete(existingId);
-        }
-      }
-      this._loaded = true;
-    } finally {
-      this._loading = false;
-    }
-  }
-
   add(factory: FunctionFactory, library?: string | null) {
     const fullId = this.getFullId(factory.desc.id);
     const localId = this.getLocalId(fullId);
     super.add({...factory, desc: {...factory.desc, id: localId}}, library);
     super.add({...factory, desc: {...factory.desc, id: fullId}}, library);
-    if (this._loaded !== 'loading') {
+    if (!this._loading) {
       this.saveToStorage();
     }
   }
@@ -254,7 +227,7 @@ export class LibraryFunctionModule extends FlowFunctionModule {
     const localId = this.getLocalId(fullId);
     super.delete(localId);
     super.delete(fullId);
-    if (this._loaded !== 'loading') {
+    if (!this._loading) {
       this.saveToStorage();
     }
   }

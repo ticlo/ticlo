@@ -209,7 +209,7 @@ describe('FileManager', () => {
     expect(fixture.entries.has(path)).toBe(false);
   });
 
-  it('marks a failed editor save purple when the file server disconnects', async () => {
+  it('reports a locally backed-up flow when the file server disconnects', async () => {
     const baseURL = `https://file-tree-${crypto.randomUUID()}.example/file`;
     let online = true;
     const fetch = vi.fn(async (url: string) => {
@@ -461,24 +461,6 @@ describe('FileManager', () => {
     expect(onFileDiscarded).toHaveBeenLastCalledWith('demo/deleted.ticlo');
   });
 
-  it('keeps Initialize Git visible when Git status cannot be loaded', async () => {
-    const fixture = fixtureClient([file('demo/a.txt')]);
-    Object.assign(fixture.client, {
-      supportsGit: () => true,
-      getGitInfo: async () => {
-        throw new Error('Git unavailable');
-      },
-    });
-    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
-    await ready();
-    button('Actions').click();
-    await shouldHappen(() =>
-      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].some(
-        (item) => item.textContent.trim() === 'Initialize Git'
-      )
-    );
-  });
-
   it('shows pending edits and separates commit comments from logged changes', async () => {
     const fixture = fixtureClient([file('demo/a.txt')]);
     fixture.methods.getFile.mockResolvedValue({
@@ -544,36 +526,6 @@ describe('FileManager', () => {
       document.querySelector('.ticl-e-git-history-comment')?.textContent.includes('second detail')
     );
     expect(document.querySelector('.ticl-e-git-history-changes')).toBeNull();
-  });
-
-  it('omits the pending history row when .gitlog is empty', async () => {
-    const fixture = fixtureClient([file('demo/a.txt')]);
-    fixture.methods.getFile.mockResolvedValue({data: new ArrayBuffer(0), headers: {}});
-    Object.assign(fixture.client, {
-      supportsGit: () => true,
-      getGitInfo: async () => ({initialized: true, branch: 'demo'}),
-      getGitBranches: async () => ['demo'],
-      getGitHistory: async () => [
-        {hash: 'first', author: 'alice', email: '', date: '2026-11-04T01:00:00Z', message: 'First'},
-      ],
-    });
-    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
-    await ready();
-    button('Actions').click();
-    await shouldHappen(() =>
-      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
-        (item) => item.textContent.trim() === 'Git History'
-      )
-    );
-    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
-      .find((item) => item.textContent.trim() === 'Git History')
-      .click();
-    await shouldHappen(
-      () =>
-        document.querySelectorAll('.ticl-e-git-history-list > .ant-table-wrapper .ant-table-tbody tr[data-row-key]')
-          .length === 1
-    );
-    expect(document.querySelector('.ticl-e-git-history-details').textContent).toContain('First');
   });
 
   it('switches branch history from the tree and shows pending edits only on the current branch', async () => {

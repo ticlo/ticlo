@@ -35,7 +35,7 @@ function collectNames(props: (PropDesc | PropGroupDesc)[]) {
 function getReservedNames(funcId: unknown): [Set<string>, string[]] {
   let desc: FunctionDesc;
   if (typeof funcId === 'string') {
-    [desc] = globalFunctions.getDescToSend(funcId);
+    desc = globalFunctions.getDesc(funcId);
   }
   if (cachedReserveTable.has(desc)) {
     return cachedReserveTable.get(desc);

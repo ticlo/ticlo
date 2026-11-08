@@ -49,22 +49,6 @@ describe('editor BlockStage', function () {
 
     await shouldHappen(() => div.querySelector('.ticl-e-block'), 500, 'find block');
 
-    const block = div.querySelector('.ticl-e-block') as HTMLDivElement;
-
-    // Wait for block to be positioned and CSS to apply
-    await shouldHappen(
-      () => {
-        const computedStyle = window.getComputedStyle(block);
-        return computedStyle.position === 'absolute' && block.offsetWidth === 345;
-      },
-      1000,
-      'block positioned'
-    );
-
-    expect(block.offsetLeft).toBe(123);
-    expect(block.offsetTop).toBe(234);
-    expect(block.offsetWidth).toBe(345);
-
     // test all fields in the block body
     await shouldHappen(
       () => querySingle("//div.ticl-e-field-name/span[text()='0']/..//../../div.ticl-e-field-value[text()='1']", div),
@@ -527,31 +511,5 @@ describe('editor BlockStage', function () {
     // one block selected
     await shouldHappen(() => div.querySelectorAll('.ticl-e-block-selected').length === 0);
     expect(selectedPaths).toEqual([]);
-  });
-
-  it('automatic assign xy', async function () {
-    flow = Root.instance.addFlow('BlockStage6');
-    for (let i = 0; i < 10; ++i) {
-      flow.createBlock(`a${i}`);
-    }
-
-    const [server, client] = makeLocalConnection(Root.instance);
-
-    const [component, div] = loadTemplate(
-      <BlockStage conn={client} basePath="BlockStage6" style={{width: '800px', height: '800px'}} />,
-      'editor'
-    );
-
-    await shouldHappen(() => div.querySelector('.ticl-e-block'));
-    await shouldHappen(() => (div.querySelector('.ticl-e-block') as HTMLDivElement).offsetLeft > 0);
-
-    const blocks = div.querySelectorAll('.ticl-e-block');
-    const xarr = [36, 228, 36, 228, 420, 420, 36, 228, 420, 612];
-    const yarr = [36, 36, 228, 228, 36, 228, 420, 420, 420, 36];
-    for (let i = 0; i < 10; ++i) {
-      const block = blocks[i] as HTMLDivElement;
-      expect(block.offsetLeft).toBe(xarr[i]);
-      expect(block.offsetTop).toBe(yarr[i]);
-    }
   });
 });

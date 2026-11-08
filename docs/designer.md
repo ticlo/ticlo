@@ -1,181 +1,78 @@
-# Designer stage interactions
+# Designer
 
-Designer stages operate on local Blocks directly. Outline selection may span
-parents; stage additions and group movement keep selections under one Block
-parent. Component selection snapshots stay out of the React component context.
+`DesignerApp` extends `TicloApp` with shared design mode. Designer behavior stays
+in this package; editor stage and selection types remain generic.
 
-Each designer stage owns one element map for its editable flow. `TicloPage` from
-`@ticlo/react` renders a flow's `#main` or a component's `#return` without adding
-a DOM wrapper. Worker root elements register as their outer host Block,
-including through nested workers;
-internal Blocks remain unregistered and use design mode disabled with inactive
-selection commands. Blocks belonging to the stage's flow retain its component
-context and register as themselves even when rendered inside a worker. When a
-delegated root is itself an editable Block, the host owns the shared root DOM.
+## Rendering and context
 
-Ordinary flow roots fill the stage page. Worker instances and worker editors
-retain the root component's own sizing, including intrinsic and stylesheet sizes.
+A stage renders the Flow's direct `#main` through `TicloPage`. Its ElementMap
+connects rendered elements to editable Blocks. A worker root belongs to its outer
+host Block, including nested workers; internal Blocks remain unregistered with
+design mode disabled. Blocks in the stage's Flow retain their own ownership,
+even when rendered inside a worker. A delegated editable root belongs to its host.
 
-Each stage exposes separate `functionTreeTags` and `nodeTreeTags` lists. Both
-default to `['react-comp', 'react-svg']` on `DesignerStage` and can be configured independently
-through its props. The function panel uses the active stage's function tags;
-`DesignerNodeTree` uses its node tags and shares its selection. A descriptor matches
-when it has any listed tag. Unmatched node branches are hidden, and function
-categories remain visible when they contain matching functions. Dataflow stages
-leave these lists undefined to show all functions and nodes.
+Components receive design mode and stable selection commands through
+`ComponentContext`; panels use `useActiveDesignerStage()` for selection snapshots
+and commands. Selection, hover, drag previews, and background panel updates should
+not refresh the page's components. Each stage retains its own selection.
 
-Design and dataflow stages share the external Properties and Outline panels.
-Both panels follow the active stage and its selection; selecting an Outline
-node also selects it in the stage. Shared Undo and Redo controls follow the
-active stage. Dataflow stages retain their own Properties and Undo/Redo controls,
-with Properties initially collapsed in Designer.
+Ordinary Flow pages fill the stage. Worker instances and editors retain their
+root component's own sizing. Custom components attach `useTicloComp`'s
+`optionalHandlers` to their root Element. Portals used by page components should
+remain inside the stage.
 
-Mouse interaction activates a stage on release, so pressing or starting a drag
-does not switch the shared panels early. Focus alone does not activate a stage;
-non-pointer navigation can explicitly call `activateStage()`.
+`functionTreeTags` and `nodeTreeTags` independently filter descriptors by any
+matching tag. Both default to `react-comp`, `react-svg`, and `chart-series`.
+Unmatched node branches are hidden. Dataflow stages leave filters undefined.
 
-When stage selection changes, `DesignerNodeTree` expands the selected paths'
-ancestors, loading each level as needed. Switching stages also reveals their
-restored selections. Manual expansion and collapse remain available.
+## Selection and commands
 
-`DesignerApp` accepts separate `designFlow` and `editFlow` callbacks. Navigation
-double-click defaults to Design when available, and otherwise Open Flow.
-Outline double-click always uses Open Flow. Design is available only for
-`flow:main` and `flow:worker` nodes and opens a designer stage; Open Flow opens
-the node's dataflow editor. Each mode keeps one tab per path; opening it again
-activates the existing tab.
+Outline selection may span parents. Stage additions and group movement retain
+siblings under one parent. `addSelection` uses the last valid added component's
+parent and reports whether any new component was selected. Selecting a hidden
+View Deck descendant reveals its page without saving a selection edit; see
+[containers](react-containers.md).
 
-In design mode, page input is forwarded to the stage as events of the same type,
-with pointer coordinates, keyboard modifiers, and drag/touch data preserved.
-Stage and ancestor listeners receive these events, while page components' native
-and React input handlers do not run. Forwarded events target the stage and
-are synthetic (`isTrusted: false`). Native wheel scrolling remains enabled unless
-a stage or ancestor listener prevents its default. Preview restores page input.
+`@d-lock` prevents stage selection of a component while allowing selectable
+children. `@d-seal`, or an empty/missing `#order`, prevents selecting descendants.
+Drops skip sealed subtrees and seek a compatible ancestor. These restrictions
+do not hide components from the outline tree.
 
-Designer stages use the app's shared keyboard commands: Ctrl/Cmd+S saves,
-Ctrl/Cmd+C copies, paste inserts components, Delete removes the selection,
-Ctrl/Cmd+Z undoes, and Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y redoes. Copy operates on
-selected siblings. Paste inserts siblings under the selected component's parent,
-or into `#main` when the selection is empty or contains only `#main`. Name
-conflicts are renamed, and pasted components are appended to the parent's
-`#order` and selected. Commands respect the connection's edit policy. Copy,
-paste, and deletion are inactive in preview mode. Text inputs retain their
-editing shortcuts; save remains available while editing properties.
+Mouse release activates the stage. Keyboard commands target only the active
+stage and honor its connection policy; shared dispatch is defined in
+[editor commands](editor.md#current-stage-and-commands). Preview restores page
+input and disables structural editing. In design mode the stage intercepts page
+input and forwards events to stage and ancestor listeners, preserving pointer,
+keyboard, drag, and touch data. Forwarded events are untrusted. Native wheel
+scrolling remains available unless a stage or ancestor prevents it.
 
-`DesignerStage` accepts an optional `onSave` callback for the hosting editor's
-save action. Without one, it saves through `conn.applyFlowChange(basePath)`.
+Copy requires siblings. Paste inserts into the selected parent, or `#main` when
+there is no child selection. It renames collisions, updates `#order`, and selects
+the inserted Blocks. `onSave` may supply the host's save action; otherwise the
+stage calls `conn.applyFlowChange(basePath)`.
 
-Function drags use the same connection-scoped payload as the node tree. Child
-insertion resolves the frontmost hit component, then its nearest ancestor whose
-descriptor accepts the function's tags. Release creates a uniquely named Block
-in that container's `#order`, refreshes the outline tree, and selects the new
-component. The connection's edit policy is checked during hover and again at
-release.
+## Drops and geometry
 
-Absolute layouts convert the pointer to local child coordinates and preserve the
-new child's initial style dimensions, centering the child and its drop indicator
-on the pointer. The drop indicator uses numeric dimensions
-from that style, falling back to 100 CSS pixels for each unspecified dimension;
-the fallback is not saved on the child. The three layout functions initialize
-their styles with a width and height of 200 CSS pixels. Horizontal and vertical
-layouts infer an order index from the nearest rendered child; an empty layout
-appends its first child.
-An unordered `content` component stays after ordered children. Insertion
-feedback follows container transforms and is an estimate of the new child's
-placement.
+Function drops use connection-scoped payloads and choose a compatible ancestor
+of the frontmost hit component. Insertion uses the container's layout, updates
+`#order`, and rechecks policy on release. Optional `onDragOverT` and `onDropT`
+callbacks receive the DragState and directly hit component; returning true
+handles the operation, while false permits normal insertion.
 
-`DesignerStage` accepts optional `onDragOverT` and `onDropT` callbacks receiving
-the rc-dock `DragState` and the directly hit component (`DesignerDropTarget`, or
-null). These callbacks run before child insertion and receive leaf components
-as well as containers. Returning true from `onDragOverT` accepts the drag;
-returning true from `onDropT` handles the drop. Returning false lets the default
-child insertion run. This allows other drag payloads, such as data bindings, to
-use the same stage without requiring a child container.
+Selection and marquee use actual element quads. Move/resize gestures cache their
+coordinate basis for the gesture, including ancestor transforms and CSS zoom.
+Selection outlines use stage-local coordinates. The HTML package owns the
+[geometry contract](element-geometry.md), including unsupported cases.
+SVG position editing is described in [React SVG](react-svg.md).
 
-`addSelection` retains siblings of the last valid added component. Adding an
-already selected component still prunes other parents, and returns false unless
-a new component was selected.
+Movement requires absolute positioning and a writable style object, unset style,
+or the component's own `html:create-style` helper. Other style bindings are
+preserved. Eligible siblings receive the same local delta. Resizing adjusts
+dimensions and, for positioned elements, the insets needed to retain the opposite
+edge. When both insets define an axis, those insets are adjusted instead of size.
 
-React component descriptors expose two boolean Block attributes, both false by
-default, using `attributes: ['@d-lock', '@d-seal']`. Named attributes resolve
-through the core attribute descriptor registry; custom descriptors can also be
-included in the same array. `@d-lock` prevents selecting the component in the
-stage while leaving its children selectable. `@d-seal: true` or an empty/missing
-`#order` prevents selecting descendants; a hit within the subtree resolves to
-the outermost such component. Function drops skip sealed subtrees and resolve
-to a compatible ancestor outside the seal. A locked container with selectable
-children can still start child marquee selection. A locked component without selectable
-children excludes its entire subtree from stage selection. These rules do not
-restrict the outline tree.
-
-Unselected containers supporting `react-comp` or `react-svg` children with a nonempty `#order`
-and no seal defer selection until release. Moving at least four viewport CSS
-pixels instead starts a marquee; any partial intersection selects a direct child,
-except locked children. Ctrl
-adds siblings to the selection. Components without selectable children select
-immediately.
-Mouse down prioritizes selected components under the pointer, even behind an
-unselected component. Overlapping selected
-components use the browser's front-to-back paint order, subject to the lock and
-child-selection rules.
-Pressing a selected component with Ctrl removes it; without Ctrl it retains
-selected siblings and can start movement. Unselected containers with selectable
-children use the marquee gesture even if their own position is absolute.
-For a selected container with selectable children, releasing a click on a
-descendant without Ctrl selects the innermost selectable component under the
-pointer, even through multiple container levels. Consecutive clicks at the same
-position without movement or Ctrl instead select the selected component's
-parent in the current flow, skipping locked or unrendered parents. Before reaching `#main`, the cycle
-wraps to the innermost selectable component under the pointer. Any pointer
-movement resets the cycle and restores normal click selection. Dragging moves
-the selected container when it is movable; otherwise it starts child marquee
-selection, from either a child or empty space. Crossing the four-pixel threshold
-starts a drag even if the pointer later returns to its starting point. Escape
-cancels a pending child click too.
-
-Movement requires computed `position: absolute` and a directly writable style:
-a set object, a set null/undefined value, or the component's own
-`html:create-style` binding helper. Other style bindings are not moved. The
-pressed element's position matrix converts viewport movement to CSS inset
-changes; every eligible selected component receives that same delta. Ancestor
-transforms and the pressed element's own CSS zoom are included. Its own transform
-is excluded from the movement basis, while its grabbed point supplies the depth
-used for perspective movement.
-
-Geometry comes from the HTML package's batch element geometry API. Selection and
-hover outlines follow border-box corners, and marquee selection tests the actual
-quad for partial intersection. Shared ancestors are measured once per batch,
-and ancestor style/layout changes schedule a new measurement. Unsupported
-geometry retains rectangular selection feedback; movement requires an available,
-invertible position mapping.
-
-Dragging caches viewport geometry for the gesture, including transforms above
-the stage. The grabbed point stays under the pointer through perspective as well
-as 2D transforms; eligible siblings receive the same CSS inset delta. Selection
-outlines use stage-relative geometry and exclude transforms above the stage.
-
-Movement changes left/top unless only right/bottom is defined on that axis.
-Existing CSS lengths are resolved to pixel numbers at gesture start. Committing
-a helper coordinate replaces that coordinate's binding, while retaining the
-component's binding to its style helper. Newly used helper fields are included
-in `#optional`.
-
-Resize gestures operate in the component's local box coordinates. Ancestor and
-component transforms map pointer movement to dimensions; absolute components
-also adjust their existing insets to retain the opposite corner or edge. When
-both left/right or top/bottom are defined, resizing that axis changes its insets
-without writing width or height. Other axes change their dimensions, and in-flow
-components change dimensions only. Resolved CSS lengths are saved as pixels.
-
-The resize outline and pointer mapping retain the geometry captured at gesture
-start. Layout reflow, wrapping, and scrolling can move the rendered component
-without moving the dragged outline or changing the pointer's sizing basis.
-After release or cancellation, the outline follows the rendered component again.
-Resize edits use the same writable styles, helpers, and history rules as movement.
-
-Dragging changes runtime values only. Release saves the final values and calls
-the flow's existing debounced history tracking, which can merge edits within one
-second. Null/undefined styles preview as objects and create a style helper only
-on commit. Escape, pointer cancellation, window blur, preview mode, or unmount
-restores saved values and current binding-source values without recording a
-change. Temporary optional fields are restored too.
+Gestures preview runtime values. Release commits final values through existing
+history tracking. Helper edits retain the owning style binding and enable newly
+used fields. Escape, cancellation, blur, preview mode, or unmount restores saved
+values and current binding sources without an edit. No-op gestures must not
+create a history entry.

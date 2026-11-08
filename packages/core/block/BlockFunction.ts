@@ -89,7 +89,7 @@ export abstract class StatefulFunction extends BaseFunction<Block> {
   inputChanged(input: BlockIO, val: unknown): boolean {
     const inputMap = this.getInputMap();
     if (inputMap) {
-      const inputCallback = this.getInputMap().get(input._name);
+      const inputCallback = inputMap.get(input._name);
       if (inputCallback) {
         return inputCallback.call(this, val);
       }

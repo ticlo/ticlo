@@ -550,7 +550,6 @@ export class FlowRuntime {
       const module = this.library(ref.library).getModule(ref.name, false);
       module.setAvailable(false);
       module.load({});
-      module._loaded = false;
       module.flow = undefined;
     }
     if (flow && !flow._destroyed) {

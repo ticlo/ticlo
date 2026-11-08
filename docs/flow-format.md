@@ -39,17 +39,17 @@ strings to ordinary blocks does not construct those classes. Use flow/folder API
 
 - `#context`: a named library's independently saved context flow. It replaces
   the library's context inheritance layer and falls back directly to root
-  `#global`; see [library context](../../../docs/runtime-lifecycle.md#library-context).
+  `#global`; see [library context](runtime-lifecycle.md#library-context).
 - `#inputs` / `#outputs`: flow IO blocks.
 - `#functions`: local worker definitions (example below).
 - `#static`: named-worker static content, loaded before normal data. Saved with
   `#is: ""`, runtime type `flow:static`. Inline workers do not support it.
   The runtime owner `#shared` (`flow:const`) is never serialized; see
-  [static ownership](./worker-architecture.md#flow-classes-and-static-content).
+  [static ownership](worker-functions.md#flow-classes-and-static-content).
 - `#priority`: `0` (highest) through `3` (lowest).
 - `#cancel`: cancellation trigger; `#secret`: secret configuration.
 
-See [block configuration](../../../docs/block-configs.md) for `#mode`, `#disabled`,
+See [block configuration](block-configs.md) for `#mode`, `#disabled`,
 `#call`, `#sync`, `#wait`, custom/optional properties, and read-only references.
 Never save runtime references such as `#module` or `#name`.
 

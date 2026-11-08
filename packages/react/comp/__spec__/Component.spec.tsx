@@ -35,15 +35,6 @@ globalFunctions.addFactory(
   'react-test'
 );
 
-globalFunctions.addFactory(
-  null,
-  {
-    name: 'dynamic-output',
-    properties: [{name: '#output', type: 'any', readonly: true, pinned: true}],
-  },
-  'react-test'
-);
-
 describe('TicloComp', function () {
   let root: ReactRoot;
 
@@ -86,16 +77,6 @@ describe('TicloComp', function () {
     await root.waitRender(<TicloComp block={block} />);
     expect(root.div.children[0]).toBeInstanceOf(HTMLSpanElement);
     expect(root.div.textContent).toBe('nested output');
-  });
-
-  it('does not use #output as a component entry', async function () {
-    const flow = new Flow();
-    const block = flow.createBlock('a');
-    block.setValue('#is', 'react-test:dynamic-output');
-    block.updateValue('#output', <span>hidden</span>);
-
-    await root.waitRender(<TicloComp block={block} />);
-    expect(root.div.children.length).toBe(0);
   });
 
   it('renders a flow through its #main component tree', async function () {

@@ -18,7 +18,7 @@ function findGroupDesc(block: Block, group: string): PropGroupDesc {
     return null;
   }
 
-  const [desc, size] = globalFunctions.getDescToSend(block.getValue('#is')?.toString());
+  const desc = globalFunctions.getDesc(block.getValue('#is')?.toString());
   if (desc) {
     groupDesc = findGroup(desc.properties);
   }
