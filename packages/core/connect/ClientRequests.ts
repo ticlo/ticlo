@@ -120,6 +120,9 @@ const defaultValueState: ValueState = {
   hasListener: false,
 };
 
+// undefined is a valid complete value.
+const noFullValue = Symbol('noFullValue');
+
 export class SubscribeRequest extends MergedClientRequest {
   _cache: ValueState = {...defaultValueState};
 
@@ -167,6 +170,8 @@ export class SubscribeRequest extends MergedClientRequest {
     if (Object.hasOwn(response, 'value')) {
       this._cache.value = response.value;
       this._cache.temp = response.temp;
+      ++this._valueVersion;
+      this._cachedFullValue = noFullValue;
       valueChanged = true;
     }
     if (Object.hasOwn(response, 'bindingPath')) {
@@ -177,10 +182,10 @@ export class SubscribeRequest extends MergedClientRequest {
     }
     this._hasUpdate = true;
     super.onUpdate({cache: {...this._cache}, change: response});
-    if (this._fullCallbackSet.size) {
-      if (valueChanged && isDataTruncated(response.value)) {
+    if (this._fullCallbackSet.size && valueChanged) {
+      if (isDataTruncated(response.value)) {
         this.loadFullValue();
-      } else if (Object.hasOwn(response, 'value')) {
+      } else {
         this._cachedFullValue = response.value;
         this.updateFullValue();
       }
@@ -189,25 +194,41 @@ export class SubscribeRequest extends MergedClientRequest {
 
   _fullCallbackSet: Set<ClientCallbacks> = new Set();
   _getValuePromise: Promise<any>;
-  _cachedFullValue: any;
+  _cachedFullValue: any = noFullValue;
+  private _valueVersion = 0;
 
   addFull(callbacks: SubscribeCallbacks) {
-    const pendingLoad = this._fullCallbackSet.size === 0;
     this._fullCallbackSet.add(callbacks);
-    if (pendingLoad) {
-      this.loadFullValue();
-    } else {
-      if (callbacks.onUpdate) {
-        callbacks.onUpdate({cache: {...this._cache, value: this._cachedFullValue}});
+    if (!this._hasUpdate || this._disconnectd) return;
+    if (this._cachedFullValue === noFullValue) {
+      if (isDataTruncated(this._cache.value)) {
+        this.loadFullValue();
+        return;
       }
+      this._cachedFullValue = this._cache.value;
     }
+    callbacks.onUpdate?.({cache: {...this._cache, value: this._cachedFullValue}});
+  }
+
+  onError(error: string) {
+    ++this._valueVersion;
+    this._hasUpdate = false;
+    this._cachedFullValue = noFullValue;
+    super.onError(error);
+    for (const callbacks of this._fullCallbackSet) callbacks.onError?.(error, this._data);
+  }
+
+  onDisconnect() {
+    super.onDisconnect();
+    ++this._valueVersion;
+    this._cachedFullValue = noFullValue;
   }
 
   remove(callbacks: SubscribeCallbacks) {
     if (this._fullCallbackSet.has(callbacks)) {
       this._fullCallbackSet.delete(callbacks);
       if (this._fullCallbackSet.size === 0) {
-        this._cachedFullValue = undefined;
+        this._cachedFullValue = noFullValue;
       }
     } else {
       super.remove(callbacks);
@@ -220,15 +241,26 @@ export class SubscribeRequest extends MergedClientRequest {
 
   loadFullValue() {
     if (!this._getValuePromise) {
+      const version = this._valueVersion;
+      const complete = () => {
+        this._getValuePromise = null;
+        if (this._disconnectd || !this._hasUpdate || !this._fullCallbackSet.size) return false;
+        if (version !== this._valueVersion) {
+          // Coalesce newer truncated snapshots while the previous read is pending.
+          if (this._cachedFullValue === noFullValue && isDataTruncated(this._cache.value)) this.loadFullValue();
+          return false;
+        }
+        return true;
+      };
       this._getValuePromise = this.conn.getValue(this.path);
       this._getValuePromise.then(
         (response) => {
-          this._getValuePromise = null;
+          if (!complete()) return;
           this._cachedFullValue = response.value;
           this.updateFullValue();
         },
         (error) => {
-          this._getValuePromise = null;
+          if (!complete()) return;
           for (const callbacks of this._fullCallbackSet) callbacks.onError?.(error, this._data);
         }
       );

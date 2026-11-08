@@ -21,7 +21,7 @@ import {ConnectionSend} from '../Connection.ts';
 import {DescRequest, GlobalWatch, SetRequest, type ValueState} from '../ClientRequests.ts';
 
 describe('Connection', function () {
-  it('reports a failed full-value load without leaving an unhandled promise', async () => {
+  it('reports subscription errors before receiving the initial full value', async () => {
     const root = new Root();
     root.addFlow('Main', {value: 1});
     const [, client] = makeLocalConnection(root, false);

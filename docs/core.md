@@ -61,6 +61,10 @@ acknowledgement, which may be empty. Empty acknowledgements require no reply.
 
 `ClientConnection` merges pending non-important `set`, `update`, and `bind`
 requests by path. Subscription caches support reconnect clears and replay.
+Full-value subscriptions wait for the WebSocket snapshot and reuse complete
+cached values. Only truncated snapshots trigger a full-value read (HTTP on a
+mixed connection); listeners share that read, and outdated responses cannot
+replace newer subscription values.
 `ServerConnection` dispatches requests to its one-argument command methods and
 awaits asynchronous results. Server policies enforce access independently of
 client restrictions; storage-backed commands must propagate promises.
