@@ -7,6 +7,23 @@ and the editor's `FileManager`.
 The package also exports `TicloFileClient` for direct access to the HTTP API.
 `RemoteStorage` accepts a custom `fetch(url, init)` and preserves native fetch cancellation.
 
+For the server runtime, open `editor.html?host=http://127.0.0.1:8010/`.
+The trailing slash identifies the server root: the editor connects to `/ticlo`
+and its file panel accesses `/file` in the `serv` scope. An explicit `/ticlo`
+host also resolves the sibling `/file` endpoint. `RemoteStorage` continues to
+use only `proj`; the editor file panel uses `ScopedFileServerFiles` for `serv`.
+`ScopedFileServerFiles` implements file and Git access, but does not implement
+`FlowStorage`; the server runtime keeps using `NodeStorage` for flows. Successful
+editor requests that may change stored flows call `notifyFileChange(project)` so
+the file panel refreshes the expanded folders in that namespace. A file access
+implementation can expose `subscribeFileChanges` and `notifyFileChange` to
+support the same notification contract for writes made outside its own file
+methods.
+Use `project=<id>` to select its file tree, or pass a qualified `flow` path to
+select that flow's namespace. With neither parameter, the file tree shows `#root`.
+After a Git reset, the editor uses `listLoadedFlows(namespace)` to reload every
+loaded flow and library in that namespace, including ones without an open tab.
+
 ```tsx
 import {Root} from '@ticlo/core';
 import {RemoteStorage} from '@ticlo/remote-storage';

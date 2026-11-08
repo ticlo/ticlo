@@ -49,6 +49,7 @@ function parseFlowLibPath(path: string): [string, string] | null {
 // Block for binding and property traversal, but it queues work through its parent
 // flow/root and is saved explicitly rather than as a child property value.
 export class Flow extends Block {
+  pendingCreate?: Promise<void>;
   _namespace: string;
   // function id, when Flow is loaded from a function
   _loadFrom: string;
@@ -437,8 +438,6 @@ class GlobalBlock extends Flow {
 }
 
 export class FlowFolder extends Flow {
-  pendingCreate?: Promise<void>;
-
   _createConfig(field: string): BlockProperty {
     if (field in FlowFolderConfigGenerators) {
       return new FlowFolderConfigGenerators[field](this, field);
@@ -777,7 +776,17 @@ export class Root extends FlowFolder {
       }
       newFlow.load(data, null, loader.applyChange, loader.onStateChange, undefined, funcLib);
       if (!fromStorage && this._storage?.inited && Object.keys(data).length) {
-        newFlow.applyChange();
+        const saved = newFlow.applyChange();
+        if (saved instanceof Promise) {
+          newFlow.pendingCreate = saved.then(
+            () => {},
+            (error) => {
+              if (prop._value === newFlow) prop.setValue(undefined);
+              throw error;
+            }
+          );
+          newFlow.pendingCreate.catch(voidFunction);
+        }
       }
     } else {
       newFlow.load(data, null, undefined, undefined, undefined, funcLib);

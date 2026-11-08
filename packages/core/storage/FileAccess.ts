@@ -75,6 +75,8 @@ export interface FileAccess {
   getCapabilities(path: string): StorageCapabilities;
   /** Reports successful writes made through this file access instance. */
   subscribeFileChanges?(listener: (path: string) => void): () => void;
+  /** Reports an external write; passing a project root invalidates its expanded tree. */
+  notifyFileChange?(path: string): void;
   getFile(path: string, options?: FileRequest): Promise<FileReadResult>;
   getFileInfo(path: string, options?: FileRequest): Promise<FileEntry>;
   listFiles(path: string, options?: FileRequest): Promise<FileEntry[]>;

@@ -426,6 +426,7 @@ class ServerConnectionCore extends Connection {
         'getFlowState',
         'getAutoLoadFlow',
         'listMainFlows',
+        'listLoadedFlows',
         'close',
         'loadFlow',
         'unloadFlow',
@@ -445,7 +446,7 @@ class ServerConnectionCore extends Connection {
       const [owner, name] = this.root.queryBlockField(path);
       if (owner && owner !== this.root && !canWrite(`${owner.getFullPath()}.${name}`)) return 'Storage is read-only';
     }
-    if (this._editPolicy?.readonly && cmd !== 'listMainFlows') {
+    if (this._editPolicy?.readonly && cmd !== 'listMainFlows' && cmd !== 'listLoadedFlows') {
       const error = this.checkRequestPolicy(request);
       if (error) return error;
     }
@@ -798,6 +799,18 @@ export class ServerConnection extends ServerConnectionCore {
     };
   }
 
+  listLoadedFlows({path}: {path: string}) {
+    const flows = this.root.getLoadedFlowRefs(path);
+    const policy = this.getEditPolicy();
+    if (!policy?.readonly) return {flows};
+    return {
+      flows: flows.filter((ref) => {
+        const flowPath = `${ref.namespace === '#root' ? '' : `+${ref.namespace}.`}${ref.kind === 'library' ? ':' : ''}${ref.name}`;
+        return !checkEditPolicy(policy, {cmd: 'getFlowState', path: flowPath}, undefined, 'server');
+      }),
+    };
+  }
+
   async setAutoLoadFlow({path, enabled}: {path: string; enabled: boolean}) {
     const ref = flowRefFromPath(path);
     if (ref.kind !== 'flow' || typeof enabled !== 'boolean') return 'invalid flow';
@@ -805,9 +818,10 @@ export class ServerConnection extends ServerConnectionCore {
     return null;
   }
 
-  addFlow({path, data}: {path: string; data?: DataMap}): string | DataMap {
-    if (this.root.addFlow(path, data)) {
-      return null;
+  addFlow({path, data}: {path: string; data?: DataMap}): string | Promise<null> {
+    const flow = this.root.addFlow(path, data);
+    if (flow) {
+      return flow.pendingCreate ? flow.pendingCreate.then((): null => null) : null;
     } else {
       return 'invalid path';
     }

@@ -400,7 +400,10 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     const generation = this.generation;
     const version = this.folderVersion;
     const folders = [...this.expanded].filter((folder) =>
-      changed.some((path) => (path === folder ? folder === this.files.root : path.startsWith(`${folder}/`)))
+      changed.some(
+        (path) =>
+          path === this.files.root || (path === folder ? folder === this.files.root : path.startsWith(`${folder}/`))
+      )
     );
     try {
       await Promise.all(

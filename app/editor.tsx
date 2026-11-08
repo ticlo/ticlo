@@ -5,12 +5,12 @@ import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, Root, addConso
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {data} from './sample-data/data.ts';
 import reactData from './sample-data/react.ts';
-import {initEditor, PropertyList, BlockStage, NodeTree} from '@ticlo/editor';
-import {DockLayout, type LayoutBase, type TabDefinitions} from 'rc-dock';
+import {initEditor, PropertyList, BlockStage, NodeTree, FileManager} from '@ticlo/editor';
+import {DockLayout, type LayoutBase, type TabDefinitions, type TabData} from 'rc-dock';
 import {leftSideColumns, stageGroup, toolGroup, createLayoutActions} from './AppLayout.ts';
 import {antdLocales, initAppI18n} from './AppI18n.tsx';
 import {AppHeader, AppTheme, appHeaderHeight} from './AppHeader.tsx';
-import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
+import {ClientConnection, type CompletedRequest} from '@ticlo/core/connect/ClientConnection.ts';
 import {globalFunctions} from '@ticlo/core';
 import {FunctionTree} from '@ticlo/editor/function-selector/FunctionTree.tsx';
 
@@ -38,6 +38,13 @@ import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection
 import {Namespace} from '@ticlo/core/block/Namespace.ts';
 import {initialUrlParams} from './url-state.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
+import {flowRefFromPath} from '@ticlo/core/block/FlowRuntime.ts';
+import {flowStoragePath} from '@ticlo/core/util/FlowStoragePath.ts';
+import {namespacePrefix} from '@ticlo/core/util/NamespaceMetadata.ts';
+import {type FileAccess, type FileEntry, StorageError} from '@ticlo/core/storage/FileAccess.ts';
+import {fileFlowPath} from './flow-path.ts';
+import {editorHostUrls} from './editor-host.ts';
+import {RemoteStorage, ScopedFileServerFiles, StaticStorage} from '@ticlo/remote-storage';
 
 const layoutGroups = {
   main: stageGroup,
@@ -47,6 +54,7 @@ const layoutGroups = {
 interface Props {
   conn: ClientConnection;
   initialFlow?: string;
+  files?: {storage: FileAccess; project: string};
 }
 
 interface State {
@@ -57,13 +65,52 @@ WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, '+WorkerEditor');
 
 class App extends React.PureComponent<Props, State> {
   state: State = {};
+  private onFlowRequestCompleted = (request: CompletedRequest) => {
+    const {files} = this.props;
+    if (!files) return;
+    const {cmd} = request;
+    if (
+      cmd !== 'applyFlowChange' &&
+      cmd !== 'addFlow' &&
+      cmd !== 'addFlowFolder' &&
+      cmd !== 'setAutoLoadFlow' &&
+      cmd !== 'deleteBlock' &&
+      !(cmd === 'deleteFunction' && typeof request.funcId === 'string' && request.funcId.startsWith('+')) &&
+      !((cmd === 'enableFlow' || cmd === 'disableFlow') && request.persist)
+    )
+      return;
+    if (cmd === 'applyFlowChange') {
+      // A worker editor can save a function into a different flow than its own path.
+      files.storage.notifyFileChange?.(files.project);
+      return;
+    }
+    const path = cmd === 'deleteFunction' ? request.funcId : request.path;
+    if (typeof path !== 'string') return;
+    if (path === `+${files.project}`) {
+      files.storage.notifyFileChange?.(files.project);
+      return;
+    }
+    try {
+      if (flowRefFromPath(path).namespace === files.project) files.storage.notifyFileChange?.(files.project);
+    } catch {
+      // Some valid block operations use a namespace root rather than a flow path.
+    }
+  };
+
+  componentDidMount() {
+    this.props.conn.completedRequests().listen(this.onFlowRequestCompleted);
+  }
+
+  componentWillUnmount() {
+    this.props.conn.completedRequests().unlisten(this.onFlowRequestCompleted);
+  }
   defaultDockLayout: LayoutBase;
   tabs: TabDefinitions;
   constructor(props: Props) {
     super(props);
     const {conn, initialFlow} = props;
     const initialTab = initialFlow
-      ? this.createBlockEditorTab(initialFlow, () => conn.applyFlowChange(initialFlow, undefined, requestCallbacks))
+      ? this.createBlockEditorTab(initialFlow, () => this.saveFlow(initialFlow))
       : undefined;
     this.tabs = {
       Navigation: {
@@ -104,6 +151,26 @@ class App extends React.PureComponent<Props, State> {
         content: <PropertyListPane conn={conn} />,
       },
     };
+    if (props.files) {
+      this.tabs = {
+        ...this.tabs,
+        Files: {
+          group: 'tool',
+          title: t('Files'),
+          cached: true,
+          content: (
+            <FileManager
+              storage={props.files.storage}
+              project={props.files.project}
+              onOpen={this.openFile}
+              onFilesDeleted={this.onFilesDeleted}
+              onFileDiscarded={this.onFileDiscarded}
+              onProjectReset={this.onProjectReset}
+            />
+          ),
+        },
+      };
+    }
     this.defaultDockLayout = {
       dockbox: {
         mode: 'horizontal',
@@ -115,7 +182,7 @@ class App extends React.PureComponent<Props, State> {
             children: [
               {
                 size: 400,
-                tabs: [{id: 'Navigation'}],
+                tabs: [...(props.files ? [{id: 'Files'}] : []), {id: 'Navigation'}],
               },
               {
                 size: 300,
@@ -171,6 +238,55 @@ class App extends React.PureComponent<Props, State> {
     showModal: (modal: React.ReactElement) => this.setState({modal}),
   };
 
+  openFile = async (entry: FileEntry) => {
+    const target = fileFlowPath(this.props.files.project, entry.path);
+    if (!target) throw new Error('Select a .ticlo file.');
+    await this.props.conn.loadFlow(target.path);
+    this.ticloContext.editFlow(target.path, () => this.saveFlow(target.path));
+  };
+
+  saveFlow = (path: string) => {
+    this.props.conn.applyFlowChange(path, undefined, requestCallbacks);
+  };
+
+  onFilesDeleted = async (paths: string[]) => {
+    for (const file of paths) {
+      const target = fileFlowPath(this.props.files.project, file);
+      if (!target) continue;
+      await this.props.conn.unloadFlow(target.path, {discardChanges: true});
+      const tab = this.layout.find(`blockEditor:${target.path}`) as TabData | undefined;
+      if (tab) this.layout.dockMove(tab, null, 'remove');
+    }
+  };
+
+  onFileDiscarded = async (file: string) => {
+    const target = fileFlowPath(this.props.files.project, file);
+    if (!target || (await this.props.conn.getFlowState(target.path))?.state === 'unloaded') return;
+    await this.props.conn.unloadFlow(target.path, {discardChanges: true});
+    await this.props.conn.loadFlow(target.path);
+  };
+
+  onProjectReset = async () => {
+    const {storage, project} = this.props.files;
+    const {flows} = await this.props.conn.listLoadedFlows(project);
+    for (const ref of flows) {
+      const path = `${namespacePrefix(project)}${ref.kind === 'library' ? ':' : ''}${ref.name}`;
+      const file = `${project}/${flowStoragePath(ref.kind === 'library' ? `:${ref.name}` : ref.name)}`;
+      let exists = false;
+      try {
+        exists = (await storage.getFileInfo(file)).gitStatus !== 'deleted';
+      } catch (error) {
+        if (!(error instanceof StorageError && error.code === 'not-found')) throw error;
+      }
+      await this.props.conn.unloadFlow(path, {discardChanges: true});
+      if (exists) await this.props.conn.loadFlow(path);
+      else {
+        const tab = this.layout.find(`blockEditor:${path}`) as TabData | undefined;
+        if (tab) this.layout.dockMove(tab, null, 'remove');
+      }
+    }
+  };
+
   selectedPaths: PropDispatcher<string[]> = new PropDispatcher();
 
   onSelect = (paths: string[], handled: boolean = false) => {
@@ -212,11 +328,22 @@ class App extends React.PureComponent<Props, State> {
   await initEditor();
   await initAppI18n();
 
+  const params = initialUrlParams();
+  const initialFlow = params.get('flow') || undefined;
+  const project = params.get('project') || (initialFlow ? flowRefFromPath(initialFlow).namespace : '#root');
+  const host = window.opener ? undefined : editorHostUrls(params.get('host'));
   const client = window.opener
     ? new FrameClientConnection(window.opener) // used by server-window.html
-    : new MixedBrowserConnection(`http://127.0.0.1:8010/ticlo`); // used by ticlo-server
-  const initialFlow = initialUrlParams().get('flow') || undefined;
-  createRoot(document.getElementById('app')).render(<App conn={client} initialFlow={initialFlow} />);
+    : new MixedBrowserConnection(host.runtimeUrl);
+  const fileHost = params.get('fileHost');
+  const files = fileHost
+    ? {storage: new RemoteStorage({baseURL: fileHost}), project}
+    : params.get('storage') === 'static'
+      ? {storage: new StaticStorage(new URL('./storage', location.href).href), project}
+      : host?.fileUrl
+        ? {storage: new ScopedFileServerFiles(host.fileUrl, 'serv'), project}
+        : undefined;
+  createRoot(document.getElementById('app')).render(<App conn={client} initialFlow={initialFlow} files={files} />);
 })();
 
 (window as any).Logger = Logger;

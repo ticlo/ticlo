@@ -7,6 +7,7 @@ import {Query} from './Query.ts';
 import type {EditPolicy, EditPolicyView} from '../policy/EditPolicy.ts';
 import type {ClientConnection} from './ClientConnection.ts';
 import {hashData} from '../util/Serialize.ts';
+import type {FlowRef} from '../block/FlowRuntime.ts';
 
 /** Shared command API for physical connections and policy views. */
 
@@ -51,6 +52,9 @@ export abstract class ClientConn {
   }
   listMainFlows(): Promise<any> {
     return this.simpleRequest({cmd: 'listMainFlows', path: ''});
+  }
+  listLoadedFlows(namespace: string): Promise<{flows: FlowRef[]}> {
+    return this.simpleRequest({cmd: 'listLoadedFlows', path: namespace});
   }
   setAutoLoadFlow(path: string, enabled: boolean): Promise<any> {
     return this.simpleRequest({cmd: 'setAutoLoadFlow', path, enabled});

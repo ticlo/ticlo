@@ -30,6 +30,9 @@ export abstract class BrowserStorage extends ProjectStorage {
   protected fileChanged(path: string) {
     for (const listener of this.fileChangeListeners) listener(path);
   }
+  notifyFileChange(path: string) {
+    this.fileChanged(path);
+  }
   private route(path: string) {
     filePath(path, true);
     if (path === 'local' || path.startsWith('local/')) return {files: this.local, path: path.slice(6)};

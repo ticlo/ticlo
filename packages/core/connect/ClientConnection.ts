@@ -25,6 +25,13 @@ import {hashData} from '../util/Serialize.ts';
 
 export type {ValueUpdate, ValueState} from './ClientRequests.ts';
 
+export interface CompletedRequest {
+  cmd: string;
+  path?: string;
+  funcId?: string;
+  persist?: boolean;
+}
+
 export abstract class ClientConnection extends ClientConn {
   private readonly transport = new ClientTransport(this);
 
@@ -132,6 +139,25 @@ export abstract class ClientConnection extends ClientConn {
     return this._childrenChangeStream;
   }
 
+  private readonly _completedRequests = new StreamDispatcher<CompletedRequest>();
+
+  /** Metadata for successful requests, including writes issued by editor components. */
+  completedRequests() {
+    return this._completedRequests;
+  }
+
+  private reportCompletedRequest(req: ClientCallbacks) {
+    if (!(req instanceof ClientRequest) || !req._data) return;
+    const {cmd, path, funcId, persist} = req._data;
+    if (typeof cmd !== 'string') return;
+    this._completedRequests.dispatch({
+      cmd,
+      path: typeof path === 'string' ? path : undefined,
+      funcId: typeof funcId === 'string' ? funcId : undefined,
+      persist: persist === true,
+    });
+  }
+
   onData(response: DataMap) {
     if (typeof response.id === 'string' && this.requests.has(response.id)) {
       if (response.cmd === 'update') {
@@ -157,6 +183,7 @@ export abstract class ClientConnection extends ClientConn {
           }
           req.onUpdate(response);
           req.onDone();
+          this.reportCompletedRequest(req);
           break;
         }
         case 'error': {
@@ -166,6 +193,7 @@ export abstract class ClientConnection extends ClientConn {
         default:
           // 'done'
           req.onDone();
+          this.reportCompletedRequest(req);
       }
     } else if (response.cmd === 'editPolicy') {
       this.updateServerPolicy((response.policy as EditPolicy) ?? undefined);

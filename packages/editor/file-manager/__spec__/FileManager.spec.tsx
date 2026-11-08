@@ -144,6 +144,10 @@ describe('FileManager', () => {
     releaseSource();
     await shouldHappen(() => row('demo/source/a.txt')?.querySelector('.ticl-e-file-git-modified'));
 
+    fixture.entries.set('demo/source/a.txt', {...file('demo/source/a.txt'), gitStatus: 'added'});
+    changed('demo');
+    await shouldHappen(() => row('demo/source/a.txt')?.querySelector('.ticl-e-file-git-added'));
+
     fixture.entries.delete('demo/source/a.txt');
     fixture.entries.set('demo/target/a.txt', {...file('demo/target/a.txt'), gitStatus: 'added'});
     changed('demo/source/a.txt');

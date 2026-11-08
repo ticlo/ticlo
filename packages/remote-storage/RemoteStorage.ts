@@ -24,7 +24,7 @@ export interface RemoteStorageOptions {
   headers?: HeadersInit;
   fetch?: typeof fetch;
 }
-class RemoteFiles extends FileAccessBase {
+export class RemoteFiles extends FileAccessBase {
   private readonly listCache = new Map<string, FileEntry[]>();
   constructor(
     private readonly options: RemoteStorageOptions,
@@ -132,8 +132,10 @@ class RemoteFiles extends FileAccessBase {
     options?.signal?.throwIfAborted();
     let entries: FileEntry[];
     try {
-      if (!path && prefix === 'proj') {
-        const projects: {id: string}[] = await (await this.request('listProj', {}, undefined, options)).json();
+      if (!path && (prefix === 'proj' || prefix === 'serv')) {
+        const projects: {id: string}[] = await (
+          await this.request('listProj', prefix === 'serv' ? {scope: 'serv'} : {}, undefined, options)
+        ).json();
         entries = projects.map((project) => ({name: project.id, path: project.id, type: 'folder'}));
       } else {
         const remote: FileEntry[] = await (await this.request('list', {path: fullPath}, undefined, options)).json();

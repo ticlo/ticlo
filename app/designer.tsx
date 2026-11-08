@@ -419,7 +419,11 @@ class App extends React.PureComponent<Props, State> {
     };
   }
 
-  editorWindows = new EditorWindows(this.props.root);
+  editorWindows = new EditorWindows(this.props.root, {
+    fileHost: initialUrlParams().get('host') || undefined,
+    staticStorage: !initialUrlParams().get('host'),
+    project: this.props.files.project,
+  });
   openEditor = (path?: string) =>
     this.editorWindows.open(path && this.props.root.queryValue(path) instanceof Flow ? path : undefined);
   closeEditors = () => this.editorWindows.close();
