@@ -1,19 +1,19 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import '../../index.ts';
-import {Flow, FlowNameSpace, Root} from '../Flow.ts';
+import {Flow, FlowLibrary, Root} from '../Flow.ts';
 import {MemoryFlowStorage} from '../MemoryFlowStorage.ts';
 import {shouldHappen} from '../../util/test-util.ts';
 import {makeLocalConnection} from '../../connect/LocalConnection.ts';
 
-describe('namespace context', () => {
+describe('library context', () => {
   let root: Root;
   let storage: MemoryFlowStorage;
 
   beforeEach(async () => {
     root = new Root();
     storage = new MemoryFlowStorage();
-    await storage.saveNamespaceMetadata('main', {});
-    await storage.saveNamespaceMetadata('shared', {});
+    await storage.saveLibraryMetadata('main', {});
+    await storage.saveLibraryMetadata('shared', {});
     await root.setStorage(storage);
     root._globalRoot.setValue('^value', 1);
   });
@@ -23,13 +23,13 @@ describe('namespace context', () => {
     root.destroy();
   });
 
-  it('replaces the namespace mirror with one context property in the parent chain', async () => {
+  it('replaces the library mirror with one context property in the parent chain', async () => {
     storage.saveFlow(null, {'~value': '^value'}, '+main.folder.entry');
     await root.start({main: {flows: ['**']}, shared: {}});
-    const ns = root.getValue('+main') as FlowNameSpace;
+    const libraryScope = root.getValue('+main') as FlowLibrary;
     const folder = root.queryValue('+main.folder') as Flow;
     const entry = root.queryValue('+main.folder.entry') as Flow;
-    const context = ns._contextRoot;
+    const context = libraryScope._contextRoot;
     const value = context.getContextProperty('^value');
 
     expect(context.getValue('#is')).toBe('flow:context');
@@ -39,8 +39,8 @@ describe('namespace context', () => {
     expect(entry.getValue('value')).toBe(1);
     expect(entry.getContextProperty('^value')._bindingSource).toBe(folder.getContextProperty('^value'));
     expect(folder.getContextProperty('^value')._bindingSource).toBe(value);
-    expect(ns.getContextProperty('^value')).toBe(value);
-    expect(ns._props.has('^value')).toBe(false);
+    expect(libraryScope.getContextProperty('^value')).toBe(value);
+    expect(libraryScope._props.has('^value')).toBe(false);
     expect(value._bindingSource).toBe(root._globalRoot.getProperty('^value'));
 
     context.setValue('^value', 2);
@@ -86,10 +86,10 @@ describe('namespace context', () => {
   });
 
   it('downloads flows together but loads contexts before services and ordinary flows', async () => {
-    await storage.saveNamespaceMetadata('main', {dependencies: ['shared'], autoLoadLibraries: ['service']});
+    await storage.saveLibraryMetadata('main', {dependencies: ['shared'], autoLoadModules: ['service']});
     storage.saveFlow(null, {'^value': 2}, '+main.#context');
     storage.saveFlow(null, {'^value': 3}, '+shared.#context');
-    storage.saveLib('+main', 'service', {'~value': '^value'});
+    storage.saveModule('+main', 'service', {'~value': '^value'});
     storage.saveFlow(null, {'~value': '^value'}, '+main.entry');
     const loadFlow = storage.loadFlow.bind(storage);
     let finishContext: () => void;
@@ -112,18 +112,18 @@ describe('namespace context', () => {
     expect(root.queryValue('+main.entry.value')).toBe(2);
   });
 
-  it('keeps the caller context when invoking a worker from another namespace', async () => {
-    await storage.saveNamespaceMetadata('main', {dependencies: ['shared']});
+  it('keeps the caller context when invoking a worker from another library', async () => {
+    await storage.saveLibraryMetadata('main', {dependencies: ['shared']});
     storage.saveFlow(null, {'^value': 'caller'}, '+main.#context');
     storage.saveFlow(null, {'^value': 'definition'}, '+shared.#context');
-    storage.saveLib('+shared', 'tools', {
+    storage.saveModule('+shared', 'tools', {
       '#functions': {
         ':read': {type: 'worker', worker: {'#outputs': {'#is': '', '~#output': '^value'}}},
       },
     });
     storage.saveFlow(null, {call: {'#is': '+shared:tools:read'}}, '+main.entry');
     await root.start({main: {flows: ['entry']}});
-    await root.loadFlow({namespace: 'shared', kind: 'library', name: 'tools'});
+    await root.loadFlow({library: 'shared', kind: 'module', name: 'tools'});
     root.runAll();
     expect(root.queryValue('+main.entry.call.#output')).toBe('caller');
   });
@@ -135,15 +135,15 @@ describe('namespace context', () => {
     context.startHistory();
     context.setValue('^local', false);
     context.trackChange();
-    await expect(root.disableNamespace('main')).rejects.toThrow('unsaved changes');
+    await expect(root.disableLibrary('main')).rejects.toThrow('unsaved changes');
     await expect(root.stop()).rejects.toThrow('unsaved changes');
     await context.applyChange();
     expect(await storage.loadFlow('+main.#context')).toEqual({'#is': '', '^local': false});
-    await root.disableNamespace('main');
+    await root.disableLibrary('main');
     expect(context.isDestroyed()).toBe(false);
     expect(context.getValue('^local')).toBeUndefined();
     storage.saveFlow(null, {'^local': null}, '+main.#context');
-    await root.enableNamespace('main');
+    await root.enableLibrary('main');
     expect(root.queryValue('+main.#context')).toBe(context);
     expect(root.queryValue('+main.^local')).toBeNull();
     expect(root.queryValue('+main.^value')).toBe(1);
@@ -157,10 +157,10 @@ describe('namespace context', () => {
           resolve = done;
         })
     );
-    const enabling = root.enableNamespace('main');
+    const enabling = root.enableLibrary('main');
     await shouldHappen(() => read.mock.calls.length === 1);
-    await root.disableNamespace('main');
-    await root.enableNamespace('main');
+    await root.disableLibrary('main');
+    await root.enableLibrary('main');
     resolve({'^value': 'stale', 'add': {'#is': 'add', '0': 1, '1': 2}});
     await expect(enabling).rejects.toThrow('cancelled');
     root.runAll();

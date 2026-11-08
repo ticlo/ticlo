@@ -1,7 +1,7 @@
 import React from 'react';
 import {userEvent} from 'vitest/browser';
 import {Root} from '@ticlo/core';
-import {globalFunctions} from '@ticlo/core/block/FunctionLib.ts';
+import {globalFunctions} from '@ticlo/core/block/FunctionModule.ts';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import '../../../html/functions/CreateStyle.ts';

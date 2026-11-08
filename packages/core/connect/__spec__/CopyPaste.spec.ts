@@ -127,7 +127,7 @@ describe('Copy source validation', () => {
   });
 
   it('validates static copy metadata together with the complete clipboard payload', async () => {
-    const library = root.addFlow('Workers', {
+    const module = root.addFlow('Workers', {
       '#functions': {
         ':clipboard-worker': {
           type: 'worker',
@@ -135,7 +135,7 @@ describe('Copy source validation', () => {
         },
       },
     });
-    const editor = FlowEditor.createFromFunction(library, '#edit-clipboard-worker', ':clipboard-worker', null);
+    const editor = FlowEditor.createFromFunction(module, '#edit-clipboard-worker', ':clipboard-worker', null);
     const path = editor.getFullPath();
     const copied = (await client.copy(path, ['a', '#static.b'])).value;
     expect(copied['#_copy_from']).toBe(path);

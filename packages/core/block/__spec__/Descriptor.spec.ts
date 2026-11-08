@@ -15,7 +15,7 @@ import {
   mapConfigDesc,
   mapAttributeDesc,
 } from '../Descriptor.ts';
-import {globalFunctions} from '../FunctionLib.ts';
+import {globalFunctions} from '../FunctionModule.ts';
 
 describe('Descriptor', function () {
   it('mapConfigDesc', function () {

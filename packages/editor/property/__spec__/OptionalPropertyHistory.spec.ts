@@ -8,8 +8,8 @@ describe('OptionalPropertyHistory', () => {
   );
   let history: OptionalPropertyHistory;
   const keys = new Set<string>();
-  const createHistory = (funcDesc = desc, funcLib?: string) => {
-    const result = new OptionalPropertyHistory(funcDesc, properties, funcLib);
+  const createHistory = (funcDesc = desc, funcModule?: string) => {
+    const result = new OptionalPropertyHistory(funcDesc, properties, funcModule);
     keys.add(result.storageKey);
     return result;
   };
@@ -69,7 +69,7 @@ describe('OptionalPropertyHistory', () => {
     expect(history.entries).toHaveLength(32);
   });
 
-  it('persists usage and keeps function types and local libraries separate', () => {
+  it('persists usage and keeps function types and local modules separate', () => {
     history.record('p0');
     history.record('p0');
     expect(createHistory().entries).toEqual([{name: 'p0', count: 2}]);
@@ -77,9 +77,9 @@ describe('OptionalPropertyHistory', () => {
     expect(createHistory({...desc, id: 'test:other-optional-history'}).entries).toEqual([]);
 
     const localDesc = {...desc, id: ':optional-history'};
-    createHistory(localDesc, 'libraryA').record('p1');
-    expect(createHistory(localDesc, 'libraryA').getSuggestions()).toEqual(['p1']);
-    expect(createHistory(localDesc, 'libraryB').entries).toEqual([]);
+    createHistory(localDesc, 'moduleA').record('p1');
+    expect(createHistory(localDesc, 'moduleA').getSuggestions()).toEqual(['p1']);
+    expect(createHistory(localDesc, 'moduleB').entries).toEqual([]);
   });
 
   it('shares new uses across mounted property lists of the same type', () => {

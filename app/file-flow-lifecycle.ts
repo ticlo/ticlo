@@ -25,7 +25,7 @@ export async function reloadDiscardedFileFlow(root: Root, project: string, file:
 
 export async function resetProjectFlows(root: Root, layout: DockLayout, storage: FileAccess, project: string) {
   for (const ref of root.getLoadedFlowRefs(project)) {
-    const name = ref.kind === 'library' ? `:${ref.name}` : ref.name;
+    const name = ref.kind === 'module' ? `:${ref.name}` : ref.name;
     const file = `${project}/${flowStoragePath(name)}`;
     let exists = false;
     try {

@@ -1,16 +1,16 @@
 import type {FlowRef} from '@ticlo/core';
 import {validFlowEntry} from '@ticlo/core/util/FlowStoragePath.ts';
-import {namespacePrefix, validateNamespace} from '@ticlo/core/util/NamespaceMetadata.ts';
+import {libraryPrefix, validateLibrary} from '@ticlo/core/util/LibraryMetadata.ts';
 
 export function pageFlowPath(params: URLSearchParams): {ref: FlowRef; path: string} | null {
   const value = params.get('path');
   if (value == null) return null;
   const slash = value.indexOf('/');
   if (slash < 1) throw new Error('Invalid page path');
-  const namespace = validateNamespace(value.slice(0, slash));
+  const library = validateLibrary(value.slice(0, slash));
   const name = value.slice(slash + 1).replaceAll('/', '.');
   if (!name.split('.').every(validFlowEntry)) throw new Error('Invalid page path');
-  return {ref: {namespace, kind: 'flow', name}, path: `${namespacePrefix(namespace)}${name}`};
+  return {ref: {library, kind: 'flow', name}, path: `${libraryPrefix(library)}${name}`};
 }
 
 export function fileFlowPath(project: string, file: string): {ref: FlowRef; path: string} | null {
@@ -18,15 +18,15 @@ export function fileFlowPath(project: string, file: string): {ref: FlowRef; path
   const relative = file.slice(project.length + 1, -6);
   let ref: FlowRef;
   if (relative === '#context' && project !== '#root') {
-    ref = {namespace: project, kind: 'flow', name: '#context'};
-  } else if (relative.startsWith('#libs/') && validFlowEntry(relative.slice(6))) {
-    ref = {namespace: project, kind: 'library', name: relative.slice(6)};
+    ref = {library: project, kind: 'flow', name: '#context'};
+  } else if (relative.startsWith('#modules/') && validFlowEntry(relative.slice('#modules/'.length))) {
+    ref = {library: project, kind: 'module', name: relative.slice('#modules/'.length)};
   } else {
     const names = relative.split('/');
     if (!names.every(validFlowEntry)) return null;
-    ref = {namespace: project, kind: 'flow', name: names.join('.')};
+    ref = {library: project, kind: 'flow', name: names.join('.')};
   }
-  const path = `${namespacePrefix(project)}${ref.kind === 'library' ? ':' : ''}${ref.name}`;
+  const path = `${libraryPrefix(project)}${ref.kind === 'module' ? ':' : ''}${ref.name}`;
   return {ref, path};
 }
 

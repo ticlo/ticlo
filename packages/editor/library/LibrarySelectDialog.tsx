@@ -12,49 +12,49 @@ import {AutoComplete, Button, Checkbox, Divider, Dropdown, Modal} from 'antd';
 import {translateEditor} from '@ticlo/core/editor.ts';
 import {t} from '../component/LocalizedLabel.tsx';
 
-export interface NamespaceGraph {
+export interface LibraryGraph {
   roots: string[];
   dependencies: Record<string, string[]>;
 }
 
-export interface NamespaceSelectionOptions {
+export interface LibrarySelectionOptions {
   setDefault: boolean;
   unloadOthers: boolean;
 }
 
 interface Props {
-  defaultNamespace: string;
-  graph: NamespaceGraph;
-  listNamespaces: () => Promise<string[]>;
+  defaultLibrary: string;
+  graph: LibraryGraph;
+  listLibraries: () => Promise<string[]>;
   canCreate: (name: string, existing: string[]) => boolean;
   onCreate: (name: string) => Promise<void>;
-  onSelect: (name: string, options: NamespaceSelectionOptions) => Promise<void>;
+  onSelect: (name: string, options: LibrarySelectionOptions) => Promise<void>;
   onUnload: (name: string) => Promise<void>;
   onSetDefault: (name: string) => Promise<void>;
   onClose: () => void;
 }
 
-function NamespaceNode({
+function LibraryNode({
   name,
   ancestors,
   graph,
-  defaultNamespace,
+  defaultLibrary,
   onUnload,
   onSetDefault,
 }: {
   name: string;
   ancestors: string[];
-  graph: NamespaceGraph;
-  defaultNamespace: string;
+  graph: LibraryGraph;
+  defaultLibrary: string;
   onUnload: (name: string) => void;
   onSetDefault: (name: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const root = ancestors.length === 0;
-  const isDefault = root && name === defaultNamespace;
+  const isDefault = root && name === defaultLibrary;
   const children = ancestors.includes(name) ? [] : [...new Set(graph.dependencies[name] ?? [])];
   const row = (
-    <div className="ticl-e-namespace-row" style={{display: 'flex', alignItems: 'center', minHeight: 28, gap: 4}}>
+    <div className="ticl-e-library-row" style={{display: 'flex', alignItems: 'center', minHeight: 28, gap: 4}}>
       {children.length ? (
         <Button
           size="small"
@@ -67,7 +67,7 @@ function NamespaceNode({
       )}
       <ApartmentOutlined />
       <span>{name}</span>
-      {isDefault && <StarFilled title={translateEditor('Default Namespace')} />}
+      {isDefault && <StarFilled title={translateEditor('Default Library')} />}
     </div>
   );
   return (
@@ -80,14 +80,14 @@ function NamespaceNode({
               {
                 key: 'default',
                 icon: <StarOutlined />,
-                label: t('Set as Default Namespace'),
+                label: t('Set as Default Library'),
                 disabled: isDefault,
                 onClick: () => onSetDefault(name),
               },
               {
                 key: 'unload',
                 icon: <CloseOutlined />,
-                label: t('Unload Namespace'),
+                label: t('Unload Library'),
                 disabled: isDefault,
                 onClick: () => onUnload(name),
               },
@@ -102,12 +102,12 @@ function NamespaceNode({
       {expanded && children.length > 0 && (
         <div style={{paddingLeft: 20}}>
           {children.map((child) => (
-            <NamespaceNode
+            <LibraryNode
               key={child}
               name={child}
               ancestors={[...ancestors, name]}
               graph={graph}
-              defaultNamespace={defaultNamespace}
+              defaultLibrary={defaultLibrary}
               onUnload={onUnload}
               onSetDefault={onSetDefault}
             />
@@ -118,34 +118,34 @@ function NamespaceNode({
   );
 }
 
-export function NamespaceTree({
+export function LibraryTree({
   graph,
-  defaultNamespace,
+  defaultLibrary,
   onUnload,
   onSetDefault,
 }: {
-  graph: NamespaceGraph;
-  defaultNamespace: string;
+  graph: LibraryGraph;
+  defaultLibrary: string;
   onUnload: (name: string) => void;
   onSetDefault: (name: string) => void;
 }) {
   return graph.roots.map((root) => (
-    <NamespaceNode
+    <LibraryNode
       key={root}
       name={root}
       ancestors={[]}
       graph={graph}
-      defaultNamespace={defaultNamespace}
+      defaultLibrary={defaultLibrary}
       onUnload={onUnload}
       onSetDefault={onSetDefault}
     />
   ));
 }
 
-export function NamespaceSelectDialog({
-  defaultNamespace,
+export function LibrarySelectDialog({
+  defaultLibrary,
   graph,
-  listNamespaces,
+  listLibraries,
   canCreate,
   onCreate,
   onSelect,
@@ -153,7 +153,7 @@ export function NamespaceSelectDialog({
   onSetDefault,
   onClose,
 }: Props) {
-  const [projects, setProjects] = useState<string[]>([defaultNamespace]);
+  const [projects, setProjects] = useState<string[]>([defaultLibrary]);
   const [input, setInput] = useState('');
   const [setDefault, setSetDefault] = useState(true);
   const [unloadOthers, setUnloadOthers] = useState(false);
@@ -164,10 +164,10 @@ export function NamespaceSelectDialog({
 
   useEffect(() => {
     let mounted = true;
-    listNamespaces()
+    listLibraries()
       .then((names) => {
         if (mounted) {
-          setProjects([...new Set([defaultNamespace, ...names])].sort());
+          setProjects([...new Set([defaultLibrary, ...names])].sort());
           setReady(true);
         }
       })
@@ -224,17 +224,17 @@ export function NamespaceSelectDialog({
 
   return (
     <Modal
-      title={t('Namespaces')}
+      title={t('Libraries')}
       open
       onCancel={() => !busy && onClose()}
       destroyOnHidden
       footer={
         <div style={{display: 'flex', flexWrap: 'wrap', gap: '4px 12px', textAlign: 'left'}}>
           <Checkbox checked={setDefault} onChange={(event) => setSetDefault(event.target.checked)} disabled={busy}>
-            {t('Set as Default Namespace')}
+            {t('Set as Default Library')}
           </Checkbox>
           <Checkbox checked={unloadOthers} onChange={(event) => setUnloadOthers(event.target.checked)} disabled={busy}>
-            {t('Unload Other Namespaces')}
+            {t('Unload Other Libraries')}
           </Checkbox>
         </div>
       }
@@ -247,9 +247,9 @@ export function NamespaceSelectDialog({
           padding: 4,
         }}
       >
-        <NamespaceTree
+        <LibraryTree
           graph={graph}
-          defaultNamespace={defaultNamespace}
+          defaultLibrary={defaultLibrary}
           onUnload={(name) => void runTreeAction(() => onUnload(name))}
           onSetDefault={(name) => void runTreeAction(() => onSetDefault(name))}
         />
@@ -258,7 +258,7 @@ export function NamespaceSelectDialog({
       <div style={{display: 'flex', gap: 8}}>
         <AutoComplete
           value={input}
-          placeholder={translateEditor('Namespace Name')}
+          placeholder={translateEditor('Library Name')}
           options={projects.map((id) => ({value: id, label: id}))}
           onChange={setInput}
           filterOption={(value, option) => option?.value.toLowerCase().includes(value.toLowerCase()) ?? false}

@@ -1,4 +1,4 @@
-import {globalFunctions} from '../block/FunctionLib.ts';
+import {globalFunctions} from '../block/FunctionModule.ts';
 
 globalFunctions.addCategory({
   id: 'math',
@@ -40,7 +40,7 @@ globalFunctions.addCategory({
   name: 'web-server',
   icon: 'svg:network-wired',
   color: '4af',
-  ns: 'web-server',
+  libraryId: 'web-server',
 });
 
 globalFunctions.addCategory({
@@ -48,7 +48,7 @@ globalFunctions.addCategory({
   name: 'http',
   icon: ':://',
   color: '4af',
-  ns: 'http',
+  libraryId: 'http',
 });
 
 globalFunctions.addCategory({

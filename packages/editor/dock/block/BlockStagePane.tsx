@@ -9,7 +9,7 @@ import {BlockStageTabButton} from './BlockStageTabButton.tsx';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.tsx';
 import {TooltipIconButton} from '../../component/TooltipIconButton.tsx';
 import {LocalizedNodeName, t} from '../../component/LocalizedLabel.tsx';
-import {getFuncLibPath} from '../../util/FunctionLib.ts';
+import {getFuncModulePath} from '../../util/FunctionModule.ts';
 
 interface Props {
   conn: ClientConn;
@@ -27,7 +27,7 @@ interface State {
   selectedKeys: string[];
   sizes: number[];
   blockKey: string;
-  funcLib?: string;
+  funcModule?: string;
 }
 
 export class BlockStagePane extends LazyUpdateComponent<Props, State> {
@@ -91,9 +91,9 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
   scopeListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
       const {basePath} = this.props;
-      const funcLib = getFuncLibPath(response.cache.value, basePath);
-      if (funcLib !== this.state.funcLib) {
-        this.safeSetState({funcLib});
+      const funcModule = getFuncModulePath(response.cache.value, basePath);
+      if (funcModule !== this.state.funcModule) {
+        this.safeSetState({funcModule});
       }
     },
   });
@@ -102,7 +102,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     super(props);
     const {conn, basePath} = props;
     this.blockListener.subscribe(conn, basePath);
-    this.scopeListener.subscribe(conn, `${basePath}.#lib`, true);
+    this.scopeListener.subscribe(conn, `${basePath}.#module`, true);
   }
 
   onShowPropertyList = () => {
@@ -143,7 +143,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
 
   renderImpl() {
     const {conn, basePath, stageId, onSave, disablePropertyList} = this.props;
-    const {showPropertyList, selectedKeys, sizes, blockKey, funcLib = basePath} = this.state;
+    const {showPropertyList, selectedKeys, sizes, blockKey, funcModule = basePath} = this.state;
 
     return (
       <div
@@ -159,7 +159,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
             conn={conn}
             basePath={basePath}
             stageId={stageId}
-            funcLib={funcLib}
+            funcModule={funcModule}
             onSave={onSave}
             onSelect={this.onSelect}
             style={{width: sizes[0], height: '100%'}}
@@ -186,7 +186,7 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
             <PropertyList
               conn={conn}
               paths={selectedKeys}
-              funcLib={funcLib}
+              funcModule={funcModule}
               style={{width: sizes[1], height: '100%', padding: '8px'}}
             />
           </>

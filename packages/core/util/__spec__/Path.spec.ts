@@ -6,7 +6,7 @@ import {Root} from '../../block/Flow.ts';
 import type {DataMap} from '../DataTypes.ts';
 import {propRelative} from '../PropPath.ts';
 import type {Block} from '../../block/Block.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 
 describe('Path', function () {
   it('resolve', function () {

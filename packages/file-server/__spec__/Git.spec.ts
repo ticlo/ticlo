@@ -275,7 +275,7 @@ describe('project Git API', () => {
     expect((await request('POST', 'gitInit', {id: 'fork'}).then((response) => response.json())).branch).toBe('main');
   });
 
-  it('creates an unversioned namespace from a chosen history commit', async () => {
+  it('creates an unversioned library from a chosen history commit', async () => {
     await request('POST', 'gitInit', {id: 'main'});
     await request('POST', 'gitCommit', {id: 'main'}, JSON.stringify({message: 'Initial'}));
     const initial = (await request('GET', 'gitHistory', {id: 'main'}).then((response) => response.json()))[0].hash;

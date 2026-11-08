@@ -62,7 +62,7 @@ describe('editor component lifecycle', function () {
 
     expect(subscriptions.size).toBe(6);
     renderer.componentWillUnmount();
-    expect(Array.from(subscriptions.values()).sort()).toEqual(['node.#is', 'node.#lib', 'node.#order']);
+    expect(Array.from(subscriptions.values()).sort()).toEqual(['node.#is', 'node.#module', 'node.#order']);
     item.destroy();
     expect(subscriptions.size).toBe(0);
   });

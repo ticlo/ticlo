@@ -13,7 +13,7 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-uti
 import {BlockStage, NodeTree, initEditor} from '../../index.ts';
 import type {PropGroupDesc} from '@ticlo/core';
 import {FunctionDesc, PropDesc} from '@ticlo/core';
-import {globalFunctions} from '@ticlo/core/block/FunctionLib.ts';
+import {globalFunctions} from '@ticlo/core/block/FunctionModule.ts';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 
 describe('PropertyEditor', function () {
@@ -194,14 +194,14 @@ describe('PropertyEditor', function () {
     Root.instance.deleteValue('PropertyEditor2');
   });
 
-  it('uses funcLib for in-flow function descriptors', async function () {
+  it('uses funcModule for in-flow function descriptors', async function () {
     const flow = Root.instance.addFlow('PropertyEditorScopedDesc', {});
     const data = {
       '#is': '',
       '#inputs': {'#is': '', '#custom': [{name: 'value', type: 'number'}]},
       '#outputs': {'#is': ''},
     };
-    WorkerFunctionGen.registerType(data, {id: ':scopedWorker', name: 'scopedWorker'}, undefined, flow.getFuncLib());
+    WorkerFunctionGen.registerType(data, {id: ':scopedWorker', name: 'scopedWorker'}, undefined, flow.getFuncModule());
     flow.createBlock('calc').setValue('#is', ':scopedWorker');
 
     const [server, client] = makeLocalConnection(Root.instance, true);
@@ -210,7 +210,7 @@ describe('PropertyEditor', function () {
       <PropertyList
         conn={client}
         paths={['PropertyEditorScopedDesc.calc']}
-        funcLib="PropertyEditorScopedDesc"
+        funcModule="PropertyEditorScopedDesc"
         style={{width: 300, height: 300}}
       />,
       'editor'

@@ -67,7 +67,7 @@ Use `date-range` explicitly for a range picker; `any` treats a pair of Luxon
 
 Descriptors, bindings, and connection edit policies determine whether a value
 can be edited. For local function descriptors, editor components also need the
-owning function-library flow path; see the
+owning function-module flow path; see the
 [connection architecture](../.agents/skills/ticlo/core-package.md#connection-layer).
 
 Object properties with `create` can convert a stored object into a helper of that
@@ -86,7 +86,7 @@ of up to ten property names. An empty search uses these names to seed an empty
 history, in array order, with one use each. Suggestions do not enable properties.
 
 The editor saves search history in localStorage per function type; flow-local
-types also include their function-library path. Each enable action records one
+types also include their function-module path. Each enable action records one
 use, including when multiple blocks are selected. History retains up to 32 names.
 Suggestions show the five most recent names followed by the five most frequently
 used remaining names, with recency breaking frequency ties. When history is full,
@@ -144,15 +144,15 @@ Clicking a cell opens a string, number, or boolean editor according to the
 column descriptor or current value. Other values use a string editor.
 Connected worker cells support function selection and flow editing: inline
 workers stay in the draft until submission; named workers save to their function
-library. Local function lookup uses `funcLib`. Property and column edit
+module. Local function lookup uses `funcModule`. Property and column edit
 restrictions apply.
 
 ## File manager
 
 `FileManager` uses the shared storage file interface for local, remote, and static
-files. Pass a storage instance and a project / namespace ID; the panel is confined to `<project>`, and
+files. Pass a storage instance and a project / library ID; the panel is confined to `<project>`, and
 cannot rename, copy, move, or delete the project root. Use `#root` for the global
-namespace. Changing either the storage or project clears selection and clipboard
+library. Changing either the storage or project clears selection and clipboard
 state and cancels outstanding requests and confirmations.
 
 ```tsx
@@ -168,7 +168,7 @@ const storage = new RemoteStorage({baseURL: 'http://127.0.0.1:8010/file'});
 Hosts may pass `onOpen(entry)` to expose **Open** and double click for `.ticlo`
 files. The callback receives that file entry and may return a promise. The
 designer maps the entry to a flow, loads it if needed, and opens its stage. This
-also covers namespace `#context.ticlo` and files in `#libs/`.
+also covers library `#context.ticlo` and files in `#modules/`.
 
 Toolbar creation and uploads target the project root. Folder context actions
 target that folder. Creating a dataflow in the file panel writes the blank `.ticlo` file before

@@ -86,7 +86,7 @@ describe('remote file backups', () => {
     flow.startHistory();
     flow.destroyHistory();
     expect(flow.getValue('@has-change')).toBeUndefined();
-    expect(await root.loadFlow({namespace: 'main', kind: 'flow', name: 'entry'})).toBe(flow);
+    expect(await root.loadFlow({library: 'main', kind: 'flow', name: 'entry'})).toBe(flow);
     expect(flow.getValue('@has-change')).toBe(true);
     flow.startHistory();
     flow.setValue('value', 3);

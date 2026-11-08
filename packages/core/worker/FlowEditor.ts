@@ -7,8 +7,8 @@ import {BlockProperty} from '../index.ts';
 import {ConstTypeConfig} from '../block/BlockConfigs.ts';
 import {BlockConfig} from '../block/BlockProperty.ts';
 import {defaultWorkerData} from '../defaults/DefaultFlows.ts';
-import {FunctionLib} from '../block/FunctionLib.ts';
-import {Namespace} from '../block/Namespace.ts';
+import {FunctionModule} from '../block/FunctionModule.ts';
+import {Library} from '../block/Library.ts';
 
 export const FlowEditorConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowWithStaticConfigGenerators,
@@ -37,7 +37,7 @@ export class FlowEditor extends FlowWithStatic {
     funcId?: string,
     forceLoad = false,
     applyChange?: FlowLoader['applyChange'],
-    funcLib?: FunctionLib
+    funcModule?: FunctionModule
   ): FlowEditor {
     const prop = parent.getProperty(field);
     let flow: FlowEditor;
@@ -61,14 +61,14 @@ export class FlowEditor extends FlowWithStatic {
         }
       };
     }
-    if (!funcLib) {
+    if (!funcModule) {
       if (funcId) {
-        funcLib = Namespace.getFunctions(funcId, parent._flow);
+        funcModule = Library.getFunctions(funcId, parent._flow);
       } else if (parent !== parent._flow || field.startsWith('#edit-')) {
-        funcLib = parent._flow.getFuncLib();
+        funcModule = parent._flow.getFuncModule();
       }
     }
-    const success = flow.load(src, funcId, applyChange, undefined, undefined, funcLib);
+    const success = flow.load(src, funcId, applyChange, undefined, undefined, funcModule);
     if (success) {
       return flow;
     } else {
@@ -76,14 +76,14 @@ export class FlowEditor extends FlowWithStatic {
     }
   }
 
-  static createFromField(parent: Block, field: string, fromField: string, funcLib?: FunctionLib): FlowEditor {
+  static createFromField(parent: Block, field: string, fromField: string, funcModule?: FunctionModule): FlowEditor {
     const fromValue = parent.getValue(fromField);
     let forceReload = false;
     // already has worker data ?
     if (fromValue && (typeof fromValue === 'string' || fromValue.constructor === Object)) {
       let newFlow: FlowEditor;
       if (typeof fromValue === 'string') {
-        newFlow = FlowEditor.create(parent, field, null, fromValue, false, undefined, funcLib);
+        newFlow = FlowEditor.create(parent, field, null, fromValue, false, undefined, funcModule);
       } else {
         newFlow = FlowEditor.create(
           parent,
@@ -96,7 +96,7 @@ export class FlowEditor extends FlowWithStatic {
             parent.setValue(fromField, data);
             return data;
           },
-          funcLib
+          funcModule
         );
       }
 
@@ -124,10 +124,10 @@ export class FlowEditor extends FlowWithStatic {
     field: string,
     fromFunction: string,
     defaultData: DataMap,
-    funcLib?: FunctionLib
+    funcModule?: FunctionModule
   ): FlowEditor {
     if (typeof fromFunction === 'string') {
-      return FlowEditor.create(parent, field, defaultData, fromFunction, false, undefined, funcLib);
+      return FlowEditor.create(parent, field, defaultData, fromFunction, false, undefined, funcModule);
     }
     return null;
   }

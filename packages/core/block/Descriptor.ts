@@ -104,8 +104,8 @@ export interface FunctionDesc {
   name: string;
   id?: string;
   icon?: string;
-  /** namespace of the function */
-  ns?: string;
+  /** library of the function */
+  libraryId?: string;
   /**
    * how is this function defined
    * worker: defined in a worker
@@ -152,7 +152,7 @@ export interface FunctionDesc {
   dynamicStyle?: boolean;
 
   // to orginize functions in groups
-  // category is not used for +namespace functions, their id always match their positions in function tree
+  // category is not used for +library functions, their id always match their positions in function tree
   category?: string;
 }
 

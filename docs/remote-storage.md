@@ -15,14 +15,14 @@ use only `proj`; the editor file panel uses `ScopedFileServerFiles` for `serv`.
 `ScopedFileServerFiles` implements file and Git access, but does not implement
 `FlowStorage`; the server runtime keeps using `NodeStorage` for flows. Successful
 editor requests that may change stored flows call `notifyFileChange(project)` so
-the file panel refreshes the expanded folders in that namespace. A file access
+the file panel refreshes the expanded folders in that library. A file access
 implementation can expose `subscribeFileChanges` and `notifyFileChange` to
 support the same notification contract for writes made outside its own file
 methods.
 Use `project=<id>` to select its file tree, or pass a qualified `flow` path to
-select that flow's namespace. With neither parameter, the file tree shows `#root`.
-After a Git reset, the editor uses `listLoadedFlows(namespace)` to reload every
-loaded flow and library in that namespace, including ones without an open tab.
+select that flow's library. With neither parameter, the file tree shows `#root`.
+After a Git reset, the editor uses `listLoadedFlows(library)` to reload every
+loaded flow and module in that library, including ones without an open tab.
 
 ```tsx
 import {Root} from '@ticlo/core';
@@ -72,7 +72,7 @@ remains `<project>/#context.ticlo`.
 across backends. `listProjects`, `readProject`, `createProject`, `updateProject`,
 and `deleteProject` manage projects through the remote project APIs or local files.
 Remote `.proj` writes remain protected by the file server. `.proj` is project metadata; runtime
-namespace configuration remains in `ticlo.json`.
+library configuration remains in `ticlo.json`.
 Writable storage renames legacy `_proj.json` metadata when a project is read;
 the file server also migrates existing project directories at startup.
 
@@ -88,7 +88,7 @@ Status reflects the working tree before files are staged. Commit stages the
 project first; direct filesystem changes may be committed without a `.gitlog`
 entry. Deleted tracked files appear in listings until committed.
 New repositories use the `main` branch. Copying a project copies its working
-files and empty directories without Git history. Creating a namespace from a
+files and empty directories without Git history. Creating a library from a
 history commit copies only that committed snapshot, also without Git.
 `getGitBranches(project)` lists local branch names. `getGitHistory(project,
 {branch})` reads the selected branch; without `branch`, it reads the current
@@ -134,7 +134,7 @@ writes through that instance. The listener receives the public file path and can
 unsubscribe using the returned function. It does not watch other browser tabs,
 server writers, or direct filesystem changes.
 
-Editor-generated flow, namespace metadata, and new-flow saves keep a local
+Editor-generated flow, library metadata, and new-flow saves keep a local
 backup when the remote upload fails. The save still reports the original error.
 Reads, file info, and directory lists prefer the backup across reloads, including
 while the server is unavailable. The file tree marks backed-up files in purple.
@@ -152,15 +152,15 @@ value storage. These listeners do not watch external filesystem or HTTP writers.
 
 | Relative project path | Purpose |
 | --- | --- |
-| `ticlo.json` | Namespace dependencies and service libraries |
-| `#context.ticlo` | Namespace context |
+| `ticlo.json` | Library dependencies, auto-load modules, and auto-load flows |
+| `#context.ticlo` | Library context |
 | `folder/child.ticlo` | Ordinary flow `folder.child` |
-| `#libs/tools.ticlo` | Library `tools` |
+| `#modules/tools.ticlo` | Module `tools` |
 | `#storage/key.str` | String storage functions |
 
 `#root` holds unqualified flows. Named projects map to `+project.flow` runtime
-paths. `#libs`, `#deps`, and `#storage` are reserved root folder names; ordinary
-folders named `libs`, `deps`, and `storage` are allowed. Catalog reads do not run
+paths. `#modules`, `#deps`, and `#storage` are reserved root folder names; ordinary
+folders named `modules`, `deps`, and `storage` are allowed. Catalog reads do not run
 flows. See [runtime lifecycle](./runtime-lifecycle.md) for startup and dependencies.
 
 ## Server identity and local development
@@ -209,7 +209,7 @@ APIs are replaced. There is no legacy-layout fallback.
   into `#root/`, and rename `+main/` to `main/`.
 - The previous IndexedDB database is not deleted or automatically imported.
   Export old data before retiring it. When moving flows to project `local`,
-  review namespace-qualified references; multiple old namespaces must not be
+  review library-qualified references; multiple old libraries must not be
   silently flattened into one project.
 - Browser demo flows now belong to `+local`; previous demo data remains in the
   old database. Static storage no longer accepts temporary memory-only writes.

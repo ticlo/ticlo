@@ -7,7 +7,7 @@ import {AsyncClientPromise} from './AsyncClientPromise.ts';
 import {shouldHappen, shouldReject} from '../../util/test-util.ts';
 import {JsFunction} from '../../functions/script/Js.ts';
 import {FunctionDesc} from '../../block/Descriptor.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {Logger} from '../../util/Logger.ts';
 
 describe('Reconnect', function () {

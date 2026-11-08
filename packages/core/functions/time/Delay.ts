@@ -1,4 +1,4 @@
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.ts';
 import {BlockIO} from '../../block/BlockProperty.ts';
 import {EventType, NO_EMIT, WAIT} from '../../block/Event.ts';

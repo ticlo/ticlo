@@ -31,12 +31,12 @@ changed sources may be retranslated. Keep values marked `# no translate` unchang
 
 ## Lookup
 
-Runtime helpers: `packages/core/util/i18n.ts`. Namespaces: `ticlo-<package>`.
+Runtime helpers: `packages/core/util/i18n.ts`. Libraries: `ticlo-<package>`.
 
 | Value | Lookup and fallback |
 | --- | --- |
 | Function name | `<function>.@name` |
-| Property name | `<function>.<property>.@name` → `@shared.<property>.@name` in current namespace → same in `ticlo-core` |
+| Property name | `<function>.<property>.@name` → `@shared.<property>.@name` in current library → same in `ticlo-core` |
 | Option label | `<function>.<property>.@options.<value>` → `@shared.<property>.@options.<value>` in `ticlo-core` |
 | Editor string | `translateEditor(key)` in `ticlo-editor` |
 

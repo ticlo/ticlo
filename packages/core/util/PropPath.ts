@@ -71,7 +71,7 @@ export function propRelative(base: Block, from: BlockProperty): string {
   } else {
     // Cross-flow binding paths must cross an explicit Flow property boundary.
     // This keeps copied blocks portable while allowing bindings into child
-    // output flows and library-owned static blocks under #shared.
+    // output flows and module-owned static blocks under #shared.
     // base and from different flows
     let baseFlow = baseBlock._flow;
     let fromFlow = fromBlock._flow;
@@ -97,8 +97,8 @@ export function propRelative(base: Block, from: BlockProperty): string {
     }
     // binding from #+
     if (
-      (commonLevel === 1 && commonFlow instanceof FlowFolder && commonFlow._namespace === base._flow._namespace) ||
-      (commonLevel === 0 && fromFlows[0] instanceof FlowFolder && fromFlows[0]._namespace === base._flow._namespace)
+      (commonLevel === 1 && commonFlow instanceof FlowFolder && commonFlow._library === base._flow._library) ||
+      (commonLevel === 0 && fromFlows[0] instanceof FlowFolder && fromFlows[0]._library === base._flow._library)
     ) {
       // get path from #+
       return `#+${fromBlock.getFullPath().replace(/^[^.]+/, '')}.${from._name}`;

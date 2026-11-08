@@ -4,13 +4,13 @@ import {DragState} from 'rc-dock';
 import {BlockItem, FieldItem, Stage} from './Field.tsx';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
 import {TicloCurrentFlowContext} from '../component/LayoutContext.ts';
-import {getFuncLibPath} from '../util/FunctionLib.ts';
+import {getFuncModulePath} from '../util/FunctionModule.ts';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
 export interface StagePropsBase {
   conn: ClientConn;
   basePath: string;
-  funcLib?: string;
+  funcModule?: string;
   style?: React.CSSProperties;
   onSelect?: (paths: string[]) => void;
 }
@@ -92,10 +92,10 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   _blockLinks: Map<string, Set<BlockItem>> = new Map<string, Set<BlockItem>>();
   _fields: Map<string, FieldItem> = new Map<string, FieldItem>();
   _fieldLinks: Map<string, Set<FieldItem>> = new Map<string, Set<FieldItem>>();
-  _funcLib: string;
+  _funcModule: string;
 
-  getFuncLib(): string {
-    return this.props.funcLib ?? this._funcLib ?? this.props.basePath;
+  getFuncModule(): string {
+    return this.props.funcModule ?? this._funcModule ?? this.props.basePath;
   }
 
   onBlockDescScopeChanged(): void {
@@ -388,10 +388,10 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
 
   scopeListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      const {basePath, funcLib} = this.props;
-      const nextScope = funcLib ?? getFuncLibPath(response.cache.value, basePath);
-      if (nextScope !== this._funcLib) {
-        this._funcLib = nextScope;
+      const {basePath, funcModule} = this.props;
+      const nextScope = funcModule ?? getFuncModulePath(response.cache.value, basePath);
+      if (nextScope !== this._funcModule) {
+        this._funcModule = nextScope;
         this.onBlockDescScopeChanged();
       }
     },
@@ -402,7 +402,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     const {basePath} = props;
     this._staticPath = `${basePath}.#static`;
     this.watchingPath = basePath;
-    this._funcLib = props.funcLib ?? basePath;
+    this._funcModule = props.funcModule ?? basePath;
   }
 
   componentDidMount() {
@@ -410,14 +410,14 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     const {conn} = this.props;
     conn.watch(this.watchingPath, this.watchListener);
     this.staticListener.subscribe(conn, this._staticPath);
-    this.scopeListener.subscribe(conn, `${this.props.basePath}.#lib`, true);
+    this.scopeListener.subscribe(conn, `${this.props.basePath}.#module`, true);
   }
 
   watchingPath: string;
   render() {
-    const {basePath, funcLib} = this.props;
-    if (funcLib && this._funcLib !== funcLib) {
-      this._funcLib = funcLib;
+    const {basePath, funcModule} = this.props;
+    if (funcModule && this._funcModule !== funcModule) {
+      this._funcModule = funcModule;
       this.onBlockDescScopeChanged();
     }
     if (this.watchingPath !== basePath) {
@@ -425,10 +425,10 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
       this.props.conn.unwatch(this.watchingPath, this.watchListener);
       this.watchingPath = basePath;
       this._staticPath = `${basePath}.#static`;
-      this._funcLib = this.props.funcLib ?? basePath;
+      this._funcModule = this.props.funcModule ?? basePath;
       this.props.conn.watch(basePath, this.watchListener);
       this.staticListener.subscribe(this.props.conn, this._staticPath);
-      this.scopeListener.subscribe(this.props.conn, `${basePath}.#lib`, true);
+      this.scopeListener.subscribe(this.props.conn, `${basePath}.#module`, true);
       this.onBlockDescScopeChanged();
     }
     return super.render();

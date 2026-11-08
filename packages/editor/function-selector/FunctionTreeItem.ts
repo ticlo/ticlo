@@ -121,8 +121,8 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
   }
   matchKeywords(lng: string, search: string) {
     if (!Object.hasOwn(this.names, lng)) {
-      this.names[lng] = translateFunction(this.desc.id, this.name, this.desc.ns, lng)?.toLowerCase();
-      this.keywords[lng] = getKeywords(this.desc.name, this.desc.ns, lng)?.toLowerCase();
+      this.names[lng] = translateFunction(this.desc.id, this.name, this.desc.libraryId, lng)?.toLowerCase();
+      this.keywords[lng] = getKeywords(this.desc.name, this.desc.libraryId, lng)?.toLowerCase();
     }
     const name = this.names[lng];
     if (name?.includes(search)) {
@@ -200,7 +200,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
   onAddFunction: (prefix: string) => void;
   filter: (desc: FunctionDesc) => boolean;
   inFlow: boolean;
-  funcLib?: string;
+  funcModule?: string;
 
   typeMap: Map<string, FunctionTreeItem> = new Map<string, FunctionTreeItem>();
 
@@ -268,7 +268,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
         return;
       }
 
-      let category = desc.category || desc.ns;
+      let category = desc.category || desc.libraryId;
       const lastColon = key.lastIndexOf(':');
       if (!desc.category && lastColon > 0) {
         category = key.substring(0, lastColon);
@@ -297,7 +297,7 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     onFunctionClick?: OnFunctionClick,
     showPreset?: boolean,
     filter?: (desc: FunctionDesc) => boolean,
-    funcLib?: string,
+    funcModule?: string,
     onAddFunction?: (prefix: string) => void
   ) {
     super(null, null, '');
@@ -309,12 +309,12 @@ export class FunctionTreeRoot extends FunctionTreeItem {
     this.onFunctionClick = onFunctionClick;
     this.onAddFunction = onAddFunction;
     this.filter = filter;
-    this.inFlow = funcLib != null;
-    this.funcLib = funcLib;
-    // funcLib == null for global functions, and string for in-flow functions.
-    // funcLib = '' is for in-flow functions that are not in any node.
-    if (funcLib !== '') {
-      conn.watchDesc('*', funcLib, this.onDesc);
+    this.inFlow = funcModule != null;
+    this.funcModule = funcModule;
+    // funcModule == null for global functions, and string for in-flow functions.
+    // funcModule = '' is for in-flow functions that are not in any node.
+    if (funcModule !== '') {
+      conn.watchDesc('*', funcModule, this.onDesc);
     }
   }
 

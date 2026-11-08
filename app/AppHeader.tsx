@@ -58,7 +58,7 @@ export function AppHeader({
   language,
   onLanguageChange,
   fileItems,
-  namespaceItems,
+  libraryItems,
   viewItems,
   showProjectMenus = true,
   children,
@@ -66,7 +66,7 @@ export function AppHeader({
   language: string;
   onLanguageChange: (language: string) => void;
   fileItems?: MenuProps['items'];
-  namespaceItems?: MenuProps['items'];
+  libraryItems?: MenuProps['items'];
   viewItems?: MenuProps['items'];
   showProjectMenus?: boolean;
   children?: ReactNode;
@@ -114,7 +114,7 @@ export function AppHeader({
         {showProjectMenus && (
           <>
             <HeaderMenu label="File" icon={<FileOutlined />} items={fileItems} />
-            <HeaderMenu label="Namespace" icon={<ApartmentOutlined />} items={namespaceItems} />
+            <HeaderMenu label="Library" icon={<ApartmentOutlined />} items={libraryItems} />
           </>
         )}
         <HeaderMenu label="View" icon={<AppstoreOutlined />} items={viewItems} />

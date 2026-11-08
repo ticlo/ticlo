@@ -44,7 +44,7 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
     item.root.onAddFunction?.(item.key);
   };
 
-  getFunctionLibMenu = (): MenuProps => ({
+  getFunctionModuleMenu = (): MenuProps => ({
     selectable: false,
     items: [
       {
@@ -74,7 +74,7 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
             desc={desc}
             name={name}
             data={data}
-            funcLib={item.root.funcLib}
+            funcModule={item.root.funcModule}
           />
         </div>
       );
@@ -83,18 +83,18 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
         if (name.includes(':')) {
           const nameParts = name.split(':');
           name = nameParts.at(-1);
-          desc = {id: item.key, name, ns: nameParts[0]};
+          desc = {id: item.key, name, libraryId: nameParts[0]};
         } else {
           desc = {id: item.key, name};
         }
       }
       const [colorStyle, iconName] = getFuncStyleFromDesc(desc, item.getConn());
-      const isFunctionLib =
+      const isFunctionModule =
         !item.root.inFlow && item.key.startsWith('+') && item.key.endsWith(':') && item.key.split(':').length > 2;
       const categoryView = (
         <div
           style={{...style, marginLeft}}
-          className={isFunctionLib ? 'ticl-e-tree-type ticl-e-func-lib' : 'ticl-e-tree-type'}
+          className={isFunctionModule ? 'ticl-e-tree-type ticl-e-func-module' : 'ticl-e-tree-type'}
         >
           <ExpandIcon opened={item.opened} onClick={this.onExpandClicked} />
           <div className="ticl-e-func-folder" style={colorStyle}>
@@ -104,9 +104,9 @@ export class FunctionTreeRenderer extends PureDataRenderer<Props, any> {
           <LocalizedFunctionName desc={desc} />
         </div>
       );
-      if (isFunctionLib) {
+      if (isFunctionModule) {
         return (
-          <Dropdown menu={this.getFunctionLibMenu()} trigger={['contextMenu']}>
+          <Dropdown menu={this.getFunctionModuleMenu()} trigger={['contextMenu']}>
             {categoryView}
           </Dropdown>
         );

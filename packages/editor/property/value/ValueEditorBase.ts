@@ -15,7 +15,7 @@ export interface ValueEditorProps {
   addSubBlock?: (id: string, desc?: FunctionDesc, data?: any) => void;
   onConvertToHelper?: () => void;
   onConvertToObject?: () => void;
-  funcLib?: string;
+  funcModule?: string;
   // Draft editors can open a worker without an addressable Block property.
   onEditWorker?: () => void;
 }

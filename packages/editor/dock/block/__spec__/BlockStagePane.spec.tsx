@@ -92,7 +92,7 @@ describe('BlockStagePane', () => {
   it.each([true, false])('reloads a runtime worker after consecutive saves (serialize=%s)', async (serialize) => {
     const flow = Root.instance.addFlow(flowPath);
     const child = {'#is': 'add', '0': 1, '1': 2, '@b-p': ['0', '1', '#output']};
-    WorkerFunctionGen.registerType({'#is': '', 'add': child}, {id: ':fn', name: 'fn'}, undefined, flow.getFuncLib());
+    WorkerFunctionGen.registerType({'#is': '', 'add': child}, {id: ':fn', name: 'fn'}, undefined, flow.getFuncModule());
     flow.createBlock('fn').setValue('#is', ':fn');
     Root.run();
     const workerPath = `${flowPath}.fn.#worker`;

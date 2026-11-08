@@ -3,15 +3,15 @@ import {afterEach, expect, it, vi} from 'vitest';
 import {simulate} from 'simulate-event';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.ts';
 import {loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
-import {NamespaceSelectDialog, NamespaceTree} from '../NamespaceSelectDialog.tsx';
+import {LibrarySelectDialog, LibraryTree} from '../LibrarySelectDialog.tsx';
 
 afterEach(removeLastTemplate);
 
 it('expands shared dependencies only on demand and stops at a cycle', async () => {
   const [, element] = loadTemplate(
-    <NamespaceTree
+    <LibraryTree
       graph={{roots: ['main', 'other'], dependencies: {main: ['shared'], other: ['shared'], shared: ['main']}}}
-      defaultNamespace="main"
+      defaultLibrary="main"
       onUnload={() => {}}
       onSetDefault={() => {}}
     />
@@ -32,15 +32,15 @@ it('expands shared dependencies only on demand and stops at a cycle', async () =
 it('offers root actions only and sends the selected root to unload', async () => {
   const unload = vi.fn();
   const [, element] = loadTemplate(
-    <NamespaceTree
+    <LibraryTree
       graph={{roots: ['main', 'other'], dependencies: {main: ['shared'], other: [], shared: []}}}
-      defaultNamespace="main"
+      defaultLibrary="main"
       onUnload={unload}
       onSetDefault={() => {}}
     />
   );
   const rows = await shouldHappen(() => {
-    const found = element.querySelectorAll('.ticl-e-namespace-row');
+    const found = element.querySelectorAll('.ticl-e-library-row');
     return found.length === 2 ? found : null;
   });
   simulate(rows[1], 'contextmenu', {button: 2, clientX: 40, clientY: 40});
@@ -53,14 +53,14 @@ it('offers root actions only and sends the selected root to unload', async () =>
   expect(unload).toHaveBeenCalledWith('other');
 });
 
-it('loads an existing namespace and creates a new one from the same input', async () => {
+it('loads an existing library and creates a new one from the same input', async () => {
   const onCreate = vi.fn(async () => {});
   const onSelect = vi.fn(async () => {});
   loadTemplate(
-    <NamespaceSelectDialog
-      defaultNamespace="main"
+    <LibrarySelectDialog
+      defaultLibrary="main"
       graph={{roots: ['main'], dependencies: {main: []}}}
-      listNamespaces={async () => ['main', 'other']}
+      listLibraries={async () => ['main', 'other']}
       canCreate={(name) => name === 'new'}
       onCreate={onCreate}
       onSelect={onSelect}

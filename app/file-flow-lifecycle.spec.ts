@@ -18,10 +18,7 @@ describe('file flow lifecycle', () => {
 
     await unloadDeletedFileFlows(root, layout, 'demo', ['demo/jobs/run.ticlo']);
 
-    expect(unloadFlow).toHaveBeenCalledWith(
-      {namespace: 'demo', kind: 'flow', name: 'jobs.run'},
-      {discardChanges: true}
-    );
+    expect(unloadFlow).toHaveBeenCalledWith({library: 'demo', kind: 'flow', name: 'jobs.run'}, {discardChanges: true});
     expect(dockMove).toHaveBeenCalledTimes(2);
     expect([...tabs.keys()]).toEqual(['designer:+demo.other']);
   });
@@ -31,7 +28,7 @@ describe('file flow lifecycle', () => {
     const loadFlow = vi.fn(async () => {});
     const getFlowState = vi.fn(() => 'enabled');
     const root = {unloadFlow, loadFlow, getFlowState} as unknown as Root;
-    const ref = {namespace: 'demo', kind: 'flow', name: 'jobs.run'};
+    const ref = {library: 'demo', kind: 'flow', name: 'jobs.run'};
 
     await reloadDiscardedFileFlow(root, 'demo', 'demo/jobs/run.ticlo');
     expect(unloadFlow).toHaveBeenCalledWith(ref, {discardChanges: true});
@@ -44,7 +41,7 @@ describe('file flow lifecycle', () => {
   });
 
   it('refreshes loaded flows and closes tabs for files removed by a project reset', async () => {
-    const refs = ['keep', 'removed'].map((name) => ({namespace: 'demo', kind: 'flow' as const, name}));
+    const refs = ['keep', 'removed'].map((name) => ({library: 'demo', kind: 'flow' as const, name}));
     const root = {
       getLoadedFlowRefs: () => refs,
       getFlowState: () => 'enabled',

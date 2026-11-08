@@ -16,13 +16,13 @@ export interface Storage {
 
 export interface FlowStorage {
   /** Metadata and catalog reads must not instantiate flows. */
-  getNamespaceMetadata?(namespace: string): Promise<NamespaceMetadata>;
-  saveNamespaceMetadata?(namespace: string, metadata: NamespaceMetadata): Promise<void>;
-  listFlows?(namespace: string, folders?: string[]): Promise<string[]>;
+  getLibraryMetadata?(library: string): Promise<LibraryMetadata>;
+  saveLibraryMetadata?(library: string, metadata: LibraryMetadata): Promise<void>;
+  listFlows?(library: string, folders?: string[]): Promise<string[]>;
   readonly persistent?: boolean;
-  isPersistent?(namespace: string): boolean;
+  isPersistent?(library: string): boolean;
   canWriteFlow?(key: string): boolean;
-  getValueStorage?(namespace: string): Storage;
+  getValueStorage?(library: string): Storage;
   delete(name: string): void | Promise<void>;
 
   createFolder?(name: string): void | Promise<void>;
@@ -35,11 +35,11 @@ export interface FlowStorage {
 
   hasLocalBackup?(name: string): boolean;
 
-  initNamespace?: (ns: string) => any;
+  initLibrary?: (libraryId: string) => any;
 
-  saveLib(ns: string, lib: string, data: DataMap): any;
+  saveModule(libraryId: string, module: string, data: DataMap): any;
 
-  loadLib(ns: string, lib: string): Promise<DataMap | null>;
+  loadModule(libraryId: string, module: string): Promise<DataMap | null>;
 
   inited?: boolean;
   init(root: Root): unknown; // void or promise
@@ -48,9 +48,9 @@ export interface FlowStorage {
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader;
 }
 
-export interface NamespaceMetadata {
+export interface LibraryMetadata {
   dependencies?: string[];
-  autoLoadLibraries?: string[];
+  autoLoadModules?: string[];
   autoLoadFlows?: string[];
 }
 

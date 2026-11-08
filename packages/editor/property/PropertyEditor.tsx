@@ -26,7 +26,7 @@ import {LocalizedPropertyName, t} from '../component/LocalizedLabel.tsx';
 import {PropertyDropdown} from '../popup/PropertyDropdown.tsx';
 import {typeEditorMap} from './value/index.ts';
 import {propAcceptsBlock} from '@ticlo/core';
-import {getDescLib} from '../util/FunctionLib.ts';
+import {getDescModule} from '../util/FunctionModule.ts';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 import {getObjectHelperData} from './ObjectHelper.ts';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
@@ -44,9 +44,9 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   init() {
     this.valueListener.subscribe(this.conn, `${this.path}.${this.name}`);
     this.displayListener.subscribe(this.conn, `${this.path}.@b-p`);
-    const {propDesc, funcLib} = this.parent.props;
+    const {propDesc, funcModule} = this.parent.props;
     if (propDesc.type === 'object' && propDesc.create) {
-      this.conn.watchDesc(propDesc.create, getDescLib(propDesc.create, funcLib), this.onCreateDesc);
+      this.conn.watchDesc(propDesc.create, getDescModule(propDesc.create, funcModule), this.onCreateDesc);
     }
   }
 
@@ -126,7 +126,7 @@ export interface PropertyEditorProps {
   group?: string;
   baseName?: string; // the name used in propDesc.name
   reorder?: PropertyReorder;
-  funcLib?: string;
+  funcModule?: string;
 }
 
 interface State {
@@ -297,7 +297,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
       if (blockData && blockData['#is']) {
         if (!paths.every((path) => this.context.canCreateBlock(`${path}.~${name}`, blockData['#is'])))
           return e.reject();
-        const desc = conn.watchDesc(blockData['#is'], getDescLib(blockData['#is'], this.props.funcLib));
+        const desc = conn.watchDesc(blockData['#is'], getDescModule(blockData['#is'], this.props.funcModule));
         const outProp = getOutputDesc(desc);
         if (outProp) {
           e.accept('tico-txt-plus');
@@ -445,7 +445,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
   convertObject = async (toHelper: boolean) => {
     if (this.state.converting || ![...this.loaders.values()].every((loader) => this.canConvertObject(loader, toHelper)))
       return;
-    const {conn, paths, name, propDesc, funcLib} = this.props;
+    const {conn, paths, name, propDesc, funcModule} = this.props;
     this.safeSetState({converting: true, showSubBlock: false});
     try {
       for (const path of paths) {
@@ -462,7 +462,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         if (!value || typeof value !== 'object' || !isBaseObject(value)) throw new Error('Expected an object value');
         if (toHelper) {
           const desc = this.loaders.get(path).createDesc;
-          const data = getObjectHelperData(desc, value, conn.getOptionalProps(desc, funcLib) || {});
+          const data = getObjectHelperData(desc, value, conn.getOptionalProps(desc, funcModule) || {});
           if (!this.context.can({cmd: 'addBlock', path: `${path}.~${name}`, data})) return;
           await conn.addBlock(`${path}.~${name}`, data);
         } else {
@@ -483,7 +483,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
 
   cachedPaths: string[] = [];
   renderImpl() {
-    const {conn, paths, funcDesc, name, reorder, group, isCustom, baseName, funcLib} = this.props;
+    const {conn, paths, funcDesc, name, reorder, group, isCustom, baseName, funcModule} = this.props;
     const {propDesc} = this.props;
     const readonly = !this.canWrite();
     const {unlocked, showSubBlock, showMenu} = this.state;
@@ -570,7 +570,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           bindingPath={bindingPath}
           locked={locked && !unlocked}
           onPathChange={this.canBind() ? this.onBindChange : null}
-          funcLib={funcLib}
+          funcModule={funcModule}
         />
       );
     } else {
@@ -603,7 +603,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
               ? this.onConvertToObject
               : undefined
           }
-          funcLib={funcLib}
+          funcModule={funcModule}
         />
       );
     }
@@ -629,7 +629,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           name={name}
           baseName={baseName}
           onAddSubBlock={this.onAddSubBlock}
-          funcLib={funcLib}
+          funcModule={funcModule}
         >
           <DragDrop
             className={nameClass}
@@ -655,7 +655,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
         {subBlock ? <ExpandIcon opened={showSubBlock ? 'opened' : 'closed'} onClick={this.expandSubBlock} /> : null}
         <div className="ticl-e-property-value">{editor}</div>
         {renderSubBlock ? (
-          <PropertyList conn={conn} paths={this.subBlockPaths} mode="subBlock" funcLib={funcLib} />
+          <PropertyList conn={conn} paths={this.subBlockPaths} mode="subBlock" funcModule={funcModule} />
         ) : null}
       </div>
     );

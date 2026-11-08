@@ -72,7 +72,7 @@ interface Props {
   funcDesc: FunctionDesc;
   groupDesc: PropGroupDesc;
   isCustom?: boolean;
-  funcLib?: string;
+  funcModule?: string;
 }
 
 interface State {
@@ -90,7 +90,7 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
   }
 
   renderImpl(): React.ReactNode {
-    const {conn, paths, funcDesc, groupDesc, isCustom, funcLib} = this.props;
+    const {conn, paths, funcDesc, groupDesc, isCustom, funcModule} = this.props;
     const children: React.ReactNode[] = [];
     const {name: group} = groupDesc;
 
@@ -118,7 +118,7 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
               funcDesc={funcDesc}
               propDesc={desc}
               reorder={isCustom ? CustomGroupPropertyReorder : GroupPropertyReorder}
-              funcLib={funcLib}
+              funcModule={funcModule}
             />
           );
         }
@@ -137,7 +137,7 @@ export class GroupEditor extends MultiSelectComponent<Props, State, GroupLoader>
           funcDesc={funcDesc}
           propDesc={lenDesc}
           reorder={isCustom ? CustomPropertyReorder : null}
-          funcLib={funcLib}
+          funcModule={funcModule}
         />
         {children}
       </div>

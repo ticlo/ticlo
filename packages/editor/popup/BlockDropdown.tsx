@@ -22,7 +22,7 @@ import {RenameDialog} from './RenameDialog.tsx';
 import {splitPathName} from '@ticlo/core/util/Path.ts';
 import {ParameterInputDialog} from './ParameterInputDialog.tsx';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
-import {getDescLib} from '../util/FunctionLib.ts';
+import {getDescModule} from '../util/FunctionModule.ts';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
@@ -37,7 +37,7 @@ interface Props {
   path: string;
   displayName: string;
   canApply: boolean;
-  funcLib?: string;
+  funcModule?: string;
   // When disabled is null, don't show the menu item.
   disabled?: boolean;
   getMenu?: () => React.ReactElement[];
@@ -119,8 +119,8 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   };
   onExeCommand = (command: string) => {
     if (!this.can('executeCommand', {command})) return;
-    const {conn, canApply, functionId, path, funcLib} = this.props;
-    const funcDesc = conn.watchDesc(functionId, getDescLib(functionId, funcLib));
+    const {conn, canApply, functionId, path, funcModule} = this.props;
+    const funcDesc = conn.watchDesc(functionId, getDescModule(functionId, funcModule));
     const commandDesc = funcDesc.commands[command];
     if (commandDesc.parameters?.length) {
       const onConfirmCommandModal = (values: DataMap) => {
@@ -133,7 +133,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
           title={<LocalizedFuncCommand key={command} desc={funcDesc} command={command} />}
           funcName={`${funcDesc.name}.@commands.${command}`}
           parameters={commandDesc.parameters}
-          ns={funcDesc.ns}
+          libraryId={funcDesc.libraryId}
           onOk={onConfirmCommandModal}
           onCancel={this.onCloseCommandModal}
         />
@@ -145,8 +145,8 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   };
 
   getMenu = () => {
-    const {conn, canApply, disabled, functionId, getMenu, funcLib} = this.props;
-    const funcDesc = conn.watchDesc(functionId, getDescLib(functionId, funcLib));
+    const {conn, canApply, disabled, functionId, getMenu, funcModule} = this.props;
+    const funcDesc = conn.watchDesc(functionId, getDescModule(functionId, funcModule));
 
     let menuitems: React.ReactElement[] = [];
     if (getMenu) {

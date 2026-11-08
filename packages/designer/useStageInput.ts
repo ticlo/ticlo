@@ -1,6 +1,6 @@
 import {useCallback, useLayoutEffect, useRef, useState, type RefObject} from 'react';
 import {Block, getBlockOrder, type Flow} from '@ticlo/core';
-import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {Library} from '@ticlo/core/block/Library.ts';
 import type {ComponentContextValue} from '@ticlo/react';
 import {getChildren} from '@ticlo/react/hooks/useTicloComp.ts';
 import type {DesignerSelection} from './DesignerContext.tsx';
@@ -41,7 +41,7 @@ interface Gesture extends Hit {
 function supportsChildren(block: Block) {
   const id = block.getValue('#is') as string;
   if (!id) return false;
-  return Namespace.getFunctions(id, block._flow)
+  return Library.getFunctions(id, block._flow)
     ?.listen(id, null)
     ?.getValue()
     ?.desc.childrenTags?.some((tag) => tag === 'react-comp' || tag === 'react-svg');

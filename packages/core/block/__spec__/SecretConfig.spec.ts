@@ -1,7 +1,7 @@
 import {BaseFunction} from '../BlockFunction.ts';
 import type {Block} from '../Block.ts';
 import {setSecretCipher} from '../Block.ts';
-import {globalFunctions} from '../FunctionLib.ts';
+import {globalFunctions} from '../FunctionModule.ts';
 import {Flow, Root} from '../Flow.ts';
 import {expect} from 'vitest';
 

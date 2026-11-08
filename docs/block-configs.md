@@ -64,33 +64,33 @@ Read-only; never write these into flow files:
 | `#`      | Current block                                  |
 | `##`     | Parent block                                   |
 | `#flow`  | Containing flow                                |
-| `#lib`   | Function library's owning flow, when available |
+| `#module` | Function module's owning flow, when available |
 | `#name`  | Block name                                     |
-| `#+`     | Namespace root                                 |
+| `#+`     | Library root                                   |
 
 ## Worker data
 
 The `worker` function selects its source through `#use` and controls its lifecycle
 through `#state` (`on`, `off`, `disable`, or `lazy`). Object-building functions use
 `#extend` as a base object. These function-specific settings share the `#` config
-prefix with engine settings; `+` identifies namespaces in paths and function IDs.
+prefix with engine settings; `+` identifies libraries in paths and function IDs.
 
 Workers receive inputs through `#inputs` and publish through `#outputs`.
 `#input` and `#output` are conventional default names; named IO is supported.
 
 ## Worker static content and shared ownership
 
-Named workers expose static content through `#static`. The function library's
+Named workers expose static content through `#static`. The function module's
 owning flow keeps that content under `#shared`, with one child per function.
 
 | Property | Where it appears | Runtime value | Persistence |
 | --- | --- | --- | --- |
 | `#static` | `WorkerFlow` and `FlowEditor`, through `FlowWithStatic` | Reference to the function's `StaticBlock` (`flow:static`) | Contents saved under `#static` in the worker definition, with `#is: ""` |
-| `#shared` | Function library's owning flow | `SharedBlock` (`flow:const`) containing the library's static blocks | Runtime container; never serialized |
+| `#shared` | Function module's owning flow | `SharedBlock` (`flow:const`) containing the module's static blocks | Runtime container; never serialized |
 
 A worker's `#static` references the same Block as
-`libraryFlow.#shared.<encoded local function ID>`. All instances and editors of
-that function reference the same static block. Different function libraries own
+`moduleFlow.#shared.<encoded local function ID>`. All instances and editors of
+that function reference the same static block. Different function modules own
 separate `#shared` containers, even when their local function IDs match.
 
 The name `FlowWithStatic` follows the `#static` property it adds. `SharedBlock`

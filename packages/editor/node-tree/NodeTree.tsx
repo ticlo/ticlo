@@ -5,7 +5,7 @@ import {ClientConn, arrayEqual, blankFuncDesc} from '@ticlo/core/editor.ts';
 import {
   NodeTreeItem,
   NodeTreeRenderer,
-  type LibraryAutoLoad,
+  type ModuleAutoLoad,
   type NodeTreeFunctionDrag,
   type NodeTreeOpenAction,
 } from './NodeRenderer.tsx';
@@ -15,7 +15,7 @@ import type {MainFlowEntry} from '@ticlo/core/block/FlowRuntime.ts';
 import {StoredFlowRenderer, type StoredFlowItem} from './StoredFlowItem.tsx';
 
 export type {NodeTreeOpenAction} from './NodeRenderer.tsx';
-export type {LibraryAutoLoad} from './NodeRenderer.tsx';
+export type {ModuleAutoLoad} from './NodeRenderer.tsx';
 
 interface Props {
   conn: ClientConn;
@@ -28,7 +28,7 @@ interface Props {
   onSelect?: (keys: string[]) => void;
   /** Custom open actions; double-click uses the first action. */
   openActions?: readonly NodeTreeOpenAction[];
-  libraryAutoLoad?: LibraryAutoLoad;
+  moduleAutoLoad?: ModuleAutoLoad;
   showStoredFlows?: boolean;
   onOpenStoredFlow?: (path: string, canApply: boolean) => void;
 }
@@ -54,8 +54,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
       if (request !== this.storedRequest) return;
       const root: StoredFlowItem = {key: '', name: '', level: -1, children: new Map()};
       for (const flow of flows) {
-        const parts =
-          flow.namespace === '#root' ? flow.name.split('.') : [`+${flow.namespace}`, ...flow.name.split('.')];
+        const parts = flow.library === '#root' ? flow.name.split('.') : [`+${flow.library}`, ...flow.name.split('.')];
         let parent = root;
         for (const name of parts) {
           const key = parent.key ? `${parent.key}.${name}` : name;
@@ -292,7 +291,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
         selected={selectedKeys.includes(item.key)}
         onClick={this.onItemClick}
         openActions={this.props.openActions}
-        libraryAutoLoad={this.props.libraryAutoLoad}
+        moduleAutoLoad={this.props.moduleAutoLoad}
         getOrderedDrag={this.getOrderedDrag}
         canDropOrdered={this.canDropOrdered}
         onDropOrdered={this.onDropOrdered}

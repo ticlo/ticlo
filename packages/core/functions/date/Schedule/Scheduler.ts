@@ -1,4 +1,4 @@
-import {globalFunctions} from '../../../block/FunctionLib.ts';
+import {globalFunctions} from '../../../block/FunctionModule.ts';
 import {AutoUpdateFunction} from '../../base/AutoUpdateFunction.ts';
 import {type EventOccur, SchedulerEvent} from './SchedulerEvent.ts';
 import {BlockIO} from '../../../block/BlockProperty.ts';

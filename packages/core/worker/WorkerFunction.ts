@@ -7,7 +7,7 @@ import {DataMap} from '../util/DataTypes.ts';
 import {RepeaterWorker, WorkerFlow} from './WorkerFlow.ts';
 import {FlowStorage} from '../block/Storage.ts';
 import {deepEqual} from '../util/Compare.ts';
-import {globalFunctions} from '../block/FunctionLib.ts';
+import {globalFunctions} from '../block/FunctionModule.ts';
 import {Block, BlockChildWatch} from '../block/Block.ts';
 import {WorkerControl, type WorkerHost} from './WorkerControl.ts';
 

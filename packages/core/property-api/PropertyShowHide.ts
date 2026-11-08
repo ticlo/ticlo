@@ -1,6 +1,6 @@
 import {Block} from '../block/Block.ts';
 import {configDescs, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
-import {globalFunctions} from '../block/FunctionLib.ts';
+import {globalFunctions} from '../block/FunctionModule.ts';
 import {getPreNumber} from '../util/String.ts';
 import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.ts';
 

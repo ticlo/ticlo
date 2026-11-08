@@ -35,7 +35,7 @@ function registerRenderer(flow: Flow) {
     },
     {id: ':chart-mark', name: 'chart-mark'},
     undefined,
-    flow.getFuncLib()
+    flow.getFuncModule()
   );
 }
 

@@ -1,5 +1,5 @@
 import {Block, type PropDesc} from '@ticlo/core';
-import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {Library} from '@ticlo/core/block/Library.ts';
 
 export const selectedIndexProperty: PropDesc = {
   name: 'selectedIndex',
@@ -21,7 +21,7 @@ export const revealChildMetaKey = 'react:reveal-child';
 export function revealChild(block: Block, child: Block) {
   const functionId = block.getValue('#is');
   if (typeof functionId !== 'string' || !functionId) return;
-  const reveal = Namespace.getFunctions(functionId, block._flow)?.getMeta(functionId, revealChildMetaKey) as
+  const reveal = Library.getFunctions(functionId, block._flow)?.getMeta(functionId, revealChildMetaKey) as
     | ((block: Block, child: Block) => void)
     | undefined;
   reveal?.(block, child);

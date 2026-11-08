@@ -1,38 +1,38 @@
 import type {Flow, FlowLoader, Root} from './Flow.ts';
-import type {FlowStorage, NamespaceMetadata} from './Storage.ts';
+import type {FlowStorage, LibraryMetadata} from './Storage.ts';
 import type {DataMap} from '../util/DataTypes.ts';
 import {decode, encodeSorted} from '../util/Serialize.ts';
 import {splitFlowStorageKey, validFlowEntry} from '../util/FlowStoragePath.ts';
-import {readNamespaceMetadata, validateNamespace} from '../util/NamespaceMetadata.ts';
+import {readLibraryMetadata, validateLibrary} from '../util/LibraryMetadata.ts';
 import {MemoryValueStorage} from '../storage/MemoryValueStorage.ts';
 
 /** In-memory persistence survives stop/start on the same storage instance. */
 export class MemoryFlowStorage implements FlowStorage {
   readonly flows = new Map<string, string>();
-  readonly namespaces = new Map<string, NamespaceMetadata>([['#root', {}]]);
+  readonly libraries = new Map<string, LibraryMetadata>([['#root', {}]]);
   inited = false;
   private readonly values = new Map<string, MemoryValueStorage>();
-  getValueStorage(namespace: string) {
-    let values = this.values.get(namespace);
-    if (!values) this.values.set(namespace, (values = new MemoryValueStorage()));
+  getValueStorage(library: string) {
+    let values = this.values.get(library);
+    if (!values) this.values.set(library, (values = new MemoryValueStorage()));
     return values;
   }
 
-  async getNamespaceMetadata(namespace: string) {
-    validateNamespace(namespace);
-    if (!this.namespaces.has(namespace)) throw new Error(`Missing namespace: ${namespace}`);
-    return structuredClone(this.namespaces.get(namespace));
+  async getLibraryMetadata(library: string) {
+    validateLibrary(library);
+    if (!this.libraries.has(library)) throw new Error(`Missing library: ${library}`);
+    return structuredClone(this.libraries.get(library));
   }
-  async saveNamespaceMetadata(namespace: string, metadata: NamespaceMetadata) {
-    validateNamespace(namespace);
-    this.namespaces.set(namespace, structuredClone(readNamespaceMetadata(metadata)));
+  async saveLibraryMetadata(library: string, metadata: LibraryMetadata) {
+    validateLibrary(library);
+    this.libraries.set(library, structuredClone(readLibraryMetadata(metadata)));
   }
-  async listFlows(namespace: string) {
-    validateNamespace(namespace);
+  async listFlows(library: string) {
+    validateLibrary(library);
     return [...this.flows.keys()]
       .flatMap((key) => {
-        const [ns, name] = splitFlowStorageKey(key);
-        return (ns || '#root') === namespace && name.split('.').every(validFlowEntry) ? [name] : [];
+        const [libraryId, name] = splitFlowStorageKey(key);
+        return (libraryId || '#root') === library && name.split('.').every(validFlowEntry) ? [name] : [];
       })
       .sort();
   }
@@ -48,11 +48,11 @@ export class MemoryFlowStorage implements FlowStorage {
   saveFlow(flow: Flow | null, data: DataMap | null, key: string) {
     this.flows.set(key, encodeSorted(data ?? flow.save()));
   }
-  loadLib(ns: string, lib: string) {
-    return this.loadFlow(`${ns ? `${ns}.` : ''}:${lib}`);
+  loadModule(libraryId: string, module: string) {
+    return this.loadFlow(`${libraryId ? `${libraryId}.` : ''}:${module}`);
   }
-  saveLib(ns: string, lib: string, data: DataMap) {
-    this.saveFlow(null, data, `${ns ? `${ns}.` : ''}:${lib}`);
+  saveModule(libraryId: string, module: string, data: DataMap) {
+    this.saveFlow(null, data, `${libraryId ? `${libraryId}.` : ''}:${module}`);
   }
   getFlowLoader(key: string): FlowLoader {
     return {

@@ -1,4 +1,4 @@
-'@namespace':
+'@library':
   math:
     '@name': Math
   string:

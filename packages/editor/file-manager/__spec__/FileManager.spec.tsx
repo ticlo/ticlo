@@ -650,7 +650,7 @@ describe('FileManager', () => {
     expect(document.querySelector('.ant-popover .ant-tree').textContent).not.toContain('backup');
   });
 
-  it('uses the right-clicked commit for namespace creation and reset', async () => {
+  it('uses the right-clicked commit for library creation and reset', async () => {
     const fixture = fixtureClient([file('demo/a.txt')]);
     fixture.methods.getFile.mockResolvedValue({data: new ArrayBuffer(0), headers: {}});
     const commits = ['newer', 'older'].map((hash) => ({
@@ -688,11 +688,11 @@ describe('FileManager', () => {
     older.dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, button: 2}));
     await shouldHappen(() =>
       [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
-        (item) => item.textContent.trim() === 'Create Namespace from This Commit'
+        (item) => item.textContent.trim() === 'Create Library from This Commit'
       )
     );
     [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
-      .find((item) => item.textContent.trim() === 'Create Namespace from This Commit')
+      .find((item) => item.textContent.trim() === 'Create Library from This Commit')
       .click();
     await shouldHappen(() => document.querySelector('.ant-modal input'));
     setName('snapshot');

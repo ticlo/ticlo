@@ -1,7 +1,7 @@
 import {MapImpl, WorkerOutput} from './MapImpl.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {Block} from '../block/Block.ts';
-import {globalFunctions} from '../block/FunctionLib.ts';
+import {globalFunctions} from '../block/FunctionModule.ts';
 import {Event, EventType, WAIT, NO_EMIT} from '../block/Event.ts';
 import Denque from 'denque';
 import {InfiniteQueue} from '../util/InfiniteQueue.ts';

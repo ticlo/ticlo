@@ -6,7 +6,7 @@
 
 | Directory | Responsibility |
 | --- | --- |
-| `block/` | Blocks, flows, properties, bindings, function libraries, namespaces, resolver |
+| `block/` | Blocks, flows, properties, bindings, function modules, libraries, resolver |
 | `connect/` | Batched client/server protocol and in-process local connections |
 | `functions/` | Built-ins registered through `packages/core/index.ts` |
 | `worker/` | Flow-backed functions; see [workers](./worker-architecture.md) |
@@ -24,18 +24,18 @@ and [file format](./file-format.md) for persistence markers and prefixes.
 Bindings resolve relative to the owning block. Single segments listen directly
 to a property; dotted paths use cached `BlockBinding` chains through child
 properties or plain object fields. `propRelative()` handles flow boundaries,
-namespaces (`#+`), and `#static` when generating portable paths.
+libraries (`#+`), and `#static` when generating portable paths.
 
 ## Functions and execution
 
-`Namespace.getFunctions()` resolves `#is` IDs; see [function IDs](./file-format.md#function-ids).
+`Library.getFunctions()` resolves `#is` IDs; see [function IDs](./file-format.md#function-ids).
 Register class-backed or descriptor-only functions with
-`FunctionLib.addFactory(cls, desc, namespace?, functionApi?, options?)`.
-Use `FunctionLib.add(factory, namespace?, functionApi?)` for existing factories.
+`FunctionModule.addFactory(cls, desc, library?, functionApi?, options?)`.
+Use `FunctionModule.add(factory, library?, functionApi?)` for existing factories.
 
 Descriptor defaults are copied to `factory.cls.prototype` (priority, mode, type,
 purity). Dynamic metadata belongs in `factory.meta`, read with `factory.getMeta(key)`
-or `FunctionLib.getMeta(id, key)`. Construction waits until all block properties
+or `FunctionModule.getMeta(id, key)`. Construction waits until all block properties
 load so `initInputs()` sees stable data.
 
 `Resolver` batches blocks into four priority queues. `PromiseWrapper` prevents
@@ -57,7 +57,7 @@ the flow boundary, including synced positions and static-block edits. See
 [worker static ownership](./worker-architecture.md#flow-classes-and-static-content)
 and [save/lifecycle rules](../../../docs/runtime-lifecycle.md).
 
-`Storage` holds strings; `FlowStorage` handles flows and libraries. Adapters live
+`Storage` holds strings; `FlowStorage` handles flows and modules. Adapters live
 in `node` (filesystem) and `remote-storage` (writable HTTP, static HTTP, and
 IndexedDB-backed local projects). Their layouts differ; use the adapter's reference.
 
@@ -82,11 +82,11 @@ Storage-backed commands must propagate promises.
 | `ServerWatch` | Child structure and flow history |
 | `ServerDescWatcher` | Global or flow-local function descriptors |
 
-Flows using `FlowFunctionLib` expose its owner through runtime-only `#lib`.
+Flows using `FlowFunctionModule` expose its owner through runtime-only `#module`.
 Clients receive a `NoSerialize` Block whose `value` is the Flow path; pass that
-path to `ClientConn.watchDesc(funcId, libPath)` for local descriptors.
-`BlockStage` passes its `funcLib` to property lists, renderers, and selectors.
-Standalone components retain global lookup unless given a `funcLib`.
+path to `ClientConn.watchDesc(funcId, modulePath)` for local descriptors.
+`BlockStage` passes its `funcModule` to property lists, renderers, and selectors.
+Standalone components retain global lookup unless given a `funcModule`.
 
 ## Editing helpers
 

@@ -1,5 +1,5 @@
 import {AutoUpdateFunction} from '../base/AutoUpdateFunction.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {Event, EventType, NO_EMIT, ValueUpdateEvent, WAIT} from '../../block/Event.ts';
 import type {Block} from '../../block/Block.ts';
 import {DateTime} from 'luxon';

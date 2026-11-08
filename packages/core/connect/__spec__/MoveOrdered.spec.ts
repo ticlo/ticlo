@@ -2,7 +2,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {Root} from '../../block/Flow.ts';
 import {Block} from '../../block/Block.ts';
 import {BlockOrder} from '../../block/BlockOrder.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {makeLocalConnection} from '../LocalConnection.ts';
 import type {EditPolicy} from '../../policy/EditPolicy.ts';
 

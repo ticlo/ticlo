@@ -6,20 +6,20 @@ import {BlockConstConfig, ConstTypeConfig} from './BlockConfigs.ts';
 import {
   FlowConfigGenerators,
   FlowFolderConfigGenerators,
-  FlowNamespaceConfigGenerators,
-  FlowLibConfigGenerators,
+  FlowLibraryConfigGenerators,
+  FlowModuleConfigGenerators,
   GlobalConfigGenerators,
 } from './FlowConfigs.ts';
 import {Event} from './Event.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {FunctionDesc} from './Descriptor.ts';
-import {FunctionLib, globalFunctions, type DescListener} from './FunctionLib.ts';
+import {FunctionModule, globalFunctions, type DescListener} from './FunctionModule.ts';
 import {FlowStorage} from './Storage.ts';
 import {FlowHistory} from './FlowHistory.ts';
 import {getDefaultZone, updateGlobalSettings} from '../util/Settings.ts';
 import {DataWrapper, FunctionOutput} from './FunctonData.ts';
-import {Namespace} from './Namespace.ts';
-import {NsFunctionLib, FlowFunctionLib} from './NSFunctionLib.ts';
+import {Library} from './Library.ts';
+import {LibraryFunctionModule, FlowFunctionModule} from './LibraryFunctionModule.ts';
 import {deepEqual} from '../util/Compare.ts';
 import {voidFunction} from '../util/Functions.ts';
 import {FlowRuntime, type StartOptions, type FlowRef, type UnloadOptions} from './FlowRuntime.ts';
@@ -36,11 +36,11 @@ export interface FlowLoader {
   onStateChange?(flow: Flow, state: FlowState): void;
 }
 
-function parseFlowLibPath(path: string): [string, string] | null {
+function parseFlowModulePath(path: string): [string, string] | null {
   if (path?.startsWith(':') && !path.includes('.')) return ['+#root', path.slice(1)];
-  const libPos = path?.indexOf('.:');
-  if (libPos > 0 && path.charCodeAt(0) === 43 /* + */ && path.indexOf('.', libPos + 2) === -1) {
-    return [path.substring(0, libPos), path.substring(libPos + 2)];
+  const modulePos = path?.indexOf('.:');
+  if (modulePos > 0 && path.charCodeAt(0) === 43 /* + */ && path.indexOf('.', modulePos + 2) === -1) {
+    return [path.substring(0, modulePos), path.substring(modulePos + 2)];
   }
   return null;
 }
@@ -50,16 +50,16 @@ function parseFlowLibPath(path: string): [string, string] | null {
 // flow/root and is saved explicitly rather than as a child property value.
 export class Flow extends Block {
   pendingCreate?: Promise<void>;
-  _namespace: string;
+  _library: string;
   // function id, when Flow is loaded from a function
   _loadFrom: string;
-  _funcLib: FunctionLib;
-  getFuncLib(): FunctionLib {
-    if (!this._funcLib) {
-      this._funcLib = new FlowFunctionLib(this, this._namespace);
+  _funcModule: FunctionModule;
+  getFuncModule(): FunctionModule {
+    if (!this._funcModule) {
+      this._funcModule = new FlowFunctionModule(this, this._library);
       this.getProperty('#functions', true);
     }
-    return this._funcLib;
+    return this._funcModule;
   }
 
   _enabled: boolean = true;
@@ -118,7 +118,8 @@ export class Flow extends Block {
   }
 
   _disableBlock() {
-    if (this._funcLib instanceof NsFunctionLib && this._funcLib.flow === this) this._funcLib.setAvailable(false);
+    if (this._funcModule instanceof LibraryFunctionModule && this._funcModule.flow === this)
+      this._funcModule.setAvailable(false);
     this._onStateChange?.(this, FlowState.disabled);
     for (const [key, prop] of this._props) {
       const val = prop._value;
@@ -129,7 +130,8 @@ export class Flow extends Block {
   }
 
   _enabledBlock() {
-    if (this._funcLib instanceof NsFunctionLib && this._funcLib.flow === this) this._funcLib.setAvailable(true);
+    if (this._funcModule instanceof LibraryFunctionModule && this._funcModule.flow === this)
+      this._funcModule.setAvailable(true);
     this._onStateChange?.(this, FlowState.enabled);
     for (const [key, prop] of this._props) {
       const val = prop._value;
@@ -199,8 +201,8 @@ export class Flow extends Block {
     funcId?: string,
     applyChange?: FlowLoader['applyChange'],
     onStateChange?: (flow: Flow, state: FlowState) => void,
-    namespace?: string,
-    funcLib?: FunctionLib
+    library?: string,
+    funcModule?: FunctionModule
   ): boolean {
     if (this._loaded) {
       throw new Error('can not load flow twice');
@@ -208,32 +210,32 @@ export class Flow extends Block {
     this._loading = true;
     let loaded = false;
 
-    if (namespace) {
-      this._namespace = namespace;
+    if (library) {
+      this._library = library;
     } else {
-      this._namespace = this._parent?._flow?._namespace;
+      this._library = this._parent?._flow?._library;
     }
-    if (funcLib) {
-      this._funcLib = funcLib;
+    if (funcModule) {
+      this._funcModule = funcModule;
     }
     this._disabledChanged(this.getValue('#disabled'));
 
     if (funcId) {
       // load from worker class for editing
-      const functions = this.getFuncLib();
+      const functions = this.getFuncModule();
       const workerData = functions.getWorkerData(funcId);
       if (workerData) {
         const [desc] = functions.getDescToSend(funcId);
-        this._namespace = desc?.ns;
+        this._library = desc?.libraryId;
         this._loadFrom = funcId;
         this._loadFlowData(workerData, funcId);
         loaded = true;
       } else if (src) {
         const colonIndex = funcId.indexOf(':');
         if (colonIndex >= 0) {
-          this._namespace = funcId.substring(0, colonIndex);
+          this._library = funcId.substring(0, colonIndex);
         } else {
-          this._namespace = null;
+          this._library = null;
         }
         this._loadFrom = funcId;
         this._loadFlowData(src, funcId);
@@ -447,20 +449,20 @@ export class FlowFolder extends Flow {
   }
 }
 
-export class FlowLib extends Flow {
+export class FlowModule extends Flow {
   constructor(parent: Block, output?: FunctionOutput, property?: BlockProperty) {
     super(parent, output, property);
-    // FlowLib should always initialize #functions property
+    // FlowModule should always initialize #functions property
     this.getProperty('#functions', true);
   }
 
-  getFuncLib(): FunctionLib {
-    return this._funcLib;
+  getFuncModule(): FunctionModule {
+    return this._funcModule;
   }
 
   _createConfig(field: string): BlockProperty {
-    if (field in FlowLibConfigGenerators) {
-      return new FlowLibConfigGenerators[field](this, field);
+    if (field in FlowModuleConfigGenerators) {
+      return new FlowModuleConfigGenerators[field](this, field);
     } else {
       return new BlockConfig(this, field);
     }
@@ -469,13 +471,13 @@ export class FlowLib extends Flow {
 
 const ContextTypeConfig = ConstTypeConfig('flow:context');
 
-export class NamespaceContextFlow extends Flow {
+export class LibraryContextFlow extends Flow {
   _createConfig(field: string): BlockProperty {
     return field === '#is' ? new ContextTypeConfig(this, field) : super._createConfig(field);
   }
 
   getParentContextProperty(name: string): BlockProperty {
-    return Namespace.rootOf(this).getContextProperty(name);
+    return Library.rootOf(this).getContextProperty(name);
   }
 
   unload() {
@@ -488,16 +490,16 @@ export class NamespaceContextFlow extends Flow {
   }
 }
 
-export class FlowNameSpace extends FlowFolder {
-  readonly _contextRoot: NamespaceContextFlow;
+export class FlowLibrary extends FlowFolder {
+  readonly _contextRoot: LibraryContextFlow;
 
   constructor(parent: Block = Root.instance, output?: FunctionOutput, property?: BlockProperty) {
     super(parent, output, property);
-    this._namespace = property._name;
-    this._contextRoot = this._createConstBlock('#context', (prop) => new NamespaceContextFlow(this, null, prop))
-      ._value as NamespaceContextFlow;
-    this._contextRoot._namespace = this._namespace;
-    if (Namespace.rootOf(this)._storage) this._contextRoot._runtimeDisabled = true;
+    this._library = property._name;
+    this._contextRoot = this._createConstBlock('#context', (prop) => new LibraryContextFlow(this, null, prop))
+      ._value as LibraryContextFlow;
+    this._contextRoot._library = this._library;
+    if (Library.rootOf(this)._storage) this._contextRoot._runtimeDisabled = true;
     this._contextRoot._disabledChanged(false);
   }
 
@@ -509,8 +511,8 @@ export class FlowNameSpace extends FlowFolder {
     return this._contextRoot.getContextProperty(name);
   }
   _createConfig(field: string): BlockProperty {
-    if (field in FlowNamespaceConfigGenerators) {
-      return new FlowNamespaceConfigGenerators[field](this, field);
+    if (field in FlowLibraryConfigGenerators) {
+      return new FlowLibraryConfigGenerators[field](this, field);
     } else {
       return new BlockConfig(this, field);
     }
@@ -546,8 +548,8 @@ export class Root extends FlowFolder {
 
   _resolver: Resolver;
   _storage: FlowStorage;
-  readonly _namespaceDescListeners = new Set<DescListener>();
-  readonly _namespaces: Record<string, Namespace> = Object.create(null);
+  readonly _libraryDescListeners = new Set<DescListener>();
+  readonly _libraries: Record<string, Library> = Object.create(null);
   readonly _lifecycle = new FlowRuntime(this);
 
   start(options?: StartOptions) {
@@ -556,30 +558,30 @@ export class Root extends FlowFolder {
   stop(options?: UnloadOptions) {
     return this._lifecycle.stop(options);
   }
-  enableNamespace(name: string, options?: {flows?: string[]}) {
-    return this._lifecycle.enableNamespace(name, options);
+  enableLibrary(name: string, options?: {flows?: string[]}) {
+    return this._lifecycle.enableLibrary(name, options);
   }
-  getNamespaceGraph() {
-    return this._lifecycle.getNamespaceGraph();
+  getLibraryGraph() {
+    return this._lifecycle.getLibraryGraph();
   }
-  unloadNamespace(name: string) {
-    return this._lifecycle.unloadNamespace(name);
+  unloadLibrary(name: string) {
+    return this._lifecycle.unloadLibrary(name);
   }
-  retainNamespaces(names: string[]) {
-    return this._lifecycle.retainNamespaces(names);
+  retainLibraries(names: string[]) {
+    return this._lifecycle.retainLibraries(names);
   }
-  switchNamespace(name: string) {
-    return this._lifecycle.switchNamespace(name);
+  switchLibrary(name: string) {
+    return this._lifecycle.switchLibrary(name);
   }
-  setNamespaceDependencies(name: string, dependencies: string[]) {
-    return this._lifecycle.setNamespaceDependencies(name, dependencies);
+  setLibraryDependencies(name: string, dependencies: string[]) {
+    return this._lifecycle.setLibraryDependencies(name, dependencies);
   }
-  getNamespaceMetadata(name: string) {
-    if (!this._storage?.getNamespaceMetadata) throw new Error('Storage does not support namespace metadata');
-    return this._storage.getNamespaceMetadata(name);
+  getLibraryMetadata(name: string) {
+    if (!this._storage?.getLibraryMetadata) throw new Error('Storage does not support library metadata');
+    return this._storage.getLibraryMetadata(name);
   }
-  disableNamespace(name: string, options?: UnloadOptions & {cascade?: boolean}) {
-    return this._lifecycle.disableNamespace(name, options);
+  disableLibrary(name: string, options?: UnloadOptions & {cascade?: boolean}) {
+    return this._lifecycle.disableLibrary(name, options);
   }
   loadFlow(ref: FlowRef) {
     return this._lifecycle.loadFlow(ref);
@@ -593,24 +595,24 @@ export class Root extends FlowFolder {
   disableFlow(ref: FlowRef, options?: {persist?: boolean}) {
     return this._lifecycle.setEnabled(ref, false, options);
   }
-  listFlows(namespace: string) {
-    return this._lifecycle.listFlows(namespace);
+  listFlows(library: string) {
+    return this._lifecycle.listFlows(library);
   }
   listMainFlows() {
     return this._lifecycle.listMainFlows();
   }
-  setAutoLoadLibrary(namespace: string, name: string, autoLoad: boolean) {
-    return this._lifecycle.setAutoLoadLibrary(namespace, name, autoLoad);
+  setAutoLoadModule(library: string, name: string, autoLoad: boolean) {
+    return this._lifecycle.setAutoLoadModule(library, name, autoLoad);
   }
-  setAutoLoadFlow(namespace: string, name: string, autoLoad: boolean) {
-    return this._lifecycle.setAutoLoadFlow(namespace, name, autoLoad);
+  setAutoLoadFlow(library: string, name: string, autoLoad: boolean) {
+    return this._lifecycle.setAutoLoadFlow(library, name, autoLoad);
   }
   getFlowState(ref: FlowRef) {
     return this._lifecycle.getFlowState(ref);
   }
 
-  getLoadedFlowRefs(namespace: string) {
-    return this._lifecycle.getLoadedFlowRefs(namespace);
+  getLoadedFlowRefs(library: string) {
+    return this._lifecycle.getLoadedFlowRefs(library);
   }
 
   queueBlock(block: Runnable) {
@@ -645,7 +647,7 @@ export class Root extends FlowFolder {
   constructor() {
     super(null);
     this._parent = this;
-    this._namespace = '+#root';
+    this._library = '+#root';
     this._resolver = new Resolver((resolver: Resolver) => {
       resolver._queued = true;
       resolver._queueToRun = true;
@@ -691,14 +693,14 @@ export class Root extends FlowFolder {
       return null;
     }
     if (prop._name.startsWith('+') && prop._block === this) {
-      // folder with + under root is namespace
-      if (prop._value instanceof FlowNameSpace) {
+      // folder with + under root is library
+      if (prop._value instanceof FlowLibrary) {
         return prop._value;
       }
-      const newNamespace = new FlowNameSpace(prop._block, null, prop);
+      const newLibrary = new FlowLibrary(prop._block, null, prop);
 
-      prop.setValue(newNamespace);
-      return newNamespace;
+      prop.setValue(newLibrary);
+      return newLibrary;
     }
     if (prop._value instanceof Block) {
       // invalid path
@@ -715,7 +717,7 @@ export class Root extends FlowFolder {
     } else {
       newGroup = new FlowFolder(prop._block, null, prop);
     }
-    newGroup._namespace = prop._block._flow._namespace;
+    newGroup._library = prop._block._flow._library;
     if (!loader && this._storage?.inited && this._storage.createFolder) {
       const created = this._storage.createFolder(path);
       if (created instanceof Promise) {
@@ -753,14 +755,14 @@ export class Root extends FlowFolder {
       loader = this._storage.getFlowLoader(path, prop);
     }
     let newFlow: Flow;
-    let funcLib: FunctionLib;
-    const flowLibPath = parseFlowLibPath(path);
+    let funcModule: FunctionModule;
+    const flowModulePath = parseFlowModulePath(path);
     if (loader?.createFlow) {
       newFlow = loader.createFlow(path, prop);
-    } else if (flowLibPath) {
-      newFlow = new FlowLib(prop._block, null, prop);
-      funcLib = Namespace.getNameSpace(flowLibPath[0], this).getLib(flowLibPath[1], false);
-      funcLib.flow = newFlow;
+    } else if (flowModulePath) {
+      newFlow = new FlowModule(prop._block, null, prop);
+      funcModule = Library.getLibrary(flowModulePath[0], this).getModule(flowModulePath[1], false);
+      funcModule.flow = newFlow;
     } else {
       newFlow = new Flow(prop._block, null, prop);
     }
@@ -774,7 +776,7 @@ export class Root extends FlowFolder {
       if (!data) {
         data = {};
       }
-      newFlow.load(data, null, loader.applyChange, loader.onStateChange, undefined, funcLib);
+      newFlow.load(data, null, loader.applyChange, loader.onStateChange, undefined, funcModule);
       if (!fromStorage && this._storage?.inited && Object.keys(data).length) {
         const saved = newFlow.applyChange();
         if (saved instanceof Promise) {
@@ -789,21 +791,24 @@ export class Root extends FlowFolder {
         }
       }
     } else {
-      newFlow.load(data, null, undefined, undefined, undefined, funcLib);
+      newFlow.load(data, null, undefined, undefined, undefined, funcModule);
     }
     prop.setValue(newFlow);
-    if (flowLibPath) {
-      const ns = Namespace.getNameSpace(flowLibPath[0], this);
-      ns._libs[flowLibPath[1]] = funcLib as NsFunctionLib;
-      (funcLib as NsFunctionLib).setAvailable(ns._enabled && !newFlow._disabled);
+    if (flowModulePath) {
+      const libraryScope = Library.getLibrary(flowModulePath[0], this);
+      libraryScope._modules[flowModulePath[1]] = funcModule as LibraryFunctionModule;
+      (funcModule as LibraryFunctionModule).setAvailable(libraryScope._enabled && !newFlow._disabled);
       if (this._storage && !fromStorage) {
-        this._lifecycle.trackFlow({namespace: flowLibPath[0].slice(1), kind: 'library', name: flowLibPath[1]}, newFlow);
+        this._lifecycle.trackFlow(
+          {library: flowModulePath[0].slice(1), kind: 'module', name: flowModulePath[1]},
+          newFlow
+        );
       }
     }
-    if (this._storage && !fromStorage && !flowLibPath) {
+    if (this._storage && !fromStorage && !flowModulePath) {
       const parts = path.split('.');
-      const namespace = path.startsWith('+') ? parts.shift().slice(1) : '#root';
-      this._lifecycle.trackFlow({namespace, kind: 'flow', name: parts.join('.')}, newFlow);
+      const library = path.startsWith('+') ? parts.shift().slice(1) : '#root';
+      this._lifecycle.trackFlow({library, kind: 'flow', name: parts.join('.')}, newFlow);
     }
     return newFlow;
   }
@@ -813,14 +818,14 @@ export class Root extends FlowFolder {
     super.destroy();
   }
 
-  addFlowLib(ns: string, libName: string): FlowLib {
-    const path = ns === '+#root' ? `:${libName}` : `${ns}.:${libName}`;
+  addFlowModule(libraryId: string, moduleName: string): FlowModule {
+    const path = libraryId === '+#root' ? `:${moduleName}` : `${libraryId}.:${moduleName}`;
     const prop = this.queryProperty(path, true);
     if (!prop || prop._value instanceof Block) {
-      return prop?._value instanceof FlowLib ? prop._value : null;
+      return prop?._value instanceof FlowModule ? prop._value : null;
     }
 
-    const flow = new FlowLib(prop._block, null, prop);
+    const flow = new FlowModule(prop._block, null, prop);
     prop.setValue(flow);
     return flow;
   }

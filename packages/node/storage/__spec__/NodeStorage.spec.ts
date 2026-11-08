@@ -23,14 +23,14 @@ describe('NodeStorage', () => {
   it('uses #root for user globals and reads the file-server project layout directly', async () => {
     await storage.user.uploadFile('#global.ticlo', '{"^setting":42}');
     await storage.uploadFile('main/folder/flow.ticlo', '{"value":7}');
-    await storage.uploadFile('main/#libs/tools.ticlo', '{"helper":true}');
+    await storage.uploadFile('main/#modules/tools.ticlo', '{"helper":true}');
     await storage.createDirectory('main/empty');
     await root.setStorage(storage);
     await root.start({main: {flows: ['**']}});
     expect(root._globalRoot.getValue('^setting')).toBe(42);
     expect(root.queryValue('+main.folder.flow.value')).toBe(7);
     expect(root.queryValue('+main.empty')).toBeInstanceOf(FlowFolder);
-    expect(await storage.loadLib('+main', 'tools')).toEqual({helper: true});
+    expect(await storage.loadModule('+main', 'tools')).toEqual({helper: true});
     expect(await storage.listFlows('main')).toEqual(['folder.flow']);
     const flow = root.queryValue('+main.folder.flow') as import('@ticlo/core').Flow;
     flow.setValue('value', 8);
@@ -59,12 +59,12 @@ describe('NodeStorage', () => {
     await symlink(tmpdir(), join(dir, 'main/outside'));
     await expect(storage.uploadFile('main/outside/escape', 'bad')).rejects.toMatchObject({code: 'invalid-path'});
   });
-  it('persists namespace metadata and context separately from project management metadata', async () => {
+  it('persists library metadata and context separately from project management metadata', async () => {
     await storage.createProject('main', {name: 'Main'});
-    await storage.saveNamespaceMetadata('main', {dependencies: ['shared']});
+    await storage.saveLibraryMetadata('main', {dependencies: ['shared']});
     await storage.createProject('shared');
     await storage.saveFlow(null, {'^setting': 10}, '+main.#context');
-    expect(await storage.getNamespaceMetadata('main')).toEqual({dependencies: ['shared']});
+    expect(await storage.getLibraryMetadata('main')).toEqual({dependencies: ['shared']});
     expect(await storage.readProject('main')).toEqual({id: 'main', name: 'Main'});
     await root.setStorage(storage);
     await root.start({main: {}});

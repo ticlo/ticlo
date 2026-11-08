@@ -1,6 +1,6 @@
 import {encodeFileName, validateNodePath} from './Path.ts';
 
-export const reservedFlowFolders = new Set(['#libs', '#deps', '#storage']);
+export const reservedFlowFolders = new Set(['#modules', '#deps', '#storage']);
 
 export function validFlowEntry(name: string): boolean {
   return Boolean(name) && validateNodePath(name) && !/^[#+:]/.test(name);
@@ -9,14 +9,14 @@ export function validFlowEntry(name: string): boolean {
 export function splitFlowStorageKey(key: string): [string, string] {
   if (!key.startsWith('+')) return ['', key];
   const dot = key.indexOf('.');
-  const namespace = key.slice(1, dot);
-  if (dot < 2 || !validateNodePath(namespace)) throw new Error('Invalid namespace');
-  return [namespace, key.slice(dot + 1)];
+  const library = key.slice(1, dot);
+  if (dot < 2 || !validateNodePath(library)) throw new Error('Invalid library');
+  return [library, key.slice(dot + 1)];
 }
 
-/** Relative to a project/namespace directory. */
+/** Relative to a project/library directory. */
 export function flowStoragePath(key: string, folder = false): string {
-  if (!folder && key.startsWith(':')) return `#libs/${encodeFileName(key.slice(1))}.ticlo`;
+  if (!folder && key.startsWith(':')) return `#modules/${encodeFileName(key.slice(1))}.ticlo`;
   const parts = key.split('.');
   if ((folder || parts.length > 1) && reservedFlowFolders.has(parts[0])) {
     throw new Error(`Reserved folder: ${parts[0]}`);

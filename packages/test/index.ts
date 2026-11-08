@@ -10,7 +10,7 @@ globalFunctions.addCategory({
   name: 'test',
   icon: 'svg:vial',
   color: 'fa1',
-  ns: 'test',
+  libraryId: 'test',
 });
 
 // green 4b2

@@ -22,7 +22,7 @@ export function t(label: string, options?: DataMap) {
 
 export const LocalizedFunctionName = ({desc, className}: {desc: FunctionDesc; className?: string}) => {
   useContext(TicloI18NContext);
-  return <span className={className}>{translateFunction(desc.id, desc.name, desc.ns)}</span>;
+  return <span className={className}>{translateFunction(desc.id, desc.name, desc.libraryId)}</span>;
 };
 
 export const LocalizedPropertyName = ({
@@ -43,7 +43,7 @@ export const LocalizedPropertyName = ({
   useContext(TicloI18NContext);
   return (
     <span ref={ref} className={className} onContextMenu={onContextMenu} onMouseDownCapture={onMouseDownCapture}>
-      {translateProperty(desc.name, name, desc.ns)}
+      {translateProperty(desc.name, name, desc.libraryId)}
     </span>
   );
 };
@@ -58,12 +58,12 @@ export const LocalizedEnumOption = ({
   option: string | number;
 }) => {
   useContext(TicloI18NContext);
-  return <span>{translatePropContent(desc.name, propName, String(option), desc.ns)}</span>;
+  return <span>{translatePropContent(desc.name, propName, String(option), desc.libraryId)}</span>;
 };
 
 export const LocalizedFuncCommand = ({desc, command}: {desc: FunctionDesc; command: string}) => {
   useContext(TicloI18NContext);
-  return <span>{translateFunction(desc.id, `${desc.name}.@commands.${command}`, desc.ns)}</span>;
+  return <span>{translateFunction(desc.id, `${desc.name}.@commands.${command}`, desc.libraryId)}</span>;
 };
 
 export const LocalizedPropCommand = ({
@@ -76,7 +76,7 @@ export const LocalizedPropCommand = ({
   command: string;
 }) => {
   useContext(TicloI18NContext);
-  return <span>{translateProperty(`${funcDesc.name}.${propBaseName}.@commands`, command, funcDesc.ns)}</span>;
+  return <span>{translateProperty(`${funcDesc.name}.${propBaseName}.@commands`, command, funcDesc.libraryId)}</span>;
 };
 
 const specialNodeNamePrefix = /^#\w+\b/;

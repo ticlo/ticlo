@@ -167,7 +167,7 @@ describe('FileServerStorage integration', () => {
     expect(await storage.loadFlow('newFlow')).toBeNull();
   });
 
-  it('loads #root as a dependency without creating a namespace for it', async () => {
+  it('loads #root as a dependency without creating a library for it', async () => {
     await project('#root', {'plain.ticlo': {value: 7}});
     await project('main');
     await writeFile(join(dir, 'proj/main/ticlo.json'), JSON.stringify({dependencies: ['#root']}));
@@ -179,15 +179,15 @@ describe('FileServerStorage integration', () => {
     expect(storage.projects.has('#root')).toBe(true);
   });
 
-  it('keeps libraries separate from ordinary flows and preserves filename escaping', async () => {
-    await project('main', {'same.ticlo': {value: 'flow'}, '#libs/same.ticlo': {value: 'library'}});
+  it('keeps modules separate from ordinary flows and preserves filename escaping', async () => {
+    await project('main', {'same.ticlo': {value: 'flow'}, '#modules/same.ticlo': {value: 'module'}});
     const storage = client;
     await root.setStorage(storage);
     await root.start({main: {flows: ['**']}});
-    expect(await storage.loadLib('+main', 'same')).toEqual({value: 'library'});
-    await storage.saveLib('+main', 'same', {value: 'updated library'});
+    expect(await storage.loadModule('+main', 'same')).toEqual({value: 'module'});
+    await storage.saveModule('+main', 'same', {value: 'updated module'});
     expect((await storage.loadFlow('+main.same')).value).toBe('flow');
-    expect(await storage.loadFlow('+main.:same')).toEqual({value: 'updated library'});
+    expect(await storage.loadFlow('+main.:same')).toEqual({value: 'updated module'});
     const values = client.getValueStorage('main');
     await values.save('a/b?#%', 'value');
     expect(await values.load('a/b?#%')).toBe('value');
@@ -210,12 +210,12 @@ describe('FileServerStorage integration', () => {
     expect(await a.load('key')).toBe('five');
   });
 
-  it('persists real namespace folders, empty folders and ordinary libs/deps/storage folders', async () => {
+  it('persists real library folders, empty folders and ordinary modules/deps/storage folders', async () => {
     await project('main');
     const storage = client;
     await root.setStorage(storage);
     await root.start({main: {flows: ['**']}});
-    for (const name of ['libs', 'deps', 'storage', '_libs', '_deps', '_storage']) {
+    for (const name of ['modules', 'deps', 'storage', '_modules', '_deps', '_storage']) {
       await root.addFlowFolder(`+main.${name}`).pendingCreate;
       await root.addFlowFolder(`+main.${name}.nested`).pendingCreate;
       const flow = root.addFlow(`+main.${name}.nested.flow`, {value: name});
@@ -223,29 +223,29 @@ describe('FileServerStorage integration', () => {
       expect(JSON.parse(await readFile(join(dir, `proj/main/${name}/nested/flow.ticlo`), 'utf8')).value).toBe(name);
     }
     await root.addFlowFolder('+main.empty').pendingCreate;
-    await storage.saveLib('+main', 'tools', {worker: 'library'});
+    await storage.saveModule('+main', 'tools', {worker: 'module'});
     root.destroy();
     root = new Root();
     const reloaded = client;
     await root.setStorage(reloaded);
     await root.start({main: {flows: ['**']}});
     expect(root.queryValue('+main.empty')).toBeInstanceOf(FlowFolder);
-    expect(root.queryValue('+main.libs.nested.flow.value')).toBe('libs');
-    expect(await reloaded.loadLib('+main', 'tools')).toEqual({worker: 'library'});
-    expect(root.queryValue('+main.#libs')).toBeUndefined();
-    for (const name of ['#libs', '#deps', '#storage']) {
+    expect(root.queryValue('+main.modules.nested.flow.value')).toBe('modules');
+    expect(await reloaded.loadModule('+main', 'tools')).toEqual({worker: 'module'});
+    expect(root.queryValue('+main.#modules')).toBeUndefined();
+    for (const name of ['#modules', '#deps', '#storage']) {
       expect(() => root.addFlowFolder(`+main.${name}`)).toThrow('Reserved folder');
     }
-    await root.deleteFlow('+main.libs');
-    expect(root.queryValue('+main.libs')).toBeUndefined();
-    expect(await client.listFiles('main/libs')).toEqual([]);
-    expect(await reloaded.loadFlow('+main.libs.nested.flow')).toBeNull();
-    expect(await reloaded.loadLib('+main', 'tools')).toEqual({worker: 'library'});
+    await root.deleteFlow('+main.modules');
+    expect(root.queryValue('+main.modules')).toBeUndefined();
+    expect(await client.listFiles('main/modules')).toEqual([]);
+    expect(await reloaded.loadFlow('+main.modules.nested.flow')).toBeNull();
+    expect(await reloaded.loadModule('+main', 'tools')).toEqual({worker: 'module'});
     await root.deleteFlow('+main.empty');
     expect((await client.listFiles('main')).some((entry) => entry.name === 'empty')).toBe(false);
   });
 
-  it('loads and saves namespace context as a reserved flow file', async () => {
+  it('loads and saves library context as a reserved flow file', async () => {
     await project('main', {
       '#context.ticlo': {'^value': 7},
       'entry.ticlo': {'~value': '^value'},
@@ -266,39 +266,29 @@ describe('FileServerStorage integration', () => {
   });
 
   it('reads and writes ticlo.json without fetching or changing project management metadata', async () => {
-    await project('main', {'#libs/service.ticlo': {'#disabled': true}, 'unused.ticlo': {value: 9}});
+    await project('main', {'#modules/service.ticlo': {'#disabled': true}, 'unused.ticlo': {value: 9}});
     const projectPath = join(dir, 'proj/main/.proj');
     const original = await readFile(projectPath, 'utf8');
     const get = vi.spyOn(client, 'getFile');
     const readProject = vi.spyOn(client, 'readProject');
     const storage = client;
-    expect(await storage.getNamespaceMetadata('main')).toEqual({});
-    await storage.saveNamespaceMetadata('main', {autoLoadLibraries: ['service']});
+    expect(await storage.getLibraryMetadata('main')).toEqual({});
+    await storage.saveLibraryMetadata('main', {autoLoadModules: ['service']});
     expect(JSON.parse(await readFile(join(dir, 'proj/main/ticlo.json'), 'utf8'))).toEqual({
-      autoLoadLibraries: ['service'],
+      autoLoadModules: ['service'],
     });
     await root.setStorage(storage);
     await root.start({main: {}});
-    const service = {namespace: 'main', kind: 'library', name: 'service'} as const;
+    const service = {library: 'main', kind: 'module', name: 'service'} as const;
     expect(root.getFlowState(service)).toBe('disabled');
     expect(root.queryValue('+main.unused')).toBeUndefined();
-    await root.setAutoLoadLibrary('main', 'service', false);
-    expect(await storage.getNamespaceMetadata('main')).toEqual({autoLoadLibraries: []});
+    await root.setAutoLoadModule('main', 'service', false);
+    expect(await storage.getLibraryMetadata('main')).toEqual({autoLoadModules: []});
     expect(await readFile(projectPath, 'utf8')).toBe(original);
     expect(readProject).not.toHaveBeenCalled();
     expect(get.mock.calls.every(([path]) => !path.endsWith('.proj') && !path.endsWith('#proj.json'))).toBe(true);
     await root.stop();
-    expect(await storage.loadLib('+main', 'service')).toEqual({'#disabled': true});
-  });
-
-  it('reads legacy serviceLibraries and saves only autoLoadLibraries', async () => {
-    await project('main', {});
-    const path = join(dir, 'proj/main/ticlo.json');
-    await writeFile(path, JSON.stringify({serviceLibraries: ['tools']}));
-    const metadata = await client.getNamespaceMetadata('main');
-    expect(metadata).toEqual({autoLoadLibraries: ['tools']});
-    await client.saveNamespaceMetadata('main', metadata);
-    expect(JSON.parse(await readFile(path, 'utf8'))).toEqual({autoLoadLibraries: ['tools']});
+    expect(await storage.loadModule('+main', 'service')).toEqual({'#disabled': true});
   });
 
   it('rejects missing dependency projects instead of silently running a partial graph', async () => {

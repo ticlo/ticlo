@@ -10,8 +10,8 @@ import {blankFuncDesc, blankPropDesc} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {Root} from '@ticlo/core';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
-import {globalFunctions} from '@ticlo/core/block/FunctionLib.ts';
-import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {globalFunctions} from '@ticlo/core/block/FunctionModule.ts';
+import {Library} from '@ticlo/core/block/Library.ts';
 import {DateEditor} from '../DateEditor.tsx';
 
 describe('WorkerEditor', function () {
@@ -58,6 +58,6 @@ describe('WorkerEditor', function () {
 
     client.destroy();
 
-    Namespace.delete('+WorkerEditor::class1');
+    Library.delete('+WorkerEditor::class1');
   });
 });

@@ -13,7 +13,7 @@ interface Props {
   showPreset?: boolean;
   onFunctionClick?: OnFunctionClick;
   onAddFunction?: (prefix: string) => void;
-  funcLib?: string;
+  funcModule?: string;
   style?: React.CSSProperties;
 }
 
@@ -31,7 +31,7 @@ export class FunctionTree extends React.PureComponent<Props, State> {
       props.onFunctionClick,
       props.showPreset,
       props.filter,
-      props.funcLib,
+      props.funcModule,
       props.onAddFunction
     );
   }
@@ -43,7 +43,7 @@ export class FunctionTree extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     if (
-      prevProps.funcLib !== this.props.funcLib ||
+      prevProps.funcModule !== this.props.funcModule ||
       prevProps.conn !== this.props.conn ||
       prevProps.onAddFunction !== this.props.onAddFunction
     ) {

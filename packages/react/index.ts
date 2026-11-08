@@ -32,7 +32,7 @@ globalFunctions.addCategory({
   name: 'react',
   icon: '20:⚛',
   color: '5ce',
-  ns: 'react',
+  libraryId: 'react',
 });
 
 globalFunctions.addCategory({
@@ -40,7 +40,7 @@ globalFunctions.addCategory({
   name: 'Elements',
   icon: '20:⚛',
   color: '5ce',
-  ns: 'react',
+  libraryId: 'react',
 });
 
 globalFunctions.addCategory({
@@ -48,5 +48,5 @@ globalFunctions.addCategory({
   name: 'SVG',
   icon: '20:⬠',
   color: '5ce',
-  ns: 'react',
+  libraryId: 'react',
 });

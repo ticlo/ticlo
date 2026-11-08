@@ -1,13 +1,13 @@
 import {expect} from 'vitest';
-import {Flow, FlowLib, Root} from '../../block/Flow.ts';
+import {Flow, FlowModule, Root} from '../../block/Flow.ts';
 import {FlowEditor} from '../FlowEditor.ts';
 import {WorkerFunctionGen} from '../WorkerFunctionGen.ts';
 
 import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.ts';
 import type {DataMap} from '../../util/DataTypes.ts';
 import {StaticBlock} from '../../block/StaticBlock.ts';
-import {FlowFunctionLib} from '../../block/NSFunctionLib.ts';
-import {Namespace} from '../../block/Namespace.ts';
+import {FlowFunctionModule} from '../../block/LibraryFunctionModule.ts';
+import {Library} from '../../block/Library.ts';
 import {encodeTicloName} from '../../util/Name.ts';
 import type {FlowStorage} from '../../block/Storage.ts';
 import '../../functions/math/Arithmetic.ts';
@@ -15,9 +15,9 @@ import '../../functions/math/Arithmetic.ts';
 describe('InflowEditor', function () {
   it('scope path metadata is runtime only', function () {
     const flow = Root.instance.addFlow('InflowEditorScope', {});
-    const funcLib = flow.getFuncLib();
+    const funcModule = flow.getFuncModule();
 
-    expect(funcLib.flow).toBe(flow);
+    expect(funcModule.flow).toBe(flow);
 
     const data = {
       '#is': '',
@@ -25,21 +25,21 @@ describe('InflowEditor', function () {
         '#is': 'add',
       },
     };
-    WorkerFunctionGen.registerType(data, {id: ':workerScope', name: 'workerScope'}, undefined, funcLib);
+    WorkerFunctionGen.registerType(data, {id: ':workerScope', name: 'workerScope'}, undefined, funcModule);
 
     const editor = FlowEditor.createFromFunction(flow, '#edit-scope', ':workerScope', null);
-    expect(editor.getValue('#lib')).toBe(flow);
+    expect(editor.getValue('#module')).toBe(flow);
     expect(editor.save()).toEqual(data);
 
     Root.instance.deleteValue('InflowEditorScope');
   });
 
-  it('serializes the in-flow function lib into flow data', function () {
+  it('serializes the in-flow function module into flow data', function () {
     const data = {'#is': '', 'add': {'#is': 'add'}};
     const flow = new Flow();
     flow.load({});
 
-    WorkerFunctionGen.registerType(data, {id: ':savedWorker', name: 'savedWorker'}, undefined, flow.getFuncLib());
+    WorkerFunctionGen.registerType(data, {id: ':savedWorker', name: 'savedWorker'}, undefined, flow.getFuncModule());
 
     expect(flow.save()['#functions']).toEqual({
       ':savedWorker': {
@@ -55,7 +55,12 @@ describe('InflowEditor', function () {
     flow.load({}, null, (flow) => flow.save());
     flow.startHistory();
 
-    WorkerFunctionGen.registerType(data, {id: ':trackedWorker', name: 'trackedWorker'}, undefined, flow.getFuncLib());
+    WorkerFunctionGen.registerType(
+      data,
+      {id: ':trackedWorker', name: 'trackedWorker'},
+      undefined,
+      flow.getFuncModule()
+    );
 
     expect(flow.getValue('@has-change')).toBe(true);
     expect(flow.getValue('@has-undo')).toBe(true);
@@ -83,18 +88,18 @@ describe('InflowEditor', function () {
     });
   });
 
-  it('stores namespace function libraries as namespace flows', function () {
+  it('stores library function modules as library flows', function () {
     const data = {'#is': '', 'add': {'#is': 'add'}};
-    const lib = Namespace.getFunctionLib('+NsFlowLib:g:a');
-    const libFlow = Root.instance.queryValue('+NsFlowLib.:g') as FlowLib;
+    const module = Library.getFunctionModule('+LibraryFlowModule:g:a');
+    const moduleFlow = Root.instance.queryValue('+LibraryFlowModule.:g') as FlowModule;
 
-    expect(libFlow).toBeInstanceOf(FlowLib);
-    expect(lib.flow).toBe(libFlow);
-    expect(libFlow.getValue('#is')).toBe('flow:lib');
+    expect(moduleFlow).toBeInstanceOf(FlowModule);
+    expect(module.flow).toBe(moduleFlow);
+    expect(moduleFlow.getValue('#is')).toBe('flow:module');
 
-    WorkerFunctionGen.registerType(data, {id: '+NsFlowLib:g:a', name: 'a'}, undefined, lib);
+    WorkerFunctionGen.registerType(data, {id: '+LibraryFlowModule:g:a', name: 'a'}, undefined, module);
 
-    expect(libFlow.save()).toEqual({
+    expect(moduleFlow.save()).toEqual({
       '#is': '',
       '#functions': {
         ':a': {
@@ -104,12 +109,12 @@ describe('InflowEditor', function () {
       },
     });
 
-    Namespace.delete('+NsFlowLib:g:a');
-    Root.instance.deleteValue('+NsFlowLib');
+    Library.delete('+LibraryFlowModule:g:a');
+    Root.instance.deleteValue('+LibraryFlowModule');
   });
 
-  it('saves namespace function libraries through lib storage', async function () {
-    const saved: {ns?: string; lib?: string; data?: DataMap; flowSaved?: boolean} = {};
+  it('saves library function modules through module storage', async function () {
+    const saved: {libraryId?: string; module?: string; data?: DataMap; flowSaved?: boolean} = {};
     const storage: FlowStorage = {
       delete() {},
       saveFlow() {
@@ -118,12 +123,12 @@ describe('InflowEditor', function () {
       async loadFlow() {
         return null;
       },
-      saveLib(ns, lib, data) {
-        saved.ns = ns;
-        saved.lib = lib;
+      saveModule(libraryId, module, data) {
+        saved.libraryId = libraryId;
+        saved.module = module;
         saved.data = data;
       },
-      async loadLib() {
+      async loadModule() {
         return null;
       },
       init() {},
@@ -136,12 +141,12 @@ describe('InflowEditor', function () {
 
     try {
       const data = {'#is': '', 'add': {'#is': 'add'}};
-      const lib = Namespace.getFunctionLib('+NsFlowSave:g:a', root);
+      const module = Library.getFunctionModule('+LibraryFlowSave:g:a', root);
 
-      WorkerFunctionGen.registerType(data, {id: '+NsFlowSave:g:a', name: 'a'}, undefined, lib);
+      WorkerFunctionGen.registerType(data, {id: '+LibraryFlowSave:g:a', name: 'a'}, undefined, module);
 
-      expect(saved.ns).toBe('+NsFlowSave');
-      expect(saved.lib).toBe('g');
+      expect(saved.libraryId).toBe('+LibraryFlowSave');
+      expect(saved.module).toBe('g');
       expect(saved.data).toEqual({
         '#is': '',
         '#functions': {
@@ -157,7 +162,7 @@ describe('InflowEditor', function () {
     }
   });
 
-  it('loads namespace function libraries from full flow data', async function () {
+  it('loads library function modules from full flow data', async function () {
     const data = {'#is': '', 'add': {'#is': 'add'}};
     const flowData = {
       '#is': '',
@@ -174,9 +179,9 @@ describe('InflowEditor', function () {
       async loadFlow() {
         return null;
       },
-      saveLib() {},
-      async loadLib(ns, lib) {
-        if (ns === '+NsFlowLoadStorage' && lib === 'g') {
+      saveModule() {},
+      async loadModule(libraryId, module) {
+        if (libraryId === '+LibraryFlowLoadStorage' && module === 'g') {
           return flowData;
         }
         return null;
@@ -190,64 +195,64 @@ describe('InflowEditor', function () {
     await root.setStorage(storage);
 
     try {
-      await root.enableNamespace('NsFlowLoadStorage');
-      const lib = Namespace.getFunctionLib('+NsFlowLoadStorage:g:a', root);
-      await root.loadFlow({namespace: 'NsFlowLoadStorage', kind: 'library', name: 'g'});
+      await root.enableLibrary('LibraryFlowLoadStorage');
+      const module = Library.getFunctionModule('+LibraryFlowLoadStorage:g:a', root);
+      await root.loadFlow({library: 'LibraryFlowLoadStorage', kind: 'module', name: 'g'});
 
-      expect(lib.getWorkerData('+NsFlowLoadStorage:g:a')).toEqual(data);
-      expect((root.queryValue('+NsFlowLoadStorage.:g') as FlowLib).save()).toEqual(flowData);
+      expect(module.getWorkerData('+LibraryFlowLoadStorage:g:a')).toEqual(data);
+      expect((root.queryValue('+LibraryFlowLoadStorage.:g') as FlowModule).save()).toEqual(flowData);
     } finally {
       await root.stop({discardChanges: true});
       root.destroy();
     }
   });
 
-  it('uses : as the flow name for an empty namespace function library name', function () {
+  it('uses : as the flow name for an empty library function module name', function () {
     const data = {'#is': '', 'add': {'#is': 'add'}};
-    const lib = Namespace.getFunctionLib('+NsFlowLibEmpty::a');
-    const libFlow = Root.instance.queryValue('+NsFlowLibEmpty.:') as FlowLib;
+    const module = Library.getFunctionModule('+LibraryFlowModuleEmpty::a');
+    const moduleFlow = Root.instance.queryValue('+LibraryFlowModuleEmpty.:') as FlowModule;
 
-    expect(libFlow).toBeInstanceOf(FlowLib);
+    expect(moduleFlow).toBeInstanceOf(FlowModule);
 
-    WorkerFunctionGen.registerType(data, {id: '+NsFlowLibEmpty::a', name: 'a'}, undefined, lib);
+    WorkerFunctionGen.registerType(data, {id: '+LibraryFlowModuleEmpty::a', name: 'a'}, undefined, module);
 
-    expect(libFlow.save()['#functions']).toEqual({
+    expect(moduleFlow.save()['#functions']).toEqual({
       ':a': {
         type: 'worker',
         worker: data,
       },
     });
 
-    Namespace.delete('+NsFlowLibEmpty::a');
-    Root.instance.deleteValue('+NsFlowLibEmpty');
+    Library.delete('+LibraryFlowModuleEmpty::a');
+    Root.instance.deleteValue('+LibraryFlowModuleEmpty');
   });
 
-  it('runs namespace worker functions from a regular flow', function () {
+  it('runs library worker functions from a regular flow', function () {
     const data = {
       '#is': '',
       '#inputs': {'#is': '', '#custom': [{name: 'n', type: 'number'}]},
       '#outputs': {'#is': '', '#custom': [{name: 'result', type: 'number'}], '~result': '##.add.#output'},
       'add': {'#is': 'add', '1': 1, '~0': '##.#inputs.n'},
     };
-    const funcId = '+NsFlowRuntime:g:f1';
-    const lib = Namespace.getFunctionLib(funcId);
+    const funcId = '+LibraryFlowRuntime:g:f1';
+    const module = Library.getFunctionModule(funcId);
 
-    WorkerFunctionGen.registerType(data, {id: funcId, name: 'f1'}, undefined, lib);
+    WorkerFunctionGen.registerType(data, {id: funcId, name: 'f1'}, undefined, module);
 
-    expect(Namespace.getDescToSend(funcId)[0]?.id).toBe(funcId);
+    expect(Library.getDescToSend(funcId)[0]?.id).toBe(funcId);
 
-    const flow = Root.instance.addFlow('NsFlowRuntimeUse', {});
+    const flow = Root.instance.addFlow('LibraryFlowRuntimeUse', {});
     flow.createBlock('calc')._load({'#is': funcId, 'n': 2});
     Root.runAll();
 
     expect(flow.queryValue('calc.result')).toBe(3);
 
-    Root.instance.deleteValue('NsFlowRuntimeUse');
-    Namespace.delete(funcId);
-    Root.instance.deleteValue('+NsFlowRuntime');
+    Root.instance.deleteValue('LibraryFlowRuntimeUse');
+    Library.delete(funcId);
+    Root.instance.deleteValue('+LibraryFlowRuntime');
   });
 
-  it('loads saved namespace function libraries as FlowLibs', function () {
+  it('loads saved library function modules as FlowModules', function () {
     const worker = {
       '#is': '',
       '#inputs': {'#is': '', '#custom': [{name: 'n', type: 'number'}]},
@@ -263,26 +268,26 @@ describe('InflowEditor', function () {
         },
       },
     };
-    const funcId = '+NsFlowLoad:g:f1';
+    const funcId = '+LibraryFlowLoad:g:f1';
 
-    const libFlow = Root.instance.addFlow('+NsFlowLoad.:g', flowData, null, true);
+    const moduleFlow = Root.instance.addFlow('+LibraryFlowLoad.:g', flowData, null, true);
 
-    expect(libFlow).toBeInstanceOf(FlowLib);
-    expect(Namespace.getAllFunctionIds()).toContain(funcId);
-    expect(Namespace.getDescToSend(funcId)[0]?.id).toBe(funcId);
+    expect(moduleFlow).toBeInstanceOf(FlowModule);
+    expect(Library.getAllFunctionIds()).toContain(funcId);
+    expect(Library.getDescToSend(funcId)[0]?.id).toBe(funcId);
 
-    const flow = Root.instance.addFlow('NsFlowLoadUse', {});
+    const flow = Root.instance.addFlow('LibraryFlowLoadUse', {});
     flow.createBlock('calc')._load({'#is': funcId, 'n': 2});
     Root.runAll();
 
     expect(flow.queryValue('calc.result')).toBe(3);
 
-    Root.instance.deleteValue('NsFlowLoadUse');
-    Namespace.delete(funcId);
-    Root.instance.deleteValue('+NsFlowLoad');
+    Root.instance.deleteValue('LibraryFlowLoadUse');
+    Library.delete(funcId);
+    Root.instance.deleteValue('+LibraryFlowLoad');
   });
 
-  it('resolves local ids inside namespace function libraries', function () {
+  it('resolves local ids inside library function modules', function () {
     const bbWorker = {
       '#is': '',
       '#inputs': {'#is': '', '#custom': [{name: 'n', type: 'number'}]},
@@ -308,34 +313,34 @@ describe('InflowEditor', function () {
         },
       },
     };
-    const libFlow = Root.instance.addFlow('+NsFlowLocal.:g', flowData, null, true);
-    const lib = libFlow.getFuncLib();
+    const moduleFlow = Root.instance.addFlow('+LibraryFlowLocal.:g', flowData, null, true);
+    const module = moduleFlow.getFuncModule();
 
-    expect(lib.getDescToSend(':aa')[0]?.id).toBe(':aa');
-    expect(lib.getDescToSend('+NsFlowLocal:g:aa')[0]?.id).toBe('+NsFlowLocal:g:aa');
-    expect(lib.getWorkerData(':aa')).toEqual(aaWorker);
-    expect(lib.getWorkerData('+NsFlowLocal:g:aa')).toEqual(aaWorker);
+    expect(module.getDescToSend(':aa')[0]?.id).toBe(':aa');
+    expect(module.getDescToSend('+LibraryFlowLocal:g:aa')[0]?.id).toBe('+LibraryFlowLocal:g:aa');
+    expect(module.getWorkerData(':aa')).toEqual(aaWorker);
+    expect(module.getWorkerData('+LibraryFlowLocal:g:aa')).toEqual(aaWorker);
 
-    libFlow.createBlock('calc')._load({'#is': ':aa', 'n': 2});
+    moduleFlow.createBlock('calc')._load({'#is': ':aa', 'n': 2});
     Root.runAll();
-    expect(libFlow.queryValue('calc.result')).toBe(3);
+    expect(moduleFlow.queryValue('calc.result')).toBe(3);
 
-    const flow = Root.instance.addFlow('NsFlowLocalUse', {});
-    flow.createBlock('calc')._load({'#is': '+NsFlowLocal:g:aa', 'n': 2});
+    const flow = Root.instance.addFlow('LibraryFlowLocalUse', {});
+    flow.createBlock('calc')._load({'#is': '+LibraryFlowLocal:g:aa', 'n': 2});
     Root.runAll();
     expect(flow.queryValue('calc.result')).toBe(3);
-    expect(libFlow.save()['#functions']).toEqual(flowData['#functions']);
+    expect(moduleFlow.save()['#functions']).toEqual(flowData['#functions']);
 
-    Root.instance.deleteValue('NsFlowLocalUse');
-    Namespace.delete('+NsFlowLocal:g:aa');
-    Namespace.delete('+NsFlowLocal:g:bb');
-    Root.instance.deleteValue('+NsFlowLocal');
+    Root.instance.deleteValue('LibraryFlowLocalUse');
+    Library.delete('+LibraryFlowLocal:g:aa');
+    Library.delete('+LibraryFlowLocal:g:bb');
+    Root.instance.deleteValue('+LibraryFlowLocal');
   });
 
   it('createFromField', function () {
     const flow = new Flow();
     flow.load({});
-    const funcLib = flow.getFuncLib();
+    const funcModule = flow.getFuncModule();
     const block = flow.createBlock('a');
     const data = {
       '#is': '',
@@ -344,25 +349,25 @@ describe('InflowEditor', function () {
       },
     };
 
-    WorkerFunctionGen.registerType(data, {id: ':func1', name: 'func1'}, undefined, funcLib);
+    WorkerFunctionGen.registerType(data, {id: ':func1', name: 'func1'}, undefined, funcModule);
 
     // editor with map data
     block.setValue('use1', data);
     const inlineEditor = FlowEditor.createFromField(block, '#edit-use1', 'use1');
     expect(inlineEditor.save()).toEqual(data);
-    expect(inlineEditor.getFuncLib()).toBe(funcLib);
+    expect(inlineEditor.getFuncModule()).toBe(funcModule);
 
     // editor with registered in-flow worker function
     block.setValue('use2', ':func1');
     const registeredEditor = FlowEditor.createFromField(block, '#edit-use2', 'use2');
     expect(registeredEditor.save()).toEqual(data);
-    expect(registeredEditor.getFuncLib()).toBe(funcLib);
+    expect(registeredEditor.getFuncModule()).toBe(funcModule);
   });
 
   it('createFromFunction', function () {
     const flow = new Flow();
     flow.load({});
-    const funcLib = flow.getFuncLib();
+    const funcModule = flow.getFuncModule();
     const data = {
       '#is': '',
       'add': {
@@ -370,21 +375,21 @@ describe('InflowEditor', function () {
       },
     };
 
-    WorkerFunctionGen.registerType(data, {id: ':worker2', name: 'worker2'}, undefined, funcLib);
+    WorkerFunctionGen.registerType(data, {id: ':worker2', name: 'worker2'}, undefined, funcModule);
 
     const existingEditor = FlowEditor.createFromFunction(flow, '#edit-func', ':worker2', null);
     expect(existingEditor.save()).toEqual(data);
-    expect(existingEditor.getFuncLib()).toBe(funcLib);
+    expect(existingEditor.getFuncModule()).toBe(funcModule);
 
     const newEditor = FlowEditor.createFromFunction(flow, '#edit-func-default', ':worker2-2', data);
     expect(newEditor.save()).toEqual(data);
-    expect(newEditor.getFuncLib()).toBe(funcLib);
+    expect(newEditor.getFuncModule()).toBe(funcModule);
   });
 
   it('applyChange function', function () {
     const flow = new Flow();
     flow.load({});
-    const funcLib = flow.getFuncLib();
+    const funcModule = flow.getFuncModule();
 
     const expectedData = {
       '#inputs': {
@@ -430,7 +435,12 @@ describe('InflowEditor', function () {
       {name: 'b', type: 'number', readonly: true},
     ];
 
-    WorkerFunctionGen.registerType({'#is': ''}, {id: ':worker3', name: 'worker3', properties: []}, undefined, funcLib);
+    WorkerFunctionGen.registerType(
+      {'#is': ''},
+      {id: ':worker3', name: 'worker3', properties: []},
+      undefined,
+      funcModule
+    );
 
     const editor = FlowEditor.createFromFunction(flow, '#edit-func', ':worker3', null);
     editor.createBlock('#inputs')._load(expectedData['#inputs']);
@@ -438,12 +448,12 @@ describe('InflowEditor', function () {
     editor.setValue('#desc', expectedData['#desc']);
     WorkerFunctionGen.applyChangeToFunc(editor, ':worker3');
 
-    const [desc, workerData, functionLib] = Namespace.getWorker(':worker3', flow);
+    const [desc, workerData, functionModule] = Library.getWorker(':worker3', flow);
     expect(workerData).toEqual(expectedData);
     expect(desc.icon).toBe('23:🞥');
     expect(desc.properties).toEqual(expectedDescProperties);
-    expect(functionLib).toBeInstanceOf(FlowFunctionLib);
-    expect(functionLib).toBe(funcLib);
+    expect(functionModule).toBeInstanceOf(FlowFunctionModule);
+    expect(functionModule).toBe(funcModule);
   });
 
   it('static block', function () {
@@ -457,7 +467,7 @@ describe('InflowEditor', function () {
 
     const block: StaticBlock = editor.getValue('#static') as StaticBlock;
     expect(block).toBeInstanceOf(StaticBlock);
-    expect(block._prop._block).toBe(editor.getFuncLib().flow.getValue('#shared'));
+    expect(block._prop._block).toBe(editor.getFuncModule().flow.getValue('#shared'));
     expect(block._prop._name).toBe(encodeTicloName(':worker4'));
 
     flow.destroy();

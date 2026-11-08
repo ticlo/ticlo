@@ -1,7 +1,7 @@
 import {Block} from '../block/Block.ts';
 import {BlockProperty} from '../block/BlockProperty.ts';
 import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
-import {globalFunctions} from '../block/FunctionLib.ts';
+import {globalFunctions} from '../block/FunctionModule.ts';
 import {configList} from './PropertyShowHide.ts';
 import {PropertyMover} from './PropertyMover.ts';
 import {isStringArray} from '../util/DataTypes.ts';

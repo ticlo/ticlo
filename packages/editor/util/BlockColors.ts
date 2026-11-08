@@ -2,7 +2,7 @@ import type {CSSProperties} from 'react';
 import type {ClientConn} from '@ticlo/core/editor.ts';
 
 export function getFuncStyleFromDesc(
-  desc: {color?: string; icon?: string; ns?: string; category?: string},
+  desc: {color?: string; icon?: string; libraryId?: string; category?: string},
   conn: ClientConn
 ): [CSSProperties, string] {
   let color: string;
@@ -10,7 +10,7 @@ export function getFuncStyleFromDesc(
   if (desc) {
     ({color, icon} = desc);
     if ((!color || !icon) && conn) {
-      let category = desc.ns;
+      let category = desc.libraryId;
       if (category == null) {
         category = desc.category || 'other'; // TODO remove other
       }

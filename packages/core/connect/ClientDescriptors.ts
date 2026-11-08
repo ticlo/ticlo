@@ -27,7 +27,7 @@ export const clientDescriptors: FunctionDesc[] = [
     icon: 'svg:file',
     color: '9bd',
     src: 'hidden',
-    ns: 'flow',
+    libraryId: 'flow',
     configs: ['#disabled'],
   },
   {
@@ -38,7 +38,7 @@ export const clientDescriptors: FunctionDesc[] = [
     icon: 'svg:file',
     color: '9bd',
     src: 'hidden',
-    ns: 'flow',
+    libraryId: 'flow',
     configs: ['#disabled'],
   },
   {
@@ -49,7 +49,7 @@ export const clientDescriptors: FunctionDesc[] = [
     icon: 'svg:folder',
     color: '9bd',
     src: 'hidden',
-    ns: 'flow',
+    libraryId: 'flow',
     configs: ['#disabled'],
   },
   {
@@ -60,7 +60,7 @@ export const clientDescriptors: FunctionDesc[] = [
     icon: 'svg:file',
     color: '4af',
     src: 'hidden',
-    ns: 'flow',
+    libraryId: 'flow',
     configs: [],
   },
   {
@@ -71,7 +71,7 @@ export const clientDescriptors: FunctionDesc[] = [
     icon: 'svg:file',
     color: '9bd',
     src: 'hidden',
-    ns: 'flow',
+    libraryId: 'flow',
     configs: ['#desc', '#disabled'],
   },
   {
@@ -82,7 +82,7 @@ export const clientDescriptors: FunctionDesc[] = [
     icon: 'svg:file',
     color: '9bd',
     src: 'hidden',
-    ns: 'flow',
+    libraryId: 'flow',
     configs: ['#desc', '#disabled'],
   },
   {
@@ -93,7 +93,7 @@ export const clientDescriptors: FunctionDesc[] = [
     icon: 'svg:file',
     color: '4af',
     src: 'hidden',
-    ns: 'flow',
+    libraryId: 'flow',
     configs: ['#cacheMode', '#disabled'],
   },
   {
@@ -108,7 +108,7 @@ export const clientDescriptors: FunctionDesc[] = [
       {name: '#weekDays', type: 'multi-select', options: [1, 2, 3, 4, 5, 6, 7]},
     ],
     src: 'hidden',
-    ns: 'flow',
+    libraryId: 'flow',
   },
   {
     priority: 0,
@@ -118,7 +118,7 @@ export const clientDescriptors: FunctionDesc[] = [
     icon: 'svg:vial',
     color: 'fa1',
     src: 'hidden',
-    ns: 'flow',
+    libraryId: 'flow',
     configs: ['#disabled'],
     dynamicStyle: true,
     commands: {start: {parameters: []}},
@@ -131,7 +131,7 @@ export const clientDescriptors: FunctionDesc[] = [
     icon: 'svg:vials',
     color: '999',
     src: 'hidden',
-    ns: 'flow',
+    libraryId: 'flow',
     configs: ['#disabled'],
     dynamicStyle: true,
   },

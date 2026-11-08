@@ -8,7 +8,7 @@ import {LocalizedPropertyName} from '../component/LocalizedLabel.tsx';
 interface Props {
   title: React.ReactNode | string;
   funcName: string;
-  ns?: string;
+  libraryId?: string;
   parameters: PropDesc[];
   onCancel: () => void;
   onOk: (data: DataMap) => void;
@@ -34,11 +34,11 @@ export class ParameterInputDialog extends React.PureComponent<Props, State> {
     onOk?.(values);
   };
   render() {
-    const {title, parameters, funcName, ns, onCancel} = this.props;
+    const {title, parameters, funcName, libraryId, onCancel} = this.props;
     const {visible, values} = this.state;
     const funcDesc: FunctionDesc = {
       name: funcName,
-      ns,
+      libraryId,
       properties: parameters,
     };
     console.log(funcDesc);

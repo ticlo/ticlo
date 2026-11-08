@@ -9,7 +9,7 @@ import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFuncti
 import {FunctionDesc} from '../../block/Descriptor.ts';
 import {shouldHappen, shouldReject} from '../../util/test-util.ts';
 import {JsFunction} from '../../functions/script/Js.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {DataMap, isDataTruncated} from '../../util/DataTypes.ts';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
 import {FlowEditor} from '../../worker/FlowEditor.ts';
@@ -99,7 +99,7 @@ describe('Connection Client API', function () {
       await client.loadFlow('entry');
       expect(completed.at(-1)).toMatchObject({cmd: 'loadFlow', path: 'entry'});
       expect(await client.listLoadedFlows('#root')).toMatchObject({
-        flows: [{namespace: '#root', kind: 'flow', name: 'entry'}],
+        flows: [{library: '#root', kind: 'flow', name: 'entry'}],
       });
       expect(await client.getFlowState('entry')).toMatchObject({state: 'enabled'});
       await client.disableFlow('entry', {persist: true});
@@ -120,7 +120,7 @@ describe('Connection Client API', function () {
       server.setEditPolicy({readonly: true, denyPaths: ['entry', 'entry.**']});
       expect(await client.listLoadedFlows('#root')).toMatchObject({flows: []});
       await expect(client.getFlowState('entry')).rejects.toBe('restricted path');
-      expect(root.getFlowState({namespace: '#root', kind: 'flow', name: 'entry'})).toBe('enabled');
+      expect(root.getFlowState({library: '#root', kind: 'flow', name: 'entry'})).toBe('enabled');
     } finally {
       client.destroy();
       await root.stop({discardChanges: true});

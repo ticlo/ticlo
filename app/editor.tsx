@@ -35,12 +35,12 @@ import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel.tsx';
 import {FlowTestCase} from '@ticlo/test/FlowTestCase.ts';
 import {createRoot} from 'react-dom/client';
 import {MixedBrowserConnection} from '@ticlo/html/connect/MixedBrowserConnection.ts';
-import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {Library} from '@ticlo/core/block/Library.ts';
 import {initialUrlParams} from './url-state.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {flowRefFromPath} from '@ticlo/core/block/FlowRuntime.ts';
 import {flowStoragePath} from '@ticlo/core/util/FlowStoragePath.ts';
-import {namespacePrefix} from '@ticlo/core/util/NamespaceMetadata.ts';
+import {libraryPrefix} from '@ticlo/core/util/LibraryMetadata.ts';
 import {type FileAccess, type FileEntry, StorageError} from '@ticlo/core/storage/FileAccess.ts';
 import {fileFlowPath} from './flow-path.ts';
 import {editorHostUrls} from './editor-host.ts';
@@ -91,9 +91,9 @@ class App extends React.PureComponent<Props, State> {
       return;
     }
     try {
-      if (flowRefFromPath(path).namespace === files.project) files.storage.notifyFileChange?.(files.project);
+      if (flowRefFromPath(path).library === files.project) files.storage.notifyFileChange?.(files.project);
     } catch {
-      // Some valid block operations use a namespace root rather than a flow path.
+      // Some valid block operations use a library root rather than a flow path.
     }
   };
 
@@ -137,7 +137,7 @@ class App extends React.PureComponent<Props, State> {
             {({currentPath, activeStage}) => (
               <FunctionSelect
                 conn={conn}
-                funcLib={currentPath ? `${currentPath}.#lib` : undefined}
+                funcModule={currentPath ? `${currentPath}.#module` : undefined}
                 tags={activeStage?.functionTreeTags}
               />
             )}
@@ -270,8 +270,8 @@ class App extends React.PureComponent<Props, State> {
     const {storage, project} = this.props.files;
     const {flows} = await this.props.conn.listLoadedFlows(project);
     for (const ref of flows) {
-      const path = `${namespacePrefix(project)}${ref.kind === 'library' ? ':' : ''}${ref.name}`;
-      const file = `${project}/${flowStoragePath(ref.kind === 'library' ? `:${ref.name}` : ref.name)}`;
+      const path = `${libraryPrefix(project)}${ref.kind === 'module' ? ':' : ''}${ref.name}`;
+      const file = `${project}/${flowStoragePath(ref.kind === 'module' ? `:${ref.name}` : ref.name)}`;
       let exists = false;
       try {
         exists = (await storage.getFileInfo(file)).gitStatus !== 'deleted';
@@ -330,7 +330,7 @@ class App extends React.PureComponent<Props, State> {
 
   const params = initialUrlParams();
   const initialFlow = params.get('flow') || undefined;
-  const project = params.get('project') || (initialFlow ? flowRefFromPath(initialFlow).namespace : '#root');
+  const project = params.get('project') || (initialFlow ? flowRefFromPath(initialFlow).library : '#root');
   const host = window.opener ? undefined : editorHostUrls(params.get('host'));
   const client = window.opener
     ? new FrameClientConnection(window.opener) // used by server-window.html

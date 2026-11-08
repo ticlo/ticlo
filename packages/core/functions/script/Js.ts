@@ -1,4 +1,4 @@
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.ts';
 import {BlockIO} from '../../block/BlockProperty.ts';
 import {ErrorEvent, WAIT} from '../../block/Event.ts';
@@ -97,7 +97,7 @@ export class JsFunction extends BaseFunction<Block> {
     this._data.output(undefined);
   }
 
-  static registerType(script: string, desc: FunctionDesc, namespace?: string): boolean {
+  static registerType(script: string, desc: FunctionDesc, library?: string): boolean {
     try {
       const compiledFunction = new Function(script);
 
@@ -116,7 +116,7 @@ export class JsFunction extends BaseFunction<Block> {
       }
       desc.src = 'js';
 
-      globalFunctions.addFactory(CustomScriptFunction, desc, namespace);
+      globalFunctions.addFactory(CustomScriptFunction, desc, library);
       return true;
     } catch (err) {
       Logger.error(`invalid script:\n${script}`);

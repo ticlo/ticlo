@@ -11,12 +11,12 @@
 | --- | --- | --- |
 | Inline `DataMap` | Embedded flow definition | `saveInline()` writes `flow.save()` to the worker field |
 | Global ID | `globalFunctions` | `WorkerFunctionGen.applyChangeToFunc(flow, src)` |
-| `:functionId` | Owning flow's `#functions` / `FlowFunctionLib` | Same string-source callback |
-| `+namespace:lib:functionId` | `NsFunctionLib`, optionally storage-backed | Same string-source callback |
+| `:functionId` | Owning flow's `#functions` / `FlowFunctionModule` | Same string-source callback |
+| `+library:module:functionId` | `LibraryFunctionModule`, optionally storage-backed | Same string-source callback |
 
 Without a valid source, return `WAIT` or avoid creating a flow. String sources
 subscribe to their `FunctionDispatcher`; factory changes set `_srcChanged` and
-queue the host. Namespace saves await `NsFunctionLib.pendingSave`. Preserve and
+queue the host. Module saves await `LibraryFunctionModule.pendingSave`. Preserve and
 await promises through worker/editor callbacks so failures leave changes unsaved.
 See [file examples](./file-format.md#examples) for inline wrappers and local definitions.
 
@@ -28,7 +28,7 @@ See [file examples](./file-format.md#examples) for inline wrappers and local def
 - `FlowEditor`: editable `FlowWithStatic` under `#edit-*` properties.
 
 Named workers save static content under `#static` (runtime type `flow:static`).
-Its runtime owner is the library flow's `#shared` container, one child per
+Its runtime owner is the module flow's `#shared` container, one child per
 function. That `flow:const` container provides ownership/node-tree visibility
 and is never serialized. Inline workers do not support static content.
 
@@ -41,9 +41,9 @@ this._data.createOutputFlow(RepeaterWorker, '#worker', src, outputTarget, saveCa
 `outputTarget` implements `FunctionOutput`. `WorkerOutput` forwards child output,
 readiness, and timeout to the host, which shapes the result.
 
-Inline/in-flow child sources must retain their parent's function library.
-For editor descriptor lookup, pass the current `funcLib` down; do not reconstruct
-it from a deep block path. See [the `#lib` connection contract](./core-package.md#connection-layer).
+Inline/in-flow child sources must retain their parent's function module.
+For editor descriptor lookup, pass the current `funcModule` down; do not reconstruct
+it from a deep block path. See [the `#module` connection contract](./core-package.md#connection-layer).
 
 ## Host patterns
 

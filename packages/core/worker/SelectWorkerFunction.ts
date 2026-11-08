@@ -1,5 +1,5 @@
 import {BaseFunction, StatefulFunction} from '../block/BlockFunction.ts';
-import {globalFunctions} from '../block/FunctionLib.ts';
+import {globalFunctions} from '../block/FunctionModule.ts';
 import {JsFunction} from '../functions/script/Js.ts';
 import {WorkerCollector, WorkerMode, WorkerModeOptions} from './WorkerFunction.ts';
 import {Flow, Root} from '../block/Flow.ts';

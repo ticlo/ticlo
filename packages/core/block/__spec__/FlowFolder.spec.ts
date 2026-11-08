@@ -14,8 +14,8 @@ describe('flow folders', () => {
     expect(flow.getValue('value')).toBe(1);
     const folder = root.queryValue(path.slice(0, path.lastIndexOf('.'))) as FlowFolder;
     expect(folder).toBeInstanceOf(FlowFolder);
-    expect(flow._namespace).toBe(path.startsWith('+') ? '+main' : '+#root');
-    expect(folder._namespace).toBe(flow._namespace);
+    expect(flow._library).toBe(path.startsWith('+') ? '+main' : '+#root');
+    expect(folder._library).toBe(flow._library);
   });
 
   it.each([false, true])('waits for folder creation and rolls back failure (reject=%s)', async (reject) => {

@@ -376,7 +376,7 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
         editor = (
           <TableWorkerEditor
             conn={this.props.conn}
-            funcLib={this.props.funcLib}
+            funcModule={this.props.funcModule}
             name={column.desc.name}
             desc={column.desc}
             funcDesc={this.props.funcDesc}

@@ -15,16 +15,16 @@
 "Misc": 其他 # translated from: Misc
 "Open": 打开 # translated from: Open
 "File": 文件 # translated from: File
-"Namespace": 命名空间 # translated from: Namespace
-"Namespaces": 命名空间 # translated from: Namespaces
-"Select Namespace": 选择命名空间 # translated from: Select Namespace
-"Default Namespace": 默认命名空间 # translated from: Default Namespace
-"Set as Default Namespace": 设为默认命名空间 # translated from: Set as Default Namespace
-"Unload Other Namespaces": 卸载其他命名空间 # translated from: Unload Other Namespaces
-"Unload Namespace": 卸载命名空间 # translated from: Unload Namespace
-"Namespace Properties": 命名空间属性 # translated from: Namespace Properties
-"New Namespace": 新建命名空间 # translated from: New Namespace
-"Namespace Name": 命名空间名称 # translated from: Namespace Name
+"Library": 库 # translated from: Library
+"Libraries": 库 # translated from: Libraries
+"Select Library": 选择库 # translated from: Select Library
+"Default Library": 默认库 # translated from: Default Library
+"Set as Default Library": 设为默认库 # translated from: Set as Default Library
+"Unload Other Libraries": 卸载其他库 # translated from: Unload Other Libraries
+"Unload Library": 卸载库 # translated from: Unload Library
+"Library Properties": 库属性 # translated from: Library Properties
+"New Library": 新建库 # translated from: New Library
+"Library Name": 库名称 # translated from: Library Name
 "Create": 创建 # translated from: Create
 "Load": 加载 # translated from: Load
 "Dependencies": 依赖项 # translated from: Dependencies
@@ -37,7 +37,7 @@
 "Save As": 另存为 # translated from: Save As
 "New": 新建 # translated from: New
 "New Page": 新建页面 # translated from: New Page
-"New Library": 新建库 # translated from: New Library
+"New Module": 新建模块 # translated from: New Module
 "Edit": 编辑 # translated from: Edit
 "Delete": 删除 # translated from: Delete
 "Search": 搜索

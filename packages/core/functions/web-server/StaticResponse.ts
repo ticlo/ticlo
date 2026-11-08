@@ -1,6 +1,6 @@
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.ts';
 import {HttpRequest} from './HttpRequest.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import type {Block} from '../../block/Block.ts';
 
 export class StaticResponse extends BaseFunction<Block> {

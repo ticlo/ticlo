@@ -43,7 +43,7 @@ import {droppedUploads, fileError, FileOperations, parentPath, topEntries, valid
 
 export interface FileManagerProps {
   storage: FileAccess;
-  /** Project / namespace ID, without a leading +; #root is the global namespace. */
+  /** Project / library ID, without a leading +; #root is the global library. */
   project: string;
   defaultPreview?: boolean;
   /** Show only the file tree for a file selection dialog. */
@@ -121,7 +121,7 @@ function branchTree(branches: string[]): GitBranchNode[] {
 const pendingHash = 'uncommitted';
 const logSeparator = '\n\n--- --- ---\n';
 
-function validNamespaceName(name: string) {
+function validLibraryName(name: string) {
   try {
     return validFlowEntry(name) && projectId(name) === name;
   } catch {
@@ -573,7 +573,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   private createFromCommit = () => {
     const {gitCreate} = this.state;
     const git = this.git();
-    if (!git || !gitCreate || !validNamespaceName(gitCreate.name.trim())) return;
+    if (!git || !gitCreate || !validLibraryName(gitCreate.name.trim())) return;
     return this.run(
       async () => {
         await git.createProjectFromCommit(this.props.project, gitCreate.name.trim(), gitCreate.commit, {
@@ -1430,7 +1430,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
                 menu={{
                   items: [
                     {key: 'reset', label: t('Reset to This Commit'), danger: true},
-                    {key: 'create', label: t('Create Namespace from This Commit')},
+                    {key: 'create', label: t('Create Library from This Commit')},
                   ],
                   onClick: ({key}) => {
                     const commit = this.gitContextHash;
@@ -1565,18 +1565,18 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         )}
         {!picker && (
           <Modal
-            title={t('Create Namespace from This Commit')}
+            title={t('Create Library from This Commit')}
             open={Boolean(this.state.gitCreate)}
             onOk={this.createFromCommit}
             onCancel={() => !busy && this.setState({gitCreate: undefined, error: undefined})}
             okButtonProps={{
-              disabled: busy || !validNamespaceName(this.state.gitCreate?.name.trim() ?? ''),
+              disabled: busy || !validLibraryName(this.state.gitCreate?.name.trim() ?? ''),
             }}
             confirmLoading={busy}
             destroyOnHidden
           >
             <Input
-              placeholder={translateEditor('Namespace name')}
+              placeholder={translateEditor('Library name')}
               value={this.state.gitCreate?.name ?? ''}
               onChange={(event) => this.setState({gitCreate: {...this.state.gitCreate, name: event.target.value}})}
               onPressEnter={this.createFromCommit}

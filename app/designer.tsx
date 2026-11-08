@@ -41,9 +41,9 @@ import {designerData} from './sample-data/designer.ts';
 import {EditorWindows} from './EditorWindows.ts';
 import {fileFlowPath, pageFlowPath} from './flow-path.ts';
 import {reloadDiscardedFileFlow, resetProjectFlows, unloadDeletedFileFlows} from './file-flow-lifecycle.ts';
-import {useNamespaceSelection} from './useNamespaceSelection.ts';
-import type {NamespaceSelectionOptions} from '@ticlo/editor/namespace/NamespaceSelectDialog.tsx';
-import {createLibraryAutoLoad} from './library-auto-load.ts';
+import {useLibrarySelection} from './useLibrarySelection.ts';
+import type {LibrarySelectionOptions} from '@ticlo/editor/library/LibrarySelectDialog.tsx';
+import {createModuleAutoLoad} from './module-auto-load.ts';
 import {initialUrlParams} from './url-state.ts';
 
 const FileVersionContext = React.createContext(0);
@@ -55,7 +55,7 @@ function DesignerProperties({conn}: {conn: ClientConnection}) {
     <PropertyList
       conn={stage?.conn ?? conn}
       paths={stage?.selection.paths ?? []}
-      funcLib={stage?.funcLib ?? stage?.basePath}
+      funcModule={stage?.funcModule ?? stage?.basePath}
       style={{width: '100%', height: '100%', padding: 8}}
     />
   );
@@ -127,9 +127,9 @@ function DesignerHeader({
   conn,
   files,
   onFilesChange,
-  onNamespaceChange,
-  onNamespaceUnload,
-  onSetDefaultNamespace,
+  onLibraryChange,
+  onLibraryUnload,
+  onSetDefaultLibrary,
 }: {
   language: string;
   onLanguageChange: (language: string) => void;
@@ -138,9 +138,9 @@ function DesignerHeader({
   conn: ClientConnection;
   files?: {storage: ProjectFiles; project: string};
   onFilesChange: () => void;
-  onNamespaceChange: (name: string, options: NamespaceSelectionOptions) => Promise<void>;
-  onNamespaceUnload: (name: string) => Promise<void>;
-  onSetDefaultNamespace: (name: string) => Promise<void>;
+  onLibraryChange: (name: string, options: LibrarySelectionOptions) => Promise<void>;
+  onLibraryUnload: (name: string) => Promise<void>;
+  onSetDefaultLibrary: (name: string) => Promise<void>;
 }) {
   const layout = useContext(DesignerLayoutContextType);
   const {currentPath} = useContext(TicloCurrentFlowContext);
@@ -166,9 +166,9 @@ function DesignerHeader({
         files={files}
         newPage
         onChange={onFilesChange}
-        onNamespaceChange={onNamespaceChange}
-        onNamespaceUnload={onNamespaceUnload}
-        onSetDefaultNamespace={onSetDefaultNamespace}
+        onLibraryChange={onLibraryChange}
+        onLibraryUnload={onLibraryUnload}
+        onSetDefaultLibrary={onSetDefaultLibrary}
         onOpen={(path, flow) => openDesignerFlow(path, flow, conn, files.storage, layout)}
         viewItems={viewItems}
       >
@@ -193,9 +193,9 @@ interface Props {
   conn: ClientConnection;
   initialFlow?: string;
   files?: {storage: ProjectFiles; project: string};
-  onNamespaceChange: (name: string, options: NamespaceSelectionOptions) => Promise<void>;
-  onNamespaceUnload: (name: string) => Promise<void>;
-  onSetDefaultNamespace: (name: string) => Promise<void>;
+  onLibraryChange: (name: string, options: LibrarySelectionOptions) => Promise<void>;
+  onLibraryUnload: (name: string) => Promise<void>;
+  onSetDefaultLibrary: (name: string) => Promise<void>;
 }
 
 interface State {
@@ -205,7 +205,7 @@ interface State {
 
 class App extends React.PureComponent<Props, State> {
   state: State = {fileVersion: 0};
-  libraryAutoLoad = createLibraryAutoLoad(this.props.root);
+  moduleAutoLoad = createModuleAutoLoad(this.props.root);
   get conn() {
     return this.props.conn;
   }
@@ -227,7 +227,7 @@ class App extends React.PureComponent<Props, State> {
             hideRoot={true}
             onSelect={this.onSelect}
             showMenu={true}
-            libraryAutoLoad={this.libraryAutoLoad}
+            moduleAutoLoad={this.moduleAutoLoad}
             showStoredFlows
           />
         ),
@@ -242,7 +242,7 @@ class App extends React.PureComponent<Props, State> {
               return (
                 <FunctionSelect
                   conn={conn}
-                  funcLib={currentPath ? `${currentPath}.#lib` : undefined}
+                  funcModule={currentPath ? `${currentPath}.#module` : undefined}
                   tags={activeStage?.functionTreeTags}
                 />
               );
@@ -452,9 +452,9 @@ class App extends React.PureComponent<Props, State> {
                   conn={conn}
                   files={this.props.files}
                   onFilesChange={this.onFilesChange}
-                  onNamespaceChange={this.props.onNamespaceChange}
-                  onNamespaceUnload={this.props.onNamespaceUnload}
-                  onSetDefaultNamespace={this.props.onSetDefaultNamespace}
+                  onLibraryChange={this.props.onLibraryChange}
+                  onLibraryUnload={this.props.onLibraryUnload}
+                  onSetDefaultLibrary={this.props.onSetDefaultLibrary}
                 />
                 <DockLayout
                   defaultLayout={this.defaultDockLayout}
@@ -489,7 +489,7 @@ function DesignerWorkspace({
   initialFlow?: string;
   files: {storage: ProjectFiles; project: string};
 }) {
-  const selection = useNamespaceSelection(root, conn, files.project, initialFlow);
+  const selection = useLibrarySelection(root, conn, files.project, initialFlow);
   return (
     <App
       key={selection.project}
@@ -497,9 +497,9 @@ function DesignerWorkspace({
       conn={conn}
       initialFlow={selection.initialFlow}
       files={{...files, project: selection.project}}
-      onNamespaceChange={selection.selectNamespace}
-      onNamespaceUnload={selection.unloadNamespace}
-      onSetDefaultNamespace={selection.setDefaultNamespace}
+      onLibraryChange={selection.selectLibrary}
+      onLibraryUnload={selection.unloadLibrary}
+      onSetDefaultLibrary={selection.setDefaultLibrary}
     />
   );
 }
@@ -518,7 +518,7 @@ function DesignerWorkspace({
   let files: Props['files'];
   if (host) {
     const storage = new RemoteStorage({baseURL: host});
-    const project = selected?.ref.namespace ?? params.get('project') ?? '#root';
+    const project = selected?.ref.library ?? params.get('project') ?? '#root';
     files = {storage, project};
     await root.setStorage(storage);
     await root.start(
@@ -537,14 +537,14 @@ function DesignerWorkspace({
     }
   } else {
     const storage = new StaticStorage(new URL('./storage', location.href).href);
-    const project = selected?.ref.namespace ?? params.get('project') ?? 'local';
+    const project = selected?.ref.library ?? params.get('project') ?? 'local';
     files = {storage, project};
     await root.setStorage(storage);
     if (selected) {
       const sample =
         selected.path === '+local.designer-example' &&
         !(await root.listFlows('local')).some(({name}) => name === 'designer-example');
-      await root.start({[selected.ref.namespace]: {flows: sample ? [] : [selected.ref.name]}});
+      await root.start({[selected.ref.library]: {flows: sample ? [] : [selected.ref.name]}});
       if (sample) root.addFlow(selected.path, designerData);
       initialFlow = selected.path;
     } else {

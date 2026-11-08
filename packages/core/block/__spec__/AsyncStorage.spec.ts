@@ -2,10 +2,10 @@ import {afterEach, describe, expect, it, vi} from 'vitest';
 import {DataMap, Root} from '@ticlo/core';
 import {makeLocalConnection} from '../../connect/LocalConnection.ts';
 import {shouldHappen} from '../../util/test-util.ts';
-import {Namespace} from '../Namespace.ts';
+import {Library} from '../Library.ts';
 import {FlowEditor} from '../../worker/FlowEditor.ts';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
-import {getGlobalFunctionRoot} from '../FunctionLib.ts';
+import {getGlobalFunctionRoot} from '../FunctionModule.ts';
 
 function deferred<T>() {
   let resolve: (value: T) => void;
@@ -183,23 +183,23 @@ describe('asynchronous persistence', () => {
     }
   });
 
-  it('waits for library worker persistence and keeps failed edits dirty', async () => {
+  it('waits for module worker persistence and keeps failed edits dirty', async () => {
     root = new Root();
     let nextSave = Promise.resolve();
     root._storage = {
       loadFlow: async (): Promise<DataMap | null> => null,
       getFlowLoader: () => ({}),
-      loadLib: async (): Promise<DataMap> => ({'#is': ''}),
-      saveLib: () => nextSave,
+      loadModule: async (): Promise<DataMap> => ({'#is': ''}),
+      saveModule: () => nextSave,
     } as any;
-    await root.enableNamespace('asyncStorage');
-    await root.loadFlow({namespace: 'asyncStorage', kind: 'library', name: 'library'});
-    const ns = '+asyncStorage';
-    const id = `${ns}:library:worker`;
+    await root.enableLibrary('asyncStorage');
+    await root.loadFlow({library: 'asyncStorage', kind: 'module', name: 'module'});
+    const libraryId = '+asyncStorage';
+    const id = `${libraryId}:module:worker`;
     try {
-      const lib = Namespace.getFunctionLib(id, root);
+      const module = Library.getFunctionModule(id, root);
       await Promise.resolve();
-      WorkerFunctionGen.registerType({'#is': ''}, {id, name: 'worker'}, ns, lib);
+      WorkerFunctionGen.registerType({'#is': ''}, {id, name: 'worker'}, libraryId, module);
       const flow = root.addFlow('flow', undefined, {});
       const editor = FlowEditor.createFromFunction(flow, '#edit-worker', id, null);
       editor.startHistory();
@@ -214,8 +214,8 @@ describe('asynchronous persistence', () => {
       expect(editor.getValue('@has-change')).toBeUndefined();
       editor.setValue('value', 2);
       editor.trackChange();
-      nextSave = Promise.reject(new Error('library conflict'));
-      await expect(editor.applyChange()).rejects.toThrow('library conflict');
+      nextSave = Promise.reject(new Error('module conflict'));
+      await expect(editor.applyChange()).rejects.toThrow('module conflict');
       expect(editor.getValue('@has-change')).toBe(true);
     } finally {
       await root.stop({discardChanges: true});

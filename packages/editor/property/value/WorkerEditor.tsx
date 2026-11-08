@@ -60,7 +60,7 @@ export class WorkerEditor extends FunctionEditor {
   };
 
   render() {
-    const {desc, locked, conn, funcLib} = this.props;
+    const {desc, locked, conn, funcModule} = this.props;
     let {value, onChange} = this.props;
     const {opened} = this.state;
 
@@ -92,7 +92,7 @@ export class WorkerEditor extends FunctionEditor {
               onFunctionClick={this.onFunctionClick}
               filter={WorkerEditor.filterWorkerFunction}
               currentValue={value}
-              funcLib={funcLib}
+              funcModule={funcModule}
             />
           }
         >

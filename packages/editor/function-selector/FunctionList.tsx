@@ -35,7 +35,7 @@ interface Props {
   recent?: boolean;
   types?: string[];
   style?: React.CSSProperties;
-  funcLib?: string;
+  funcModule?: string;
   tags?: readonly string[];
 }
 
@@ -50,7 +50,7 @@ export class FunctionList extends React.PureComponent<Props, any> {
   }
 
   render() {
-    let {conn, recent, types, style, funcLib, tags} = this.props;
+    let {conn, recent, types, style, funcModule, tags} = this.props;
     if (recent) {
       types = _recentFunctionList;
     }
@@ -58,7 +58,7 @@ export class FunctionList extends React.PureComponent<Props, any> {
     for (const type of types) {
       const desc = conn.watchDesc(type);
       if (desc && (!tags || desc.tags?.some((tag) => tags.includes(tag)))) {
-        children.push(<FunctionView key={type} conn={conn} desc={desc} funcLib={funcLib} />);
+        children.push(<FunctionView key={type} conn={conn} desc={desc} funcModule={funcModule} />);
       }
     }
     return (

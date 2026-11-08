@@ -1,5 +1,5 @@
 import {FunctionDesc, PropDesc} from '@ticlo/core';
-import {getDescLib} from '../util/FunctionLib.ts';
+import {getDescModule} from '../util/FunctionModule.ts';
 
 interface HistoryEntry {
   name: string;
@@ -15,11 +15,11 @@ export class OptionalPropertyHistory {
   constructor(
     desc: FunctionDesc,
     private properties: {[key: string]: PropDesc},
-    funcLib?: string
+    funcModule?: string
   ) {
     this.storageKey = `ticlo-optional-property-history:${JSON.stringify([
-      getDescLib(desc.id, funcLib),
-      desc.id ?? `${desc.ns ?? ''}:${desc.name}`,
+      getDescModule(desc.id, funcModule),
+      desc.id ?? `${desc.libraryId ?? ''}:${desc.name}`,
     ])}`;
     this.load();
     if (!this.entries.length) {

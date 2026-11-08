@@ -138,11 +138,11 @@ export abstract class TestFileStorage implements FlowStorage {
     task.delete();
     await task.whenIdle();
   }
-  async loadLib(_ns: string, _lib: string): Promise<DataMap | null> {
+  async loadModule(_libraryId: string, _module: string): Promise<DataMap | null> {
     return null;
   }
-  saveLib(_ns: string, _lib: string, _data: DataMap) {
-    throw new Error('Test storage does not store libraries');
+  saveModule(_libraryId: string, _module: string, _data: DataMap) {
+    throw new Error('Test storage does not store modules');
   }
   getFlowLoader(key: string, _prop?: BlockProperty): FlowLoader {
     return {

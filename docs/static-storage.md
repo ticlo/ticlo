@@ -23,7 +23,7 @@ Each `.list.json` is a JSON array of filenames; directory entries end in `/`.
 For example, `proj/main/.list.json`:
 
 ```json
-["ticlo.json", "entry.ticlo", "folder/", "#context.ticlo", "#libs/", "#storage/"]
+["ticlo.json", "entry.ticlo", "folder/", "#context.ticlo", "#modules/", "#storage/"]
 ```
 
 `folder/.list.json` can contain `["child.ticlo"]`; empty folders use `[]`.

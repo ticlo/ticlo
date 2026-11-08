@@ -1,7 +1,7 @@
 import {useMemo, type RefObject} from 'react';
 import {decode, encode, isStringArray, type DataMap} from '@ticlo/core';
 import {isSavedBlock} from '@ticlo/core/util/DataTypes.ts';
-import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {Library} from '@ticlo/core/block/Library.ts';
 import {notification} from 'antd';
 import type {TicloStageCommands} from '@ticlo/editor/component/LayoutContext.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
@@ -22,7 +22,7 @@ export function useStageCommands(
       );
     };
     const getDesc = (id: unknown) =>
-      typeof id === 'string' ? Namespace.getFunctions(id, flow)?.listen(id, null)?.getValue()?.desc : undefined;
+      typeof id === 'string' ? Library.getFunctions(id, flow)?.listen(id, null)?.getValue()?.desc : undefined;
     return {
       save() {
         if (!flow || !conn.getEditPolicyView().can({cmd: 'applyFlowChange', path: basePath})) return false;

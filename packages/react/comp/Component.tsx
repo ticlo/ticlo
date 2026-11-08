@@ -1,7 +1,7 @@
 import React, {ComponentType, ReactNode, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Block} from '@ticlo/core';
 import {FunctionFactory} from '@ticlo/core/block/BlockFunction.ts';
-import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {Library} from '@ticlo/core/block/Library.ts';
 import {useBlockValue} from '../hooks/useBlockValue.ts';
 import {TicloPage} from './TicloPage.tsx';
 import {ComponentContext, ComponentRenderContext, defaultComponentContext} from '../ComponentContext.ts';
@@ -15,8 +15,8 @@ export function useComponentUpdate<T extends BaseProps>(funcId: string, block?: 
     if (!funcId) {
       return undefined;
     }
-    const functionLib = Namespace.getFunctions(funcId, block?._flow);
-    return functionLib?.getMeta(funcId, metaKey) as ComponentType<T> | undefined;
+    const functionModule = Library.getFunctions(funcId, block?._flow);
+    return functionModule?.getMeta(funcId, metaKey) as ComponentType<T> | undefined;
   });
 
   useEffect(() => {
@@ -24,8 +24,8 @@ export function useComponentUpdate<T extends BaseProps>(funcId: string, block?: 
       setComponent(undefined);
       return;
     }
-    const functionLib = Namespace.getFunctions(funcId, block?._flow);
-    const dispatcher = functionLib?.listen(funcId, null);
+    const functionModule = Library.getFunctions(funcId, block?._flow);
+    const dispatcher = functionModule?.listen(funcId, null);
     if (!dispatcher) {
       setComponent(undefined);
       return;

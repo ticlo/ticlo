@@ -1,5 +1,5 @@
 # these functions are defined in core
-# but i18n need to have a top level folder for every namespace
+# but i18n need to have a top level folder for every library
 
 route:
   server:

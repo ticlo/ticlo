@@ -1,6 +1,6 @@
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.ts';
 import {type BlockConfig} from '../../block/BlockProperty.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {type Block} from '../../block/Block.ts';
 
 export class GroupFunction extends BaseFunction<Block> {

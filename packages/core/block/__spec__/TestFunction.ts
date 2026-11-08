@@ -1,4 +1,4 @@
-import {globalFunctions} from '../FunctionLib.ts';
+import {globalFunctions} from '../FunctionModule.ts';
 import {PureFunction, StatefulFunction} from '../BlockFunction.ts';
 import {BlockIO, BlockPropertyEvent} from '../BlockProperty.ts';
 import {DoneEvent, ErrorEvent, Event, EventType, WAIT} from '../Event.ts';

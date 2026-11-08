@@ -26,7 +26,7 @@ import {CheckboxChangeEvent} from 'antd';
 import {ParameterInputDialog} from './ParameterInputDialog.tsx';
 import {ExpandIcon} from '../component/Tree.tsx';
 import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.ts';
-import {getDescLib} from '../util/FunctionLib.ts';
+import {getDescModule} from '../util/FunctionModule.ts';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 
 interface Props {
@@ -45,7 +45,7 @@ interface Props {
   paths: string[];
   name: string;
   baseName?: string;
-  funcLib?: string;
+  funcModule?: string;
   onAddSubBlock: (id: string, desc?: FunctionDesc, data?: any) => void;
 }
 
@@ -211,7 +211,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
           }
           funcName={`${funcDesc.name}.${propDesc.name}.@commands.${command}`}
           parameters={commandDesc.parameters}
-          ns={funcDesc.ns}
+          libraryId={funcDesc.libraryId}
           onOk={onConfirmCommandModal}
           onCancel={this.onCloseCommandModal}
         />
@@ -229,15 +229,15 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       conn: ClientConn;
       paths: string[];
       name: string;
-      funcLib?: string;
+      funcModule?: string;
     },
     funcId: string,
     desc?: FunctionDesc,
     data?: any
   ) {
-    const {conn, paths, name, funcLib} = props;
+    const {conn, paths, name, funcModule} = props;
     if (!desc) {
-      desc = conn.watchDesc(funcId, getDescLib(funcId, funcLib));
+      desc = conn.watchDesc(funcId, getDescModule(funcId, funcModule));
     }
     if (!data) {
       if (!desc) {
@@ -261,7 +261,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   };
 
   getMenu() {
-    const {funcDesc, propDesc, bindingPath, group, name, conn, valueDefined, isCustom, isTemp, display, funcLib} =
+    const {funcDesc, propDesc, bindingPath, group, name, conn, valueDefined, isCustom, isTemp, display, funcModule} =
       this.props;
     const {valueDenfinedOverride, isTempOverride} = this.state;
     const menuItems: React.ReactElement[] = [];
@@ -277,7 +277,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
                 conn={conn}
                 showPreset={true}
                 onFunctionClick={this.onAddSubBlock}
-                funcLib={funcLib}
+                funcModule={funcModule}
               />
               // </Menu.Item>
             }

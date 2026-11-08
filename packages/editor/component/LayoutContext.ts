@@ -24,7 +24,7 @@ export interface TicloStage<Selection extends TicloSelection = TicloSelection> e
   basePath: string;
   kind: string;
   conn?: ClientConn;
-  funcLib?: string;
+  funcModule?: string;
   functionTreeTags?: readonly string[];
   nodeTreeTags?: readonly string[];
   selection: Selection;

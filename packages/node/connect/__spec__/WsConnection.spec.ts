@@ -10,7 +10,7 @@ import {Logger} from '@ticlo/core/util/Logger.ts';
 import {addTestTypes, removeTestTypes} from '@ticlo/core/connect/__spec__/BulkTypes.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {FunctionDesc} from '@ticlo/core/block/Descriptor.ts';
-import {globalFunctions} from '@ticlo/core/block/FunctionLib.ts';
+import {globalFunctions} from '@ticlo/core/block/FunctionModule.ts';
 
 const PORT = 8082;
 

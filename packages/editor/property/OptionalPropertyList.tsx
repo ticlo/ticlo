@@ -42,7 +42,7 @@ interface Props {
   funcDesc: FunctionDesc;
   conn: ClientConn;
   paths: string[];
-  funcLib?: string;
+  funcModule?: string;
 }
 
 interface State {
@@ -56,17 +56,17 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
 
   cachedProperties: {[key: string]: PropDesc};
   checkedFuncDesc: FunctionDesc;
-  checkedFuncLib: string;
+  checkedFuncModule: string;
   history: OptionalPropertyHistory;
 
   getProperties(): {[key: string]: PropDesc} {
-    const {funcDesc, conn, funcLib} = this.props;
-    if (funcDesc !== this.checkedFuncDesc || funcLib !== this.checkedFuncLib) {
+    const {funcDesc, conn, funcModule} = this.props;
+    if (funcDesc !== this.checkedFuncDesc || funcModule !== this.checkedFuncModule) {
       this.checkedFuncDesc = funcDesc;
-      this.checkedFuncLib = funcLib;
+      this.checkedFuncModule = funcModule;
       if (funcDesc) {
-        this.cachedProperties = conn.getOptionalProps(funcDesc, funcLib);
-        this.history = new OptionalPropertyHistory(funcDesc, this.cachedProperties || {}, funcLib);
+        this.cachedProperties = conn.getOptionalProps(funcDesc, funcModule);
+        this.history = new OptionalPropertyHistory(funcDesc, this.cachedProperties || {}, funcModule);
       } else {
         this.cachedProperties = null;
       }
@@ -142,7 +142,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
   };
 
   renderImpl() {
-    const {paths, conn, funcDesc, funcLib} = this.props;
+    const {paths, conn, funcDesc, funcModule} = this.props;
     const {search} = this.state;
     const properties = this.getProperties();
     if (this.loaders.size === 0 || !properties) {
@@ -175,7 +175,7 @@ export class OptionalPropertyList extends MultiSelectComponent<Props, State, Opt
           propDesc={properties[name]}
           checked={checked}
           onCheck={this.onPropertyChecked}
-          funcLib={funcLib}
+          funcModule={funcModule}
         />
       );
     };

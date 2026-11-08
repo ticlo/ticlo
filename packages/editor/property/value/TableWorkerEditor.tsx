@@ -57,7 +57,7 @@ function WorkerDialog({conn, path, onSave, onClose, disabled}: WorkerDialogProps
 }
 
 export function TableWorkerEditor(props: ValueEditorProps) {
-  const {conn, value, funcLib, locked, desc, onChange} = props;
+  const {conn, value, funcModule, locked, desc, onChange} = props;
   const policies = [useContext(EditPolicyContext), conn.getEditPolicyView()];
   const [dialogs, setDialogs] = useState<Omit<WorkerDialogProps, 'conn' | 'disabled' | 'onClose'>[]>([]);
   const [loading, setLoading] = useState(false);
@@ -88,11 +88,11 @@ export function TableWorkerEditor(props: ValueEditorProps) {
     tempPaths.current.add(typeof value === 'string' ? path : tempPath);
     try {
       if (typeof value === 'string') {
-        await conn.editWorker(path, undefined, value, undefined, funcLib);
+        await conn.editWorker(path, undefined, value, undefined, funcModule);
       } else {
         // addBlock accepts saved data, where objects containing #is need a value wrapper.
         await conn.addBlock(tempPath, {'#is': '', 'value': {'#is': value}});
-        await conn.editWorker(path, 'value', undefined, undefined, funcLib);
+        await conn.editWorker(path, 'value', undefined, undefined, funcModule);
       }
       if (!alive.current) {
         conn.setValue(typeof value === 'string' ? path : tempPath, undefined, requestCallbacks);

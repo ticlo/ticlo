@@ -6,7 +6,7 @@ import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFuncti
 import {FunctionDesc} from '../../block/Descriptor.ts';
 import {shouldHappen} from '../../util/test-util.ts';
 import {JsFunction} from '../../functions/script/Js.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {DataMap} from '../../util/DataTypes.ts';
 import {BaseFunction} from '../../block/BlockFunction.ts';
 import {addTestTypes, removeTestTypes} from './BulkTypes.ts';

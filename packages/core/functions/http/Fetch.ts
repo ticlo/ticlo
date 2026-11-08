@@ -1,7 +1,7 @@
 import axios, {AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse, CanceledError, ResponseType} from 'axios';
 import {PureFunction, StatefulFunction, BaseFunction} from '../../block/BlockFunction.ts';
 import {ErrorEvent, EventType, WAIT} from '../../block/Event.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {defaultConfigs, BlockMode} from '../../block/Descriptor.ts';
 import {httpRequest, type HttpClient} from './HttpClient.ts';
 import {DataMap} from '../../util/DataTypes.ts';

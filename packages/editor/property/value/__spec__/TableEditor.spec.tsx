@@ -131,12 +131,12 @@ describe('TableEditor', () => {
 
   it('selects local workers in the table draft and discards them on cancel', async () => {
     const flow = Root.instance.addFlow('TableEditorTest');
-    WorkerFunctionGen.registerType(defaultWorkerData, {id: ':render', name: 'render'}, undefined, flow.getFuncLib());
+    WorkerFunctionGen.registerType(defaultWorkerData, {id: ':render', name: 'render'}, undefined, flow.getFuncModule());
     const [, conn] = makeLocalConnection(Root.instance, true);
     const onChange = vi.fn();
     mount({
       conn,
-      funcLib: 'TableEditorTest',
+      funcModule: 'TableEditorTest',
       value: [{renderer: undefined}],
       onChange,
       desc: {...objectDesc, columns: [{key: 'renderer', type: 'worker'}]},
@@ -167,14 +167,14 @@ describe('TableEditor', () => {
     const flow = Root.instance.addFlow('TableEditorTest', {
       data: {'#is': '', 'items': original},
     });
-    WorkerFunctionGen.registerType(defaultWorkerData, {id: ':render', name: 'render'}, undefined, flow.getFuncLib());
+    WorkerFunctionGen.registerType(defaultWorkerData, {id: ':render', name: 'render'}, undefined, flow.getFuncModule());
     const [, conn] = makeLocalConnection(Root.instance, true);
     const onChange = vi.fn();
     const editWorker = vi.spyOn(conn, 'editWorker');
     mount({
       conn,
       keys: ['TableEditorTest.data'],
-      funcLib: 'TableEditorTest',
+      funcModule: 'TableEditorTest',
       value: original,
       onChange,
       desc: {...objectDesc, columns: [{key: 'renderer', type: 'worker'}]},
@@ -185,7 +185,7 @@ describe('TableEditor', () => {
     await shouldHappen(() => document.querySelector('.ticl-e-table-worker-editor .ticl-e-stage'));
     const path = editWorker.mock.calls[0][0];
     const draft = Root.instance.queryValue(path) as Flow;
-    expect(draft.getFuncLib()).toBe(flow.getFuncLib());
+    expect(draft.getFuncModule()).toBe(flow.getFuncModule());
     await conn.setValue(`${path}.child.test`, 'draft', true);
     const workerDialog = document.querySelector('.ticl-e-table-worker-editor');
     await userEvent.click(workerDialog.querySelector('.ant-modal-footer .ant-btn-primary'));
@@ -226,15 +226,15 @@ describe('TableEditor', () => {
     expect(rows()[0].querySelectorAll('.ticl-e-table-cell-display')[2].textContent).toBe('false');
   });
 
-  it('edits a named worker in its original local function library', async () => {
+  it('edits a named worker in its original local function module', async () => {
     const flow = Root.instance.addFlow('TableEditorTest');
-    WorkerFunctionGen.registerType(defaultWorkerData, {id: ':render', name: 'render'}, undefined, flow.getFuncLib());
+    WorkerFunctionGen.registerType(defaultWorkerData, {id: ':render', name: 'render'}, undefined, flow.getFuncModule());
     const [, conn] = makeLocalConnection(Root.instance, true);
     const editWorker = vi.spyOn(conn, 'editWorker');
     const onChange = vi.fn();
     mount({
       conn,
-      funcLib: 'TableEditorTest',
+      funcModule: 'TableEditorTest',
       value: [{renderer: ':render'}],
       onChange,
       desc: {...objectDesc, columns: [{key: 'renderer', type: 'worker'}]},
@@ -248,7 +248,7 @@ describe('TableEditor', () => {
     await conn.addBlock(`${path}.child`, {'#is': '', 'value': 'saved'});
     await userEvent.click(document.querySelector('.ticl-e-table-worker-editor .ant-modal-footer .ant-btn-primary'));
     await shouldHappen(() => !document.querySelector('.ticl-e-table-worker-editor'));
-    expect(flow.getFuncLib().getWorkerData(':render')).toEqual({
+    expect(flow.getFuncModule().getWorkerData(':render')).toEqual({
       ...defaultWorkerData,
       child: {'#is': '', 'value': 'saved'},
     });

@@ -8,7 +8,7 @@
   border-radius: 8px;
   cursor: pointer;
 
-  & > .ticl-e-func-ns {
+  & > .ticl-e-func-library {
     position: absolute;
     background: var(--ant-color-bg-container, #fff);
     padding: 0 2px;
@@ -51,7 +51,7 @@
 .ticl-e-tree-type {
   padding-top: 4px;
 
-  &.ticl-e-func-lib {
+  &.ticl-e-func-module {
     cursor: context-menu;
   }
 

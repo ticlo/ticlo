@@ -1,4 +1,4 @@
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {DateTime} from 'luxon';
 import {invalidDate} from '../../util/DateTime.ts';
 import {AutoUpdateFunction} from '../base/AutoUpdateFunction.ts';

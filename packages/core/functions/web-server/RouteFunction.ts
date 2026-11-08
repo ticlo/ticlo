@@ -1,6 +1,6 @@
 import {StatefulFunction} from '../../block/BlockFunction.ts';
 import {NO_EMIT} from '../../block/Event.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {HttpRequest} from './HttpRequest.ts';
 import {deepEqual} from '../../util/Compare.ts';
 import {DataMap} from '../../util/DataTypes.ts';

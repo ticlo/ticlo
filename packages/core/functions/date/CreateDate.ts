@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {DateTime} from 'luxon';
 import {getZoneObject, invalidDate} from '../../util/DateTime.ts';
 

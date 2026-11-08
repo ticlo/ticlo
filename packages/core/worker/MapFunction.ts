@@ -1,4 +1,4 @@
-import {globalFunctions} from '../block/FunctionLib.ts';
+import {globalFunctions} from '../block/FunctionModule.ts';
 import {Block} from '../block/Block.ts';
 import {convertToOutput} from '../util/DataTypes.ts';
 import {ErrorEvent, Event, EventType, WAIT} from '../block/Event.ts';

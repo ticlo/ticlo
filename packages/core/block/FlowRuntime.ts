@@ -1,19 +1,19 @@
-import type {Flow, FlowNameSpace, Root} from './Flow.ts';
-import {Namespace} from './Namespace.ts';
-import type {NamespaceMetadata} from './Storage.ts';
-import {namespacePrefix, readNamespaceMetadata, validateNamespace} from '../util/NamespaceMetadata.ts';
+import type {Flow, FlowLibrary, Root} from './Flow.ts';
+import {Library} from './Library.ts';
+import type {LibraryMetadata} from './Storage.ts';
+import {libraryPrefix, readLibraryMetadata, validateLibrary} from '../util/LibraryMetadata.ts';
 import {validFlowEntry} from '../util/FlowStoragePath.ts';
 import {matchEditPath} from '../policy/EditPolicy.ts';
 import type {DataMap} from '../util/DataTypes.ts';
 
 export type StartOptions = Record<string, {flows?: string[]}>;
 export interface FlowRef {
-  namespace: string;
-  kind: 'flow' | 'library';
+  library: string;
+  kind: 'flow' | 'module';
   name: string;
 }
 export interface MainFlowEntry {
-  namespace: string;
+  library: string;
   name: string;
   state: 'unloaded' | 'loading' | 'enabled' | 'disabled';
   autoLoad: boolean;
@@ -24,24 +24,24 @@ export interface UnloadOptions {
 }
 
 interface PreparedSelection {
-  namespace: string;
+  library: string;
   version: number;
   folders: string[];
   flows: {ref: FlowRef; data: Promise<DataMap | null>}[];
 }
 
 export function flowRefFromPath(path: string): FlowRef {
-  let namespace = '#root';
+  let library = '#root';
   if (path.startsWith('+')) {
     const dot = path.indexOf('.');
     if (dot < 2) throw new Error('Invalid flow path');
-    namespace = path.slice(1, dot);
-    if (namespace === '#root') throw new Error('Root flow paths must be unqualified');
+    library = path.slice(1, dot);
+    if (library === '#root') throw new Error('Root flow paths must be unqualified');
     path = path.slice(dot + 1);
   }
   return {
-    namespace,
-    kind: path.startsWith(':') ? 'library' : 'flow',
+    library,
+    kind: path.startsWith(':') ? 'module' : 'flow',
     name: path.startsWith(':') ? path.slice(1) : path,
   };
 }
@@ -50,8 +50,8 @@ export function flowRefFromPath(path: string): FlowRef {
 export class FlowRuntime {
   started = false;
   private generation = 0;
-  private readonly namespaceVersions = new Map<string, number>();
-  private readonly metadata = new Map<string, NamespaceMetadata>();
+  private readonly libraryVersions = new Map<string, number>();
+  private readonly metadata = new Map<string, LibraryMetadata>();
   private readonly roots = new Set<string>();
   private readonly pending = new Map<string, {promise: Promise<Flow>; cancelled: boolean}>();
   private readonly suppressed = new Set<string>();
@@ -60,18 +60,18 @@ export class FlowRuntime {
 
   constructor(private readonly root: Root) {}
 
-  private namespace(name: string) {
-    validateNamespace(name);
-    return Namespace.getNameSpace(`+${name}`, this.root);
+  private library(name: string) {
+    validateLibrary(name);
+    return Library.getLibrary(`+${name}`, this.root);
   }
 
   key(ref: FlowRef) {
-    const prefix = namespacePrefix(ref.namespace);
-    if (ref.kind !== 'flow' && ref.kind !== 'library') throw new Error('Invalid flow kind');
-    const names = ref.kind === 'library' ? [ref.name] : ref.name.split('.');
-    const context = ref.kind === 'flow' && ref.namespace !== '#root' && ref.name === '#context';
+    const prefix = libraryPrefix(ref.library);
+    if (ref.kind !== 'flow' && ref.kind !== 'module') throw new Error('Invalid flow kind');
+    const names = ref.kind === 'module' ? [ref.name] : ref.name.split('.');
+    const context = ref.kind === 'flow' && ref.library !== '#root' && ref.name === '#context';
     if (!context && !names.every(validFlowEntry)) throw new Error(`Invalid flow name: ${ref.name}`);
-    return `${prefix}${ref.kind === 'library' ? ':' : ''}${ref.name}`;
+    return `${prefix}${ref.kind === 'module' ? ':' : ''}${ref.name}`;
   }
 
   async start(options: StartOptions = {}) {
@@ -113,8 +113,8 @@ export class FlowRuntime {
   private readFlow(ref: FlowRef): Promise<DataMap | null> {
     const storage = this.root._storage;
     if (!storage) return Promise.resolve(null);
-    return ref.kind === 'library'
-      ? storage.loadLib(ref.namespace === '#root' ? '' : `+${ref.namespace}`, ref.name)
+    return ref.kind === 'module'
+      ? storage.loadModule(ref.library === '#root' ? '' : `+${ref.library}`, ref.name)
       : storage.loadFlow(this.key(ref));
   }
 
@@ -125,19 +125,19 @@ export class FlowRuntime {
   }
 
   private async activate(names: string[], generation: number) {
-    const discovered = new Map<string, NamespaceMetadata>();
+    const discovered = new Map<string, LibraryMetadata>();
     const versions = new Map<string, number>();
     const check = () => {
       this.checkGeneration(generation);
       for (const [name, version] of versions) {
-        if (this.namespaceVersions.get(name) !== version) throw new Error(`Namespace activation cancelled: ${name}`);
+        if (this.libraryVersions.get(name) !== version) throw new Error(`Library activation cancelled: ${name}`);
       }
     };
     const visit = async (name: string) => {
-      validateNamespace(name);
-      if (!versions.has(name)) versions.set(name, this.namespaceVersions.get(name));
+      validateLibrary(name);
+      if (!versions.has(name)) versions.set(name, this.libraryVersions.get(name));
       if (discovered.has(name) || this.metadata.has(name)) return;
-      const data = (await this.root._storage?.getNamespaceMetadata?.(name)) ?? {};
+      const data = (await this.root._storage?.getLibraryMetadata?.(name)) ?? {};
       check();
       discovered.set(name, data);
       for (const dependency of data.dependencies ?? []) await visit(dependency);
@@ -146,36 +146,36 @@ export class FlowRuntime {
     check();
     const contexts = [...discovered.keys()]
       .filter((name) => name !== '#root')
-      .map((namespace) => {
-        const ref: FlowRef = {namespace, kind: 'flow', name: '#context'};
+      .map((library) => {
+        const ref: FlowRef = {library, kind: 'flow', name: '#context'};
         return {ref, data: this.prefetch(ref)};
       });
-    const autoLoadLibraries = [...discovered].flatMap(([namespace, data]) =>
-      (data.autoLoadLibraries ?? []).map((name) => {
-        const ref: FlowRef = {namespace, kind: 'library', name};
+    const autoLoadModules = [...discovered].flatMap(([library, data]) =>
+      (data.autoLoadModules ?? []).map((name) => {
+        const ref: FlowRef = {library, kind: 'module', name};
         return {ref, data: this.prefetch(ref)};
       })
     );
     for (const [name, data] of discovered) {
       this.metadata.set(name, data);
-      const ns = this.namespace(name);
-      ns._enabled = true;
-      if (name !== '#root') this.root.addFlowFolder(ns.ns, {});
+      const libraryScope = this.library(name);
+      libraryScope._enabled = true;
+      if (name !== '#root') this.root.addFlowFolder(libraryScope.libraryId, {});
     }
     try {
-      // Contexts replace the namespace's inheritance layer and load before libraries/flows.
+      // Contexts replace the library's inheritance layer and load before modules/flows.
       for (const {ref, data} of contexts) {
         await this.loadFlow(ref, data);
         check();
       }
-      for (const {ref, data} of autoLoadLibraries) {
+      for (const {ref, data} of autoLoadModules) {
         await this.loadFlow(ref, data);
         check();
       }
       for (const [name] of discovered) {
-        // Restore subscriptions created while this namespace was inactive.
-        for (const library of Object.keys(this.namespace(name)._libs)) {
-          if (this.namespace(name)._libs[library].hasRuntimeListeners()) this.loadLibraryOnDemand(name, library);
+        // Restore subscriptions created while this library was inactive.
+        for (const module of Object.keys(this.library(name)._modules)) {
+          if (this.library(name)._modules[module].hasRuntimeListeners()) this.loadModuleOnDemand(name, module);
         }
       }
     } catch (error) {
@@ -183,42 +183,40 @@ export class FlowRuntime {
         if (
           generation === this.generation &&
           this.metadata.get(name) === data &&
-          this.namespaceVersions.get(name) === versions.get(name)
+          this.libraryVersions.get(name) === versions.get(name)
         ) {
-          await this.disableNamespace(name, {cascade: true, discardChanges: true});
+          await this.disableLibrary(name, {cascade: true, discardChanges: true});
         }
       }
       throw error;
     }
   }
 
-  private async prepareSelected(namespace: string, patterns: string[], generation: number): Promise<PreparedSelection> {
-    const version = this.namespaceVersions.get(namespace);
-    if (!patterns.length) return {namespace, version, folders: [], flows: []};
+  private async prepareSelected(library: string, patterns: string[], generation: number): Promise<PreparedSelection> {
+    const version = this.libraryVersions.get(library);
+    if (!patterns.length) return {library, version, folders: [], flows: []};
     if (!this.root._storage?.listFlows) throw new Error('Storage does not support listing flows');
     const folders: string[] = [];
-    const names = await this.root._storage.listFlows(namespace, folders);
+    const names = await this.root._storage.listFlows(library, folders);
     this.checkGeneration(generation);
-    if (version !== this.namespaceVersions.get(namespace))
-      throw new Error(`Namespace selection cancelled: ${namespace}`);
+    if (version !== this.libraryVersions.get(library)) throw new Error(`Library selection cancelled: ${library}`);
     for (const pattern of patterns) {
-      if (!/[?*]/.test(pattern) && !names.includes(pattern)) throw new Error(`Missing flow: ${namespace}/${pattern}`);
+      if (!/[?*]/.test(pattern) && !names.includes(pattern)) throw new Error(`Missing flow: ${library}/${pattern}`);
     }
     const flows = names
       .filter((name) => patterns.some((pattern) => matchEditPath(pattern, name)))
       .map((name) => {
-        const ref: FlowRef = {namespace, kind: 'flow', name};
+        const ref: FlowRef = {library, kind: 'flow', name};
         return {ref, data: this.prefetch(ref)};
       });
-    return {namespace, version, folders, flows};
+    return {library, version, folders, flows};
   }
 
-  private async loadSelected({namespace, version, folders, flows}: PreparedSelection, generation: number) {
+  private async loadSelected({library, version, folders, flows}: PreparedSelection, generation: number) {
     this.checkGeneration(generation);
-    if (version !== this.namespaceVersions.get(namespace))
-      throw new Error(`Namespace selection cancelled: ${namespace}`);
+    if (version !== this.libraryVersions.get(library)) throw new Error(`Library selection cancelled: ${library}`);
     for (const folder of folders) {
-      const path = `${namespacePrefix(namespace)}${folder}`;
+      const path = `${libraryPrefix(library)}${folder}`;
       if (!this.root.queryValue(path)) this.root.addFlowFolder(path, {}, true);
     }
     for (const {ref, data} of flows) {
@@ -227,12 +225,11 @@ export class FlowRuntime {
       await this.loadFlow(ref, data);
       if (!alreadyLoaded) this.rootFlows.add(key);
       this.checkGeneration(generation);
-      if (version !== this.namespaceVersions.get(namespace))
-        throw new Error(`Namespace selection cancelled: ${namespace}`);
+      if (version !== this.libraryVersions.get(library)) throw new Error(`Library selection cancelled: ${library}`);
     }
   }
 
-  async enableNamespace(name: string, options: {flows?: string[]} = {}) {
+  async enableLibrary(name: string, options: {flows?: string[]} = {}) {
     this.started = true;
     const generation = this.generation;
     const selection = options.flows === undefined ? null : this.prepareSelected(name, options.flows, generation);
@@ -245,7 +242,7 @@ export class FlowRuntime {
     this.roots.add(name);
   }
 
-  getNamespaceGraph() {
+  getLibraryGraph() {
     return {
       roots: [...this.roots],
       dependencies: Object.fromEntries(
@@ -254,7 +251,7 @@ export class FlowRuntime {
     };
   }
 
-  private requiredNamespaces(roots: Iterable<string>, updated?: {name: string; metadata: NamespaceMetadata}) {
+  private requiredLibraries(roots: Iterable<string>, updated?: {name: string; metadata: LibraryMetadata}) {
     const required = new Set<string>();
     const visit = (name: string) => {
       if (required.has(name)) return;
@@ -266,114 +263,112 @@ export class FlowRuntime {
     return required;
   }
 
-  async retainNamespaces(roots: string[]) {
+  async retainLibraries(roots: string[]) {
     for (const name of roots) {
-      if (!this.roots.has(name)) throw new Error(`Namespace is not manually loaded: ${name}`);
+      if (!this.roots.has(name)) throw new Error(`Library is not manually loaded: ${name}`);
     }
-    const keep = this.requiredNamespaces(roots);
-    const removed = [...this.metadata.keys()].filter((namespace) => !keep.has(namespace));
-    const demoted = [...this.roots].filter((namespace) => !roots.includes(namespace));
-    for (const {ref, flow} of this.loaded.values()) if (removed.includes(ref.namespace)) this.assertClean(flow, {});
+    const keep = this.requiredLibraries(roots);
+    const removed = [...this.metadata.keys()].filter((library) => !keep.has(library));
+    const demoted = [...this.roots].filter((library) => !roots.includes(library));
+    for (const {ref, flow} of this.loaded.values()) if (removed.includes(ref.library)) this.assertClean(flow, {});
     for (const key of this.rootFlows) {
       const entry = this.loaded.get(key);
-      if (entry && demoted.includes(entry.ref.namespace)) this.assertClean(entry.flow, {});
+      if (entry && demoted.includes(entry.ref.library)) this.assertClean(entry.flow, {});
     }
     for (const key of [...this.rootFlows]) {
       const entry = this.loaded.get(key);
-      if (entry && demoted.includes(entry.ref.namespace) && keep.has(entry.ref.namespace))
-        await this.unloadFlow(entry.ref);
+      if (entry && demoted.includes(entry.ref.library) && keep.has(entry.ref.library)) await this.unloadFlow(entry.ref);
     }
-    for (const namespace of removed) {
-      if (this.metadata.has(namespace)) await this.disableNamespace(namespace, {cascade: true});
+    for (const library of removed) {
+      if (this.metadata.has(library)) await this.disableLibrary(library, {cascade: true});
     }
     this.roots.clear();
     for (const name of roots) this.roots.add(name);
   }
 
-  async unloadNamespace(name: string) {
-    if (!this.roots.has(name)) throw new Error(`Namespace is not manually loaded: ${name}`);
-    await this.retainNamespaces([...this.roots].filter((root) => root !== name));
+  async unloadLibrary(name: string) {
+    if (!this.roots.has(name)) throw new Error(`Library is not manually loaded: ${name}`);
+    await this.retainLibraries([...this.roots].filter((root) => root !== name));
   }
 
-  async switchNamespace(name: string) {
-    validateNamespace(name);
+  async switchLibrary(name: string) {
+    validateLibrary(name);
     const active = new Set(this.metadata.keys());
     const roots = new Set(this.roots);
-    await this.enableNamespace(name);
-    const keep = this.requiredNamespaces([name]);
-    const removed = [...active].filter((namespace) => !keep.has(namespace));
-    const demoted = [...roots].filter((namespace) => namespace !== name);
+    await this.enableLibrary(name);
+    const keep = this.requiredLibraries([name]);
+    const removed = [...active].filter((library) => !keep.has(library));
+    const demoted = [...roots].filter((library) => library !== name);
     try {
-      for (const {ref, flow} of this.loaded.values()) if (removed.includes(ref.namespace)) this.assertClean(flow, {});
+      for (const {ref, flow} of this.loaded.values()) if (removed.includes(ref.library)) this.assertClean(flow, {});
       for (const key of this.rootFlows) {
         const entry = this.loaded.get(key);
-        if (entry && demoted.includes(entry.ref.namespace)) this.assertClean(entry.flow, {});
+        if (entry && demoted.includes(entry.ref.library)) this.assertClean(entry.flow, {});
       }
     } catch (error) {
       this.roots.clear();
       for (const root of roots) this.roots.add(root);
-      for (const namespace of this.metadata.keys()) {
-        if (!active.has(namespace)) await this.disableNamespace(namespace, {cascade: true, discardChanges: true});
+      for (const library of this.metadata.keys()) {
+        if (!active.has(library)) await this.disableLibrary(library, {cascade: true, discardChanges: true});
       }
       throw error;
     }
     for (const key of [...this.rootFlows]) {
       const entry = this.loaded.get(key);
-      if (entry && demoted.includes(entry.ref.namespace) && keep.has(entry.ref.namespace))
-        await this.unloadFlow(entry.ref);
+      if (entry && demoted.includes(entry.ref.library) && keep.has(entry.ref.library)) await this.unloadFlow(entry.ref);
     }
-    for (const namespace of removed) {
-      if (this.metadata.has(namespace)) await this.disableNamespace(namespace, {cascade: true});
+    for (const library of removed) {
+      if (this.metadata.has(library)) await this.disableLibrary(library, {cascade: true});
     }
     this.roots.clear();
     this.roots.add(name);
   }
 
-  async setNamespaceDependencies(name: string, dependencies: string[]) {
-    validateNamespace(name);
+  async setLibraryDependencies(name: string, dependencies: string[]) {
+    validateLibrary(name);
     const storage = this.root._storage;
-    if (!storage?.getNamespaceMetadata || !storage.saveNamespaceMetadata)
-      throw new Error('Storage does not support namespace metadata');
-    const updated = readNamespaceMetadata({
-      ...(await storage.getNamespaceMetadata(name)),
+    if (!storage?.getLibraryMetadata || !storage.saveLibraryMetadata)
+      throw new Error('Storage does not support library metadata');
+    const updated = readLibraryMetadata({
+      ...(await storage.getLibraryMetadata(name)),
       dependencies: [...new Set(dependencies)],
     });
     if (!this.metadata.has(name)) {
-      await storage.saveNamespaceMetadata(name, updated);
+      await storage.saveLibraryMetadata(name, updated);
       return;
     }
 
     const active = new Set(this.metadata.keys());
     await this.activate(updated.dependencies ?? [], this.generation);
-    const keep = this.requiredNamespaces(this.roots, {name, metadata: updated});
-    const removed = [...active].filter((namespace) => !keep.has(namespace));
+    const keep = this.requiredLibraries(this.roots, {name, metadata: updated});
+    const removed = [...active].filter((library) => !keep.has(library));
     try {
-      for (const {ref, flow} of this.loaded.values()) if (removed.includes(ref.namespace)) this.assertClean(flow, {});
-      await storage.saveNamespaceMetadata(name, updated);
+      for (const {ref, flow} of this.loaded.values()) if (removed.includes(ref.library)) this.assertClean(flow, {});
+      await storage.saveLibraryMetadata(name, updated);
     } catch (error) {
-      for (const namespace of [...this.metadata.keys()]) {
-        if (!active.has(namespace) && this.metadata.has(namespace))
-          await this.disableNamespace(namespace, {cascade: true, discardChanges: true});
+      for (const library of [...this.metadata.keys()]) {
+        if (!active.has(library) && this.metadata.has(library))
+          await this.disableLibrary(library, {cascade: true, discardChanges: true});
       }
       throw error;
     }
     this.metadata.set(name, updated);
-    for (const namespace of removed) {
-      if (this.metadata.has(namespace)) await this.disableNamespace(namespace, {cascade: true});
+    for (const library of removed) {
+      if (this.metadata.has(library)) await this.disableLibrary(library, {cascade: true});
     }
   }
 
-  loadLibraryOnDemand(namespace: string, name: string) {
-    const ref: FlowRef = {namespace, kind: 'library', name};
+  loadModuleOnDemand(library: string, name: string) {
+    const ref: FlowRef = {library, kind: 'module', name};
     const key = this.key(ref);
-    if (this.suppressed.has(key) || !this.namespace(namespace)._enabled) return;
+    if (this.suppressed.has(key) || !this.library(library)._enabled) return;
     const generation = this.generation;
-    const version = this.namespaceVersions.get(namespace);
+    const version = this.libraryVersions.get(library);
     this.loadFlow(ref).catch((error) => {
       if (
         generation !== this.generation ||
-        version !== this.namespaceVersions.get(namespace) ||
-        !this.namespace(namespace)._enabled
+        version !== this.libraryVersions.get(library) ||
+        !this.library(library)._enabled
       )
         return;
       if (this.getFlowState(ref) !== 'unloaded') return;
@@ -386,8 +381,7 @@ export class FlowRuntime {
   loadFlow(ref: FlowRef, prefetched?: Promise<DataMap | null>): Promise<Flow> {
     const key = this.key(ref);
     if (!prefetched && ref.kind === 'flow') this.rootFlows.delete(key);
-    if (!this.namespace(ref.namespace)._enabled)
-      return Promise.reject(new Error(`Namespace is not enabled: ${ref.namespace}`));
+    if (!this.library(ref.library)._enabled) return Promise.reject(new Error(`Library is not enabled: ${ref.library}`));
     const existing = this.loaded.get(key)?.flow;
     if (existing && !existing._destroyed) {
       if (this.root._storage?.hasLocalBackup?.(key)) existing.updateValue('@has-change', true);
@@ -400,36 +394,42 @@ export class FlowRuntime {
     operation.promise = Promise.resolve()
       .then(async () => {
         const storage = this.root._storage;
-        const ns = this.namespace(ref.namespace);
+        const libraryScope = this.library(ref.library);
         const context = ref.kind === 'flow' && ref.name === '#context';
         const data = await (prefetched ?? this.readFlow(ref));
         this.checkGeneration(generation);
-        if (operation.cancelled || !ns._enabled) throw new Error(`Flow load cancelled: ${key}`);
-        if (!data && !context) throw new Error(`Missing ${ref.kind}: ${ref.namespace}/${ref.name}`);
+        if (operation.cancelled || !libraryScope._enabled) throw new Error(`Flow load cancelled: ${key}`);
+        if (!data && !context) throw new Error(`Missing ${ref.kind}: ${ref.library}/${ref.name}`);
         let flow: Flow;
         if (context) {
-          flow = (this.root.getValue(ns.ns) as FlowNameSpace)._contextRoot;
+          flow = (this.root.getValue(libraryScope.libraryId) as FlowLibrary)._contextRoot;
           flow._runtimeDisabled = undefined;
-          flow.load(data ?? {}, null, storage?.getFlowLoader(key, flow._prop).applyChange, undefined, ns.ns);
-        } else if (ref.kind === 'library') {
-          const lib = ns.getLib(ref.name, false);
-          lib.setAvailable(false);
-          flow = this.root.addFlowLib(ns.ns, ref.name);
-          if (!flow) throw new Error(`Conflicting library: ${key}`);
-          lib.flow = flow;
+          flow.load(
+            data ?? {},
+            null,
+            storage?.getFlowLoader(key, flow._prop).applyChange,
+            undefined,
+            libraryScope.libraryId
+          );
+        } else if (ref.kind === 'module') {
+          const module = libraryScope.getModule(ref.name, false);
+          module.setAvailable(false);
+          flow = this.root.addFlowModule(libraryScope.libraryId, ref.name);
+          if (!flow) throw new Error(`Conflicting module: ${key}`);
+          module.flow = flow;
           flow.load(
             data,
             null,
             async (changed) => {
               const saved = changed.save();
-              await storage.saveLib(ref.namespace === '#root' ? '' : ns.ns, ref.name, saved);
+              await storage.saveModule(ref.library === '#root' ? '' : libraryScope.libraryId, ref.name, saved);
               return saved;
             },
             undefined,
-            ns.ns,
-            lib
+            libraryScope.libraryId,
+            module
           );
-          lib.setAvailable(!flow._disabled);
+          module.setAvailable(!flow._disabled);
         } else {
           flow = this.root.addFlow(key, data, undefined, true, true);
           if (!flow) throw new Error(`Conflicting flow: ${key}`);
@@ -449,28 +449,28 @@ export class FlowRuntime {
     this.loaded.set(this.key(ref), {ref, flow});
   }
 
-  async listFlows(namespace: string) {
-    validateNamespace(namespace);
-    return ((await this.root._storage?.listFlows?.(namespace)) ?? []).map((name) => ({
+  async listFlows(library: string) {
+    validateLibrary(library);
+    return ((await this.root._storage?.listFlows?.(library)) ?? []).map((name) => ({
       name,
-      state: this.getFlowState({namespace, kind: 'flow', name}),
+      state: this.getFlowState({library, kind: 'flow', name}),
     }));
   }
 
   async listMainFlows(): Promise<MainFlowEntry[]> {
     const groups = await Promise.all(
-      [...this.roots].map(async (namespace) => {
-        const flows = await this.listFlows(namespace);
-        const metadata = this.metadata.get(namespace);
+      [...this.roots].map(async (library) => {
+        const flows = await this.listFlows(library);
+        const metadata = this.metadata.get(library);
         const storage = this.root._storage;
         return flows.map(({name, state}) => ({
-          namespace,
+          library,
           name,
           state,
-          autoLoad: metadata?.autoLoadFlows?.includes(name) ?? namespace === '#root',
+          autoLoad: metadata?.autoLoadFlows?.includes(name) ?? library === '#root',
           canAutoLoad: Boolean(
-            storage?.saveNamespaceMetadata &&
-            (storage.isPersistent ? storage.isPersistent(namespace) : storage.persistent !== false)
+            storage?.saveLibraryMetadata &&
+            (storage.isPersistent ? storage.isPersistent(library) : storage.persistent !== false)
           ),
         }));
       })
@@ -478,50 +478,48 @@ export class FlowRuntime {
     return groups.flat();
   }
 
-  async setAutoLoadLibrary(namespace: string, name: string, autoLoad: boolean) {
-    this.key({namespace, name, kind: 'library'});
+  async setAutoLoadModule(library: string, name: string, autoLoad: boolean) {
+    this.key({library, name, kind: 'module'});
     const storage = this.root._storage;
     if (
-      !storage?.saveNamespaceMetadata ||
-      (storage.isPersistent ? !storage.isPersistent(namespace) : storage.persistent === false)
+      !storage?.saveLibraryMetadata ||
+      (storage.isPersistent ? !storage.isPersistent(library) : storage.persistent === false)
     )
       throw new Error('Storage does not support persistence');
-    const metadata = await storage.getNamespaceMetadata(namespace);
-    const libraries = new Set(metadata.autoLoadLibraries);
-    if (autoLoad) libraries.add(name);
-    else libraries.delete(name);
-    const updated = {...metadata, autoLoadLibraries: [...libraries]};
-    await storage.saveNamespaceMetadata(namespace, updated);
-    if (this.namespace(namespace)._enabled) {
-      this.metadata.set(namespace, updated);
-      if (autoLoad) await this.loadFlow({namespace, name, kind: 'library'});
+    const metadata = await storage.getLibraryMetadata(library);
+    const modules = new Set(metadata.autoLoadModules);
+    if (autoLoad) modules.add(name);
+    else modules.delete(name);
+    const updated = {...metadata, autoLoadModules: [...modules]};
+    await storage.saveLibraryMetadata(library, updated);
+    if (this.library(library)._enabled) {
+      this.metadata.set(library, updated);
+      if (autoLoad) await this.loadFlow({library, name, kind: 'module'});
     }
   }
 
-  async setAutoLoadFlow(namespace: string, name: string, autoLoad: boolean) {
-    const ref: FlowRef = {namespace, name, kind: 'flow'};
+  async setAutoLoadFlow(library: string, name: string, autoLoad: boolean) {
+    const ref: FlowRef = {library, name, kind: 'flow'};
     this.key(ref);
     const storage = this.root._storage;
     if (
-      !storage?.saveNamespaceMetadata ||
-      (storage.isPersistent ? !storage.isPersistent(namespace) : storage.persistent === false)
+      !storage?.saveLibraryMetadata ||
+      (storage.isPersistent ? !storage.isPersistent(library) : storage.persistent === false)
     )
       throw new Error('Storage does not support persistence');
-    const metadata = await storage.getNamespaceMetadata(namespace);
-    if (autoLoad && storage.listFlows && !(await storage.listFlows(namespace)).includes(name)) {
-      throw new Error(`Missing flow: ${namespace}/${name}`);
+    const metadata = await storage.getLibraryMetadata(library);
+    if (autoLoad && storage.listFlows && !(await storage.listFlows(library)).includes(name)) {
+      throw new Error(`Missing flow: ${library}/${name}`);
     }
     // A missing #root setting retains the legacy start() behavior of loading all flows.
-    const flows = new Set(
-      metadata.autoLoadFlows ?? (namespace === '#root' ? await storage.listFlows?.(namespace) : [])
-    );
+    const flows = new Set(metadata.autoLoadFlows ?? (library === '#root' ? await storage.listFlows?.(library) : []));
     if (autoLoad) flows.add(name);
     else flows.delete(name);
     const updated = {...metadata, autoLoadFlows: [...flows]};
-    await storage.saveNamespaceMetadata(namespace, updated);
-    if (this.namespace(namespace)._enabled) {
-      this.metadata.set(namespace, updated);
-      if (autoLoad && this.roots.has(namespace)) {
+    await storage.saveLibraryMetadata(library, updated);
+    if (this.library(library)._enabled) {
+      this.metadata.set(library, updated);
+      if (autoLoad && this.roots.has(library)) {
         const alreadyLoaded = this.loaded.has(this.key(ref));
         if (!alreadyLoaded) {
           await this.loadFlow(ref);
@@ -548,16 +546,16 @@ export class FlowRuntime {
       pending.cancelled = true;
       this.pending.delete(key);
     }
-    if (ref.kind === 'library') {
-      const lib = this.namespace(ref.namespace).getLib(ref.name, false);
-      lib.setAvailable(false);
-      lib.load({});
-      lib._loaded = false;
-      lib.flow = undefined;
+    if (ref.kind === 'module') {
+      const module = this.library(ref.library).getModule(ref.name, false);
+      module.setAvailable(false);
+      module.load({});
+      module._loaded = false;
+      module.flow = undefined;
     }
     if (flow && !flow._destroyed) {
       if (ref.kind === 'flow' && ref.name === '#context') {
-        (this.root.getValue(`+${ref.namespace}`) as FlowNameSpace)._contextRoot.unload();
+        (this.root.getValue(`+${ref.library}`) as FlowLibrary)._contextRoot.unload();
       } else {
         flow._prop.setValue(undefined);
       }
@@ -571,14 +569,14 @@ export class FlowRuntime {
     if (!flow || flow._destroyed) throw new Error(`Flow is not loaded: ${key}`);
     if (options.persist) {
       const storage = this.root._storage;
-      if (!storage || (storage.isPersistent ? !storage.isPersistent(ref.namespace) : storage.persistent === false))
+      if (!storage || (storage.isPersistent ? !storage.isPersistent(ref.library) : storage.persistent === false))
         throw new Error('Storage does not support persistence');
       // Persist only this flag, not unrelated unsaved editor changes.
-      const ns = ref.namespace === '#root' ? '' : `+${ref.namespace}`;
-      const data = ref.kind === 'library' ? await storage.loadLib(ns, ref.name) : await storage.loadFlow(key);
+      const libraryId = ref.library === '#root' ? '' : `+${ref.library}`;
+      const data = ref.kind === 'module' ? await storage.loadModule(libraryId, ref.name) : await storage.loadFlow(key);
       if (!data) throw new Error(`Missing flow: ${key}`);
       const saved: DataMap = {...data, '#disabled': !enabled};
-      if (ref.kind === 'library') await storage.saveLib(ns, ref.name, saved);
+      if (ref.kind === 'module') await storage.saveModule(libraryId, ref.name, saved);
       else await storage.saveFlow(null, saved, key);
       if (flow._destroyed || this.loaded.get(key)?.flow !== flow) return;
       flow._runtimeDisabled = undefined;
@@ -596,45 +594,53 @@ export class FlowRuntime {
     return !flow || flow._destroyed ? 'unloaded' : flow._disabled ? 'disabled' : 'enabled';
   }
 
-  getLoadedFlowRefs(namespace: string): FlowRef[] {
-    return [...this.loaded.values()].filter(({ref}) => ref.namespace === namespace).map(({ref}) => ({...ref}));
+  getLoadedFlowRefs(library: string): FlowRef[] {
+    return [...this.loaded.values()].filter(({ref}) => ref.library === library).map(({ref}) => ({...ref}));
   }
 
-  async disableNamespace(name: string, options: UnloadOptions & {cascade?: boolean} = {}) {
-    validateNamespace(name);
+  async disableLibrary(name: string, options: UnloadOptions & {cascade?: boolean} = {}) {
+    validateLibrary(name);
     const removed = new Set([name]);
     let changed = true;
     while (changed) {
       changed = false;
       for (const [other, data] of this.metadata) {
         if (!removed.has(other) && data.dependencies?.some((dependency) => removed.has(dependency))) {
-          if (!options.cascade) throw new Error(`Namespace ${other} depends on ${name}`);
+          if (!options.cascade) throw new Error(`Library ${other} depends on ${name}`);
           removed.add(other);
           changed = true;
         }
       }
     }
-    for (const {ref, flow} of this.loaded.values()) if (removed.has(ref.namespace)) this.assertClean(flow, options);
-    for (const ns of removed) {
-      this.namespaceVersions.set(ns, (this.namespaceVersions.get(ns) ?? 0) + 1);
-      this.namespace(ns)._enabled = false;
-      this.metadata.delete(ns);
-      this.roots.delete(ns);
+    for (const {ref, flow} of this.loaded.values()) if (removed.has(ref.library)) this.assertClean(flow, options);
+    for (const libraryId of removed) {
+      this.libraryVersions.set(libraryId, (this.libraryVersions.get(libraryId) ?? 0) + 1);
+      this.library(libraryId)._enabled = false;
+      this.metadata.delete(libraryId);
+      this.roots.delete(libraryId);
     }
     for (const {ref} of [...this.loaded.values()]) {
-      if (removed.has(ref.namespace) && ref.name !== '#context') await this.unloadFlow(ref, options);
+      if (removed.has(ref.library) && ref.name !== '#context') await this.unloadFlow(ref, options);
     }
-    for (const ns of removed) {
-      if (ns !== '#root') await this.unloadFlow({namespace: ns, kind: 'flow', name: '#context'}, options);
+    for (const libraryId of removed) {
+      if (libraryId !== '#root') await this.unloadFlow({library: libraryId, kind: 'flow', name: '#context'}, options);
     }
     for (const [key, pending] of this.pending) {
-      if ([...removed].some((ns) => key.startsWith(namespacePrefix(ns)) && (ns !== '#root' || !key.startsWith('+')))) {
+      if (
+        [...removed].some(
+          (libraryId) => key.startsWith(libraryPrefix(libraryId)) && (libraryId !== '#root' || !key.startsWith('+'))
+        )
+      ) {
         pending.cancelled = true;
         this.pending.delete(key);
       }
     }
     for (const key of this.suppressed) {
-      if ([...removed].some((ns) => key.startsWith(namespacePrefix(ns)) && (ns !== '#root' || !key.startsWith('+'))))
+      if (
+        [...removed].some(
+          (libraryId) => key.startsWith(libraryPrefix(libraryId)) && (libraryId !== '#root' || !key.startsWith('+'))
+        )
+      )
         this.suppressed.delete(key);
     }
   }
@@ -642,9 +648,9 @@ export class FlowRuntime {
   async stop(options: UnloadOptions = {}) {
     for (const {flow} of this.loaded.values()) this.assertClean(flow, options);
     ++this.generation;
-    for (const ns of Object.values(this.root._namespaces)) {
-      ns._enabled = false;
-      for (const lib of Object.values(ns._libs)) lib.setAvailable(false);
+    for (const libraryScope of Object.values(this.root._libraries)) {
+      libraryScope._enabled = false;
+      for (const module of Object.values(libraryScope._modules)) module.setAvailable(false);
     }
     for (const pending of this.pending.values()) pending.cancelled = true;
     this.pending.clear();
