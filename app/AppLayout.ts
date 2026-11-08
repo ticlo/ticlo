@@ -5,6 +5,7 @@ import type {TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.ts'
 import {StagePanelFocus} from '@ticlo/editor/dock/StagePanelFocus.tsx';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.tsx';
 import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.tsx';
+import {TableEditor} from '@ticlo/editor/property/value/TableEditor.tsx';
 import type {DockLayout, SideColumns, TabGroup} from 'rc-dock';
 
 export function stageReadonly(storage: ProjectFiles | undefined, path: string) {
@@ -36,7 +37,7 @@ export const toolGroup: TabGroup = {
 export function createLayoutActions(
   getLayout: () => DockLayout,
   getConn: () => ClientConn
-): Pick<TicloLayoutContext, 'editProperty' | 'editSchedule'> {
+): Pick<TicloLayoutContext, 'editProperty' | 'editSchedule' | 'editTable'> {
   return {
     editProperty: (paths, propDesc, defaultValue, mime, readonly) => {
       if (!mime) {
@@ -50,6 +51,9 @@ export function createLayoutActions(
     },
     editSchedule: (path, scheduleName, index) => {
       SchedulePane.openFloatPanel(getLayout(), getConn(), path, scheduleName, index);
+    },
+    editTable: (props) => {
+      TableEditor.openFloatPanel(getLayout(), props);
     },
   };
 }

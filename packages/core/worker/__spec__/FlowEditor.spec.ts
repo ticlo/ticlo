@@ -7,7 +7,7 @@ import {WorkerFunctionGen} from '../WorkerFunctionGen.ts';
 import type {PropDesc, PropGroupDesc} from '../../block/Descriptor.ts';
 import type {DataMap} from '../../util/DataTypes.ts';
 import {StaticBlock} from '../../block/StaticBlock.ts';
-import {Namespace} from '../../block/Namespace.ts';
+import {Library} from '../../block/Library.ts';
 import {encodeTicloName} from '../../util/Name.ts';
 
 describe('FlowEditor', function () {
@@ -49,7 +49,7 @@ describe('FlowEditor', function () {
     FlowEditor.createFromField(block, '#edit-use2', 'use2');
     expect((block.getValue('#edit-use2') as Flow).save()).toEqual(data);
 
-    Namespace.delete('+FlowEditor::func1');
+    Library.delete('+FlowEditor::func1');
   });
 
   it('createFromFunction', function () {
@@ -65,12 +65,12 @@ describe('FlowEditor', function () {
 
     const existingEditor = FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker2', null);
     expect(existingEditor.save()).toEqual(data);
-    expect(existingEditor.getFuncLib()).toBe(Namespace.getFunctions('+FlowEditor::worker2'));
+    expect(existingEditor.getFuncModule()).toBe(Library.getFunctions('+FlowEditor::worker2'));
 
     const newEditor = FlowEditor.createFromFunction(flow, '#edit-func', '+FlowEditor::worker2-2', data);
     expect(newEditor.save()).toEqual(data);
 
-    Namespace.delete('+FlowEditor::worker2');
+    Library.delete('+FlowEditor::worker2');
   });
 
   it('applyChange', function () {
@@ -139,12 +139,12 @@ describe('FlowEditor', function () {
     editor.setValue('#desc', expectedData['#desc']);
     WorkerFunctionGen.applyChangeToFunc(editor, '+FlowEditor::worker3');
 
-    const [desc, workerData, functionLib] = Namespace.getWorker('+FlowEditor::worker3');
+    const [desc, workerData, functionModule] = Library.getWorker('+FlowEditor::worker3');
     expect(workerData).toEqual(expectedData);
     expect(desc.icon).toBe('23:🞥');
     expect(desc.properties).toEqual(expectedDescProperties);
 
-    Namespace.delete('+FlowEditor::worker3');
+    Library.delete('+FlowEditor::worker3');
     flow.destroy();
   });
 
@@ -209,7 +209,7 @@ describe('FlowEditor', function () {
 
     const block: StaticBlock = editor.getValue('#static') as StaticBlock;
     expect(block).toBeInstanceOf(StaticBlock);
-    expect(block._prop._block).toBe(Namespace.getFunctions('+FlowEditor::worker4', flow).flow.getValue('#shared'));
+    expect(block._prop._block).toBe(Library.getFunctions('+FlowEditor::worker4', flow).flow.getValue('#shared'));
     expect(block._prop._name).toBe(encodeTicloName(':worker4'));
 
     flow.destroy();

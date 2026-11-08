@@ -1,4 +1,4 @@
-'@namespace':
+'@library':
   react:
     '@name': React # no translate
   'react:elements':

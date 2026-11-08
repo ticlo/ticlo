@@ -52,16 +52,17 @@ import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel.tsx';
 import {RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
 import type {FileEntry, ProjectFiles} from '@ticlo/core/storage/FileAccess.ts';
 import {createRoot} from 'react-dom/client';
-import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {Library} from '@ticlo/core/block/Library.ts';
 import {EditPolicyProvider} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {PolicyPanel} from './PolicyPanel.tsx';
 import {StageConnection, StageConnectionContext, connectStageTab} from './StageConnection.tsx';
 import type {ClientConn, EditPolicy} from '@ticlo/core';
 import {fileFlowPath} from './flow-path.ts';
+import {reloadDiscardedFileFlow, resetProjectFlows, unloadDeletedFileFlows} from './file-flow-lifecycle.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
-import {useNamespaceSelection} from './useNamespaceSelection.ts';
-import {createLibraryAutoLoad} from './library-auto-load.ts';
-import type {NamespaceSelectionOptions} from '@ticlo/editor/namespace/NamespaceSelectDialog.tsx';
+import {useLibrarySelection} from './useLibrarySelection.ts';
+import {createModuleAutoLoad} from './module-auto-load.ts';
+import type {LibrarySelectionOptions} from '@ticlo/editor/library/LibrarySelectDialog.tsx';
 import {initialUrlParams} from './url-state.ts';
 
 const FileVersionContext = React.createContext(0);
@@ -71,13 +72,29 @@ function DataflowFiles({
   storage,
   project,
   onOpen,
+  onFilesDeleted,
+  onFileDiscarded,
+  onProjectReset,
 }: {
   storage: ProjectFiles;
   project: string;
   onOpen: (entry: FileEntry) => Promise<void>;
+  onFilesDeleted: (paths: string[]) => Promise<void>;
+  onFileDiscarded: (path: string) => Promise<void>;
+  onProjectReset: () => Promise<void>;
 }) {
   const version = React.useContext(FileVersionContext);
-  return <FileManager key={version} storage={storage} project={project} onOpen={onOpen} />;
+  return (
+    <FileManager
+      key={version}
+      storage={storage}
+      project={project}
+      onOpen={onOpen}
+      onFilesDeleted={onFilesDeleted}
+      onFileDiscarded={onFileDiscarded}
+      onProjectReset={onProjectReset}
+    />
+  );
 }
 
 const layoutGroups = {
@@ -89,9 +106,9 @@ interface Props {
   conn: ClientConnection;
   initialFlow?: string;
   files?: {storage: ProjectFiles; project: string};
-  onNamespaceChange: (name: string, options: NamespaceSelectionOptions) => Promise<void>;
-  onNamespaceUnload: (name: string) => Promise<void>;
-  onSetDefaultNamespace: (name: string) => Promise<void>;
+  onLibraryChange: (name: string, options: LibrarySelectionOptions) => Promise<void>;
+  onLibraryUnload: (name: string) => Promise<void>;
+  onSetDefaultLibrary: (name: string) => Promise<void>;
 }
 
 interface State {
@@ -102,7 +119,7 @@ interface State {
 
 class App extends React.PureComponent<Props, State> {
   state: State = {conn: this.props.conn, fileVersion: 0};
-  libraryAutoLoad = createLibraryAutoLoad(Root.instance);
+  moduleAutoLoad = createModuleAutoLoad(Root.instance);
   get conn() {
     return this.state.conn;
   }
@@ -126,13 +143,20 @@ class App extends React.PureComponent<Props, State> {
     await Root.instance.loadFlow(target.ref);
     this.openFlow(target.path);
   };
+  onFilesDeleted = (paths: string[]) =>
+    unloadDeletedFileFlows(Root.instance, this.layout, this.props.files.project, paths);
+  onFileDiscarded = (path: string) => reloadDiscardedFileFlow(Root.instance, this.props.files.project, path);
+  onProjectReset = () =>
+    resetProjectFlows(Root.instance, this.layout, this.props.files.storage, this.props.files.project);
   defaultDockLayout: LayoutBase;
   tabs: TabDefinitions;
   constructor(props: Props) {
     super(props);
     const {conn, initialFlow} = props;
     const initialTab = initialFlow
-      ? this.createBlockEditorTab(initialFlow, () => this.conn.applyFlowChange(initialFlow))
+      ? this.createBlockEditorTab(initialFlow, () =>
+          this.conn.applyFlowChange(initialFlow, undefined, requestCallbacks)
+        )
       : undefined;
     this.tabs = {
       'Navigation': {
@@ -146,7 +170,7 @@ class App extends React.PureComponent<Props, State> {
             hideRoot={true}
             onSelect={this.onSelect}
             showMenu={true}
-            libraryAutoLoad={this.libraryAutoLoad}
+            moduleAutoLoad={this.moduleAutoLoad}
             showStoredFlows
           />
         ),
@@ -167,7 +191,7 @@ class App extends React.PureComponent<Props, State> {
               return (
                 <FunctionSelect
                   conn={conn}
-                  funcLib={currentPath ? `${currentPath}.#lib` : undefined}
+                  funcModule={currentPath ? `${currentPath}.#module` : undefined}
                   tags={activeStage?.functionTreeTags}
                 />
               );
@@ -199,7 +223,15 @@ class App extends React.PureComponent<Props, State> {
           group: 'tool',
           title: t('Files'),
           cached: true,
-          content: <DataflowFiles {...props.files} onOpen={this.openStoredFile} />,
+          content: (
+            <DataflowFiles
+              {...props.files}
+              onOpen={this.openStoredFile}
+              onFilesDeleted={this.onFilesDeleted}
+              onFileDiscarded={this.onFileDiscarded}
+              onProjectReset={this.onProjectReset}
+            />
+          ),
         },
       };
     }
@@ -314,9 +346,9 @@ class App extends React.PureComponent<Props, State> {
                     files={this.props.files}
                     onOpen={this.openFlow}
                     onChange={this.onFilesChange}
-                    onNamespaceChange={this.props.onNamespaceChange}
-                    onNamespaceUnload={this.props.onNamespaceUnload}
-                    onSetDefaultNamespace={this.props.onSetDefaultNamespace}
+                    onLibraryChange={this.props.onLibraryChange}
+                    onLibraryUnload={this.props.onLibraryUnload}
+                    onSetDefaultLibrary={this.props.onSetDefaultLibrary}
                   />
                 ) : (
                   <AppHeader language={this.lng} onLanguageChange={this.switchLan} />
@@ -352,16 +384,16 @@ function DataflowWorkspace({
   initialFlow?: string;
   files: {storage: ProjectFiles; project: string};
 }) {
-  const selection = useNamespaceSelection(Root.instance, conn, files.project, initialFlow);
+  const selection = useLibrarySelection(conn, files.project, initialFlow);
   return (
     <App
       key={selection.project}
       conn={conn}
       initialFlow={selection.initialFlow}
       files={{...files, project: selection.project}}
-      onNamespaceChange={selection.selectNamespace}
-      onNamespaceUnload={selection.unloadNamespace}
-      onSetDefaultNamespace={selection.setDefaultNamespace}
+      onLibraryChange={selection.selectLibrary}
+      onLibraryUnload={selection.unloadLibrary}
+      onSetDefaultLibrary={selection.setDefaultLibrary}
     />
   );
 }

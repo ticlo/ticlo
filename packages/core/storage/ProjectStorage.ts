@@ -1,10 +1,10 @@
 import type {BlockProperty} from '../block/BlockProperty.ts';
 import type {Flow, FlowLoader, Root} from '../block/Flow.ts';
-import type {FlowStorage, NamespaceMetadata, Storage} from '../block/Storage.ts';
+import type {FlowStorage, LibraryMetadata, Storage} from '../block/Storage.ts';
 import type {DataMap} from '../util/DataTypes.ts';
 import {decode, encodeSorted} from '../util/Serialize.ts';
 import {flowStoragePath, splitFlowStorageKey, validFlowEntry} from '../util/FlowStoragePath.ts';
-import {readNamespaceMetadata, validateNamespace} from '../util/NamespaceMetadata.ts';
+import {readLibraryMetadata, validateLibrary} from '../util/LibraryMetadata.ts';
 import {StreamDispatcher} from '../block/Dispatcher.ts';
 import {
   FileAccessBase,
@@ -22,6 +22,7 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
   inited = false;
   readonly projects = new Set<string>();
   private readonly revisions = new Map<string, string | null>();
+  private readonly localBackupFlows = new Set<string>();
   private readonly pending = new Map<string, Promise<unknown>>();
   private readonly values = new Map<string, Storage>();
   private readonly changes = new Map<string, StreamDispatcher<string>>();
@@ -35,17 +36,20 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
   }
   flowFile(key: string): {files: FileAccess; path: string} {
     if (key === '#global') return {files: this.user, path: '#global.ticlo'};
-    const [namespace, name] = splitFlowStorageKey(key);
-    return {files: this, path: `${namespace || '#root'}/${flowStoragePath(name)}`};
+    const [library, name] = splitFlowStorageKey(key);
+    return {files: this, path: `${library || '#root'}/${flowStoragePath(name)}`};
   }
-  isPersistent(namespace: string) {
-    return this.getCapabilities(projectId(namespace)).persistent;
+  isPersistent(library: string) {
+    return this.getCapabilities(projectId(library)).persistent;
   }
   canWriteFlow(key: string) {
     if (key === '#temp' || key.startsWith('#temp.')) return true;
     if (key === '#global' || key.startsWith('#global.')) return this.user.getCapabilities('#global.ticlo').write;
-    const namespace = key.startsWith('+') ? key.slice(1).split('.')[0].split(':')[0] : '#root';
-    return this.getCapabilities(namespace).write;
+    const library = key.startsWith('+') ? key.slice(1).split('.')[0].split(':')[0] : '#root';
+    return this.getCapabilities(library).write;
+  }
+  hasLocalBackup(key: string) {
+    return this.localBackupFlows.has(key);
   }
   // REFACTOR(design.md): MUST validate the file version and migrate old binding paths explicitly.
   async loadFlow(key: string): Promise<DataMap | null> {
@@ -54,10 +58,13 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
       try {
         const result = await files.getFile(path);
         this.revisions.set(key, result.revision ?? null);
+        if (result.localBackup) this.localBackupFlows.add(key);
+        else this.localBackupFlows.delete(key);
         return decode(new TextDecoder().decode(result.data));
       } catch (error) {
         if (!(error instanceof StorageError) || error.code !== 'not-found') throw error;
         this.revisions.set(key, null);
+        this.localBackupFlows.delete(key);
         return null;
       }
     });
@@ -67,8 +74,12 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
     const text = encodeSorted(data ?? flow?.save());
     return this.enqueue(key, async () => {
       const {files, path} = this.flowFile(key);
-      const result = await files.uploadFile(path, text, {revision: this.revisions.get(key) ?? null});
+      const result = await files.uploadFile(path, text, {
+        revision: this.revisions.get(key) ?? null,
+        backupOnFailure: true,
+      });
       this.revisions.set(key, result.revision ?? null);
+      this.localBackupFlows.delete(key);
     });
   }
   delete(key: string) {
@@ -86,16 +97,17 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
       }
       await files.deleteFile(path, {revision});
       this.revisions.delete(key);
+      this.localBackupFlows.delete(key);
     });
   }
   createFolder(key: string) {
-    const [ns, name] = splitFlowStorageKey(key);
-    return this.createDirectory(`${ns || '#root'}/${flowStoragePath(name, true)}`);
+    const [libraryId, name] = splitFlowStorageKey(key);
+    return this.createDirectory(`${libraryId || '#root'}/${flowStoragePath(name, true)}`);
   }
   async deleteFolder(key: string) {
-    const [ns, name] = splitFlowStorageKey(key);
+    const [libraryId, name] = splitFlowStorageKey(key);
     await Promise.all([...this.pending].filter(([entry]) => entry.startsWith(`${key}.`)).map(([, pending]) => pending));
-    await this.deleteFile(`${ns || '#root'}/${flowStoragePath(name, true)}`);
+    await this.deleteFile(`${libraryId || '#root'}/${flowStoragePath(name, true)}`);
     for (const entry of this.revisions.keys()) if (entry.startsWith(`${key}.`)) this.revisions.delete(entry);
   }
   // REFACTOR(design.md): MUST return the versioned graph snapshot used for save and undo history.
@@ -109,30 +121,30 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
       },
     };
   }
-  saveLib(ns: string, lib: string, data: DataMap) {
-    return this.saveFlow(null, data, `${ns ? `${ns}.` : ''}:${lib}`);
+  saveModule(libraryId: string, module: string, data: DataMap) {
+    return this.saveFlow(null, data, `${libraryId ? `${libraryId}.` : ''}:${module}`);
   }
-  loadLib(ns: string, lib: string) {
-    return this.loadFlow(`${ns ? `${ns}.` : ''}:${lib}`);
+  loadModule(libraryId: string, module: string) {
+    return this.loadFlow(`${libraryId ? `${libraryId}.` : ''}:${module}`);
   }
-  async getNamespaceMetadata(namespace: string): Promise<NamespaceMetadata> {
-    validateNamespace(namespace);
-    await this.getFileInfo(namespace);
-    this.projects.add(namespace);
+  async getLibraryMetadata(library: string): Promise<LibraryMetadata> {
+    validateLibrary(library);
+    await this.getFileInfo(library);
+    this.projects.add(library);
     try {
-      return readNamespaceMetadata(
-        JSON.parse(new TextDecoder().decode((await this.getFile(`${namespace}/ticlo.json`)).data))
+      return readLibraryMetadata(
+        JSON.parse(new TextDecoder().decode((await this.getFile(`${library}/ticlo.json`)).data))
       );
     } catch (error) {
       if (error instanceof StorageError && error.code === 'not-found') return {};
       throw error;
     }
   }
-  async saveNamespaceMetadata(namespace: string, metadata: NamespaceMetadata) {
-    validateNamespace(namespace);
-    metadata = readNamespaceMetadata(metadata);
-    if (!this.isPersistent(namespace)) throw new StorageError('Storage is read-only', 'readonly');
-    const path = `${namespace}/ticlo.json`;
+  async saveLibraryMetadata(library: string, metadata: LibraryMetadata) {
+    validateLibrary(library);
+    metadata = readLibraryMetadata(metadata);
+    if (!this.isPersistent(library)) throw new StorageError('Storage is read-only', 'readonly');
+    const path = `${library}/ticlo.json`;
     await this.enqueue(path, async () => {
       let revision: string | null = null;
       try {
@@ -140,11 +152,11 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
       } catch (error) {
         if (!(error instanceof StorageError) || error.code !== 'not-found') throw error;
       }
-      await this.uploadFile(path, JSON.stringify(metadata, null, 2), {revision});
+      await this.uploadFile(path, JSON.stringify(metadata, null, 2), {revision, backupOnFailure: true});
     });
   }
-  async listFlows(namespace: string, folders?: string[]) {
-    validateNamespace(namespace);
+  async listFlows(library: string, folders?: string[]) {
+    validateLibrary(library);
     const result: string[] = [];
     const visit = async (path: string, prefix = '') => {
       for (const entry of await this.listFiles(path)) {
@@ -157,11 +169,12 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
         }
       }
     };
-    await visit(namespace);
+    await visit(library);
     return result.sort();
   }
   async init(root: Root) {
     root.loadGlobal((await this.loadFlow('#global')) ?? {'#is': ''}, this.getFlowLoader('#global').applyChange);
+    if (this.hasLocalBackup('#global')) root._globalRoot.updateValue('@has-change', true);
     this.inited = true;
   }
   async listProjects(options?: FileRequest): Promise<ProjectMetadata[]> {
@@ -211,10 +224,10 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
   }
 
   /** String storage functions share the same files and project routing. */
-  getValueStorage(namespace: string): Storage {
-    validateNamespace(namespace);
-    if (this.values.has(namespace)) return this.values.get(namespace);
-    const path = (key: string) => `${namespace}/#storage/${encodeURIComponent(key)}.str`;
+  getValueStorage(library: string): Storage {
+    validateLibrary(library);
+    if (this.values.has(library)) return this.values.get(library);
+    const path = (key: string) => `${library}/#storage/${encodeURIComponent(key)}.str`;
     const notify = (key: string, value: string) => this.changes.get(path(key))?.dispatch(value);
     const revisions = new Map<string, string | null>();
     const read = async (key: string) => {
@@ -256,7 +269,7 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
         if (stream?.isEmpty()) this.changes.delete(path(key));
       },
     };
-    this.values.set(namespace, storage);
+    this.values.set(library, storage);
     return storage;
   }
 }

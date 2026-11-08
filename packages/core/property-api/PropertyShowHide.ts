@@ -1,6 +1,6 @@
 import {Block} from '../block/Block.ts';
 import {configDescs, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
-import {globalFunctions} from '../block/FunctionLib.ts';
+import {globalFunctions} from '../block/FunctionModule.ts';
 import {getPreNumber} from '../util/String.ts';
 import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.ts';
 
@@ -26,7 +26,7 @@ export function buildPropertiesOrder(block: Block): string[] {
     }
   }
 
-  const [desc, size] = globalFunctions.getDescToSend(block.getValue('#is')?.toString());
+  const desc = globalFunctions.getDesc(block.getValue('#is')?.toString());
   if (desc) {
     addProps(desc.properties);
   }

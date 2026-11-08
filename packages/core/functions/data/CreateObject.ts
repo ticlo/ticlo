@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {defaultConfigs, PropDesc, PropGroupDesc} from '../../block/Descriptor.ts';
 import {BlockConfig} from '../../block/BlockProperty.ts';
 import {DataMap} from '../../util/DataTypes.ts';

@@ -1,38 +1,18 @@
 # Ticlo
 
-A general purpose visual programming language.
+A visual programming language with a reactive dataflow runtime, React components,
+and browser editors for flows and pages.
 
-<a href='https://coveralls.io/github/ticlo/ticlo'><img src='https://coveralls.io/repos/github/ticlo/ticlo/badge.svg?branch=master&service=github' title="coveralls"/></a>
-[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-blue.svg)](https://opensource.org/licenses/MPL-2.0)
-<a href="https://app.fossa.io/projects/git%2Bgithub.com%2Fticlo%2Fticlo?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Fticlo%2Fticlo.svg?type=shield"/></a>
-[![Discord](https://img.shields.io/discord/434106806503997445.svg?color=7289DA&logo=discord&logoColor=white
-)](https://discord.gg/d3NcyAw)
+Use the Node.js and pnpm versions in [package.json](package.json).
+[Development](docs/development.md) covers setup, builds, styles, and validation.
 
-Use the Node.js and pnpm versions specified in [package.json](package.json).
-Run `pnpm install` to install dependencies, including the published file-server
-package. See [local setup](docs/remote-storage.md#server-identity-and-local-development)
-to try remote storage.
-
-`pnpm build-pages` builds the browser apps and their assets into `dist/`.
-See the [Pages workflow](.github/workflows/pages.yml) for deployment.
-
-`pnpm build-css` compiles editor, React, and designer styles to each package's
-`style/index.css`. Component SCSS lives beside its TSX files; shared styles and
-the package entry points live in `style/`. Generated CSS is ignored by Git.
-Apps and consumers import `@ticlo/<package>/style/index.css`; Vite and browser
-tests build these files on startup. Rebuild CSS after editing SCSS.
-React component styles are independent of editor and designer styles;
-see [style imports](packages/react/README.md).
-
-Read the reference for the task:
-
-- [Architecture and packages](.agents/skills/ticlo/SKILL.md)
-- [Runtime startup, persistence, and lifecycle](docs/runtime-lifecycle.md)
-- [Flow file format](.agents/skills/ticlo/file-format.md)
-- [Workers and subflows](.agents/skills/ticlo/worker-architecture.md)
-- [Block configuration](docs/block-configs.md)
-- [Property editors](docs/editor.md)
-- [React page designer](packages/designer/README.md)
-- [Static storage](docs/static-storage.md)
-- [Remote storage](docs/remote-storage.md)
-- [Translations](.agents/skills/ticlo-translation/SKILL.md)
+- [Package and task map](.agents/skills/ticlo/SKILL.md)
+- [Core runtime](docs/core.md)
+- [Flow format](docs/flow-format.md)
+- [Runtime lifecycle](docs/runtime-lifecycle.md)
+- [Workers](docs/worker-functions.md)
+- [React rendering](docs/react.md)
+- [Designer](docs/designer.md)
+- [Editor](docs/editor.md)
+- [File storage](docs/remote-storage.md)
+- [Static hosting](docs/static-storage.md)

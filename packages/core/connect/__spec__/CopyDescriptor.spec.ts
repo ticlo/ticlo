@@ -2,7 +2,7 @@ import {Flow, Root} from '../../block/Flow.ts';
 import {type ClientConnection} from '../ClientConnection.ts';
 import {makeLocalConnection} from '../LocalConnection.ts';
 import {type PropDesc, type PropGroupDesc} from '../../block/Descriptor.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
 import {checkEditPolicy} from '../../policy/EditPolicy.ts';
 import '../../functions/math/Arithmetic.ts';
@@ -111,7 +111,7 @@ describe('copy custom property descriptor', () => {
       {'#is': '', '#inputs': {'#is': '', '#custom': [source]}, '#outputs': {'#is': ''}},
       {id: ':local', name: 'local'},
       undefined,
-      flow.getFuncLib()
+      flow.getFuncModule()
     );
     await client.addBlock('Main.local', {'#is': ':local'});
     flow.setBinding('value', 'local.source');

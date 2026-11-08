@@ -2,6 +2,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {Readable} from 'node:stream';
 import {StorageError} from './types.ts';
+import {GitError} from '@ticlo/node-git/GitError.ts';
 
 interface StorageLogger {
   error(error: unknown): void;
@@ -124,7 +125,7 @@ async function handleErrors<T>(reply: HonoReply, executor: () => Promise<T>, log
       reply.send(payload);
     }
   } catch (error) {
-    if (error instanceof StorageError) {
+    if (error instanceof StorageError || error instanceof GitError) {
       reply.code(error.statusCode).send({message: error.message});
       return;
     }

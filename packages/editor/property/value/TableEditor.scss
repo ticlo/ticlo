@@ -1,4 +1,10 @@
 .ticl-e-table-editor {
+  .ticl-e-table-body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+
   .ticl-e-table-toolbar,
   .ticl-e-table-actions {
     display: flex;
@@ -14,10 +20,35 @@
     padding: 0;
     overflow: visible;
 
+    .ticl-e-table-cell-display {
+      min-height: 24px;
+      &.ticl-e-table-cell-editable {
+        cursor: pointer;
+      }
+    }
+
+    .ant-input-number {
+      width: 100%;
+    }
+
     .ant-select {
       width: 100%;
     }
   }
+
+  .ticl-e-table-column-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+  }
+}
+
+.ticl-e-table-add-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 180px;
 }
 
 .ticl-e-table-worker-editor .ticl-e-stage-header {

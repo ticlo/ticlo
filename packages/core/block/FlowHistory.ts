@@ -56,7 +56,8 @@ export class FlowHistory {
       }
     } else {
       const data = flow.save();
-      if (!flow.getValue('@has-change')) {
+      this._hasChange = Boolean(flow.getValue('@has-change'));
+      if (!this._hasChange) {
         this._savedData = data;
       }
       this._history = [data];

@@ -2,7 +2,7 @@ import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 import {Root, type Flow} from '../../block/Flow.ts';
 import {Block} from '../../block/Block.ts';
 import {BlockOrder} from '../../block/BlockOrder.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {makeLocalConnection} from '../LocalConnection.ts';
 
 const parentId = 'test-add-parent';
@@ -107,9 +107,9 @@ describe('Add block with orderIndex', () => {
     expect(root.queryValue('Main.parent.#order')).toEqual(['a', 'new', 'b']);
   });
 
-  it('resolves child tags in the destination flow function library', async () => {
+  it('resolves child tags in the destination flow function module', async () => {
     const flow = root.queryValue('Main') as Flow;
-    flow.getFuncLib().addFactory(null, {id: ':child', name: 'child', tags: ['component'], properties: []});
+    flow.getFuncModule().addFactory(null, {id: ':child', name: 'child', tags: ['component'], properties: []});
     await client.addBlock('Main.parent.local', {'#is': ':child'}, true, 1);
     expect(root.queryValue('Main.parent.#order')).toEqual(['a', 'local', 'b']);
   });

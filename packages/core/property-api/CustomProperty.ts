@@ -8,7 +8,7 @@ import {
 } from '../block/Descriptor.ts';
 import {Block} from '../block/Block.ts';
 import {BlockProperty} from '../block/BlockProperty.ts';
-import {Namespace} from '../block/Namespace.ts';
+import {Library} from '../block/Library.ts';
 import {deepClone} from '../util/Clone.ts';
 import {endsWithNumberReg} from '../util/String.ts';
 import {hideGroupProperties, hideProperties, showGroupProperties, showProperties} from './PropertyShowHide.ts';
@@ -46,7 +46,7 @@ export function copyCustomPropertyDescriptor(block: Block, name: string, group?:
 
   const sourceBlock = connected._block;
   const getFuncDesc = (id: unknown) =>
-    typeof id === 'string' ? Namespace.getFunctions(id, sourceBlock._flow)?.getDescToSend(id)[0] : undefined;
+    typeof id === 'string' ? Library.getFunctions(id, sourceBlock._flow)?.getDesc(id) : undefined;
   const funcDesc = getFuncDesc(sourceBlock.getValue('#is')) ?? blankFuncDesc;
   const sourceCustom = sourceBlock.getValue('#custom');
   const cache = buildPropDescCache(funcDesc, Array.isArray(sourceCustom) ? sourceCustom : []);

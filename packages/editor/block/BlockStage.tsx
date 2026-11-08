@@ -164,7 +164,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
       basePath: this.props.basePath,
       kind: this.kind,
       conn: this.props.conn,
-      funcLib: this.props.funcLib,
+      funcModule: this.props.funcModule,
       selection: {paths: []},
       select: this.select,
       save: this.save,
@@ -316,7 +316,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
       prevProps.basePath !== this.props.basePath ||
       prevProps.stageId !== this.props.stageId ||
       prevProps.conn !== this.props.conn ||
-      prevProps.funcLib !== this.props.funcLib
+      prevProps.funcModule !== this.props.funcModule
     ) {
       const wasActive = this.context.activeStage?.id === this.stageContext.id;
       if (this.stageContext.id !== this.stageId) this.context.unregisterStage(this.stageContext.id);
@@ -325,7 +325,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
         id: this.stageId,
         basePath: this.props.basePath,
         conn: this.props.conn,
-        funcLib: this.props.funcLib,
+        funcModule: this.props.funcModule,
       };
       this.context.registerStage(this.stageContext);
       if (wasActive) this.activate();

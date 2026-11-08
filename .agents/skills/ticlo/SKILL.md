@@ -1,44 +1,28 @@
 ---
 name: ticlo-project-architecture
-description: Navigate Ticlo packages and find task-specific runtime, flow-format, worker, editor, and storage references.
+description: Locate Ticlo runtime, React, designer, editor, storage, and tooling code and its task-specific contracts.
 ---
 
-# Ticlo architecture
+# Ticlo task map
 
-Ticlo combines a reactive dataflow runtime, React visual editor, and browser/Node
-integrations. Runtime and UI packages live in `packages/`; external service
-packages live in `connectors/`. Demos and dev servers live in `app/`; build and
-translation tools live in `tool/`.
+Runtime and UI packages are in `packages/`; external service integrations are in
+`connectors/`; development hosts are in `app/`; build tools are in `tool/`.
+Read only the row and reference needed for the task. API signatures and defaults
+come from source; validation commands are in [development](../../../docs/development.md).
 
-| Package (`@ticlo/…`) | Responsibility                                                                            |
-| -------------------- | ----------------------------------------------------------------------------------------- |
-| `core`               | Blocks, bindings, functions, scheduling, persistence, client/server sync                  |
-| `editor`             | React/Ant Design editor, property panels, function selectors                              |
-| `designer`           | React page stages, design input, and selection; reuses editor tools                       |
-| `html`               | Browser connections and DOM integrations                                                  |
-| `node`               | Direct filesystem project storage, WebSocket/REST connections, secrets, flow test loading |
-| `file-server`        | Hono project and user file routes, including Git operations                               |
-| `remote-storage`     | Browser file/flow storage and HTTP client: Remote, read-only Static, and local IndexedDB  |
-| `react`              | Flow bindings and components                                                              |
-| `test`               | Flow assertions and test utilities                                                        |
-| `web-server`         | Hono HTTP/WebSocket server using `@hono/node-server` and `@hono/node-ws`                  |
-
-## Documentation
-
-Keep every `README.md` in this project limited to a general introduction to the
-project or package it describes. Put technical details in separate documentation.
-
-## References
-
-Read only the references relevant to the task:
-
-- [Design](./design.md): project overview for understanding Ticlo design, reimplementing its dataflow engine, or porting it to another language.
-- [Core](./core-package.md): execution, bindings, functions, connections, editing helpers.
-- [Lifecycle](../../../docs/runtime-lifecycle.md): startup, namespaces, load/unload, persistence.
-- [File format](./file-format.md): saved `.ticlo` JSON, property prefixes, binding examples.
-- [Workers](./worker-architecture.md): sources, static content, save callbacks, host patterns.
-- [Block controls](../../../docs/block-configs.md) and [property editors](../../../docs/editor.md).
-- [Remote storage](../../../docs/remote-storage.md): project layout, writes, conflicts, dev server.
-- [Static storage](../../../docs/static-storage.md): HTTP indexes, read-only files, and the writable local project.
-- [Connectors](../../../docs/connectors.md): workspace, build, and test conventions for service packages.
-- [Translations](../ticlo-translation/SKILL.md): locale ownership and generation.
+| Task                                                                                           | Source                                                                     | Reference                                                                                                                               |
+| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Project overview for understanding Ticlo design, reimplementing or porting its dataflow engine | `packages/core`                                                            | [Design](./design.md)                                                                                                                   |
+| Blocks, functions, scheduling, bindings                                                        | `packages/core/block`, `core/util`                                         | [Core](../../../docs/core.md)                                                                                                           |
+| Saved flow data and function IDs                                                               | `packages/core/block`                                                      | [Flow format](../../../docs/flow-format.md)                                                                                             |
+| Startup, libraries, persistence                                                                | `packages/core/block/FlowRuntime.ts`                                       | [Lifecycle](../../../docs/runtime-lifecycle.md)                                                                                         |
+| Workers and shared static data                                                                 | `packages/core/worker`                                                     | [Workers](../../../docs/worker-functions.md), [block controls](../../../docs/block-configs.md)                                          |
+| Connection protocol and editing commands                                                       | `packages/core/connect`, `core/property-api`, `core/policy`                | [Connection layer](../../../docs/core.md#connection-layer)                                                                              |
+| React renderers and subscriptions                                                              | `packages/react`                                                           | [React](../../../docs/react.md), [containers](../../../docs/react-containers.md), [SVG](../../../docs/react-svg.md)                     |
+| Designer gestures and selection                                                                | `packages/designer`                                                        | [Designer](../../../docs/designer.md), [geometry](../../../docs/element-geometry.md)                                                    |
+| Editor panels and value editors                                                                | `packages/editor`                                                          | [Editor](../../../docs/editor.md), [widgets](../../../docs/block-widgets.md)                                                            |
+| File and flow storage                                                                          | `packages/node/storage`, `packages/remote-storage`, `packages/file-server` | [Storage](../../../docs/remote-storage.md), [static indexes](../../../docs/static-storage.md), [HTTP/Git](../../../docs/file-server.md) |
+| HTTP/WebSocket runtime hosting                                                                 | `packages/web-server`, `app/server`                                        | [Development](../../../docs/development.md)                                                                                             |
+| Charts                                                                                         | `packages/chart`                                                           | [Charts](../../../docs/chart.md)                                                                                                        |
+| Service integrations                                                                           | `connectors/`                                                              | [Connectors](../../../docs/connectors.md)                                                                                               |
+| Translations                                                                                   | `packages/**/i18n`, `tool/translate`                                       | [Translation skill](../ticlo-translation/SKILL.md)                                                                                      |

@@ -23,7 +23,7 @@ Each `.list.json` is a JSON array of filenames; directory entries end in `/`.
 For example, `proj/main/.list.json`:
 
 ```json
-["ticlo.json", "entry.ticlo", "folder/", "#context.ticlo", "#libs/", "#storage/"]
+["ticlo.json", "entry.ticlo", "folder/", "#context.ticlo", "#modules/", "#storage/"]
 ```
 
 `folder/.list.json` can contain `["child.ticlo"]`; empty folders use `[]`.
@@ -40,5 +40,5 @@ open the editor. The server serves `app/server/files`, sharing project data with
 files. Provide user globals under `usr/guest/` as needed.
 
 Designer and Dataflow Editor without a remote host use bundled static defaults plus
-the IndexedDB local project. See [file storage](./remote-storage.md) for API
-contracts, scope routing, and migration.
+the IndexedDB local project. See [file storage](remote-storage.md) for API
+contracts, scope routing, and revisions.

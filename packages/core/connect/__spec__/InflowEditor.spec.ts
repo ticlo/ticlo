@@ -5,25 +5,25 @@ import {makeLocalConnection} from '../LocalConnection.ts';
 import '../../functions/math/Arithmetic.ts';
 import '../../functions/Categories.ts';
 import {shouldHappen} from '../../util/test-util.ts';
-import {Namespace} from '../../block/Namespace.ts';
+import {Library} from '../../block/Library.ts';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
 
 describe('InflowEditor Connection Workflow', function () {
   it('keeps folder and child-flow function groups stable and separate', async function () {
-    const folderPath = 'InflowEditorFunctionLibFolder';
+    const folderPath = 'InflowEditorFunctionModuleFolder';
     const childPath = `${folderPath}.child`;
 
     Root.instance.addFlowFolder(folderPath);
     const folder = Root.instance.queryValue(folderPath) as Flow;
-    const folderGroup = folder.getFuncLib();
+    const folderGroup = folder.getFuncModule();
 
-    expect(folder.getFuncLib()).toBe(folderGroup);
+    expect(folder.getFuncModule()).toBe(folderGroup);
 
     Root.instance.addFlow(childPath, {});
     const child = Root.instance.queryValue(childPath) as Flow;
 
-    expect(child.getFuncLib()).not.toBe(folderGroup);
-    expect(child.getFuncLib()).toBe(child.getFuncLib());
+    expect(child.getFuncModule()).not.toBe(folderGroup);
+    expect(child.getFuncModule()).toBe(child.getFuncModule());
 
     Root.instance.deleteValue(folderPath);
   });
@@ -53,7 +53,7 @@ describe('InflowEditor Connection Workflow', function () {
       flowPath
     );
 
-    expect(flow.getFuncLib().getAllFunctionIds()).toContain(funcId);
+    expect(flow.getFuncModule().getAllFunctionIds()).toContain(funcId);
     await shouldHappen(() => watchedDesc);
 
     client.unwatchDesc(descListener);
@@ -61,7 +61,7 @@ describe('InflowEditor Connection Workflow', function () {
     Root.instance.deleteValue(flowPath);
   });
 
-  it('creates a namespace function before opening its editor', async function () {
+  it('creates a library function before opening its editor', async function () {
     const funcId = '+InflowEditorWorkflow:createFirst:draftWorker';
     const editPath = `#temp.#edit-${encodeURIComponent(funcId)}`;
 
@@ -70,14 +70,14 @@ describe('InflowEditor Connection Workflow', function () {
     await client.editWorker(editPath, undefined, funcId, {'#is': '', '#inputs': {'#is': ''}, '#outputs': {'#is': ''}});
 
     await shouldHappen(() => client.watchDesc(funcId));
-    const [desc] = Namespace.getDescToSend(funcId);
+    const [desc] = Library.getDescToSend(funcId);
     expect(desc?.id).toBe(funcId);
 
-    Namespace.delete(funcId);
+    Library.delete(funcId);
     client.destroy();
   });
 
-  it('scopes descriptor watches through #lib', async function () {
+  it('scopes descriptor watches through #module', async function () {
     const flowPath = 'InflowEditorDescriptorScope';
     const funcId = ':scopedDesc';
     const data = {
@@ -88,7 +88,7 @@ describe('InflowEditor Connection Workflow', function () {
 
     Root.instance.addFlow(flowPath, {});
     const flow = Root.instance.queryValue(flowPath) as Flow;
-    WorkerFunctionGen.registerType(data, {id: funcId, name: 'scopedDesc'}, undefined, flow.getFuncLib());
+    WorkerFunctionGen.registerType(data, {id: funcId, name: 'scopedDesc'}, undefined, flow.getFuncModule());
 
     const [server, client] = makeLocalConnection(Root.instance, true);
 
@@ -139,9 +139,9 @@ describe('InflowEditor Connection Workflow', function () {
 
     await client.applyFlowChange(editPath, funcId);
 
-    await shouldHappen(() => flow.getFuncLib().getAllFunctionIds().includes(funcId));
+    await shouldHappen(() => flow.getFuncModule().getAllFunctionIds().includes(funcId));
 
-    const [desc] = flow.getFuncLib().getDescToSend(funcId);
+    const [desc] = flow.getFuncModule().getDescToSend(funcId);
     expect(desc.base).toBe('add');
     expect(desc.properties).toEqual([
       {name: 'n', type: 'number'},

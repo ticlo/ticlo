@@ -3,7 +3,7 @@ import {ListenPromise} from './ListenPromise.ts';
 import {BlockBinding} from './BlockBinding.ts';
 import {FunctionFactory, BaseFunction} from './BlockFunction.ts';
 import {PropDispatcher, PropListener, Destroyable} from './Dispatcher.ts';
-import {FunctionDispatcher, globalFunctions} from './FunctionLib.ts';
+import {FunctionDispatcher, globalFunctions} from './FunctionModule.ts';
 import {DoneEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {Uid} from '../util/Uid.ts';
@@ -15,7 +15,7 @@ import {BlockMode} from './Descriptor.ts';
 import {FunctionData, FunctionOutput} from './FunctonData.ts';
 import {getMaxFlowDepth} from '../util/Settings.ts';
 import {Logger} from '../util/Logger.ts';
-import {Namespace} from './Namespace.ts';
+import {Library} from './Library.ts';
 
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;
@@ -270,8 +270,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
         case '#flow':
           prop = new BlockConstConfig(this, field, this._flow);
           break;
-        case '#lib':
-          prop = new BlockConstConfig(this, field, this._flow.getFuncLib()?.flow);
+        case '#module':
+          prop = new BlockConstConfig(this, field, this._flow.getFuncModule()?.flow);
           break;
         case '#':
           prop = new BlockConstConfig(this, field, this);
@@ -282,10 +282,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
         default: {
           if (field.charCodeAt(1) === 43) {
             if (field.length === 2) {
-              // #+ points to current namespace
-              prop = new ConstBinding(this, field, Namespace.bind(this._flow._namespace, this._flow));
+              // #+ points to current library
+              prop = new ConstBinding(this, field, Library.bind(this._flow._library, this._flow));
             } else {
-              prop = new ConstBinding(this, field, Namespace.bind(field.slice(1), this._flow));
+              prop = new ConstBinding(this, field, Library.bind(field.slice(1), this._flow));
             }
             break;
           }
@@ -559,10 +559,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     const flow = new FlowClass(this, output, prop);
     prop.setOutput(flow);
     if (typeof src === 'string') {
-      const functions = Namespace.getFunctions(src, this._flow);
+      const functions = Library.getFunctions(src, this._flow);
       flow.load(null, src, applyChange, undefined, undefined, functions);
     } else {
-      flow.load(src, null, applyChange, undefined, undefined, this._flow.getFuncLib());
+      flow.load(src, null, applyChange, undefined, undefined, this._flow.getFuncModule());
     }
 
     return flow;
@@ -840,7 +840,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
       this._funcSrc.unlisten(this);
     }
     if (funcId) {
-      const functions = Namespace.getFunctions(funcId, this._flow);
+      const functions = Library.getFunctions(funcId, this._flow);
       if (functions) {
         this._funcSrc = functions.listen(funcId, this);
         return;

@@ -57,6 +57,21 @@ describe('File manager operations', () => {
     expect(fixture.methods.uploadFile.mock.calls[0][2]).toEqual({existsBehavior: 'fail'});
   });
 
+  it('reports nested flow files only after their folder is deleted', async () => {
+    const fixture = fixtureClient([
+      folder('demo/jobs'),
+      folder('demo/jobs/nested'),
+      file('demo/jobs/nested/run.ticlo'),
+      file('demo/jobs/readme.txt'),
+      {...file('demo/jobs/removed.ticlo'), gitStatus: 'deleted'},
+    ]);
+    const onDeleted = vi.fn(async (paths: string[]) => {
+      expect(fixture.entries.has('demo/jobs')).toBe(false);
+    });
+    await new FileOperations(fixture.client, 'demo').remove([fixture.entries.get('demo/jobs')], onDeleted);
+    expect(onDeleted).toHaveBeenCalledWith(['demo/jobs/nested/run.ticlo']);
+  });
+
   it('rejects project-root mutations, traversal, cross-project entries and self-descendant transfers before writes', async () => {
     const fixture = fixtureClient([folder('demo/src'), file('demo/a.txt')]);
     const operations = new FileOperations(fixture.client, 'demo');

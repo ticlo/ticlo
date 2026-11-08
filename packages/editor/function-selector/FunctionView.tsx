@@ -26,7 +26,7 @@ interface Props {
   name?: any;
   data?: any;
   onClick?: OnFunctionClick;
-  funcLib?: string;
+  funcModule?: string;
 }
 
 export class FunctionView extends React.PureComponent<Props, any> {
@@ -42,7 +42,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
 
     let name = desc.name;
     if (TicloI18nSettings.useLocalizedBlockName) {
-      name = translateFunction(desc.id, desc.name, desc.ns);
+      name = translateFunction(desc.id, desc.name, desc.libraryId);
     }
     e.setData(
       {
@@ -66,16 +66,16 @@ export class FunctionView extends React.PureComponent<Props, any> {
     }
   };
   onEditClicked = () => {
-    const {conn, desc, funcLib} = this.props;
+    const {conn, desc, funcModule} = this.props;
     const editPath = `#temp.#edit-${encodeTicloName(desc.id)}`;
-    conn.editWorker(editPath, null, desc.id, undefined, desc.id.startsWith(':') ? funcLib : undefined);
+    conn.editWorker(editPath, null, desc.id, undefined, desc.id.startsWith(':') ? funcModule : undefined);
     this.context.editFlow(editPath, () => {
       conn.applyFlowChange(editPath, undefined, requestCallbacks);
     });
   };
   onDeleteClicked = () => {
-    const {conn, desc, funcLib} = this.props;
-    conn.deleteFunction(desc.id, desc.id.startsWith(':') ? funcLib : undefined, requestCallbacks);
+    const {conn, desc, funcModule} = this.props;
+    conn.deleteFunction(desc.id, desc.id.startsWith(':') ? funcModule : undefined, requestCallbacks);
   };
 
   getMenu = (): MenuProps => {
@@ -117,7 +117,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
 
   render() {
     const {desc, conn} = this.props;
-    const {ns, id} = desc;
+    const {libraryId, id} = desc;
     const idParts = id.split(':');
     let prefix: string | null = null;
     if (idParts.length > 1) {
@@ -130,13 +130,13 @@ export class FunctionView extends React.PureComponent<Props, any> {
     const typeView = (
       <DragDropDiv className="ticl-e-func-view" style={colorStyle} onClick={this.onClick} onDragStartT={this.onDrag}>
         <TIcon icon={iconName} />
-        {prefix ? <span className="ticl-e-func-ns">{prefix}</span> : null}
+        {prefix ? <span className="ticl-e-func-library">{prefix}</span> : null}
         <LocalizedFunctionName desc={desc} className="ticl-e-func-name" />
       </DragDropDiv>
     );
 
     if (
-      (ns?.startsWith('+') || (id.startsWith(':') && this.props.funcLib != null)) &&
+      (libraryId?.startsWith('+') || (id.startsWith(':') && this.props.funcModule != null)) &&
       desc.src === 'worker' &&
       this.context?.editFlow
     ) {

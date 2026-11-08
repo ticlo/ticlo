@@ -20,22 +20,22 @@ describe('Copy Paste', function () {
     '#static': {subtract: {'#is': 'subtract'}},
   };
   function createWorkerFlow(funcId: string, workerData: DataMap = data): [WorkerFlow, Flow] {
-    const libFlow = new Flow();
-    libFlow.load({'#is': ''});
-    const funcLib = libFlow.getFuncLib();
+    const moduleFlow = new Flow();
+    moduleFlow.load({'#is': ''});
+    const funcModule = moduleFlow.getFuncModule();
     WorkerFunctionGen.registerType(
       workerData,
       {id: funcId, name: funcId.substring(1), properties: []},
       undefined,
-      funcLib
+      funcModule
     );
     const flow = new WorkerFlow();
-    flow.load(workerData, funcId, undefined, undefined, undefined, funcLib);
-    return [flow, libFlow];
+    flow.load(workerData, funcId, undefined, undefined, undefined, funcModule);
+    return [flow, moduleFlow];
   }
 
   it('basic', function () {
-    const [flow1, libFlow1] = createWorkerFlow(':copy1');
+    const [flow1, moduleFlow1] = createWorkerFlow(':copy1');
 
     const copied = copyProperties(flow1, ['add', '#static.subtract']) as DataMap;
     expect(copied).toEqual({
@@ -44,7 +44,7 @@ describe('Copy Paste', function () {
       '#static': {...copy['#static'], '#_copy_from': flow1._staticBlock.getFullPath()},
     });
 
-    const [flow2, libFlow2] = createWorkerFlow(':copy2', {'#is': ''});
+    const [flow2, moduleFlow2] = createWorkerFlow(':copy2', {'#is': ''});
     expect(pasteProperties(flow2, copied)).toEqual(['add', '#static.subtract']);
     expect(flow2.save()).toEqual({
       '#is': '',
@@ -65,12 +65,12 @@ describe('Copy Paste', function () {
 
     flow1.destroy();
     flow2.destroy();
-    libFlow1.destroy();
-    libFlow2.destroy();
+    moduleFlow1.destroy();
+    moduleFlow2.destroy();
   });
 
   it('rename', function () {
-    const [flow1, libFlow] = createWorkerFlow(':copyRename');
+    const [flow1, moduleFlow] = createWorkerFlow(':copyRename');
 
     flow1.createBlock('divide')._load({'#is': 'divide', '~0': '##.add.0', '@b-xyw': 'add'});
 
@@ -99,7 +99,7 @@ describe('Copy Paste', function () {
     });
 
     flow1.destroy();
-    libFlow.destroy();
+    moduleFlow.destroy();
   });
 
   it('invalid copy paste', function () {
@@ -109,7 +109,7 @@ describe('Copy Paste', function () {
     expect(pasteProperties(flow1, [] as any)).toBe('invalid data');
     expect(pasteProperties(flow1, 1 as any)).toBe('invalid data');
 
-    const [flow1Loaded, libFlow] = createWorkerFlow(':copyInvalid');
+    const [flow1Loaded, moduleFlow] = createWorkerFlow(':copyInvalid');
     flow1.destroy();
     expect((pasteProperties(flow1Loaded, copy) as string).startsWith('block already exists: ')).toBe(true);
 
@@ -117,7 +117,7 @@ describe('Copy Paste', function () {
       '#static properties not allowed in this Block'
     );
     flow1Loaded.destroy();
-    libFlow.destroy();
+    moduleFlow.destroy();
   });
 
   it('adjusts external parent bindings while preserving copied targets and clipboard data', () => {
@@ -240,13 +240,13 @@ describe('Copy Paste', function () {
   });
 
   it('uses the actual static parent and leaves wrapped values untouched', () => {
-    const [worker, lib] = createWorkerFlow(':copyStaticBindings');
-    lib.setValue('value', 10);
+    const [worker, module] = createWorkerFlow(':copyStaticBindings');
+    module.setValue('value', 10);
     const staticBlock = worker._staticBlock;
     const block = staticBlock.createBlock('a');
     block._load({'~input': '##.##.##.value'});
     block.setValue('plain', {'~input': '##.##.##.value', '#is': {'~input': '##.##.##.value'}});
-    const target = lib.createBlock('target');
+    const target = module.createBlock('target');
     const copied = copyProperties(staticBlock, ['a']) as DataMap;
     pasteProperties(target, copied);
     expect(target.queryProperty('a.input')._bindingPath).toBe('##.##.value');
@@ -257,7 +257,7 @@ describe('Copy Paste', function () {
     expect(staticBlock.getProperty('#_copy_from', false)).toBeNull();
     expect(staticBlock.queryProperty('a1.input')._bindingPath).toBe('##.##.##.value');
     worker.destroy();
-    lib.destroy();
+    module.destroy();
   });
 
   it('can move a block over its old parent after preparing the paste', () => {

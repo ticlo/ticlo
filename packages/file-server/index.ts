@@ -10,6 +10,7 @@ import {
   handleUploadOp,
   handleMkdirOp,
   handleDeleteOp,
+  handleGitRestoreOp,
   handleMoveOp,
   handleCopyOp,
   handleRenameOp,
@@ -24,7 +25,15 @@ import {
   handleReadProjectOp,
   handleUpdateProjectOp,
 } from './projectRouteHandlers.ts';
-import {handleGitCommitOp, handleGitHistoryOp, handleGitInfoOp, handleGitInitOp} from './gitRouteHandlers.ts';
+import {
+  handleGitCommitOp,
+  handleGitBranchesOp,
+  handleGitDeleteBranchOp,
+  handleGitHistoryOp,
+  handleGitInfoOp,
+  handleGitInitOp,
+  handleGitResetOp,
+} from './gitRouteHandlers.ts';
 import {migrateProjectMetadata} from './projectOperations.ts';
 import {HonoReply, handleErrors, withStorageLock} from './utils.ts';
 import {AuthProvider, FileQuerystring, FileStorageOptions, StorageContext, StorageError} from './types.ts';
@@ -60,7 +69,20 @@ export function routeRemoteStorage(app: Hono, options: FileStorageOptions = {}):
       reply.code(400).send({message: 'Missing op parameter'});
       return reply.toResponse();
     }
-    if (!['get', 'list', 'info', 'listProj', 'readProj', 'exportProj', 'gitInfo', 'gitHistory', 'user'].includes(op)) {
+    if (
+      ![
+        'get',
+        'list',
+        'info',
+        'listProj',
+        'readProj',
+        'exportProj',
+        'gitInfo',
+        'gitHistory',
+        'gitBranches',
+        'user',
+      ].includes(op)
+    ) {
       return reply.code(405).header('Allow', 'POST').send({message: 'Operation requires POST'});
     }
     await dispatchOperation(op, query, request, reply);
@@ -131,6 +153,10 @@ export function routeRemoteStorage(app: Hono, options: FileStorageOptions = {}):
         await handleDeleteOp(query, request, reply, fileContext);
         return;
       }
+      case 'gitRestore': {
+        await handleGitRestoreOp(query, request, reply, fileContext);
+        return;
+      }
       case 'move': {
         await handleMoveOp(query, request, reply, fileContext);
         return;
@@ -183,6 +209,15 @@ export function routeRemoteStorage(app: Hono, options: FileStorageOptions = {}):
       case 'gitHistory':
         await handleGitHistoryOp(query, request, reply, fileContext);
         return;
+      case 'gitBranches':
+        await handleGitBranchesOp(query, request, reply, fileContext);
+        return;
+      case 'gitDeleteBranch':
+        await handleGitDeleteBranchOp(query, request, reply, fileContext);
+        return;
+      case 'gitReset':
+        await handleGitResetOp(query, request, reply, fileContext);
+        return;
       default:
         reply.code(400).send({message: 'Unsupported op: ' + op});
     }
@@ -192,10 +227,14 @@ export function routeRemoteStorage(app: Hono, options: FileStorageOptions = {}):
 async function initStorageRoot(rootDir: string): Promise<void> {
   await mkdir(rootDir, {recursive: true});
   const projectsDir = path.join(rootDir, 'proj');
+  const serverProjectsDir = path.join(rootDir, 'serv');
   await mkdir(projectsDir, {recursive: true});
+  await mkdir(serverProjectsDir, {recursive: true});
   await mkdir(path.join(rootDir, 'usr'), {recursive: true});
-  for (const entry of await readdir(projectsDir, {withFileTypes: true})) {
-    if (entry.isDirectory()) await migrateProjectMetadata(rootDir, entry.name);
+  for (const directory of [projectsDir, serverProjectsDir]) {
+    for (const entry of await readdir(directory, {withFileTypes: true})) {
+      if (entry.isDirectory()) await migrateProjectMetadata(directory, entry.name);
+    }
   }
 }
 

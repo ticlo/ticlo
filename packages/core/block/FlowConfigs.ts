@@ -3,7 +3,7 @@ import type {Block} from './Block.ts';
 import {BlockIO, BlockProperty} from './BlockProperty.ts';
 import {BlockConstConfig, ConfigGenerators, ConstTypeConfig} from './BlockConfigs.ts';
 import type {Flow} from './Flow.ts';
-import {FlowFunctionLib} from './NSFunctionLib.ts';
+import {FlowFunctionModule} from './LibraryFunctionModule.ts';
 import {isDataMap} from '../util/DataTypes.ts';
 
 export class BlockInputsConfig extends BlockIO {
@@ -35,11 +35,11 @@ export class BlockOutputsConfig extends BlockIO {
 export class BlockFunctionsConfig extends BlockProperty {
   // REFACTOR(design.md): MUST migrate worker definitions without changing existing block function types in place.
   onChange(val: unknown, save?: boolean): boolean {
-    const funcLib = (this._block as Flow).getFuncLib() as FlowFunctionLib;
+    const funcModule = (this._block as Flow).getFuncModule() as FlowFunctionModule;
     if (isDataMap(val)) {
-      funcLib.load(val);
+      funcModule.load(val);
     } else {
-      funcLib.load({});
+      funcModule.load({});
     }
 
     return super.onChange(val, save);
@@ -47,16 +47,16 @@ export class BlockFunctionsConfig extends BlockProperty {
 
   _saveValue(): unknown {
     if (
-      (this._block as Flow)._funcLib instanceof FlowFunctionLib &&
-      ((this._block as Flow)._funcLib as FlowFunctionLib).flow === this._block
+      (this._block as Flow)._funcModule instanceof FlowFunctionModule &&
+      ((this._block as Flow)._funcModule as FlowFunctionModule).flow === this._block
     ) {
-      return ((this._block as Flow)._funcLib as FlowFunctionLib).save();
+      return ((this._block as Flow)._funcModule as FlowFunctionModule).save();
     }
     return undefined;
   }
 
   _liveClear() {
-    ((this._block as Flow).getFuncLib() as FlowFunctionLib).load({});
+    ((this._block as Flow).getFuncModule() as FlowFunctionModule).load({});
     super._liveClear();
   }
 }
@@ -75,15 +75,15 @@ export const FlowFolderConfigGenerators: {[key: string]: typeof BlockProperty} =
   ...ConfigGenerators,
   '#is': ConstTypeConfig('flow:folder'),
 };
-export const FlowNamespaceConfigGenerators: {[key: string]: typeof BlockProperty} = {
+export const FlowLibraryConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
-  '#is': ConstTypeConfig('flow:namespace'),
+  '#is': ConstTypeConfig('flow:library'),
 };
 export const GlobalConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#is': ConstTypeConfig('flow:global'),
 };
-export const FlowLibConfigGenerators: {[key: string]: typeof BlockProperty} = {
+export const FlowModuleConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,
-  '#is': ConstTypeConfig('flow:lib'),
+  '#is': ConstTypeConfig('flow:module'),
 };

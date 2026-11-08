@@ -17,8 +17,8 @@ it loading as a child block. Inline worker definitions need this wrapper too.
 | --- | --- |
 | `""` | No function; also used for saved flows and IO blocks |
 | `"add"` | Global function |
-| `":double"` | Current flow's `#functions` library |
-| `"+main:tools:double"` | Namespace library function |
+| `":double"` | Current flow's `#functions` module |
+| `"+main:tools:double"` | Library module function |
 
 `~#is` can bind the function ID. Types such as `flow:main`, `flow:folder`,
 `flow:inputs`, and `flow:outputs` come from runtime classes; assigning their
@@ -31,27 +31,27 @@ strings to ordinary blocks does not construct those classes. Use flow/folder API
 | none | Normal inputs/outputs |
 | `#` | Engine and function configuration |
 | `~` | Binding path or helper block |
-| `^` | Context inherited through parent flows, namespace `#context`, and root `#global` |
+| `^` | Context inherited through parent flows, library `#context`, and root `#global` |
 | `@` | Editor attributes, not function inputs |
-| `+` | Namespace entries under the runtime root, such as `+main` |
+| `+` | Library entries under the runtime root, such as `+main` |
 
 ### Configuration (`#`)
 
-- `#context`: a named namespace's independently saved context flow. It replaces
-  the namespace's context inheritance layer and falls back directly to root
-  `#global`; see [namespace context](../../../docs/runtime-lifecycle.md#namespace-context).
+- `#context`: a named library's independently saved context flow. It replaces
+  the library's context inheritance layer and falls back directly to root
+  `#global`; see [library context](runtime-lifecycle.md#library-context).
 - `#inputs` / `#outputs`: flow IO blocks.
 - `#functions`: local worker definitions (example below).
 - `#static`: named-worker static content, loaded before normal data. Saved with
   `#is: ""`, runtime type `flow:static`. Inline workers do not support it.
   The runtime owner `#shared` (`flow:const`) is never serialized; see
-  [static ownership](./worker-architecture.md#flow-classes-and-static-content).
+  [static ownership](worker-functions.md#flow-classes-and-static-content).
 - `#priority`: `0` (highest) through `3` (lowest).
 - `#cancel`: cancellation trigger; `#secret`: secret configuration.
 
-See [block configuration](../../../docs/block-configs.md) for `#mode`, `#disabled`,
+See [block configuration](block-configs.md) for `#mode`, `#disabled`,
 `#call`, `#sync`, `#wait`, custom/optional properties, and read-only references.
-Never save runtime references such as `#lib` or `#name`.
+Never save runtime references such as `#module` or `#name`.
 
 ### Bindings (`~`)
 
@@ -60,7 +60,7 @@ Never save runtime references such as `#lib` or `#name`.
 `value`. Unresolved paths produce `undefined` without throwing.
 
 Paths use dots: `#` is the current block, `##` its parent, `#flow` the containing
-flow, and `#+` its namespace root.
+flow, and `#+` its library root.
 
 ### Attributes (`@`)
 

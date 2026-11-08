@@ -9,6 +9,7 @@ interface FileEntryBase {
 interface GitInfo {
   initialized: boolean;
   branch?: string;
+  hasUncommittedChanges?: boolean;
 }
 
 interface GitCommit {

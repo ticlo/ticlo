@@ -7,10 +7,10 @@ import {ConfigGenerators, ConstTypeConfig} from './BlockConfigs.ts';
 import {FlowConfigGenerators} from './FlowConfigs.ts';
 import {Flow} from './Flow.ts';
 import {encodeTicloName} from '../util/Name.ts';
-import {FunctionDispatcher} from './FunctionLib.ts';
+import {FunctionDispatcher} from './FunctionModule.ts';
 import {FunctionFactory} from './BlockFunction.ts';
 import {PropListener} from './Dispatcher.ts';
-import {Namespace} from './Namespace.ts';
+import {Library} from './Library.ts';
 
 export class StaticConfig extends BlockProperty {
   _load(val: unknown) {}
@@ -57,7 +57,7 @@ export const SharedBlockConfigGenerators: {[key: string]: typeof BlockProperty} 
   '#is': ConstTypeConfig('flow:const'),
 };
 
-// The function library's flow owns this runtime-only #shared container.
+// The function module's flow owns this runtime-only #shared container.
 class SharedBlock extends Block {
   _createConfig(field: string): BlockProperty {
     if (field in SharedBlockConfigGenerators) {
@@ -82,15 +82,15 @@ export class StaticBlock extends Block {
   }
 
   static _loadFuncStaticBlock(flow: FlowWithStatic, funcId: string, data: DataMap) {
-    const functions = Namespace.getFunctions(funcId, flow);
-    const libraryFlow = functions?.flow;
-    if (!libraryFlow) {
+    const functions = Library.getFunctions(funcId, flow);
+    const moduleFlow = functions?.flow;
+    if (!moduleFlow) {
       return null;
     }
-    const sharedProp = libraryFlow.getProperty('#shared', true);
+    const sharedProp = moduleFlow.getProperty('#shared', true);
     let sharedBlock = sharedProp._value;
     if (!(sharedBlock instanceof SharedBlock) || sharedBlock._prop !== sharedProp) {
-      sharedBlock = new SharedBlock(libraryFlow, libraryFlow, sharedProp);
+      sharedBlock = new SharedBlock(moduleFlow, moduleFlow, sharedProp);
       sharedProp.setValue(sharedBlock);
     }
     const getLocalId = (functions as unknown as {getLocalId?: (id: string) => string}).getLocalId;
@@ -162,7 +162,7 @@ export const FlowWithStaticConfigGenerators: {[key: string]: typeof BlockPropert
   '#static': StaticConfig,
 };
 
-// Worker and editor flows expose the library-owned StaticBlock through #static.
+// Worker and editor flows expose the module-owned StaticBlock through #static.
 export class FlowWithStatic extends Flow {
   _staticBlock: StaticBlock;
 

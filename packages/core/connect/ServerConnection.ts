@@ -15,7 +15,7 @@ import {Flow, Root} from '../block/Flow.ts';
 import {flowRefFromPath} from '../block/FlowRuntime.ts';
 import {FlowWithStatic, StaticConfig} from '../block/StaticBlock.ts';
 import {PropDispatcher, PropListener} from '../block/Dispatcher.ts';
-import {DescListener, FunctionLib} from '../block/FunctionLib.ts';
+import {DescListener, FunctionModule} from '../block/FunctionModule.ts';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
 import {propRelative} from '../util/PropPath.ts';
 import {
@@ -50,8 +50,9 @@ import {WorkerFlow} from '../worker/WorkerFlow.ts';
 import {Query, queryBlock} from './Query.ts';
 import {getGlobalSettingsData} from '../util/Settings.ts';
 import {DoneEvent} from '../block/Event.ts';
-import {Namespace} from '../block/Namespace.ts';
+import {Library} from '../block/Library.ts';
 import {checkEditPolicy, type EditPolicy} from '../policy/EditPolicy.ts';
+import {libraryFromPath, libraryPath, validateLibrary} from '../util/LibraryMetadata.ts';
 
 export class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -284,24 +285,24 @@ class ServerWatch extends ServerRequest implements BlockChildWatch, PropListener
 
 class ServerDescWatcher extends ServerRequest implements DescListener {
   pendingIds: Set<string>;
-  private _funcLib: FunctionLib;
+  private _funcModule: FunctionModule;
 
-  constructor(conn: ServerConnection, id: string, funcLib?: string) {
+  constructor(conn: ServerConnection, id: string, funcModule?: string) {
     super();
     this.id = id;
     this.connection = conn;
-    if (funcLib) {
-      const property = conn.root.queryProperty(funcLib);
+    if (funcModule) {
+      const property = conn.root.queryProperty(funcModule);
       if (property?._value instanceof Flow) {
-        this._funcLib = property._value.getFuncLib();
+        this._funcModule = property._value.getFuncModule();
       }
     }
-    if (this._funcLib) {
-      this.pendingIds = new Set(this._funcLib.getAllFunctionIds());
-      this._funcLib.listenDesc(this);
+    if (this._funcModule) {
+      this.pendingIds = new Set(this._funcModule.getAllFunctionIds());
+      this._funcModule.listenDesc(this);
     } else {
-      this.pendingIds = new Set(Namespace.getAllFunctionIds(conn.root));
-      Namespace.listenDesc(this, conn.root);
+      this.pendingIds = new Set(Library.getAllFunctionIds(conn.root));
+      Library.listenDesc(this, conn.root);
     }
     this.connection.addSend(this);
   }
@@ -312,10 +313,10 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
   }
 
   _getDescToSend(id: string): [FunctionDesc, number] {
-    if (this._funcLib) {
-      return this._funcLib.getDescToSend(id);
+    if (this._funcModule) {
+      return this._funcModule.getDescToSend(id);
     }
-    return Namespace.getDescToSend(id, this.connection.root);
+    return Library.getDescToSend(id, this.connection.root);
   }
 
   getSendingData(): {data: DataMap; size: number} {
@@ -342,10 +343,10 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
   }
 
   close() {
-    if (this._funcLib) {
-      this._funcLib.unlistenDesc(this);
+    if (this._funcModule) {
+      this._funcModule.unlistenDesc(this);
     } else {
-      Namespace.unlistenDesc(this, this.connection.root);
+      Library.unlistenDesc(this, this.connection.root);
     }
   }
 }
@@ -390,6 +391,17 @@ class ServerConnectionCore extends Connection {
     return this._editPolicy;
   }
 
+  protected canWriteLibraryMetadata(path: string) {
+    const storage = this.root._storage;
+    return Boolean(
+      !this._editPolicy?.readonly &&
+      storage?.getLibraryMetadata &&
+      storage.saveLibraryMetadata &&
+      (storage.isPersistent ? storage.isPersistent(libraryFromPath(path)) : storage.persistent !== false) &&
+      storage.canWriteFlow?.(path) !== false
+    );
+  }
+
   setEditPolicy(policy?: EditPolicy) {
     this._editPolicy = policy;
     this.sendEditPolicy();
@@ -428,26 +440,32 @@ class ServerConnectionCore extends Connection {
         'getFlowState',
         'getAutoLoadFlow',
         'listMainFlows',
+        'listLoadedFlows',
+        'getLibraryGraph',
+        'getLibraryMetadata',
         'close',
         'loadFlow',
         'unloadFlow',
         'enableFlow',
         'disableFlow',
+        'enableLibrary',
+        'unloadLibrary',
+        'retainLibraries',
         'callFunction',
       ].includes(cmd) &&
       !(cmd === 'copy' && !request.cut)
     ) {
-      const path = cmd === 'deleteFunction' ? (request.funcLib ?? request.funcId) : request.path;
+      const path = cmd === 'deleteFunction' ? (request.funcModule ?? request.funcId) : request.path;
       if (typeof path !== 'string') return 'invalid path';
       if (!canWrite(path) || (typeof request.to === 'string' && !canWrite(request.to))) return 'Storage is read-only';
       if (cmd === 'editWorker' && !request.fromField) {
-        const source = request.funcLib ?? request.fromFunction;
+        const source = request.funcModule ?? request.fromFunction;
         if (typeof source === 'string' && !canWrite(source)) return 'Storage is read-only';
       }
       const [owner, name] = this.root.queryBlockField(path);
       if (owner && owner !== this.root && !canWrite(`${owner.getFullPath()}.${name}`)) return 'Storage is read-only';
     }
-    if (this._editPolicy?.readonly && cmd !== 'listMainFlows') {
+    if (this._editPolicy?.readonly && !['listMainFlows', 'listLoadedFlows', 'getLibraryGraph'].includes(cmd)) {
       const error = this.checkRequestPolicy(request);
       if (error) return error;
     }
@@ -774,18 +792,75 @@ export class ServerConnection extends ServerConnectionCore {
     return {state: this.root.getFlowState(flowRefFromPath(path))};
   }
 
+  getLibraryGraph({path}: {path: string}) {
+    if (path !== '') return 'invalid path';
+    const graph = this.root.getLibraryGraph();
+    const policy = this.getEditPolicy();
+    if (policy?.readonly) {
+      const visible = new Set(
+        Object.keys(graph.dependencies).filter(
+          (name) => !checkEditPolicy(policy, {cmd: 'getLibraryMetadata', path: libraryPath(name)}, undefined, 'server')
+        )
+      );
+      graph.roots = graph.roots.filter((name) => visible.has(name));
+      graph.dependencies = Object.fromEntries(
+        Object.entries(graph.dependencies)
+          .filter(([name]) => visible.has(name))
+          .map(([name, dependencies]) => [name, dependencies.filter((name) => visible.has(name))])
+      );
+    }
+    return {
+      ...graph,
+      canLoad: !policy?.readonly && Boolean(this.root._storage),
+      hasMetadata: Boolean(this.root._storage?.getLibraryMetadata),
+    };
+  }
+
+  async enableLibrary({path}: {path: string}): Promise<null> {
+    await this.root.enableLibrary(libraryFromPath(path));
+    return null;
+  }
+
+  async unloadLibrary({path}: {path: string}): Promise<null> {
+    await this.root.unloadLibrary(libraryFromPath(path));
+    return null;
+  }
+
+  async retainLibraries({path, names}: {path: string; names: string[]}) {
+    if (path !== '' || !isStringArray(names)) return 'invalid libraries';
+    names.forEach(validateLibrary);
+    await this.root.retainLibraries(names);
+    return null;
+  }
+
+  async getLibraryMetadata({path}: {path: string}) {
+    const name = libraryFromPath(path);
+    return {
+      metadata: await this.root._storage?.getLibraryMetadata?.(name),
+      canWrite: this.canWriteLibraryMetadata(path),
+    };
+  }
+
+  async setLibraryDependencies({path, dependencies}: {path: string; dependencies: string[]}) {
+    const name = libraryFromPath(path);
+    if (!isStringArray(dependencies)) return 'invalid dependencies';
+    if (!this.canWriteLibraryMetadata(path)) return 'Storage is read-only';
+    await this.root.setLibraryDependencies(name, dependencies);
+    return null;
+  }
+
   async getAutoLoadFlow({path}: {path: string}) {
     const ref = flowRefFromPath(path);
     if (ref.kind !== 'flow') return 'invalid flow';
     const storage = this.root._storage;
-    if (!storage?.getNamespaceMetadata) return {autoLoad: false, canAutoLoad: false};
-    const metadata = await storage.getNamespaceMetadata(ref.namespace);
+    if (!storage?.getLibraryMetadata) return {autoLoad: false, canAutoLoad: false};
+    const metadata = await storage.getLibraryMetadata(ref.library);
     return {
-      autoLoad: metadata.autoLoadFlows?.includes(ref.name) ?? ref.namespace === '#root',
+      autoLoad: metadata.autoLoadFlows?.includes(ref.name) ?? ref.library === '#root',
       canAutoLoad: Boolean(
-        storage.saveNamespaceMetadata &&
-        (storage.isPersistent ? storage.isPersistent(ref.namespace) : storage.persistent !== false) &&
-        (await storage.listFlows?.(ref.namespace))?.includes(ref.name)
+        storage.saveLibraryMetadata &&
+        (storage.isPersistent ? storage.isPersistent(ref.library) : storage.persistent !== false) &&
+        (await storage.listFlows?.(ref.library))?.includes(ref.name)
       ),
     };
   }
@@ -796,8 +871,20 @@ export class ServerConnection extends ServerConnectionCore {
     const policy = this.getEditPolicy();
     if (!policy?.readonly) return {flows};
     return {
-      flows: flows.filter(({namespace, name}) => {
-        const flowPath = namespace === '#root' ? name : `+${namespace}.${name}`;
+      flows: flows.filter(({library, name}) => {
+        const flowPath = library === '#root' ? name : `+${library}.${name}`;
+        return !checkEditPolicy(policy, {cmd: 'getFlowState', path: flowPath}, undefined, 'server');
+      }),
+    };
+  }
+
+  listLoadedFlows({path}: {path: string}) {
+    const flows = this.root.getLoadedFlowRefs(path);
+    const policy = this.getEditPolicy();
+    if (!policy?.readonly) return {flows};
+    return {
+      flows: flows.filter((ref) => {
+        const flowPath = `${ref.library === '#root' ? '' : `+${ref.library}.`}${ref.kind === 'module' ? ':' : ''}${ref.name}`;
         return !checkEditPolicy(policy, {cmd: 'getFlowState', path: flowPath}, undefined, 'server');
       }),
     };
@@ -806,13 +893,14 @@ export class ServerConnection extends ServerConnectionCore {
   async setAutoLoadFlow({path, enabled}: {path: string; enabled: boolean}) {
     const ref = flowRefFromPath(path);
     if (ref.kind !== 'flow' || typeof enabled !== 'boolean') return 'invalid flow';
-    await this.root.setAutoLoadFlow(ref.namespace, ref.name, enabled);
+    await this.root.setAutoLoadFlow(ref.library, ref.name, enabled);
     return null;
   }
 
-  addFlow({path, data}: {path: string; data?: DataMap}): string | DataMap {
-    if (this.root.addFlow(path, data)) {
-      return null;
+  addFlow({path, data}: {path: string; data?: DataMap}): string | Promise<null> {
+    const flow = this.root.addFlow(path, data);
+    if (flow) {
+      return flow.pendingCreate ? flow.pendingCreate.then((): null => null) : null;
     } else {
       return 'invalid path';
     }
@@ -878,12 +966,10 @@ export class ServerConnection extends ServerConnectionCore {
       if (!Number.isInteger(orderIndex) || orderIndex < 0 || orderIndex > order.length) return 'invalid index';
       const funcId = data?.['#is'];
       const desc =
-        typeof funcId === 'string'
-          ? Namespace.getFunctions(funcId, parentBlock._flow)?.getDescToSend(funcId)[0]
-          : undefined;
+        typeof funcId === 'string' ? Library.getFunctions(funcId, parentBlock._flow)?.getDesc(funcId) : undefined;
       const parentId = parentBlock._funcId;
       const childrenTags = parentId
-        ? Namespace.getFunctions(parentId, parentBlock._flow)?.getDescToSend(parentId)[0]?.childrenTags
+        ? Library.getFunctions(parentId, parentBlock._flow)?.getDesc(parentId)?.childrenTags
         : undefined;
       if (!childrenTags?.some((tag) => desc?.tags?.includes(tag))) return 'incompatible children tags';
     }
@@ -965,7 +1051,7 @@ export class ServerConnection extends ServerConnectionCore {
 
       if (typeof funcId === 'string' && data) {
         (property._value as Block)._load(data);
-        const desc = Namespace.getDescToSend(funcId, this.root)[0];
+        const desc = Library.getDesc(funcId, this.root);
         if (desc && desc.recipient && !Object.hasOwn(data, desc.recipient)) {
           // transfer parent property to the recipient
           if (keepSaved !== undefined) {
@@ -1010,7 +1096,7 @@ export class ServerConnection extends ServerConnectionCore {
       let count = 0;
       for (const [field, prop] of block._props) {
         if (prop._value instanceof Block && prop._value._prop === prop) {
-          if (block === this.root && this.root._namespaces[field]?._enabled === false) continue;
+          if (block === this.root && this.root._libraries[field]?._enabled === false) continue;
           if (!filterRegex || filterRegex.test(field)) {
             // filter
             if (count < max) {
@@ -1061,8 +1147,8 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Tells the Server-side Desc Watcher to proactively start relaying function signature modifications taking place under `id`.
    */
-  watchDesc({id, path: funcLib}: {id: string; path?: string}): ServerDescWatcher {
-    return new ServerDescWatcher(this, id, funcLib);
+  watchDesc({id, path: funcModule}: {id: string; path?: string}): ServerDescWatcher {
+    return new ServerDescWatcher(this, id, funcModule);
   }
 
   /**
@@ -1096,46 +1182,46 @@ export class ServerConnection extends ServerConnectionCore {
     fromField,
     fromFunction,
     defaultData,
-    funcLib,
+    funcModule,
   }: {
     path: string;
     fromField: string;
     fromFunction: string;
     defaultData: DataMap;
-    funcLib?: string;
+    funcModule?: string;
   }) {
     const property = this.root.queryProperty(path, true);
 
     if (property && property._name.startsWith('#edit-')) {
       if (fromField) {
-        const libraryFlow = funcLib ? this.root.queryProperty(funcLib)?._value : undefined;
+        const moduleFlow = funcModule ? this.root.queryProperty(funcModule)?._value : undefined;
         FlowEditor.createFromField(
           property._block,
           property._name,
           fromField,
-          libraryFlow instanceof Flow ? libraryFlow.getFuncLib() : undefined
+          moduleFlow instanceof Flow ? moduleFlow.getFuncModule() : undefined
         );
       } else if (fromFunction) {
-        let resolvedFuncLib: FunctionLib | undefined;
-        if (fromFunction.startsWith(':') && funcLib) {
-          // Local flow function - resolve the funcLib from the host flow
-          const flowProp = this.root.queryProperty(funcLib);
+        let resolvedFuncModule: FunctionModule | undefined;
+        if (fromFunction.startsWith(':') && funcModule) {
+          // Local flow function - resolve the funcModule from the host flow
+          const flowProp = this.root.queryProperty(funcModule);
           if (flowProp?._value instanceof Flow) {
-            resolvedFuncLib = flowProp._value.getFuncLib();
+            resolvedFuncModule = flowProp._value.getFuncModule();
           }
         } else if (fromFunction.startsWith('+')) {
-          resolvedFuncLib = Namespace.getFunctions(fromFunction, property._block._flow);
+          resolvedFuncModule = Library.getFunctions(fromFunction, property._block._flow);
         }
         if (fromFunction.startsWith('+') || fromFunction.startsWith(':')) {
-          if (defaultData && resolvedFuncLib && !resolvedFuncLib.getWorkerData(fromFunction)) {
+          if (defaultData && resolvedFuncModule && !resolvedFuncModule.getWorkerData(fromFunction)) {
             WorkerFunctionGen.registerType(
               defaultData,
               WorkerFunctionGen.collectDesc(fromFunction, defaultData),
               undefined,
-              resolvedFuncLib
+              resolvedFuncModule
             );
           }
-          FlowEditor.createFromFunction(property._block, property._name, fromFunction, defaultData, resolvedFuncLib);
+          FlowEditor.createFromFunction(property._block, property._name, fromFunction, defaultData, resolvedFuncModule);
         }
       }
       return null;
@@ -1152,7 +1238,7 @@ export class ServerConnection extends ServerConnectionCore {
     if (property && property._value instanceof Flow) {
       if (property._value instanceof FlowEditor) {
         const source = funcId ?? property._value._loadFrom;
-        const target = source?.startsWith('+') ? source : property._value._funcLib?.flow?.getFullPath();
+        const target = source?.startsWith('+') ? source : property._value._funcModule?.flow?.getFullPath();
         if (target && this.root._storage?.canWriteFlow?.(target) === false) return 'Storage is read-only';
       }
       if (funcId && property._value instanceof FlowEditor) {
@@ -1177,14 +1263,14 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Deletes a registered worker function.
    */
-  deleteFunction({funcId, funcLib}: {funcId: string; funcLib?: string}): string | Promise<string> {
+  deleteFunction({funcId, funcModule}: {funcId: string; funcModule?: string}): string | Promise<string> {
     if (funcId.startsWith('+')) {
-      const deleted = Namespace.delete(funcId, this.root);
+      const deleted = Library.delete(funcId, this.root);
       if (deleted instanceof Promise) return deleted.then((): string => null);
-    } else if (funcId.startsWith(':') && funcLib) {
-      const flowProp = this.root.queryProperty(funcLib);
+    } else if (funcId.startsWith(':') && funcModule) {
+      const flowProp = this.root.queryProperty(funcModule);
       if (flowProp?._value instanceof Flow) {
-        flowProp._value.getFuncLib().delete(funcId);
+        flowProp._value.getFuncModule().delete(funcId);
       }
     }
     return null;

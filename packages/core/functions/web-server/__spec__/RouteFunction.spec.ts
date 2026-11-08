@@ -5,7 +5,7 @@ import '../../../worker/HandlerFunction.ts';
 import type {Block} from '../../../block/Block.ts';
 import {Flow, Root} from '../../../block/Flow.ts';
 import {getDefaultFuncData} from '../../../block/Descriptor.ts';
-import {globalFunctions} from '../../../block/FunctionLib.ts';
+import {globalFunctions} from '../../../block/FunctionModule.ts';
 import {HttpRequest} from '../HttpRequest.ts';
 import {FlowEditor} from '../../../worker/FlowEditor.ts';
 

@@ -28,7 +28,7 @@ interface Props {
   tags?: readonly string[];
   useFlow?: boolean;
   currentValue?: unknown;
-  funcLib?: string;
+  funcModule?: string;
 }
 
 interface State {
@@ -69,7 +69,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     // TODO validate function name;
     const {newFunctionName, addFunctionPrefix} = this.state;
     if (newFunctionName) {
-      const {conn, funcLib, onFunctionClick} = this.props;
+      const {conn, funcModule, onFunctionClick} = this.props;
       const isGlobal = addFunctionPrefix.startsWith('+');
       const funcId = `${addFunctionPrefix}${newFunctionName}`;
       const editPath = `#temp.#edit-${encodeTicloName(funcId)}`;
@@ -78,7 +78,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
         undefined,
         funcId,
         {'#inputs': {'#is': ''}, '#outputs': {'#is': ''}},
-        isGlobal ? undefined : funcLib
+        isGlobal ? undefined : funcModule
       );
       this.context.editFlow(editPath, () => {
         conn.applyFlowChange(editPath, undefined, requestCallbacks);
@@ -100,7 +100,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
     }
   };
   render() {
-    const {conn, showPreset, onFunctionClick, onClick, filter, tags, useFlow, currentValue, funcLib} = this.props;
+    const {conn, showPreset, onFunctionClick, onClick, filter, tags, useFlow, currentValue, funcModule} = this.props;
     const {tab, search, modelVisible, newFunctionName, addFunctionPrefix} = this.state;
 
     if (!conn) {
@@ -192,7 +192,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
             tags={tags}
             onFunctionClick={onFunctionClick}
             onAddFunction={this.onAddFunction}
-            funcLib={funcLib ?? ''}
+            funcModule={funcModule ?? ''}
           />
         </div>
         <FunctionTree
@@ -208,7 +208,7 @@ export class FunctionSelect extends React.PureComponent<Props, State> {
         <FunctionList
           conn={conn}
           recent={true}
-          funcLib={funcLib}
+          funcModule={funcModule}
           tags={tags}
           style={{display: tab === 'recent' ? '' : 'none'}}
         />

@@ -288,7 +288,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
   // REFACTOR(design.md): Attaching a listener MUST NOT replay a consumed input or output event.
   listen(listener: PropListener<any>) {
     this._listeners.add(listener);
-    listener?.onSourceChange(this);
+    listener.onSourceChange?.(this);
     if (!this._updating) {
       // skip extra update if it's already in updating iteration
       listener.onChange(this._value);
@@ -332,7 +332,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
       this._value.destroy();
     }
     for (const listener of this._listeners) {
-      listener?.onSourceChange(null);
+      listener.onSourceChange?.(null);
     }
     this._listeners = null;
     this._subscribers = null;

@@ -19,15 +19,15 @@ afterEach(async () => {
   root?.destroy();
 });
 
-it('hides unloaded namespaces while retaining shared dependencies', async () => {
+it('hides unloaded libraries while retaining shared dependencies', async () => {
   root = new Root();
   const storage = new MemoryFlowStorage();
-  await storage.saveNamespaceMetadata('main', {dependencies: ['shared']});
-  await storage.saveNamespaceMetadata('other', {dependencies: ['shared']});
-  await storage.saveNamespaceMetadata('shared', {});
+  await storage.saveLibraryMetadata('main', {dependencies: ['shared']});
+  await storage.saveLibraryMetadata('other', {dependencies: ['shared']});
+  await storage.saveLibraryMetadata('shared', {});
   await root.setStorage(storage);
   await root.start({main: {}});
-  await root.enableNamespace('other');
+  await root.enableLibrary('other');
   [, client] = makeLocalConnection(root);
   const [, element] = loadTemplate(
     <NodeTree conn={client} basePaths={['']} hideRoot style={{width: 500, height: 500}} />,
@@ -35,16 +35,16 @@ it('hides unloaded namespaces while retaining shared dependencies', async () => 
   );
   await shouldHappen(() => element.textContent.includes('+main') && element.textContent.includes('+other'));
 
-  await root.retainNamespaces(['other']);
+  await root.retainLibraries(['other']);
   client.childrenChangeStream().dispatch({path: ''});
   await shouldHappen(() => !element.textContent.includes('+main') && element.textContent.includes('+shared'));
   expect(element.textContent).toContain('+other');
 });
 
-it('shows stored flows in a main namespace without loading them', async () => {
+it('shows stored flows in a main library without loading them', async () => {
   root = new Root();
   const storage = new MemoryFlowStorage();
-  await storage.saveNamespaceMetadata('main', {autoLoadFlows: []});
+  await storage.saveLibraryMetadata('main', {autoLoadFlows: []});
   storage.saveFlow(null, {value: 1}, '+main.entry');
   await root.setStorage(storage);
   await root.start({main: {}});
@@ -64,14 +64,14 @@ it('shows stored flows in a main namespace without loading them', async () => {
     'editor'
   );
 
-  const namespace = await shouldHappen(() => tree?.rootList[0]?.children?.find((item) => item.key === '+main'));
-  namespace.open();
+  const library = await shouldHappen(() => tree?.rootList[0]?.children?.find((item) => item.key === '+main'));
+  library.open();
   const stored = await shouldHappen(() => tree.rows.find((item) => item.key === '+main.entry'));
   await shouldHappen(() => element.textContent.includes('entry'));
   expect(stored).not.toBeInstanceOf(NodeTreeItem);
-  expect(root.getFlowState({namespace: 'main', kind: 'flow', name: 'entry'})).toBe('unloaded');
+  expect(root.getFlowState({library: 'main', kind: 'flow', name: 'entry'})).toBe('unloaded');
   await tree.onStoredOpen(stored);
-  await shouldHappen(() => root.getFlowState({namespace: 'main', kind: 'flow', name: 'entry'}) === 'enabled');
+  await shouldHappen(() => root.getFlowState({library: 'main', kind: 'flow', name: 'entry'}) === 'enabled');
   await shouldHappen(() => tree.rows.find((item) => item.key === '+main.entry') instanceof NodeTreeItem);
   expect(tree.rows.filter((item) => item.key === '+main.entry')).toHaveLength(1);
 });
@@ -79,7 +79,7 @@ it('shows stored flows in a main namespace without loading them', async () => {
 it('offers Auto Load on a loaded normal flow without the stored-flow catalog', async () => {
   root = new Root();
   const storage = new MemoryFlowStorage();
-  await storage.saveNamespaceMetadata('main', {autoLoadFlows: []});
+  await storage.saveLibraryMetadata('main', {autoLoadFlows: []});
   storage.saveFlow(null, {value: 1}, '+main.entry');
   await root.setStorage(storage);
   await root.start({main: {flows: ['entry']}});
@@ -97,8 +97,8 @@ it('offers Auto Load on a loaded normal flow without the stored-flow catalog', a
     />,
     'editor'
   );
-  const namespace = await shouldHappen(() => tree?.rootList[0]?.children?.find((item) => item.key === '+main'));
-  namespace.open();
+  const library = await shouldHappen(() => tree?.rootList[0]?.children?.find((item) => item.key === '+main'));
+  library.open();
   await shouldHappen(() =>
     tree.rows.some(
       (item) => item instanceof NodeTreeItem && item.key === '+main.entry' && item.functionId === 'flow:main'
@@ -118,5 +118,5 @@ it('offers Auto Load on a loaded normal flow without the stored-flow catalog', a
     menu.querySelector<HTMLElement>('.anticon-check')?.closest('.ticl-e-dropdown-menu-item')
   );
   simulate(autoLoad, 'click');
-  await shouldHappen(() => storage.namespaces.get('main')?.autoLoadFlows?.includes('entry'));
+  await shouldHappen(() => storage.libraries.get('main')?.autoLoadFlows?.includes('entry'));
 });

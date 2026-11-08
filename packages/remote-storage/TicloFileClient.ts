@@ -143,6 +143,21 @@ class TicloFileClient {
     return this.requestOp<ProjectMetadata>('POST', 'createProj', query, undefined, config);
   }
 
+  async createProjectFromCommit(
+    name: string,
+    templateId: string,
+    commit: string,
+    config?: AxiosRequestConfig
+  ): Promise<ProjectMetadata> {
+    return this.requestOp<ProjectMetadata>(
+      'POST',
+      'createProj',
+      {name: validateProjectName(name), template: normalizeIdentifier(templateId), commit: normalizeIdentifier(commit)},
+      undefined,
+      config
+    );
+  }
+
   async updateProject(
     id: string,
     metadata: Record<string, unknown>,
@@ -175,8 +190,36 @@ class TicloFileClient {
     );
   }
 
-  async getGitHistory(id: string, config?: AxiosRequestConfig): Promise<GitCommit[]> {
-    return this.requestOp<GitCommit[]>('GET', 'gitHistory', {id: normalizeIdentifier(id)}, undefined, config);
+  async getGitBranches(id: string, config?: AxiosRequestConfig): Promise<string[]> {
+    return this.requestOp<string[]>('GET', 'gitBranches', {id: normalizeIdentifier(id)}, undefined, config);
+  }
+
+  async deleteGitBranch(id: string, branch: string, config?: AxiosRequestConfig): Promise<void> {
+    await this.requestOp<void>('POST', 'gitDeleteBranch', {id: normalizeIdentifier(id), branch}, undefined, config);
+  }
+
+  async getGitHistory(id: string, config?: AxiosRequestConfig, branch?: string): Promise<GitCommit[]> {
+    return this.requestOp<GitCommit[]>(
+      'GET',
+      'gitHistory',
+      {id: normalizeIdentifier(id), ...(branch ? {branch} : {})},
+      undefined,
+      config
+    );
+  }
+
+  async resetGitToCommit(id: string, commit: string, config?: AxiosRequestConfig): Promise<{backupBranch: string}> {
+    return this.requestOp<{backupBranch: string}>(
+      'POST',
+      'gitReset',
+      {id: normalizeIdentifier(id), commit: normalizeIdentifier(commit)},
+      undefined,
+      config
+    );
+  }
+
+  async restoreGitFile(path: string, config?: AxiosRequestConfig): Promise<void> {
+    await this.requestOp<void>('POST', 'gitRestore', {path: normalizeOpPath(path)}, undefined, config);
   }
 
   async exportProject(id: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse<ArrayBuffer>> {

@@ -8,6 +8,7 @@ const dir = fileURLToPath(new URL('./files/', import.meta.url));
 async function indexFolder(folder: string) {
   const files: string[] = [];
   for (const entry of await Fs.readdir(folder, {withFileTypes: true})) {
+    if (folder === dir && entry.name === 'serv') continue;
     if (entry.name.startsWith('.')) {
       continue;
     }

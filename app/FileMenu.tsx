@@ -1,5 +1,5 @@
 import React, {useContext, useState} from 'react';
-import {Input, message, Modal, type MenuProps} from 'antd';
+import {App as AntdApp, Input, Modal, type MenuProps} from 'antd';
 import {
   BookOutlined,
   CopyOutlined,
@@ -21,10 +21,10 @@ import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
 import {fileDestination, fileFlowPath} from './flow-path.ts';
 import {stageReadonly} from './AppLayout.ts';
 import {AppHeader} from './AppHeader.tsx';
-import {useNamespaceMenu} from './NamespaceMenu.tsx';
-import type {NamespaceSelectionOptions} from '@ticlo/editor/namespace/NamespaceSelectDialog.tsx';
+import {useLibraryMenu} from './LibraryMenu.tsx';
+import type {LibrarySelectionOptions} from '@ticlo/editor/library/LibrarySelectDialog.tsx';
 
-type Dialog = 'open' | 'new-flow' | 'new-library' | 'save-as' | null;
+type Dialog = 'open' | 'new-flow' | 'new-module' | 'save-as' | null;
 
 export function FileMenuHeader({
   language,
@@ -34,9 +34,9 @@ export function FileMenuHeader({
   files,
   onOpen,
   onChange,
-  onNamespaceChange,
-  onNamespaceUnload,
-  onSetDefaultNamespace,
+  onLibraryChange,
+  onLibraryUnload,
+  onSetDefaultLibrary,
   newPage = false,
   viewItems,
   children,
@@ -48,14 +48,15 @@ export function FileMenuHeader({
   files: {storage: ProjectFiles; project: string};
   onOpen: (path: string, flow: Flow) => void;
   onChange?: () => void;
-  onNamespaceChange: (name: string, options: NamespaceSelectionOptions) => Promise<void>;
-  onNamespaceUnload: (name: string) => Promise<void>;
-  onSetDefaultNamespace: (name: string) => Promise<void>;
+  onLibraryChange: (name: string, options: LibrarySelectionOptions) => Promise<void>;
+  onLibraryUnload: (name: string) => Promise<void>;
+  onSetDefaultLibrary: (name: string) => Promise<void>;
   newPage?: boolean;
   viewItems?: MenuProps['items'];
   children?: React.ReactNode;
 }) {
   const {storage, project} = files;
+  const {message} = AntdApp.useApp();
   const {activeStage} = useContext(TicloCurrentFlowContext);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [name, setName] = useState('');
@@ -63,31 +64,30 @@ export function FileMenuHeader({
   const [selected, setSelected] = useState<FileEntry | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const namespaceMenu = useNamespaceMenu({
-    root,
+  const libraryMenu = useLibraryMenu({
+    conn,
     storage,
     project,
-    readonly: conn.getEditPolicyView().policy?.readonly,
-    onNamespaceChange,
-    onNamespaceUnload,
-    onSetDefaultNamespace,
+    onLibraryChange,
+    onLibraryUnload,
+    onSetDefaultLibrary,
     onChange,
   });
   const writable = storage.getCapabilities(project).write;
   const activePath = activeStage?.basePath;
   const activeFlow = activePath && root.queryValue(activePath);
-  const activeLibrary = activePath?.startsWith(':') || activePath?.includes('.:');
+  const activeModule = activePath?.startsWith(':') || activePath?.includes('.:');
   const canSave =
     activeFlow instanceof Flow &&
     !stageReadonly(storage, activePath) &&
     conn.getEditPolicyView().can({cmd: 'applyFlowChange', path: activePath});
   const newFlowLabel = newPage ? 'New Page' : 'New Dataflow';
-  const library = dialog === 'new-library' || (dialog === 'save-as' && activeLibrary);
+  const module = dialog === 'new-module' || (dialog === 'save-as' && activeModule);
   const destination = fileDestination(
     project,
-    dialog === 'new-library' ? `${project}/#libs` : directory,
+    dialog === 'new-module' ? `${project}/#modules` : directory,
     name.trim(),
-    library ? 'library' : 'flow'
+    module ? 'module' : 'flow'
   );
   const canCreate = destination && storage.getCapabilities(destination.file).write;
 
@@ -95,12 +95,12 @@ export function FileMenuHeader({
     setDialog(next);
     setName(next === 'save-as' ? (activePath?.split('.').pop()?.replace(/^:/, '') ?? '') : '');
     let folder = project;
-    if (next === 'new-library') folder = `${project}/#libs`;
+    if (next === 'new-module') folder = `${project}/#modules`;
     else if (next === 'save-as' && activePath) {
       try {
         const ref = flowRefFromPath(activePath);
-        if (ref.namespace === project) {
-          const file = `${project}/${flowStoragePath(ref.kind === 'library' ? `:${ref.name}` : ref.name)}`;
+        if (ref.library === project) {
+          const file = `${project}/${flowStoragePath(ref.kind === 'module' ? `:${ref.name}` : ref.name)}`;
           folder = file.slice(0, file.lastIndexOf('/'));
         }
       } catch {}
@@ -152,7 +152,7 @@ export function FileMenuHeader({
       }
       if (!conn.getEditPolicyView().can({cmd: 'addFlow', path: destination.path, data}))
         throw new Error('Creating this flow is not permitted.');
-      await storage.uploadFile(destination.file, encodeSorted(data), {revision: null});
+      await storage.uploadFile(destination.file, encodeSorted(data), {revision: null, backupOnFailure: true});
       if (!storage.subscribeFileChanges) onChange?.();
       const flow = await root.loadFlow(destination.ref);
       onOpen(destination.path, flow);
@@ -172,7 +172,7 @@ export function FileMenuHeader({
           label: t(newFlowLabel),
           onClick: () => show('new-flow'),
         },
-        {key: 'new-library', icon: <BookOutlined />, label: t('New Library'), onClick: () => show('new-library')},
+        {key: 'new-module', icon: <BookOutlined />, label: t('New Module'), onClick: () => show('new-module')},
       ],
     },
     {type: 'divider'},
@@ -192,12 +192,12 @@ export function FileMenuHeader({
         language={language}
         onLanguageChange={onLanguageChange}
         fileItems={items}
-        namespaceItems={namespaceMenu.items}
+        libraryItems={libraryMenu.items}
         viewItems={viewItems}
       >
         {children}
       </AppHeader>
-      {namespaceMenu.dialogs}
+      {libraryMenu.dialogs}
       <Modal
         title={t('Open')}
         open={dialog === 'open'}
@@ -264,8 +264,8 @@ export function FileMenuHeader({
         )}
       </Modal>
       <Modal
-        title={t('New Library')}
-        open={dialog === 'new-library'}
+        title={t('New Module')}
+        open={dialog === 'new-module'}
         onOk={create}
         onCancel={() => !busy && setDialog(null)}
         okButtonProps={{disabled: !canCreate}}

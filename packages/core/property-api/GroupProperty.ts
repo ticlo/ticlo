@@ -1,7 +1,7 @@
 import {Block} from '../block/Block.ts';
 import {HelperProperty} from '../block/BlockProperty.ts';
 import {PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
-import {globalFunctions} from '../block/FunctionLib.ts';
+import {globalFunctions} from '../block/FunctionModule.ts';
 import {hideProperties, showProperties} from './PropertyShowHide.ts';
 import {PropertyMover} from './PropertyMover.ts';
 import {getInputsLength, MAX_GROUP_LENGTH} from '../block/FunctonData.ts';
@@ -18,7 +18,7 @@ function findGroupDesc(block: Block, group: string): PropGroupDesc {
     return null;
   }
 
-  const [desc, size] = globalFunctions.getDescToSend(block.getValue('#is')?.toString());
+  const desc = globalFunctions.getDesc(block.getValue('#is')?.toString());
   if (desc) {
     groupDesc = findGroup(desc.properties);
   }

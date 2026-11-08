@@ -10,7 +10,7 @@ import '../packages/react/index.ts';
 import '@ticlo/chart';
 import {FrameServerConnection} from '@ticlo/html';
 import {StaticStorage} from '@ticlo/remote-storage';
-import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {Library} from '@ticlo/core/block/Library.ts';
 
 WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, '+WorkerEditor');
 

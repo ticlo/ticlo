@@ -3,7 +3,7 @@ import {flushSync} from 'react-dom';
 import {simulate} from 'simulate-event';
 import {Block, Root, blankFuncDesc, type ClientConn, type EditPolicy, type PropGroupDesc} from '@ticlo/core';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
-import {globalFunctions} from '@ticlo/core/block/FunctionLib.ts';
+import {globalFunctions} from '@ticlo/core/block/FunctionModule.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {EditPolicyProvider} from '../../component/EditPolicyContext.tsx';
 import {initEditor} from '../../index.ts';

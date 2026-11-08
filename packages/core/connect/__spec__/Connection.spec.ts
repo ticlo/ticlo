@@ -9,11 +9,11 @@ import {VoidListeners, TestFunctionRunner} from '../../block/__spec__/TestFuncti
 import type {FunctionDesc} from '../../block/Descriptor.ts';
 import {shouldHappen, shouldReject} from '../../util/test-util.ts';
 import {JsFunction} from '../../functions/script/Js.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import type {DataMap} from '../../util/DataTypes.ts';
 import {isDataTruncated, WS_FRAME_SIZE} from '../../util/DataTypes.ts';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
-import {Namespace} from '../../block/Namespace.ts';
+import {Library} from '../../block/Library.ts';
 import {FlowEditor} from '../../worker/FlowEditor.ts';
 import {WorkerFlow} from '../../worker/WorkerFlow.ts';
 import {Logger} from '../../util/Logger.ts';
@@ -359,12 +359,12 @@ describe('Connection', function () {
   });
 
   it('watchDesc with flow path', async function () {
-    // Create a flow with a funcLib
+    // Create a flow with a funcModule
     const flow = Root.instance.addFlow('ConnectionWatchDescFlow');
-    const funcLib = flow.getFuncLib();
+    const funcModule = flow.getFuncModule();
 
-    // Register a function in the flow's funcLib using add() directly
-    funcLib.addFactory(null, {id: 'local-func1', name: 'local-func1'});
+    // Register a function in the flow's funcModule using add() directly
+    funcModule.addFactory(null, {id: 'local-func1', name: 'local-func1'});
 
     // Create connection with editorListeners=true (which sets up the global watchDesc)
     const [server, client] = makeLocalConnection(Root.instance, true);
@@ -407,14 +407,14 @@ describe('Connection', function () {
     const globalAddInFlow = flowDescChanges.find((d: FunctionDesc) => d.id === 'add');
     expect(globalAddInFlow).toBeUndefined();
 
-    // Register a new function in the flow's funcLib and verify it's pushed
+    // Register a new function in the flow's funcModule and verify it's pushed
     flowDescChanges.length = 0;
-    funcLib.addFactory(null, {id: 'local-func2', name: 'local-func2'});
+    funcModule.addFactory(null, {id: 'local-func2', name: 'local-func2'});
     await shouldHappen(() => flowDescChanges.some((d: FunctionDesc) => d.id === 'local-func2'));
 
-    // Delete a function from funcLib and verify it's pushed as removed
+    // Delete a function from funcModule and verify it's pushed as removed
     flowDescChanges.length = 0;
-    funcLib.delete('local-func2');
+    funcModule.delete('local-func2');
     await shouldHappen(() => flowDescChanges.some((d: any) => d.id === 'local-func2' && d.removed));
 
     // Register a global function and verify it does NOT appear in the flow-scoped desc watcher
@@ -430,7 +430,7 @@ describe('Connection', function () {
 
     // clean up
     globalFunctions.delete('Connection-global-only-func');
-    funcLib.delete('local-func1');
+    funcModule.delete('local-func1');
     client.unwatchDesc(flowListener);
     client.destroy();
     Root.instance.deleteValue('ConnectionWatchDescFlow');
@@ -856,16 +856,16 @@ describe('Connection', function () {
     await client.editWorker('Connection18.a.#edit-func1', null, '+Connection::func1');
     expect((block1.getValue('#edit-func1') as Flow).save()).toEqual(data);
 
-    Namespace.delete('+Connection::func1');
+    Library.delete('+Connection::func1');
     client.destroy();
     Root.instance.deleteValue('Connection18');
   });
 
-  it('editWorker with funcLib persists to flow funcLib', async function () {
+  it('editWorker with funcModule persists to flow funcModule', async function () {
     const flow = Root.instance.addFlow('Connection18b');
-    // Force the flow's funcLib to be created so we can observe it.
-    const funcLib = flow.getFuncLib();
-    expect(funcLib).toBeDefined();
+    // Force the flow's funcModule to be created so we can observe it.
+    const funcModule = flow.getFuncModule();
+    expect(funcModule).toBeDefined();
 
     const [server, client] = makeLocalConnection(Root.instance, true);
 
@@ -880,30 +880,30 @@ describe('Connection', function () {
       'Connection18b'
     );
 
-    // Apply the change; this should write the function into flow's funcLib.
+    // Apply the change; this should write the function into flow's funcModule.
     await client.applyFlowChange(editPath, funcId);
 
-    await shouldHappen(() => funcLib.getAllFunctionIds().includes(funcId));
-    expect(funcLib.getAllFunctionIds()).toContain(funcId);
+    await shouldHappen(() => funcModule.getAllFunctionIds().includes(funcId));
+    expect(funcModule.getAllFunctionIds()).toContain(funcId);
 
-    funcLib.delete(funcId);
+    funcModule.delete(funcId);
     client.destroy();
     Root.instance.deleteValue('Connection18b');
   });
 
-  it('deleteFunction with funcLib removes from flow funcLib', async function () {
+  it('deleteFunction with funcModule removes from flow funcModule', async function () {
     const flow = Root.instance.addFlow('Connection18c');
-    const funcLib = flow.getFuncLib();
+    const funcModule = flow.getFuncModule();
     const funcId = ':Func1';
-    WorkerFunctionGen.registerType({'#is': ''}, {id: funcId, name: 'Func1'}, undefined, funcLib);
+    WorkerFunctionGen.registerType({'#is': ''}, {id: funcId, name: 'Func1'}, undefined, funcModule);
 
     const [server, client] = makeLocalConnection(Root.instance, true);
 
-    await shouldHappen(() => funcLib.getAllFunctionIds().includes(funcId));
+    await shouldHappen(() => funcModule.getAllFunctionIds().includes(funcId));
     await client.deleteFunction(funcId, 'Connection18c');
 
-    await shouldHappen(() => !funcLib.getAllFunctionIds().includes(funcId));
-    expect(funcLib.getAllFunctionIds()).not.toContain(funcId);
+    await shouldHappen(() => !funcModule.getAllFunctionIds().includes(funcId));
+    expect(funcModule.getAllFunctionIds()).not.toContain(funcId);
 
     client.destroy();
     Root.instance.deleteValue('Connection18c');
@@ -969,12 +969,12 @@ describe('Connection', function () {
       '#static': {'#is': ''},
     };
     const hostFlow = Root.instance.addFlow('Connection22Host');
-    const funcLib = hostFlow.getFuncLib();
+    const funcModule = hostFlow.getFuncModule();
     WorkerFunctionGen.registerType(
       workerData,
       {id: ':staticBindingWorker', name: 'staticBindingWorker', properties: []},
       undefined,
-      funcLib
+      funcModule
     );
     const flow1 = hostFlow.createOutputFlow(WorkerFlow, 'worker', ':staticBindingWorker');
     Root.instance.createOutputFlow(WorkerFlow, 'Connection22_2');

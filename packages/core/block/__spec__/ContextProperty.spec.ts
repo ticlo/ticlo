@@ -3,7 +3,7 @@ import {Block} from '../Block.ts';
 import {Flow, Root} from '../Flow.ts';
 import type {DataMap} from '../../util/DataTypes.ts';
 import {WorkerFunctionGen} from '../../worker/WorkerFunctionGen.ts';
-import {globalFunctions} from '../FunctionLib.ts';
+import {globalFunctions} from '../FunctionModule.ts';
 
 describe('ContextProperty', function () {
   it('global from nested flow', function () {

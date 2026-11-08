@@ -46,6 +46,8 @@ const unrestrictedCommands = new Set([
   'getFlowState',
   'getAutoLoadFlow',
   'listMainFlows',
+  'getLibraryGraph',
+  'getLibraryMetadata',
   'close',
   'undo',
   'redo',
@@ -339,6 +341,10 @@ export function checkEditPolicy(
     case 'enableFlow':
     case 'disableFlow':
     case 'setAutoLoadFlow':
+    case 'enableLibrary':
+    case 'unloadLibrary':
+    case 'setLibraryDependencies':
+    case 'retainLibraries':
     case 'applyFlowChange':
       return checkWhole(path);
     case 'callFunction':

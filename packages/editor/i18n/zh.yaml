@@ -15,16 +15,16 @@
 "Misc": 其他 # translated from: Misc
 "Open": 打开 # translated from: Open
 "File": 文件 # translated from: File
-"Namespace": 命名空间 # translated from: Namespace
-"Namespaces": 命名空间 # translated from: Namespaces
-"Select Namespace": 选择命名空间 # translated from: Select Namespace
-"Default Namespace": 默认命名空间 # translated from: Default Namespace
-"Set as Default Namespace": 设为默认命名空间 # translated from: Set as Default Namespace
-"Unload Other Namespaces": 卸载其他命名空间 # translated from: Unload Other Namespaces
-"Unload Namespace": 卸载命名空间 # translated from: Unload Namespace
-"Namespace Properties": 命名空间属性 # translated from: Namespace Properties
-"New Namespace": 新建命名空间 # translated from: New Namespace
-"Namespace Name": 命名空间名称 # translated from: Namespace Name
+"Library": 库 # translated from: Library
+"Libraries": 库 # translated from: Libraries
+"Select Library": 选择库 # translated from: Select Library
+"Default Library": 默认库 # translated from: Default Library
+"Set as Default Library": 设为默认库 # translated from: Set as Default Library
+"Unload Other Libraries": 卸载其他库 # translated from: Unload Other Libraries
+"Unload Library": 卸载库 # translated from: Unload Library
+"Library Properties": 库属性 # translated from: Library Properties
+"New Library": 新建库 # translated from: New Library
+"Library Name": 库名称 # translated from: Library Name
 "Create": 创建 # translated from: Create
 "Load": 加载 # translated from: Load
 "Dependencies": 依赖项 # translated from: Dependencies
@@ -37,7 +37,7 @@
 "Save As": 另存为 # translated from: Save As
 "New": 新建 # translated from: New
 "New Page": 新建页面 # translated from: New Page
-"New Library": 新建库 # translated from: New Library
+"New Module": 新建模块 # translated from: New Module
 "Edit": 编辑 # translated from: Edit
 "Delete": 删除 # translated from: Delete
 "Search": 搜索
@@ -128,6 +128,7 @@
 "date-range": 日期范围
 "password": 密码 # generated
 "dynamic": 动态类型
+"table": 表格
 "group": 属性组
 "Comma separated": 逗号分隔
 "Add Property": 添加属性
@@ -183,7 +184,16 @@
 
 # property/value/TableEditor.tsx
 "Edit table": "编辑表格" # translated from: Edit table
+"View table": "查看表格" # translated from: View table
 "Add row": "新增行" # translated from: Add row
+"Add column": "新增列" # translated from: Add column
+"Columns": "列" # translated from: Columns
+"Column name": "列名" # translated from: Column name
+"Find all columns": "扫描所有行补全列" # translated from: Find all columns
+"Delete column": "删除列" # translated from: Delete column
+"String": "字符串" # translated from: String
+"Number": "数字" # translated from: Number
+"Boolean": "布尔值" # translated from: Boolean
 "Actions": "操作" # translated from: Actions
 "Move up": "上移" # translated from: Move up
 "Move down": "下移" # translated from: Move down
@@ -200,3 +210,5 @@
 "Message": "提交说明" # translated from: Message
 "User": "用户" # translated from: User
 "Uncommitted changes": "未提交的改动" # translated from: Uncommitted changes
+"Discard Local Backup": "丢弃本地备份"
+"Discard the locally saved copy of this file?": "确定丢弃此文件的本地备份吗？"

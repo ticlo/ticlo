@@ -253,7 +253,7 @@ describe('View Deck', () => {
       },
       {id: ':deck', name: 'deck'},
       undefined,
-      flow.getFuncLib()
+      flow.getFuncModule()
     );
     flow.load({
       deck: {

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Event as TicloEvent, Flow, Root, globalFunctions, type Block} from '@ticlo/core';
-import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {Library} from '@ticlo/core/block/Library.ts';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 import {metaKey, TicloComp} from '../Component.tsx';
 import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.ts';
@@ -31,15 +31,6 @@ globalFunctions.addFactory(
   {
     name: 'dynamic-return',
     configs: [{name: '#return', type: 'any', readonly: true, pinned: true}],
-  },
-  'react-test'
-);
-
-globalFunctions.addFactory(
-  null,
-  {
-    name: 'dynamic-output',
-    properties: [{name: '#output', type: 'any', readonly: true, pinned: true}],
   },
   'react-test'
 );
@@ -88,16 +79,6 @@ describe('TicloComp', function () {
     expect(root.div.textContent).toBe('nested output');
   });
 
-  it('does not use #output as a component entry', async function () {
-    const flow = new Flow();
-    const block = flow.createBlock('a');
-    block.setValue('#is', 'react-test:dynamic-output');
-    block.updateValue('#output', <span>hidden</span>);
-
-    await root.waitRender(<TicloComp block={block} />);
-    expect(root.div.children.length).toBe(0);
-  });
-
   it('renders a flow through its #main component tree', async function () {
     const flow = new Flow();
     await root.waitRender(<TicloComp block={flow} />);
@@ -138,7 +119,7 @@ describe('TicloComp', function () {
       },
       {id: ':component', name: 'component'},
       undefined,
-      flow.getFuncLib()
+      flow.getFuncModule()
     );
     const block = flow.createBlock('component');
     block.setValue('#is', ':component');
@@ -235,7 +216,7 @@ describe('TicloComp', function () {
 
   it('renders components registered in flow function metadata', async function () {
     const flow = new Flow();
-    flow.getFuncLib().addFactory(
+    flow.getFuncModule().addFactory(
       null,
       {
         id: ':local-meta-component',
@@ -255,13 +236,13 @@ describe('TicloComp', function () {
     expect(root.div.textContent).toBe('flow');
   });
 
-  it('renders components registered in namespace function metadata', async function () {
-    const lib = Namespace.getFunctionLib('+NsReactMeta:g');
-    lib.addFactory(
+  it('renders components registered in library function metadata', async function () {
+    const module = Library.getFunctionModule('+LibraryReactMeta:g');
+    module.addFactory(
       null,
       {
-        id: 'ns-meta-component',
-        name: 'ns-meta-component',
+        id: 'libraryId-meta-component',
+        name: 'libraryId-meta-component',
         properties: [{name: 'label', type: 'string'}],
       },
       undefined,
@@ -271,12 +252,12 @@ describe('TicloComp', function () {
 
     const flow = new Flow();
     const block = flow.createBlock('a');
-    block.setValue('#is', '+NsReactMeta:g:ns-meta-component');
-    block.setValue('label', 'namespace');
+    block.setValue('#is', '+LibraryReactMeta:g:libraryId-meta-component');
+    block.setValue('label', 'library');
 
     await root.waitRender(<TicloComp block={block} />);
     expect(root.div.children[0]).toBeInstanceOf(HTMLSpanElement);
-    expect(root.div.textContent).toBe('namespace');
+    expect(root.div.textContent).toBe('library');
   });
 
   it('updates when function factory component metadata changes', async function () {

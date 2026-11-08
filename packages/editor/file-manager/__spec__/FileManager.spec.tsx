@@ -7,6 +7,8 @@ import {loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {initEditor} from '../../index.ts';
 import {FileManager} from '../FileManager.tsx';
+import {RemoteStorage} from '@ticlo/remote-storage';
+import {Flow, Root as TicloRoot} from '@ticlo/core';
 import {file, fixtureClient, folder} from './fixtures.ts';
 import type {FileManagerProps} from '../FileManager.tsx';
 
@@ -142,6 +144,10 @@ describe('FileManager', () => {
     releaseSource();
     await shouldHappen(() => row('demo/source/a.txt')?.querySelector('.ticl-e-file-git-modified'));
 
+    fixture.entries.set('demo/source/a.txt', {...file('demo/source/a.txt'), gitStatus: 'added'});
+    changed('demo');
+    await shouldHappen(() => row('demo/source/a.txt')?.querySelector('.ticl-e-file-git-added'));
+
     fixture.entries.delete('demo/source/a.txt');
     fixture.entries.set('demo/target/a.txt', {...file('demo/target/a.txt'), gitStatus: 'added'});
     changed('demo/source/a.txt');
@@ -163,6 +169,94 @@ describe('FileManager', () => {
     expect(row('demo/source/new.txt')).toBeNull();
     row('demo/source').querySelector<HTMLElement>('.ticl-e-tree-arr').click();
     await shouldHappen(() => row('demo/source/new.txt'));
+  });
+
+  it('discards a local file backup from the file menu', async () => {
+    const path = 'demo/a.ticlo';
+    const fixture = fixtureClient([{...file(path), localBackup: true}]);
+    const changed = notifyFiles(fixture);
+    const discardLocalBackup = vi.fn(async (filePath: string) => {
+      fixture.entries.set(filePath, file(filePath));
+      changed(filePath);
+    });
+    Object.assign(fixture.client, {discardLocalBackup});
+    const onFileDiscarded = vi.fn();
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false, onFileDiscarded});
+    await ready(path);
+    expect(row(path).querySelector('.ticl-e-file-local-backup')).not.toBeNull();
+    await contextCommand(path, 'Discard Local Backup');
+    await modalButton(true);
+    await shouldHappen(() => !row(path)?.querySelector('.ticl-e-file-local-backup'));
+    expect(discardLocalBackup).toHaveBeenCalledWith(path);
+    expect(onFileDiscarded).toHaveBeenCalledWith(path);
+  });
+
+  it('notifies the workspace only after a flow file is deleted', async () => {
+    const path = 'demo/a.ticlo';
+    const fixture = fixtureClient([file(path)]);
+    const onFilesDeleted = vi.fn();
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false, onFilesDeleted});
+    await ready(path);
+
+    await contextCommand(path, 'Delete');
+    await modalButton(false);
+    await shouldHappen(() => !document.querySelector('.ant-modal-confirm') && !button('Reload')?.disabled);
+    expect(onFilesDeleted).not.toHaveBeenCalled();
+    await contextCommand(path, 'Delete');
+    await modalButton(true);
+    await shouldHappen(() => onFilesDeleted.mock.calls.length === 1);
+    expect(onFilesDeleted).toHaveBeenCalledWith([path]);
+    expect(fixture.entries.has(path)).toBe(false);
+  });
+
+  it('reports a locally backed-up flow when the file server disconnects', async () => {
+    const baseURL = `https://file-tree-${crypto.randomUUID()}.example/file`;
+    let online = true;
+    const fetch = vi.fn(async (url: string) => {
+      if (!online) throw new TypeError('Network unavailable');
+      const {searchParams} = new URL(url);
+      const path = searchParams.get('path');
+      switch (searchParams.get('op')) {
+        case 'user':
+          return new Response(JSON.stringify({id: 'alice'}));
+        case 'get':
+          return path === 'proj/demo/a.ticlo'
+            ? new Response('{"value":1}', {headers: {ETag: '"first"'}})
+            : new Response('Not found', {status: 404});
+        case 'info':
+          return new Response(JSON.stringify({path, name: 'demo', type: 'folder'}));
+        case 'list':
+          return new Response(
+            JSON.stringify([
+              {path: 'proj/demo/a.ticlo', name: 'a.ticlo', type: 'file'},
+              {path: 'proj/demo/other.ticlo', name: 'other.ticlo', type: 'file'},
+            ])
+          );
+        case 'gitInfo':
+          return new Response(JSON.stringify({initialized: false}));
+        default:
+          throw new Error(`Unexpected operation ${searchParams.get('op')}`);
+      }
+    });
+    const storage = new RemoteStorage({baseURL, fetch: fetch as typeof globalThis.fetch});
+    const runtime = new TicloRoot();
+    try {
+      await runtime.setStorage(storage);
+      await runtime.start({demo: {flows: ['a']}});
+      mount({storage, project: 'demo', defaultPreview: false});
+      await ready('demo/a.ticlo');
+      online = false;
+      const flow = runtime.queryValue('+demo.a') as Flow;
+      flow.setValue('value', 2);
+      await expect(flow.applyChange()).rejects.toThrow('Network unavailable');
+      await shouldHappen(() => row('demo/a.ticlo')?.querySelector('.ticl-e-file-local-backup'), 3000);
+      expect(row('demo/other.ticlo')).not.toBeNull();
+    } finally {
+      root?.unmount();
+      root = undefined;
+      runtime.destroy();
+      await storage.close();
+    }
   });
 
   it('keeps an expanded folder visible until its deletion reload finishes', async () => {
@@ -293,6 +387,7 @@ describe('FileManager', () => {
       getGitInfo: async () => ({initialized, branch: initialized ? 'demo' : undefined}),
       initGit,
       commitGit,
+      getGitBranches: async () => ['demo'],
       getGitHistory: async (): Promise<[]> => [],
     });
     mount({storage: fixture.client, project: 'demo', defaultPreview: false});
@@ -330,22 +425,40 @@ describe('FileManager', () => {
     expect(commitGit).toHaveBeenCalledWith('demo', '', expect.anything());
   });
 
-  it('keeps Initialize Git visible when Git status cannot be loaded', async () => {
-    const fixture = fixtureClient([file('demo/a.txt')]);
+  it('confirms restoring a modified file and restores a deleted file immediately', async () => {
+    const modified = {...file('demo/changed.ticlo'), gitStatus: 'modified' as const};
+    const deleted = {...file('demo/deleted.ticlo'), gitStatus: 'deleted' as const};
+    const fixture = fixtureClient([modified, deleted]);
+    const restoreGitFile = vi.fn(async (path: string) => {
+      fixture.entries.set(path, {...fixture.entries.get(path), gitStatus: undefined});
+    });
     Object.assign(fixture.client, {
       supportsGit: () => true,
-      getGitInfo: async () => {
-        throw new Error('Git unavailable');
-      },
+      getGitInfo: async () => ({initialized: true, branch: 'demo'}),
+      restoreGitFile,
     });
-    mount({storage: fixture.client, project: 'demo', defaultPreview: false});
-    await ready();
-    button('Actions').click();
-    await shouldHappen(() =>
-      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].some(
-        (item) => item.textContent.trim() === 'Initialize Git'
-      )
-    );
+    const onFileDiscarded = vi.fn();
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false, onFileDiscarded});
+    await ready('demo/changed.ticlo');
+
+    await contextCommand('demo/changed.ticlo', 'Discard Changes');
+    await shouldHappen(() => document.querySelector('.ant-modal-confirm'));
+    expect(restoreGitFile).not.toHaveBeenCalled();
+    expect(onFileDiscarded).not.toHaveBeenCalled();
+    await modalButton(false);
+    await shouldHappen(() => !document.querySelector('.ant-modal-confirm'));
+    await contextCommand('demo/changed.ticlo', 'Discard Changes');
+    await modalButton(true);
+    await shouldHappen(() => restoreGitFile.mock.calls.length === 1 && !button('Reload')?.disabled);
+    expect(restoreGitFile).toHaveBeenCalledWith('demo/changed.ticlo', expect.anything());
+    expect(onFileDiscarded).toHaveBeenCalledWith('demo/changed.ticlo');
+    await shouldHappen(() => !document.querySelector('.ant-modal-confirm'));
+
+    await contextCommand('demo/deleted.ticlo', 'Restore');
+    await shouldHappen(() => restoreGitFile.mock.calls.length === 2 && !button('Reload')?.disabled);
+    expect(document.querySelector('.ant-modal-confirm')).toBeNull();
+    expect(restoreGitFile).toHaveBeenLastCalledWith('demo/deleted.ticlo', expect.anything());
+    expect(onFileDiscarded).toHaveBeenLastCalledWith('demo/deleted.ticlo');
   });
 
   it('shows pending edits and separates commit comments from logged changes', async () => {
@@ -373,6 +486,7 @@ describe('FileManager', () => {
     Object.assign(fixture.client, {
       supportsGit: () => true,
       getGitInfo: async () => ({initialized: true, branch: 'demo'}),
+      getGitBranches: async () => ['demo'],
       getGitHistory: async () => commits,
     });
     mount({storage: fixture.client, project: 'demo', defaultPreview: false});
@@ -388,13 +502,13 @@ describe('FileManager', () => {
       .click();
     await shouldHappen(
       () =>
-        document.querySelectorAll('.ticl-e-git-history > .ant-table-wrapper .ant-table-tbody tr[data-row-key]')
+        document.querySelectorAll('.ticl-e-git-history-list > .ant-table-wrapper .ant-table-tbody tr[data-row-key]')
           .length === 3
     );
     expect(fixture.methods.getFile).toHaveBeenCalledWith('demo/.gitlog', expect.anything());
     const rows = [
       ...document.querySelectorAll<HTMLElement>(
-        '.ticl-e-git-history > .ant-table-wrapper .ant-table-tbody tr[data-row-key]'
+        '.ticl-e-git-history-list > .ant-table-wrapper .ant-table-tbody tr[data-row-key]'
       ),
     ];
     expect(rows[0].textContent).toContain('Uncommitted changes');
@@ -414,15 +528,28 @@ describe('FileManager', () => {
     expect(document.querySelector('.ticl-e-git-history-changes')).toBeNull();
   });
 
-  it('omits the pending history row when .gitlog is empty', async () => {
+  it('switches branch history from the tree and shows pending edits only on the current branch', async () => {
     const fixture = fixtureClient([file('demo/a.txt')]);
-    fixture.methods.getFile.mockResolvedValue({data: new ArrayBuffer(0), headers: {}});
+    fixture.methods.getFile.mockResolvedValue({
+      data: new TextEncoder().encode('2026-11-04T02:00:00Z,alice,edit,a.txt\n').buffer,
+      headers: {},
+    });
+    const current = [{hash: 'current', author: 'alice', email: '', date: '', message: 'Current commit'}];
+    const backup = [{hash: 'backup', author: 'bob', email: '', date: '', message: 'Backup commit'}];
+    const branch = 'backup/2026-11-07-01-00';
+    let branches = [branch, 'main'];
+    const getGitHistory = vi.fn(async (_project: string, options?: {branch?: string}) =>
+      options?.branch === branch ? backup : current
+    );
+    const deleteGitBranch = vi.fn(async (_project: string, name: string) => {
+      branches = branches.filter((item) => item !== name);
+    });
     Object.assign(fixture.client, {
       supportsGit: () => true,
-      getGitInfo: async () => ({initialized: true, branch: 'demo'}),
-      getGitHistory: async () => [
-        {hash: 'first', author: 'alice', email: '', date: '2026-11-04T01:00:00Z', message: 'First'},
-      ],
+      getGitInfo: async () => ({initialized: true, branch: 'main'}),
+      getGitBranches: async () => branches,
+      getGitHistory,
+      deleteGitBranch,
     });
     mount({storage: fixture.client, project: 'demo', defaultPreview: false});
     await ready();
@@ -435,12 +562,126 @@ describe('FileManager', () => {
     [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
       .find((item) => item.textContent.trim() === 'Git History')
       .click();
-    await shouldHappen(
-      () =>
-        document.querySelectorAll('.ticl-e-git-history > .ant-table-wrapper .ant-table-tbody tr[data-row-key]')
-          .length === 1
+    await shouldHappen(() => document.querySelector('.ticl-e-git-branch-button')?.textContent.includes('main'));
+    expect(document.querySelectorAll('.ticl-e-git-history-list tr[data-row-key]')).toHaveLength(2);
+
+    document.querySelector<HTMLButtonElement>('.ticl-e-git-branch-button').click();
+    const leaf = await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-popover .ant-tree-title')].find(
+        (item) => item.textContent === '2026-11-07-01-00'
+      )
     );
-    expect(document.querySelector('.ticl-e-git-history-details').textContent).toContain('First');
+    expect(document.querySelector('.ant-popover .ant-tree')?.textContent).toContain('backup');
+    leaf.click();
+    await shouldHappen(() => document.querySelector('.ticl-e-git-branch-button')?.textContent.includes(branch));
+    expect(getGitHistory).toHaveBeenCalledWith('demo', expect.objectContaining({branch}));
+    expect(document.querySelectorAll('.ticl-e-git-history-list tr[data-row-key]')).toHaveLength(1);
+    expect(document.querySelector('.ticl-e-git-history-list').textContent).toContain('Backup commit');
+    expect(document.querySelector('.ticl-e-git-history-list').textContent).not.toContain('Uncommitted changes');
+
+    document.querySelector<HTMLButtonElement>('.ticl-e-git-branch-button').click();
+    const mainNode = await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-popover .ant-tree-title')].find(
+        (item) => item.textContent === 'main'
+      )
+    );
+    expect(mainNode.querySelector('button')).toBeNull();
+    const deleteButton = document.querySelector<HTMLButtonElement>(
+      '.ant-popover .ticl-e-git-branch-node button[title="Delete Branch"]'
+    );
+    deleteButton.click();
+    await shouldHappen(() => document.querySelector('.ant-modal-confirm'));
+    expect(deleteGitBranch).not.toHaveBeenCalled();
+    await modalButton(true);
+    await shouldHappen(() => deleteGitBranch.mock.calls.length === 1);
+    expect(deleteGitBranch).toHaveBeenCalledWith('demo', branch, expect.anything());
+    await shouldHappen(() => document.querySelector('.ticl-e-git-branch-button')?.textContent.includes('main'));
+    expect(document.querySelectorAll('.ticl-e-git-history-list tr[data-row-key]')).toHaveLength(2);
+    document.querySelector<HTMLButtonElement>('.ticl-e-git-branch-button').click();
+    await shouldHappen(() => document.querySelector('.ant-popover .ant-tree'));
+    expect(document.querySelector('.ant-popover .ant-tree').textContent).not.toContain('backup');
+  });
+
+  it('uses the right-clicked commit for library creation and reset', async () => {
+    const fixture = fixtureClient([file('demo/a.txt')]);
+    fixture.methods.getFile.mockResolvedValue({data: new ArrayBuffer(0), headers: {}});
+    const commits = ['newer', 'older'].map((hash) => ({
+      hash,
+      author: 'alice',
+      email: '',
+      date: '2026-11-04T01:00:00Z',
+      message: hash,
+    }));
+    const createProjectFromCommit = vi.fn(async () => ({id: 'snapshot'}));
+    const resetGitToCommit = vi.fn(async () => ({backupBranch: 'backup/2026-11-04-01-00'}));
+    const onProjectReset = vi.fn();
+    let hasUncommittedChanges = true;
+    Object.assign(fixture.client, {
+      supportsGit: () => true,
+      getGitInfo: async () => ({initialized: true, branch: 'main', hasUncommittedChanges}),
+      getGitBranches: async () => ['main'],
+      getGitHistory: async () => commits,
+      createProjectFromCommit,
+      resetGitToCommit,
+    });
+    mount({storage: fixture.client, project: 'demo', defaultPreview: false, onProjectReset});
+    await ready();
+    button('Actions').click();
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].some(
+        (item) => item.textContent.trim() === 'Git History'
+      )
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Git History')
+      .click();
+    await shouldHappen(() => document.querySelectorAll('.ticl-e-git-history-list tr[data-row-key]').length === 2);
+    const older = document.querySelector<HTMLElement>('.ticl-e-git-history-list tr[data-row-key="older"]');
+    older.dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, button: 2}));
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === 'Create Library from This Commit'
+      )
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Create Library from This Commit')
+      .click();
+    await shouldHappen(() => document.querySelector('.ant-modal input'));
+    setName('snapshot');
+    await modalButton(true);
+    await shouldHappen(() => createProjectFromCommit.mock.calls.length === 1);
+    expect(createProjectFromCommit).toHaveBeenCalledWith('demo', 'snapshot', 'older', expect.anything());
+
+    await shouldHappen(() => !document.querySelector('.ant-modal input') && !button('Reload')?.disabled);
+    const newer = document.querySelector<HTMLElement>('.ticl-e-git-history-list tr[data-row-key="newer"]');
+    newer.dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, button: 2}));
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent.trim() === 'Reset to This Commit'
+      )
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Reset to This Commit')
+      .click();
+    await modalButton(true);
+    await shouldHappen(() => resetGitToCommit.mock.calls.length === 1);
+    expect(resetGitToCommit).toHaveBeenCalledWith('demo', 'newer', expect.anything());
+    expect(onProjectReset).toHaveBeenCalledOnce();
+
+    hasUncommittedChanges = false;
+    await shouldHappen(() => !button('Reload')?.disabled);
+    document
+      .querySelector<HTMLElement>('.ticl-e-git-history-list tr[data-row-key="newer"]')
+      .dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, button: 2}));
+    await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].some(
+        (item) => item.textContent.trim() === 'Reset to This Commit'
+      )
+    );
+    [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')]
+      .find((item) => item.textContent.trim() === 'Reset to This Commit')
+      .click();
+    await shouldHappen(() => resetGitToCommit.mock.calls.length === 2);
   });
 
   it('uses the file tree as a single-file picker without file actions', async () => {

@@ -1,10 +1,11 @@
 import React, {useContext} from 'react';
-import {Button, Dropdown, Input, Modal, Spin, Table, type MenuProps} from 'antd';
+import {Button, Dropdown, Input, Modal, Popover, Spin, Table, Tree, type MenuProps} from 'antd';
 import {DateTime} from 'luxon';
 import {
   CloseOutlined,
   CopyOutlined,
   DeleteOutlined,
+  DownOutlined,
   DownloadOutlined,
   EditOutlined,
   EllipsisOutlined,
@@ -16,6 +17,7 @@ import {
   FolderOpenOutlined,
   FolderOutlined,
   ReloadOutlined,
+  RollbackOutlined,
   ScissorOutlined,
   SnippetsOutlined,
   UploadOutlined,
@@ -25,8 +27,10 @@ import {
   type FileAccess,
   type GitCommit,
   type GitInfo,
+  type LocalBackupAccess,
   type ProjectGit,
   StorageError,
+  projectId,
 } from '@ticlo/core/storage/FileAccess.ts';
 import {translateEditor} from '@ticlo/core/editor.ts';
 import {validFlowEntry} from '@ticlo/core/util/FlowStoragePath.ts';
@@ -39,13 +43,16 @@ import {droppedUploads, fileError, FileOperations, parentPath, topEntries, valid
 
 export interface FileManagerProps {
   storage: FileAccess;
-  /** Project / namespace ID, without a leading +; #root is the global namespace. */
+  /** Project / library ID, without a leading +; #root is the global library. */
   project: string;
   defaultPreview?: boolean;
   /** Show only the file tree for a file selection dialog. */
   picker?: boolean;
   onSelect?: (entries: FileEntry[]) => void;
   onOpen?: (entry: FileEntry) => void | Promise<void>;
+  onFilesDeleted?: (paths: string[]) => void | Promise<void>;
+  onFileDiscarded?: (path: string) => void | Promise<void>;
+  onProjectReset?: () => void | Promise<void>;
   onChange?: () => void;
   className?: string;
   style?: React.CSSProperties;
@@ -68,8 +75,12 @@ interface State {
   gitDialog?: 'commit' | 'history';
   gitMessage: string;
   gitHistory: GitCommit[];
+  gitBranches: string[];
+  gitBranch?: string;
+  gitBranchOpen?: boolean;
   gitLog: string;
   gitSelected?: string;
+  gitCreate?: {commit: string; name: string};
   rootInfo?: FileEntry;
 }
 
@@ -81,8 +92,42 @@ interface GitLogRow {
   file: string;
 }
 
+interface GitBranchNode {
+  key: string;
+  title: string;
+  selectable?: boolean;
+  children?: GitBranchNode[];
+}
+
+function branchTree(branches: string[]): GitBranchNode[] {
+  const roots: GitBranchNode[] = [];
+  for (const branch of [...branches].sort().reverse()) {
+    let nodes = roots;
+    let key = '';
+    const parts = branch.split('/');
+    for (const [index, part] of parts.entries()) {
+      key = key ? `${key}/${part}` : part;
+      let node = nodes.find((item) => item.key === key);
+      if (!node) {
+        node = {key, title: part, selectable: index === parts.length - 1, children: []};
+        nodes.push(node);
+      }
+      nodes = node.children;
+    }
+  }
+  return roots;
+}
+
 const pendingHash = 'uncommitted';
 const logSeparator = '\n\n--- --- ---\n';
+
+function validLibraryName(name: string) {
+  try {
+    return validFlowEntry(name) && projectId(name) === name;
+  } catch {
+    return false;
+  }
+}
 
 function parseGitLog(log: string): GitLogRow[] | null {
   const rows: GitLogRow[] = [];
@@ -162,6 +207,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     name: '',
     gitMessage: '',
     gitHistory: [],
+    gitBranches: [],
     gitLog: '',
   };
   private controller = new AbortController();
@@ -185,6 +231,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   private pendingFileChanges = new Set<string>();
   private fileChangeTimer?: ReturnType<typeof setTimeout>;
   private refreshingFileChanges = false;
+  private gitContextHash?: string;
 
   private get rootEntry(): FileEntry {
     return (
@@ -353,7 +400,10 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     const generation = this.generation;
     const version = this.folderVersion;
     const folders = [...this.expanded].filter((folder) =>
-      changed.some((path) => (path === folder ? folder === this.files.root : path.startsWith(`${folder}/`)))
+      changed.some(
+        (path) =>
+          path === this.files.root || (path === folder ? folder === this.files.root : path.startsWith(`${folder}/`))
+      )
     );
     try {
       await Promise.all(
@@ -423,6 +473,119 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   };
 
   private reload = () => this.run(() => this.refresh(), false, false);
+
+  private resetToCommit = (commit: string) => {
+    const git = this.git();
+    if (!git) return;
+    return this.run(
+      async () => {
+        const currentGitInfo = await git.getGitInfo(this.props.project, {signal: this.files.signal});
+        if (
+          currentGitInfo.hasUncommittedChanges !== false &&
+          !(await this.props.confirm(
+            t('Reset to This Commit?'),
+            t('A backup branch will preserve the current commit history. All uncommitted changes will be discarded.'),
+            this.files.signal
+          ))
+        )
+          return;
+        await git.resetGitToCommit(this.props.project, commit, {signal: this.files.signal});
+        await this.props.onProjectReset?.();
+        const [gitInfo, gitBranches, gitHistory] = await Promise.all([
+          git.getGitInfo(this.props.project, {signal: this.files.signal}),
+          git.getGitBranches(this.props.project, {signal: this.files.signal}),
+          git.getGitHistory(this.props.project, {signal: this.files.signal}),
+        ]);
+        this.setState({
+          gitInfo,
+          gitBranches,
+          gitBranch: gitInfo.branch,
+          gitHistory,
+          gitLog: '',
+          gitSelected: commit,
+        });
+      },
+      true,
+      false
+    );
+  };
+
+  private selectGitBranch = (branch: string) => {
+    this.setState({gitBranchOpen: false});
+    if (branch === this.state.gitBranch) return;
+    const git = this.git();
+    if (!git) return;
+    void this.run(
+      async () => {
+        const gitHistory = await git.getGitHistory(this.props.project, {signal: this.files.signal, branch});
+        this.setState({
+          gitBranch: branch,
+          gitHistory,
+          gitSelected:
+            branch === this.state.gitInfo?.branch && this.state.gitLog.trim() ? pendingHash : gitHistory[0]?.hash,
+        });
+      },
+      false,
+      false
+    );
+  };
+
+  private deleteGitBranch = (branch: string) => {
+    const git = this.git();
+    if (!git || branch === 'main' || branch === this.state.gitInfo?.branch) return;
+    this.setState({gitBranchOpen: false});
+    void this.run(
+      async () => {
+        if (
+          !(await this.props.confirm(
+            t('Delete Branch?'),
+            <>
+              <div>{branch}</div>
+              {t('Commits only on this branch may become unavailable.')}
+            </>,
+            this.files.signal
+          ))
+        )
+          return;
+        await git.deleteGitBranch(this.props.project, branch, {signal: this.files.signal});
+        const [gitInfo, gitBranches] = await Promise.all([
+          git.getGitInfo(this.props.project, {signal: this.files.signal}),
+          git.getGitBranches(this.props.project, {signal: this.files.signal}),
+        ]);
+        if (this.state.gitBranch === branch) {
+          const gitHistory = await git.getGitHistory(this.props.project, {signal: this.files.signal});
+          this.setState({
+            gitInfo,
+            gitBranches,
+            gitBranch: gitInfo.branch,
+            gitHistory,
+            gitSelected: this.state.gitLog.trim() ? pendingHash : gitHistory[0]?.hash,
+          });
+        } else {
+          this.setState({gitInfo, gitBranches});
+        }
+      },
+      false,
+      false
+    );
+  };
+
+  private createFromCommit = () => {
+    const {gitCreate} = this.state;
+    const git = this.git();
+    if (!git || !gitCreate || !validLibraryName(gitCreate.name.trim())) return;
+    return this.run(
+      async () => {
+        await git.createProjectFromCommit(this.props.project, gitCreate.name.trim(), gitCreate.commit, {
+          signal: this.files.signal,
+        });
+        this.setState({gitCreate: undefined});
+        this.props.onChange?.();
+      },
+      false,
+      false
+    );
+  };
 
   private toggle(entry: FileEntry) {
     if (entry.type !== 'folder' || this.locked) return;
@@ -525,7 +688,60 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           files.signal
         )
       ) {
-        await files.remove(entries);
+        await files.remove(entries, this.props.onFilesDeleted);
+      }
+    });
+  };
+
+  private restore = () => {
+    const entries = this.selected();
+    const [entry] = entries;
+    const git = this.git();
+    if (
+      !git ||
+      !this.state.gitInfo?.initialized ||
+      entries.length !== 1 ||
+      entry.type !== 'file' ||
+      (entry.gitStatus !== 'modified' && entry.gitStatus !== 'deleted')
+    )
+      return;
+    const files = this.files;
+    return this.run(async () => {
+      if (
+        entry.gitStatus === 'modified' &&
+        !(await this.props.confirm(
+          t('Discard changes?'),
+          <>
+            {t('Discard uncommitted changes to this file?')}
+            <div>{entry.path}</div>
+          </>,
+          files.signal
+        ))
+      )
+        return;
+      await git.restoreGitFile(entry.path, {signal: files.signal});
+      if (entry.path.endsWith('.ticlo')) await this.props.onFileDiscarded?.(entry.path);
+    });
+  };
+
+  private discardLocalBackup = () => {
+    const [entry] = this.selected();
+    const storage = this.props.storage as FileAccess & Partial<LocalBackupAccess>;
+    if (!entry?.localBackup || !storage.discardLocalBackup) return;
+    const files = this.files;
+    return this.run(async () => {
+      if (
+        await this.props.confirm(
+          t('Discard Local Backup'),
+          <>
+            {t('Discard the locally saved copy of this file?')}
+            <div>{entry.path}</div>
+          </>,
+          files.signal
+        )
+      ) {
+        await storage.discardLocalBackup(entry.path);
+        if (entry.path.endsWith('.ticlo')) await this.props.onFileDiscarded?.(entry.path);
       }
     });
   };
@@ -613,6 +829,17 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     const mutable =
       entries.length > 0 && entries.every((entry) => entry.path !== this.files.root && entry.gitStatus !== 'deleted');
     const downloadable = entries.length > 0 && entries.every((entry) => entry.type === 'file');
+    const restorable =
+      this.git() &&
+      this.state.gitInfo?.initialized &&
+      entries.length === 1 &&
+      entries[0].type === 'file' &&
+      (entries[0].gitStatus === 'modified' || entries[0].gitStatus === 'deleted');
+    const hasLocalBackup =
+      entries.length === 1 &&
+      entries[0].type === 'file' &&
+      entries[0].localBackup &&
+      typeof (this.props.storage as Partial<LocalBackupAccess>).discardLocalBackup === 'function';
     const disabled = this.state.busy;
     const readonly = !this.props.storage.getCapabilities(this.files.root).write;
     return {
@@ -654,6 +881,28 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           danger: true,
           disabled: disabled || readonly || !mutable,
         },
+        ...(restorable
+          ? [
+              {
+                key: 'restore',
+                label: entries[0].gitStatus === 'modified' ? t('Discard Changes') : t('Restore'),
+                icon: <RollbackOutlined />,
+                danger: entries[0].gitStatus === 'modified',
+                disabled: disabled || readonly,
+              },
+            ]
+          : []),
+        ...(hasLocalBackup
+          ? [
+              {
+                key: 'discardLocalBackup',
+                label: t('Discard Local Backup'),
+                icon: <RollbackOutlined />,
+                danger: true,
+                disabled,
+              },
+            ]
+          : []),
         ...(downloadable
           ? [
               {type: 'divider' as const},
@@ -672,7 +921,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   private command(key: string) {
     if (this.locked) return;
     if (
-      ['new-flow', 'new', 'upload', 'cut', 'paste', 'rename', 'delete'].includes(key) &&
+      ['new-flow', 'new', 'upload', 'cut', 'paste', 'rename', 'delete', 'restore'].includes(key) &&
       !this.props.storage.getCapabilities(this.files.root).write
     )
       return;
@@ -706,6 +955,12 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
       case 'delete':
         void this.remove();
         break;
+      case 'restore':
+        void this.restore();
+        break;
+      case 'discardLocalBackup':
+        void this.discardLocalBackup();
+        break;
       case 'download':
         void this.download();
         break;
@@ -722,7 +977,9 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         if (git)
           void this.run(
             async () => {
-              const [gitHistory, gitLog] = await Promise.all([
+              const [gitInfo, gitBranches, gitHistory, gitLog] = await Promise.all([
+                git.getGitInfo(this.props.project, {signal: this.files.signal}),
+                git.getGitBranches(this.props.project, {signal: this.files.signal}),
                 git.getGitHistory(this.props.project, {signal: this.files.signal}),
                 this.props.storage
                   .getFile(`${this.files.root}/.gitlog`, {signal: this.files.signal})
@@ -733,9 +990,13 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
                   }),
               ]);
               this.setState({
+                gitInfo,
+                gitBranches,
+                gitBranch: gitInfo.branch,
                 gitHistory,
                 gitLog,
                 gitSelected: gitLog.trim() ? pendingHash : gitHistory[0]?.hash,
+                gitBranchOpen: false,
                 gitDialog: 'history',
               });
             },
@@ -914,7 +1175,9 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             this.toggle(entry);
           }}
         />
-        <span className={`ticl-e-file-git-${entry.gitStatus ?? 'clean'}`}>
+        <span
+          className={entry.localBackup ? 'ticl-e-file-local-backup' : `ticl-e-file-git-${entry.gitStatus ?? 'clean'}`}
+        >
           {entry.type === 'folder' ? (
             opened ? (
               <FolderOpenOutlined />
@@ -947,7 +1210,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
     add(this.rootEntry, 0);
     const selected = this.selected();
     const entry = selected.length === 1 && selected[0].gitStatus !== 'deleted' ? selected[0] : undefined;
-    const pendingLog = this.state.gitLog.trim();
+    const pendingLog = this.state.gitBranch === this.state.gitInfo?.branch ? this.state.gitLog.trim() : '';
     const historyRows = pendingLog
       ? [
           {
@@ -1155,44 +1418,113 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           <Modal
             title={t('Git History')}
             open={this.state.gitDialog === 'history'}
-            onCancel={() => this.setState({gitDialog: undefined})}
+            onCancel={() => this.setState({gitDialog: undefined, gitBranchOpen: false})}
             footer={null}
             width="min(1100px, calc(100vw - 32px))"
             style={{top: 24}}
             destroyOnHidden
           >
             <div className="ticl-e-git-history">
-              <Table<GitCommit>
-                size="small"
-                rowKey="hash"
-                dataSource={historyRows}
-                pagination={false}
-                scroll={{x: 470, y: 'min(840px, calc(100vh - 205px))'}}
-                columns={[
-                  {
-                    title: t('Date'),
-                    dataIndex: 'date',
-                    width: 140,
-                    render: (date: string) => date && DateTime.fromISO(date).toLocal().toFormat('yyyy-LL-dd HH:mm'),
+              <Dropdown
+                trigger={['contextMenu']}
+                menu={{
+                  items: [
+                    {key: 'reset', label: t('Reset to This Commit'), danger: true},
+                    {key: 'create', label: t('Create Library from This Commit')},
+                  ],
+                  onClick: ({key}) => {
+                    const commit = this.gitContextHash;
+                    if (!commit) return;
+                    if (key === 'reset') void this.resetToCommit(commit);
+                    else if (key === 'create') this.setState({gitCreate: {commit, name: ''}, error: undefined});
                   },
-                  {title: t('Author'), dataIndex: 'author', width: 110, ellipsis: true},
-                  {
-                    title: t('Message'),
-                    dataIndex: 'message',
-                    ellipsis: true,
-                    render: (message: string) => message.split(/\r?\n/, 1)[0],
-                  },
-                ]}
-                rowClassName={(commit) =>
-                  [
-                    commit.hash === pendingHash && 'ticl-e-git-history-pending',
-                    commit.hash === this.state.gitSelected && 'ticl-e-git-history-selected',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')
-                }
-                onRow={(commit) => ({onClick: () => this.setState({gitSelected: commit.hash})})}
-              />
+                }}
+              >
+                <div
+                  className="ticl-e-git-history-list"
+                  onContextMenuCapture={(event) => {
+                    const row = (event.target as HTMLElement).closest<HTMLElement>('tr[data-row-key]');
+                    if (!row || row.dataset.rowKey === pendingHash || busy) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      return;
+                    }
+                    this.gitContextHash = row.dataset.rowKey;
+                  }}
+                >
+                  <Popover
+                    trigger="click"
+                    placement="bottomLeft"
+                    open={this.state.gitBranchOpen}
+                    onOpenChange={(open) => this.setState({gitBranchOpen: open})}
+                    content={
+                      <Tree
+                        showLine
+                        defaultExpandAll
+                        selectedKeys={this.state.gitBranch ? [this.state.gitBranch] : []}
+                        treeData={branchTree(this.state.gitBranches)}
+                        titleRender={(node) => (
+                          <span className="ticl-e-git-branch-node">
+                            <span>{node.title}</span>
+                            {node.selectable &&
+                              node.key !== 'main' &&
+                              node.key !== this.state.gitInfo?.branch &&
+                              !readonly && (
+                                <Button
+                                  type="text"
+                                  size="small"
+                                  danger
+                                  icon={<DeleteOutlined />}
+                                  title={translateEditor('Delete Branch')}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    this.deleteGitBranch(String(node.key));
+                                  }}
+                                />
+                              )}
+                          </span>
+                        )}
+                        onSelect={(_, {node}) => this.selectGitBranch(String(node.key))}
+                      />
+                    }
+                  >
+                    <Button className="ticl-e-git-branch-button" disabled={busy}>
+                      {this.state.gitBranch || 'HEAD'} <DownOutlined />
+                    </Button>
+                  </Popover>
+                  <Table<GitCommit>
+                    size="small"
+                    rowKey="hash"
+                    dataSource={historyRows}
+                    pagination={false}
+                    scroll={{x: 470, y: 'min(800px, calc(100vh - 250px))'}}
+                    columns={[
+                      {
+                        title: t('Date'),
+                        dataIndex: 'date',
+                        width: 140,
+                        render: (date: string) => date && DateTime.fromISO(date).toLocal().toFormat('yyyy-LL-dd HH:mm'),
+                      },
+                      {title: t('Author'), dataIndex: 'author', width: 110, ellipsis: true},
+                      {
+                        title: t('Message'),
+                        dataIndex: 'message',
+                        ellipsis: true,
+                        render: (message: string) => message.split(/\r?\n/, 1)[0],
+                      },
+                    ]}
+                    rowClassName={(commit) =>
+                      [
+                        commit.hash === pendingHash && 'ticl-e-git-history-pending',
+                        commit.hash === this.state.gitSelected && 'ticl-e-git-history-selected',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')
+                    }
+                    onRow={(commit) => ({onClick: () => this.setState({gitSelected: commit.hash})})}
+                  />
+                </div>
+              </Dropdown>
               <div className="ticl-e-git-history-details">
                 {this.state.gitSelected === pendingHash ? (
                   <div className="ticl-e-git-history-heading">{t('Uncommitted changes')}</div>
@@ -1228,6 +1560,28 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
                 ) : null}
               </div>
             </div>
+            {error && <div className="ticl-e-file-error">{error}</div>}
+          </Modal>
+        )}
+        {!picker && (
+          <Modal
+            title={t('Create Library from This Commit')}
+            open={Boolean(this.state.gitCreate)}
+            onOk={this.createFromCommit}
+            onCancel={() => !busy && this.setState({gitCreate: undefined, error: undefined})}
+            okButtonProps={{
+              disabled: busy || !validLibraryName(this.state.gitCreate?.name.trim() ?? ''),
+            }}
+            confirmLoading={busy}
+            destroyOnHidden
+          >
+            <Input
+              placeholder={translateEditor('Library name')}
+              value={this.state.gitCreate?.name ?? ''}
+              onChange={(event) => this.setState({gitCreate: {...this.state.gitCreate, name: event.target.value}})}
+              onPressEnter={this.createFromCommit}
+            />
+            {error && <div className="ticl-e-file-error">{error}</div>}
           </Modal>
         )}
       </div>

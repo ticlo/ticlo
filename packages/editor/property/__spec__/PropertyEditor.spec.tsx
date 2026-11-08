@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {userEvent} from 'vitest/browser';
+import {page, userEvent} from 'vitest/browser';
 import {simulate} from 'simulate-event';
 import React from 'react';
 import '../../index.ts';
@@ -13,7 +13,7 @@ import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-uti
 import {BlockStage, NodeTree, initEditor} from '../../index.ts';
 import type {PropGroupDesc} from '@ticlo/core';
 import {FunctionDesc, PropDesc} from '@ticlo/core';
-import {globalFunctions} from '@ticlo/core/block/FunctionLib.ts';
+import {globalFunctions} from '@ticlo/core/block/FunctionModule.ts';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 
 describe('PropertyEditor', function () {
@@ -47,22 +47,21 @@ describe('PropertyEditor', function () {
     try {
       await shouldHappen(() => list.current && div.querySelector('.ticl-e-property-divider'));
       list.current.onShowAttributeClick();
-      const misc = Array.from(div.querySelectorAll('.ticl-e-property-divider')).find(
-        (element) => element.textContent === 'Misc'
-      );
-      await shouldHappen(() => misc.nextElementSibling?.querySelector('textarea'));
-      const input = misc.nextElementSibling.querySelector('textarea');
+      const input = () =>
+        Array.from(div.querySelectorAll('.ticl-e-property-divider'))
+          .find((element) => element.textContent === 'Misc')
+          ?.nextElementSibling?.querySelector('textarea');
       const header = () => div.querySelector('.ticl-e-block-head-label')?.textContent;
       const node = () => div.querySelector('.ticl-e-tree-node-text')?.textContent;
 
-      await userEvent.fill(input, 'Friendly label');
+      await userEvent.fill(page.elementLocator(await shouldHappen(input)), 'Friendly label');
       await userEvent.keyboard('{Enter}');
       await shouldHappen(() => header() === 'Friendly label' && node() === 'Friendly label');
       expect(flow.queryValue('block.#label')).toBe('Friendly label');
       expect(flow.queryValue('block.#name')).toBe('block');
       expect((flow.save().block as Record<string, unknown>)['#label']).toBe('Friendly label');
 
-      await userEvent.fill(input, '');
+      await userEvent.fill(page.elementLocator(await shouldHappen(input)), '');
       await userEvent.keyboard('{Enter}');
       await shouldHappen(() => header() === 'block' && node() === 'block');
       expect(flow.queryValue('block.#label')).toBe('');
@@ -195,14 +194,14 @@ describe('PropertyEditor', function () {
     Root.instance.deleteValue('PropertyEditor2');
   });
 
-  it('uses funcLib for in-flow function descriptors', async function () {
+  it('uses funcModule for in-flow function descriptors', async function () {
     const flow = Root.instance.addFlow('PropertyEditorScopedDesc', {});
     const data = {
       '#is': '',
       '#inputs': {'#is': '', '#custom': [{name: 'value', type: 'number'}]},
       '#outputs': {'#is': ''},
     };
-    WorkerFunctionGen.registerType(data, {id: ':scopedWorker', name: 'scopedWorker'}, undefined, flow.getFuncLib());
+    WorkerFunctionGen.registerType(data, {id: ':scopedWorker', name: 'scopedWorker'}, undefined, flow.getFuncModule());
     flow.createBlock('calc').setValue('#is', ':scopedWorker');
 
     const [server, client] = makeLocalConnection(Root.instance, true);
@@ -211,7 +210,7 @@ describe('PropertyEditor', function () {
       <PropertyList
         conn={client}
         paths={['PropertyEditorScopedDesc.calc']}
-        funcLib="PropertyEditorScopedDesc"
+        funcModule="PropertyEditorScopedDesc"
         style={{width: 300, height: 300}}
       />,
       'editor'

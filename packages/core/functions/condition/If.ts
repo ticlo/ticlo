@@ -1,5 +1,5 @@
 import {PureFunction} from '../../block/BlockFunction.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 
 export class IfFunction extends PureFunction {
   // REFACTOR(design.md): MUST read event inputs for this delivery; MUST retain prior values only as declared state.

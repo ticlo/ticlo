@@ -6,7 +6,7 @@ export {ChartComponent} from './ChartComponent.tsx';
 export {buildChartData, readChartOptions, readChartSeries} from './ChartData.ts';
 export {registerChartCallback, registerChartPlugin} from './ChartConfig.ts';
 
-globalFunctions.addCategory({id: 'chart:', name: 'Chart', icon: 'svg:line-chart', color: 'ff6384', ns: 'chart'});
+globalFunctions.addCategory({id: 'chart:', name: 'Chart', icon: 'svg:line-chart', color: 'ff6384', libraryId: 'chart'});
 
 globalFunctions.addFactory(
   null,

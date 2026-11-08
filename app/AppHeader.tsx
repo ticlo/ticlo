@@ -58,17 +58,15 @@ export function AppHeader({
   language,
   onLanguageChange,
   fileItems,
-  namespaceItems,
+  libraryItems,
   viewItems,
-  showProjectMenus = true,
   children,
 }: {
   language: string;
   onLanguageChange: (language: string) => void;
   fileItems?: MenuProps['items'];
-  namespaceItems?: MenuProps['items'];
+  libraryItems?: MenuProps['items'];
   viewItems?: MenuProps['items'];
-  showProjectMenus?: boolean;
   children?: ReactNode;
 }) {
   const {darkMode, setDarkMode} = useContext(ThemeContext);
@@ -111,12 +109,8 @@ export function AppHeader({
     <header className="ticl-app-header">
       <div className="ticl-app-header-left">
         <img className="ticl-app-logo" src={new URL('./ticlo-header-icon.svg', import.meta.url).href} title="Ticlo" />
-        {showProjectMenus && (
-          <>
-            <HeaderMenu label="File" icon={<FileOutlined />} items={fileItems} />
-            <HeaderMenu label="Namespace" icon={<ApartmentOutlined />} items={namespaceItems} />
-          </>
-        )}
+        {fileItems?.length ? <HeaderMenu label="File" icon={<FileOutlined />} items={fileItems} /> : null}
+        {libraryItems?.length ? <HeaderMenu label="Library" icon={<ApartmentOutlined />} items={libraryItems} /> : null}
         <HeaderMenu label="View" icon={<AppstoreOutlined />} items={viewItems} />
       </div>
       <div className="ticl-app-header-center">

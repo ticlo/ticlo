@@ -7,6 +7,14 @@ import {Query} from './Query.ts';
 import type {EditPolicy, EditPolicyView} from '../policy/EditPolicy.ts';
 import type {ClientConnection} from './ClientConnection.ts';
 import {hashData} from '../util/Serialize.ts';
+import type {FlowRef, LibraryGraph} from '../block/FlowRuntime.ts';
+import type {LibraryMetadata} from '../block/Storage.ts';
+import {libraryPath} from '../util/LibraryMetadata.ts';
+
+export interface LibraryRuntimeInfo extends LibraryGraph {
+  canLoad: boolean;
+  hasMetadata: boolean;
+}
 
 /** Shared command API for physical connections and policy views. */
 
@@ -52,8 +60,30 @@ export abstract class ClientConn {
   listMainFlows(): Promise<any> {
     return this.simpleRequest({cmd: 'listMainFlows', path: ''});
   }
+  listLoadedFlows(library: string): Promise<{flows: FlowRef[]}> {
+    return this.simpleRequest({cmd: 'listLoadedFlows', path: library});
+  }
   setAutoLoadFlow(path: string, enabled: boolean): Promise<any> {
     return this.simpleRequest({cmd: 'setAutoLoadFlow', path, enabled});
+  }
+
+  getLibraryGraph(): Promise<LibraryRuntimeInfo> {
+    return this.simpleRequest({cmd: 'getLibraryGraph', path: ''});
+  }
+  enableLibrary(name: string): Promise<null> {
+    return this.simpleRequest({cmd: 'enableLibrary', path: libraryPath(name)});
+  }
+  unloadLibrary(name: string): Promise<null> {
+    return this.simpleRequest({cmd: 'unloadLibrary', path: libraryPath(name)});
+  }
+  retainLibraries(names: string[]): Promise<null> {
+    return this.simpleRequest({cmd: 'retainLibraries', path: '', names});
+  }
+  getLibraryMetadata(name: string): Promise<{metadata?: LibraryMetadata; canWrite: boolean}> {
+    return this.simpleRequest({cmd: 'getLibraryMetadata', path: libraryPath(name)});
+  }
+  setLibraryDependencies(name: string, dependencies: string[]): Promise<null> {
+    return this.simpleRequest({cmd: 'setLibraryDependencies', path: libraryPath(name), dependencies});
   }
 
   /**
@@ -223,7 +253,7 @@ export abstract class ClientConn {
    * @param fromField if specified, editing starts based on an existing property field inside the block
    * @param fromFunction if specified, editing starts based on an existing global worker function
    * @param defaultData default data to initialize the editing context
-   * @param funcLib optional host flow path providing the function library for inline or local workers
+   * @param funcModule optional host flow path providing the function module for inline or local workers
    * @param callbacks request callbacks
    */
   editWorker(
@@ -231,10 +261,10 @@ export abstract class ClientConn {
     fromField?: string,
     fromFunction?: string,
     defaultData?: DataMap,
-    funcLib?: string,
+    funcModule?: string,
     callbacks?: ClientCallbacks
   ): Promise<any> | string {
-    return this.simpleRequest({cmd: 'editWorker', path, fromField, fromFunction, defaultData, funcLib}, callbacks);
+    return this.simpleRequest({cmd: 'editWorker', path, fromField, fromFunction, defaultData, funcModule}, callbacks);
   }
 
   /**
@@ -250,16 +280,16 @@ export abstract class ClientConn {
   /**
    * Deletes a registered worker function.
    * @param funcId the string identifier of the worker function
-   * @param funcLib optional path to the host flow whose `_funcLib` owns an in-flow function
+   * @param funcModule optional path to the host flow whose `_funcModule` owns an in-flow function
    * @param callbacks request callbacks
    */
-  deleteFunction(funcId?: string, funcLib?: string, callbacks?: ClientCallbacks): Promise<any> | string {
+  deleteFunction(funcId?: string, funcModule?: string, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest(
       {
         cmd: 'deleteFunction',
         path: '#', // just to prevent the invalid path error
         funcId,
-        funcLib,
+        funcModule,
       },
       callbacks
     );
@@ -548,10 +578,10 @@ export abstract class ClientConn {
   /**
    * Tells the Server-side Desc Watcher to proactively start relaying function signature modifications taking place under `id`.
    * @param funcId the function id to watch, use '*' to watch all functions
-   * @param funcLib optional path of the Flow whose in-flow function descs should be watched
+   * @param funcModule optional path of the Flow whose in-flow function descs should be watched
    * @param listener local listener hook interface mapping desc changes
    */
-  abstract watchDesc(funcId: string, funcLib?: string, listener?: ClientDescListener): FunctionDesc;
+  abstract watchDesc(funcId: string, funcModule?: string, listener?: ClientDescListener): FunctionDesc;
 
   /**
    * Removes a desc listener
@@ -561,9 +591,9 @@ export abstract class ClientConn {
 
   abstract getCategory(category: string): FunctionDesc;
 
-  abstract getCommonBaseFunc(set: Set<FunctionDesc>, funcLib?: string): FunctionDesc;
+  abstract getCommonBaseFunc(set: Set<FunctionDesc>, funcModule?: string): FunctionDesc;
 
-  abstract getOptionalProps(desc: FunctionDesc, funcLib?: string): {[key: string]: PropDesc};
+  abstract getOptionalProps(desc: FunctionDesc, funcModule?: string): {[key: string]: PropDesc};
 
   abstract findGlobalBlocks(tags: string[]): string[];
 

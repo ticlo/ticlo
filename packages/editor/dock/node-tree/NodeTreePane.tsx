@@ -1,7 +1,7 @@
 import React from 'react';
 import {ClientConn} from '@ticlo/core/editor.ts';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.ts';
-import {NodeTree, type LibraryAutoLoad, type NodeTreeOpenAction} from '../../node-tree/NodeTree.tsx';
+import {NodeTree, type ModuleAutoLoad, type NodeTreeOpenAction} from '../../node-tree/NodeTree.tsx';
 import {Button, Input, Menu, Tooltip} from 'antd';
 import {FileAddOutlined, FolderAddOutlined, ReloadOutlined} from '@ant-design/icons';
 
@@ -18,7 +18,7 @@ interface Props {
   onSelect?: (keys: string[]) => void;
   showMenu?: boolean;
   openActions?: readonly NodeTreeOpenAction[];
-  libraryAutoLoad?: LibraryAutoLoad;
+  moduleAutoLoad?: ModuleAutoLoad;
   showStoredFlows?: boolean;
 }
 
@@ -67,7 +67,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     const {conn} = this.props;
     const functionId = DragState.getData('functionId', conn.getBaseConn());
     console.log(functionId);
-    if (functionId !== 'flow:folder' && functionId !== 'flow:namespace') {
+    if (functionId !== 'flow:folder' && functionId !== 'flow:library') {
       e.reject();
       return;
     }
@@ -91,7 +91,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     }
   };
   render() {
-    const {conn, basePaths, hideRoot, onSelect, showMenu, openActions, libraryAutoLoad, showStoredFlows} = this.props;
+    const {conn, basePaths, hideRoot, onSelect, showMenu, openActions, moduleAutoLoad, showStoredFlows} = this.props;
     const {selectedKeys} = this.state;
 
     return (
@@ -121,7 +121,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
           selectedKeys={selectedKeys || []}
           onSelect={onSelect}
           openActions={openActions}
-          libraryAutoLoad={libraryAutoLoad}
+          moduleAutoLoad={moduleAutoLoad}
           showStoredFlows={showStoredFlows}
           onOpenStoredFlow={(path, canApply) =>
             this.context.editFlow?.(

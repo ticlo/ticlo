@@ -7,11 +7,13 @@ export interface FileEntry {
   created?: number;
   modified?: number;
   gitStatus?: 'added' | 'modified' | 'deleted';
+  localBackup?: boolean;
 }
 
 export interface GitInfo {
   initialized: boolean;
   branch?: string;
+  hasUncommittedChanges?: boolean;
 }
 export interface GitCommit {
   hash: string;
@@ -26,7 +28,18 @@ export interface ProjectGit {
   getGitInfo(project: string, options?: FileRequest): Promise<GitInfo>;
   initGit(project: string, options?: FileRequest): Promise<GitInfo>;
   commitGit(project: string, message: string, options?: FileRequest): Promise<GitCommit>;
-  getGitHistory(project: string, options?: FileRequest): Promise<GitCommit[]>;
+  getGitBranches(project: string, options?: FileRequest): Promise<string[]>;
+  deleteGitBranch(project: string, branch: string, options?: FileRequest): Promise<void>;
+  getGitHistory(project: string, options?: FileRequest & {branch?: string}): Promise<GitCommit[]>;
+  resetGitToCommit(project: string, commit: string, options?: FileRequest): Promise<{backupBranch: string}>;
+  createProjectFromCommit(
+    project: string,
+    name: string,
+    commit: string,
+    options?: FileRequest
+  ): Promise<ProjectMetadata>;
+  /** Restore one tracked file from HEAD; path includes the project ID. */
+  restoreGitFile(path: string, options?: FileRequest): Promise<void>;
 }
 export interface FileRequest {
   signal?: AbortSignal;
@@ -35,11 +48,17 @@ export interface FileWriteOptions extends FileRequest {
   existsBehavior?: 'fail' | 'overwrite';
   /** null means the file must not exist. */
   revision?: string | null;
+  /** Preserve an editor-generated file locally when its remote save fails. */
+  backupOnFailure?: boolean;
+}
+export interface LocalBackupAccess {
+  discardLocalBackup(path: string): Promise<void>;
 }
 export interface FileReadResult {
   data: ArrayBuffer;
   revision?: string;
   contentType?: string;
+  localBackup?: boolean;
 }
 export interface FileWriteResult {
   revision?: string;
@@ -56,6 +75,8 @@ export interface FileAccess {
   getCapabilities(path: string): StorageCapabilities;
   /** Reports successful writes made through this file access instance. */
   subscribeFileChanges?(listener: (path: string) => void): () => void;
+  /** Reports an external write; passing a project root invalidates its expanded tree. */
+  notifyFileChange?(path: string): void;
   getFile(path: string, options?: FileRequest): Promise<FileReadResult>;
   getFileInfo(path: string, options?: FileRequest): Promise<FileEntry>;
   listFiles(path: string, options?: FileRequest): Promise<FileEntry[]>;
@@ -98,14 +119,7 @@ export function filePath(path: string, allowRoot = false): string {
 }
 export function projectId(id: string): string {
   filePath(id);
-  if (
-    id.includes('/') ||
-    id.includes('.') ||
-    id === 'HEAD' ||
-    id.includes('@{') ||
-    id.startsWith('-') ||
-    /[\u0000-\u0020\u007f~^:?*[\\]/.test(id)
-  )
+  if (id.includes('/') || id.includes('.') || /[\u0000-\u0020\u007f:?*\\]/.test(id))
     throw new StorageError('Invalid project ID', 'invalid-path');
   return id;
 }

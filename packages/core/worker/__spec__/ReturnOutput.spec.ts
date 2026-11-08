@@ -63,8 +63,8 @@ describe('Worker #return output', function () {
     });
     const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
     const saved = editor.applyChange() as DataMap;
-    expect(flow.getFuncLib().getWorkerData(':component')).toEqual(saved);
-    const desc = flow.getFuncLib().getDescToSend(':component')[0];
+    expect(flow.getFuncModule().getWorkerData(':component')).toEqual(saved);
+    const desc = flow.getFuncModule().getDescToSend(':component')[0];
     expect(desc.properties).toEqual([]);
     expect(desc.configs).toEqual([...defaultConfigs, {name: '#return', type: 'any', readonly: true}]);
 
@@ -144,14 +144,14 @@ describe('Worker #return output', function () {
     {name: 'object input', inputs: undefined},
   ])('saves resolved dimensions from $name as component initial style', function ({name, inputs}) {
     const flow = new Flow();
-    const functionLib = flow.getFuncLib();
-    functionLib.addFactory(null, {id: ':view', name: 'view', tags: ['react-comp']});
+    const functionModule = flow.getFuncModule();
+    functionModule.addFactory(null, {id: ':view', name: 'view', tags: ['react-comp']});
     const originalDesc = {init: {label: 'keep', style: {width: 99, height: 99, color: 'red'}}};
     WorkerFunctionGen.registerType(
       {'#is': '', '#desc': originalDesc, '#inputs': inputs, '#main': {'#is': ':view'}, '#outputs': {'#is': ''}},
       {id: ':component', name: 'component'},
       undefined,
-      functionLib
+      functionModule
     );
     const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
     const style = {width: 0, height: '50%', left: 10};
@@ -164,7 +164,7 @@ describe('Worker #return output', function () {
     const saved = editor.applyChange() as DataMap;
     const expectedInit = {label: 'keep', style: {width: 0, height: '50%', color: 'red'}};
     expect((saved['#desc'] as FunctionDesc).init).toEqual(expectedInit);
-    const desc = functionLib.getDescToSend(':component')[0];
+    const desc = functionModule.getDescToSend(':component')[0];
     expect(desc.init).toEqual(expectedInit);
     expect(getDefaultFuncData(desc).style).toEqual(expectedInit.style);
     expect(editor.getValue('#desc')).toEqual(originalDesc);
@@ -172,7 +172,7 @@ describe('Worker #return output', function () {
 
     const reloaded = new Flow();
     reloaded.load(flow.save());
-    expect(reloaded.getFuncLib().getDescToSend(':component')[0].init).toEqual(expectedInit);
+    expect(reloaded.getFuncModule().getDescToSend(':component')[0].init).toEqual(expectedInit);
     reloaded.destroy();
     flow.destroy();
   });
@@ -189,7 +189,7 @@ describe('Worker #return output', function () {
       {'#is': '', '#desc': {tags, init}, '#inputs': {'#is': '', style}},
       {id: ':component', name: 'component'},
       undefined,
-      flow.getFuncLib()
+      flow.getFuncModule()
     );
     const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
     const saved = editor.applyChange() as DataMap;
@@ -202,20 +202,20 @@ describe('Worker #return output', function () {
     {'#is': '', '#main': {'#is': ':view'}, '#outputs': {'#is': ''}},
   ])('inherits allowed tags from the #return binding source when saving %j', function (data) {
     const flow = new Flow();
-    const functionLib = flow.getFuncLib();
-    functionLib.addFactory(null, {
+    const functionModule = flow.getFuncModule();
+    functionModule.addFactory(null, {
       id: ':view',
       name: 'view',
       tags: ['react-comp', 'other'],
       childrenTags: ['react-comp'],
     });
-    WorkerFunctionGen.registerType(data, {id: ':component', name: 'component'}, undefined, functionLib);
+    WorkerFunctionGen.registerType(data, {id: ':component', name: 'component'}, undefined, functionModule);
     const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
 
     const saved = editor.applyChange() as DataMap;
     expect(saved['#desc']).toEqual({tags: ['react-comp']});
-    expect(functionLib.getDescToSend(':component')[0].tags).toEqual(['react-comp']);
-    expect(functionLib.getWorkerData(':component')).toEqual(saved);
+    expect(functionModule.getDescToSend(':component')[0].tags).toEqual(['react-comp']);
+    expect(functionModule.getWorkerData(':component')).toEqual(saved);
 
     editor.setValue('#desc', {icon: 'test', tags: ['custom']});
     const savedDesc = (editor.applyChange() as DataMap)['#desc'];
@@ -227,15 +227,15 @@ describe('Worker #return output', function () {
 
     const reloaded = new Flow();
     reloaded.load(flow.save());
-    expect(reloaded.getFuncLib().getDescToSend(':component')[0].tags).toEqual(['custom', 'react-comp']);
+    expect(reloaded.getFuncModule().getDescToSend(':component')[0].tags).toEqual(['custom', 'react-comp']);
     reloaded.destroy();
     flow.destroy();
   });
 
   it('inherits SVG placement and child tags from the returned component', function () {
     const flow = new Flow();
-    const functionLib = flow.getFuncLib();
-    functionLib.addFactory(null, {
+    const functionModule = flow.getFuncModule();
+    functionModule.addFactory(null, {
       id: ':svg-group',
       name: 'svg-group',
       tags: ['react-svg'],
@@ -251,7 +251,7 @@ describe('Worker #return output', function () {
       },
       {id: ':component', name: 'component'},
       undefined,
-      functionLib
+      functionModule
     );
     const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
 
@@ -265,8 +265,8 @@ describe('Worker #return output', function () {
     {inputs: {'#is': '', '#order': []}, expected: ['existing']},
   ])('copies childrenTags only for a declared #order input: %j', function ({inputs, expected}) {
     const flow = new Flow();
-    const functionLib = flow.getFuncLib();
-    functionLib.addFactory(null, {
+    const functionModule = flow.getFuncModule();
+    functionModule.addFactory(null, {
       id: ':view',
       name: 'view',
       tags: ['react-comp'],
@@ -282,19 +282,19 @@ describe('Worker #return output', function () {
       },
       {id: ':component', name: 'component'},
       undefined,
-      functionLib
+      functionModule
     );
     const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
 
     const saved = editor.applyChange() as DataMap;
     expect(saved['#desc']).toEqual({tags: ['custom', 'react-comp'], childrenTags: expected});
-    expect(functionLib.getDescToSend(':component')[0].childrenTags).toEqual(expected);
-    expect(functionLib.getWorkerData(':component')).toEqual(saved);
+    expect(functionModule.getDescToSend(':component')[0].childrenTags).toEqual(expected);
+    expect(functionModule.getWorkerData(':component')).toEqual(saved);
     expect(editor.getValue('#desc')).toEqual({tags: ['custom'], childrenTags: ['existing']});
 
     const reloaded = new Flow();
     reloaded.load(flow.save());
-    expect(reloaded.getFuncLib().getDescToSend(':component')[0].childrenTags).toEqual(expected);
+    expect(reloaded.getFuncModule().getDescToSend(':component')[0].childrenTags).toEqual(expected);
     reloaded.destroy();
     flow.destroy();
   });
@@ -308,14 +308,14 @@ describe('Worker #return output', function () {
   ])('requires a direct #return binding to a block with an allowed tag: %j', function (data: DataMap) {
     data['#inputs'] = {'#is': '', '#custom': [{name: '#order', type: 'array'}]};
     const flow = new Flow();
-    const functionLib = flow.getFuncLib();
-    functionLib.addFactory(null, {id: ':view', name: 'view', tags: ['react-comp'], childrenTags: ['react-comp']});
-    functionLib.addFactory(null, {id: ':plain', name: 'plain', tags: ['other'], childrenTags: ['react-comp']});
-    WorkerFunctionGen.registerType(data, {id: ':component', name: 'component'}, undefined, functionLib);
+    const functionModule = flow.getFuncModule();
+    functionModule.addFactory(null, {id: ':view', name: 'view', tags: ['react-comp'], childrenTags: ['react-comp']});
+    functionModule.addFactory(null, {id: ':plain', name: 'plain', tags: ['other'], childrenTags: ['react-comp']});
+    WorkerFunctionGen.registerType(data, {id: ':component', name: 'component'}, undefined, functionModule);
     const editor = FlowEditor.createFromFunction(flow, '#edit-component', ':component', null);
 
     expect(editor.applyChange()).toEqual(data);
-    expect(functionLib.getDescToSend(':component')[0].tags).toBeUndefined();
+    expect(functionModule.getDescToSend(':component')[0].tags).toBeUndefined();
     flow.destroy();
   });
 });

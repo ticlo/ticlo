@@ -115,6 +115,8 @@ async function main() {
   try {
     await buildPackage('packages/core');
 
+    await buildPackage('packages/node-git');
+
     await buildPackage('packages/file-server');
 
     await buildPackage('packages/html');

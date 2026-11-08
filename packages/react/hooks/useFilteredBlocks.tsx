@@ -1,46 +1,39 @@
-import {ReactNode, useEffect, useMemo, useReducer, useRef} from 'react';
-import {Block, BlockIO} from '@ticlo/core';
+import {useMemo, useSyncExternalStore} from 'react';
+import {Block, type BlockProperty} from '@ticlo/core';
 
-/**
- * Find children blocks from a block and convert to Record<string, Block>
- * @param block
- * @param filter
- */
+/** Subscribe to the matching child Blocks, retaining unchanged snapshots. */
 export function useFilteredBlocks(block: Block, filter?: (block: Block) => boolean): Record<string, Block> {
-  const [, forceUpdate] = useReducer((x) => -x, 1);
-  const cache = useRef<Record<string, Block>>(null);
-  useEffect(() => {
-    const listener = {
-      onChildChange: () => {
-        cache.current = null;
-        forceUpdate();
+  const store = useMemo(() => {
+    const read = () => {
+      const result: Record<string, Block> = {};
+      block.forEach((field, value) => {
+        if (value instanceof Block && (!filter || filter(value))) result[field] = value;
+      });
+      return result;
+    };
+    let snapshot = read();
+    return {
+      getSnapshot: () => snapshot,
+      subscribe: (onChange: () => void) => {
+        const listener = {
+          onChildChange(property?: BlockProperty) {
+            if (property && !(property.getValue() instanceof Block) && !Object.hasOwn(snapshot, property._name)) return;
+            const next = read();
+            const fields = Object.keys(next);
+            if (
+              fields.length === Object.keys(snapshot).length &&
+              fields.every((field) => next[field] === snapshot[field])
+            )
+              return;
+            snapshot = next;
+            onChange();
+          },
+        };
+        block.watch(listener);
+        listener.onChildChange();
+        return () => block.unwatch(listener);
       },
     };
-    block.watch(listener);
-    return () => {
-      block.unwatch(listener);
-    };
-  }, [block]);
-
-  useMemo(() => {
-    // clear the cache when filter changed
-    cache.current = null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [block, filter]);
-
-  if (cache.current) {
-    return cache.current;
-  }
-
-  // rebuild the cache
-  const result: Record<string, Block> = {};
-  block.forEach((field: string, value: unknown) => {
-    if (value instanceof Block) {
-      if (!filter || filter(value)) {
-        result[field] = value;
-      }
-    }
-  });
-  cache.current = result;
-  return result;
+  return useSyncExternalStore(store.subscribe, store.getSnapshot);
 }

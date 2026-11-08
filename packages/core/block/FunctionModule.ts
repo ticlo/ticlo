@@ -20,17 +20,17 @@ export interface DescListener {
 
 export class FunctionDispatcher extends PropDispatcher<FunctionFactory | null> {}
 
-// FunctionLib is both a registry and a live dispatcher. Blocks listen to a
+// FunctionModule is both a registry and a live dispatcher. Blocks listen to a
 // FunctionDispatcher by id, so replacing or deleting a function factory updates
 // every block currently using that id.
-export class FunctionLib {
+export class FunctionModule {
   _functions: {[key: string]: FunctionDispatcher} = {};
   _listeners: Set<DescListener> = new Set<DescListener>();
 
   constructor(public flow?: Flow) {}
 
   // REFACTOR(design.md): Updating a factory MUST NOT swap the type of existing block instances.
-  add(factory: FunctionFactory, namespace?: string | null, functionApi?: FunctionApi) {
+  add(factory: FunctionFactory, library?: string | null, functionApi?: FunctionApi) {
     const desc = factory.desc;
     if (!desc.properties) {
       // function must have properties
@@ -42,16 +42,16 @@ export class FunctionLib {
     if (![0, 1, 2, 3].includes(desc.priority)) {
       desc.priority = 0;
     }
-    desc.ns = namespace;
-    if (desc.category && namespace != null) {
-      // make sure category is in the same name space
-      desc.category = `${namespace}:${desc.category.split(':').pop()}`;
+    desc.libraryId = library;
+    if (desc.category && library != null) {
+      // make sure category is in the same library
+      desc.category = `${library}:${desc.category.split(':').pop()}`;
     }
     let id: string;
     if (desc.id) {
       id = desc.id;
     } else {
-      id = namespace != null ? `${namespace}:${desc.name}` : desc.name;
+      id = library != null ? `${library}:${desc.name}` : desc.name;
       desc.id = id;
     }
 
@@ -83,11 +83,11 @@ export class FunctionLib {
   addFactory(
     cls: FunctionClass | null,
     desc: FunctionDesc,
-    namespace?: string | null,
+    library?: string | null,
     functionApi?: FunctionApi,
     options?: FunctionFactoryOptions
   ) {
-    this.add(createFunctionFactory(cls, desc, options), namespace, functionApi);
+    this.add(createFunctionFactory(cls, desc, options), library, functionApi);
   }
 
   addCategory(category: FunctionDesc) {
@@ -175,10 +175,12 @@ export class FunctionLib {
     return result;
   }
 
-  getDescToSend(id: string): [FunctionDesc, number] {
-    const functionDispatcher = this._functions[id];
-    const desc = functionDispatcher?.getValue()?.desc;
+  getDesc(id: string): FunctionDesc {
+    return this._functions[id]?.getValue()?.desc ?? null;
+  }
 
+  getDescToSend(id: string): [FunctionDesc, number] {
+    const desc = this.getDesc(id);
     if (desc) {
       return [desc, encode(desc).length];
     }
@@ -210,7 +212,7 @@ export class FunctionLib {
   }
 }
 
-export const globalFunctions = new FunctionLib();
+export const globalFunctions = new FunctionModule();
 export function getGlobalFunctionRoot() {
   return globalFunctions.flow as Root;
 }

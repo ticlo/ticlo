@@ -1,4 +1,4 @@
-import {FunctionLib, globalFunctions} from '../block/FunctionLib.ts';
+import {FunctionModule, globalFunctions} from '../block/FunctionModule.ts';
 import {BaseFunction, createFunctionFactory, FunctionFactory, StatefulFunction} from '../block/BlockFunction.ts';
 import {deepEqual} from '../util/Compare.ts';
 import {defaultConfigs, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
@@ -7,14 +7,14 @@ import {Flow} from '../block/Flow.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {WorkerFlow} from './WorkerFlow.ts';
 import {Block} from '../block/Block.ts';
-import {Namespace} from '../block/Namespace.ts';
-import {FlowFunctionLib, NsFunctionLib} from '../block/NSFunctionLib.ts';
+import {Library} from '../block/Library.ts';
+import {FlowFunctionModule, LibraryFunctionModule} from '../block/LibraryFunctionModule.ts';
 
 const inheritedReturnTags = ['react-comp', 'react-svg'];
 
 export class WorkerFunctionGen extends BaseFunction<Block> {
   declare readonly type: string;
-  declare _namespace: string;
+  declare _library: string;
   declare _funcFlow: WorkerFlow;
 
   inputChanged(input: BlockIO, val: any): boolean {
@@ -32,10 +32,10 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
   }
 
   // REFACTOR(design.md): MUST generate fixed type and stable port identities from worker definitions.
-  static generate(data: DataMap, funcId: string, namespace?: string): FunctionFactory {
+  static generate(data: DataMap, funcId: string, library?: string): FunctionFactory {
     const desc = WorkerFunctionGen.collectDesc(funcId, data);
     class CustomWorkerFunction extends WorkerFunctionGen {
-      _namespace = namespace;
+      _library = library;
     }
 
     if (!desc.priority) {
@@ -57,19 +57,19 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
   }
 
   // REFACTOR(design.md): MUST register a new versioned type without mutating existing block instances.
-  static registerType(data: DataMap, desc: FunctionDesc, namespace?: string, functionLib?: FunctionLib) {
-    const fullId = desc.id ?? `${namespace}::${desc.name}`;
-    let functions: FunctionLib = functionLib;
+  static registerType(data: DataMap, desc: FunctionDesc, library?: string, functionModule?: FunctionModule) {
+    const fullId = desc.id ?? `${library}::${desc.name}`;
+    let functions: FunctionModule = functionModule;
     if (!functions) {
       if (fullId.startsWith('+')) {
-        functions = Namespace.getFunctionLib(fullId);
+        functions = Library.getFunctionModule(fullId);
       } else {
         functions = globalFunctions;
       }
     }
 
-    const factory = WorkerFunctionGen.generate(data, fullId, namespace);
-    functions.add({...factory, desc: {...desc, ...factory.desc}}, namespace);
+    const factory = WorkerFunctionGen.generate(data, fullId, library);
+    functions.add({...factory, desc: {...desc, ...factory.desc}}, library);
   }
 
   /**
@@ -119,12 +119,12 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
         };
       }
     }
-    const namespace = flow._namespace;
-    const factory = WorkerFunctionGen.generate(data, funcId, namespace);
-    const functionLib = Namespace.getFunctions(funcId, flow);
-    functionLib?.add(factory, namespace);
-    if (functionLib instanceof NsFunctionLib && functionLib.pendingSave) {
-      return functionLib.pendingSave.then(() => data);
+    const library = flow._library;
+    const factory = WorkerFunctionGen.generate(data, funcId, library);
+    const functionModule = Library.getFunctions(funcId, flow);
+    functionModule?.add(factory, library);
+    if (functionModule instanceof LibraryFunctionModule && functionModule.pendingSave) {
+      return functionModule.pendingSave.then(() => data);
     }
     return data;
   }
@@ -215,9 +215,9 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
   }
 }
 
-FlowFunctionLib.registerType('worker', {
-  load(data: DataMap, localFuncId: string, fullId: string, namespace?: string) {
+FlowFunctionModule.registerType('worker', {
+  load(data: DataMap, localFuncId: string, fullId: string, library?: string) {
     const workerData = data['worker'] as DataMap;
-    return WorkerFunctionGen.generate(workerData, fullId, namespace);
+    return WorkerFunctionGen.generate(workerData, fullId, library);
   },
 });

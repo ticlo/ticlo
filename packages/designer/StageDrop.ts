@@ -1,5 +1,5 @@
 import {Block, isStringArray, type ClientConn, type DataMap, type FunctionDesc} from '@ticlo/core';
-import {Namespace} from '@ticlo/core/block/Namespace.ts';
+import {Library} from '@ticlo/core/block/Library.ts';
 import {getElementBoxQuads, getElementGeometry} from '@ticlo/html';
 import type {ElementMap} from '@ticlo/react';
 import {getChildren} from '@ticlo/react/hooks/useTicloComp.ts';
@@ -37,7 +37,7 @@ export function findStageDropTarget(stage: HTMLElement, elementMap: ElementMap, 
 
 function getDesc(block: Block) {
   const id = block.getValue('#is');
-  return typeof id === 'string' ? Namespace.getFunctions(id, block._flow)?.listen(id, null)?.getValue()?.desc : null;
+  return typeof id === 'string' ? Library.getFunctions(id, block._flow)?.listen(id, null)?.getValue()?.desc : null;
 }
 
 function pointsForRect(matrix: DOMMatrix, left: number, top: number, width: number, height: number) {

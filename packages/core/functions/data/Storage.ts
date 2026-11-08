@@ -1,9 +1,9 @@
 import {BaseFunction} from '../../block/BlockFunction.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import type {Storage} from '../../block/Storage.ts';
 import {encode, decode} from '../../util/Serialize.ts';
 import {BlockIO} from '../../block/BlockProperty.ts';
-import {Namespace} from '../../block/Namespace.ts';
+import {Library} from '../../block/Library.ts';
 import {MemoryValueStorage} from '../../storage/MemoryValueStorage.ts';
 import type {FunctionData} from '../../block/FunctonData.ts';
 
@@ -15,8 +15,7 @@ export function setStorageFunctionProvider(getStorage: () => Storage) {
 function getStorage(data: FunctionData): Storage {
   const flow = data.getProperty('key', false)?._block?._flow;
   return (
-    (flow && Namespace.rootOf(flow)._storage?.getValueStorage?.(flow._namespace?.slice(1) || '#root')) ??
-    storageInstance
+    (flow && Library.rootOf(flow)._storage?.getValueStorage?.(flow._library?.slice(1) || '#root')) ?? storageInstance
   );
 }
 

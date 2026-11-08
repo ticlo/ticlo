@@ -8,9 +8,14 @@ import {ProjectMetadata, StorageError} from './types.ts';
 
 const {access, readdir, mkdir, copyFile, writeFile, readFile, rm, rename} = fs;
 
-const PROJECT_SCOPE = 'proj';
 const PROJECT_METADATA_FILE = '.proj';
 const KEEP_DIRECTORY_PLACEHOLDER = '.DGSERVER_KEEP_DIRECTORY';
+
+function projectScopeDir(rootDir: string, scope?: string): string {
+  if (scope !== undefined && scope !== 'proj' && scope !== 'serv')
+    throw new StorageError('Unsupported project scope', 400);
+  return path.join(rootDir, scope ?? 'proj');
+}
 
 function sanitizeProjectId(rawId?: string | null, field = 'Project id'): string {
   if (typeof rawId !== 'string') {
@@ -20,21 +25,14 @@ function sanitizeProjectId(rawId?: string | null, field = 'Project id'): string 
   if (!trimmed) {
     throw new StorageError(`${field} is required`, 400);
   }
-  if (
-    trimmed.includes('/') ||
-    trimmed.includes('.') ||
-    trimmed === 'HEAD' ||
-    trimmed.includes('@{') ||
-    trimmed.startsWith('-') ||
-    /[\u0000-\u0020\u007f~^:?*[\\]/.test(trimmed)
-  ) {
+  if (trimmed.includes('/') || trimmed.includes('.') || /[\u0000-\u0020\u007f:?*\\]/.test(trimmed)) {
     throw new StorageError('Invalid project id', 400);
   }
   return trimmed;
 }
 
 function projectRootPath(baseDir: string, projectId: string): string {
-  return path.join(baseDir, PROJECT_SCOPE, projectId);
+  return path.join(baseDir, projectId);
 }
 
 async function projectDirectoryExists(baseDir: string, projectId: string): Promise<boolean> {
@@ -99,7 +97,7 @@ async function writeProjectMetadata(
 }
 
 async function listProjectsForAuth(baseDir: string, auth: UserAuth): Promise<ProjectMetadata[]> {
-  const projectsDir = path.join(baseDir, PROJECT_SCOPE);
+  const projectsDir = baseDir;
   let entries: Dirent[];
   try {
     entries = await readdir(projectsDir, {withFileTypes: true});
@@ -141,17 +139,17 @@ async function listProjectsForAuth(baseDir: string, auth: UserAuth): Promise<Pro
   return visibleProjects;
 }
 
-async function copyTemplateDirectory(sourceDir: string, targetDir: string, includeHidden = false): Promise<void> {
+async function copyTemplateDirectory(sourceDir: string, targetDir: string): Promise<void> {
   const entries = await readdir(sourceDir, {withFileTypes: true});
   for (const entry of entries) {
-    if (entry.name === '.git' || (entry.name.startsWith('.') && !includeHidden)) {
+    if (['.git', '.gitignore', '.gitlog', '.gitkeep'].includes(entry.name)) {
       continue;
     }
     const sourcePath = path.join(sourceDir, entry.name);
     const targetPath = path.join(targetDir, entry.name);
     if (entry.isDirectory()) {
       await mkdir(targetPath, {recursive: true});
-      await copyTemplateDirectory(sourcePath, targetPath, includeHidden);
+      await copyTemplateDirectory(sourcePath, targetPath);
     } else if (entry.isFile()) {
       await ensureParentDirectory(targetPath);
       await copyFile(sourcePath, targetPath);
@@ -350,9 +348,9 @@ async function importProjectsFromArchive(
 }
 
 export {
+  projectScopeDir,
   KEEP_DIRECTORY_PLACEHOLDER,
   PROJECT_METADATA_FILE,
-  PROJECT_SCOPE,
   copyTemplateDirectory,
   createProjectArchiveBuffer,
   generateUniqueProjectId,

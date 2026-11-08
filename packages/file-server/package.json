@@ -8,6 +8,7 @@
   "module": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
+    "@ticlo/node-git": "workspace:^",
     "adm-zip": "^0.5.16"
   },
   "peerDependencies": {

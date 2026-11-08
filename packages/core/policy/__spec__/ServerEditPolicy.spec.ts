@@ -1,7 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {Root, Flow} from '../../block/Flow.ts';
 import {Block} from '../../block/Block.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import type {DataMap} from '../../util/DataTypes.ts';
 import {makeLocalConnection} from '../../connect/LocalConnection.ts';
 import {shouldHappen} from '../../util/test-util.ts';

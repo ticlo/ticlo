@@ -42,7 +42,7 @@ import {LocalizedNodeName, t} from '../component/LocalizedLabel.tsx';
 import {BlockDropdown} from '../popup/BlockDropdown.tsx';
 import {showModal} from '../popup/ShowModal.tsx';
 import {AddNewFlowDialog} from '../popup/AddNewFlowDialog.tsx';
-import {getDescLib, getFuncLibPath} from '../util/FunctionLib.ts';
+import {getDescModule, getFuncModulePath} from '../util/FunctionModule.ts';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
 import {MenuItem} from '../component/ClickPopup.tsx';
@@ -59,9 +59,9 @@ const quickOpenAllowed = new Set<string>([
   'flow:const',
   'flow:global',
 ]);
-const addFlowAllowed = ['flow:folder', 'flow:test-group', 'flow:namespace'];
-const addFolderAllowed = ['flow:folder', 'flow:namespace'];
-const addLibraryAllowed = ['flow:namespace'];
+const addFlowAllowed = ['flow:folder', 'flow:test-group', 'flow:library'];
+const addFolderAllowed = ['flow:folder', 'flow:library'];
+const addModuleAllowed = ['flow:library'];
 
 export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   childPrefix: string;
@@ -70,7 +70,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
   ordered = false;
 
   functionId: string;
-  funcLib: string;
+  funcModule: string;
   desc: FunctionDesc = blankFuncDesc;
 
   max: number = 32;
@@ -213,7 +213,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     if (this.connection && this.key != null) {
       this.orderListener.subscribe(this.connection, this.key ? `${this.key}.#order` : '#order', true);
       this.functionListener.subscribe(this.connection, this.key ? `${this.key}.#is` : '#is', true);
-      this.scopeListener.subscribe(this.connection, this.key ? `${this.key}.#lib` : '#lib', true);
+      this.scopeListener.subscribe(this.connection, this.key ? `${this.key}.#module` : '#module', true);
     }
   }
 
@@ -221,7 +221,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
     this.connection.unwatchDesc(this.descCallback);
     this.descCallback(blankFuncDesc);
     if (typeof this.functionId === 'string') {
-      this.connection.watchDesc(this.functionId, getDescLib(this.functionId, this.funcLib), this.descCallback);
+      this.connection.watchDesc(this.functionId, getDescModule(this.functionId, this.funcModule), this.descCallback);
     }
   }
 
@@ -234,9 +234,9 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
   scopeListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      const nextScope = getFuncLibPath(response.cache.value);
-      if (nextScope !== this.funcLib) {
-        this.funcLib = nextScope;
+      const nextScope = getFuncModulePath(response.cache.value);
+      if (nextScope !== this.funcModule) {
+        this.funcModule = nextScope;
         this.watchDesc();
       }
     },
@@ -317,7 +317,7 @@ export interface NodeTreeOpenAction {
   functionIds?: readonly string[];
 }
 
-export interface LibraryAutoLoad {
+export interface ModuleAutoLoad {
   get: (path: string) => Promise<boolean>;
   set: (path: string, enabled: boolean) => Promise<void>;
 }
@@ -328,7 +328,7 @@ interface Props {
   selected: boolean;
   onClick: (item: NodeTreeItem, event: React.MouseEvent) => void;
   openActions?: readonly NodeTreeOpenAction[];
-  libraryAutoLoad?: LibraryAutoLoad;
+  moduleAutoLoad?: ModuleAutoLoad;
   getOrderedDrag?: (item: NodeTreeItem) => NodeTreeItem[];
   canDropOrdered?: (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => boolean;
   onDropOrdered?: (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => void;
@@ -399,7 +399,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     const {item} = this.props;
     showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.`} isFolder={true} />, this.context.showModal);
   };
-  onAddLibraryClick = (path: string) => {
+  onAddModuleClick = (path: string) => {
     const {item} = this.props;
     showModal(<AddNewFlowDialog conn={item.getConn()} basePath={`${path}.:`} />, this.context.showModal);
   };
@@ -407,20 +407,20 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   autoLoadRequest = 0;
   autoLoadItem?: NodeTreeItem;
   autoLoadFunctionId?: string;
-  autoLoadProvider?: LibraryAutoLoad;
+  autoLoadProvider?: ModuleAutoLoad;
   syncAutoLoad = () => {
-    const {item, libraryAutoLoad} = this.props;
+    const {item, moduleAutoLoad} = this.props;
     if (
       this.autoLoadItem === item &&
       this.autoLoadFunctionId === item.functionId &&
-      this.autoLoadProvider === libraryAutoLoad
+      this.autoLoadProvider === moduleAutoLoad
     )
       return;
     this.autoLoadItem = item;
     this.autoLoadFunctionId = item.functionId;
-    this.autoLoadProvider = libraryAutoLoad;
+    this.autoLoadProvider = moduleAutoLoad;
     ++this.autoLoadRequest;
-    if (item.functionId !== 'flow:main' && (item.functionId !== 'flow:lib' || !libraryAutoLoad)) {
+    if (item.functionId !== 'flow:main' && (item.functionId !== 'flow:module' || !moduleAutoLoad)) {
       if (this.state.autoLoad !== undefined || this.state.canAutoLoad !== undefined) {
         this.safeSetState({autoLoad: undefined, canAutoLoad: undefined});
       }
@@ -431,15 +431,15 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   };
 
   readAutoLoad = async () => {
-    const {item, libraryAutoLoad} = this.props;
-    if (item.functionId !== 'flow:main' && (item.functionId !== 'flow:lib' || !libraryAutoLoad)) return;
+    const {item, moduleAutoLoad} = this.props;
+    if (item.functionId !== 'flow:main' && (item.functionId !== 'flow:module' || !moduleAutoLoad)) return;
     const request = ++this.autoLoadRequest;
     try {
       if (item.functionId === 'flow:main') {
         const {autoLoad, canAutoLoad} = await item.getConn().getAutoLoadFlow(item.key);
         if (request === this.autoLoadRequest) this.safeSetState({autoLoad, canAutoLoad});
       } else {
-        const autoLoad = await libraryAutoLoad.get(item.key);
+        const autoLoad = await moduleAutoLoad.get(item.key);
         if (request === this.autoLoadRequest) this.safeSetState({autoLoad});
       }
     } catch (error) {
@@ -448,7 +448,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
   };
 
   toggleAutoLoad = async () => {
-    const {item, libraryAutoLoad} = this.props;
+    const {item, moduleAutoLoad} = this.props;
     ++this.autoLoadRequest;
     try {
       if (item.functionId === 'flow:main') {
@@ -459,9 +459,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         conn.childrenChangeStream().dispatch({path: item.parent?.key ?? ''});
         return;
       }
-      if (!libraryAutoLoad) return;
-      const autoLoad = !(this.state.autoLoad ?? (await libraryAutoLoad.get(item.key)));
-      await libraryAutoLoad.set(item.key, autoLoad);
+      if (!moduleAutoLoad) return;
+      const autoLoad = !(this.state.autoLoad ?? (await moduleAutoLoad.get(item.key)));
+      await moduleAutoLoad.set(item.key, autoLoad);
       this.safeSetState({autoLoad});
     } catch (error) {
       requestCallbacks.onError(String(error));
@@ -481,7 +481,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         </MenuItem>
       );
     }
-    if (item.functionId === 'flow:lib' && this.props.libraryAutoLoad) {
+    if (item.functionId === 'flow:module' && this.props.moduleAutoLoad) {
       menuItems.push(
         <MenuItem key="autoLoad" onClick={() => void this.toggleAutoLoad()}>
           <CheckOutlined style={{visibility: this.state.autoLoad ? 'visible' : 'hidden'}} />
@@ -514,11 +514,11 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         </MenuItem>
       );
     }
-    if (addLibraryAllowed.includes(item.functionId)) {
+    if (addModuleAllowed.includes(item.functionId)) {
       menuItems.push(
-        <MenuItem key="addLibrary" value={item.key} onClick={this.onAddLibraryClick}>
+        <MenuItem key="addModule" value={item.key} onClick={this.onAddModuleClick}>
           <FileAddOutlined />
-          {t('Add Library')}
+          {t('Add Module')}
         </MenuItem>
       );
     }
@@ -669,9 +669,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         icon = <GlobalOutlined />;
       } else if (item.functionId === 'flow:folder') {
         icon = <FolderOpenOutlined />;
-      } else if (item.functionId === 'flow:namespace') {
+      } else if (item.functionId === 'flow:library') {
         icon = <FolderOpenFilled />;
-      } else if (item.functionId === 'flow:lib') {
+      } else if (item.functionId === 'flow:module') {
         icon = <WalletOutlined />;
       }
     }
@@ -721,7 +721,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
           menuVersion={item.functionId === 'flow:main' && !this.state.canAutoLoad ? undefined : this.state.autoLoad}
           onMenuOpen={this.readAutoLoad}
           disabled={disabled}
-          funcLib={item.funcLib}
+          funcModule={item.funcModule}
         >
           <DragDrop
             ref={this.dropRef}

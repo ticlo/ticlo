@@ -4,8 +4,8 @@ import {Flow, Root} from '../block/Flow.ts';
 import {StreamDispatcher} from '../block/Dispatcher.ts';
 import {BaseFunction, FunctionFactory, StatefulFunction} from '../block/BlockFunction.ts';
 import {WorkerFunctionGen} from './WorkerFunctionGen.ts';
-import {FunctionDispatcher} from '../block/FunctionLib.ts';
-import {Namespace} from '../block/Namespace.ts';
+import {FunctionDispatcher} from '../block/FunctionModule.ts';
+import {Library} from '../block/Library.ts';
 import {EventType} from '../block/Event.ts';
 
 export interface WorkerHost {
@@ -52,9 +52,9 @@ export class WorkerControl {
     if (typeof this._src === 'string' && this._src !== '') {
       // String worker sources are live function references. Keep listening to
       // their FunctionDispatcher so workers are rebuilt when the definition changes.
-      const functionLib = Namespace.getFunctions(this._src, this.block._flow);
-      if (functionLib) {
-        this._funcSrc = functionLib.listen(this._src, this);
+      const functionModule = Library.getFunctions(this._src, this.block._flow);
+      if (functionModule) {
+        this._funcSrc = functionModule.listen(this._src, this);
       }
     }
     return true;

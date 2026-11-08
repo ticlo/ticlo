@@ -608,6 +608,9 @@ importers:
 
   packages/file-server:
     dependencies:
+      '@ticlo/node-git':
+        specifier: workspace:^
+        version: link:../node-git
       adm-zip:
         specifier: ^0.5.16
         version: 0.5.18
@@ -629,12 +632,21 @@ importers:
       '@ticlo/core':
         specifier: workspace:^
         version: link:../core
+      '@ticlo/node-git':
+        specifier: workspace:^
+        version: link:../node-git
       express:
         specifier: ^5.2.1
         version: 5.2.1(supports-color@7.2.0)
       ws:
         specifier: ^8.21.3
         version: 8.21.3
+
+  packages/node-git:
+    dependencies:
+      luxon:
+        specifier: ^3.7.2
+        version: 3.7.2
 
   packages/react:
     dependencies:

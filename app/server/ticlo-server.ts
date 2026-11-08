@@ -15,7 +15,7 @@ export async function createServerApp(
   rootDir = fileURLToPath(new URL('./files/', import.meta.url)),
   authProvider: AuthProvider = () => devUserAuth
 ) {
-  const rootProject = join(rootDir, 'proj/#root');
+  const rootProject = join(rootDir, 'serv/#root');
   if (await mkdir(rootProject, {recursive: true})) {
     await writeFile(join(rootProject, '.proj'), JSON.stringify({id: '#root', name: 'Root'}), {flag: 'wx'});
   }
@@ -35,7 +35,7 @@ export async function createServerApp(
 }
 
 async function start() {
-  await Root.instance.setStorage(new NodeStorage(fileURLToPath(new URL('./files/proj/', import.meta.url))));
+  await Root.instance.setStorage(new NodeStorage(fileURLToPath(new URL('./files/serv/', import.meta.url))));
   await Root.instance.start();
 
   const {app, ticloWs} = await createServerApp();

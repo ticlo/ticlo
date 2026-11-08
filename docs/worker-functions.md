@@ -1,18 +1,57 @@
-# Multi-worker
+# Workers
 
-`multi-worker` maintains one live worker per input key. Replacing an object or
-array reuses workers with matching keys, updates their inputs, and destroys
-workers whose keys disappear. Changing `use` rebuilds the workers.
+`packages/core/worker` implements flow-backed functions. `worker` selects its
+source through `#use`; `map`, `handler`, and `multi-worker` use `use`.
 
-Arrays use their indices as keys by default. Set the optional `key` property to
-an item property name, such as `id`, to reuse workers by that property's value.
-The output remains an array in input order, including after reordering items.
-Object and Block inputs continue to use their own property names as worker keys.
+## Sources and saves
 
-Item keys must be strings or numbers; numbers are converted to strings. Items
-without a valid key are omitted from the output. Duplicate keys produce at most
-one output item; which duplicate is selected is unspecified. Clearing `key`
-restores index-based reuse.
+| Source | Resolution | Save destination |
+| --- | --- | --- |
+| Inline object | Embedded flow definition | Owning worker field |
+| Global ID | `globalFunctions` | Registered function definition |
+| `:functionId` | Owning Flow's `#functions` / `FlowFunctionModule` | Local function definition |
+| `+library:module:functionId` | `LibraryFunctionModule` | Module definition, optionally storage-backed |
 
-Object and array changes require a new input reference. Block inputs also watch
-child property changes.
+String sources subscribe to function changes; replacement rebuilds their workers.
+Missing sources wait for a valid definition. Preserve the caller's function module
+when creating inline or local child flows. Worker instances inherit caller context,
+even when the definition belongs to another Library.
+
+Module saves await `LibraryFunctionModule.pendingSave`. Editor and worker save
+callbacks must propagate promises so persistence failures retain dirty state.
+See [flow examples](flow-format.md#examples) and
+[save lifecycle](runtime-lifecycle.md#persistence).
+
+## Flow classes and static content
+
+`WorkerFlow` runs a definition; `RepeaterWorker` supports repeated hosts;
+`FlowEditor` edits a definition through `#edit-*`. `Block.createOutputFlow()`
+connects these flows to a `FunctionOutput` target.
+
+Named workers share function-owned static data. Inline workers do not support it.
+Ownership, loading, and persistence of `#static` and `#shared` are defined once in
+[block controls](block-configs.md#worker-static-content-and-shared-ownership).
+For editor descriptor lookup, pass the current `funcModule`; see
+[connection scope](core.md#connection-layer).
+
+## Hosts
+
+| Host | Behavior |
+| --- | --- |
+| `WorkerFunction` | One worker; `#state` controls its lifecycle |
+| `MapFunction` | Array/object results after workers complete; configurable pooling |
+| `MultiWorkerFunction` | One worker per key; incremental results |
+| `HandlerFunction` | Queued tasks; optional ordered completion |
+| `SelectWorkerFunction` | Selects a downstream worker from a collector |
+
+## Multi-worker
+
+Replacing an array or object reuses workers with matching keys, updates their
+inputs, and destroys removed workers. Changing `use` rebuilds all workers.
+Arrays default to index keys; `key: 'id'` reuses workers by that item property.
+Output remains in input order. Object and Block inputs use property names.
+
+Item keys must be strings or numbers; numbers become strings. Invalid keys are
+omitted. Duplicate keys produce at most one item; which duplicate wins is
+unspecified. Clearing `key` restores index reuse. Array/object updates require
+a new input reference; Block inputs also watch child changes.

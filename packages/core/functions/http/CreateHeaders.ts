@@ -1,6 +1,6 @@
 import {BlockConfig} from '../../block/BlockProperty.ts';
 import {BaseFunction} from '../../block/BlockFunction.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {defaultConfigs, PropDesc} from '../../block/Descriptor.ts';
 import {CreateObjectFunctionOptional} from '../data/CreateObject.ts';
 import HeadersDef from './HeadersDef.ts';

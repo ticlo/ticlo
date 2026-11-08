@@ -10,7 +10,7 @@ import {FunctionSelect} from '../../function-selector/FunctionSelect.tsx';
 import {addRecentFunction} from '../../function-selector/FunctionList.tsx';
 import {Popup} from '../../component/ClickPopup.tsx';
 import {getFuncStyleFromDesc} from '../../util/BlockColors.ts';
-import {getDescLib} from '../../util/FunctionLib.ts';
+import {getDescModule} from '../../util/FunctionModule.ts';
 
 interface State {
   opened: boolean;
@@ -22,7 +22,7 @@ export class FunctionEditor extends StringEditorBase {
   // REFACTOR(design.md): MUST replace a block explicitly when changing its function type.
   commitChange(value: string) {
     super.commitChange(value);
-    if (typeof value === 'string' && this.props.conn.watchDesc(value, getDescLib(value, this.props.funcLib))) {
+    if (typeof value === 'string' && this.props.conn.watchDesc(value, getDescModule(value, this.props.funcModule))) {
       addRecentFunction(value);
     }
   }
@@ -63,7 +63,7 @@ export class FunctionEditor extends StringEditorBase {
   };
 
   render() {
-    let {desc, value, locked, onChange, conn, funcLib} = this.props;
+    let {desc, value, locked, onChange, conn, funcModule} = this.props;
     const {opened} = this.state;
 
     if (this._pendingValue != null) {
@@ -72,7 +72,7 @@ export class FunctionEditor extends StringEditorBase {
       onChange = null;
     }
 
-    const funcDesc = conn.watchDesc(value, getDescLib(value, funcLib));
+    const funcDesc = conn.watchDesc(value, getDescModule(value, funcModule));
     const [colorStyle, iconName] = getFuncStyleFromDesc(funcDesc, conn);
 
     return (
@@ -81,7 +81,7 @@ export class FunctionEditor extends StringEditorBase {
         <Popup
           popupVisible={opened && onChange != null}
           onPopupVisibleChange={this.onPopupClose}
-          popup={<FunctionSelect conn={conn} onFunctionClick={this.onFunctionClick} funcLib={funcLib} />}
+          popup={<FunctionSelect conn={conn} onFunctionClick={this.onFunctionClick} funcModule={funcModule} />}
         >
           <Input
             value={value}

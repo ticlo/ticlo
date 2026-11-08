@@ -61,9 +61,9 @@ describe('FunctionTree', function () {
     }
   });
 
-  const scopeSuffixes = ['', '.child.nested.#lib'];
+  const scopeSuffixes = ['', '.child.nested.#module'];
 
-  it('passes funcLib when editing an in-flow function', function () {
+  it('passes funcModule when editing an in-flow function', function () {
     let editRequest: any;
     const view = new FunctionView({
       conn: {
@@ -73,7 +73,7 @@ describe('FunctionTree', function () {
         applyFlowChange: () => {},
       },
       desc: {id: ':a', name: 'a', src: 'worker'},
-      funcLib: 'FunctionTreeScope',
+      funcModule: 'FunctionTreeScope',
     } as any);
     view.context = {
       onFlowFocus: () => {},
@@ -86,7 +86,7 @@ describe('FunctionTree', function () {
     expect(editRequest).toEqual(['#temp.#edit-%3aa', null, ':a', undefined, 'FunctionTreeScope']);
   });
 
-  it('passes funcLib when deleting an in-flow function', function () {
+  it('passes funcModule when deleting an in-flow function', function () {
     let deleteRequest: any;
     const view = new FunctionView({
       conn: {
@@ -95,7 +95,7 @@ describe('FunctionTree', function () {
         },
       },
       desc: {id: ':a', name: 'a', src: 'worker'},
-      funcLib: 'FunctionTreeScope',
+      funcModule: 'FunctionTreeScope',
     } as any);
 
     view.onDeleteClicked();
@@ -103,7 +103,7 @@ describe('FunctionTree', function () {
     expect(deleteRequest).toEqual([':a', 'FunctionTreeScope', {onError: expect.any(Function)}]);
   });
 
-  it('does not pass funcLib when editing a global function', function () {
+  it('does not pass funcModule when editing a global function', function () {
     let editRequest: any;
     const view = new FunctionView({
       conn: {
@@ -113,7 +113,7 @@ describe('FunctionTree', function () {
         applyFlowChange: () => {},
       },
       desc: {id: '+demo:test', name: 'test', src: 'worker'},
-      funcLib: 'FunctionTreeScope',
+      funcModule: 'FunctionTreeScope',
     } as any);
     view.context = {
       onFlowFocus: () => {},
@@ -134,7 +134,7 @@ describe('FunctionTree', function () {
     const [server, client] = makeLocalConnection(Root.instance, true);
     DescRequest.editorCache.clear();
 
-    WorkerFunctionGen.registerType({'#is': ''}, {id: ':a', name: 'a'}, undefined, flow.getFuncLib());
+    WorkerFunctionGen.registerType({'#is': ''}, {id: ':a', name: 'a'}, undefined, flow.getFuncModule());
 
     let selected: string;
     const root = new FunctionTreeRoot(
@@ -184,18 +184,18 @@ describe('FunctionTree', function () {
 
     await shouldHappen(() => client.watchDesc(':a', scopePath));
     expect(root.children.map((child) => [child.key, child.name])).toEqual([[':a', 'a']]);
-    expect(flow.getFuncLib().getAllFunctionIds()).toContain(':a');
+    expect(flow.getFuncModule().getAllFunctionIds()).toContain(':a');
 
     await client.deleteFunction(':a', scopePath);
     await shouldHappen(() => root.children.length === 0);
-    expect(flow.getFuncLib().getAllFunctionIds()).not.toContain(':a');
+    expect(flow.getFuncModule().getAllFunctionIds()).not.toContain(':a');
 
     root.destroy();
     client.destroy();
     Root.instance.deleteValue(flowPath);
   });
 
-  it('updates global tree after saving a new namespace worker function', async function () {
+  it('updates global tree after saving a new library worker function', async function () {
     const runtime = new Root();
     await runtime.start({demo: {}});
     const [server, client] = makeLocalConnection(runtime, true);

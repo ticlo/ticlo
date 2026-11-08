@@ -4,7 +4,7 @@ import {WorkerFunctionGen} from '../WorkerFunctionGen.ts';
 import {TestFunctionRunner} from '../../block/__spec__/TestFunction.ts';
 import '../../functions/math/Arithmetic.ts';
 import type {DataMap} from '../../util/DataTypes.ts';
-import {Namespace} from '../../block/Namespace.ts';
+import {Library} from '../../block/Library.ts';
 import {makeLocalConnection} from '../../connect/LocalConnection.ts';
 import {WorkerMode} from '../WorkerFunction.ts';
 import {Event} from '../../block/Event.ts';
@@ -67,12 +67,12 @@ describe('WorkerFunction', function () {
     expect(aBlock.getValue('out1')).toBe(3);
   });
 
-  it('namespace', function () {
+  it('library', function () {
     const flow = new Flow();
 
     const aBlock = flow.createBlock('a');
     aBlock.setValue('in0', 2);
-    aBlock.setValue('#is', '+test_namespace::class1');
+    aBlock.setValue('#is', '+test_library::class1');
 
     const flowData1: DataMap = {
       '#is': '',
@@ -84,8 +84,8 @@ describe('WorkerFunction', function () {
       'add': {'#is': 'add', '~0': '##.#inputs.in1', '1': 1},
       '#outputs': {'#is': '', '~out2': '##.add.#output'},
     };
-    WorkerFunctionGen.registerType(flowData1, {name: 'class1'}, '+test_namespace');
-    WorkerFunctionGen.registerType(flowData2, {name: 'class2'}, '+test_namespace');
+    WorkerFunctionGen.registerType(flowData1, {name: 'class1'}, '+test_library');
+    WorkerFunctionGen.registerType(flowData2, {name: 'class2'}, '+test_library');
     Root.run();
 
     expect(aBlock.getValue('out1')).toBe(3);
@@ -179,7 +179,7 @@ describe('WorkerFunction', function () {
     expect(worker.getValue('extra')).toBe(1);
 
     await client.applyFlowChange(workerPath);
-    const [, workerData] = Namespace.getWorker(funcId);
+    const [, workerData] = Library.getWorker(funcId);
     expect(workerData).toEqual({...flowData, extra: 1});
     Root.run();
     worker = Root.instance.queryValue(workerPath) as Flow;
@@ -187,6 +187,6 @@ describe('WorkerFunction', function () {
 
     client.destroy();
     Root.instance.deleteValue('WorkerFunctionRuntimeEdit');
-    Namespace.delete(funcId);
+    Library.delete(funcId);
   });
 });

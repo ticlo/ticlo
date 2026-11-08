@@ -1,7 +1,7 @@
 import {Block} from '../block/Block.ts';
 import {BlockProperty} from '../block/BlockProperty.ts';
 import {configDescs, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
-import {globalFunctions} from '../block/FunctionLib.ts';
+import {globalFunctions} from '../block/FunctionModule.ts';
 import {configList} from './PropertyShowHide.ts';
 import {PropertyMover} from './PropertyMover.ts';
 import {isStringArray} from '../util/DataTypes.ts';
@@ -35,7 +35,7 @@ function collectNames(props: (PropDesc | PropGroupDesc)[]) {
 function getReservedNames(funcId: unknown): [Set<string>, string[]] {
   let desc: FunctionDesc;
   if (typeof funcId === 'string') {
-    [desc] = globalFunctions.getDescToSend(funcId);
+    desc = globalFunctions.getDesc(funcId);
   }
   if (cachedReserveTable.has(desc)) {
     return cachedReserveTable.get(desc);

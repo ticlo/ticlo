@@ -5,9 +5,11 @@ import type {Block} from '@ticlo/core';
 import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.ts';
 import {FlowRoot, useFlow} from '../useFlow.tsx';
 import {useFilteredBlocks} from '../useFilteredBlocks.tsx';
-import {useMemoUpdate, useRefState} from '../../util/react-tools.ts';
 import {ComponentContext, ElementMap, useValue} from '../../index.ts';
 import {useTicloComp} from '../useTicloComp.ts';
+import {useBlockProps} from '../useBlockProps.tsx';
+import {useBlockValue} from '../useBlockValue.ts';
+import {Values} from '../../comp/Values.ts';
 
 function ValueProbe({block, path, capture}: {block: Block; path: string; capture: {current?: unknown}}) {
   capture.current = useValue(block, path);
@@ -20,22 +22,9 @@ function FlowName({capture}: {capture: {current?: Flow}}) {
   return <span>{flow.getName()}</span>;
 }
 
-function FilteredBlockNames({block}: {block: Block}) {
+function FilteredBlockNames({block, onRender}: {block: Block; onRender?: () => void}) {
+  onRender?.();
   return <span>{Object.keys(useFilteredBlocks(block)).join(',')}</span>;
-}
-
-function MemoProbe({
-  dependency,
-  init,
-  calculate,
-}: {
-  dependency: number;
-  init: () => string;
-  calculate: (state: string, dependency: number) => string;
-}) {
-  const [state] = useRefState(init);
-  const [memo, update] = useMemoUpdate(() => calculate(state, dependency), [state, dependency, calculate]);
-  return <button onClick={update}>{memo}</button>;
 }
 
 describe('react hooks', function () {
@@ -47,6 +36,47 @@ describe('react hooks', function () {
 
   afterEach(function () {
     root.remove();
+  });
+
+  it('follows mapped values without refreshing unchanged output or invoking callbacks', async () => {
+    const first = new Flow();
+    const second = new Flow();
+    const callback = vi.fn();
+    first.setValue('value', 2.1);
+    first.updateValue('callback', callback);
+    second.setValue('value', 8);
+    const propMap = {count: {name: 'value', value: Values.integer}};
+    let renders = 0;
+    let currentCallback: unknown;
+    function Probe({block}: {block: Block}) {
+      ++renders;
+      currentCallback = useBlockValue(block, 'callback');
+      return <span>{useBlockProps(block, propMap).count}</span>;
+    }
+    try {
+      await root.waitRender(<Probe block={first} />);
+      const initial = renders;
+      expect(currentCallback).toBe(callback);
+      expect(callback).not.toHaveBeenCalled();
+      first.setValue('unrelated', 1);
+      first.setValue('value', 2.2);
+      await root.waitRender();
+      expect(renders).toBe(initial);
+      first.setValue('value', 3);
+      await root.waitRender();
+      expect(root.div.textContent).toBe('3');
+      await root.waitRender(<Probe block={second} />);
+      expect(root.div.textContent).toBe('8');
+      expect(currentCallback).toBeUndefined();
+      const switched = renders;
+      first.setValue('value', 9);
+      await root.waitRender();
+      expect(renders).toBe(switched);
+    } finally {
+      await root.waitRender(<></>);
+      first.destroy();
+      second.destroy();
+    }
   });
 
   it('shares a stable root ref with the page, local object ref, and optional callback in both modes', async () => {
@@ -349,36 +379,25 @@ describe('react hooks', function () {
     expect(Root.instance.getValue(name)).toBeUndefined();
   });
 
-  it('rebuilds filtered children when the source block changes', async function () {
+  it('updates filtered children on structural changes and ignores unrelated values', async function () {
     const flow = new Flow();
     const firstParent = flow.createBlock('first-parent');
     const secondParent = flow.createBlock('second-parent');
     firstParent.createBlock('first');
     secondParent.createBlock('second');
+    const onRender = vi.fn();
 
-    await root.waitRender(<FilteredBlockNames block={firstParent} />);
+    await root.waitRender(<FilteredBlockNames block={firstParent} onRender={onRender} />);
     expect(root.div.textContent).toBe('first');
-
-    await root.waitRender(<FilteredBlockNames block={secondParent} />);
-    expect(root.div.textContent).toBe('second');
-  });
-
-  it('memoizes fresh dependencies and recalculates on explicit updates or dependency changes', async function () {
-    const init = vi.fn(() => 'value');
-    const calculate = vi.fn((state: string, dependency: number) => `${state}:${dependency}`);
-
-    await root.waitRender(<MemoProbe dependency={1} init={init} calculate={calculate} />);
-    await root.waitRender(<MemoProbe dependency={1} init={init} calculate={calculate} />);
-    expect(calculate).toHaveBeenCalledTimes(1);
-    expect(root.div.textContent).toBe('value:1');
-
-    root.div.querySelector('button').click();
+    const initial = onRender.mock.calls.length;
+    firstParent.setValue('unrelated', 42);
     await root.waitRender();
-    expect(calculate).toHaveBeenCalledTimes(2);
+    expect(onRender).toHaveBeenCalledTimes(initial);
+    firstParent.deleteValue('first');
+    await root.waitRender();
+    expect(root.div.textContent).toBe('');
 
-    await root.waitRender(<MemoProbe dependency={2} init={init} calculate={calculate} />);
-    expect(calculate).toHaveBeenCalledTimes(3);
-    expect(root.div.textContent).toBe('value:2');
-    expect(init).toHaveBeenCalledTimes(1);
+    await root.waitRender(<FilteredBlockNames block={secondParent} onRender={onRender} />);
+    expect(root.div.textContent).toBe('second');
   });
 });

@@ -1,5 +1,5 @@
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.ts';
-import {globalFunctions} from '../../block/FunctionLib.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
 import {type Block} from '../../block/Block.ts';
 import {isDataMap, isPrimitiveType} from '../../util/DataTypes.ts';
 import {Resolver} from '../../block/Resolver.ts';

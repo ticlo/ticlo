@@ -28,7 +28,7 @@ function Viewer({root, path}: {root: Root; path: string}) {
 (async () => {
   const params = initialUrlParams();
   const selected = pageFlowPath(params);
-  if (!selected) throw new Error('Missing path. Use ?path=namespace/flow.');
+  if (!selected) throw new Error('Missing path. Use ?path=library/flow.');
   const root = Root.instance;
   const host = params.get('host');
   await root.setStorage(
@@ -38,7 +38,7 @@ function Viewer({root, path}: {root: Root; path: string}) {
     !host &&
     selected.path === '+local.designer-example' &&
     !(await root.listFlows('local')).some(({name}) => name === 'designer-example');
-  await root.start({[selected.ref.namespace]: {flows: sample ? [] : [selected.ref.name]}});
+  await root.start({[selected.ref.library]: {flows: sample ? [] : [selected.ref.name]}});
   if (sample) root.addFlow(selected.path, designerData);
   if (!(root.queryValue(selected.path) instanceof Flow)) throw new Error(`Flow is not available: ${selected.path}`);
 
