@@ -7,20 +7,15 @@ function truncateMap(val: DataMap, maxSize: number): [any, number, boolean] {
   let total = 0;
   let truncated = false;
   const result: DataMap = {};
-  let count = 0;
   for (const key in val) {
-    ++count;
-    if (total >= maxSize || count > 9) {
-      if (count < 5) {
-        result[key] = TRUNCATED;
-        continue;
-      }
+    const fieldSize = key.length + 1;
+    if (total + fieldSize >= maxSize) {
       result[TRUNCATED] = 1;
       return [result, total, true];
     }
-    const [t, size, trunc] = truncateObj(val[key], (maxSize - total) * 0.75);
+    const [t, size, trunc] = truncateObj(val[key], (maxSize - total - fieldSize) * 0.75);
     result[key] = t;
-    total += size + key.length;
+    total += size + fieldSize;
     if (trunc) {
       truncated = true;
     }
@@ -34,12 +29,12 @@ function truncateArray(val: any[], maxSize: number): [any[], number, boolean] {
   const result: any[] = [];
 
   for (let i = 0; i < val.length; ++i) {
-    if (total >= maxSize || i > 8) {
+    if (total >= maxSize) {
       result.push(TRUNCATED);
       return [result, total, true];
     }
-    const [t, size, trunc] = truncateObj(val[i], (maxSize - total) * 0.75);
-    total += size;
+    const [t, size, trunc] = truncateObj(val[i], Math.max(0, maxSize - total - 1) * 0.75);
+    total += size + 1;
     result.push(t);
     if (trunc) {
       truncated = true;
@@ -48,8 +43,7 @@ function truncateArray(val: any[], maxSize: number): [any[], number, boolean] {
   return [result, total, truncated];
 }
 
-// if object is big, truncated it into around 1K~2K characters
-function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
+function truncateObj(val: any, maxSize: number): [any, number, boolean] {
   if (typeof val === 'object') {
     if (val == null) {
       return [val, 4, false];
@@ -64,7 +58,7 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
       return truncateMap(val, maxSize);
     }
     const encoded = encodeRaw(val);
-    if (typeof encoded === 'string' && encoded.length < 100) {
+    if (typeof encoded === 'string' && encoded.length <= maxSize) {
       // Keep preview values usable without decoding the whole transport frame.
       return [decodeReviver('', encoded), encoded.length, false];
     }
@@ -72,11 +66,8 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
     return [TRUNCATED, 4, true];
   } else if (typeof val === 'string') {
     if (val.length > maxSize / 2) {
-      if (maxSize > 256) {
-        return [`${val.substring(0, 128)}${TRUNCATED}`, 128, true];
-      } else {
-        return [`${val.substring(0, 8)}${TRUNCATED}`, 8, true];
-      }
+      const preview = val.substring(0, Math.floor(maxSize / 8)) + TRUNCATED;
+      return [preview, preview.length, true];
     }
     return [val, val.length, false];
   } else {
@@ -85,6 +76,9 @@ function truncateObj(val: any, maxSize: number = 1024): [any, number, boolean] {
 }
 
 export function truncateData(val: any, maxSize: number = 1024): [any, number] {
+  if (maxSize === Infinity) {
+    return [val, 1];
+  }
   const [result, total, truncated] = truncateObj(val, maxSize);
   if (truncated) {
     if (Array.isArray(result)) {

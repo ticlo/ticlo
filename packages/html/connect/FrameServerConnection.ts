@@ -3,14 +3,16 @@ import {decode, encode} from '@ticlo/core/util/Serialize.ts';
 import {Logger} from '@ticlo/core/util/Logger.ts';
 import {ServerConnection} from '@ticlo/core/connect/ServerConnection.ts';
 import {Root} from '@ticlo/core/block/Flow.ts';
+import type {ConnectionOptions} from '@ticlo/core/connect/Connection.ts';
 
 export class FrameServerConnection extends ServerConnection {
   checkClosedTimer: any;
   constructor(
     public remote: Window,
-    root: Root
+    root: Root,
+    options?: ConnectionOptions
   ) {
-    super(root);
+    super(root, undefined, options);
     this.checkClosedTimer = setInterval(this.checkClosed, 1000);
     window.addEventListener('message', this.onMessage);
   }

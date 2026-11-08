@@ -5,6 +5,7 @@ import {DataMap} from '../util/DataTypes.ts';
 import {Logger} from '../util/Logger.ts';
 import {encode, decode} from '../util/Serialize.ts';
 import type {EditPolicy} from '../policy/EditPolicy.ts';
+import type {ConnectionOptions} from './Connection.ts';
 
 class LocalServerConnection extends ServerConnection {
   _client: LocalClientConnection;
@@ -12,9 +13,10 @@ class LocalServerConnection extends ServerConnection {
   constructor(
     root: Root,
     policy?: EditPolicy,
-    private readonly serialize = true
+    private readonly serialize = true,
+    options?: ConnectionOptions
   ) {
-    super(root, policy);
+    super(root, policy, options);
     this.onConnect();
   }
 
@@ -47,7 +49,11 @@ class LocalClientConnection extends ClientConnection {
   }
 
   reconnect(): void {
-    this._server = new LocalServerConnection(this._server.root, this._server.getEditPolicy(), this.serialize);
+    const previous = this._server;
+    this._server = new LocalServerConnection(previous.root, previous.getEditPolicy(), this.serialize, {
+      maxMessageSize: previous.maxMessageSize,
+      maxValueSize: previous.maxValueSize,
+    });
     this._server._client = this;
     this.onConnect();
   }
@@ -76,9 +82,10 @@ export function makeLocalConnection(
   editorListeners: boolean = true,
   serverPolicy?: EditPolicy,
   // Match remote transport behavior by default; false passes values by reference.
-  serialize: boolean = true
+  serialize: boolean = true,
+  options?: ConnectionOptions
 ): [ServerConnection, ClientConnection] {
-  const server = new LocalServerConnection(root, serverPolicy, serialize);
+  const server = new LocalServerConnection(root, serverPolicy, serialize, options);
   const client = new LocalClientConnection(editorListeners, serialize);
   server._client = client;
   client._server = server;

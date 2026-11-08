@@ -642,7 +642,7 @@ describe('Connection', function () {
     const flow1 = Root.instance.addFlow('Connection11');
 
     flow1.load({
-      '@v': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      '@v': Array.from({length: 512}, (_, i) => i),
     });
 
     const [server, client] = makeLocalConnection(Root.instance, false);

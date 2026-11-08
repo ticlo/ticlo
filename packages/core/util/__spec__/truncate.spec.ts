@@ -22,11 +22,10 @@ describe('truncateData', function () {
   it('big obj', function () {
     const tobj: DataMap = truncateData(bigObj)[0];
     expect(JSON.stringify(tobj).length < 2048).toBeTruthy();
-    expect(Object.keys(tobj).length).toBe(10);
     expect(isDataTruncated(tobj)).toBeTruthy();
   });
 
-  it('max number of item', function () {
+  it('uses the size budget instead of a fixed collection length', function () {
     const obj: any = {};
     const arr: any[] = [];
     for (let i = 0; i < 32; ++i) {
@@ -35,12 +34,49 @@ describe('truncateData', function () {
     }
 
     const objResult = truncateData(obj)[0];
-    expect(Object.keys(objResult).length).toBe(10);
-    expect(isDataTruncated(objResult)).toBe(true);
+    expect(objResult).toEqual(obj);
+    expect(isDataTruncated(objResult)).toBe(false);
 
     const arrResult = truncateData(arr)[0];
-    expect(arrResult.length).toBe(10);
-    expect(isDataTruncated(arrResult)).toBe(true);
+    expect(arrResult).toEqual(arr);
+    expect(isDataTruncated(arrResult)).toBe(false);
+    expect(isDataTruncated(truncateData(obj, 32)[0])).toBe(true);
+    expect(isDataTruncated(truncateData(arr, 32)[0])).toBe(true);
+  });
+
+  it('scales string previews with the requested budget', () => {
+    const value = 'x'.repeat(1200);
+    const small = truncateData(value, 128)[0] as string;
+    const larger = truncateData(value, 512)[0] as string;
+    expect(isDataTruncated(small)).toBe(true);
+    expect(isDataTruncated(larger)).toBe(true);
+    expect(larger.length).toBeGreaterThan(small.length);
+    expect(truncateData(value, 4096)[0]).toBe(value);
+  });
+
+  it('bounds traversal of empty values and cyclic collections by the budget', () => {
+    let reads = 0;
+    const array = new Array(512);
+    for (let i = 0; i < array.length; ++i) {
+      Object.defineProperty(array, i, {
+        get: () => {
+          ++reads;
+          return '';
+        },
+      });
+    }
+    expect(isDataTruncated(truncateData(array, 32)[0])).toBe(true);
+    const smallReads = reads;
+    reads = 0;
+    expect(isDataTruncated(truncateData(array, 64)[0])).toBe(true);
+    expect(reads).toBeGreaterThan(smallReads);
+    expect(reads).toBeLessThanOrEqual(64);
+
+    const cyclic: DataMap = {};
+    cyclic.self = cyclic;
+    const preview = truncateData(cyclic, 64)[0];
+    expect(isDataTruncated(preview)).toBe(true);
+    expect(() => JSON.stringify(preview)).not.toThrow();
   });
 
   it('measure object', function () {

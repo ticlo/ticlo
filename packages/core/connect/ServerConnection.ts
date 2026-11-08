@@ -1,4 +1,4 @@
-import {Connection, ConnectionSendingData, ConnectionSend} from './Connection.ts';
+import {Connection, ConnectionSendingData, ConnectionSend, type ConnectionOptions} from './Connection.ts';
 import {
   BlockBindingSource,
   BlockIO,
@@ -124,7 +124,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
         total += 13;
       } else {
         let size: number;
-        [value, size] = truncateData(value);
+        [value, size] = truncateData(value, this.connection.maxValueSize);
         total += size;
         data.value = value;
       }
@@ -330,7 +330,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
         totalSize += id.length + 10;
       }
       this.pendingIds.delete(id);
-      if (totalSize > 0x20000) {
+      if (totalSize >= this.connection.maxMessageSize) {
         break;
       }
     }
@@ -380,9 +380,10 @@ class ServerConnectionCore extends Connection {
 
   constructor(
     public root: Root,
-    private _editPolicy?: EditPolicy
+    private _editPolicy?: EditPolicy,
+    options?: ConnectionOptions
   ) {
-    super();
+    super(options);
   }
 
   getEditPolicy() {

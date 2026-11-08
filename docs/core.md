@@ -55,8 +55,23 @@ unload checks, asynchronous saves, and lifecycle state are defined in
 ## Connection layer
 
 `makeLocalConnection()` serializes by default to match remote transport; its
-`serialize` option can pass values by reference. Frames batch until the estimated
-`WS_FRAME_SIZE`; one message may exceed it. Nonempty frames require an
+`serialize` option can pass values by reference. Local and Frame server
+connections accept `ConnectionOptions` with independent `maxMessageSize`
+(default 524288) and `maxValueSize` (default 1024). Both must be positive safe
+integers with `maxValueSize < maxMessageSize`:
+
+```ts
+const options = {maxMessageSize: 1024 * 1024, maxValueSize: 64 * 1024};
+makeLocalConnection(root, true, undefined, true, options);
+new FrameServerConnection(editorWindow, root, options);
+```
+
+Limits apply to server output and Local reconnects preserve them. Value previews
+use the value budget for strings, collection traversal, and encoded references;
+there is no fixed collection-length cap. Full-value reads remain complete.
+Descriptors split using the message budget. Sizes are estimates, not exact
+encoded byte counts. Frames batch until `maxMessageSize`; one message may exceed
+it. Nonempty frames require an
 acknowledgement, which may be empty. Empty acknowledgements require no reply.
 
 `ClientConnection` merges pending non-important `set`, `update`, and `bind`

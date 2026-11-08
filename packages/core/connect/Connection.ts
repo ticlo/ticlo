@@ -1,6 +1,11 @@
 import {DataMap, measureObjSize, WS_FRAME_SIZE} from '../util/DataTypes.ts';
 import {Logger} from '../util/Logger.ts';
 
+export interface ConnectionOptions {
+  maxMessageSize?: number;
+  maxValueSize?: number;
+}
+
 export class ConnectionSendingData {
   getData(): DataMap {
     // to be overridden
@@ -19,6 +24,22 @@ export class ConnectionSendingData {
 // receive cycle forces an acknowledgement frame, even if there is no payload, so
 // both sides can continue draining queued sends without a separate ping protocol.
 export class Connection {
+  readonly maxMessageSize: number;
+  readonly maxValueSize: number;
+
+  constructor({maxMessageSize = WS_FRAME_SIZE, maxValueSize = 1024}: ConnectionOptions = {}) {
+    if (
+      !Number.isSafeInteger(maxMessageSize) ||
+      !Number.isSafeInteger(maxValueSize) ||
+      maxValueSize <= 0 ||
+      maxValueSize >= maxMessageSize
+    ) {
+      throw new Error('Connection sizes must be positive safe integers with maxValueSize < maxMessageSize');
+    }
+    this.maxMessageSize = maxMessageSize;
+    this.maxValueSize = maxValueSize;
+  }
+
   // null for new connection
   // false for not connected but scheduled
   _connected?: boolean;
@@ -147,7 +168,7 @@ export class Connection {
         sendingSize += size;
         sending.push(data);
       }
-      if (sendingSize >= WS_FRAME_SIZE) {
+      if (sendingSize >= this.maxMessageSize) {
         break;
       }
     }
