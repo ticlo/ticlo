@@ -41,10 +41,17 @@ path:M12 12H84V84H12Z  :A
 
 ## SVG backgrounds
 
-`svg:clock` uses `icons/clock.svg`. The curated SVG files are all in `icons/`;
+`svg:clock` uses `icons/functions/clock.svg`. The curated function SVGs are in `icons/functions/`;
 use the filename without its extension. SVG files retain their own viewBox and
-fill settings. Run `pnpm build-icons` to regenerate `css/icons.css` after changing
+explicit colors; `currentColor` becomes `white` when generating CSS backgrounds.
+Run `pnpm build-icons` to regenerate `css/icons.css` after changing
 assets. Vite and browser-test startup regenerate it automatically.
+
+Custom file SVGs live in `icons/files/`. Their filenames name the exported React
+components, such as `FileCodeOutlined` and `FileTicloOutlined`, in the generated
+`packages/editor/icon/FileIcons.tsx`. The same build command regenerates these
+inline components, which accept Ant Design `Icon` props and inherit text color
+and font size. File SVGs use JSX-compatible SVG attributes.
 
 `path:M12 12H84V84H12Z` creates a white SVG path from the supplied `d` data, using
 `viewBox="0 0 96 96"`. Use single spaces within the path data: double spaces

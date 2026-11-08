@@ -13,6 +13,8 @@ import {
   FileAddOutlined,
   FileImageOutlined,
   FileOutlined,
+  FileTextOutlined,
+  FileZipOutlined,
   FolderAddOutlined,
   FolderOpenOutlined,
   FolderOutlined,
@@ -38,7 +40,8 @@ import {ExpandIcon} from '../component/Tree.tsx';
 import VirtualList from '../component/Virtual.tsx';
 import {TicloI18NContext} from '../component/LayoutContext.ts';
 import {t} from '../component/LocalizedLabel.tsx';
-import {FilePreview, previewType} from './FilePreview.tsx';
+import {FilePreview, isCodeFile, previewType} from './FilePreview.tsx';
+import {FileCodeOutlined, FileTicloOutlined} from '../icon/FileIcons.tsx';
 import {droppedUploads, fileError, FileOperations, parentPath, topEntries, validFileName} from './FileOperations.ts';
 
 export interface FileManagerProps {
@@ -1121,6 +1124,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
 
   private renderRow = (index: number, style: React.CSSProperties) => {
     const {entry, level} = this.rows[index];
+    const kind = entry.type === 'file' ? previewType(entry.name) : null;
     const selected = this.state.selected.includes(entry.path);
     const opened = this.expanded.has(entry.path);
     const cut = this.clipboard?.move && this.clipboard.entries.some((source) => source.path === entry.path);
@@ -1176,7 +1180,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
           }}
         />
         <span
-          className={entry.localBackup ? 'ticl-e-file-local-backup' : `ticl-e-file-git-${entry.gitStatus ?? 'clean'}`}
+          className={`ticl-e-file-icon ${entry.localBackup ? 'ticl-e-file-local-backup' : `ticl-e-file-git-${entry.gitStatus ?? 'clean'}`}`}
         >
           {entry.type === 'folder' ? (
             opened ? (
@@ -1184,8 +1188,16 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             ) : (
               <FolderOutlined />
             )
-          ) : previewType(entry.name) === 'image' ? (
+          ) : entry.name.toLowerCase().endsWith('.ticlo') ? (
+            <FileTicloOutlined />
+          ) : kind === 'image' ? (
             <FileImageOutlined />
+          ) : isCodeFile(entry.name) ? (
+            <FileCodeOutlined />
+          ) : kind === 'text' ? (
+            <FileTextOutlined />
+          ) : /\.(zip|rar|7z|tar|gz|bz2|xz|tgz|tbz2|txz|zst)$/i.test(entry.name) ? (
+            <FileZipOutlined />
           ) : (
             <FileOutlined />
           )}
