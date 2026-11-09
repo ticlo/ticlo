@@ -19,13 +19,14 @@ it('serves files, runtime commands, WebSockets and flow routes on one port with 
     null,
     {
       '#is': '',
-      'dormant': {'#is': 'add', 0: 1, 1: 2},
+      'service': {'#is': 'add', 0: 1, 1: 2},
       '^web-server': {'#is': 'add', '#output': 'saved override', 'note': 'saved extension'},
     },
     '#global'
   );
   const {app, ticloWs} = await createServerApp(dir, undefined, root);
   await root.setStorage(storage);
+  expect(root.queryValue('#global.service.#output')).toBeUndefined();
   await root.start();
   const server = serve({fetch: app.fetch, hostname: '127.0.0.1', port: 0});
   ticloWs.injectWebSocket(server);
@@ -100,7 +101,7 @@ it('serves files, runtime commands, WebSockets and flow routes on one port with 
     // A registered route without a task handler returns 501, rather than the router's 404.
     expect((await fetch(`${base}/api/combined`)).status).toBe(501);
     expect((await fetch(`${base}/api/missing`)).status).toBe(404);
-    expect(root.queryValue('#global.dormant.#output')).toBeUndefined();
+    expect(root.queryValue('#global.service.#output')).toBe(3);
   } finally {
     callbacks.cancel();
     client?.destroy();

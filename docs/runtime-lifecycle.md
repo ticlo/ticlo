@@ -22,6 +22,12 @@ await root.start({main: {flows: ['entry', 'jobs.**']}, shared: {}});
   Missing dependencies, required modules, or selected flows reject startup.
 - Saved `#disabled` flags are honored. Call `stop()` before restarting a running runtime.
 
+Executable Blocks in `#global` start after dependency discovery and before
+library contexts and modules. `stop()` disables these Blocks and releases their
+runtime resources; a later `start()` recreates their functions. Storage
+initialization alone does not run them. Code-defined global values retain their
+identity throughout this lifecycle.
+
 Patterns use policy `matchEditPath`: dot-separated paths, `*` within a segment,
 `**` across segments, `?` for one or more digits. Trailing `.**` requires a
 descendant. Selection runs once and excludes modules, folders, and future flows.

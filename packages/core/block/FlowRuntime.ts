@@ -91,7 +91,7 @@ export class FlowRuntime {
       );
       for (const selection of selections) void selection?.catch(() => {});
       // Discover every dependency before running anything, including cyclic graphs.
-      await this.activate(Object.keys(selected), generation);
+      await this.activate(Object.keys(selected), generation, true);
       for (const [index, [name, config]] of Object.entries(selected).entries()) {
         const patterns =
           config.flows ??
@@ -128,7 +128,7 @@ export class FlowRuntime {
     return data;
   }
 
-  private async activate(names: string[], generation: number) {
+  private async activate(names: string[], generation: number, startGlobals = false) {
     const discovered = new Map<string, LibraryMetadata>();
     const versions = new Map<string, number>();
     const check = () => {
@@ -167,6 +167,7 @@ export class FlowRuntime {
       if (name !== '#root') this.root.addFlowFolder(libraryScope.libraryId, {});
     }
     try {
+      if (startGlobals) this.setGlobalsEnabled(true);
       // Contexts replace the library's inheritance layer and load before modules/flows.
       for (const {ref, data} of contexts) {
         await this.loadFlow(ref, data);
@@ -648,6 +649,13 @@ export class FlowRuntime {
     }
   }
 
+  private setGlobalsEnabled(enabled: boolean) {
+    const globals = this.root._globalRoot;
+    if (globals._destroyed) return;
+    globals._runtimeDisabled = !enabled;
+    globals._disabledChanged(globals.getValue('#disabled'));
+  }
+
   async stop(options: UnloadOptions = {}) {
     for (const {flow} of this.loaded.values()) this.assertClean(flow, options);
     ++this.generation;
@@ -661,6 +669,7 @@ export class FlowRuntime {
       if (ref.name !== '#context') await this.unloadFlow(ref, options);
     }
     for (const {ref} of [...this.loaded.values()]) await this.unloadFlow(ref, options);
+    this.setGlobalsEnabled(false);
     this.metadata.clear();
     this.roots.clear();
     this.suppressed.clear();

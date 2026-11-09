@@ -220,6 +220,9 @@ importers:
       '@ticlo/remote-storage':
         specifier: workspace:*
         version: link:packages/remote-storage
+      '@ticlo/sqlite':
+        specifier: workspace:*
+        version: link:connectors/sqlite
       '@ticlo/test':
         specifier: workspace:*
         version: link:packages/test
@@ -406,6 +409,9 @@ importers:
       '@ticlo/remote-storage':
         specifier: workspace:*
         version: link:../packages/remote-storage
+      '@ticlo/sqlite':
+        specifier: workspace:*
+        version: link:../connectors/sqlite
       '@ticlo/test':
         specifier: workspace:*
         version: link:../packages/test
@@ -443,6 +449,12 @@ importers:
       '@types/yargs':
         specifier: ^17.0.35
         version: 17.0.35
+
+  connectors/sqlite:
+    dependencies:
+      '@ticlo/core':
+        specifier: workspace:^
+        version: link:../../packages/core
 
   packages/chart:
     dependencies:

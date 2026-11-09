@@ -1,0 +1,12 @@
+query:
+  '@name': Query
+  client:
+    '@name': SQL Client
+  sql:
+    '@name': SQL
+  params:
+    '@name': Parameters
+  affectedRows:
+    '@name': Affected Rows
+  insertId:
+    '@name': Insert ID

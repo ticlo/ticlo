@@ -59,6 +59,7 @@ export * from './functions/web-server/RouteFunction.ts';
 
 // Export common data functions
 export * from './functions/data/CreateObject.ts';
+export type {SqlClient, SqlColumn, SqlParams, SqlResult, SqlTable} from './functions/sql/SqlClient.ts';
 export * from './property-api/ObjectValue.ts';
 export {moveBlocks} from './property-api/CopyPaste.ts';
 export {deleteBlock} from './property-api/DeleteBlock.ts';
@@ -81,6 +82,7 @@ import './functions/web-server/StaticResponse.ts';
 import './functions/http/CreateHeaders.ts';
 import './functions/http/HttpClient.ts';
 import './functions/http/Fetch.ts';
+import './functions/sql/Query.ts';
 import './functions/script/Js.ts';
 import './functions/data/State.ts';
 import './functions/date/index.ts';

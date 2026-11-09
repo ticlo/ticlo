@@ -30,6 +30,11 @@ Use `toggle` for booleans and Luxon `DateTime` for dates; `bool`, `datetime`,
 and `js` are not value-editor types. `any` treats two dates as an array;
 choose `date-range` explicitly for range editing.
 
+Service providers expose their runtime objects through readonly `object`
+outputs. A consuming `service` input uses `options` as source-function tags;
+its picker discovers `^`-prefixed global Blocks with matching tags and binds to
+their `#output`.
+
 Descriptors, bindings, and connection policies determine editability. Flow-local
 descriptors require the owning `funcModule` path; see
 [connection scope](core.md#connection-layer).

@@ -52,6 +52,13 @@ globalFunctions.addCategory({
 });
 
 globalFunctions.addCategory({
+  id: 'sql',
+  name: 'sql',
+  icon: '14:SQL',
+  color: '4af',
+});
+
+globalFunctions.addCategory({
   id: 'other',
   name: 'other',
   icon: '22:?',

@@ -57,6 +57,38 @@ describe('runtime lifecycle', () => {
     expect(root.getFlowState(ref('#root', 'folder.nested'))).toBe('unloaded');
   });
 
+  it('starts global functions after dependency discovery and releases them on stop', async () => {
+    const service = root._globalRoot.createBlock('^service');
+    service._load({'#is': 'add', '0': 2, '1': 3});
+    const disabled = root._globalRoot.createBlock('^disabled');
+    disabled._load({'#is': 'add', '#disabled': true, '0': 1, '1': 2});
+    root.runAll();
+    expect(service.getValue('#output')).toBeUndefined();
+
+    await storage.saveLibraryMetadata('main', {dependencies: ['missing']});
+    await expect(root.start({main: {}})).rejects.toThrow('Missing library');
+    root.runAll();
+    expect(service.getValue('#output')).toBeUndefined();
+
+    await storage.saveLibraryMetadata('main', {});
+    await root.start({main: {}});
+    await shouldHappen(() => service.getValue('#output') === 5);
+    expect(disabled.getValue('#output')).toBeUndefined();
+    await root.stop();
+    expect(service.getValue('#output')).toBeUndefined();
+    await root.start({main: {}});
+    await shouldHappen(() => service.getValue('#output') === 5);
+    expect(disabled.getValue('#output')).toBeUndefined();
+  });
+
+  it('allows destruction while stop is unloading flows', async () => {
+    await root.start();
+    root.addFlow('entry', {});
+    const stopping = root.stop({discardChanges: true});
+    root.destroy();
+    await stopping;
+  });
+
   it('cancels startup while storage is reading root metadata', async () => {
     let resolve: (metadata: object) => void;
     vi.spyOn(storage, 'getLibraryMetadata').mockReturnValueOnce(

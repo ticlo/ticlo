@@ -1,0 +1,13 @@
+'@library':
+  sqlite:
+    '@name': SQLite # no translate
+client:
+  '@name': 客户端 # translated from: Client
+  filePath:
+    '@name': 文件路径 # translated from: File Path
+  readOnly:
+    '@name': 只读 # translated from: Read Only
+  busyTimeout:
+    '@name': 锁等待超时 # translated from: Busy Timeout
+  foreignKeys:
+    '@name': 外键约束 # translated from: Foreign Keys
