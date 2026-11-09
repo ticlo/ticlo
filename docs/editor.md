@@ -45,6 +45,11 @@ local to the function type, including its module path for local functions;
 suggestions do not enable fields. Ranking and cache limits are implementation
 choices in [OptionalPropertyHistory](../packages/editor/property/OptionalPropertyHistory.ts).
 
+Property value trees use array preview lengths to select nested arrays without
+first downloading the enclosing object. Truncated arrays of at least 1000 items
+load pages as their last loaded item scrolls into view; smaller arrays read the
+selected value directly. Page boundary mismatches stop loading until reloaded.
+
 ## Table editor
 
 `type: 'table'` accepts arrays of objects or an explicit schema and row arrays:

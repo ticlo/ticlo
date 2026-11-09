@@ -1,6 +1,5 @@
 import React from 'react';
-import {Spin} from 'antd';
-import {ClientConn, deepEqual, DataMap, isDataTruncated} from '@ticlo/core/editor.ts';
+import {ClientConn} from '@ticlo/core/editor.ts';
 import VirtualList from '../component/Virtual.tsx';
 import {ObjectTreeItem, ObjectTreeRenderer} from './ObjectRenderer.tsx';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
@@ -16,33 +15,8 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   root: ObjectTreeItem;
   list: ObjectTreeItem[] = [];
 
-  loading = false;
-  data: any;
-
-  constructor(props: Props) {
-    super(props);
-    this.checkTruncatedValue(props.data);
-  }
-
-  _lastCheckedData: any;
-  checkTruncatedValue(data: any) {
-    if (data === this._lastCheckedData) {
-      return;
-    }
-    this._lastCheckedData = data;
-
-    const {conn, path} = this.props;
-    if (isDataTruncated(data)) {
-      this.loading = true;
-      conn.getValue(path).then((response: DataMap) => {
-        this.data = response.value;
-        this.loading = false;
-        this.forceUpdate();
-      });
-    } else {
-      this.data = data;
-    }
-  }
+  private source: object;
+  private rootVersion = 0;
 
   renderChild = (idx: number, style: React.CSSProperties) => {
     const item = this.list[idx];
@@ -57,11 +31,14 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   forceUpdateLambda = () => this.forceUpdate();
 
   buildRoot() {
-    const {conn, path} = this.props;
-    if (this.root && this.root.data === this.data) {
+    const {conn, path, data} = this.props;
+    if (this.root && this.source === data && this.root.rootPath === path && this.root.connection === conn) {
       return;
     }
-    this.root = new ObjectTreeItem(path, '', this.data, null);
+    this.root?.destroy();
+    ++this.rootVersion;
+    this.source = data;
+    this.root = new ObjectTreeItem(path, '', data, null);
     this.root.connection = conn;
     this.root.onListChange = this.forceUpdateLambda;
     if (this.root.opened === 'closed') {
@@ -70,28 +47,19 @@ export class ObjectTree extends LazyUpdateComponent<Props, any> {
   }
 
   renderImpl() {
-    const {style, data} = this.props;
-    let child: React.ReactNode;
-    this.checkTruncatedValue(data);
-    if (this.loading) {
-      child = <Spin tip="Loading..." />;
-    } else {
-      this.buildRoot();
-      this.refreshList();
-      child = (
+    const {style} = this.props;
+    this.buildRoot();
+    this.refreshList();
+    return (
+      <div className="ticl-e-object-tree" style={style}>
         <VirtualList
+          key={`${this.rootVersion}:${this.root.generation}`}
           className="ticl-e-node-tree"
           style={style}
           renderer={this.renderChild}
           itemCount={this.list.length}
           itemHeight={26}
         />
-      );
-    }
-
-    return (
-      <div className="ticl-e-object-tree" style={style}>
-        {child}
       </div>
     );
   }

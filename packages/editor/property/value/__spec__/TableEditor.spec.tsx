@@ -6,6 +6,7 @@ import {blankFuncDesc, Root, type PropDesc, type Flow} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.ts';
 import {defaultWorkerData} from '@ticlo/core/defaults/DefaultFlows.ts';
+import {truncateData} from '@ticlo/core/util/DataTruncate.ts';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 import {initEditor} from '../../../index.ts';
 import {loadTemplate, removeLastTemplate} from '../../../util/test-util.ts';
@@ -503,6 +504,7 @@ describe('TableEditor', () => {
     const items = Array.from({length: 15}, (_, count) => ({label: `Row ${count}`, count, hidden: 'x'.repeat(300)}));
     const flow = Root.instance.addFlow('TableEditorTest', {data: {'#is': '', items}});
     const [, conn] = makeLocalConnection(Root.instance, true);
+    const getPage = vi.spyOn(conn, 'getValuePage');
     let layout: DockLayout;
     loadTemplate(
       <TicloLayoutContextType.Provider value={{editTable: (props) => TableEditor.openFloatPanel(layout, props)}}>
@@ -526,6 +528,7 @@ describe('TableEditor', () => {
       'editor'
     );
     await open();
+    expect(getPage).not.toHaveBeenCalled();
     await fillCell(0, 'Updated');
     await button('OK').click();
     await shouldHappen(() => (flow.queryValue('data.items') as typeof items)[0].label === 'Updated');
@@ -542,7 +545,7 @@ describe('TableEditor', () => {
     mount({
       conn,
       keys: ['TableEditorTest.data'],
-      value: items.slice(0, 2),
+      value: truncateData(items)[0],
       onChange: vi.fn(),
       desc: {name: 'items', type: 'table'},
     });
@@ -611,7 +614,7 @@ describe('TableEditor', () => {
   });
 
   it('fills a viewport before waiting for further scrolls', async () => {
-    mount({value: Array.from({length: 25}, (_, id) => ({label: `Row ${id}`}))});
+    mount({value: Array.from({length: 1005}, (_, id) => ({label: `Row ${id}`}))});
     await open();
     const settings = document.querySelector<HTMLElement>('button[title="Rows per request"]');
     await userEvent.click(settings);
@@ -621,9 +624,9 @@ describe('TableEditor', () => {
     await userEvent.tab();
     await userEvent.click(settings);
     await button('Reload').click();
-    await shouldHappen(() => document.querySelector('.ticl-e-table-toolbar').textContent.includes('20 / 25'));
+    await shouldHappen(() => document.querySelector('.ticl-e-table-toolbar').textContent.includes('20 / 1005'));
     scrollToEnd();
-    await shouldHappen(() => document.querySelector('.ticl-e-table-toolbar').textContent.includes('25 / 25'));
+    await shouldHappen(() => document.querySelector('.ticl-e-table-toolbar').textContent.includes('30 / 1005'));
   });
 
   it('discards a pending continuation when the table is reloaded', async () => {
@@ -631,7 +634,7 @@ describe('TableEditor', () => {
     const flow = Root.instance.addFlow('TableEditorTest', {data: {'#is': '', items}});
     const [, conn] = makeLocalConnection(Root.instance, true);
     const getPage = vi.spyOn(conn, 'getValuePage');
-    mount({conn, keys: ['TableEditorTest.data'], value: items.slice(0, 2), onChange: vi.fn()});
+    mount({conn, keys: ['TableEditorTest.data'], value: truncateData(items)[0], onChange: vi.fn()});
     await open();
     let finish: (page: any) => void;
     getPage.mockImplementationOnce(

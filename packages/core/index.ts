@@ -14,7 +14,7 @@ export * from './block/Event.ts';
 export * from './block/Descriptor.ts';
 export {ServerConnection} from './connect/ServerConnection.ts';
 export type {ConnectionOptions} from './connect/Connection.ts';
-export {type DataMap, TRUNCATED, isStringArray} from './util/DataTypes.ts';
+export {type DataMap, TRUNCATED, isDataTruncated, getTruncatedArrayLength, isStringArray} from './util/DataTypes.ts';
 export {convertToObject} from './util/DataTruncate.ts';
 export {forAllPathsBetween} from './util/Path.ts';
 export {encodeDisplay, decode, encode, encodeSorted, decodeReviver} from './util/Serialize.ts';

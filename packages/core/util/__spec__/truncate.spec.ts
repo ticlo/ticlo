@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
 import type {DataMap} from '../DataTypes.ts';
-import {measureObjSize, TRUNCATED, isDataTruncated} from '../DataTypes.ts';
+import {measureObjSize, TRUNCATED, isDataTruncated, getTruncatedArrayLength} from '../DataTypes.ts';
 import {truncateData} from '../DataTruncate.ts';
 
 describe('truncateData', function () {
@@ -42,6 +42,20 @@ describe('truncateData', function () {
     expect(isDataTruncated(arrResult)).toBe(false);
     expect(isDataTruncated(truncateData(obj, 32)[0])).toBe(true);
     expect(isDataTruncated(truncateData(arr, 32)[0])).toBe(true);
+  });
+
+  it('preserves array lengths at every truncated level without treating metadata as items', () => {
+    const rows = Array.from({length: 10_000}, (_, id) => ({id}));
+    const preview = truncateData({rows}, 128)[0];
+    expect(preview.rows.slice(-2)).toEqual([TRUNCATED, rows.length]);
+    expect(getTruncatedArrayLength(preview.rows)).toBe(10_000);
+    expect(isDataTruncated(preview.rows)).toBe(true);
+    const nested = truncateData([rows], 128)[0];
+    expect(nested.slice(-2)).toEqual([TRUNCATED, 1]);
+    expect(getTruncatedArrayLength(nested[0])).toBe(10_000);
+    expect(isDataTruncated([1, 2])).toBe(false);
+    expect(isDataTruncated([TRUNCATED, -1])).toBe(false);
+    expect(isDataTruncated([TRUNCATED, '1000'])).toBe(false);
   });
 
   it('scales string previews with the requested budget', () => {

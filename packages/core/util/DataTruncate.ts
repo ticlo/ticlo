@@ -30,8 +30,8 @@ function truncateArray(val: any[], maxSize: number): [any[], number, boolean] {
 
   for (let i = 0; i < val.length; ++i) {
     if (total >= maxSize) {
-      result.push(TRUNCATED);
-      return [result, total, true];
+      result.push(TRUNCATED, val.length);
+      return [result, total + TRUNCATED.length + String(val.length).length + 2, true];
     }
     const [t, size, trunc] = truncateObj(val[i], Math.max(0, maxSize - total - 1) * 0.75);
     total += size + 1;
@@ -39,6 +39,10 @@ function truncateArray(val: any[], maxSize: number): [any[], number, boolean] {
     if (trunc) {
       truncated = true;
     }
+  }
+  if (truncated) {
+    result.push(TRUNCATED, val.length);
+    total += TRUNCATED.length + String(val.length).length + 2;
   }
   return [result, total, truncated];
 }
@@ -81,11 +85,7 @@ export function truncateData(val: any, maxSize: number = 1024): [any, number] {
   }
   const [result, total, truncated] = truncateObj(val, maxSize);
   if (truncated) {
-    if (Array.isArray(result)) {
-      if (result.at(-1) !== TRUNCATED) {
-        result.push(TRUNCATED);
-      }
-    } else if (result.constructor === Object) {
+    if (!Array.isArray(result) && result.constructor === Object) {
       if (!result[TRUNCATED]) {
         result[TRUNCATED] = 1;
       }

@@ -9,7 +9,14 @@ import {
   SettingOutlined,
   TableOutlined,
 } from '@ant-design/icons';
-import {deepEqual, deepEqualTransport, encodeDisplay, isDataTruncated, translateEditor} from '@ticlo/core/editor.ts';
+import {
+  deepEqual,
+  deepEqualTransport,
+  encodeDisplay,
+  getTruncatedArrayLength,
+  isDataTruncated,
+  translateEditor,
+} from '@ticlo/core/editor.ts';
 import type {PropDesc, TableColumnDesc, ValuePage} from '@ticlo/core';
 import {deepClone} from '@ticlo/core/util/Clone.ts';
 import {snapshotTransportValue} from '@ticlo/core/util/TransportValue.ts';
@@ -219,15 +226,24 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
     try {
       if (this.schemaError()) throw new Error(translateEditor('Invalid table columns'));
       let matrix = isObject(value);
+      const previewRows = matrix ? value.rows : value;
+      const length =
+        getTruncatedArrayLength(previewRows) ?? (Array.isArray(previewRows) ? previewRows.length : undefined);
       let page: ValuePage;
       let data: unknown;
       if (conn && paths.length) {
         try {
-          page = await conn.getValuePage(paths[0], {
-            select: matrix ? ['rows'] : undefined,
-            offset: 0,
-            limit: this.state.pageSize,
-          });
+          if (length !== undefined && length < 1000) {
+            const {value: items = []} = await conn.getValue(paths[0], matrix ? {select: ['rows']} : undefined);
+            if (!Array.isArray(items)) throw 'value is not an array';
+            page = {items, offset: 0, total: items.length};
+          } else {
+            page = await conn.getValuePage(paths[0], {
+              select: matrix ? ['rows'] : undefined,
+              offset: 0,
+              limit: this.state.pageSize,
+            });
+          }
         } catch (error) {
           if (matrix || error !== 'value is not an array') throw error;
           matrix = true;
@@ -238,7 +254,10 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
           : page.items;
       } else {
         this.localRows = matrix ? value.rows : value;
-        const result = readValuePage(this.localRows, {offset: 0, limit: this.state.pageSize});
+        const result = readValuePage(this.localRows, {
+          offset: 0,
+          limit: length < 1000 ? Math.max(1, length) : this.state.pageSize,
+        });
         if (typeof result === 'string') throw result;
         page = result;
         data = matrix ? {...(value as object), rows: page.items} : page.items;
@@ -642,10 +661,10 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
         <>
           <Button size="small" icon={<TableOutlined />} onClick={this.openTable} disabled={!this.context?.editTable}>
             {t(this.editable() ? 'Edit table' : 'View table')}{' '}
-            {Array.isArray(value) && !isDataTruncated(value)
-              ? `(${value.length})`
+            {Array.isArray(value)
+              ? `(${getTruncatedArrayLength(value) ?? value.length})`
               : isObject(value) && Array.isArray(value.rows)
-                ? `(${value.rows.length})`
+                ? `(${getTruncatedArrayLength(value.rows) ?? value.rows.length})`
                 : null}
           </Button>
           {this.context?.editProperty && this.props.keys?.length ? (

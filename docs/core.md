@@ -74,6 +74,13 @@ encoded byte counts. Frames batch until `maxMessageSize`; one message may exceed
 it. Nonempty frames require an
 acknowledgement, which may be empty. Empty acknowledgements require no reply.
 
+Truncated array previews end with two metadata entries, `TRUNCATED` and the
+original array length. These are not array items. `getTruncatedArrayLength()`
+reads that length; `isDataTruncated()` recognizes the pair. Every truncated
+nested array carries its own length, including arrays whose items were all
+visited but contain truncated children. Discovery stays within the preview
+budget and does not enumerate omitted rows or object fields.
+
 `ClientConnection` merges pending non-important `set`, `update`, and `bind`
 requests by path. Subscription caches support reconnect clears and replay.
 Full-value subscriptions wait for the WebSocket snapshot and reuse complete
