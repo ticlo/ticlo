@@ -10,6 +10,7 @@ import {createTicloApp, getEditorUrl} from '@ticlo/web-server/server.ts';
 import {mkdir, writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
+import {initExamples} from './examples.ts';
 
 export async function createServerApp(
   rootDir = fileURLToPath(new URL('./files/', import.meta.url)),
@@ -20,6 +21,7 @@ export async function createServerApp(
   if (await mkdir(rootProject, {recursive: true})) {
     await writeFile(join(rootProject, '.proj'), JSON.stringify({id: '#root', name: 'Root'}), {flag: 'wx'});
   }
+  await initExamples(join(rootDir, 'serv'));
 
   const app = new Hono();
   const devCors = cors({exposeHeaders: ['ETag']});

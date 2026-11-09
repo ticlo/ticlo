@@ -37,6 +37,7 @@ export {Uid} from './util/Uid.ts';
 export {escapedObject} from './util/NoSerialize.ts';
 export {arrowReplacer, arrowReviver} from './util/Serialize.ts';
 export {deepEqual, shallowEqual} from './util/Compare.ts';
+export {deepEqualTransport} from './util/TransportValue.ts';
 export {Resolver} from './block/Resolver.ts';
 
 // Export from block subdirectories

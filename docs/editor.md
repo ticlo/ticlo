@@ -61,11 +61,16 @@ remain supported, with string keys for object rows and nonnegative integer keys
 for array rows. Unlisted fields are preserved. New rows use `init`; `default`
 affects display only.
 
+Tables read pages as the user scrolls and render visible rows virtually.
+Editing stays disabled until all rows have loaded. Object arrays without an
+explicit schema infer columns from the first and last rows of the whole table;
+scanning all loaded rows can reveal additional columns. See
+[paged reads](core.md#connection-layer) for the continuity contract.
+
 Edits remain in a draft until the complete value is committed to the original
-property paths. Connected properties load their full value before editing.
-External changes require reloading the draft before submission. Inline worker
-cells remain in the draft; named workers save to their module. Property and
-column permissions apply throughout.
+property paths. External changes require reloading the draft before submission.
+Inline worker cells remain in the draft; named workers save to their module.
+Property and column permissions apply throughout.
 
 ## File manager
 

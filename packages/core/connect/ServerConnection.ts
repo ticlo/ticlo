@@ -53,6 +53,7 @@ import {DoneEvent} from '../block/Event.ts';
 import {Library} from '../block/Library.ts';
 import {checkEditPolicy, type EditPolicy} from '../policy/EditPolicy.ts';
 import {libraryFromPath, libraryPath, validateLibrary} from '../util/LibraryMetadata.ts';
+import {readValuePage, type ValuePageOptions, type ValueReadOptions} from './ValuePage.ts';
 
 export class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -644,17 +645,28 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Retrieves the current value of the property.
    */
-  get({path}: {path: string}): DataMap | string {
+  get({path, select, page}: {path: string; page?: ValuePageOptions} & ValueReadOptions): DataMap | string {
     const property = this.root.queryProperty(path);
-    if (property === null) {
-      // property === undefined, parent block exists but property is not created
-      return {};
-    } else if (property) {
-      return {value: property._value};
-    } else {
-      // property === undefined, parent block doesn't exist
-      return 'invalid path';
+    if (property === undefined) return 'invalid path';
+    let value = property?._value;
+    if (select !== undefined) {
+      if (!Array.isArray(select) || select.some((key) => typeof key !== 'string' && !Number.isSafeInteger(key)))
+        return 'invalid value selection';
+      for (const key of select) {
+        if (
+          !value ||
+          typeof value !== 'object' ||
+          (!Array.isArray(value) &&
+            Object.getPrototypeOf(value) !== Object.prototype &&
+            Object.getPrototypeOf(value) !== null) ||
+          !Object.hasOwn(value, key)
+        )
+          return 'invalid value selection';
+        value = Reflect.get(value, key);
+      }
     }
+    if (page !== undefined) return page && typeof page === 'object' ? readValuePage(value, page) : 'invalid page range';
+    return property ? {value} : {};
   }
 
   /**

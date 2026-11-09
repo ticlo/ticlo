@@ -28,13 +28,8 @@ export class Connection {
   readonly maxValueSize: number;
 
   constructor({maxMessageSize = WS_FRAME_SIZE, maxValueSize = 1024}: ConnectionOptions = {}) {
-    if (
-      !Number.isSafeInteger(maxMessageSize) ||
-      !Number.isSafeInteger(maxValueSize) ||
-      maxValueSize <= 0 ||
-      maxValueSize >= maxMessageSize
-    ) {
-      throw new Error('Connection sizes must be positive safe integers with maxValueSize < maxMessageSize');
+    if (maxValueSize <= 0 || maxMessageSize <= 0 || maxValueSize * 2 > maxMessageSize) {
+      throw new Error('Connection sizes must be positive value with maxValueSize x 2 < maxMessageSize');
     }
     this.maxMessageSize = maxMessageSize;
     this.maxValueSize = maxValueSize;

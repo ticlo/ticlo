@@ -80,6 +80,21 @@ Full-value subscriptions wait for the WebSocket snapshot and reuse complete
 cached values. Only truncated snapshots trigger a full-value read (HTTP on a
 mixed connection); listeners share that read, and outdated responses cannot
 replace newer subscription values.
+
+`getValuePage(path, {offset, limit, anchor?, select?})` reads a complete array
+slice and returns `{items, offset, total, keys?}`. `select` traverses own keys of
+plain objects and arrays inside the property's value; it also works with
+`getValue`, for example `getValue(path, {select: ['columns']})`. Both use the
+existing `get` command and its access policy. Pages bypass preview truncation.
+
+Start at offset zero. To continue, send the preceding page's last row as `anchor`
+and the number of loaded rows as `offset`. The server compares it with the row
+at `offset - 1` using `deepEqualTransport`; a mismatch or shortened array returns
+`page_anchor_mismatch`. This checks continuity at the boundary, not a snapshot of
+the whole table. Keep an independent anchor snapshot when a local connection
+passes mutable references. A partial first page of object rows includes `keys`,
+the union of the whole array's first and last row keys.
+
 `ServerConnection` dispatches requests to its one-argument command methods and
 awaits asynchronous results. Server policies enforce access independently of
 client restrictions; storage-backed commands must propagate promises.

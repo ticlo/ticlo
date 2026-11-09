@@ -1,6 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import axios from 'axios';
-import {Logger} from '@ticlo/core';
+import {Logger, encode} from '@ticlo/core';
+import {DateTime} from 'luxon';
 import {MixedBrowserConnection} from '../MixedBrowserConnection.ts';
 import {WsBrowserConnection} from '../WsBrowserConnection.ts';
 
@@ -70,5 +71,18 @@ describe('WsBrowserConnection', () => {
     connection._sendLargeData({cmd: 'set'}, {onError});
 
     await vi.waitFor(() => expect(onError).toHaveBeenCalledWith('invalid path'));
+  });
+
+  it('decodes Arrow values in REST pages before using them as anchors', async () => {
+    const row = {date: DateTime.utc(2026), binary: new Uint8Array([1, 2])};
+    vi.spyOn(axios, 'post').mockImplementation(async (_url, _data, config) => {
+      const [transform] = config.transformResponse as ((data: string) => unknown)[];
+      return {data: transform(encode({items: [row], offset: 0, total: 2}))};
+    });
+    const connection = Object.create(MixedBrowserConnection.prototype) as MixedBrowserConnection;
+    (connection as any)._httpUrl = 'http://example.test/ticlo';
+    const result = await connection.getValuePage('Main.items', {offset: 0, limit: 1});
+    expect(result.items).toEqual([row]);
+    expect(DateTime.isDateTime((result.items[0] as any).date)).toBe(true);
   });
 });

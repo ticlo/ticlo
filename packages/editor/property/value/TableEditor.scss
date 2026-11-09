@@ -1,8 +1,16 @@
 .ticl-e-table-editor {
   .ticl-e-table-body {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     min-height: 0;
-    overflow: auto;
+    overflow: hidden;
+  }
+
+  .ticl-e-table-container {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .ticl-e-table-toolbar,
@@ -12,11 +20,14 @@
   }
 
   .ticl-e-table-toolbar {
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    align-items: center;
     margin-bottom: 8px;
   }
 
   .ticl-e-table-cell {
-    min-width: 140px;
+    min-width: 0;
     padding: 0;
     overflow: visible;
 

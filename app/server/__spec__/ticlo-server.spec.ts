@@ -8,6 +8,7 @@ import {Root, MemoryFlowStorage} from '@ticlo/core';
 import {WsClientConnection} from '@ticlo/node/connect/WsClientConnection.ts';
 import {AsyncClientPromise} from '@ticlo/core/connect/__spec__/AsyncClientPromise.ts';
 import {ScopedFileServerFiles} from '@ticlo/remote-storage';
+import {NodeStorage} from '@ticlo/node';
 import {createServerApp} from '../ticlo-server.ts';
 
 it('serves files, runtime commands, WebSockets and flow routes on one port with open CORS', async () => {
@@ -144,6 +145,36 @@ it('serves project Git operations from the installed file server', async () => {
     expect(initialized.status).toBe(200);
     expect((await initialized.json()).branch).toBe('main');
   } finally {
+    root.destroy();
+    await rm(dir, {recursive: true, force: true});
+  }
+});
+
+it('seeds a large table in the server examples project and preserves edits', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'ticlo-server-examples-'));
+  const root = new Root();
+  try {
+    const {app} = await createServerApp(dir, undefined, root);
+    const catalog = await app.request('/file?op=listProj&scope=serv');
+    expect(await catalog.json()).toContainEqual({id: 'examples', name: 'Examples'});
+    await root.setStorage(new NodeStorage(join(dir, 'serv')));
+    await root.start();
+    expect(root.queryValue('+examples.large-table')).toBeUndefined();
+    await root.enableLibrary('examples', {flows: ['large-table']});
+    const rows = root.queryValue('+examples.large-table.table.rows') as Record<string, unknown>[];
+    expect(rows).toHaveLength(100_000);
+    expect(rows[0]).toMatchObject({id: 1, firstRow: 'First row'});
+    expect(rows.at(-1)).toMatchObject({id: 100_000, lastRow: 'Last row'});
+
+    const project = join(dir, 'serv/examples');
+    const edited = '{"#is":"","note":"Edited example"}';
+    await writeFile(join(project, 'large-table.ticlo'), edited);
+    await writeFile(join(project, '.proj'), '{"id":"examples","name":"My examples"}');
+    await createServerApp(dir, undefined, root);
+    expect(await readFile(join(project, 'large-table.ticlo'), 'utf8')).toBe(edited);
+    expect(JSON.parse(await readFile(join(project, '.proj'), 'utf8')).name).toBe('My examples');
+  } finally {
+    await root.stop({discardChanges: true});
     root.destroy();
     await rm(dir, {recursive: true, force: true});
   }

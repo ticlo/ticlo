@@ -10,6 +10,9 @@ import {hashData} from '../util/Serialize.ts';
 import type {FlowRef, LibraryGraph} from '../block/FlowRuntime.ts';
 import type {LibraryMetadata} from '../block/Storage.ts';
 import {libraryPath} from '../util/LibraryMetadata.ts';
+import type {ValueReadOptions, ValuePageOptions, ValuePage} from './ValuePage.ts';
+
+export type {ValueReadOptions, ValuePageOptions, ValuePage} from './ValuePage.ts';
 
 export interface LibraryRuntimeInfo extends LibraryGraph {
   canLoad: boolean;
@@ -140,8 +143,12 @@ export abstract class ClientConn {
    * Retrieves the current value of the property.
    * @param path path of the property
    */
-  getValue(path: string): Promise<any> {
-    return this.simpleRequest({cmd: 'get', path});
+  getValue(path: string, options?: ValueReadOptions): Promise<any> {
+    return this.simpleRequest({cmd: 'get', path, ...options});
+  }
+
+  getValuePage<T = unknown>(path: string, {select, ...page}: ValuePageOptions): Promise<ValuePage<T>> {
+    return this.simpleRequest({cmd: 'get', path, select, page});
   }
 
   /**
