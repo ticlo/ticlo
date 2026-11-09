@@ -25,6 +25,8 @@ interface Props {
   tags?: readonly string[];
   selectedKeys?: string[];
   autoExpandSelected?: boolean;
+  /** Open these nodes initially and when the requested paths change. */
+  expandPaths?: string[];
   onSelect?: (keys: string[]) => void;
   /** Custom open actions; double-click uses the first action. */
   openActions?: readonly NodeTreeOpenAction[];
@@ -41,7 +43,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   rootList: NodeTreeItem[] = [];
   list: NodeTreeItem[] = [];
   rows: (NodeTreeItem | StoredFlowItem)[] = [];
-  private pendingExpansion: string[] = [];
+  private pendingExpansion: {path: string; openTarget: boolean}[] = [];
   private storedRoot: StoredFlowItem = {key: '', name: '', level: -1, children: new Map()};
   private expandedStored = new Set<string>();
   private storedRequest = 0;
@@ -313,8 +315,8 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     this.forceUpdate();
   };
 
-  private expandSelectedPath(item: NodeTreeItem, path: string): boolean {
-    if (item.key === path) return true;
+  private expandSelectedPath(item: NodeTreeItem, path: string, openTarget = false): boolean {
+    if (item.key === path && !openTarget) return true;
     const {tags} = this.props;
     if (tags && item.level >= 0 && !item.desc.tags?.some((tag) => tags.includes(tag))) {
       return item.desc !== blankFuncDesc;
@@ -322,20 +324,24 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     if (item.opened === 'closed' || item.opened === 'empty') item.open();
     if (item.opened !== 'opened') return false;
     const child = item.children?.find((child) => child.key === path || path.startsWith(child.childPrefix));
-    return !child || this.expandSelectedPath(child, path);
+    return child ? this.expandSelectedPath(child, path, openTarget) : !openTarget || item.key === path;
   }
 
   private expandSelected() {
     const paths = this.pendingExpansion;
     this.pendingExpansion = [];
-    for (const path of paths) {
+    for (const {path, openTarget} of paths) {
       const root = this.rootList.find((item) => item.key === path || path.startsWith(item.childPrefix));
-      if (root && !this.expandSelectedPath(root, path)) this.pendingExpansion.push(path);
+      if (root && !this.expandSelectedPath(root, path, openTarget)) this.pendingExpansion.push({path, openTarget});
     }
   }
 
-  private updateSelectedExpansion() {
-    this.pendingExpansion = this.props.autoExpandSelected ? [...this.props.selectedKeys] : [];
+  private updateSelectedExpansion(openTargets = false) {
+    this.pendingExpansion = openTargets
+      ? (this.props.expandPaths ?? []).map((path) => ({path, openTarget: true}))
+      : this.pendingExpansion.filter((entry) => entry.openTarget);
+    if (this.props.autoExpandSelected)
+      this.pendingExpansion.push(...this.props.selectedKeys.map((path) => ({path, openTarget: false})));
     this.expandSelected();
   }
 
@@ -373,11 +379,12 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     } else if (previous.showStoredFlows !== this.props.showStoredFlows) {
       void this.refreshStoredFlows();
     } else if (
+      !arrayEqual(previous.expandPaths ?? [], this.props.expandPaths ?? []) ||
       previous.autoExpandSelected !== this.props.autoExpandSelected ||
       previous.tags !== this.props.tags ||
       !arrayEqual(previous.selectedKeys, this.props.selectedKeys)
     ) {
-      this.updateSelectedExpansion();
+      this.updateSelectedExpansion(!arrayEqual(previous.expandPaths ?? [], this.props.expandPaths ?? []));
     }
   }
 
@@ -402,7 +409,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
       this.rootList[0].open();
     }
     conn.childrenChangeStream().listen(this.onChildrenChange);
-    this.updateSelectedExpansion();
+    this.updateSelectedExpansion(true);
     void this.refreshStoredFlows();
     this.forceUpdate();
   }
