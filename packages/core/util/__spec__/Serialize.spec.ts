@@ -1,9 +1,46 @@
 import {expect} from 'vitest';
-import {encode, decode, encodeDisplay, hashData} from '../Serialize.ts';
+import {encode, decode, encodeSorted, encodeDisplay, hashData} from '../Serialize.ts';
+import {ErrorEvent, EventType} from '../../block/Event.ts';
 import {DateTime} from 'luxon';
 import {formatDate, isDateSame} from '../DateTime.ts';
 
 describe('Serialize', function () {
+  it('roundtrips error events compactly with native messages and codes, without stacks or loop IDs', () => {
+    class DatabaseError extends Error {
+      name = 'DatabaseError';
+      code = 'SQLITE_ERROR';
+    }
+    const error = new DatabaseError('bad SQL: "select"\n͢Ts:literal');
+    const event = new ErrorEvent(undefined, error);
+    for (const serialize of [encode, encodeSorted]) {
+      const wire = serialize({event, native: new TypeError('invalid input')});
+      expect(wire).not.toContain('stack');
+      expect(wire).not.toContain('loopId');
+      const restored = decode(wire);
+      expect(restored.event).toBeInstanceOf(ErrorEvent);
+      expect(restored.event.check()).toBe(EventType.ERROR);
+      expect(restored.event.type).toBe('error');
+      expect(restored.event.detail).toBeInstanceOf(Error);
+      expect(restored.event.detail).toMatchObject({
+        name: 'DatabaseError',
+        message: error.message,
+        code: 'SQLITE_ERROR',
+      });
+      expect(restored.native).toMatchObject({name: 'TypeError', message: 'invalid input'});
+    }
+    expect(encode(new ErrorEvent(undefined, 'broken')).length).toBeLessThan(32);
+    expect(decode(encode(new ErrorEvent())).type).toBe('error');
+  });
+
+  it('preserves explicit error types and structured or Arrow-prefixed details', () => {
+    for (const detail of ['͢Ts:literal', {value: NaN, bytes: new Uint8Array([0, 255])}, undefined]) {
+      const event = decode(encode(new ErrorEvent('timeout', detail)));
+      expect(event).toBeInstanceOf(ErrorEvent);
+      expect(event.type).toBe('timeout');
+      expect(event.detail).toEqual(detail);
+    }
+  });
+
   it('hashes clipboard data consistently across key ordering and Arrow roundtrips', () => {
     const data = {
       '#_copy_from': 'Main.source',

@@ -57,7 +57,7 @@ globalFunctions.addFactory(SqlQueryFunction, {
   id: 'sql:query',
   name: 'query',
   category: 'sql',
-  icon: '14:SQL',
+  icon: '11:SQL',
   mode: 'onCall',
   priority: 3,
   configs: defaultConfigs.concat('#cancel'),

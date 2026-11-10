@@ -8,6 +8,7 @@ import {ConnectionValueStore, useConnectionValue} from '../useConnectionValue.ts
 import {LazyUpdateComponent, LazyUpdateSubscriber} from '../LazyUpdateComponent.tsx';
 import {FieldValue} from '../../block/FieldValue.tsx';
 import {TicloLayoutContextType} from '../LayoutContext.ts';
+import {DoneEvent, ErrorEvent} from '@ticlo/core';
 
 function createConnection() {
   const subscriptions = new Map<SubscribeCallbacks, string>();
@@ -161,6 +162,32 @@ describe('connection value subscriptions', () => {
 
     flushSync(() => update('field', {bindingPath: 'source'}));
     expect([classRenders, hookRenders]).toEqual([1, 0]);
+    flushSync(() => root.render(null));
+    expect(subscriptions.size).toBe(0);
+  });
+
+  it('keeps projected error snapshots stable across ordinary completion events', () => {
+    const {conn, update, subscriptions} = createConnection();
+    const selectError = (value: unknown) => (value instanceof ErrorEvent ? value : undefined);
+    let renders = 0;
+    function ErrorValue() {
+      const error = useConnectionValue(conn, 'block.#emit', selectError);
+      ++renders;
+      return <span>{error?.type}</span>;
+    }
+    flushSync(() => root.render(<ErrorValue />));
+    renders = 0;
+    flushSync(() => {
+      for (let i = 0; i < 1000; ++i) update('block.#emit', {value: new DoneEvent()});
+      update('other.#emit', {value: new ErrorEvent()});
+    });
+    expect(renders).toBe(0);
+    flushSync(() => update('block.#emit', {value: new ErrorEvent('timeout')}));
+    expect(div.textContent).toBe('timeout');
+    expect(renders).toBe(1);
+    flushSync(() => update('block.#emit', {value: new DoneEvent()}));
+    expect(div.textContent).toBe('');
+    expect(renders).toBe(2);
     flushSync(() => root.render(null));
     expect(subscriptions.size).toBe(0);
   });

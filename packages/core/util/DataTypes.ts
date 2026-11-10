@@ -1,5 +1,6 @@
 import {Block} from '../block/Block.ts';
 import {BlockIO} from '../block/BlockProperty.ts';
+import {ErrorEvent} from '../block/Event.ts';
 
 export type DataMap = Record<string, unknown>;
 
@@ -63,6 +64,16 @@ export function isDataTruncated(val: any): boolean {
   }
   if (val.constructor === Object) {
     return Boolean(val[TRUNCATED]);
+  }
+  if (val instanceof ErrorEvent) {
+    return isDataTruncated(val.type) || isDataTruncated(val.detail);
+  }
+  if (val instanceof Error) {
+    return (
+      isDataTruncated(val.message) ||
+      isDataTruncated(val.name) ||
+      isDataTruncated((val as Error & {code?: unknown}).code)
+    );
   }
   return false;
 }

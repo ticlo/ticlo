@@ -7,7 +7,7 @@ import {BlockDeepProxy} from '../../block/BlockProxy.ts';
 import {FunctionDesc} from '../../block/Descriptor.ts';
 import {Logger} from '../../util/Logger.ts';
 
-export const SCRIPT_ERROR = 'scriptError';
+export const SCRIPT_ERROR = 'ScriptError';
 
 export class JsFunction extends BaseFunction<Block> {
   _compiledFunction: Function;

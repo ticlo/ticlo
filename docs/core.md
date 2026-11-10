@@ -40,6 +40,23 @@ stale asynchronous results. `PureFunction` clears output on cleanup;
 `StatefulFunction` routes changed inputs through its input map. See
 [execution controls](block-configs.md) and [worker contracts](worker-functions.md).
 
+### Errors and runtime status
+
+Blocks publish completion through `#emit` and pending work through `#wait`.
+Thrown exceptions become `ErrorEvent` values with type `SyncError`; rejected
+promises use `AsyncError`. Existing `ErrorEvent` values pass through unchanged,
+including when thrown or rejected. Their constructor defaults to `error` when
+no type is supplied.
+Failures are retained even without a subscriber; later emissions replace them.
+`emitOnly()` changes the event without ending the current wait state.
+
+Arrow encodes `ErrorEvent` with the `E` tag and native JavaScript errors with
+`e`. Compact array payloads preserve event types and details, including native
+error names, messages, and driver codes. Stack traces and event loop IDs are
+omitted. Decoding restores an `ErrorEvent` and its error semantics. Connection
+previews preserve recognizable errors while truncating large details to the
+value budget; `isDataTruncated()` recognizes these error previews.
+
 ## Flows and persistence
 
 `Flow` is a save/load boundary. Embedded `Flow._save()` returns `undefined`;

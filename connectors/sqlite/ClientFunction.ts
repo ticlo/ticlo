@@ -52,12 +52,18 @@ export class SqliteClientFunction extends BaseFunction {
   }
 }
 
-globalFunctions.addCategory({id: 'sqlite', name: 'sqlite', libraryId: 'sqlite', icon: '14:DB', color: '4af'});
+globalFunctions.addCategory({
+  id: 'sqlite',
+  name: 'sqlite',
+  libraryId: 'sqlite',
+  icon: 't11:SQ  b11^:Lite',
+  color: '4af',
+});
 globalFunctions.addFactory(
   SqliteClientFunction,
   {
     name: 'client',
-    icon: '14:DB',
+    icon: 't11:SQ  b11^:Lite',
     mode: 'onLoad',
     priority: 2,
     tags: ['sql-client'],

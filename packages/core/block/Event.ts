@@ -39,11 +39,15 @@ export class Event<T = Record<string, unknown>> {
 }
 
 export class ErrorEvent extends Event {
+  static readonly defaultType = 'error';
+  static readonly SyncError = 'SyncError';
+  static readonly AsyncError = 'AsyncError';
+
   constructor(
-    type: string,
+    type = ErrorEvent.defaultType,
     public readonly detail?: unknown
   ) {
-    super(type);
+    super(type || ErrorEvent.defaultType);
     this.detail = detail;
   }
 

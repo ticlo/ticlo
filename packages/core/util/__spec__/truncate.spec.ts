@@ -2,8 +2,33 @@ import {expect} from 'vitest';
 import type {DataMap} from '../DataTypes.ts';
 import {measureObjSize, TRUNCATED, isDataTruncated, getTruncatedArrayLength} from '../DataTypes.ts';
 import {truncateData} from '../DataTruncate.ts';
+import {ErrorEvent} from '../../block/Event.ts';
+import {encode, decode} from '../Serialize.ts';
 
 describe('truncateData', function () {
+  it('keeps large errors recognizable while bounding messages and cyclic detail previews', () => {
+    const small = new ErrorEvent(undefined, Object.assign(new Error('bad SQL'), {code: 'SQLITE_ERROR'}));
+    expect(truncateData(small)[0]).toBe(small);
+    expect(isDataTruncated(small)).toBe(false);
+    const large = new ErrorEvent('database', new Error('x'.repeat(100_000)));
+    const preview = truncateData(large, 256)[0];
+    expect(preview).toBeInstanceOf(ErrorEvent);
+    expect(preview.type).toBe('database');
+    expect(preview.detail.message).toContain(TRUNCATED);
+    expect(isDataTruncated(preview)).toBe(true);
+    expect(encode(preview).length).toBeLessThan(512);
+    expect(decode(encode(preview))).toBeInstanceOf(ErrorEvent);
+
+    const cyclic: DataMap = {};
+    cyclic.self = cyclic;
+    const cyclicPreview = truncateData(new ErrorEvent(undefined, cyclic), 256)[0];
+    expect(isDataTruncated(cyclicPreview)).toBe(true);
+    expect(() => encode(cyclicPreview)).not.toThrow();
+    const cyclicEvent = new ErrorEvent();
+    Object.assign(cyclicEvent, {detail: cyclicEvent});
+    expect(isDataTruncated(truncateData(cyclicEvent, 256)[0])).toBe(true);
+  });
+
   let longstr = '1234567890';
   const bigObj: {child: DataMap; arr: unknown[]} & DataMap = {child: {}, arr: []};
   for (let i = 0; i < 8; i++) {

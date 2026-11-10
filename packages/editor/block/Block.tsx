@@ -10,6 +10,7 @@ import {getDisplayName} from '@ticlo/core';
 import {Tooltip} from 'antd';
 import {BlockDropdown} from '../popup/BlockDropdown.tsx';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
+import {BlockStatus} from './BlockStatus.tsx';
 
 interface BlockViewProps {
   item: BlockItem;
@@ -250,6 +251,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           onDragLeaveT={this.onDragLeaveFoot}
         >
           <FullView conn={item.conn} path={item.path} updateViewHeight={item.setViewH} />
+          <BlockStatus conn={item.conn} path={item.path} />
           {widthDrag}
         </DragDropDiv>
       );
@@ -304,6 +306,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               onDropT={this.onDropFoot}
               onDragLeaveT={this.onDragLeaveFoot}
             >
+              <BlockStatus conn={item.conn} path={item.path} />
               {item.selfField?.outWires.size ? <div className="ticl-e-outbound" /> : null}
               <DragDropDiv
                 className="ticl-e-width-drag"
@@ -347,6 +350,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
                 </DragDrop>
               </Tooltip>
             </BlockDropdown>
+            <BlockStatus conn={item.conn} path={item.path} />
           </div>
         );
       }

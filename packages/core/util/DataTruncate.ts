@@ -2,6 +2,7 @@ import {DataMap, isBaseObject, TRUNCATED} from './DataTypes.ts';
 import {decode, decodeReviver, encodeRaw} from './Serialize.ts';
 import QS from 'qs';
 import {DateTime} from 'luxon';
+import {ErrorEvent} from '../block/Event.ts';
 
 function truncateMap(val: DataMap, maxSize: number): [any, number, boolean] {
   let total = 0;
@@ -60,6 +61,23 @@ function truncateObj(val: any, maxSize: number): [any, number, boolean] {
     }
     if (isBaseObject(val)) {
       return truncateMap(val, maxSize);
+    }
+    if (val instanceof ErrorEvent) {
+      if (maxSize <= 16) return [new ErrorEvent(undefined, TRUNCATED), 16, true];
+      const [type, typeSize, typeTruncated] = truncateObj(val.type, Math.max(0, maxSize / 4));
+      const [detail, size, detailTruncated] = truncateObj(val.detail, Math.max(0, maxSize - typeSize - 16) * 0.75);
+      if (detailTruncated && detail?.constructor === Object) detail[TRUNCATED] = 1;
+      const truncated = typeTruncated || detailTruncated;
+      return [truncated ? new ErrorEvent(type, detail) : val, typeSize + size + 16, truncated];
+    }
+    if (val instanceof Error) {
+      const code = (val as Error & {code?: string | number}).code;
+      const [message, messageSize, messageTruncated] = truncateObj(val.message, maxSize * 0.6);
+      const [name, nameSize, nameTruncated] = truncateObj(val.name, maxSize * 0.15);
+      const [previewCode, codeSize, codeTruncated] = truncateObj(code, maxSize * 0.15);
+      const truncated = messageTruncated || nameTruncated || codeTruncated;
+      const preview = truncated ? Object.assign(new Error(message), {name, code: previewCode}) : val;
+      return [preview, messageSize + nameSize + codeSize + 12, truncated];
     }
     const encoded = encodeRaw(val);
     if (typeof encoded === 'string' && encoded.length <= maxSize) {

@@ -4,13 +4,14 @@ import {batchUpdateReact} from '../util/BatchUpdate.ts';
 
 // A value-only snapshot: binding and listener metadata do not invalidate it.
 // Construction is side-effect free; React owns the subscription lifetime.
-export class ConnectionValueStore {
-  private value: any;
+export class ConnectionValueStore<T = any> {
+  private value: T;
   private listeners = new Set<() => void>();
   private subscriber = new ValueSubscriber({
     onUpdate: ({cache}) => {
-      if (!Object.is(cache.value, this.value)) {
-        this.value = cache.value;
+      const value = this.select ? this.select(cache.value) : cache.value;
+      if (!Object.is(value, this.value)) {
+        this.value = value;
         batchUpdateReact(this.notify, this.conn);
       }
     },
@@ -18,8 +19,11 @@ export class ConnectionValueStore {
 
   constructor(
     private conn: ClientConn,
-    private path: string
-  ) {}
+    private path: string,
+    private select?: (value: any) => T
+  ) {
+    this.value = select?.(undefined);
+  }
 
   // Connection values are replaced on update. Keep their identity between updates.
   getSnapshot = () => this.value;
@@ -44,7 +48,7 @@ export class ConnectionValueStore {
   };
 }
 
-export function useConnectionValue(conn: ClientConn, path: string) {
-  const store = useMemo(() => new ConnectionValueStore(conn, path), [conn, path]);
+export function useConnectionValue<T = any>(conn: ClientConn, path: string, select?: (value: any) => T) {
+  const store = useMemo(() => new ConnectionValueStore(conn, path, select), [conn, path, select]);
   return useSyncExternalStore(store.subscribe, store.getSnapshot);
 }
