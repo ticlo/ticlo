@@ -95,7 +95,7 @@ describe('SQL client management dialog', () => {
     expect(database.getColumns).not.toHaveBeenCalled();
     await userEvent.click(document.querySelector('.ant-tree-switcher'));
     await shouldHappen(() => document.querySelector('.ticl-e-sql-column-type')?.textContent === 'INTEGER');
-    expect(database.getColumns).toHaveBeenCalledWith(entity);
+    expect(database.getColumns).toHaveBeenCalledWith({catalog: undefined, schema: entity.schema, name: entity.name});
     await userEvent.click(document.querySelector('.ant-tree-switcher'));
     await userEvent.click(document.querySelector('.ant-tree-switcher'));
     expect(database.getColumns).toHaveBeenCalledOnce();

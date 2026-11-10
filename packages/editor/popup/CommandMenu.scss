@@ -1,0 +1,21 @@
+.ticl-e-command-menu {
+  width: 380px;
+  max-width: 80vw;
+  max-height: 75vh;
+  overflow: auto;
+  padding: 8px;
+
+  .ticl-e-property-name {
+    width: 96px;
+  }
+  .ticl-e-property-value {
+    min-width: 0;
+  }
+  .ticl-e-command-actions {
+    padding: 8px 0;
+  }
+  .ticl-e-command-results {
+    border-top: 1px solid var(--ant-color-border, #ddd);
+    padding-top: 8px;
+  }
+}

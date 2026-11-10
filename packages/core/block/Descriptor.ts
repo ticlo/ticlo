@@ -37,6 +37,8 @@ export type ValueType =
 
 export interface FunctionCommandDesc {
   parameters: PropDesc[];
+  /** Named fields returned by the command, before the connection's {result} wrapper. */
+  results?: PropDesc[];
   /** Arguments or returned values may be large; the connection chooses a suitable transport. */
   largeData?: boolean;
   /** Does not write to the Block or an external service. */

@@ -123,11 +123,18 @@ the union of the whole array's first and last row keys.
 awaits asynchronous results. Server policies enforce access independently of
 client restrictions; storage-backed commands must propagate promises.
 
-Function commands may return a value or a Promise. `executeCommand` waits before
+Function commands return named values in an object, synchronously or as a Promise. `executeCommand` waits before
 returning `{result}`; a null or undefined result retains the existing Flow change
 tracking behavior. Thrown command errors preserve native Error details through
 Arrow encoding. Callback callers still receive a string message and may inspect
 `data.error`; Promise callers receive the transported Error when available.
+
+`FunctionCommandDesc.parameters` describes named arguments. Its optional `results`
+array describes named return values using property descriptors. Handlers return
+an object keyed by those names; the connection adds its `{result: values}` wrapper.
+Tables use the existing `rowType` and `columns` descriptors,
+or carry dynamic columns in their returned `{columns, rows}` value. These schemas
+describe editor presentation; they do not transform or validate command data.
 
 `FunctionCommandDesc.largeData` indicates potentially large arguments or results.
 Callers pass it in the fifth argument of `ClientConn.executeCommand`, leaving

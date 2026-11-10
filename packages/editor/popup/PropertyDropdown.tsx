@@ -23,7 +23,8 @@ import {StringEditor} from '../property/value/StringEditor.tsx';
 import {AddCustomPropertyMenu} from '../property/AddCustomProperty.tsx';
 import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn.ts';
 import {CheckboxChangeEvent} from 'antd';
-import {ParameterInputDialog} from './ParameterInputDialog.tsx';
+import {CommandMenu} from './CommandMenu.tsx';
+import {requestCallbacks} from '../util/RequestCallbacks.ts';
 import {ExpandIcon} from '../component/Tree.tsx';
 import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.ts';
 import {getDescModule} from '../util/FunctionModule.ts';
@@ -54,7 +55,6 @@ interface State {
   visible: boolean;
   isTempOverride?: boolean;
   valueDenfinedOverride?: boolean;
-  modal?: React.ReactElement;
 }
 export class PropertyDropdown extends React.PureComponent<Props, State> {
   static contextType = EditPolicyContext;
@@ -73,6 +73,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     );
   }
   state: State = {visible: false};
+  private menuOpened = false;
 
   subscriber = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
@@ -98,6 +99,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
   }
 
   onMenuVisibleChange = (visible: boolean) => {
+    if (visible) this.menuOpened = true;
     this.setState({visible});
   };
 
@@ -188,39 +190,12 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     }
     this.closeMenu();
   };
-  onCloseCommandModal = () => {
-    this.setState({modal: null});
-  };
-
   onExeCommand = (command: string) => {
     if (!this.can('executeCommand')) return;
     const {conn, paths, name, funcDesc, propDesc} = this.props;
     const commandDesc = propDesc.commands[command];
-    if (commandDesc.parameters?.length) {
-      const onConfirmCommandModal = (values: DataMap) => {
-        if (!this.can('executeCommand')) return;
-        for (const path of paths) {
-          conn.executeCommand(path, command, {...values, property: name}, undefined, commandDesc);
-        }
-        this.onCloseCommandModal();
-      };
-      const modal = (
-        <ParameterInputDialog
-          title={
-            <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
-          }
-          funcName={`${funcDesc.name}.${propDesc.name}.@commands.${command}`}
-          parameters={commandDesc.parameters}
-          libraryId={funcDesc.libraryId}
-          onOk={onConfirmCommandModal}
-          onCancel={this.onCloseCommandModal}
-        />
-      );
-      this.setState({modal});
-    } else {
-      for (const path of paths) {
-        conn.executeCommand(path, command, {property: name}, undefined, commandDesc);
-      }
+    for (const path of paths) {
+      conn.executeCommand(path, command, {property: name}, requestCallbacks, commandDesc);
     }
   };
 
@@ -260,9 +235,21 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
     onAddSubBlock?.(id, desc, data);
   };
 
-  getMenu() {
-    const {funcDesc, propDesc, bindingPath, group, name, conn, valueDefined, isCustom, isTemp, display, funcModule} =
-      this.props;
+  getMenu = () => {
+    const {
+      funcDesc,
+      propDesc,
+      bindingPath,
+      group,
+      name,
+      conn,
+      paths,
+      valueDefined,
+      isCustom,
+      isTemp,
+      display,
+      funcModule,
+    } = this.props;
     const {valueDenfinedOverride, isTempOverride} = this.state;
     const menuItems: React.ReactElement[] = [];
     if (!propDesc.readonly) {
@@ -394,6 +381,31 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         const commandMenus: React.ReactElement[] = [];
         for (const command of commands) {
           if (propDesc.commands[command].hidden || !this.can('executeCommand', {command})) continue;
+          const desc = propDesc.commands[command];
+          if (desc.parameters?.length || desc.results?.length) {
+            commandMenus.push(
+              <SubMenuItem
+                key={`cmd-${command}`}
+                popup={
+                  <CommandMenu
+                    key={`${paths.join(',')}:${name}:${funcDesc.id}:${command}`}
+                    conn={conn}
+                    paths={paths}
+                    command={command}
+                    desc={desc}
+                    property={name}
+                    funcDesc={{
+                      name: `${funcDesc.name}.${propDesc.name}.@commands.${command}`,
+                      libraryId: funcDesc.libraryId,
+                    }}
+                  />
+                }
+              >
+                <LocalizedPropCommand funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
+              </SubMenuItem>
+            );
+            continue;
+          }
           commandMenus.push(
             <MenuItem key={`cmd-${command}`} value={command} onClick={this.onExeCommand}>
               <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
@@ -419,24 +431,20 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       }
     }
     return menuItems.length ? <Menu>{menuItems}</Menu> : null;
-  }
+  };
 
   render(): any {
     const {children} = this.props;
-    const {visible, modal} = this.state;
-    const popup = visible ? this.getMenu() : null;
+    const {visible} = this.state;
     return (
-      <>
-        <Popup
-          popup={popup}
-          trigger={['contextMenu']}
-          popupVisible={visible}
-          onPopupVisibleChange={this.onMenuVisibleChange}
-        >
-          {children}
-        </Popup>
-        {modal}
-      </>
+      <Popup
+        popup={this.menuOpened ? this.getMenu : null}
+        trigger={['contextMenu']}
+        popupVisible={visible}
+        onPopupVisibleChange={this.onMenuVisibleChange}
+      >
+        {children}
+      </Popup>
     );
   }
 }

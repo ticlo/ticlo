@@ -31,7 +31,7 @@ describe('SQL client commands', () => {
     await root.setStorage(storage);
     const [, client] = makeLocalConnection(root, false);
     try {
-      expect(await client.executeCommand('#global.^database', 'listEntities')).toMatchObject({result: []});
+      expect(await client.executeCommand('#global.^database', 'listEntities')).toMatchObject({result: {entities: []}});
       await expect(
         client.simpleRequest({
           cmd: 'executeCommand',
@@ -85,7 +85,8 @@ describe('SQL client commands', () => {
         .fn()
         .mockReturnValueOnce(pending.promise)
         .mockRejectedValueOnce(Object.assign(new Error('invalid SQL'), {code: 'SQL_TEST'}));
-      const entity = {catalog: 'catalog', schema: 'a.b', name: 'quoted".table', kind: 'table' as const};
+      const entityRef = {catalog: 'catalog', schema: 'a.b', name: 'quoted".table'};
+      const entity = {...entityRef, kind: 'table' as const};
       const columns = [{name: 'value', databaseType: 'BLOB', nullable: true}];
       const getColumns = vi.fn().mockResolvedValue(columns);
       const service = escapedObject('sql-client-test', {query, getColumns, listEntities: async () => [entity]});
@@ -94,11 +95,17 @@ describe('SQL client commands', () => {
       const [, client] = makeLocalConnection(root, false, undefined, serialize);
       const changed = vi.spyOn(root._globalRoot, 'trackChange');
       try {
-        expect(await client.executeCommand('#global.^database', 'listEntities')).toMatchObject({result: [entity]});
-        expect(await client.executeCommand('#global.^database', 'getColumns', {entity})).toMatchObject({
-          result: columns,
+        expect(await client.executeCommand('#global.^database', 'listEntities')).toMatchObject({
+          result: {entities: [entity]},
         });
-        expect(getColumns).toHaveBeenCalledWith(entity);
+        expect(await client.executeCommand('#global.^database', 'getColumns', entityRef)).toMatchObject({
+          result: {columns},
+        });
+        expect(getColumns).toHaveBeenCalledWith(entityRef);
+        await expect(
+          client.executeCommand('#global.^database', 'getColumns', {name: 'items', schema: 42}) as Promise<any>
+        ).rejects.toThrow('Invalid SQL entity');
+        expect(getColumns).toHaveBeenCalledOnce();
         let completed = false;
         const response = (
           client.executeCommand('#global.^database', 'query', {sql: 'SELECT ?', params: [1]}) as Promise<any>
@@ -112,8 +119,11 @@ describe('SQL client commands', () => {
           columns: [{name: 'value', type: 'any' as const}],
           rows: Array.from({length: 2000}, (_, index) => [index]),
         };
-        pending.resolve({table});
-        expect((await response).result.table.rows).toEqual(table.rows);
+        pending.resolve({table, affectedRows: 0, insertId: '9007199254740993'});
+        const {result} = await response;
+        expect(result.table.rows).toEqual(table.rows);
+        expect(result.affectedRows).toBe(0);
+        expect(result.insertId).toBe('9007199254740993');
         expect(query).toHaveBeenCalledWith('SELECT ?', [1]);
         await expect(
           client.executeCommand('#global.^database', 'query', {sql: 'invalid'}) as Promise<any>
@@ -136,7 +146,7 @@ describe('SQL client commands', () => {
     });
     const [server, client] = makeLocalConnection(root, false, {readonly: true, allowPaths: ['#global.^database']});
     try {
-      expect(await client.executeCommand('#global.^database', 'listEntities')).toMatchObject({result: []});
+      expect(await client.executeCommand('#global.^database', 'listEntities')).toMatchObject({result: {entities: []}});
       await expect(
         client.executeCommand('#global.^database', 'query', {sql: 'DELETE FROM test'}) as Promise<any>
       ).rejects.toThrow('readonly');

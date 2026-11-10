@@ -1,5 +1,12 @@
 # Editor
 
+Commands with parameters or named results open a submenu with local value editors,
+an explicit Run button, and readonly results. Opening or editing a command does
+not execute it. Draft values and results stay in the browser and do not modify
+Flow properties. The `editValue(value, desc, onChange?)` layout action opens a local
+text/object editor; omitting `onChange` makes it readonly. Table editors also accept
+local values without a connection or property paths.
+
 ## Current stage and commands
 
 `TicloApp` owns a registry of views. Each `TicloStage` has a stable unique `id`

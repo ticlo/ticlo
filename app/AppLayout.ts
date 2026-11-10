@@ -38,7 +38,7 @@ export const toolGroup: TabGroup = {
 export function createLayoutActions(
   getLayout: () => DockLayout,
   getConn: () => ClientConn
-): Pick<TicloLayoutContext, 'editProperty' | 'editSchedule' | 'editTable' | 'manageDatabase'> {
+): Pick<TicloLayoutContext, 'editProperty' | 'editValue' | 'editSchedule' | 'editTable' | 'manageDatabase'> {
   return {
     editProperty: (paths, propDesc, defaultValue, mime, readonly) => {
       if (!mime) {
@@ -49,6 +49,9 @@ export function createLayoutActions(
         }
       }
       TextEditorPane.openFloatPanel(getLayout(), getConn(), paths, defaultValue, mime, readonly);
+    },
+    editValue: (value, desc, onChange) => {
+      TextEditorPane.openValuePanel(getLayout(), value, desc, onChange);
     },
     editSchedule: (path, scheduleName, index) => {
       SchedulePane.openFloatPanel(getLayout(), getConn(), path, scheduleName, index);

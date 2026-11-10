@@ -80,10 +80,11 @@ SQLite uses its attached database names as schemas and reports declared
 columns.
 
 Adapters reuse core's `sqlClientCommands` descriptor and `sqlClientApi` as their
-function API. These expose `listEntities`, `getColumns` (`{entity}`), and `query`
+function API. These expose `listEntities`, `getColumns` (`{catalog?, schema?, name}`), and `query`
 (`{sql, params?}`) commands against the current `#output` service, including
-code-defined globals. Each response contains `{result}` with the complete array
-or `SqlResult`; commands do not paginate or truncate results. Metadata commands
+code-defined globals. Named results are `{entities}` for `listEntities`, `{columns}`
+for `getColumns`, and `{table?, affectedRows?, insertId?}` for `query`, inside the
+connection's `{result}` response wrapper. Commands do not paginate or truncate results. Metadata commands
 are readonly. Query commands reject execution on a readonly server connection;
 the database driver's own read-only setting independently controls SQL writes.
 

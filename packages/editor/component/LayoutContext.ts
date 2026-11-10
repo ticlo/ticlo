@@ -46,6 +46,7 @@ export interface TicloLayoutContext<Stage extends TicloStage = TicloStage> exten
   editFlow?(path: string, onSave: () => void): void;
 
   editProperty?(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void;
+  editValue?(value: unknown, desc: PropDesc, onChange?: (value: unknown) => void): void;
   editSchedule?(path: string, scheduleName?: string, index?: number): void;
   editTable?(props: ValueEditorProps): void;
   manageDatabase?(conn: ClientConn, path: string): void;

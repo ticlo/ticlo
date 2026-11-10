@@ -223,3 +223,5 @@
 'Affected rows': '影响行数' # translated from: Affected rows
 'Insert ID': '插入 ID' # translated from: Insert ID
 'SQL client is not ready': 'SQL 客户端尚未就绪' # translated from: SQL client is not ready
+'Results': '返回结果' # translated from: Results
+'Done': '已完成' # translated from: Done

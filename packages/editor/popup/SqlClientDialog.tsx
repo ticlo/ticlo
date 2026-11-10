@@ -112,8 +112,8 @@ function SqlClientPanel({conn, path}: Props) {
     inFlight.current = false;
     if (service) {
       request('listEntities').then(
-        (value) => {
-          if (revision.active && current.current === target) setEntities(value);
+        ({entities}) => {
+          if (revision.active && current.current === target) setEntities(entities);
         },
         (error) => {
           if (revision.active && current.current === target) {
@@ -158,7 +158,8 @@ function SqlClientPanel({conn, path}: Props) {
     if (!node.entity || columns[key]) return;
     const revision = session.current;
     try {
-      const value = await request('getColumns', {entity: node.entity});
+      const {catalog, schema, name} = node.entity;
+      const {columns: value} = await request('getColumns', {catalog, schema, name});
       if (revision.active && current.current === target) setColumns((columns) => ({...columns, [key]: value}));
     } catch (error) {
       if (revision.active && current.current === target) setError(errorMessage(error));

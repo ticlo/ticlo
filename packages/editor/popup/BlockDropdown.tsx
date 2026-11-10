@@ -18,10 +18,10 @@ import {LocalizedFuncCommand, LocalizedPropCommand, t} from '../component/Locali
 
 import {DataMap, FunctionDesc, PropDesc, smartStrCompare} from '@ticlo/core';
 import {ClientConn} from '@ticlo/core/connect/ClientConn.ts';
-import {Popup, Menu, MenuItem} from '../component/ClickPopup.tsx';
+import {Popup, Menu, MenuItem, SubMenuItem} from '../component/ClickPopup.tsx';
 import {RenameDialog} from './RenameDialog.tsx';
 import {splitPathName} from '@ticlo/core/util/Path.ts';
-import {ParameterInputDialog} from './ParameterInputDialog.tsx';
+import {CommandMenu} from './CommandMenu.tsx';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {getDescModule} from '../util/FunctionModule.ts';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
@@ -48,7 +48,6 @@ interface Props {
 
 interface State {
   visible: boolean;
-  modal?: React.ReactElement;
 }
 
 export class BlockDropdown extends React.PureComponent<Props, State> {
@@ -56,6 +55,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   declare context: TicloLayoutContext;
 
   state: State = {visible: false};
+  private menuOpened = false;
 
   can(cmd: string, data: DataMap = {}) {
     if (!this.props.checkPolicy) return true;
@@ -66,6 +66,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   }
 
   onMenuVisibleChange = (visible: boolean) => {
+    if (visible) this.menuOpened = true;
     if (visible) this.props.onMenuOpen?.();
     this.setState({visible});
   };
@@ -115,38 +116,16 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} />, this.context.showModal);
   };
 
-  onCloseCommandModal = () => {
-    this.setState({modal: null});
-  };
   onManageDatabase = () => {
     const {conn, path} = this.props;
     this.context.manageDatabase?.(conn, path);
   };
   onExeCommand = (command: string) => {
     if (!this.can('executeCommand', {command})) return;
-    const {conn, canApply, functionId, path, funcModule} = this.props;
+    const {conn, functionId, path, funcModule} = this.props;
     const funcDesc = conn.watchDesc(functionId, getDescModule(functionId, funcModule));
     const commandDesc = funcDesc.commands[command];
-    if (commandDesc.parameters?.length) {
-      const onConfirmCommandModal = (values: DataMap) => {
-        if (!this.can('executeCommand', {command, params: values})) return;
-        conn.executeCommand(path, command, values, undefined, commandDesc);
-        this.onCloseCommandModal();
-      };
-      const modal = (
-        <ParameterInputDialog
-          title={<LocalizedFuncCommand key={command} desc={funcDesc} command={command} />}
-          funcName={`${funcDesc.name}.@commands.${command}`}
-          parameters={commandDesc.parameters}
-          libraryId={funcDesc.libraryId}
-          onOk={onConfirmCommandModal}
-          onCancel={this.onCloseCommandModal}
-        />
-      );
-      this.setState({modal});
-    } else {
-      conn.executeCommand(path, command, {}, undefined, commandDesc);
-    }
+    conn.executeCommand(path, command, {}, requestCallbacks, commandDesc);
   };
 
   getMenu = () => {
@@ -216,6 +195,27 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
         commands.sort(smartStrCompare);
         for (const command of commands) {
           if (funcDesc.commands[command].hidden || !this.can('executeCommand', {command})) continue;
+          const desc = funcDesc.commands[command];
+          if (desc.parameters?.length || desc.results?.length) {
+            commandMenus.push(
+              <SubMenuItem
+                key={`cmd-${command}`}
+                popup={
+                  <CommandMenu
+                    key={`${this.props.path}:${functionId}:${command}`}
+                    conn={conn}
+                    paths={[this.props.path]}
+                    command={command}
+                    desc={desc}
+                    funcDesc={{name: `${funcDesc.name}.@commands.${command}`, libraryId: funcDesc.libraryId}}
+                  />
+                }
+              >
+                <LocalizedFuncCommand desc={funcDesc} command={command} />
+              </SubMenuItem>
+            );
+            continue;
+          }
           commandMenus.push(
             <MenuItem key={`cmd-${command}`} value={command} onClick={this.onExeCommand}>
               <LocalizedFuncCommand key={command} desc={funcDesc} command={command} />
@@ -252,21 +252,18 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
 
   render(): any {
     const {children} = this.props;
-    const {visible, modal} = this.state;
+    const {visible} = this.state;
     return (
       <EditPolicyContext.Consumer>
         {() => (
-          <>
-            <Popup
-              popup={visible ? this.getMenu() : null}
-              trigger={['contextMenu']}
-              popupVisible={visible}
-              onPopupVisibleChange={this.onMenuVisibleChange}
-            >
-              {children}
-            </Popup>
-            {modal}
-          </>
+          <Popup
+            popup={this.menuOpened ? this.getMenu : null}
+            trigger={['contextMenu']}
+            popupVisible={visible}
+            onPopupVisibleChange={this.onMenuVisibleChange}
+          >
+            {children}
+          </Popup>
         )}
       </EditPolicyContext.Consumer>
     );
