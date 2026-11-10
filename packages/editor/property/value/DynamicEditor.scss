@@ -21,6 +21,7 @@
 }
 /* used by both the type choose button and the drop down menu */
 .ticl-e-dynamic-type-icon {
+  position: relative;
   width: 11px;
   height: 11px;
   border-radius: 2px;
@@ -28,6 +29,7 @@
   opacity: 0.2;
 
   & > .tico-txt {
+    display: block;
     color: var(--ant-color-bg-container, #fff);
     font-size: 11px;
     line-height: 11px;

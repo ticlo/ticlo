@@ -1,6 +1,6 @@
 import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Button} from 'antd';
-import {PlayCircleOutlined} from '@ant-design/icons';
+import {PlayCircleFilled} from '@ant-design/icons';
 import type {DataMap, FunctionCommandDesc, FunctionDesc, PropDesc} from '@ticlo/core';
 import {deepClone} from '@ticlo/core/util/Clone.ts';
 import type {ClientConn} from '@ticlo/core/editor.ts';
@@ -157,7 +157,7 @@ function CommandPanel({conn, paths, command, desc, funcDesc, property}: Props) {
         <Button
           size="small"
           type="primary"
-          icon={<PlayCircleOutlined />}
+          icon={<PlayCircleFilled />}
           loading={running}
           disabled={!allowed(policy)}
           onClick={() => void run()}

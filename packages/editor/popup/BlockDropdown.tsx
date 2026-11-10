@@ -4,13 +4,13 @@ import {NodeTreeItem} from '../node-tree/NodeRenderer.tsx';
 import React from 'react';
 import {
   BuildOutlined,
-  CaretRightOutlined,
   DeleteOutlined,
   DatabaseOutlined,
   EditOutlined,
   FileAddOutlined,
   PauseCircleOutlined,
   PlayCircleOutlined,
+  PlayCircleFilled,
   SaveOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
@@ -218,6 +218,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
           }
           commandMenus.push(
             <MenuItem key={`cmd-${command}`} value={command} onClick={this.onExeCommand}>
+              <PlayCircleFilled />
               <LocalizedFuncCommand key={command} desc={funcDesc} command={command} />
             </MenuItem>
           );
@@ -238,7 +239,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
       if (showCallMenu) {
         menuitems.push(
           <MenuItem key="call" onClick={this.onCallClicked}>
-            <CaretRightOutlined />
+            <PlayCircleFilled />
             {t('Call')}
           </MenuItem>
         );

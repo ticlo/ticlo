@@ -18,7 +18,7 @@ import {
 } from '@ticlo/core';
 import {LocalizedPropCommand, LocalizedPropertyName, t} from '../component/LocalizedLabel.tsx';
 import {Button, Checkbox} from 'antd';
-import {DeleteOutlined} from '@ant-design/icons';
+import {DeleteOutlined, PlayCircleFilled} from '@ant-design/icons';
 import {StringEditor} from '../property/value/StringEditor.tsx';
 import {AddCustomPropertyMenu} from '../property/AddCustomProperty.tsx';
 import {ClientConn, ValueSubscriber} from '@ticlo/core/connect/ClientConn.ts';
@@ -408,6 +408,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
           }
           commandMenus.push(
             <MenuItem key={`cmd-${command}`} value={command} onClick={this.onExeCommand}>
+              <PlayCircleFilled />
               <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />
             </MenuItem>
           );
