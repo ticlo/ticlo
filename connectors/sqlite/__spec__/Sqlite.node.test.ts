@@ -22,6 +22,39 @@ afterEach(async () => {
 });
 
 describe('SQLite connector', () => {
+  it('lists tables and views across attached schemas and returns columns without interpolating entity names', async () => {
+    const client = await open();
+    await client.query(
+      'CREATE TABLE "a.b" (id INTEGER PRIMARY KEY, name TEXT NOT NULL DEFAULT \'sample\', size INT GENERATED ALWAYS AS (length(name)) VIRTUAL)'
+    );
+    await client.query('CREATE VIEW names AS SELECT name FROM "a.b"');
+    await client.query('ATTACH DATABASE \':memory:\' AS "extra.schema"');
+    await client.query('CREATE TABLE "extra.schema"."quote""table" (value BLOB)');
+    await client.query('CREATE TEMP TABLE temporary (value INT)');
+    const entities = await client.listEntities();
+    expect(entities).toEqual(
+      expect.arrayContaining([
+        {schema: 'main', name: 'a.b', kind: 'table'},
+        {schema: 'main', name: 'names', kind: 'view'},
+        {schema: 'extra.schema', name: 'quote"table', kind: 'table'},
+        {schema: 'temp', name: 'temporary', kind: 'table'},
+      ])
+    );
+    expect(await client.getColumns({schema: 'main', name: 'a.b'})).toEqual([
+      {name: 'id', databaseType: 'INTEGER', nullable: true, primaryKey: true},
+      {name: 'name', databaseType: 'TEXT', nullable: false, primaryKey: false, defaultExpression: "'sample'"},
+      {name: 'size', databaseType: 'INT', nullable: true, primaryKey: false},
+    ]);
+    expect(await client.getColumns({schema: 'extra.schema', name: 'quote"table'})).toMatchObject([
+      {name: 'value', databaseType: 'BLOB'},
+    ]);
+    expect(await client.getColumns({name: 'names'})).toMatchObject([{name: 'name'}]);
+    await expect(client.getColumns({name: "a.b' OR 1=1 --"})).rejects.toThrow('no longer exists');
+    await client.close();
+    await expect(client.listEntities()).rejects.toThrow('closed');
+    await expect(client.getColumns({name: 'names'})).rejects.toThrow('closed');
+  });
+
   it('binds parameters, returns tables, and does not reuse stale write metadata', async () => {
     const client = await open();
     await client.query('CREATE TABLE items (id INTEGER PRIMARY KEY, name TEXT, enabled INTEGER)');

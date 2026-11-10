@@ -58,7 +58,7 @@ describe('sql:query', () => {
     const second = Promise.withResolvers<SqlResult>();
     const third = Promise.withResolvers<SqlResult>();
     const fourth = Promise.withResolvers<SqlResult>();
-    const client: SqlClient = {
+    const client: Pick<SqlClient, 'query'> = {
       query: vi
         .fn()
         .mockReturnValueOnce(first.promise)

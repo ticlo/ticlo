@@ -37,6 +37,12 @@ export type ValueType =
 
 export interface FunctionCommandDesc {
   parameters: PropDesc[];
+  /** Arguments or returned values may be large; the connection chooses a suitable transport. */
+  largeData?: boolean;
+  /** Does not write to the Block or an external service. */
+  readonly?: boolean;
+  /** Used by a dedicated UI instead of the generic command menu. */
+  hidden?: boolean;
 }
 
 export interface PropDesc {

@@ -59,7 +59,17 @@ export * from './functions/web-server/RouteFunction.ts';
 
 // Export common data functions
 export * from './functions/data/CreateObject.ts';
-export type {SqlClient, SqlColumn, SqlParams, SqlResult, SqlTable} from './functions/sql/SqlClient.ts';
+export type {
+  SqlClient,
+  SqlColumn,
+  SqlParams,
+  SqlResult,
+  SqlTable,
+  SqlEntityRef,
+  SqlEntity,
+  SqlEntityColumn,
+} from './functions/sql/SqlClient.ts';
+export {sqlClientCommands, sqlClientApi} from './functions/sql/SqlClientCommands.ts';
 export * from './property-api/ObjectValue.ts';
 export {moveBlocks} from './property-api/CopyPaste.ts';
 export {deleteBlock} from './property-api/DeleteBlock.ts';

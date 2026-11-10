@@ -200,7 +200,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       const onConfirmCommandModal = (values: DataMap) => {
         if (!this.can('executeCommand')) return;
         for (const path of paths) {
-          conn.executeCommand(path, command, {...values, property: name});
+          conn.executeCommand(path, command, {...values, property: name}, undefined, commandDesc);
         }
         this.onCloseCommandModal();
       };
@@ -219,7 +219,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       this.setState({modal});
     } else {
       for (const path of paths) {
-        conn.executeCommand(path, command, {property: name});
+        conn.executeCommand(path, command, {property: name}, undefined, commandDesc);
       }
     }
   };
@@ -393,7 +393,7 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
         commands.sort(smartStrCompare);
         const commandMenus: React.ReactElement[] = [];
         for (const command of commands) {
-          if (!this.can('executeCommand', {command})) continue;
+          if (propDesc.commands[command].hidden || !this.can('executeCommand', {command})) continue;
           commandMenus.push(
             <MenuItem key={`cmd-${command}`} value={command} onClick={this.onExeCommand}>
               <LocalizedPropCommand key={command} funcDesc={funcDesc} propBaseName={propDesc.name} command={command} />

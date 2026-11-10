@@ -48,6 +48,7 @@ export interface TicloLayoutContext<Stage extends TicloStage = TicloStage> exten
   editProperty?(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void;
   editSchedule?(path: string, scheduleName?: string, index?: number): void;
   editTable?(props: ValueEditorProps): void;
+  manageDatabase?(conn: ClientConn, path: string): void;
 
   showObjectTree?(path: string, value: any, element: HTMLElement, source: any): void;
   closeObjectTree?(path: string, source: any): void;

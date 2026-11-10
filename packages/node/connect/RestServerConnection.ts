@@ -14,9 +14,9 @@ interface RestResponse {
 
 export class RestServerConnection extends ServerConnection {
   onHttpPost = async (req: RestRequest, res: RestResponse) => {
+    let request: any;
     try {
       // Parse JSON body with decodeReviver
-      let request: any;
       if (typeof req.body === 'string') {
         request = JSON.parse(req.body, decodeReviver);
       } else {
@@ -42,6 +42,10 @@ export class RestServerConnection extends ServerConnection {
       }
       return res.status(400).send('');
     } catch (error) {
+      if (request?.cmd === 'executeCommand' && error instanceof Error) {
+        res.header('Content-Type', 'application/json');
+        return res.send(encode({cmd: 'error', msg: String(error), error}));
+      }
       return res.send({cmd: 'error', msg: String(error)});
     }
   };

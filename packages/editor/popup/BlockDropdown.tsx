@@ -6,6 +6,7 @@ import {
   BuildOutlined,
   CaretRightOutlined,
   DeleteOutlined,
+  DatabaseOutlined,
   EditOutlined,
   FileAddOutlined,
   PauseCircleOutlined,
@@ -117,6 +118,10 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   onCloseCommandModal = () => {
     this.setState({modal: null});
   };
+  onManageDatabase = () => {
+    const {conn, path} = this.props;
+    this.context.manageDatabase?.(conn, path);
+  };
   onExeCommand = (command: string) => {
     if (!this.can('executeCommand', {command})) return;
     const {conn, canApply, functionId, path, funcModule} = this.props;
@@ -125,7 +130,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     if (commandDesc.parameters?.length) {
       const onConfirmCommandModal = (values: DataMap) => {
         if (!this.can('executeCommand', {command, params: values})) return;
-        conn.executeCommand(path, command, {...values, property: name});
+        conn.executeCommand(path, command, values, undefined, commandDesc);
         this.onCloseCommandModal();
       };
       const modal = (
@@ -140,7 +145,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
       );
       this.setState({modal});
     } else {
-      conn.executeCommand(path, command, {property: name});
+      conn.executeCommand(path, command, {}, undefined, commandDesc);
     }
   };
 
@@ -196,12 +201,21 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     const showCallMenu = !functionId.startsWith('flow:') && this.can('callFunction');
     const commandMenus: React.ReactElement[] = [];
 
+    if (funcDesc?.tags?.includes('sql-client') && this.context.manageDatabase) {
+      menuitems.push(
+        <MenuItem key="database" onClick={this.onManageDatabase}>
+          <DatabaseOutlined />
+          {t('Manage database')}
+        </MenuItem>
+      );
+    }
+
     if (funcDesc?.commands) {
       const commands = Object.keys(funcDesc.commands);
       if (commands.length) {
         commands.sort(smartStrCompare);
         for (const command of commands) {
-          if (!this.can('executeCommand', {command})) continue;
+          if (funcDesc.commands[command].hidden || !this.can('executeCommand', {command})) continue;
           commandMenus.push(
             <MenuItem key={`cmd-${command}`} value={command} onClick={this.onExeCommand}>
               <LocalizedFuncCommand key={command} desc={funcDesc} command={command} />

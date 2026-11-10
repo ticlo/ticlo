@@ -530,8 +530,17 @@ export abstract class ClientConn {
    * @param params optional object arguments for the command
    * @param callbacks request callbacks
    */
-  executeCommand(path: string, command: string, params?: DataMap, callbacks?: ClientCallbacks): Promise<any> | string {
-    return this.simpleRequest({cmd: 'executeCommand', path, command, params}, callbacks);
+  executeCommand(
+    path: string,
+    command: string,
+    params?: DataMap,
+    callbacks?: ClientCallbacks,
+    options?: {largeData?: boolean}
+  ): Promise<any> | string {
+    return this.simpleRequest(
+      {cmd: 'executeCommand', path, command, params, ...(options?.largeData ? {largeData: true} : {})},
+      callbacks
+    );
   }
 
   /**

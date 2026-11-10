@@ -1,6 +1,6 @@
 import {parentPort} from 'node:worker_threads';
 import {DatabaseSync, type SQLInputValue, type StatementSync} from 'node:sqlite';
-import type {SqlColumn, SqlParams, SqlResult} from '@ticlo/core';
+import type {SqlColumn, SqlParams, SqlResult, SqlEntity, SqlEntityRef, SqlEntityColumn} from '@ticlo/core';
 import type {SqliteRequest} from './SqliteClient.ts';
 
 let database: DatabaseSync;
@@ -18,6 +18,64 @@ function closeStatement(statement: StatementSync) {
 
 function bindValue(value: unknown) {
   return typeof value === 'boolean' ? Number(value) : value;
+}
+
+function quoteIdentifier(name: string) {
+  return `"${name.replaceAll('"', '""')}"`;
+}
+
+function listEntities(): SqlEntity[] {
+  const schemas = database.prepare('PRAGMA database_list');
+  try {
+    return (schemas.all() as {name: string}[]).flatMap(({name: schema}) => {
+      const statement = database.prepare(
+        `SELECT name, type AS kind FROM ${quoteIdentifier(schema)}.sqlite_schema ` +
+          "WHERE type IN ('table', 'view') AND name NOT GLOB 'sqlite_*' ORDER BY name"
+      );
+      try {
+        return (statement.all() as {name: string; kind: 'table' | 'view'}[]).map((entity) => ({...entity, schema}));
+      } finally {
+        closeStatement(statement);
+      }
+    });
+  } finally {
+    closeStatement(schemas);
+  }
+}
+
+function getColumns(entity: SqlEntityRef): SqlEntityColumn[] {
+  if (entity.catalog !== undefined) throw new Error('SQLite does not support catalogs');
+  const schema = entity.schema ?? 'main';
+  const exists = database.prepare(
+    `SELECT 1 FROM ${quoteIdentifier(schema)}.sqlite_schema WHERE name = ? AND type IN ('table', 'view')`
+  );
+  try {
+    if (!exists.get(entity.name)) throw new Error('SQL entity no longer exists');
+  } finally {
+    closeStatement(exists);
+  }
+  const statement = database.prepare(
+    'SELECT name, type, "notnull" AS required, pk, dflt_value FROM pragma_table_xinfo(?, ?) WHERE hidden != 1'
+  );
+  try {
+    return (
+      statement.all(entity.name, schema) as {
+        name: string;
+        type: string;
+        required: number;
+        pk: number;
+        dflt_value: string | null;
+      }[]
+    ).map((column) => ({
+      name: column.name,
+      databaseType: column.type || undefined,
+      nullable: !column.required,
+      primaryKey: Boolean(column.pk),
+      defaultExpression: column.dflt_value ?? undefined,
+    }));
+  } finally {
+    closeStatement(statement);
+  }
 }
 
 function query(sql: string, params?: SqlParams): SqlResult {
@@ -76,7 +134,7 @@ function query(sql: string, params?: SqlParams): SqlResult {
 
 parentPort.on('message', (request: SqliteRequest & {id: number}) => {
   try {
-    let result: SqlResult;
+    let result: SqlResult | SqlEntity[] | SqlEntityColumn[];
     switch (request.type) {
       case 'open': {
         const {filePath, readOnly = false, busyTimeout = 5000, foreignKeys = true} = request.options;
@@ -95,6 +153,12 @@ parentPort.on('message', (request: SqliteRequest & {id: number}) => {
       }
       case 'query':
         result = query(request.sql, request.params);
+        break;
+      case 'listEntities':
+        result = listEntities();
+        break;
+      case 'getColumns':
+        result = getColumns(request.entity);
         break;
       case 'close':
         closeStatement(metadata);

@@ -6,6 +6,7 @@ import {StagePanelFocus} from '@ticlo/editor/dock/StagePanelFocus.tsx';
 import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.tsx';
 import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.tsx';
 import {TableEditor} from '@ticlo/editor/property/value/TableEditor.tsx';
+import {openSqlClientDialog} from '@ticlo/editor/popup/SqlClientDialog.tsx';
 import type {DockLayout, SideColumns, TabGroup} from 'rc-dock';
 
 export function stageReadonly(storage: ProjectFiles | undefined, path: string) {
@@ -37,7 +38,7 @@ export const toolGroup: TabGroup = {
 export function createLayoutActions(
   getLayout: () => DockLayout,
   getConn: () => ClientConn
-): Pick<TicloLayoutContext, 'editProperty' | 'editSchedule' | 'editTable'> {
+): Pick<TicloLayoutContext, 'editProperty' | 'editSchedule' | 'editTable' | 'manageDatabase'> {
   return {
     editProperty: (paths, propDesc, defaultValue, mime, readonly) => {
       if (!mime) {
@@ -54,6 +55,9 @@ export function createLayoutActions(
     },
     editTable: (props) => {
       TableEditor.openFloatPanel(getLayout(), props);
+    },
+    manageDatabase: (conn, path) => {
+      openSqlClientDialog(getLayout(), conn, path);
     },
   };
 }

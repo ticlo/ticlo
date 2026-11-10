@@ -9,11 +9,11 @@ A `Block` owns named `BlockProperty` values and an optional `#is` function.
 `_saved` holds persisted data; `_value` holds runtime data. Either may refer to
 an owned child Block. Replacing an owned child destroys it.
 
-| Mutation | Effect |
-| --- | --- |
-| `setValue()` | Updates saved and runtime values and removes the binding |
-| `updateValue()`, `setOutput()` | Update runtime state, preserving saved data |
-| `setBinding()` | Clears saved data and subscribes to a source; saves the path |
+| Mutation                       | Effect                                                       |
+| ------------------------------ | ------------------------------------------------------------ |
+| `setValue()`                   | Updates saved and runtime values and removes the binding     |
+| `updateValue()`, `setOutput()` | Update runtime state, preserving saved data                  |
+| `setBinding()`                 | Clears saved data and subscribes to a source; saves the path |
 
 Bindings resolve relative to the owning Block. Dotted paths use cached binding
 chains through children and object fields. `propRelative()` generates portable
@@ -122,6 +122,21 @@ the union of the whole array's first and last row keys.
 `ServerConnection` dispatches requests to its one-argument command methods and
 awaits asynchronous results. Server policies enforce access independently of
 client restrictions; storage-backed commands must propagate promises.
+
+Function commands may return a value or a Promise. `executeCommand` waits before
+returning `{result}`; a null or undefined result retains the existing Flow change
+tracking behavior. Thrown command errors preserve native Error details through
+Arrow encoding. Callback callers still receive a string message and may inspect
+`data.error`; Promise callers receive the transported Error when available.
+
+`FunctionCommandDesc.largeData` indicates potentially large arguments or results.
+Callers pass it in the fifth argument of `ClientConn.executeCommand`, leaving
+callbacks as the fourth argument. The connection chooses the transport:
+mixed browser connections use HTTP for commands marked `largeData`, otherwise
+WebSocket; local and frame connections ignore the hint. A failed HTTP command
+is not retried over WebSocket. `hidden` omits a command from generic menus for dedicated UIs.
+`readonly` identifies commands that need no writable Flow storage; implementations
+must still honor the server's readonly flag for any writes.
 
 `ServerSubscribe` watches values, bindings, listener dots, and errors;
 `ServerWatch` watches children and history; `ServerDescWatcher` watches function

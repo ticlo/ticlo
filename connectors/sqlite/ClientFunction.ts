@@ -1,4 +1,12 @@
-import {BaseFunction, escapedObject, globalFunctions, Logger, type SqlClient} from '@ticlo/core';
+import {
+  BaseFunction,
+  escapedObject,
+  globalFunctions,
+  Logger,
+  sqlClientApi,
+  sqlClientCommands,
+  type SqlClient,
+} from '@ticlo/core';
 import {SqliteClient} from './SqliteClient.ts';
 
 export class SqliteClientFunction extends BaseFunction {
@@ -23,6 +31,8 @@ export class SqliteClientFunction extends BaseFunction {
     this._data.output(
       escapedObject<SqlClient>('sqlite:client', {
         query: client.query.bind(client),
+        listEntities: client.listEntities.bind(client),
+        getColumns: client.getColumns.bind(client),
       })
     );
   }
@@ -67,6 +77,7 @@ globalFunctions.addFactory(
     mode: 'onLoad',
     priority: 2,
     tags: ['sql-client'],
+    commands: sqlClientCommands,
     properties: [
       {name: 'filePath', type: 'string', pinned: true},
       {name: 'readOnly', type: 'toggle', default: false},
@@ -75,5 +86,6 @@ globalFunctions.addFactory(
       {name: '#output', type: 'object', readonly: true, pinned: true},
     ],
   },
-  'sqlite'
+  'sqlite',
+  sqlClientApi
 );

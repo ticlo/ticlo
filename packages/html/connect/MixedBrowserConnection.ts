@@ -2,7 +2,6 @@ import {WsBrowserConnection} from './WsBrowserConnection.ts';
 import {DataMap, encode, decode} from '@ticlo/core';
 import {ClientCallbacks} from '@ticlo/core/connect/ClientRequests.ts';
 import axios from 'axios';
-import {measureObjSize, WS_FRAME_SIZE} from '@ticlo/core/util/DataTypes.ts';
 
 export class MixedBrowserConnection extends WsBrowserConnection {
   constructor(
@@ -20,7 +19,8 @@ export class MixedBrowserConnection extends WsBrowserConnection {
       })
       .then((response) => {
         if (response.data.cmd === 'error') {
-          callbacks.onError?.(response.data.msg);
+          if (response.data.error) callbacks.onError?.(response.data.msg, {...data, error: response.data.error});
+          else callbacks.onError?.(response.data.msg);
         } else {
           callbacks.onUpdate?.(response.data);
           callbacks.onDone?.();
@@ -35,16 +35,14 @@ export class MixedBrowserConnection extends WsBrowserConnection {
   protected sendRequest(data: DataMap, c?: ClientCallbacks): Promise<any> | string {
     const {cmd} = data;
     switch (cmd) {
-      // case 'get': {
-      //   break;
-      // }
       case 'get':
       case 'set':
       case 'update': {
         return this._sendLargeData(data, c) ?? '';
       }
       case 'executeCommand': {
-        return this._sendLargeData(data, c) ?? '';
+        if (data.largeData) return this._sendLargeData(data, c) ?? '';
+        break;
       }
     }
     return super.sendRequest(data, c);

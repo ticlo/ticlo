@@ -1,93 +1,93 @@
 # Common
-"Name": "Name"
-"Type": "Type"
-"Block": "Block"
-"Misc": "Misc"
-"Open": "Open"
-"File": "File"
-"Library": "Library"
-"Libraries": "Libraries"
-"Select Library": "Select Library"
-"Default Library": "Default Library"
-"Set as Default Library": "Set as Default Library"
-"Unload Other Libraries": "Unload Other Libraries"
-"Unload Library": "Unload Library"
-"Library Properties": "Library Properties"
-"New Library": "New Library"
-"Library Name": "Library Name"
-"Create": "Create"
-"Load": "Load"
-"Dependencies": "Dependencies"
-"View": "View"
-"Open Flow": "Open Flow"
-"Open Editor": "Open Editor"
-"Auto Load": "Auto Load"
-"Design": "Design"
-"Save": "Save"
-"Save As": "Save As"
-"New": "New"
-"New Page": "New Page"
-"New Module": "New Module"
-"Edit": "Edit"
-"Delete": "Delete"
-"Search": "Search"
-"Error": "Error"
-"Rename": "Rename"
-"Navigation": "Navigation"
-"Properties": "Properties"
-"Functions": "Functions"
-"Pinned": "Pinned"
-"#global": "#global"
-"#shared": "#shared"
-"#temp": "#temp"
-"#edit": "#edit"
-"-running-#": " ( Running {{- detail, optional}} )"
-"-passed-#": " ( Passed {{- detail, optional}} )"
-"-failed-#": " ( Failed {{- detail, optional}} )"
+'Name': 'Name'
+'Type': 'Type'
+'Block': 'Block'
+'Misc': 'Misc'
+'Open': 'Open'
+'File': 'File'
+'Library': 'Library'
+'Libraries': 'Libraries'
+'Select Library': 'Select Library'
+'Default Library': 'Default Library'
+'Set as Default Library': 'Set as Default Library'
+'Unload Other Libraries': 'Unload Other Libraries'
+'Unload Library': 'Unload Library'
+'Library Properties': 'Library Properties'
+'New Library': 'New Library'
+'Library Name': 'Library Name'
+'Create': 'Create'
+'Load': 'Load'
+'Dependencies': 'Dependencies'
+'View': 'View'
+'Open Flow': 'Open Flow'
+'Open Editor': 'Open Editor'
+'Auto Load': 'Auto Load'
+'Design': 'Design'
+'Save': 'Save'
+'Save As': 'Save As'
+'New': 'New'
+'New Page': 'New Page'
+'New Module': 'New Module'
+'Edit': 'Edit'
+'Delete': 'Delete'
+'Search': 'Search'
+'Error': 'Error'
+'Rename': 'Rename'
+'Navigation': 'Navigation'
+'Properties': 'Properties'
+'Functions': 'Functions'
+'Pinned': 'Pinned'
+'#global': '#global'
+'#shared': '#shared'
+'#temp': '#temp'
+'#edit': '#edit'
+'-running-#': ' ( Running {{- detail, optional}} )'
+'-passed-#': ' ( Passed {{- detail, optional}} )'
+'-failed-#': ' ( Failed {{- detail, optional}} )'
 
 # CalendarEventEditor.tsx & OptionalPropertyList.tsx
-"Optional": "Optional"
+'Optional': 'Optional'
 # WorkerEditor.tsx & FunctionSelect.tsx
-"Inline": "Inline"
+'Inline': 'Inline'
 # PropertyDropdown.tsx & BlockDropdown.tsx
-"Execute Command": "Execute Command"
+'Execute Command': 'Execute Command'
 # AddNewFlowDialog.tsx & NodeTreePane.tsx
-"New Folder": "New Folder"
+'New Folder': 'New Folder'
 # AddNewFlowDialog.tsx & NodeTreePane.tsx
-"New Dataflow": "New Dataflow"
+'New Dataflow': 'New Dataflow'
 # FunctionTreeRenderer.tsx & FunctionSelect.tsx
-"Add Function": "Add Function"
+'Add Function': 'Add Function'
 # TextEditorPane.tsx & NodeTreePane.tsx
-"Reload": "Reload"
+'Reload': 'Reload'
 
 # scheduler/CalendarToolbar.tsx
-"Day": "Day"
-"Week": "Week"
-"Month": "Month"
-"Previous Day": "Previous Day"
-"Current Day": "Current Day"
-"Next Day": "Next Day"
-"Previous Week": "Previous Week"
-"Current Week": "Current Week"
-"Next Week": "Next Week"
-"Previous Month": "Previous Month"
-"Current Month": "Current Month"
-"Next Month": "Next Month"
+'Day': 'Day'
+'Week': 'Week'
+'Month': 'Month'
+'Previous Day': 'Previous Day'
+'Current Day': 'Current Day'
+'Next Day': 'Next Day'
+'Previous Week': 'Previous Week'
+'Current Week': 'Current Week'
+'Next Week': 'Next Week'
+'Previous Month': 'Previous Month'
+'Current Month': 'Current Month'
+'Next Month': 'Next Month'
 
 # scheduler/editors/TimeRange.tsx
-"M": "M"
-"H": "H"
-"All Day": "All Day"
+'M': 'M'
+'H': 'H'
+'All Day': 'All Day'
 
 # scheduler/editors/DatesSelector.tsx
-"Dates": "Dates"
+'Dates': 'Dates'
 
 # scheduler/editors/AdvancedSelector.tsx
-"Add Day": "Add Day"
+'Add Day': 'Add Day'
 
 # property/PropertyList.tsx
-"Config": "Config"
-"Custom": "Custom"
+'Config': 'Config'
+'Custom': 'Custom'
 
 # property/PropertyEditor.tsx
 "Unlocked for editing\nDouble click to lock": "Unlocked for editing\nDouble click to lock"
@@ -95,137 +95,145 @@
 "Inconsistent values\nDouble click to edit": "Inconsistent values\nDouble click to edit"
 
 # property/AddCustomProperty.tsx
-"Default Length": "Default Length"
-"Min": "Min"
-"Max": "Max"
-"Step": "Step"
-"Place Holder": "Place Holder"
-"Options": "Options"
-"Show Alpha": "Show Alpha"
-"Invalid Name": "Invalid Name"
-"Number character not allowed": "Number character not allowed"
-"Require more than one option": "Require more than one option"
-"Must have 0 or 2 options": "Must have 0 or 2 options"
-"number": "number"
-"string": "string"
-"toggle": "toggle"
-"select": "select"
-"radio-button": "radio-button"
-"color": "color"
-"date": "date"
-"date-range": "date-range"
-"password": "password"
-"dynamic": "dynamic"
-"table": "table"
-"group": "group"
-"Comma separated": "Comma separated"
-"Add Property": "Add Property"
+'Default Length': 'Default Length'
+'Min': 'Min'
+'Max': 'Max'
+'Step': 'Step'
+'Place Holder': 'Place Holder'
+'Options': 'Options'
+'Show Alpha': 'Show Alpha'
+'Invalid Name': 'Invalid Name'
+'Number character not allowed': 'Number character not allowed'
+'Require more than one option': 'Require more than one option'
+'Must have 0 or 2 options': 'Must have 0 or 2 options'
+'number': 'number'
+'string': 'string'
+'toggle': 'toggle'
+'select': 'select'
+'radio-button': 'radio-button'
+'color': 'color'
+'date': 'date'
+'date-range': 'date-range'
+'password': 'password'
+'dynamic': 'dynamic'
+'table': 'table'
+'group': 'group'
+'Comma separated': 'Comma separated'
+'Add Property': 'Add Property'
 
 # popup/RenameDialog.tsx
-"Change": "Change"
-"Display Name": "Display Name"
+'Change': 'Change'
+'Display Name': 'Display Name'
 
 # popup/PropertyDropdown.tsx
-"Add Sub Block": "Add Sub Block"
-"Binding": "Binding"
-"Clear": "Clear"
-"Restore Saved Value": "Restore Saved Value"
-"Insert at {{n}}": "Insert at {{n}}"
-"Delete at {{n}}": "Delete at {{n}}"
-"Remove Property": "Remove Property"
-"Copy Type": "Copy Type"
-"Add Child Property": "Add Child Property"
+'Add Sub Block': 'Add Sub Block'
+'Binding': 'Binding'
+'Clear': 'Clear'
+'Restore Saved Value': 'Restore Saved Value'
+'Insert at {{n}}': 'Insert at {{n}}'
+'Delete at {{n}}': 'Delete at {{n}}'
+'Remove Property': 'Remove Property'
+'Copy Type': 'Copy Type'
+'Add Child Property': 'Add Child Property'
 
 # popup/BlockDropdown.tsx
-"Enable": "Enable"
-"Disable": "Disable"
-"Call": "Call"
+'Enable': 'Enable'
+'Disable': 'Disable'
+'Call': 'Call'
 
 # popup/AddNewFlowDialog.tsx
-"Data": "Data"
+'Data': 'Data'
 
 # node-tree/NodeRenderer.tsx
-"Add Dataflow": "Add Dataflow"
-"Add Folder": "Add Folder"
-"Add Module": "Add Module"
+'Add Dataflow': 'Add Dataflow'
+'Add Folder': 'Add Folder'
+'Add Module': 'Add Module'
 
 # function-selector/FunctionSelect.tsx
-"In-Flow": "In-Flow"
-"Global": "Global"
-"Recent": "Recent"
-"Function Name?": "Function Name?"
+'In-Flow': 'In-Flow'
+'Global': 'Global'
+'Recent': 'Recent'
+'Function Name?': 'Function Name?'
 
 # dock/schedule/SchedulePane.tsx
-"Schedule": "Schedule"
+'Schedule': 'Schedule'
 
 # dock/block/BlockStagePane.tsx
-"Hide Properties": "Hide Properties"
-"Show Properties": "Show Properties"
+'Hide Properties': 'Hide Properties'
+'Show Properties': 'Show Properties'
 
 # component/DockDialogPane.tsx
-"OK": "OK"
-"Apply": "Apply"
-"Cancel": "Cancel"
-"Close": "Close"
+'OK': 'OK'
+'Apply': 'Apply'
+'Cancel': 'Cancel'
+'Close': 'Close'
 
 # block/BlockStage.tsx
-"Undo": "Undo"
-"Redo": "Redo"
+'Undo': 'Undo'
+'Redo': 'Redo'
 
 # property/value/TableEditor.tsx
-"Edit table": "Edit table"
-"View table": "View table"
-"Add row": "Add row"
-"Add column": "Add column"
-"Columns": "Columns"
-"Column name": "Column name"
-"Find all columns": "Find all columns"
-"Delete column": "Delete column"
-"String": "String"
-"Number": "Number"
-"Boolean": "Boolean"
-"Actions": "Actions"
-"Move up": "Move up"
-"Move down": "Move down"
-"Duplicate row": "Duplicate row"
-"Delete row": "Delete row"
-"Invalid table columns": "Invalid table columns"
-"Invalid table rows": "Invalid table rows"
-"Value changed. Reload to continue.": "Value changed. Reload to continue."
+'Edit table': 'Edit table'
+'View table': 'View table'
+'Add row': 'Add row'
+'Add column': 'Add column'
+'Columns': 'Columns'
+'Column name': 'Column name'
+'Find all columns': 'Find all columns'
+'Delete column': 'Delete column'
+'String': 'String'
+'Number': 'Number'
+'Boolean': 'Boolean'
+'Actions': 'Actions'
+'Move up': 'Move up'
+'Move down': 'Move down'
+'Duplicate row': 'Duplicate row'
+'Delete row': 'Delete row'
+'Invalid table columns': 'Invalid table columns'
+'Invalid table rows': 'Invalid table rows'
+'Value changed. Reload to continue.': 'Value changed. Reload to continue.'
 
 # file-manager/FileManager.tsx & FilePreview.tsx
-"Files": "Files"
-"Download": "Download"
-"Select a file to preview": "Select a file to preview"
-"Folder": "Folder"
-"Preview unavailable": "Preview unavailable"
-"Load preview": "Load preview"
-"Unable to preview image": "Unable to preview image"
-"Path": "Path"
-"Size": "Size"
-"Modified": "Modified"
-"Overwrite": "Overwrite"
-"Replace this folder and all its contents?": "Replace this folder and all its contents?"
-"Overwrite this file?": "Overwrite this file?"
-"Delete selected files and folders?": "Delete selected files and folders?"
-"Folder contents will also be deleted": "Folder contents will also be deleted"
-"Upload": "Upload"
-"Cut": "Cut"
-"Copy": "Copy"
-"Paste": "Paste"
-"Copy Path": "Copy Path"
-"Preview": "Preview"
-"Initialize Git": "Initialize Git"
-"Git Commit": "Git Commit"
-"Git History": "Git History"
-"Date": "Date"
-"Author": "Author"
-"Message": "Message"
-"User": "User"
-"Uncommitted changes": "Uncommitted changes"
-"Discard Local Backup": "Discard Local Backup"
-"Discard the locally saved copy of this file?": "Discard the locally saved copy of this file?"
-"Rows per request": "Rows per request"
-"Loading more rows...": "Loading more rows..."
-"Loading...": "Loading..."
-"Load more": "Load more"
+'Files': 'Files'
+'Download': 'Download'
+'Select a file to preview': 'Select a file to preview'
+'Folder': 'Folder'
+'Preview unavailable': 'Preview unavailable'
+'Load preview': 'Load preview'
+'Unable to preview image': 'Unable to preview image'
+'Path': 'Path'
+'Size': 'Size'
+'Modified': 'Modified'
+'Overwrite': 'Overwrite'
+'Replace this folder and all its contents?': 'Replace this folder and all its contents?'
+'Overwrite this file?': 'Overwrite this file?'
+'Delete selected files and folders?': 'Delete selected files and folders?'
+'Folder contents will also be deleted': 'Folder contents will also be deleted'
+'Upload': 'Upload'
+'Cut': 'Cut'
+'Copy': 'Copy'
+'Paste': 'Paste'
+'Copy Path': 'Copy Path'
+'Preview': 'Preview'
+'Initialize Git': 'Initialize Git'
+'Git Commit': 'Git Commit'
+'Git History': 'Git History'
+'Date': 'Date'
+'Author': 'Author'
+'Message': 'Message'
+'User': 'User'
+'Uncommitted changes': 'Uncommitted changes'
+'Discard Local Backup': 'Discard Local Backup'
+'Discard the locally saved copy of this file?': 'Discard the locally saved copy of this file?'
+'Rows per request': 'Rows per request'
+'Loading more rows...': 'Loading more rows...'
+'Loading...': 'Loading...'
+'Load more': 'Load more'
+'Manage database': 'Manage database'
+'Entities': 'Entities'
+'Refresh': 'Refresh'
+'Run': 'Run'
+'Rows': 'Rows'
+'Affected rows': 'Affected rows'
+'Insert ID': 'Insert ID'
+'SQL client is not ready': 'SQL client is not ready'

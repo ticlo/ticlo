@@ -15,7 +15,7 @@ import {Flow, Root} from '../block/Flow.ts';
 import {flowRefFromPath} from '../block/FlowRuntime.ts';
 import {FlowWithStatic, StaticConfig} from '../block/StaticBlock.ts';
 import {PropDispatcher, PropListener} from '../block/Dispatcher.ts';
-import {DescListener, FunctionModule} from '../block/FunctionModule.ts';
+import {DescListener, FunctionModule, globalFunctions} from '../block/FunctionModule.ts';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
 import {propRelative} from '../util/PropPath.ts';
 import {
@@ -453,7 +453,8 @@ class ServerConnectionCore extends Connection {
         'retainLibraries',
         'callFunction',
       ].includes(cmd) &&
-      !(cmd === 'copy' && !request.cut)
+      !(cmd === 'copy' && !request.cut) &&
+      !(cmd === 'executeCommand' && this.isReadonlyCommand(request))
     ) {
       const path = cmd === 'deleteFunction' ? (request.funcModule ?? request.funcId) : request.path;
       if (typeof path !== 'string') return 'invalid path';
@@ -472,6 +473,14 @@ class ServerConnectionCore extends Connection {
     const result = func.call(this, request);
     if (result instanceof ServerRequest) result.request = request;
     return result;
+  }
+
+  private isReadonlyCommand(request: DataMap): boolean {
+    const block = this.root.queryProperty(request.path as string, false)?._value;
+    return (
+      block instanceof Block &&
+      globalFunctions.getDesc(block._funcId)?.commands?.[request.command as string]?.readonly === true
+    );
   }
 
   protected checkRequestPolicy(request: DataMap): string | null {
@@ -549,14 +558,19 @@ class ServerConnectionCore extends Connection {
             result.then(
               (data) => this.sendResult(request.id as string, data),
               (error) => {
-                if (!this._destroyed) this.sendError(request.id as string, String(error));
+                if (!this._destroyed)
+                  this.sendError(
+                    request.id as string,
+                    String(error),
+                    request.cmd === 'executeCommand' ? error : undefined
+                  );
               }
             );
           } else {
             this.sendResult(request.id, result);
           }
         } catch (error) {
-          this.sendError(request.id, String(error));
+          this.sendError(request.id, String(error), request.cmd === 'executeCommand' ? error : undefined);
         }
       } else {
         this.sendError(request.id, 'invalid path');
@@ -564,8 +578,8 @@ class ServerConnectionCore extends Connection {
     }
   }
 
-  sendError(id: string, msg: string) {
-    this.addSend(new ConnectionSend({cmd: 'error', id, msg}));
+  sendError(id: string, msg: string, error?: unknown) {
+    this.addSend(new ConnectionSend({cmd: 'error', id, msg, ...(error instanceof Error ? {error} : {})}));
   }
 
   sendDone(id: string) {
@@ -1170,11 +1184,12 @@ export class ServerConnection extends ServerConnectionCore {
     if (property && property._value instanceof Block) {
       const readonly = this.getEditPolicy()?.readonly === true;
       const result = property._value.executeCommand(command, params, readonly);
-      if (result != null) {
-        return {result};
-      }
-      if (!readonly) trackChange(property, path, this.root);
-      return null;
+      const finish = (result: unknown) => {
+        if (result != null) return {result};
+        if (!readonly) trackChange(property, path, this.root);
+        return null;
+      };
+      return result instanceof Promise ? result.then(finish) : finish(result);
     } else {
       return 'invalid path';
     }

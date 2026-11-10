@@ -21,7 +21,28 @@ export interface SqlResult {
   insertId?: number | string;
 }
 
+/** Keep identifier parts separate; names may themselves contain dots. */
+export interface SqlEntityRef {
+  catalog?: string;
+  schema?: string;
+  name: string;
+}
+
+export interface SqlEntity extends SqlEntityRef {
+  kind: 'table' | 'view';
+}
+
+export interface SqlEntityColumn {
+  name: string;
+  databaseType?: string;
+  nullable?: boolean;
+  primaryKey?: boolean;
+  defaultExpression?: string;
+}
+
 /** A runtime service. SQL syntax and parameter placeholders belong to the adapter. */
 export interface SqlClient {
   query(sql: string, params?: SqlParams): Promise<SqlResult>;
+  listEntities(): Promise<SqlEntity[]>;
+  getColumns(entity: SqlEntityRef): Promise<SqlEntityColumn[]>;
 }

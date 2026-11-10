@@ -2,7 +2,7 @@
 
 Core registers `sql:query` and exports the `SqlClient`, `SqlParams`, `SqlResult`,
 and `SqlTable` types. Database connectors expose runtime services implementing
-`SqlClient.query(sql, params?)`. Connection functions have the `sql-client` tag;
+`SqlClient`. Connection functions have the `sql-client` tag;
 the `client` service input of `sql:query` uses that tag to find compatible blocks.
 See [service bindings](editor.md#property-editors) for global Block naming and
 service input/output descriptors.
@@ -63,7 +63,35 @@ ID is reported when the connection's last insert row ID changes during the call;
 it may be absent when SQLite reuses the same ID. Schema-only statements report
 zero affected rows rather than reusing a preceding write's metadata.
 
-Query results are materialized in memory. Editor paging reads those results;
-it does not make database execution lazy. Transactions, streaming cursors,
+Query results are materialized in memory. Paging a `sql:query` output reads those
+results; it does not make database execution lazy. Transactions, streaming cursors,
 multi-statement batches, and database-specific utilities are outside this initial
 connector API.
+
+## Client management
+
+`SqlClient` provides `query(sql, params?)`, `listEntities()`, and
+`getColumns(entity)`. Entities are tables or views, identified by a structured
+`{catalog?, schema?, name}` reference. Identifier parts remain separate even when
+names contain dots or quotes. Column metadata includes a name and, when known,
+database type, nullability, primary key membership, and a default expression.
+SQLite uses its attached database names as schemas and reports declared
+`NOT NULL` constraints for nullability, including columns of views and generated
+columns.
+
+Adapters reuse core's `sqlClientCommands` descriptor and `sqlClientApi` as their
+function API. These expose `listEntities`, `getColumns` (`{entity}`), and `query`
+(`{sql, params?}`) commands against the current `#output` service, including
+code-defined globals. Each response contains `{result}` with the complete array
+or `SqlResult`; commands do not paginate or truncate results. Metadata commands
+are readonly. Query commands reject execution on a readonly server connection;
+the database driver's own read-only setting independently controls SQL writes.
+
+The editor opens an rc-dock window from the header menu of any Block tagged
+`sql-client`. Hosts provide the `manageDatabase(conn, path)` layout action;
+opening the window is frontend behavior, separate from commands. Reopening a
+Block's window focuses the existing tab and preserves its SQL and results.
+It loads columns on expansion and runs SQL explicitly. Commands do not edit
+Flow properties or create history entries. Query results are materialized in
+memory and rendered with a virtual table. Refresh metadata after schema changes.
+See [command transport](core.md#connection-layer) for HTTP routing.

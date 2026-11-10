@@ -1,5 +1,5 @@
 import {Worker} from 'node:worker_threads';
-import type {SqlClient, SqlParams, SqlResult} from '@ticlo/core';
+import type {SqlClient, SqlParams, SqlResult, SqlEntity, SqlEntityRef, SqlEntityColumn} from '@ticlo/core';
 
 export interface SqliteOptions {
   filePath: string;
@@ -11,11 +11,13 @@ export interface SqliteOptions {
 export type SqliteRequest =
   | {type: 'open'; options: SqliteOptions}
   | {type: 'query'; sql: string; params?: SqlParams}
+  | {type: 'listEntities'}
+  | {type: 'getColumns'; entity: SqlEntityRef}
   | {type: 'close'};
 
 export interface SqliteResponse {
   id: number;
-  result?: SqlResult;
+  result?: SqlResult | SqlEntity[] | SqlEntityColumn[];
   error?: {message: string; code?: string};
 }
 
@@ -23,7 +25,7 @@ export interface SqliteResponse {
 export class SqliteClient implements SqlClient {
   private worker: Worker;
   private nextId = 0;
-  private pending = new Map<number, {resolve: (result: SqlResult) => void; reject: (error: Error) => void}>();
+  private pending = new Map<number, {resolve: (result: any) => void; reject: (error: Error) => void}>();
   private failure?: Error;
   private closing?: Promise<void>;
 
@@ -56,8 +58,15 @@ export class SqliteClient implements SqlClient {
   }
 
   query(sql: string, params?: SqlParams): Promise<SqlResult> {
-    if (this.closing) return Promise.reject(new Error('SQLite client is closed'));
     return this.request({type: 'query', sql, params});
+  }
+
+  listEntities(): Promise<SqlEntity[]> {
+    return this.request({type: 'listEntities'});
+  }
+
+  getColumns(entity: SqlEntityRef): Promise<SqlEntityColumn[]> {
+    return this.request({type: 'getColumns', entity});
   }
 
   close(): Promise<void> {
@@ -72,7 +81,8 @@ export class SqliteClient implements SqlClient {
     return this.closing;
   }
 
-  private request(request: SqliteRequest): Promise<SqlResult> {
+  private request<T = SqlResult>(request: SqliteRequest): Promise<T> {
+    if (this.closing) return Promise.reject(new Error('SQLite client is closed'));
     if (this.failure) return Promise.reject(this.failure);
     const id = ++this.nextId;
     return new Promise((resolve, reject) => {
