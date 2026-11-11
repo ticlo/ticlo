@@ -1,5 +1,13 @@
 import {Worker} from 'node:worker_threads';
-import type {SqlClient, SqlParams, SqlResult, SqlEntity, SqlEntityRef, SqlEntityColumn} from '@ticlo/core';
+import type {
+  SqlClient,
+  SqlParams,
+  SqlResult,
+  SqlEntity,
+  SqlEntityRef,
+  SqlEntityColumn,
+  SqlStatement,
+} from '@ticlo/core';
 
 export interface SqliteOptions {
   filePath: string;
@@ -11,6 +19,7 @@ export interface SqliteOptions {
 export type SqliteRequest =
   | {type: 'open'; options: SqliteOptions}
   | {type: 'query'; sql: string; params?: SqlParams}
+  | {type: 'transaction'; statements: readonly SqlStatement[]}
   | {type: 'listEntities'}
   | {type: 'getColumns'; entity: SqlEntityRef}
   | {type: 'close'};
@@ -59,6 +68,10 @@ export class SqliteClient implements SqlClient {
 
   query(sql: string, params?: SqlParams): Promise<SqlResult> {
     return this.request({type: 'query', sql, params});
+  }
+
+  transaction(statements: readonly SqlStatement[]): Promise<SqlResult> {
+    return this.request({type: 'transaction', statements});
   }
 
   listEntities(): Promise<SqlEntity[]> {

@@ -31,6 +31,15 @@ integer identifiers use strings to preserve precision. Each call clears previous
 outputs, including when it fails. The initial contract supports one statement
 and at most one result set per call.
 
+## Transactions
+
+`sql:transaction` accepts a `client` and a non-empty `statements` array of
+`{sql, params?}` rows. Trigger `#call` to execute the rows in order on the same
+database connection. Each row contains a single query or data modification and
+starts with its SQL keyword. The client commits on success and rolls back on
+failure. The outputs describe the final statement after a successful commit.
+Cancellation follows the same rules as `sql:query`.
+
 ## SQLite
 
 Import `@ticlo/sqlite` in Node.js to register `sqlite:client`. It is not a browser
@@ -63,18 +72,39 @@ ID is reported when the connection's last insert row ID changes during the call;
 it may be absent when SQLite reuses the same ID. Schema-only statements report
 zero affected rows rather than reusing a preceding write's metadata.
 
-Query results are materialized in memory. Paging a `sql:query` output reads those
-results; it does not make database execution lazy. Transactions, streaming cursors,
-multi-statement batches, and database-specific utilities are outside this initial
-connector API.
+## PostgreSQL
+
+Import `@ticlo/postgres` in Node.js to register `postgres:client`. The development
+server imports it. Enter a URL such as `postgresql://app@db.example:5432/mydb` in
+`connectionString` and set the database password through the Block's
+[`#secret` configuration](runtime-lifecycle.md#block-secrets). Move passwords
+from existing URLs to `#secret` before saving the Flow. The Block opens a pool
+on load and replaces it when its configuration changes. `maxConnections` defaults
+to 10, `connectionTimeout` to 5000 ms, and `statementTimeout` to 30000 ms.
+Set a timeout to 0 to disable it.
+
+To supply the password from the host environment, bind a
+[`node:env` helper](runtime-lifecycle.md#environment-variables) to `#secret`.
+
+Use positional placeholders such as `$1` with an array. A statement with
+`RETURNING` includes a table, and write statements report the driver's affected
+row count. Use `RETURNING id` to retrieve generated IDs. `bigint`, `numeric`,
+and calendar and timestamp values are returned as text to preserve precision.
+`bytea` values are returned as `Uint8Array`. Use `sql:transaction` for a group
+of statements that must share a transaction.
+
+Set `TICLO_TEST_POSTGRES_URL` to a disposable database URL and run
+`pnpm test connectors/postgres` to exercise the connector against PostgreSQL.
+The test account needs permission to create and drop test schemas.
 
 ## Client management
 
-`SqlClient` provides `query(sql, params?)`, `listEntities()`, and
-`getColumns(entity)`. Entities are tables or views, identified by a structured
-`{catalog?, schema?, name}` reference. Identifier parts remain separate even when
-names contain dots or quotes. Column metadata includes a name and, when known,
-database type, nullability, primary key membership, and a default expression.
+`SqlClient` provides `query(sql, params?)`, `listEntities()`,
+`getColumns(entity)`, and optionally `transaction(statements)`. Entities are
+tables or views, identified by a structured `{catalog?, schema?, name}`
+reference. Identifier parts remain separate even when names contain dots or
+quotes. Column metadata includes a name and, when known, database type,
+nullability, primary key membership, and a default expression.
 SQLite uses its attached database names as schemas and reports declared
 `NOT NULL` constraints for nullability, including columns of views and generated
 columns.
@@ -92,7 +122,9 @@ The editor opens an rc-dock window from the header menu of any Block tagged
 `sql-client`. Hosts provide the `manageDatabase(conn, path)` layout action;
 opening the window is frontend behavior, separate from commands. Reopening a
 Block's window focuses the existing tab and preserves its SQL and results.
-It loads columns on expansion and runs SQL explicitly. Commands do not edit
-Flow properties or create history entries. Query results are materialized in
-memory and rendered with a virtual table. Refresh metadata after schema changes.
+It groups entities by catalog and schema, loads columns on expansion, and runs
+SQL explicitly with optional bound parameters. Commands do not edit Flow
+properties or create history entries. Query results are materialized in memory
+and rendered with a virtual table. `getValuePage` pages stored Block outputs.
+Refresh metadata after schema changes.
 See [command transport](core.md#connection-layer) for HTTP routing.

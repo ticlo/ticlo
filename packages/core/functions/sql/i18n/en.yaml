@@ -10,3 +10,13 @@ query:
     '@name': Affected Rows
   insertId:
     '@name': Insert ID
+transaction:
+  '@name': Transaction
+  client:
+    '@name': SQL Client
+  statements:
+    '@name': Statements
+  affectedRows:
+    '@name': Affected Rows
+  insertId:
+    '@name': Insert ID

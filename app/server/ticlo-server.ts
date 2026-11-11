@@ -1,11 +1,12 @@
 import {serve} from '@hono/node-server';
-import {NodeStorage} from '@ticlo/node';
+import {NodeStorage, SecretCipher} from '@ticlo/node';
 import '@ticlo/test';
 import '@ticlo/sqlite';
+import '@ticlo/postgres';
 import {Hono} from 'hono';
 import {cors} from 'hono/cors';
 import {devUserAuth, type AuthProvider} from '@ticlo/file-server';
-import {Root} from '@ticlo/core';
+import {Root, setSecretCipher} from '@ticlo/core';
 import {routeFileStorage} from '@ticlo/web-server/file-storage.ts';
 import {createTicloApp, getEditorUrl} from '@ticlo/web-server/server.ts';
 import {mkdir, writeFile} from 'node:fs/promises';
@@ -39,8 +40,11 @@ export async function createServerApp(
 }
 
 async function start() {
-  const {app, ticloWs} = await createServerApp();
-  await Root.instance.setStorage(new NodeStorage(fileURLToPath(new URL('./files/serv/', import.meta.url))));
+  const rootDir = fileURLToPath(new URL('./files/', import.meta.url));
+  await mkdir(rootDir, {recursive: true});
+  setSecretCipher(await SecretCipher.fromFile(join(rootDir, '.ticlo-secret.key')));
+  const {app, ticloWs} = await createServerApp(rootDir);
+  await Root.instance.setStorage(new NodeStorage(join(rootDir, 'serv')));
   await Root.instance.start();
 
   const server = serve({fetch: app.fetch, port: 8010, hostname: '127.0.0.1'});

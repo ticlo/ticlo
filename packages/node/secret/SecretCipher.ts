@@ -1,75 +1,59 @@
-import {randomBytes, createCipheriv, createDecipheriv} from 'crypto';
+import {createCipheriv, createDecipheriv, randomBytes, randomUUID} from 'node:crypto';
+import {link, readFile, unlink, writeFile} from 'node:fs/promises';
 import {Logger} from '@ticlo/core';
 
+const keySize = 32;
+const nonceSize = 12;
+const tagSize = 16;
+
 export class SecretCipher {
-  readonly #key = Buffer.alloc(16, 0);
-  static encodeBufferLen(len: number) {
-    let n = len;
-    const bytes: number[] = [n & 0x7f];
-    while (n > 0x7f) {
-      n >>= 7;
-      bytes.push((n & 0x7f) + 0x80);
-    }
-    return Buffer.from(bytes);
-  }
-  static decodeBufferLen(buf: Uint8Array): [number, number] {
-    let i = buf.length - 1;
-    let len = 0;
-    for (; i >= 0; --i) {
-      const b = buf[i];
-      len <<= 7;
-      len += b & 0x7f;
-      if (b <= 0x7f) {
-        break;
-      }
-    }
-    if (i < 0) {
-      return [-1, -1];
-    }
-    return [len, buf.length - i];
-  }
-  constructor(key: string) {
-    const keyBase = Buffer.from(key);
-    const baseLen = keyBase.length + 1;
-    for (let i = 0; i < 16; ++i) {
-      const iBase = i % baseLen;
-      if (iBase !== baseLen - 1) {
-        this.#key[i] = keyBase[iBase];
-      }
-    }
+  readonly #key: Buffer;
+
+  constructor(key: Uint8Array) {
+    if (key.byteLength !== keySize) throw new Error('A 32-byte secret key is required');
+    this.#key = Buffer.from(key);
   }
 
-  encode(str: string): unknown {
-    const cipher = createCipheriv('aes-128-cbc', this.#key, this.#key);
-    const strByte = Buffer.from(str);
-    const lenByte = SecretCipher.encodeBufferLen(strByte.length);
-    // 3 ~ 18 bytes of salt to align with AES output data size, the input length need to be 16N - 1
-    const saltLen = Math.ceil((strByte.length + 4) / 16) * 16 - 1 - strByte.length - lenByte.length;
-    const randomByte = randomBytes(saltLen);
-    const toEncrypt = Buffer.concat([randomByte, strByte, lenByte]);
-    const result: Buffer[] = [];
-    result.push(cipher.update(toEncrypt));
-    result.push(cipher.final());
-    return Buffer.concat(result);
+  static async fromFile(path: string): Promise<SecretCipher> {
+    try {
+      return new SecretCipher(await readFile(path));
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+
+    const temporaryPath = `${path}.${randomUUID()}.key`;
+    await writeFile(temporaryPath, randomBytes(keySize), {flag: 'wx', mode: 0o600});
+    try {
+      // Publish the complete key without replacing a key created by another process.
+      await link(temporaryPath, path);
+    } catch (error) {
+      if (error.code !== 'EEXIST') throw error;
+    } finally {
+      await unlink(temporaryPath);
+    }
+    return new SecretCipher(await readFile(path));
   }
 
-  decode(buf: unknown): string {
-    if (buf instanceof Uint8Array) {
-      try {
-        const decipher = createDecipheriv('aes-128-cbc', this.#key, this.#key);
-        const result: Buffer[] = [];
-        result.push(decipher.update(buf));
-        result.push(decipher.final());
-        const decrypted = Buffer.concat(result);
-        const [dataLen, tailLen] = SecretCipher.decodeBufferLen(decrypted);
-        if (dataLen >= 0) {
-          const dataBuf = decrypted.subarray(decrypted.length - dataLen - tailLen, decrypted.length - tailLen);
-          return dataBuf.toString();
-        }
-      } catch (err) {
-        Logger.error(`invalid secret ${err}`);
-      }
+  encode(value: string): Uint8Array | undefined {
+    if (typeof value !== 'string') return undefined;
+    const nonce = randomBytes(nonceSize);
+    const cipher = createCipheriv('aes-256-gcm', this.#key, nonce, {authTagLength: tagSize});
+    const data = Buffer.concat([cipher.update(value, 'utf8'), cipher.final()]);
+    const encrypted = Buffer.concat([nonce, cipher.getAuthTag(), data]);
+    return new Uint8Array(encrypted.buffer, encrypted.byteOffset, encrypted.byteLength);
+  }
+
+  decode(value: unknown): string | undefined {
+    if (!(value instanceof Uint8Array) || value.byteLength < nonceSize + tagSize) return undefined;
+    const nonce = value.subarray(0, nonceSize);
+    const tag = value.subarray(nonceSize, nonceSize + tagSize);
+    try {
+      const cipher = createDecipheriv('aes-256-gcm', this.#key, nonce, {authTagLength: tagSize});
+      cipher.setAuthTag(tag);
+      return Buffer.concat([cipher.update(value.subarray(nonceSize + tagSize)), cipher.final()]).toString('utf8');
+    } catch {
+      Logger.warn('Unable to decrypt Block secret');
+      return undefined;
     }
-    return null;
   }
 }

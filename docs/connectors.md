@@ -1,7 +1,7 @@
 # Connector packages
 
-The [SQLite connector](../connectors/sqlite/README.md) implements the common
-[SQL client contract](sql.md) used by core's `sql:query`.
+The SQLite and PostgreSQL connectors implement the common
+[SQL client contract](sql.md) used by core's `sql:query` and `sql:transaction`.
 
 Each `connectors/<name>/` directory with a `package.json` is a pnpm workspace
 package, like a package under `packages/`. Declare Ticlo dependencies with the

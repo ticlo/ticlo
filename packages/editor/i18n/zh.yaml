@@ -217,6 +217,7 @@
 'Load more': '读取更多' # translated from: Load more
 'Manage database': '管理数据库' # translated from: Manage database
 'Entities': '实体' # translated from: Entities
+'Parameters': '参数' # translated from: Parameters
 'Refresh': '刷新' # translated from: Refresh
 'Run': '执行' # translated from: Run
 'Rows': '行数' # translated from: Rows

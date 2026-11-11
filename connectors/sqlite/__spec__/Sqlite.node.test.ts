@@ -113,6 +113,26 @@ describe('SQLite connector', () => {
     expect(client.close()).toBe(closing);
   });
 
+  it('keeps a transaction together on the worker and rolls back failed statements', async () => {
+    const client = await open();
+    await client.query('CREATE TABLE items (id INTEGER PRIMARY KEY)');
+    const insert = 'INSERT INTO items VALUES (?)';
+    const transaction = client.transaction([
+      {sql: insert, params: [1]},
+      {sql: insert, params: [2]},
+    ]);
+    const pending = client.query('SELECT id FROM items ORDER BY id');
+    expect(await transaction).toMatchObject({affectedRows: 1, insertId: 2});
+    expect((await pending).table.rows).toEqual([[1], [2]]);
+    await expect(
+      client.transaction([
+        {sql: insert, params: [3]},
+        {sql: insert, params: [1]},
+      ])
+    ).rejects.toThrow('UNIQUE');
+    expect((await client.query('SELECT id FROM items ORDER BY id')).table.rows).toEqual([[1], [2]]);
+  });
+
   it('supports read-only files and foreign key enforcement', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'ticlo-sqlite-'));
     directories.push(directory);

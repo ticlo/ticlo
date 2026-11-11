@@ -1,0 +1,7 @@
+'@library':
+  node:
+    '@name': Node.js # no translate
+env:
+  '@name': 环境变量 # translated from: Environment Variable
+  name:
+    '@name': 变量名 # translated from: Variable Name

@@ -30,10 +30,18 @@ interface ValueProps {
   funcDesc: FunctionDesc;
   value: unknown;
   readonly?: boolean;
+  label?: React.ReactNode;
   onChange?: (value: unknown, name: string) => void;
 }
 
-const CommandValue = React.memo(function CommandValue({desc, funcDesc, value, readonly, onChange}: ValueProps) {
+export const CommandValue = React.memo(function CommandValue({
+  desc,
+  funcDesc,
+  value,
+  readonly,
+  label,
+  onChange,
+}: ValueProps) {
   const layout = useContext(TicloLayoutContextType);
   const localLayout = useMemo(
     () => ({
@@ -56,7 +64,7 @@ const CommandValue = React.memo(function CommandValue({desc, funcDesc, value, re
     <TicloLayoutContextType.Provider value={localLayout}>
       <div className="ticl-e-property">
         <div className="ticl-e-property-name">
-          <LocalizedPropertyName desc={funcDesc} name={desc.name} />
+          {label === undefined ? <LocalizedPropertyName desc={funcDesc} name={desc.name} /> : label}
         </div>
         <div className="ticl-e-property-value">
           <Editor

@@ -1,6 +1,6 @@
 import React from 'react';
 import {flushSync} from 'react-dom';
-import {userEvent} from 'vitest/browser';
+import {page, userEvent} from 'vitest/browser';
 import {DockLayout, type TabData} from 'rc-dock';
 import {
   Root,
@@ -16,6 +16,7 @@ import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.ts';
 import {initEditor} from '../../index.ts';
 import {loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
 import {TicloLayoutContextType} from '../../component/LayoutContext.ts';
+import {TextEditorPane} from '../../dock/text-editor/TextEditorPane.tsx';
 import {BlockDropdown} from '../BlockDropdown.tsx';
 import {SqlClientDialog, openSqlClientDialog} from '../SqlClientDialog.tsx';
 
@@ -37,6 +38,9 @@ function service(query = vi.fn().mockResolvedValue({table: {columns: [{name: 'va
 }
 const runButton = () => document.querySelector<HTMLButtonElement>('.ticl-e-sql-main .ant-btn-primary');
 const editor = () => document.querySelector<HTMLElement>('.ticl-e-sql-input .cm-content');
+const entityTitle = () =>
+  Array.from(document.querySelectorAll('.ant-tree-title')).find((node) => node.textContent === entity.name);
+const entitySwitcher = () => entityTitle()?.closest('.ant-tree-treenode').querySelector('.ant-tree-switcher');
 
 describe('SQL client management dialog', () => {
   let root: Root;
@@ -63,7 +67,10 @@ describe('SQL client management dialog', () => {
     function Template() {
       return (
         <TicloLayoutContextType.Provider
-          value={{manageDatabase: (conn, path) => openSqlClientDialog(layout, conn, path)}}
+          value={{
+            manageDatabase: (conn, path) => openSqlClientDialog(layout, conn, path),
+            editValue: (value, desc, change) => TextEditorPane.openValuePanel(layout, value, desc, change),
+          }}
         >
           <BlockDropdown conn={conn} path="Test.database" functionId={functionId} displayName="" canApply={false}>
             <div className="database-header">database</div>
@@ -89,18 +96,26 @@ describe('SQL client management dialog', () => {
       )
     );
     await userEvent.click(menu);
-    await shouldHappen(() => document.querySelector('.ant-tree-title')?.textContent.includes('items'));
+    await shouldHappen(entityTitle);
     expect(layout.find('sql-client-Test.database')).toBeDefined();
     expect(database.listEntities).toHaveBeenCalledOnce();
     expect(database.getColumns).not.toHaveBeenCalled();
-    await userEvent.click(document.querySelector('.ant-tree-switcher'));
+    await userEvent.click(entitySwitcher());
     await shouldHappen(() => document.querySelector('.ticl-e-sql-column-type')?.textContent === 'INTEGER');
     expect(database.getColumns).toHaveBeenCalledWith({catalog: undefined, schema: entity.schema, name: entity.name});
-    await userEvent.click(document.querySelector('.ant-tree-switcher'));
-    await userEvent.click(document.querySelector('.ant-tree-switcher'));
+    await userEvent.click(entitySwitcher());
+    await userEvent.click(entitySwitcher());
     expect(database.getColumns).toHaveBeenCalledOnce();
 
-    await userEvent.fill(editor(), 'SELECT 42 AS value');
+    await userEvent.fill(editor(), 'SELECT ? AS value');
+    await page.getByRole('button', {name: 'Parameters', exact: true}).click();
+    await userEvent.click(document.querySelector('.ticl-e-sql-main .ticl-e-expand-button'));
+    const valueEditor = await shouldHappen(() =>
+      document.querySelector<HTMLElement>('.ticl-e-dock-dialog .cm-content')
+    );
+    await userEvent.fill(valueEditor, '[42]');
+    await page.getByRole('button', {name: 'OK', exact: true}).click();
+    expect(database.query).not.toHaveBeenCalled();
     database.query.mockResolvedValueOnce({
       table: {
         columns: [{name: 'value', type: 'any'}],
@@ -109,14 +124,18 @@ describe('SQL client management dialog', () => {
     });
     await userEvent.click(runButton());
     await shouldHappen(() => document.querySelector('.ticl-e-sql-table .ant-table-row')?.textContent.includes('42'));
-    expect(database.query).toHaveBeenCalledWith('SELECT 42 AS value', undefined);
+    expect(database.query).toHaveBeenCalledWith('SELECT ? AS value', [42]);
     expect(document.querySelectorAll('.ticl-e-sql-table .ant-table-row').length).toBeLessThan(100);
     expect(flow.save()).toEqual(before);
     flushSync(() => openSqlClientDialog(layout, conn, 'Test.database'));
     expect(document.querySelectorAll('.ticl-e-sql-client').length).toBe(1);
-    expect(editor().textContent).toBe('SELECT 42 AS value');
+    expect(editor().textContent).toBe('SELECT ? AS value');
     expect(document.querySelector('.ticl-e-sql-table')).not.toBeNull();
     expect(database.listEntities).toHaveBeenCalledOnce();
+    await userEvent.click(document.querySelector('.ticl-e-sql-entities button'));
+    await shouldHappen(() => database.listEntities.mock.calls.length === 2 && entityTitle());
+    expect(editor().textContent).toBe('SELECT ? AS value');
+    expect(document.querySelector('.ticl-e-sql-table')).not.toBeNull();
     database.query.mockRejectedValueOnce(new Error('bad statement'));
     await userEvent.click(runButton());
     await shouldHappen(() => document.querySelector('.ant-alert')?.textContent.includes('bad statement'));
@@ -158,15 +177,13 @@ describe('SQL client management dialog', () => {
     expect(document.querySelector('.ticl-e-sql-table')).toBeNull();
     await userEvent.click(runButton());
     await shouldHappen(() => document.querySelector('.ticl-e-sql-table .ant-table-row')?.textContent.includes('42'));
-    await userEvent.click(document.querySelector('.ant-tree-switcher'));
+    await userEvent.click(entitySwitcher());
     await shouldHappen(() => secondService.getColumns.mock.calls.length === 1);
     const replacement = service();
     second.output(replacement);
-    await shouldHappen(
-      () => replacement.listEntities.mock.calls.length === 1 && document.querySelector('.ant-tree-switcher')
-    );
+    await shouldHappen(() => replacement.listEntities.mock.calls.length === 1 && entityTitle());
     expect(document.querySelector('.ticl-e-sql-table')).toBeNull();
-    await userEvent.click(document.querySelector('.ant-tree-switcher'));
+    await userEvent.click(entitySwitcher());
     await shouldHappen(() => replacement.getColumns.mock.calls.length === 1);
   });
 });

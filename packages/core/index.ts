@@ -63,6 +63,7 @@ export type {
   SqlClient,
   SqlColumn,
   SqlParams,
+  SqlStatement,
   SqlResult,
   SqlTable,
   SqlEntityRef,

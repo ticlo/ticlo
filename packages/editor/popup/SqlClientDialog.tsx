@@ -1,17 +1,26 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Alert, Button, Table, Tree, type TreeDataNode} from 'antd';
-import {KeyOutlined, PlayCircleOutlined, ReloadOutlined, TableOutlined} from '@ant-design/icons';
+import {
+  EyeOutlined,
+  FolderOutlined,
+  KeyOutlined,
+  PlayCircleFilled,
+  ReloadOutlined,
+  TableOutlined,
+} from '@ant-design/icons';
 import type {DockLayout} from 'rc-dock';
 import CodeMirror from '@uiw/react-codemirror';
-import type {SqlEntity, SqlEntityColumn, SqlResult, SqlTable} from '@ticlo/core';
+import type {PropDesc, SqlEntity, SqlEntityColumn, SqlResult, SqlTable} from '@ticlo/core';
 import {sqlClientCommands} from '@ticlo/core';
 import {type ClientConn, translateEditor} from '@ticlo/core/editor.ts';
+import {NoSerialize} from '@ticlo/core/util/NoSerialize.ts';
 import {EditPolicyProvider, useEditPolicy} from '../component/EditPolicyContext.tsx';
 import {useConnectionValue} from '../component/useConnectionValue.ts';
 import {renderValue} from '../component/renderValue.tsx';
 import {t} from '../component/LocalizedLabel.tsx';
 import {editorTheme} from '../dock/text-editor/TextEditorPane.tsx';
 import {createDockDialog} from '../component/DockDialogPane.tsx';
+import {CommandValue} from './CommandMenu.tsx';
 
 interface Props {
   conn: ClientConn;
@@ -20,6 +29,49 @@ interface Props {
 
 interface EntityNode extends TreeDataNode {
   entity?: SqlEntity;
+  children?: EntityNode[];
+}
+
+const queryFunction = {name: 'query'};
+const parameterDesc: PropDesc = {name: 'params', type: 'any', types: ['array', 'object']};
+
+function buildEntityTree(entities: SqlEntity[], columns: Record<string, SqlEntityColumn[]>) {
+  const nodes: EntityNode[] = [];
+  const groups = new Map<string, EntityNode>();
+  const childrenOf = (parent: EntityNode[], key: string, title: string) => {
+    let node = groups.get(key);
+    if (!node) {
+      node = {key, title, icon: <FolderOutlined />, children: []};
+      groups.set(key, node);
+      parent.push(node);
+    }
+    return node.children;
+  };
+  for (const entity of entities) {
+    const {catalog, schema, name} = entity;
+    let parent = nodes;
+    if (catalog) parent = childrenOf(parent, JSON.stringify([catalog]), catalog);
+    if (schema) parent = childrenOf(parent, JSON.stringify([catalog, schema]), schema);
+    const key = JSON.stringify([catalog, schema, name]);
+    parent.push({
+      key,
+      entity,
+      icon: entity.kind === 'view' ? <EyeOutlined /> : <TableOutlined />,
+      title: name,
+      isLeaf: false,
+      children: columns[key]?.map((column, index) => ({
+        key: `${key}:${index}`,
+        isLeaf: true,
+        title: (
+          <span title={column.defaultExpression}>
+            {column.primaryKey ? <KeyOutlined /> : null} {column.name}
+            <span className="ticl-e-sql-column-type">{column.databaseType}</span>
+          </span>
+        ),
+      })),
+    });
+  }
+  return {nodes, groupKeys: [...groups.keys()]};
 }
 
 function errorMessage(error: unknown) {
@@ -78,14 +130,17 @@ function SqlClientPanel({conn, path}: Props) {
   const service = useConnectionValue(conn, `${path}.#output`);
   const policy = useEditPolicy();
   const [sql, setSql] = useState('');
+  const [params, setParams] = useState<unknown>();
+  const [showParams, setShowParams] = useState(false);
   const [entities, setEntities] = useState<SqlEntity[]>();
   const [columns, setColumns] = useState<Record<string, SqlEntityColumn[]>>({});
-  const [expanded, setExpanded] = useState<React.Key[]>([]);
   const [refresh, setRefresh] = useState(0);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<SqlResult>();
   const [error, setError] = useState<string>();
-  const session = useRef({id: 0, active: false});
+  const [entityError, setEntityError] = useState<string>();
+  const session = useRef({active: false});
+  const entitySession = useRef({id: 0, active: false});
   const inFlight = useRef(false);
   const target = useMemo(() => ({conn, path, service}), [conn, path, service]);
   const current = useRef(target);
@@ -98,18 +153,34 @@ function SqlClientPanel({conn, path}: Props) {
     },
     [conn, path]
   );
-  const canExecute = policy.can({cmd: 'executeCommand', path, command: 'query'});
+  const queryParams = params === undefined ? {sql} : {sql, params};
+  const queryCommand = {cmd: 'executeCommand' as const, path, command: 'query', params: queryParams};
+  const canExecute = policy.can(queryCommand);
+  const changeParams = useCallback(
+    (value: unknown) => {
+      if (current.current === target && !inFlight.current) setParams(value);
+    },
+    [target]
+  );
 
   useEffect(() => {
-    const revision = {id: session.current.id + 1, active: true};
+    const revision = {active: true};
     session.current = revision;
-    setEntities(undefined);
-    setColumns({});
-    setExpanded([]);
     setResult(undefined);
     setError(undefined);
     setRunning(false);
     inFlight.current = false;
+    return () => {
+      revision.active = false;
+    };
+  }, [target]);
+
+  useEffect(() => {
+    const revision = {id: entitySession.current.id + 1, active: true};
+    entitySession.current = revision;
+    setEntities(undefined);
+    setColumns({});
+    setEntityError(undefined);
     if (service) {
       request('listEntities').then(
         ({entities}) => {
@@ -117,7 +188,7 @@ function SqlClientPanel({conn, path}: Props) {
         },
         (error) => {
           if (revision.active && current.current === target) {
-            setError(errorMessage(error));
+            setEntityError(errorMessage(error));
             setEntities([]);
           }
         }
@@ -128,53 +199,30 @@ function SqlClientPanel({conn, path}: Props) {
     };
   }, [service, refresh, request, target]);
 
-  const tree = useMemo<EntityNode[]>(
-    () =>
-      (entities ?? []).map((entity) => {
-        const key = JSON.stringify([entity.catalog, entity.schema, entity.name]);
-        return {
-          key,
-          entity,
-          icon: <TableOutlined />,
-          title: [entity.catalog, entity.schema, entity.name].filter(Boolean).join('.'),
-          isLeaf: false,
-          children: columns[key]?.map((column, index) => ({
-            key: `${key}:${index}`,
-            isLeaf: true,
-            title: (
-              <span title={column.defaultExpression}>
-                {column.primaryKey ? <KeyOutlined /> : null} {column.name}
-                <span className="ticl-e-sql-column-type">{column.databaseType}</span>
-              </span>
-            ),
-          })),
-        };
-      }),
-    [entities, columns]
-  );
+  const tree = useMemo(() => buildEntityTree(entities ?? [], columns), [entities, columns]);
 
   const loadColumns = async (node: EntityNode) => {
     const key = String(node.key);
     if (!node.entity || columns[key]) return;
-    const revision = session.current;
+    const revision = entitySession.current;
     try {
       const {catalog, schema, name} = node.entity;
       const {columns: value} = await request('getColumns', {catalog, schema, name});
       if (revision.active && current.current === target) setColumns((columns) => ({...columns, [key]: value}));
     } catch (error) {
-      if (revision.active && current.current === target) setError(errorMessage(error));
+      if (revision.active && current.current === target) setEntityError(errorMessage(error));
     }
   };
 
   const run = async () => {
-    if (inFlight.current || !service || !sql.trim() || !canExecute) return;
+    if (inFlight.current || !service || !sql.trim() || !conn.getEditPolicyView().can(queryCommand)) return;
     const revision = session.current;
     inFlight.current = true;
     setRunning(true);
     setResult(undefined);
     setError(undefined);
     try {
-      const value = await request('query', {sql});
+      const value = await request('query', queryParams);
       if (revision.active && current.current === target) setResult(value);
     } catch (error) {
       if (revision.active && current.current === target) setError(errorMessage(error));
@@ -199,15 +247,15 @@ function SqlClientPanel({conn, path}: Props) {
             onClick={() => setRefresh((value) => value + 1)}
           />
         </div>
+        {entityError ? <Alert type="error" title={entityError} /> : null}
         {service ? (
           entities ? (
             <Tree<EntityNode>
-              key={session.current.id}
-              treeData={tree}
+              key={entitySession.current.id}
+              treeData={tree.nodes}
               showIcon
               blockNode
-              expandedKeys={expanded}
-              onExpand={setExpanded}
+              defaultExpandedKeys={tree.groupKeys}
               loadData={loadColumns}
             />
           ) : (
@@ -232,12 +280,15 @@ function SqlClientPanel({conn, path}: Props) {
         <div className="ticl-e-sql-toolbar">
           <Button
             type="primary"
-            icon={<PlayCircleOutlined />}
+            icon={<PlayCircleFilled />}
             loading={running}
             disabled={!service || !sql.trim() || !canExecute}
             onClick={() => void run()}
           >
             {t('Run')}
+          </Button>
+          <Button type="text" onClick={() => setShowParams((show) => !show)}>
+            {t('Parameters')}
           </Button>
           {result?.table ? (
             <span>
@@ -254,7 +305,22 @@ function SqlClientPanel({conn, path}: Props) {
               {t('Insert ID')}: {result.insertId}
             </span>
           ) : null}
+          {result && !result.table && result.affectedRows === undefined && result.insertId === undefined
+            ? t('Done')
+            : null}
         </div>
+        {showParams ? (
+          <CommandValue
+            desc={parameterDesc}
+            funcDesc={queryFunction}
+            value={params}
+            readonly={running}
+            label={
+              service instanceof NoSerialize && service.title === 'postgres:client' ? <code>$1, $2, …</code> : null
+            }
+            onChange={changeParams}
+          />
+        ) : null}
         {error ? <Alert type="error" title={error} /> : null}
         {result?.table ? <QueryTable table={result.table} /> : null}
       </div>

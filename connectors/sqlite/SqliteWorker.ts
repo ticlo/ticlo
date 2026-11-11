@@ -1,6 +1,7 @@
 import {parentPort} from 'node:worker_threads';
 import {DatabaseSync, type SQLInputValue, type StatementSync} from 'node:sqlite';
-import type {SqlColumn, SqlParams, SqlResult, SqlEntity, SqlEntityRef, SqlEntityColumn} from '@ticlo/core';
+import type {SqlParams, SqlResult, SqlEntity, SqlEntityRef, SqlEntityColumn, SqlStatement} from '@ticlo/core';
+import {sqlColumns, validateSqlTransaction} from '@ticlo/core/functions/sql/SqlClient.ts';
 import type {SqliteRequest} from './SqliteClient.ts';
 
 let database: DatabaseSync;
@@ -97,19 +98,11 @@ function query(sql: string, params?: SqlParams): SqlResult {
     const sourceColumns = statement.columns();
     let result: SqlResult;
     if (sourceColumns.length) {
-      const reserved = new Set(sourceColumns.map((column) => column.name));
-      const used = new Set<string>();
-      const columns: SqlColumn[] = sourceColumns.map((column, index) => {
-        const base = column.name || `column${index + 1}`;
-        let name = base;
-        let suffix = 2;
-        while (used.has(name)) {
-          name = `${base}_${suffix++}`;
-          while (reserved.has(name)) name = `${base}_${suffix++}`;
-        }
-        used.add(name);
-        return {name, type: 'any', sourceName: column.name, databaseType: column.type ?? undefined};
-      });
+      const columns = sqlColumns(
+        sourceColumns,
+        (column) => column.name,
+        (column) => column.type ?? undefined
+      );
       const rows = statement.all(...(args as SQLInputValue[])) as unknown as unknown[][];
       for (const row of rows) {
         for (let i = 0; i < row.length; ++i) {
@@ -129,6 +122,20 @@ function query(sql: string, params?: SqlParams): SqlResult {
     return result;
   } finally {
     closeStatement(statement);
+  }
+}
+
+function transaction(statements: readonly SqlStatement[]): SqlResult {
+  validateSqlTransaction(statements);
+  database.exec('BEGIN');
+  try {
+    let result: SqlResult;
+    for (const {sql, params} of statements) result = query(sql, params);
+    database.exec('COMMIT');
+    return result;
+  } catch (error) {
+    if (database.isTransaction) database.exec('ROLLBACK');
+    throw error;
   }
 }
 
@@ -153,6 +160,9 @@ parentPort.on('message', (request: SqliteRequest & {id: number}) => {
       }
       case 'query':
         result = query(request.sql, request.params);
+        break;
+      case 'transaction':
+        result = transaction(request.statements);
         break;
       case 'listEntities':
         result = listEntities();
