@@ -23,17 +23,18 @@ Public storage paths use `<project>/<relative-path>`, without `proj/`.
 `storage.user` uses paths relative to the current user's directory. Paths reject
 traversal and backslashes. Operations return promises and accept `AbortSignal`.
 
-| Scope | Remote | Static | Node |
-| --- | --- | --- | --- |
-| Browser project `main` | `proj/main/` | `proj/main/`, read-only | — |
-| Server project `main` | `ScopedFileServerFiles` with `serv` | — | `<dir>/main/` |
-| Project `local` | IndexedDB | IndexedDB | `<dir>/local/` |
-| Current user | `usr/<authenticated-id>/` | `usr/guest/`, read-only | `<dir>/#root/` |
-| Global flow | `storage.user/#global.ticlo` | `storage.user/#global.ticlo` | `<dir>/#root/#global.ticlo` |
+| Scope                          | Remote                              | Static                       | Node                        |
+| ------------------------------ | ----------------------------------- | ---------------------------- | --------------------------- |
+| Browser project `main`         | `proj/main/`                        | `proj/main/`, read-only      | —                           |
+| Server project `main`          | `ScopedFileServerFiles` with `serv` | —                            | `<dir>/main/`               |
+| Browser Library `BrowserLocal` | IndexedDB                           | IndexedDB                    | —                           |
+| Current user                   | `usr/<authenticated-id>/`           | `usr/guest/`, read-only      | `<dir>/#root/`              |
+| Global flow                    | `storage.user/#global.ticlo`        | `storage.user/#global.ticlo` | `<dir>/#root/#global.ticlo` |
 
-Browser `local` is reserved, always available, and cannot be deleted or moved as
-a project. Its files never fall back to a remote project. Local file metadata and
-contents change in one IndexedDB transaction; empty directories are preserved.
+Both browser adapters reserve `BrowserLocal` for IndexedDB and protect the
+Library from deletion or moves. Its files use the existing `ticlo-local-files`
+database. File metadata and contents change in one transaction, and empty
+directories are preserved.
 Backups of failed remote saves are separate from this project.
 
 `#global` always uses `storage.user`; a missing file means an empty global Flow.
@@ -70,8 +71,8 @@ Copies preserve directories, including empty ones. Moves copy before removing
 the source and can partially succeed across backends. Failures do not retry or
 overwrite automatically. `StorageError.code` distinguishes not-found, conflict,
 read-only, permission, path, and I/O failures. `getCapabilities(path)` reports
-write and persistence support. Static sources cannot be modified; copy to `local`
-to edit. See [static indexes](static-storage.md) for deployment requirements.
+write and persistence support. Copy static files to `BrowserLocal` to edit
+them. See [static indexes](static-storage.md) for deployment requirements.
 
 `subscribeFileChanges(listener)` reports successful writes through that instance
 and returns an unsubscribe function. It does not watch other tabs or external
@@ -86,20 +87,20 @@ for offline discovery. A successful save or explicit discard clears the backup.
 Native file uploads do not create editor backups.
 
 `RemoteStorage`, `ScopedFileServerFiles`, and `NodeStorage` offer the shared
-`ProjectGit` API. Browser `local` and static projects do not. Working-tree status
+`ProjectGit` API for server projects. Working-tree status
 is independent of editor backups; remote adapters include backups in pending
 changes. Git reset discards those backups after the server reset succeeds.
 See [Git contracts](file-server.md#project-git).
 
 ## Runtime file layout
 
-| Relative project path | Purpose |
-| --- | --- |
-| `ticlo.json` | Library dependencies and auto-load settings |
-| `#context.ticlo` | Library context |
-| `folder/child.ticlo` | Flow `folder.child` |
-| `#modules/tools.ticlo` | Module `tools` |
-| `#storage/key.str` | String storage functions |
+| Relative project path  | Purpose                                     |
+| ---------------------- | ------------------------------------------- |
+| `ticlo.json`           | Library dependencies and auto-load settings |
+| `#context.ticlo`       | Library context                             |
+| `folder/child.ticlo`   | Flow `folder.child`                         |
+| `#modules/tools.ticlo` | Module `tools`                              |
+| `#storage/key.str`     | String storage functions                    |
 
 `#root` holds unqualified Flows; named projects map to `+project.flow`.
 `#modules`, `#deps`, and `#storage` are reserved root folder names. Ordinary

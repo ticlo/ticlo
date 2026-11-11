@@ -67,7 +67,7 @@ class StaticFiles extends FileAccessBase {
   }
 }
 
-/** Static projects and the guest user are read-only; only local is persisted. */
+/** Static projects and the guest user are read-only. BrowserLocal is persisted in IndexedDB. */
 export class StaticStorage extends BrowserStorage {
   constructor(baseURL: string) {
     super(

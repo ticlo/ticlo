@@ -101,13 +101,13 @@ activation. File-server `.proj`
 is separate project metadata; runtime storage never reads/writes it. Dependencies
 do not use a `#deps` directory.
 
-| Adapter             | Metadata and persistence                                                         |
-| ------------------- | -------------------------------------------------------------------------------- |
-| `NodeStorage`       | `<projectsDir>/#root/ticlo.json`, `<projectsDir>/main/ticlo.json`                |
-| Browser `local`     | IndexedDB file `local/ticlo.json`; only the local project is stored in IndexedDB |
-| `MemoryFlowStorage` | Metadata and serialized-flow Maps survive stop/start on the same instance        |
-| `StaticStorage`     | Static projects are read-only; lifecycle persistence is allowed only for `local` |
-| `RemoteStorage`     | File server project metadata at `proj/<project>/ticlo.json`                      |
+| Adapter             | Metadata and persistence                                                     |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `NodeStorage`       | `<projectsDir>/#root/ticlo.json`, `<projectsDir>/main/ticlo.json`            |
+| `BrowserLocal`      | IndexedDB file exposed as `BrowserLocal/ticlo.json`                          |
+| `MemoryFlowStorage` | Metadata and serialized-flow Maps survive stop/start on the same instance    |
+| `StaticStorage`     | Static projects are read-only. `BrowserLocal` supports lifecycle persistence |
+| `RemoteStorage`     | File server project metadata at `proj/<project>/ticlo.json`                  |
 
 Adapters expose `getLibraryMetadata`, `saveLibraryMetadata`, and `listFlows`.
 Catalog reads must not instantiate or run flows.

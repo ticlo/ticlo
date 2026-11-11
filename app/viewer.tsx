@@ -6,7 +6,7 @@ import React from 'react';
 import {createRoot} from 'react-dom/client';
 import {Flow, Root} from '@ticlo/core';
 import {TicloPage, useValue} from '@ticlo/react';
-import {RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
+import {BROWSER_LOCAL_LIBRARY, RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
 import {designerData} from './sample-data/designer.ts';
 import {EditorWindows} from './EditorWindows.ts';
 import {pageFlowPath} from './flow-path.ts';
@@ -36,8 +36,8 @@ function Viewer({root, path}: {root: Root; path: string}) {
   );
   const sample =
     !host &&
-    selected.path === '+local.designer-example' &&
-    !(await root.listFlows('local')).some(({name}) => name === 'designer-example');
+    selected.path === `+${BROWSER_LOCAL_LIBRARY}.designer-example` &&
+    !(await root.listFlows(BROWSER_LOCAL_LIBRARY)).some(({name}) => name === 'designer-example');
   await root.start({[selected.ref.library]: {flows: sample ? [] : [selected.ref.name]}});
   if (sample) root.addFlow(selected.path, designerData);
   if (!(root.queryValue(selected.path) instanceof Flow)) throw new Error(`Flow is not available: ${selected.path}`);

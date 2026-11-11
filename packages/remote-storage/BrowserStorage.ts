@@ -9,7 +9,13 @@ import {
   type FileRequest,
   type FileWriteOptions,
 } from '@ticlo/core/storage/FileAccess.ts';
-import {LocalProjectFiles} from './LocalProjectFiles.ts';
+import {BROWSER_LOCAL_LIBRARY, LocalProjectFiles} from './LocalProjectFiles.ts';
+
+const browserLocalPrefix = `${BROWSER_LOCAL_LIBRARY}/`;
+
+export function isBrowserLocalPath(path: string) {
+  return path === BROWSER_LOCAL_LIBRARY || path.startsWith(browserLocalPrefix);
+}
 
 export abstract class BrowserStorage extends ProjectStorage {
   private readonly local = new LocalProjectFiles();
@@ -35,7 +41,7 @@ export abstract class BrowserStorage extends ProjectStorage {
   }
   private route(path: string) {
     filePath(path, true);
-    if (path === 'local' || path.startsWith('local/')) return {files: this.local, path: path.slice(6)};
+    if (isBrowserLocalPath(path)) return {files: this.local, path: path.slice(browserLocalPrefix.length)};
     if (path) projectId(path.split('/')[0]);
     return {files: this.remote, path};
   }
@@ -56,10 +62,12 @@ export abstract class BrowserStorage extends ProjectStorage {
     const entries = await target.files.listFiles(target.path, options);
     if (!path)
       return [
-        ...entries.filter((entry) => entry.name !== 'local'),
-        {type: 'folder' as const, path: 'local', name: 'local'},
+        ...entries.filter((entry) => entry.name !== BROWSER_LOCAL_LIBRARY),
+        {type: 'folder' as const, path: BROWSER_LOCAL_LIBRARY, name: BROWSER_LOCAL_LIBRARY},
       ];
-    return target.files === this.local ? entries.map((entry) => ({...entry, path: `local/${entry.path}`})) : entries;
+    return target.files === this.local
+      ? entries.map((entry) => ({...entry, path: `${browserLocalPrefix}${entry.path}`}))
+      : entries;
   }
   async uploadFile(path: string, data: FilePayload, options?: FileWriteOptions) {
     const target = this.route(path);
@@ -73,17 +81,20 @@ export abstract class BrowserStorage extends ProjectStorage {
     this.fileChanged(path);
   }
   async deleteFile(path: string, options?: FileWriteOptions) {
-    if (path === 'local')
-      return Promise.reject(new StorageError('The local project cannot be deleted', 'permission-denied'));
+    if (path === BROWSER_LOCAL_LIBRARY)
+      return Promise.reject(new StorageError('BrowserLocal cannot be deleted', 'permission-denied'));
     const target = this.route(path);
     await target.files.deleteFile(target.path, options);
     this.fileChanged(path);
   }
   async readProject(id: string, options?: FileRequest) {
-    return {...(id === 'local' ? {name: 'Local'} : {}), ...(await super.readProject(id, options))};
+    return {
+      ...(id === BROWSER_LOCAL_LIBRARY ? {name: BROWSER_LOCAL_LIBRARY} : {}),
+      ...(await super.readProject(id, options)),
+    };
   }
   async moveFile(source: string, destination: string, options?: FileRequest) {
-    if (source === 'local') throw new StorageError('The local project cannot be moved', 'permission-denied');
+    if (source === BROWSER_LOCAL_LIBRARY) throw new StorageError('BrowserLocal cannot be moved', 'permission-denied');
     await super.moveFile(source, destination, options);
   }
 }

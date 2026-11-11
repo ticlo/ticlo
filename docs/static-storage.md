@@ -9,13 +9,12 @@ import {StaticStorage} from '@ticlo/remote-storage';
 
 const storage = new StaticStorage('https://example.com/files');
 await Root.instance.setStorage(storage);
-await Root.instance.start({main: {flows: ['entry']}, local: {flows: ['**']}});
+await Root.instance.start({main: {flows: ['entry']}, BrowserLocal: {flows: ['**']}});
 ```
 
 Static project files and `usr/guest/` are read-only. `#global` loads from
-`usr/guest/#global.ticlo`. Only browser project `local` is writable and persistent,
-using IndexedDB. Copy a static file into local to edit it; writes and moves that
-would modify static sources are rejected. There is no temporary write overlay.
+`usr/guest/#global.ticlo`. `BrowserLocal` is writable and persistent in IndexedDB.
+Copy a static file into `BrowserLocal` to edit it.
 
 ## Directory indexes
 

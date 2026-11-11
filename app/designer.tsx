@@ -21,7 +21,7 @@ import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.tsx';
 import {BlockStageTabButton} from '@ticlo/editor/dock/block/BlockStageTabButton.tsx';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
 import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
-import {RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
+import {BROWSER_LOCAL_LIBRARY, RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
 import type {FileEntry, ProjectFiles} from '@ticlo/core/storage/FileAccess.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {DockLayout, type LayoutBase, type TabDefinitions, type TabData} from 'rc-dock';
@@ -537,23 +537,24 @@ function DesignerWorkspace({
     }
   } else {
     const storage = new StaticStorage(new URL('./storage', location.href).href);
-    const project = selected?.ref.library ?? params.get('project') ?? 'local';
+    const project = selected?.ref.library ?? params.get('project') ?? BROWSER_LOCAL_LIBRARY;
+    const example = `+${BROWSER_LOCAL_LIBRARY}.designer-example`;
     files = {storage, project};
     await root.setStorage(storage);
     if (selected) {
       const sample =
-        selected.path === '+local.designer-example' &&
-        !(await root.listFlows('local')).some(({name}) => name === 'designer-example');
+        selected.path === example &&
+        !(await root.listFlows(BROWSER_LOCAL_LIBRARY)).some(({name}) => name === 'designer-example');
       await root.start({[selected.ref.library]: {flows: sample ? [] : [selected.ref.name]}});
       if (sample) root.addFlow(selected.path, designerData);
       initialFlow = selected.path;
     } else {
       await root.start({[project]: params.has('project') ? {} : {flows: ['**']}});
-      if (project === 'local' && !params.has('project')) {
-        if (!(root.queryValue('+local.designer-example') instanceof Flow)) {
-          root.addFlow('+local.designer-example', designerData);
+      if (project === BROWSER_LOCAL_LIBRARY && !params.has('project')) {
+        if (!(root.queryValue(example) instanceof Flow)) {
+          root.addFlow(example, designerData);
         }
-        initialFlow = params.get('flow') || '+local.designer-example';
+        initialFlow = params.get('flow') || example;
       }
     }
   }
