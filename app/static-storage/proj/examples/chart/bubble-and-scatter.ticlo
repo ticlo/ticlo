@@ -1,0 +1,81 @@
+{
+  "#is": "",
+  "#main": {
+    "#is": "chart:chart",
+    "type": "bubble",
+    "style": {
+      "width": 560,
+      "height": 340
+    },
+    "options": {
+      "plugins": {
+        "legend": {
+          "position": "bottom"
+        }
+      },
+      "scales": {
+        "x": {
+          "type": "linear",
+          "min": 0,
+          "max": 10
+        },
+        "y": {
+          "min": 0,
+          "max": 10
+        }
+      }
+    },
+    "#order": [
+      "bubbles",
+      "points"
+    ],
+    "bubbles": {
+      "#is": "chart:series",
+      "label": "Bubbles",
+      "dataset": {
+        "data": [
+          {
+            "x": 2,
+            "y": 3,
+            "r": 12
+          },
+          {
+            "x": 5,
+            "y": 7,
+            "r": 20
+          },
+          {
+            "x": 8,
+            "y": 4,
+            "r": 15
+          }
+        ],
+        "backgroundColor": "rgba(255, 99, 132, 0.6)"
+      }
+    },
+    "points": {
+      "#is": "chart:series",
+      "label": "Scatter",
+      "dataset": {
+        "type": "scatter",
+        "data": [
+          {
+            "x": 1,
+            "y": 7
+          },
+          {
+            "x": 4,
+            "y": 2
+          },
+          {
+            "x": 7,
+            "y": 8
+          }
+        ],
+        "pointRadius": 6,
+        "backgroundColor": "rgb(54, 162, 235)"
+      },
+      "type": "scatter"
+    }
+  }
+}

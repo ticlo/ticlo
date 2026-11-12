@@ -1,0 +1,51 @@
+{
+  "#is": "",
+  "#main": {
+    "#is": "react:horizontal",
+    "#order": [
+      "first",
+      "second",
+      "third"
+    ],
+    "style": {
+      "width": 700,
+      "gap": 12,
+      "padding": 20,
+      "border": "1px solid #ddd",
+      "borderRadius": 10
+    },
+    "first": {
+      "#is": "react:div",
+      "content": "First",
+      "style": {
+        "padding": 20,
+        "borderRadius": 8,
+        "backgroundColor": "#ffe0e7",
+        "color": "#202636",
+        "flex": 1
+      }
+    },
+    "second": {
+      "#is": "react:div",
+      "content": "Second grows twice as wide",
+      "style": {
+        "padding": 20,
+        "borderRadius": 8,
+        "backgroundColor": "#d9f0ff",
+        "color": "#202636",
+        "flex": 2
+      }
+    },
+    "third": {
+      "#is": "react:div",
+      "content": "Third",
+      "style": {
+        "padding": 20,
+        "borderRadius": 8,
+        "backgroundColor": "#e3f5e9",
+        "color": "#202636",
+        "flex": 1
+      }
+    }
+  }
+}

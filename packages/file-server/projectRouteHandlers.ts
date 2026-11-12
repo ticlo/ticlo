@@ -17,7 +17,14 @@ import {
 } from './projectOperations.ts';
 import {handleErrors, type HonoReply} from './utils.ts';
 import {logChange, verifyHistoryCommit, withCommitWorktree} from './gitOperations.ts';
-import {ensureRead, ensureWrite, resolveAuth, streamToBuffer, type FileRouteContext} from './fileOperations.ts';
+import {
+  ensureNoSymlink,
+  ensureRead,
+  ensureWrite,
+  resolveAuth,
+  streamToBuffer,
+  type FileRouteContext,
+} from './fileOperations.ts';
 import {FileQuerystring, ProjectMetadata, StorageContext, StorageError} from './types.ts';
 
 const {mkdir, rm} = fs;
@@ -32,7 +39,7 @@ async function handleListProjectsOp(
     reply,
     async (): Promise<ProjectMetadata[]> => {
       const auth = await resolveAuth(context.authProvider, request);
-      return listProjectsForAuth(projectScopeDir(context.rootDir, query.scope), auth);
+      return listProjectsForAuth(projectScopeDir(context.rootDir, query.scope), auth, context.allowProjectSymlink);
     },
     context.logger
   );
@@ -51,6 +58,7 @@ async function handleReadProjectOp(
       const projectId = sanitizeProjectId(query.id);
       const auth = await resolveAuth(context.authProvider, request);
       await ensureRead(auth, projectId);
+      await ensureNoSymlink(projectRootPath(baseDir, projectId), context);
       const metadata = await readProjectMetadata(baseDir, projectId);
       if (!metadata) {
         throw new StorageError('Project not found', 404);
@@ -82,6 +90,7 @@ async function handleCreateProjectOp(
       const auth = await resolveAuth(context.authProvider, request);
       if (templateId) {
         await ensureRead(auth, templateId);
+        await ensureNoSymlink(projectRootPath(baseDir, templateId), context);
         if (!(await projectDirectoryExists(baseDir, templateId))) {
           throw new StorageError('Template project not found', 404);
         }
@@ -130,6 +139,7 @@ async function handleUpdateProjectOp(
       const projectId = sanitizeProjectId(query.id);
       const auth = await resolveAuth(context.authProvider, request);
       await ensureWrite(auth, projectId);
+      await ensureNoSymlink(projectRootPath(baseDir, projectId), context);
       if (!(await projectDirectoryExists(baseDir, projectId))) {
         throw new StorageError('Project not found', 404);
       }
@@ -198,6 +208,7 @@ async function handleExportProjectOp(
       const projectId = sanitizeProjectId(query.id);
       const auth = await resolveAuth(context.authProvider, request);
       await ensureRead(auth, projectId);
+      await ensureNoSymlink(projectRootPath(baseDir, projectId), context);
       const archive = await createProjectArchiveBuffer(baseDir, projectId);
       reply.header('Content-Type', 'application/zip');
       reply.header('Content-Disposition', 'attachment; filename="' + projectId + '.zip"');

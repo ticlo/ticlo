@@ -1,0 +1,108 @@
+{
+  "#is": "",
+  "#main": {
+    "#is": "react:horizontal",
+    "#order": [
+      "radar",
+      "polar"
+    ],
+    "style": {
+      "gap": 24,
+      "padding": 24
+    },
+    "radar": {
+      "#is": "chart:chart",
+      "type": "radar",
+      "style": {
+        "width": 400,
+        "height": 340
+      },
+      "data": {
+        "labels": [
+          "Speed",
+          "Quality",
+          "Reach",
+          "Support",
+          "Value"
+        ],
+        "datasets": [
+          {
+            "label": "Product A",
+            "data": [
+              75,
+              88,
+              61,
+              90,
+              70
+            ],
+            "borderColor": "rgb(255, 99, 132)",
+            "backgroundColor": "rgba(255, 99, 132, 0.2)"
+          },
+          {
+            "label": "Product B",
+            "data": [
+              90,
+              63,
+              83,
+              72,
+              85
+            ],
+            "borderColor": "rgb(54, 162, 235)",
+            "backgroundColor": "rgba(54, 162, 235, 0.2)"
+          }
+        ]
+      },
+      "options": {
+        "plugins": {
+          "title": {
+            "display": true,
+            "text": "Radar"
+          }
+        }
+      }
+    },
+    "polar": {
+      "#is": "chart:chart",
+      "type": "polarArea",
+      "style": {
+        "width": 400,
+        "height": 340
+      },
+      "data": {
+        "labels": [
+          "Speed",
+          "Quality",
+          "Reach",
+          "Support"
+        ],
+        "datasets": [
+          {
+            "data": [
+              75,
+              88,
+              61,
+              90
+            ],
+            "backgroundColor": [
+              "rgb(255, 99, 132)",
+              "rgb(54, 162, 235)",
+              "rgb(255, 205, 86)",
+              "rgb(75, 192, 192)"
+            ]
+          }
+        ]
+      },
+      "options": {
+        "plugins": {
+          "title": {
+            "display": true,
+            "text": "Polar area"
+          },
+          "legend": {
+            "position": "bottom"
+          }
+        }
+      }
+    }
+  }
+}

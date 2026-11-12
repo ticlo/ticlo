@@ -5,7 +5,15 @@ import type {UserAuth} from './auth.ts';
 import {lookUpMimeType} from './mimeTypes.ts';
 import {gitStatus, logChange, restoreGitFile, statusForPath, type GitStatus} from './gitOperations.ts';
 import {buildEtag, handleErrors, normalizeInput, toPosix, type HonoReply, type StorageLogger} from './utils.ts';
-import {AuthProvider, FileQuerystring, StorageContext, StorageError, StoragePath, StorageScope} from './types.ts';
+import {
+  AuthProvider,
+  FileQuerystring,
+  FileStorageOptions,
+  StorageContext,
+  StorageError,
+  StoragePath,
+  StorageScope,
+} from './types.ts';
 
 const {stat, lstat, readdir, mkdir, access, rename, rm, copyFile, writeFile, readFile} = fs;
 
@@ -25,7 +33,7 @@ const CRC32_TABLE = (() => {
   return table;
 })();
 
-interface FileRouteContext {
+interface FileRouteContext extends Pick<FileStorageOptions, 'allowProjectSymlink'> {
   rootDir: string;
   authProvider: AuthProvider;
   logger: StorageLogger;
@@ -87,12 +95,14 @@ function ensureMutable(storage: StoragePath, allowRoot = false): void {
   }
 }
 
-async function ensureNoSymlink(storage: StoragePath, rootDir: string): Promise<void> {
+async function ensureNoSymlink(absolute: string, {rootDir, allowProjectSymlink}: FileRouteContext): Promise<void> {
   let current = rootDir;
-  for (const segment of path.relative(rootDir, storage.absolute).split(path.sep)) {
+  for (const [depth, segment] of path.relative(rootDir, absolute).split(path.sep).entries()) {
     current = path.join(current, segment);
     try {
-      if ((await lstat(current)).isSymbolicLink()) throw new StorageError('Symlinks are not supported', 403);
+      if ((await lstat(current)).isSymbolicLink() && !(depth === 1 && (await allowProjectSymlink?.(current)))) {
+        throw new StorageError('Symlinks are not supported', 403);
+      }
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
       throw error;
@@ -289,7 +299,7 @@ async function resolveStorageContext(
   context: FileRouteContext
 ): Promise<{storage: StoragePath; auth: UserAuth}> {
   const storage = buildStoragePath(rawPath, context.rootDir);
-  await ensureNoSymlink(storage, context.rootDir);
+  await ensureNoSymlink(storage.absolute, context);
   const auth = await resolveAuth(context.authProvider, request);
   return {storage, auth};
 }
@@ -532,7 +542,7 @@ async function handleMoveOp(
       }
       const {storage: source, auth} = await resolveStorageContext(query.path, request, context);
       const destination = buildStoragePath(query.dest, context.rootDir);
-      await ensureNoSymlink(destination, context.rootDir);
+      await ensureNoSymlink(destination.absolute, context);
       if (source.scope !== destination.scope || source.id !== destination.id) {
         throw new StorageError('Move must remain within the same scope and identifier', 400);
       }
@@ -569,7 +579,7 @@ async function handleCopyOp(
       }
       const {storage: source, auth} = await resolveStorageContext(query.path, request, context);
       const destination = buildStoragePath(query.dest, context.rootDir);
-      await ensureNoSymlink(destination, context.rootDir);
+      await ensureNoSymlink(destination.absolute, context);
       if (source.scope !== destination.scope || source.id !== destination.id) {
         throw new StorageError('Copy must remain within the same scope and identifier', 400);
       }
@@ -628,7 +638,7 @@ async function handleRenameOp(
         projectRoot: storage.projectRoot,
         posixPath: toPosix([storage.scope, storage.id, cleanedRelative]),
       };
-      await ensureNoSymlink(destination, context.rootDir);
+      await ensureNoSymlink(destination.absolute, context);
       ensureMutable(destination);
       await ensureParentDirectory(destination.absolute);
       try {
@@ -648,6 +658,7 @@ async function handleRenameOp(
 
 export {
   buildEtag,
+  ensureNoSymlink,
   buildStoragePath,
   crc32,
   describeFile,

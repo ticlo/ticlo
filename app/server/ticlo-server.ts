@@ -12,23 +12,25 @@ import {createTicloApp, getEditorUrl} from '@ticlo/web-server/server.ts';
 import {mkdir, writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
-import {initExamples} from './examples.ts';
+import {initServerExamples, linkBrowserExamples} from './examples.ts';
 
 export async function createServerApp(
   rootDir = fileURLToPath(new URL('./files/', import.meta.url)),
   authProvider: AuthProvider = () => devUserAuth,
-  root = Root.instance
+  root = Root.instance,
+  browserExamples?: string
 ) {
   const rootProject = join(rootDir, 'serv/#root');
   if (await mkdir(rootProject, {recursive: true})) {
     await writeFile(join(rootProject, '.proj'), JSON.stringify({id: '#root', name: 'Root'}), {flag: 'wx'});
   }
-  await initExamples(join(rootDir, 'serv'));
+  await initServerExamples(join(rootDir, 'serv'));
+  const allowProjectSymlink = await linkBrowserExamples(join(rootDir, 'proj'), browserExamples);
 
   const app = new Hono();
   const devCors = cors({exposeHeaders: ['ETag']});
   app.use('*', (c, next) => (c.req.header('upgrade') === 'websocket' ? next() : devCors(c, next)));
-  routeFileStorage(app, {rootDir, authProvider});
+  routeFileStorage(app, {rootDir, authProvider, allowProjectSymlink});
 
   app.get('/health', (c) => c.json({status: 'ok'}));
   app.get('/', (c) =>

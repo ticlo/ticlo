@@ -57,6 +57,7 @@ export function routeRemoteStorage(app: Hono, options: FileStorageOptions = {}):
     rootDir,
     authProvider,
     logger: console,
+    allowProjectSymlink: options.allowProjectSymlink,
   };
   const ready = initStorageRoot(rootDir);
 

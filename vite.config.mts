@@ -8,9 +8,11 @@ import util from 'util';
 import path from 'path';
 import {buildCss, stylePackages} from './tool/package-styles.ts';
 import {buildIcons} from './tool/icon-styles.ts';
+import {copyStaticStorage, serveStaticStorage} from './tool/static-storage.ts';
 
 const execAsync = util.promisify(exec);
 let checked = false; // shared across both hooks
+const staticStorageDir = fileURLToPath(new URL('./app/static-storage', import.meta.url));
 
 async function runNpmScript(script: string) {
   const {stderr} = await execAsync(`npm run ${script}`);
@@ -47,30 +49,32 @@ function preProcess(): Plugin {
     /** Runs once when you start `vite dev` */
     async configureServer(server) {
       await checkFiles();
-      // Vite's public-file middleware leaves encoded # characters in paths undecoded.
-      const storageDir = path.resolve('app/public/storage');
-      server.middlewares.use('/storage', async (req, res) => {
-        try {
-          const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
-          const file = path.resolve(storageDir, `.${pathname}`);
-          const relative = path.relative(storageDir, file);
-          if (relative.startsWith('..') || path.isAbsolute(relative)) {
-            res.writeHead(400).end();
-            return;
-          }
-          const data = await fs.promises.readFile(file);
-          res.writeHead(200, {'Content-Type': 'application/json', 'Cache-Control': 'no-store'});
-          res.end(data);
-        } catch (error) {
-          const code = (error as NodeJS.ErrnoException).code;
-          res.writeHead(code === 'ENOENT' || code === 'EISDIR' || code === 'ENOTDIR' ? 404 : 500).end();
-        }
-      });
     },
 
     /** Runs once at the very start of `vite build` */
     async buildStart() {
       await checkFiles();
+    },
+  };
+}
+
+function staticStorage(): Plugin {
+  return {
+    name: 'ticlo-static-storage',
+    async configureServer({config, middlewares}) {
+      middlewares.use(`${config.base}storage`, await serveStaticStorage(staticStorageDir, true));
+    },
+
+    async configurePreviewServer({config, middlewares}) {
+      const output = path.resolve(config.root, config.build.outDir, 'storage');
+      // Vite preview skips dotfiles in its default static handler.
+      if (fs.existsSync(output)) middlewares.use(`${config.base}storage`, await serveStaticStorage(output));
+    },
+
+    async writeBundle({dir}) {
+      const output = path.join(dir, 'storage');
+      await fs.promises.rm(output, {recursive: true, force: true});
+      await copyStaticStorage(staticStorageDir, output);
     },
   };
 }
@@ -95,7 +99,7 @@ function getCssInputs() {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [preProcess(), react(), nodePolyfills()],
+  plugins: [preProcess(), staticStorage(), react(), nodePolyfills()],
   base: '',
   resolve: {
     tsconfigPaths: true,

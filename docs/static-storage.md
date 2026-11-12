@@ -33,11 +33,13 @@ indexes. Missing or malformed indexes reject catalog reads.
 
 ## Local development
 
-Run `pnpm static-server` and `pnpm vite-dev`. Open `static-server.html`, then
-open the editor. The server serves `app/server/files`, sharing project data with
-`pnpm server`, and rebuilds indexes at startup. Restart after adding/removing
-files. Provide user globals under `usr/guest/` as needed.
+Vite serves `app/static-storage` at `/storage` and generates directory indexes
+on request. The Pages build publishes the same files and indexes. Designer and
+Dataflow Editor use this storage by default and open the editable `BrowserLocal`
+demo. Choose `examples` from the Library menu or open either app with
+`?project=examples` to browse chart and layout Flows.
 
-Designer and Dataflow Editor without a remote host use bundled static defaults plus
-the IndexedDB local project. See [file storage](remote-storage.md) for API
-contracts, scope routing, and revisions.
+Run `pnpm static-server` and open `static-server.html` in Vite to use the
+standalone server on port 8011. It serves `proj/` and `usr/` from
+`app/server/files` and rebuilds indexes on startup. See
+[file storage](remote-storage.md) for scope routing and revisions.

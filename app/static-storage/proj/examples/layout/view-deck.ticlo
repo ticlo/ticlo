@@ -1,0 +1,58 @@
+{
+  "#is": "",
+  "#main": {
+    "#is": "react:vertical",
+    "#order": [
+      "note",
+      "deck"
+    ],
+    "style": {
+      "gap": 12,
+      "padding": 20
+    },
+    "note": {
+      "#is": "react:div",
+      "content": "Change selectedIndex on the view deck between 0 and 1."
+    },
+    "deck": {
+      "#is": "react:view-deck",
+      "selectedIndex": 0,
+      "#order": [
+        "first",
+        "second"
+      ],
+      "style": {
+        "width": 480,
+        "height": 220,
+        "border": "1px solid #ddd",
+        "borderRadius": 10
+      },
+      "first": {
+        "#is": "react:div",
+        "content": "Page 1",
+        "style": {
+          "padding": 20,
+          "borderRadius": 8,
+          "backgroundColor": "#ffe0e7",
+          "color": "#202636",
+          "width": "100%",
+          "height": "100%",
+          "boxSizing": "border-box"
+        }
+      },
+      "second": {
+        "#is": "react:div",
+        "content": "Page 2",
+        "style": {
+          "padding": 20,
+          "borderRadius": 8,
+          "backgroundColor": "#d9f0ff",
+          "color": "#202636",
+          "width": "100%",
+          "height": "100%",
+          "boxSizing": "border-box"
+        }
+      }
+    }
+  }
+}

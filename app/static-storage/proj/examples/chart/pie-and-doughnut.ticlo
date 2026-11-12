@@ -1,0 +1,95 @@
+{
+  "#is": "",
+  "#main": {
+    "#is": "react:horizontal",
+    "#order": [
+      "pie",
+      "doughnut"
+    ],
+    "style": {
+      "gap": 24,
+      "padding": 24
+    },
+    "pie": {
+      "#is": "chart:chart",
+      "type": "pie",
+      "style": {
+        "width": 400,
+        "height": 340
+      },
+      "data": {
+        "labels": [
+          "Desktop",
+          "Mobile",
+          "Tablet"
+        ],
+        "datasets": [
+          {
+            "data": [
+              46,
+              39,
+              15
+            ],
+            "backgroundColor": [
+              "rgb(255, 99, 132)",
+              "rgb(54, 162, 235)",
+              "rgb(255, 205, 86)"
+            ]
+          }
+        ]
+      },
+      "options": {
+        "plugins": {
+          "title": {
+            "display": true,
+            "text": "Pie"
+          },
+          "legend": {
+            "position": "bottom"
+          }
+        }
+      }
+    },
+    "doughnut": {
+      "#is": "chart:chart",
+      "type": "doughnut",
+      "style": {
+        "width": 400,
+        "height": 340
+      },
+      "data": {
+        "labels": [
+          "Desktop",
+          "Mobile",
+          "Tablet"
+        ],
+        "datasets": [
+          {
+            "data": [
+              46,
+              39,
+              15
+            ],
+            "backgroundColor": [
+              "rgb(255, 99, 132)",
+              "rgb(54, 162, 235)",
+              "rgb(255, 205, 86)"
+            ]
+          }
+        ]
+      },
+      "options": {
+        "cutout": "60%",
+        "plugins": {
+          "title": {
+            "display": true,
+            "text": "Doughnut"
+          },
+          "legend": {
+            "position": "bottom"
+          }
+        }
+      }
+    }
+  }
+}

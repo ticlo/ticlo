@@ -96,7 +96,11 @@ async function writeProjectMetadata(
   return finalMeta;
 }
 
-async function listProjectsForAuth(baseDir: string, auth: UserAuth): Promise<ProjectMetadata[]> {
+async function listProjectsForAuth(
+  baseDir: string,
+  auth: UserAuth,
+  allowProjectSymlink?: (directory: string) => Promise<boolean>
+): Promise<ProjectMetadata[]> {
   const projectsDir = baseDir;
   let entries: Dirent[];
   try {
@@ -111,10 +115,16 @@ async function listProjectsForAuth(baseDir: string, auth: UserAuth): Promise<Pro
 
   const visibleProjects: ProjectMetadata[] = [];
   for (const entry of entries) {
-    if (!entry.isDirectory() || entry.name.includes('.')) {
+    if (entry.name.includes('.')) {
       continue;
     }
     const projectId = entry.name;
+    if (
+      !entry.isDirectory() &&
+      !(entry.isSymbolicLink() && (await allowProjectSymlink?.(projectRootPath(baseDir, projectId))))
+    ) {
+      continue;
+    }
     let allowed: boolean;
     try {
       allowed = await auth.canRead(projectId);
