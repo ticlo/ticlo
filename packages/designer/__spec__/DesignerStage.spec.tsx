@@ -6,6 +6,7 @@ import {ComponentContext, type ComponentContextValue} from '@ticlo/react';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {loadTemplate, removeLastTemplate, querySingle} from '@ticlo/editor/util/test-util.ts';
+import {initEditor} from '@ticlo/editor';
 import {DesignerStage} from '../DesignerStage.tsx';
 import {
   DesignerLayoutContextType,
@@ -55,6 +56,22 @@ describe('DesignerStage', () => {
     replacement.setValue('#is', 'react:p');
     replacement.setValue('content', 'Replacement');
     await shouldHappen(() => div.querySelector('.ticl-d-page p')?.textContent === 'Replacement');
+  });
+
+  it('can open Dataflow from the layout chooser without creating a page', async () => {
+    await initEditor();
+    const flow = Root.instance.addFlow(path);
+    const [, conn] = makeLocalConnection(Root.instance);
+    const open = vi.fn();
+    const [, div] = loadTemplate(
+      <DesignerStage root={Root.instance} conn={conn} basePath={path} onOpenDataflow={open} />
+    );
+    const button = await shouldHappen(() =>
+      Array.from(div.querySelectorAll('button')).find((item) => item.textContent === 'Open with Dataflow Editor')
+    );
+    button.click();
+    expect(open).toHaveBeenCalledOnce();
+    expect(flow.getValue('#main')).toBeUndefined();
   });
 
   it('initializes a page without replacing flow data and supports undo', async () => {

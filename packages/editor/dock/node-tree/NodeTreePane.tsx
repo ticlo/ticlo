@@ -18,6 +18,7 @@ interface Props {
   onSelect?: (keys: string[]) => void;
   showMenu?: boolean;
   openActions?: readonly NodeTreeOpenAction[];
+  onOpenStoredFlow?: NodeTreeOpenAction['onOpen'];
   moduleAutoLoad?: ModuleAutoLoad;
   showStoredFlows?: boolean;
   expandPaths?: string[];
@@ -127,7 +128,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
           showStoredFlows={showStoredFlows}
           expandPaths={expandPaths}
           onOpenStoredFlow={(path, canApply) =>
-            this.context.editFlow?.(
+            (this.props.onOpenStoredFlow ?? this.context.editFlow)?.(
               path,
               canApply ? () => conn.applyFlowChange(path, undefined, requestCallbacks) : null
             )

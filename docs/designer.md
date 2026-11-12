@@ -5,6 +5,10 @@ in this package; editor stage and selection types remain generic.
 
 ## Rendering and context
 
+When opening a Flow, the Designer app reads the loaded Flow. A Flow with a page
+opens in Designer. A Flow with child Blocks and no page opens in Dataflow.
+The layout chooser for an empty Flow also lets the user open it in Dataflow.
+
 A stage renders the Flow's direct `#main` through `TicloPage`. Its ElementMap
 connects rendered elements to editable Blocks. A worker root belongs to its outer
 host Block, including nested workers; internal Blocks remain unregistered with

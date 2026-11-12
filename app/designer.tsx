@@ -45,6 +45,7 @@ import {useLibrarySelection} from './useLibrarySelection.ts';
 import type {LibrarySelectionOptions} from '@ticlo/editor/library/LibrarySelectDialog.tsx';
 import {createModuleAutoLoad} from './module-auto-load.ts';
 import {initialUrlParams} from './url-state.ts';
+import {usesDesignerStage} from './designer-flow.ts';
 
 const FileVersionContext = React.createContext(0);
 const strictMode = initialUrlParams().has('strictMode');
@@ -61,40 +62,19 @@ function DesignerProperties({conn}: {conn: ClientConnection}) {
   );
 }
 
-function openDesignerFlow(
-  path: string,
-  flow: Flow,
-  conn: ClientConnection,
-  storage: ProjectFiles,
-  layout: DesignerLayoutContext
-) {
-  const onSave = stageReadonly(storage, path)
-    ? null
-    : () => {
-        conn.applyFlowChange(path, undefined, requestCallbacks);
-      };
-  if (flow.getValue('#is') === 'flow:main' || flow.getValue('#is') === 'flow:worker') {
-    layout.designFlow?.(path, onSave);
-  } else {
-    layout.editFlow?.(path, onSave);
-  }
-}
-
 function DesignerFiles({
   root,
-  conn,
   storage,
   project,
-  layout,
+  onOpen,
   onFilesDeleted,
   onFileDiscarded,
   onProjectReset,
 }: {
   root: Root;
-  conn: ClientConnection;
   storage: ProjectFiles;
   project: string;
-  layout: DesignerLayoutContext;
+  onOpen: (path: string) => void;
   onFilesDeleted: (paths: string[]) => Promise<void>;
   onFileDiscarded: (path: string) => Promise<void>;
   onProjectReset: () => Promise<void>;
@@ -103,8 +83,8 @@ function DesignerFiles({
   const open = async (entry: FileEntry) => {
     const target = fileFlowPath(project, entry.path);
     if (!target) throw new Error('This file is not a loadable flow.');
-    const flow = await root.loadFlow(target.ref);
-    openDesignerFlow(target.path, flow, conn, storage, layout);
+    await root.loadFlow(target.ref);
+    onOpen(target.path);
   };
   return (
     <FileManager
@@ -130,6 +110,7 @@ function DesignerHeader({
   onLibraryChange,
   onLibraryUnload,
   onSetDefaultLibrary,
+  onOpen,
 }: {
   language: string;
   onLanguageChange: (language: string) => void;
@@ -141,6 +122,7 @@ function DesignerHeader({
   onLibraryChange: (name: string, options: LibrarySelectionOptions) => Promise<void>;
   onLibraryUnload: (name: string) => Promise<void>;
   onSetDefaultLibrary: (name: string) => Promise<void>;
+  onOpen: (path: string) => void;
 }) {
   const layout = useContext(DesignerLayoutContextType);
   const {currentPath} = useContext(TicloCurrentFlowContext);
@@ -169,7 +151,7 @@ function DesignerHeader({
         onLibraryChange={onLibraryChange}
         onLibraryUnload={onLibraryUnload}
         onSetDefaultLibrary={onSetDefaultLibrary}
-        onOpen={(path, flow) => openDesignerFlow(path, flow, conn, files.storage, layout)}
+        onOpen={onOpen}
         viewItems={viewItems}
       >
         {content}
@@ -214,7 +196,7 @@ class App extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     const {conn, initialFlow} = props;
-    const initialTab = initialFlow ? this.createDesignerTab(initialFlow) : undefined;
+    const initialTab = initialFlow ? this.createFlowTab(initialFlow) : undefined;
     this.tabs = {
       Navigation: {
         group: 'tool',
@@ -273,9 +255,8 @@ class App extends React.PureComponent<Props, State> {
           content: (
             <DesignerFiles
               root={props.root}
-              conn={conn}
               {...props.files}
-              layout={this.ticloContext}
+              onOpen={this.openFlow}
               onFilesDeleted={this.onFilesDeleted}
               onFileDiscarded={this.onFileDiscarded}
               onProjectReset={this.onProjectReset}
@@ -355,28 +336,13 @@ class App extends React.PureComponent<Props, State> {
     this.layout = layout;
   };
 
+  openFlow = (path: string, onSave?: () => void) => this.showTab(this.createFlowTab(path, onSave));
+
   /// implements TicloLayoutContext
   ticloContext: DesignerLayoutContext = {
     language: this.lng,
-    editFlow: (path: string, onSave: () => void) => {
-      if (!this.layout.updateTab(`blockEditor:${path}`, null, true)) {
-        this.layout.dockMove(
-          connectStageTab(
-            BlockStagePane.createDockTab(path, this.conn, this.onSelect, onSave, {
-              defaultShowPropertyList: false,
-            }),
-            stageReadonly(this.props.files?.storage, path)
-          ),
-          'main',
-          'middle'
-        );
-      }
-    },
-    designFlow: (path: string, onSave: () => void) => {
-      if (!this.layout.updateTab(`designer:${path}`, null, true)) {
-        this.layout.dockMove(this.createDesignerTab(path, onSave), 'main', 'middle');
-      }
-    },
+    editFlow: (path, onSave) => this.showTab(this.createDataflowTab(path, onSave)),
+    designFlow: this.openFlow,
 
     ...createLayoutActions(
       () => this.layout,
@@ -394,26 +360,53 @@ class App extends React.PureComponent<Props, State> {
     }
   };
 
-  createDesignerTab(path: string, onSave?: () => void): TabData {
+  private createFlowTab(path: string, onSave?: () => void) {
+    if (onSave === undefined && !stageReadonly(this.props.files?.storage, path)) {
+      onSave = () => this.conn.applyFlowChange(path, undefined, requestCallbacks);
+    }
+    return usesDesignerStage(this.props.root.queryValue(path))
+      ? this.createDesignerTab(path, onSave)
+      : this.createDataflowTab(path, onSave);
+  }
+
+  private showTab(tab: TabData, replace?: string) {
+    if (this.layout.updateTab(tab.id, null, true)) {
+      const previous = replace && (this.layout.find(replace) as TabData | undefined);
+      if (previous) this.layout.dockMove(previous, null, 'remove');
+    } else if (!replace || !this.layout.updateTab(replace, tab, true)) {
+      this.layout.dockMove(tab, 'main', 'middle');
+    }
+  }
+
+  private createDataflowTab(path: string, onSave?: () => void): TabData {
+    return connectStageTab(
+      BlockStagePane.createDockTab(path, this.conn, this.onSelect, onSave, {defaultShowPropertyList: false}),
+      stageReadonly(this.props.files?.storage, path)
+    );
+  }
+
+  private createDesignerTab(path: string, onSave?: () => void): TabData {
     const readonly = stageReadonly(this.props.files?.storage, path);
     const id = `designer:${path}`;
-    const save =
-      onSave ??
-      (() => {
-        this.conn.applyFlowChange(path, undefined, requestCallbacks);
-      });
     return {
       id,
       title: (
         <StageConnection readonly={readonly}>
-          <BlockStageTabButton conn={this.conn} id={id} path={path} title={path} onSave={save} />
+          <BlockStageTabButton conn={this.conn} id={id} path={path} title={path} onSave={onSave} />
         </StageConnection>
       ),
       group: 'main',
-      closable: false,
+      closable: !onSave,
       content: (
         <StageConnection readonly={readonly}>
-          <DesignerStage root={this.props.root} conn={this.conn} basePath={path} stageId={id} onSave={save} />
+          <DesignerStage
+            root={this.props.root}
+            conn={this.conn}
+            basePath={path}
+            stageId={id}
+            onSave={onSave}
+            onOpenDataflow={() => this.showTab(this.createDataflowTab(path, onSave), id)}
+          />
         </StageConnection>
       ),
     };
@@ -455,6 +448,7 @@ class App extends React.PureComponent<Props, State> {
                   onLibraryChange={this.props.onLibraryChange}
                   onLibraryUnload={this.props.onLibraryUnload}
                   onSetDefaultLibrary={this.props.onSetDefaultLibrary}
+                  onOpen={this.openFlow}
                 />
                 <DockLayout
                   defaultLayout={this.defaultDockLayout}
