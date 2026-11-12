@@ -82,6 +82,8 @@ export const TicloLayoutContextType = createContext<TicloLayoutContext>({
 });
 export const TicloLayoutContextConsumer = TicloLayoutContextType.Consumer;
 
+export const TicloDefaultLibraryContext = createContext('#root');
+
 // App-provided values change with language, independently of stage snapshots.
 export const TicloI18NContext = createContext<TicloLayoutContext>({});
 export const TicloI18NConsumer = TicloI18NContext.Consumer;

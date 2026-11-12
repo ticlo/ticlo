@@ -340,7 +340,7 @@ class App extends React.PureComponent<Props, State> {
       <AppTheme locale={this.lngConfig}>
         <AntdApp style={{height: '100%', backgroundColor: 'var(--ant-color-bg-layout)'}}>
           <EditPolicyProvider conn={conn}>
-            <TicloApp value={this.ticloContext}>
+            <TicloApp value={this.ticloContext} defaultLibrary={this.props.project}>
               <EditorFilesContext.Provider value={this.props.files}>
                 <LibraryMenuHeader
                   language={this.lng}

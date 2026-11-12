@@ -4,11 +4,11 @@ import {MenuFoldOutlined, MenuUnfoldOutlined} from '@ant-design/icons';
 
 import {BlockStage, PropertyList} from '../../index.ts';
 import {Divider, TabData} from 'rc-dock';
-import {arrayEqual, ClientConn, getDisplayName, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.ts';
+import {arrayEqual, ClientConn, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.ts';
 import {BlockStageTabButton} from './BlockStageTabButton.tsx';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.tsx';
 import {TooltipIconButton} from '../../component/TooltipIconButton.tsx';
-import {LocalizedNodeName, t} from '../../component/LocalizedLabel.tsx';
+import {t} from '../../component/LocalizedLabel.tsx';
 import {getFuncModulePath} from '../../util/FunctionModule.ts';
 
 interface Props {
@@ -48,14 +48,10 @@ export class BlockStagePane extends LazyUpdateComponent<Props, State> {
     options?: Pick<Props, 'disablePropertyList' | 'defaultShowPropertyList'>
   ) {
     const id = `blockEditor:${path}`;
-    let tabName: string | React.ReactNode = getDisplayName(path.split('.').pop(), null);
-    if ((tabName as string).startsWith('#')) {
-      tabName = <LocalizedNodeName name={tabName as string} />;
-    }
     return {
       id,
       closable: !onSave, // use the custom close button when onSave is not null
-      title: <BlockStageTabButton conn={conn} id={id} path={path} title={tabName} onSave={onSave} />,
+      title: <BlockStageTabButton conn={conn} id={id} path={path} onSave={onSave} />,
       group: 'main',
       content: (
         <BlockStagePane

@@ -336,7 +336,7 @@ class App extends React.PureComponent<Props, State> {
         <StageConnectionContext.Provider value={conn}>
           <EditPolicyProvider conn={conn}>
             <FileVersionContext.Provider value={this.state.fileVersion}>
-              <TicloApp value={this.ticloContext}>
+              <TicloApp value={this.ticloContext} defaultLibrary={this.props.files?.project}>
                 {this.props.files ? (
                   <FileMenuHeader
                     language={this.lng}

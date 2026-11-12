@@ -2,7 +2,7 @@ import './styles.ts';
 import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext} from 'react';
 import {App as AntdApp, Switch} from 'antd';
-import {EditOutlined} from '@ant-design/icons';
+import {ContainerFilled, EditOutlined} from '@ant-design/icons';
 import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -392,7 +392,7 @@ class App extends React.PureComponent<Props, State> {
       id,
       title: (
         <StageConnection readonly={readonly}>
-          <BlockStageTabButton conn={this.conn} id={id} path={path} title={path} onSave={onSave} />
+          <BlockStageTabButton conn={this.conn} id={id} path={path} icon={<ContainerFilled />} onSave={onSave} />
         </StageConnection>
       ),
       group: 'main',
@@ -436,7 +436,7 @@ class App extends React.PureComponent<Props, State> {
         <StageConnectionContext.Provider value={conn}>
           <EditPolicyProvider conn={conn}>
             <FileVersionContext.Provider value={this.state.fileVersion}>
-              <DesignerApp value={this.ticloContext}>
+              <DesignerApp value={this.ticloContext} defaultLibrary={this.props.files?.project}>
                 <DesignerHeader
                   language={this.lng}
                   onLanguageChange={this.switchLan}
