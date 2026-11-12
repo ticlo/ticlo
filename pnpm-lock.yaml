@@ -186,10 +186,10 @@ importers:
         version: 8.0.4
       '@hono/node-server':
         specifier: ^2.1.3
-        version: 2.1.3(hono@4.13.7)
+        version: 2.1.3(hono@4.13.11)
       '@hono/node-ws':
         specifier: ^1.3.1
-        version: 1.3.1(@hono/node-server@2.1.3(hono@4.13.7))(hono@4.13.7)
+        version: 1.3.1(@hono/node-server@2.1.3(hono@4.13.11))(hono@4.13.11)
       '@rc-component/picker':
         specifier: ^1.13.0
         version: 1.13.0(dayjs@1.11.23)(luxon@3.7.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -324,7 +324,7 @@ importers:
         version: 13.0.6
       hono:
         specifier: ^4.13.7
-        version: 4.13.7
+        version: 4.13.11
       oxfmt:
         specifier: ^0.67.0
         version: 0.67.0
@@ -384,7 +384,7 @@ importers:
         version: 6.3.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@hono/node-server':
         specifier: ^2.1.3
-        version: 2.1.3(hono@4.13.7)
+        version: 2.1.3(hono@4.13.11)
       '@ticlo/chart':
         specifier: workspace:*
         version: link:../packages/chart
@@ -426,7 +426,7 @@ importers:
         version: 6.6.3(luxon@3.7.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       hono:
         specifier: ^4.13.7
-        version: 4.13.7
+        version: 4.13.11
       i18next:
         specifier: ^26.4.2
         version: 26.4.2(typescript@6.0.3)
@@ -647,7 +647,7 @@ importers:
         version: 0.5.18
       hono:
         specifier: ^4.13.7
-        version: 4.13.7
+        version: 4.13.11
 
   packages/html:
     dependencies:
@@ -725,10 +725,10 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^2.1.3
-        version: 2.1.3(hono@4.13.7)
+        version: 2.1.3(hono@4.13.11)
       '@hono/node-ws':
         specifier: ^1.3.1
-        version: 1.3.1(@hono/node-server@2.1.3(hono@4.13.7))(hono@4.13.7)
+        version: 1.3.1(@hono/node-server@2.1.3(hono@4.13.11))(hono@4.13.11)
       '@ticlo/core':
         specifier: workspace:^
         version: link:../core
@@ -740,7 +740,7 @@ importers:
         version: link:../node
       hono:
         specifier: ^4.13.7
-        version: 4.13.7
+        version: 4.13.11
 
 packages:
 
@@ -3302,8 +3302,8 @@ packages:
   hmac-drbg@1.0.1:
     resolution: {integrity: sha512-Tti3gMqLdZfhOQY1Mzf/AanLiqh1WTiJgEj26ZuYQ9fbkLomzGchCws4FyrSd4VkpBfiNhaE1On+lOz894jvXg==}
 
-  hono@4.13.7:
-    resolution: {integrity: sha512-c8/gF9ac8Y78/agExVocyLevgR+JlpNB444Py0FSX8pJoPdYUfUzRcXtYEYGwt6l19qIlVZPN5Mfsw9jFShmQQ==}
+  hono@4.13.11:
+    resolution: {integrity: sha512-/SMX/RQNJn7oNmFwH6DtwDqcrzZU2otm1FD6OJe2cWF6cfy/F8hq0XVBv7xW3FTJshRQwuBnXHDq2kNsdZnshg==}
     engines: {node: '>=16.9.0'}
 
   html-escaper@2.0.2:
@@ -5530,14 +5530,14 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
-  '@hono/node-server@2.1.3(hono@4.13.7)':
+  '@hono/node-server@2.1.3(hono@4.13.11)':
     dependencies:
-      hono: 4.13.7
+      hono: 4.13.11
 
-  '@hono/node-ws@1.3.1(@hono/node-server@2.1.3(hono@4.13.7))(hono@4.13.7)':
+  '@hono/node-ws@1.3.1(@hono/node-server@2.1.3(hono@4.13.11))(hono@4.13.11)':
     dependencies:
-      '@hono/node-server': 2.1.3(hono@4.13.7)
-      hono: 4.13.7
+      '@hono/node-server': 2.1.3(hono@4.13.11)
+      hono: 4.13.11
       ws: 8.21.3
     transitivePeerDependencies:
       - bufferutil
@@ -7365,7 +7365,7 @@ snapshots:
       minimalistic-assert: 1.0.1
       minimalistic-crypto-utils: 1.0.1
 
-  hono@4.13.7: {}
+  hono@4.13.11: {}
 
   html-escaper@2.0.2: {}
 
