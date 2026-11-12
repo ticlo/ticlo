@@ -6,6 +6,7 @@ import {findPropertyForNewBlock} from './PropertyName.ts';
 import {Flow} from '../block/Flow.ts';
 import {addMapArray} from '../util/Map.ts';
 import {deepClone} from '../util/Clone.ts';
+import {isDefinedProperty} from '../block/DefinedBlock.ts';
 
 function blockPath(parent: Block): string[] {
   const path: string[] = [];
@@ -119,6 +120,10 @@ function pastePropertiesImpl(
   // #static content is pasted into the attached static block, while all other
   // fields are pasted into the selected parent block.
   let {'#static': staticValue, '#_copy_from': sourcePath, ...others} = data;
+  for (const name of Object.keys(others)) {
+    const field = name.startsWith('~') ? name.slice(1) : name;
+    if (isDefinedProperty(parent.getProperty(field, false))) return 'Code-defined property is read-only';
+  }
   others = deepClone(others);
   const staticData = deepClone(staticValue) as DataMap;
   const staticSourcePath = staticData?.['#_copy_from'];

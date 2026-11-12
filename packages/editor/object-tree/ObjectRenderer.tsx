@@ -1,21 +1,58 @@
 import React from 'react';
+import {Button} from 'antd';
 
-import {ExpandIcon, ExpandState, TreeItem} from '../component/Tree.tsx';
+import {ExpandIcon, TreeItem} from '../component/Tree.tsx';
 import {PureDataRenderer} from '../component/DataRenderer.ts';
 import {DragDropDiv, DragState} from 'rc-dock';
-import {TRUNCATED, encodeDisplay} from '@ticlo/core';
+import {
+  TRUNCATED,
+  encodeDisplay,
+  getTruncatedArrayLength,
+  isDataTruncated,
+  translateEditor,
+} from '@ticlo/core/editor.ts';
+import {snapshotTransportValue} from '@ticlo/core/util/TransportValue.ts';
 import {displayNumber} from '../util/Types.tsx';
+import {t} from '../component/LocalizedLabel.tsx';
+
+const pageSize = 1000;
+
+// Inspect only the bounded preview, stopping at large arrays without visiting their rows.
+function containsLargeArray(value: any): boolean {
+  if (!value || typeof value !== 'object') return false;
+  if (Array.isArray(value)) {
+    const length = getTruncatedArrayLength(value);
+    if ((length ?? value.length) >= pageSize) return true;
+    const end = length === undefined ? value.length : value.length - 2;
+    for (let index = 0; index < end; ++index) if (containsLargeArray(value[index])) return true;
+  } else if (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null) {
+    for (const key of Object.keys(value)) {
+      if (key !== TRUNCATED && containsLargeArray(value[key])) return true;
+    }
+  }
+  return false;
+}
 
 export class ObjectTreeItem extends TreeItem<ObjectTreeItem> {
   childPrefix: string;
   name: string;
   data: any;
   rootPath: string;
+  select: (string | number)[];
+  total?: number;
+  loading = false;
+  error?: string;
+  more = false;
+  private offset = 0;
+  private anchor: unknown;
+  generation = 0;
+  private disposed = false;
 
   constructor(rootPath: string, name: string, data: any, parent?: ObjectTreeItem) {
     super(parent);
     this.rootPath = rootPath;
     this.data = data;
+    this.select = parent ? [...parent.select, Array.isArray(parent.data) ? Number(name) : name] : [];
     if (parent) {
       this.key = `${parent.childPrefix}${name}`;
       this.childPrefix = `${this.key}.`;
@@ -27,7 +64,7 @@ export class ObjectTreeItem extends TreeItem<ObjectTreeItem> {
       this.name = '';
       this.level = -1;
     }
-    if (!data || (data.constructor !== Object && !Array.isArray(data))) {
+    if (!isDataTruncated(data) && (!data || (data.constructor !== Object && !Array.isArray(data)))) {
       this.opened = 'empty';
     }
   }
@@ -35,29 +72,127 @@ export class ObjectTreeItem extends TreeItem<ObjectTreeItem> {
   open() {
     this.opened = 'opened';
     if (!this.children) {
-      this.createChildren();
+      if (this.rootPath && this.connection && (getTruncatedArrayLength(this.data) ?? 0) >= pageSize) {
+        this.total = getTruncatedArrayLength(this.data);
+        this.children = [];
+        void this.loadMore();
+      } else if (this.rootPath && this.connection && isDataTruncated(this.data) && !containsLargeArray(this.data)) {
+        void this.loadValue();
+      } else {
+        this.createChildren();
+      }
     }
-    this.onListChange();
-    this.forceUpdate();
+    this.changed();
   }
 
   close() {
     this.opened = 'closed';
-    this.onListChange();
-    this.forceUpdate();
+    this.changed();
   }
 
   createChildren() {
     const children: ObjectTreeItem[] = [];
-    for (const key of Object.keys(this.data)) {
-      children.push(new ObjectTreeItem(this.rootPath, key, this.data[key], this));
+    const length = getTruncatedArrayLength(this.data);
+    if (Array.isArray(this.data)) {
+      const end = length === undefined ? this.data.length : this.data.length - 2;
+      for (let index = 0; index < end; ++index)
+        children.push(new ObjectTreeItem(this.rootPath, String(index), this.data[index], this));
+    } else if (this.data && typeof this.data === 'object') {
+      for (const key of Object.keys(this.data)) {
+        if (key !== TRUNCATED) children.push(new ObjectTreeItem(this.rootPath, key, this.data[key], this));
+      }
     }
     this.children = children;
   }
 
+  private changed() {
+    this.onListChange?.();
+    this.forceUpdate();
+    if (this.children?.at(-1)?.more) this.children.at(-1).forceUpdate();
+  }
+
+  private addMore() {
+    if (this.children?.at(-1)?.more) return;
+    const more = new ObjectTreeItem(this.rootPath, TRUNCATED, undefined, this);
+    more.more = true;
+    (this.children ??= []).push(more);
+  }
+
+  private async loadValue() {
+    this.loading = true;
+    this.addMore();
+    const generation = this.generation;
+    try {
+      const result = await this.connection.getValue(
+        this.rootPath,
+        this.select.length ? {select: this.select} : undefined
+      );
+      if (this.disposed || generation !== this.generation) return;
+      this.data = result.value;
+      this.createChildren();
+      if (!this.data || (this.data.constructor !== Object && !Array.isArray(this.data))) this.opened = 'empty';
+    } catch (error) {
+      if (this.disposed || generation !== this.generation) return;
+      this.error = String(error);
+    } finally {
+      if (!this.disposed && generation === this.generation) {
+        this.loading = false;
+        this.changed();
+      }
+    }
+  }
+
+  async loadMore() {
+    if (this.loading || this.error || this.disposed || this.total === undefined || this.offset >= this.total) return;
+    this.loading = true;
+    this.addMore();
+    this.changed();
+    const generation = this.generation;
+    try {
+      const page = await this.connection.getValuePage(this.rootPath, {
+        select: this.select,
+        offset: this.offset,
+        limit: pageSize,
+        ...(this.offset ? {anchor: this.anchor} : {}),
+      });
+      if (this.disposed || generation !== this.generation) return;
+      if (this.children.at(-1)?.more) this.children.pop().destroy();
+      for (const [index, row] of page.items.entries())
+        this.children.push(new ObjectTreeItem(this.rootPath, String(this.offset + index), row, this));
+      this.offset += page.items.length;
+      this.total = page.total;
+      this.anchor = snapshotTransportValue(page.items.at(-1));
+      if (this.offset < this.total) this.addMore();
+    } catch (error) {
+      if (this.disposed || generation !== this.generation) return;
+      this.error =
+        error === 'page_anchor_mismatch' ? translateEditor('Value changed. Reload to continue.') : String(error);
+    } finally {
+      if (!this.disposed && generation === this.generation) {
+        this.loading = false;
+        this.changed();
+      }
+    }
+  }
+
+  reload = () => {
+    ++this.generation;
+    this.loading = false;
+    this.error = undefined;
+    this.offset = 0;
+    this.total = undefined;
+    this.destroyChildren();
+    this.open();
+  };
+
+  onAttached() {
+    if (this.more) void this.parent.loadMore();
+  }
+
   destroy() {
-    // there is nothing to destroy();
-    // super.destroy();
+    this.disposed = true;
+    ++this.generation;
+    super.destroy();
   }
 }
 
@@ -82,11 +217,6 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
     }
   };
 
-  constructor(props: Props) {
-    super(props);
-    const {item} = props;
-  }
-
   onDragStart = (e: DragState) => {
     const {item} = this.props;
 
@@ -99,6 +229,26 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
   renderImpl() {
     const {item, style} = this.props;
     const marginLeft = item.level * 16;
+    if (item.more) {
+      const parent = item.parent;
+      return (
+        <div style={{...style, paddingLeft: marginLeft}} className="ticl-e-object-tree-more">
+          {parent.error ? (
+            <span className="ticl-e-error-message" title={parent.error}>
+              {parent.error}
+            </span>
+          ) : null}
+          <Button
+            size="small"
+            type="link"
+            disabled={parent.loading}
+            onClick={parent.error ? parent.reload : () => void parent.loadMore()}
+          >
+            {t(parent.loading ? 'Loading...' : parent.error ? 'Reload' : 'Load more')}
+          </Button>
+        </div>
+      );
+    }
     const onClick = item.opened !== 'empty' ? this.onExpandClicked : null;
 
     const onDragStart = item.rootPath ? this.onDragStart : null;
@@ -118,9 +268,9 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
       case 'object':
         if (val) {
           if (Array.isArray(val)) {
-            child = `[ ${val.length} ]`;
+            child = `[ ${item.total ?? getTruncatedArrayLength(val) ?? val.length} ]`;
           } else if (val.constructor === Object) {
-            child = `{ ${Object.keys(val).length} }`;
+            child = `{ ${Object.keys(val).length - (Object.hasOwn(val, TRUNCATED) ? 1 : 0)} }`;
           } else {
             child = encodeDisplay(val);
           }
@@ -133,7 +283,7 @@ export class ObjectTreeRenderer extends PureDataRenderer<Props, any> {
     return (
       <div style={{...style, marginLeft}} className="ticl-e-tree-node ticl-e-object-tree-item">
         <ExpandIcon opened={item.opened} onClick={onClick} />
-        <DragDropDiv onDragStartT={this.onDragStart} className="ticl-e-hbox">
+        <DragDropDiv onDragStartT={onDragStart} className="ticl-e-hbox">
           <div className="ticl-e-object-tree-name">{item.name}</div>
           <div className="ticl-e-object-tree-value">{child}</div>
         </DragDropDiv>

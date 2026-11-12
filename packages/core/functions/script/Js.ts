@@ -1,13 +1,13 @@
 import {globalFunctions} from '../../block/FunctionModule.ts';
 import {BaseFunction, StatefulFunction} from '../../block/BlockFunction.ts';
 import {BlockIO} from '../../block/BlockProperty.ts';
-import {ErrorEvent, WAIT} from '../../block/Event.ts';
+import {ErrorEvent, NO_EMIT} from '../../block/Event.ts';
 import {Block} from '../../block/Block.ts';
 import {BlockDeepProxy} from '../../block/BlockProxy.ts';
 import {FunctionDesc} from '../../block/Descriptor.ts';
 import {Logger} from '../../util/Logger.ts';
 
-export const SCRIPT_ERROR = 'scriptError';
+export const SCRIPT_ERROR = 'ScriptError';
 
 export class JsFunction extends BaseFunction<Block> {
   _compiledFunction: Function;
@@ -77,7 +77,8 @@ export class JsFunction extends BaseFunction<Block> {
             return new ErrorEvent(SCRIPT_ERROR, err);
           }
         } else if (script === undefined) {
-          return WAIT;
+          this._preProcessed = false;
+          return NO_EMIT;
         } else {
           return new ErrorEvent(SCRIPT_ERROR, 'script is not string');
         }

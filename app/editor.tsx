@@ -40,7 +40,7 @@ import {initialUrlParams} from './url-state.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {flowRefFromPath} from '@ticlo/core/block/FlowRuntime.ts';
 import {flowStoragePath} from '@ticlo/core/util/FlowStoragePath.ts';
-import {libraryPrefix} from '@ticlo/core/util/LibraryMetadata.ts';
+import {libraryPath, libraryPrefix} from '@ticlo/core/util/LibraryMetadata.ts';
 import {type FileAccess, type FileEntry, StorageError} from '@ticlo/core/storage/FileAccess.ts';
 import {fileFlowPath} from './flow-path.ts';
 import {editorHostUrls} from './editor-host.ts';
@@ -114,6 +114,21 @@ class App extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.props.conn.completedRequests().unlisten(this.onFlowRequestCompleted);
   }
+  componentDidUpdate(previous: Props) {
+    if (previous.project !== this.props.project) {
+      const navigation = this.tabs.Navigation;
+      this.layout?.updateTab(
+        'Navigation',
+        {
+          ...navigation,
+          content: React.cloneElement(navigation.content as React.ReactElement<{expandPaths: string[]}>, {
+            expandPaths: [libraryPath(this.props.project)],
+          }),
+        },
+        false
+      );
+    }
+  }
   defaultDockLayout: LayoutBase;
   tabs: TabDefinitions;
   constructor(props: Props) {
@@ -135,6 +150,7 @@ class App extends React.PureComponent<Props, State> {
             onSelect={this.onSelect}
             showMenu={true}
             showStoredFlows
+            expandPaths={[libraryPath(props.project)]}
           />
         ),
       },
@@ -198,7 +214,8 @@ class App extends React.PureComponent<Props, State> {
             children: [
               {
                 size: 400,
-                tabs: [...(props.files ? [{id: 'Files'}] : []), {id: 'Navigation'}],
+                activeId: 'Navigation',
+                tabs: [{id: 'Navigation'}, ...(props.files ? [{id: 'Files'}] : [])],
               },
               {
                 size: 300,
@@ -323,7 +340,7 @@ class App extends React.PureComponent<Props, State> {
       <AppTheme locale={this.lngConfig}>
         <AntdApp style={{height: '100%', backgroundColor: 'var(--ant-color-bg-layout)'}}>
           <EditPolicyProvider conn={conn}>
-            <TicloApp value={this.ticloContext}>
+            <TicloApp value={this.ticloContext} defaultLibrary={this.props.project}>
               <EditorFilesContext.Provider value={this.props.files}>
                 <LibraryMenuHeader
                   language={this.lng}
@@ -385,13 +402,31 @@ function EditorWorkspace({
     ? new FrameClientConnection(window.opener) // used by server-window.html
     : new MixedBrowserConnection(host.runtimeUrl);
   const fileHost = params.get('fileHost');
-  const files = fileHost
+  let files = fileHost
     ? {storage: new RemoteStorage({baseURL: fileHost}), project}
     : params.get('storage') === 'static'
       ? {storage: new StaticStorage(new URL('./storage', location.href).href), project}
       : host?.fileUrl
         ? {storage: new ScopedFileServerFiles(host.fileUrl, 'serv'), project}
         : undefined;
+  if (files) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+    try {
+      const projects = await Promise.race([
+        files.storage.listProjects({signal: controller.signal}),
+        new Promise<never>((_, reject) =>
+          controller.signal.addEventListener('abort', () => reject(controller.signal.reason), {once: true})
+        ),
+      ]);
+      if (!Array.isArray(projects)) throw new Error('Invalid file catalog');
+    } catch {
+      void files.storage.close().catch(() => {});
+      files = undefined;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
   createRoot(document.getElementById('app')).render(
     <EditorWorkspace conn={client} project={project} initialFlow={initialFlow} files={files} />
   );

@@ -1,4 +1,4 @@
-import {Connection, ConnectionSendingData, ConnectionSend} from './Connection.ts';
+import {Connection, ConnectionSendingData, ConnectionSend, type ConnectionOptions} from './Connection.ts';
 import {
   BlockBindingSource,
   BlockIO,
@@ -15,7 +15,7 @@ import {Flow, Root} from '../block/Flow.ts';
 import {flowRefFromPath} from '../block/FlowRuntime.ts';
 import {FlowWithStatic, StaticConfig} from '../block/StaticBlock.ts';
 import {PropDispatcher, PropListener} from '../block/Dispatcher.ts';
-import {DescListener, FunctionModule} from '../block/FunctionModule.ts';
+import {DescListener, FunctionModule, globalFunctions} from '../block/FunctionModule.ts';
 import {FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
 import {propRelative} from '../util/PropPath.ts';
 import {
@@ -53,6 +53,7 @@ import {DoneEvent} from '../block/Event.ts';
 import {Library} from '../block/Library.ts';
 import {checkEditPolicy, type EditPolicy} from '../policy/EditPolicy.ts';
 import {libraryFromPath, libraryPath, validateLibrary} from '../util/LibraryMetadata.ts';
+import {readValuePage, type ValuePageOptions, type ValueReadOptions} from './ValuePage.ts';
 
 export class ServerRequest extends ConnectionSendingData {
   id: string;
@@ -126,7 +127,7 @@ class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, 
         total += 13;
       } else {
         let size: number;
-        [value, size] = truncateData(value);
+        [value, size] = truncateData(value, this.connection.maxValueSize);
         total += size;
         data.value = value;
       }
@@ -332,7 +333,7 @@ class ServerDescWatcher extends ServerRequest implements DescListener {
         totalSize += id.length + 10;
       }
       this.pendingIds.delete(id);
-      if (totalSize > 0x20000) {
+      if (totalSize >= this.connection.maxMessageSize) {
         break;
       }
     }
@@ -382,9 +383,10 @@ class ServerConnectionCore extends Connection {
 
   constructor(
     public root: Root,
-    private _editPolicy?: EditPolicy
+    private _editPolicy?: EditPolicy,
+    options?: ConnectionOptions
   ) {
-    super();
+    super(options);
   }
 
   getEditPolicy() {
@@ -453,7 +455,8 @@ class ServerConnectionCore extends Connection {
         'retainLibraries',
         'callFunction',
       ].includes(cmd) &&
-      !(cmd === 'copy' && !request.cut)
+      !(cmd === 'copy' && !request.cut) &&
+      !(cmd === 'executeCommand' && this.isReadonlyCommand(request))
     ) {
       const path = cmd === 'deleteFunction' ? (request.funcModule ?? request.funcId) : request.path;
       if (typeof path !== 'string') return 'invalid path';
@@ -472,6 +475,14 @@ class ServerConnectionCore extends Connection {
     const result = func.call(this, request);
     if (result instanceof ServerRequest) result.request = request;
     return result;
+  }
+
+  private isReadonlyCommand(request: DataMap): boolean {
+    const block = this.root.queryProperty(request.path as string, false)?._value;
+    return (
+      block instanceof Block &&
+      globalFunctions.getDesc(block._funcId)?.commands?.[request.command as string]?.readonly === true
+    );
   }
 
   protected checkRequestPolicy(request: DataMap): string | null {
@@ -549,14 +560,19 @@ class ServerConnectionCore extends Connection {
             result.then(
               (data) => this.sendResult(request.id as string, data),
               (error) => {
-                if (!this._destroyed) this.sendError(request.id as string, String(error));
+                if (!this._destroyed)
+                  this.sendError(
+                    request.id as string,
+                    String(error),
+                    request.cmd === 'executeCommand' ? error : undefined
+                  );
               }
             );
           } else {
             this.sendResult(request.id, result);
           }
         } catch (error) {
-          this.sendError(request.id, String(error));
+          this.sendError(request.id, String(error), request.cmd === 'executeCommand' ? error : undefined);
         }
       } else {
         this.sendError(request.id, 'invalid path');
@@ -564,8 +580,8 @@ class ServerConnectionCore extends Connection {
     }
   }
 
-  sendError(id: string, msg: string) {
-    this.addSend(new ConnectionSend({cmd: 'error', id, msg}));
+  sendError(id: string, msg: string, error?: unknown) {
+    this.addSend(new ConnectionSend({cmd: 'error', id, msg, ...(error instanceof Error ? {error} : {})}));
   }
 
   sendDone(id: string) {
@@ -647,17 +663,28 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Retrieves the current value of the property.
    */
-  get({path}: {path: string}): DataMap | string {
+  get({path, select, page}: {path: string; page?: ValuePageOptions} & ValueReadOptions): DataMap | string {
     const property = this.root.queryProperty(path);
-    if (property === null) {
-      // property === undefined, parent block exists but property is not created
-      return {};
-    } else if (property) {
-      return {value: property._value};
-    } else {
-      // property === undefined, parent block doesn't exist
-      return 'invalid path';
+    if (property === undefined) return 'invalid path';
+    let value = property?._value;
+    if (select !== undefined) {
+      if (!Array.isArray(select) || select.some((key) => typeof key !== 'string' && !Number.isSafeInteger(key)))
+        return 'invalid value selection';
+      for (const key of select) {
+        if (
+          !value ||
+          typeof value !== 'object' ||
+          (!Array.isArray(value) &&
+            Object.getPrototypeOf(value) !== Object.prototype &&
+            Object.getPrototypeOf(value) !== null) ||
+          !Object.hasOwn(value, key)
+        )
+          return 'invalid value selection';
+        value = Reflect.get(value, key);
+      }
     }
+    if (page !== undefined) return page && typeof page === 'object' ? readValuePage(value, page) : 'invalid page range';
+    return property ? {value} : {};
   }
 
   /**
@@ -1163,11 +1190,12 @@ export class ServerConnection extends ServerConnectionCore {
     if (property && property._value instanceof Block) {
       const readonly = this.getEditPolicy()?.readonly === true;
       const result = property._value.executeCommand(command, params, readonly);
-      if (result != null) {
-        return {result};
-      }
-      if (!readonly) trackChange(property, path, this.root);
-      return null;
+      const finish = (result: unknown) => {
+        if (result != null) return {result};
+        if (!readonly) trackChange(property, path, this.root);
+        return null;
+      };
+      return result instanceof Promise ? result.then(finish) : finish(result);
     } else {
       return 'invalid path';
     }

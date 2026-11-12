@@ -1,8 +1,50 @@
 import {describe, expect, it} from 'vitest';
-import {Root} from '@ticlo/core';
+import {Root, decode, globalFunctions} from '@ticlo/core';
 import {RestServerConnection} from '../RestServerConnection.ts';
 
 describe('RestServerConnection', () => {
+  it('awaits full command results and transports native errors without retrying execution', async () => {
+    const command = vi
+      .fn()
+      .mockResolvedValueOnce({binary: new Uint8Array([1, 255]), rows: Array.from({length: 2000}, (_, i) => [i])})
+      .mockRejectedValueOnce(Object.assign(new Error('SQL failed'), {code: 'SQL_TEST'}));
+    globalFunctions.addFactory(null, {name: 'rest-command-test', properties: []}, undefined, {
+      commands: {query: command},
+    });
+    const root = new Root();
+    root.defineGlobal('database', {'#is': 'rest-command-test'});
+    const connection = new RestServerConnection(root);
+    let sent: string;
+    const response = {
+      send(data: string) {
+        sent = data;
+      },
+      status() {
+        return this;
+      },
+      header() {
+        return this;
+      },
+    };
+    try {
+      const body = {cmd: 'executeCommand', path: '#global.^database', command: 'query', params: {sql: 'SELECT 1'}};
+      await connection.onHttpPost({body}, response);
+      const result = decode(sent).result;
+      expect(result.rows).toHaveLength(2000);
+      expect(result.rows.at(-1)).toEqual([1999]);
+      expect(result.binary).toEqual(new Uint8Array([1, 255]));
+      await connection.onHttpPost({body}, response);
+      expect(decode(sent)).toMatchObject({
+        cmd: 'error',
+        error: {name: 'Error', message: 'SQL failed', code: 'SQL_TEST'},
+      });
+      expect(command).toHaveBeenCalledTimes(2);
+    } finally {
+      connection.destroy();
+      root.destroy();
+    }
+  });
+
   it('waits for persistence and reports asynchronous save failures', async () => {
     const root = new Root();
     let finish: () => void;

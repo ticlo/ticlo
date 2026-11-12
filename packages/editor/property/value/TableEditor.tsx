@@ -1,10 +1,26 @@
 import React from 'react';
 import {Button, Input, InputNumber, Popover, Select, Switch, Table} from 'antd';
 import type {DockLayout} from 'rc-dock';
-import {ArrowDownOutlined, ArrowUpOutlined, CopyOutlined, DeleteOutlined, TableOutlined} from '@ant-design/icons';
-import {deepEqual, encodeDisplay, isDataTruncated, translateEditor} from '@ticlo/core/editor.ts';
-import type {PropDesc, TableColumnDesc} from '@ticlo/core';
+import {
+  ArrowDownOutlined,
+  ArrowUpOutlined,
+  CopyOutlined,
+  DeleteOutlined,
+  SettingOutlined,
+  TableOutlined,
+} from '@ant-design/icons';
+import {
+  deepEqual,
+  deepEqualTransport,
+  encodeDisplay,
+  getTruncatedArrayLength,
+  isDataTruncated,
+  translateEditor,
+} from '@ticlo/core/editor.ts';
+import type {PropDesc, TableColumnDesc, ValuePage} from '@ticlo/core';
 import {deepClone} from '@ticlo/core/util/Clone.ts';
+import {snapshotTransportValue} from '@ticlo/core/util/TransportValue.ts';
+import {readValuePage} from '@ticlo/core/connect/ValuePage.ts';
 import {ValueEditorProps} from './ValueEditorBase.ts';
 import {renderValue} from '../../component/renderValue.tsx';
 import {TicloLayoutContextType, type TicloLayoutContext} from '../../component/LayoutContext.ts';
@@ -32,6 +48,11 @@ interface State {
   newColumnName: string;
   newColumnType: 'string' | 'number' | 'toggle';
   loading: boolean;
+  loadingMore: boolean;
+  complete: boolean;
+  total: number;
+  pageSize: number;
+  tableHeight: number;
   saving: boolean;
   error?: string;
 }
@@ -73,6 +94,11 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
     newColumnName: '',
     newColumnType: 'string',
     loading: Boolean(this.props.dockPanel),
+    loadingMore: false,
+    complete: false,
+    total: 0,
+    pageSize: 1000,
+    tableHeight: 1,
     saving: false,
   };
   private nextId = 0;
@@ -80,18 +106,52 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
   private source: {value: unknown; paths: string; desc: PropDesc};
   private loadedValue: unknown;
   private loadedValues: unknown[];
+  private originalRows: RowValue[] = [];
+  private pageOffset = 0;
+  private pageSelect?: string[];
+  private localRows: unknown;
+  private loadingPage = false;
+  private table = React.createRef<React.ComponentRef<typeof Table>>();
+  private tableContainer = React.createRef<HTMLDivElement>();
+  private resizeObserver?: ResizeObserver;
 
   componentDidMount() {
     if (this.props.dockPanel) {
+      this.resizeObserver = new ResizeObserver(this.resizeTable);
+      this.resizeObserver.observe(this.tableContainer.current);
+      const header = this.table.current?.nativeElement.querySelector('.ant-table-header');
+      if (header) this.resizeObserver.observe(header);
+      this.resizeTable();
       this.props.conn?.editPolicyChanges().listen(this.onPolicyChange);
       void this.load();
     }
   }
 
+  componentDidUpdate(_props: TableEditorProps, previous: State) {
+    if (previous.columns !== this.state.columns) this.resizeTable();
+    if (
+      !this.state.loading &&
+      !this.state.complete &&
+      (previous.rows !== this.state.rows || previous.tableHeight !== this.state.tableHeight)
+    ) {
+      const holder = this.table.current?.nativeElement.querySelector('.ant-table-tbody-virtual-holder');
+      if (holder && holder.scrollHeight <= holder.clientHeight) void this.loadMore();
+    }
+  }
+
   private onPolicyChange = () => this.forceUpdate();
+
+  private resizeTable = () => {
+    const container = this.tableContainer.current;
+    const header = this.table.current?.nativeElement.querySelector<HTMLElement>('.ant-table-header');
+    if (!container) return;
+    const tableHeight = Math.max(1, container.clientHeight - (header?.offsetHeight ?? 0));
+    if (tableHeight !== this.state.tableHeight) this.setState({tableHeight});
+  };
 
   componentWillUnmount() {
     ++this.requestId;
+    this.resizeObserver?.disconnect();
     if (this.props.dockPanel) this.props.conn?.editPolicyChanges().unlisten(this.onPolicyChange);
   }
 
@@ -104,7 +164,7 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
     return (
       this.source &&
       (this.source.paths !== this.paths().join('\n') ||
-        !deepEqual(this.source.value, this.props.value) ||
+        (this.state.complete && !deepEqualTransport(this.source.value, this.props.value)) ||
         !deepEqual(this.source.desc, this.props.desc))
     );
   }
@@ -148,9 +208,15 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
     const {value, desc, conn} = this.props;
     const paths = this.paths();
     this.source = {value, desc, paths: paths.join('\n')};
+    this.loadingPage = false;
+    this.pageOffset = 0;
+    this.originalRows = [];
     this.setState({
       open: true,
       loading: true,
+      loadingMore: false,
+      complete: false,
+      total: 0,
       rows: [],
       columns: [],
       activeCell: undefined as string | undefined,
@@ -159,12 +225,43 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
     });
     try {
       if (this.schemaError()) throw new Error(translateEditor('Invalid table columns'));
-      // Subscribed values can be truncated, even inside individual cells.
-      const loadedValues =
-        conn && paths.length
-          ? await Promise.all(paths.map(async (path) => (await conn.getValue(path)).value))
-          : [value];
-      const data = loadedValues[0];
+      let matrix = isObject(value);
+      const previewRows = matrix ? value.rows : value;
+      const length =
+        getTruncatedArrayLength(previewRows) ?? (Array.isArray(previewRows) ? previewRows.length : undefined);
+      let page: ValuePage;
+      let data: unknown;
+      if (conn && paths.length) {
+        try {
+          if (length !== undefined && length < 1000) {
+            const {value: items = []} = await conn.getValue(paths[0], matrix ? {select: ['rows']} : undefined);
+            if (!Array.isArray(items)) throw 'value is not an array';
+            page = {items, offset: 0, total: items.length};
+          } else {
+            page = await conn.getValuePage(paths[0], {
+              select: matrix ? ['rows'] : undefined,
+              offset: 0,
+              limit: this.state.pageSize,
+            });
+          }
+        } catch (error) {
+          if (matrix || error !== 'value is not an array') throw error;
+          matrix = true;
+          page = await conn.getValuePage(paths[0], {select: ['rows'], offset: 0, limit: this.state.pageSize});
+        }
+        data = matrix
+          ? {columns: (await conn.getValue(paths[0], {select: ['columns']})).value, rows: page.items}
+          : page.items;
+      } else {
+        this.localRows = matrix ? value.rows : value;
+        const result = readValuePage(this.localRows, {
+          offset: 0,
+          limit: length < 1000 ? Math.max(1, length) : this.state.pageSize,
+        });
+        if (typeof result === 'string') throw result;
+        page = result;
+        data = matrix ? {...(value as object), rows: page.items} : page.items;
+      }
       if (requestId !== this.requestId) return;
       let format: Format;
       let rows: RowValue[];
@@ -196,7 +293,7 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
           throw new Error(translateEditor('Invalid table rows'));
         }
         format = desc.rowType === 'array' ? 'legacy-array' : 'object';
-        rows = data ?? [];
+        rows = (data as RowValue[]) ?? [];
         columns = (desc.columns ?? []).map((column: TableColumnDesc) => ({
           key: column.key,
           desc: {...column, name: column.title ?? String(column.key)},
@@ -204,9 +301,8 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
         }));
         if (format === 'object') {
           const keys = new Set(columns.map((column) => String(column.key)));
-          for (const row of [rows[0], rows[rows.length - 1]]) {
-            if (!row) continue;
-            for (const key of Object.keys(row)) {
+          for (const names of [page.keys ?? [], ...[rows[0], rows[rows.length - 1]].filter(Boolean).map(Object.keys)]) {
+            for (const key of names) {
               if (!keys.has(key)) {
                 columns.push({key, desc: {name: key, type: 'any'}});
                 keys.add(key);
@@ -215,43 +311,133 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
           }
         }
       }
-      this.loadedValue = data;
-      this.loadedValues = loadedValues;
+      this.pageSelect = matrix ? ['rows'] : undefined;
+      this.pageOffset = page.items.length;
+      this.originalRows = snapshotTransportValue(rows);
+      this.loadedValue = matrix
+        ? {...(data as object), columns: snapshotTransportValue((data as any).columns), rows: this.originalRows}
+        : this.originalRows;
+      const complete = this.pageOffset >= page.total;
+      if (complete) await this.completeValues(requestId);
+      if (requestId !== this.requestId) return;
       this.setState({
         format,
         columns,
         rows: rows.map((row) => ({id: this.nextId++, value: deepClone(row)})),
         loading: false,
+        total: page.total,
+        complete,
       });
     } catch (error) {
       if (requestId === this.requestId) this.setState({loading: false, error: String(error)});
     }
   };
 
+  private async completeValues(requestId: number) {
+    const loadedValue = this.loadedValue;
+    const {conn} = this.props;
+    const others = conn
+      ? await Promise.all(
+          this.paths()
+            .slice(1)
+            .map(async (path) => snapshotTransportValue((await conn.getValue(path)).value))
+        )
+      : [];
+    if (requestId !== this.requestId) return;
+    this.loadedValues = [loadedValue, ...others];
+    this.source.value = this.props.value;
+  }
+
+  private loadMore = async () => {
+    if (
+      this.loadingPage ||
+      this.state.loading ||
+      this.pageOffset >= this.state.total ||
+      this.state.error ||
+      this.changedSource()
+    )
+      return;
+    const requestId = this.requestId;
+    this.loadingPage = true;
+    this.setState({loadingMore: true});
+    try {
+      const options = {
+        select: this.pageSelect,
+        offset: this.pageOffset,
+        limit: this.state.pageSize,
+        anchor: this.originalRows.at(-1),
+      };
+      const {conn} = this.props;
+      const page =
+        conn && this.paths().length
+          ? await conn.getValuePage(this.paths()[0], options)
+          : readValuePage(this.localRows, options);
+      if (requestId !== this.requestId) return;
+      if (typeof page === 'string') throw page;
+      const {format} = this.state;
+      if (page.items.some((row) => !isRow(row, format === 'object' ? 'object' : 'array')))
+        throw new Error(translateEditor('Invalid table rows'));
+      const snapshots = snapshotTransportValue(page.items) as RowValue[];
+      for (const row of snapshots) this.originalRows.push(row);
+      this.pageOffset += page.items.length;
+      const complete = this.pageOffset >= page.total;
+      if (complete) await this.completeValues(requestId);
+      if (requestId !== this.requestId) return;
+      this.setState(({rows}) => ({
+        rows: rows.concat(page.items.map((row: RowValue) => ({id: this.nextId++, value: deepClone(row)}))),
+        total: page.total,
+        complete,
+        loadingMore: false,
+      }));
+    } catch (error) {
+      if (requestId === this.requestId)
+        this.setState({
+          loadingMore: false,
+          error:
+            error === 'page_anchor_mismatch' ? translateEditor('Value changed. Reload to continue.') : String(error),
+        });
+    } finally {
+      if (requestId === this.requestId) this.loadingPage = false;
+    }
+  };
+
+  private onScroll = (event: React.UIEvent<HTMLElement>) => {
+    const element = event.currentTarget;
+    if (element.scrollHeight - element.scrollTop - element.clientHeight < 200) void this.loadMore();
+  };
+
   save = async (onClose?: () => void) => {
-    if (!this.editable() || this.changedSource() || this.state.loading || this.state.saving || this.state.error) return;
+    if (
+      !this.editable() ||
+      !this.state.complete ||
+      this.changedSource() ||
+      this.state.loading ||
+      this.state.saving ||
+      this.state.error
+    )
+      return;
     const {rows, columns, format} = this.state;
     const values = rows.map((row) => row.value);
-    const next =
-      format === 'matrix'
-        ? {...(this.loadedValue as object), columns: columns.map((column) => column.desc), rows: values}
-        : values;
+    const nextValue = (base: unknown) =>
+      format === 'matrix' ? {...(base as object), columns: columns.map((column) => column.desc), rows: values} : values;
     const {conn, onChange, name} = this.props;
     const paths = this.paths();
     this.setState({saving: true});
     try {
       if (conn && paths.length) {
         const current = await Promise.all(paths.map(async (path) => (await conn.getValue(path)).value));
-        if (current.some((value, index) => !deepEqual(value, this.loadedValues[index]))) {
+        const content = (value: any) =>
+          format === 'matrix' && isObject(value) ? {columns: value.columns, rows: value.rows} : value;
+        if (current.some((value, index) => !deepEqualTransport(content(value), content(this.loadedValues[index])))) {
           throw new Error(translateEditor('Value changed. Reload to continue.'));
         }
-        for (const path of paths) {
-          const denied = conn.getEditPolicyView().check({cmd: 'set', path, value: next});
+        for (const [index, path] of paths.entries()) {
+          const denied = conn.getEditPolicyView().check({cmd: 'set', path, value: nextValue(current[index])});
           if (denied) throw new Error(denied);
         }
-        for (const path of paths) await conn.setValue(path, next, true);
+        for (const [index, path] of paths.entries()) await conn.setValue(path, nextValue(current[index]), true);
       } else {
-        onChange(next, name);
+        onChange(nextValue(this.loadedValue), name);
       }
       onClose?.();
     } catch (error) {
@@ -260,6 +446,7 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
   };
 
   private changeCell(id: number, key: string | number, value: unknown) {
+    if (!this.state.complete) return;
     this.setState(({rows}) => ({
       rows: rows.map((row) => {
         if (row.id !== id) return row;
@@ -272,6 +459,7 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
   }
 
   addRow = () => {
+    if (!this.state.complete) return;
     const {format, columns} = this.state;
     const value: RowValue =
       format === 'object'
@@ -294,6 +482,7 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
   };
 
   addColumn = () => {
+    if (!this.state.complete) return;
     const {format, columns, newColumnName, newColumnType} = this.state;
     const name = newColumnName.trim();
     if (
@@ -318,7 +507,7 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
   };
 
   private deleteColumn(column: Column) {
-    if (column.fixed) return;
+    if (column.fixed || !this.state.complete) return;
     const {format, columns} = this.state;
     this.setState(({rows}) => ({
       columns: columns
@@ -351,6 +540,7 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
   };
 
   private rowAction(id: number, action: 'copy' | 'delete' | 'up' | 'down') {
+    if (!this.state.complete) return;
     this.setState(({rows}) => {
       const next = rows.slice();
       const index = next.findIndex((row) => row.id === id);
@@ -429,9 +619,24 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
 
   render() {
     const {value, desc, name, funcDesc} = this.props;
-    const {open, rows, columns, format, loading, saving, error, newColumnName, newColumnType} = this.state;
+    const {
+      open,
+      rows,
+      columns,
+      format,
+      loading,
+      loadingMore,
+      complete,
+      total,
+      pageSize,
+      tableHeight,
+      saving,
+      error,
+      newColumnName,
+      newColumnType,
+    } = this.state;
     const changed = open && this.changedSource();
-    const disabled = !this.editable() || loading || saving || Boolean(error) || changed;
+    const disabled = !this.editable() || !complete || loading || saving || Boolean(error) || changed;
     const tableColumns = columns.map((column, index) => ({
       key: `column-${index}`,
       title: (
@@ -448,7 +653,7 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
           ) : null}
         </div>
       ),
-      width: 180,
+      width: 100,
       render: (_: unknown, row: Row) => this.cell(row, column, disabled),
     }));
     if (!this.props.dockPanel) {
@@ -456,10 +661,10 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
         <>
           <Button size="small" icon={<TableOutlined />} onClick={this.openTable} disabled={!this.context?.editTable}>
             {t(this.editable() ? 'Edit table' : 'View table')}{' '}
-            {Array.isArray(value) && !isDataTruncated(value)
-              ? `(${value.length})`
+            {Array.isArray(value)
+              ? `(${getTruncatedArrayLength(value) ?? value.length})`
               : isObject(value) && Array.isArray(value.rows)
-                ? `(${value.rows.length})`
+                ? `(${getTruncatedArrayLength(value.rows) ?? value.rows.length})`
                 : null}
           </Button>
           {this.context?.editProperty && this.props.keys?.length ? (
@@ -536,7 +741,7 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
                         {format === 'object' && !desc.columns?.length ? (
                           <Button
                             size="small"
-                            disabled={loading || Boolean(error) || changed}
+                            disabled={!complete || loading || Boolean(error) || changed}
                             onClick={this.scanAllColumns}
                           >
                             {t('Find all columns')}
@@ -553,62 +758,89 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
                 <Button size="small" onClick={this.load} disabled={loading || saving}>
                   {t('Reload')}
                 </Button>
+                <Popover
+                  trigger="click"
+                  content={
+                    <div className="ticl-e-table-add-column">
+                      {t('Rows per request')}
+                      <InputNumber
+                        min={10}
+                        precision={0}
+                        value={pageSize}
+                        onChange={(size) => {
+                          if (size !== null) this.setState({pageSize: Math.max(10, Math.floor(size))});
+                        }}
+                      />
+                    </div>
+                  }
+                >
+                  <Button size="small" icon={<SettingOutlined />} title={translateEditor('Rows per request')} />
+                </Popover>
+                <span>
+                  {this.pageOffset} / {total}
+                </span>
+                {loadingMore ? <span>{t('Loading more rows...')}</span> : null}
               </div>
               {/* Cells edit a draft, not independently addressable Block properties. */}
-              <TicloLayoutContextType.Provider value={{}}>
-                <Table<Row>
-                  size="small"
-                  rowKey="id"
-                  dataSource={rows}
-                  loading={loading}
-                  pagination={false}
-                  scroll={{x: 'max-content', y: 400}}
-                  columns={[
-                    ...tableColumns,
-                    ...(this.editable()
-                      ? [
-                          {
-                            key: 'row-actions',
-                            width: 150,
-                            title: t('Actions'),
-                            render: (_: unknown, row: Row, index: number) => (
-                              <div className="ticl-e-table-actions">
-                                <Button
-                                  size="small"
-                                  title={translateEditor('Move up')}
-                                  icon={<ArrowUpOutlined />}
-                                  disabled={disabled || index === 0}
-                                  onClick={() => this.rowAction(row.id, 'up')}
-                                />
-                                <Button
-                                  size="small"
-                                  title={translateEditor('Move down')}
-                                  icon={<ArrowDownOutlined />}
-                                  disabled={disabled || index === rows.length - 1}
-                                  onClick={() => this.rowAction(row.id, 'down')}
-                                />
-                                <Button
-                                  size="small"
-                                  title={translateEditor('Duplicate row')}
-                                  icon={<CopyOutlined />}
-                                  disabled={disabled}
-                                  onClick={() => this.rowAction(row.id, 'copy')}
-                                />
-                                <Button
-                                  size="small"
-                                  title={translateEditor('Delete row')}
-                                  icon={<DeleteOutlined />}
-                                  disabled={disabled}
-                                  onClick={() => this.rowAction(row.id, 'delete')}
-                                />
-                              </div>
-                            ),
-                          },
-                        ]
-                      : []),
-                  ]}
-                />
-              </TicloLayoutContextType.Provider>
+              <div className="ticl-e-table-container" ref={this.tableContainer}>
+                <TicloLayoutContextType.Provider value={{}}>
+                  <Table<Row>
+                    ref={this.table}
+                    size="small"
+                    rowKey="id"
+                    dataSource={rows}
+                    loading={loading}
+                    pagination={false}
+                    virtual
+                    scroll={{x: Math.max(100, columns.length * 100 + (this.editable() ? 128 : 0)), y: tableHeight}}
+                    onScroll={this.onScroll}
+                    columns={[
+                      ...tableColumns,
+                      ...(this.editable()
+                        ? [
+                            {
+                              key: 'row-actions',
+                              width: 128,
+                              title: t('Actions'),
+                              render: (_: unknown, row: Row, index: number) => (
+                                <div className="ticl-e-table-actions">
+                                  <Button
+                                    size="small"
+                                    title={translateEditor('Move up')}
+                                    icon={<ArrowUpOutlined />}
+                                    disabled={disabled || index === 0}
+                                    onClick={() => this.rowAction(row.id, 'up')}
+                                  />
+                                  <Button
+                                    size="small"
+                                    title={translateEditor('Move down')}
+                                    icon={<ArrowDownOutlined />}
+                                    disabled={disabled || index === rows.length - 1}
+                                    onClick={() => this.rowAction(row.id, 'down')}
+                                  />
+                                  <Button
+                                    size="small"
+                                    title={translateEditor('Duplicate row')}
+                                    icon={<CopyOutlined />}
+                                    disabled={disabled}
+                                    onClick={() => this.rowAction(row.id, 'copy')}
+                                  />
+                                  <Button
+                                    size="small"
+                                    title={translateEditor('Delete row')}
+                                    icon={<DeleteOutlined />}
+                                    disabled={disabled}
+                                    onClick={() => this.rowAction(row.id, 'delete')}
+                                  />
+                                </div>
+                              ),
+                            },
+                          ]
+                        : []),
+                    ]}
+                  />
+                </TicloLayoutContextType.Provider>
+              </div>
             </div>
             <div className="ticl-e-box-footer">
               <div className="ticl-e-spacer" />

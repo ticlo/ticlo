@@ -1,0 +1,13 @@
+'@library':
+  postgres:
+    '@name': PostgreSQL # no translate
+client:
+  '@name': 客户端 # translated from: Client
+  connectionString:
+    '@name': 连接 URL # translated from: Connection URL
+  maxConnections:
+    '@name': 最大连接数 # translated from: Maximum Connections
+  connectionTimeout:
+    '@name': 连接超时 # translated from: Connection Timeout
+  statementTimeout:
+    '@name': 语句超时 # translated from: Statement Timeout

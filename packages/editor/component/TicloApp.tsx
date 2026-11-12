@@ -3,6 +3,7 @@ import {ConfigProvider, theme} from 'antd';
 import {DragLayerContext} from 'rc-dock';
 import {
   TicloCurrentFlowContext,
+  TicloDefaultLibraryContext,
   TicloI18NContext,
   TicloLayoutContext,
   TicloLayoutContextType,
@@ -12,6 +13,7 @@ import {
 
 export interface TicloAppProps<Context extends TicloLayoutContext = TicloLayoutContext> {
   value: Context;
+  defaultLibrary?: string;
   children?: ReactNode;
   className?: string;
   style?: React.CSSProperties;
@@ -195,6 +197,7 @@ function useTicloContext(value: TicloLayoutContext) {
 
 export function TicloApp<Context extends TicloLayoutContext>({
   value,
+  defaultLibrary = '#root',
   children,
   className = 'ticl-e-app',
   style,
@@ -227,7 +230,9 @@ export function TicloApp<Context extends TicloLayoutContext>({
         <TicloCurrentFlowContext.Provider value={currentFlow}>
           <TicloLayoutContextType.Provider value={wrappedLayoutContext}>
             <div className={className} style={rootStyle} onKeyDown={onKeyDown} onPaste={onPaste}>
-              {children}
+              <TicloDefaultLibraryContext.Provider value={defaultLibrary}>
+                {children}
+              </TicloDefaultLibraryContext.Provider>
             </div>
           </TicloLayoutContextType.Provider>
         </TicloCurrentFlowContext.Provider>

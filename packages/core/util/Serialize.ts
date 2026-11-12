@@ -2,10 +2,50 @@ import Arrow from 'arrow-code';
 import {DateTime} from 'luxon';
 import {decodeDateTime, encodeDateTime, formatDate} from './DateTime.ts';
 import {decodeUnknown, encodeUnknown, NoSerialize} from './NoSerialize.ts';
+import {ErrorEvent} from '../block/Event.ts';
 
 const arrow = new Arrow({encodeDate: false});
 arrow.registerRaw('Ts', DateTime, encodeDateTime, decodeDateTime);
 arrow.registerRaw('', NoSerialize, encodeUnknown, decodeUnknown);
+
+function encodeError(error: Error & {code?: string | number}): string {
+  const data: unknown[] = [error.message];
+  if (error.name !== 'Error' || error.code !== undefined) data.push(error.name === 'Error' ? null : error.name);
+  if (error.code !== undefined) data.push(error.code);
+  return JSON.stringify(data);
+}
+
+function decodeError(encoded: string): Error {
+  const [message, name, code] = JSON.parse(encoded);
+  const error = new Error(message);
+  if (name) error.name = name;
+  if (code !== undefined) Object.assign(error, {code});
+  return error;
+}
+
+for (const type of [Error, EvalError, RangeError, ReferenceError, SyntaxError, TypeError, URIError, AggregateError]) {
+  arrow.register('e', type, encodeError, decodeError);
+}
+
+arrow.register(
+  'E',
+  ErrorEvent,
+  (event: ErrorEvent) => {
+    const detail =
+      event.detail instanceof Error
+        ? `͢e:${encodeError(event.detail)}`
+        : (arrow.encode(event.detail) ?? `͢${arrow.stringify(event.detail)}`);
+    return JSON.stringify(
+      event.type === ErrorEvent.defaultType ? (event.detail === undefined ? [] : [detail]) : [event.type, detail]
+    );
+  },
+  (encoded: string) => {
+    const data = JSON.parse(encoded);
+    return data.length < 2
+      ? new ErrorEvent(undefined, data.length ? arrow.decode(data[0]) : undefined)
+      : new ErrorEvent(data[0], arrow.decode(data[1]));
+  }
+);
 
 export const arrowReplacer = arrow.replacer.bind(arrow);
 export const arrowReviver = arrow.reviver.bind(arrow);

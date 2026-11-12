@@ -48,9 +48,9 @@ const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node']
     .help();
   const {onDemandLoad, serve, port, run, quitOnSuccess, quitOnFinish} = parser.parse() as any;
 
-  await Root.instance.setStorage(new TestLoader(packagesToTest, {onDemandLoad}));
-
   const {app, ticloWs} = await createTicloApp({enableEditor: serve});
+
+  await Root.instance.setStorage(new TestLoader(packagesToTest, {onDemandLoad}));
 
   const globalClientBlock = Root.instance._globalRoot.createBlock('^local-client');
   globalClientBlock._load({'#is': 'http:client', 'url': `http://127.0.0.1:${port}/api/`});

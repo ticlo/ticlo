@@ -21,21 +21,34 @@ const imageTypes: Record<string, string> = {
   svg: 'image/svg+xml',
   avif: 'image/avif',
 };
+const codeExtensions = new Set(
+  (
+    'json jsonc json5 js jsx mjs cjs ts tsx mts cts yaml yml html htm xhtml xml xsd xsl css scss sass less ' +
+    'c h cc cpp cxx hpp cs java kt kts scala go rs swift m mm py pyw rb php pl pm lua dart r sh bash zsh fish ' +
+    'bat cmd ps1 sql graphql gql vue svelte astro coffee clj cljs ex exs erl hs fs fsx groovy gradle cmake'
+  ).split(' ')
+);
 const textExtensions = new Set(
   (
-    'txt text json jsonc json5 js jsx mjs cjs ts tsx mts cts yaml yml md markdown mdx html htm xhtml xml xsd xsl ' +
-    'css scss sass less csv tsv log ini conf cfg config properties toml lock env editorconfig gitignore ' +
-    'c h cc cpp cxx hpp cs java kt kts scala go rs swift m mm py pyw rb php pl pm lua dart r sh bash zsh fish ' +
-    'bat cmd ps1 sql graphql gql vue svelte astro coffee clj cljs ex exs erl hs fs fsx groovy gradle cmake ' +
+    'txt text md markdown mdx csv tsv log ini conf cfg config properties toml lock env editorconfig gitignore ' +
     'tex bib rst adoc srt vtt diff patch'
   ).split(' ')
 );
+
+export function isCodeFile(name: string): boolean {
+  return codeExtensions.has(name.toLowerCase().split('.').pop()) || /^(makefile|dockerfile)$/i.test(name);
+}
 
 export function previewType(name: string): 'image' | 'text' | null {
   const lower = name.toLowerCase();
   const ext = lower.split('.').pop();
   if (imageTypes[ext]) return 'image';
-  if (textExtensions.has(ext) || /^(readme|license|licence|notice|makefile|dockerfile)$/.test(lower)) return 'text';
+  if (
+    codeExtensions.has(ext) ||
+    textExtensions.has(ext) ||
+    /^(readme|license|licence|notice|makefile|dockerfile)$/.test(lower)
+  )
+    return 'text';
   return null;
 }
 

@@ -49,7 +49,7 @@ import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx
 import i18next from 'i18next';
 
 import {LocalizedLabel, t} from '@ticlo/editor/component/LocalizedLabel.tsx';
-import {RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
+import {BROWSER_LOCAL_LIBRARY, RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
 import type {FileEntry, ProjectFiles} from '@ticlo/core/storage/FileAccess.ts';
 import {createRoot} from 'react-dom/client';
 import {Library} from '@ticlo/core/block/Library.ts';
@@ -336,7 +336,7 @@ class App extends React.PureComponent<Props, State> {
         <StageConnectionContext.Provider value={conn}>
           <EditPolicyProvider conn={conn}>
             <FileVersionContext.Provider value={this.state.fileVersion}>
-              <TicloApp value={this.ticloContext}>
+              <TicloApp value={this.ticloContext} defaultLibrary={this.props.files?.project}>
                 {this.props.files ? (
                   <FileMenuHeader
                     language={this.lng}
@@ -425,21 +425,22 @@ function DataflowWorkspace({
     if (firstFlow) initialFlow = project === '#root' ? firstFlow.name : `+${project}.${firstFlow.name}`;
   } else {
     const storage = new StaticStorage(new URL('./storage', location.href).href);
-    const project = params.get('project') || 'local';
+    const project = params.get('project') || BROWSER_LOCAL_LIBRARY;
+    const example = `+${BROWSER_LOCAL_LIBRARY}.example`;
     files = {storage, project};
     await root.setStorage(storage);
     await root.start({[project]: params.has('project') ? {} : {flows: ['**']}});
 
-    if (project === 'local' && !params.has('project') && !(root.queryValue('+local.example') instanceof Flow)) {
+    if (project === BROWSER_LOCAL_LIBRARY && !params.has('project') && !(root.queryValue(example) instanceof Flow)) {
       console.log('initialize the database');
-      root.addFlow('+local.example', reactData);
-      root.addFlow('+local.example0', data);
+      root.addFlow(example, reactData);
+      root.addFlow(`+${BROWSER_LOCAL_LIBRARY}.example0`, data);
     }
 
     // create some global blocks
     root._globalRoot.createBlock('^gAdd')?.setValue('#is', 'add');
     root._globalRoot.createBlock('^gSub')?.setValue('#is', 'subtract');
-    if (project === 'local' && !params.has('project')) initialFlow = '+local.example';
+    if (project === BROWSER_LOCAL_LIBRARY && !params.has('project')) initialFlow = example;
   }
 
   const [server, client] = makeLocalConnection(root);

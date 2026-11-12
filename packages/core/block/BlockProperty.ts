@@ -223,6 +223,12 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
+  _loadHelper(data: DataMap, live = false) {
+    const helper = this._block.createHelperBlock(this._name);
+    if (live) helper._liveUpdate(data);
+    else helper._load(data);
+  }
+
   // REFACTOR(design.md): MUST apply graph edits and wire subscriptions together; MUST NOT replay transient values.
   _liveUpdate(val: unknown) {
     if (this._bindingSource) {

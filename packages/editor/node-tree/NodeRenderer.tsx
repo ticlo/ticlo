@@ -5,15 +5,13 @@ import {
   CheckOutlined,
   DeleteOutlined,
   FileAddOutlined,
-  FileFilled,
-  FileOutlined,
   FileTextFilled,
   FileTextOutlined,
   FolderOpenOutlined,
   FolderOpenFilled,
   GlobalOutlined,
   PauseCircleOutlined,
-  ProfileOutlined,
+  ProductFilled,
   SaveOutlined,
   SearchOutlined,
   WalletOutlined,
@@ -35,6 +33,7 @@ import {
   isStringArray,
 } from '@ticlo/core/editor.ts';
 import {TIcon} from '../icon/Icon.tsx';
+import {FileTicloFilled, FileTicloOutlined} from '../icon/FileIcons.tsx';
 import {TicloLayoutContext, TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {DragDrop, DragState} from 'rc-dock';
 import {getFuncStyleFromDesc} from '../util/BlockColors.ts';
@@ -657,15 +656,15 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     icon = <TIcon icon={iconName} style={colorStyle} />;
 
     if (!dynamicStyle) {
-      if (item.functionId === 'flow:context') {
-        icon = <ProfileOutlined />;
+      if (item.functionId === 'flow:context' || item.functionId === 'flow:global') {
+        icon = <ProductFilled />;
       } else if (saveAllowed.has(item.functionId)) {
         if (this.hasChangeListener.value) {
           icon = item.functionId === 'flow:main' && this.state.autoLoad ? <FileTextFilled /> : <FileTextOutlined />;
         } else {
-          icon = item.functionId === 'flow:main' && this.state.autoLoad ? <FileFilled /> : <FileOutlined />;
+          icon = item.functionId === 'flow:main' && this.state.autoLoad ? <FileTicloFilled /> : <FileTicloOutlined />;
         }
-      } else if (item.functionId === 'flow:const' || item.functionId === 'flow:global') {
+      } else if (item.functionId === 'flow:const') {
         icon = <GlobalOutlined />;
       } else if (item.functionId === 'flow:folder') {
         icon = <FolderOpenOutlined />;

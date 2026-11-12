@@ -1,0 +1,7 @@
+'@library':
+  node:
+    '@name': Node.js
+env:
+  '@name': Environment Variable
+  name:
+    '@name': Variable Name

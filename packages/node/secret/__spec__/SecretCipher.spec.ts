@@ -1,40 +1,31 @@
-import {expect} from 'vitest';
+import {randomBytes} from 'node:crypto';
+import {mkdtemp, rm, stat} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {SecretCipher} from '../SecretCipher.ts';
 
-describe('SecretCipher', function () {
-  it('encode length', function () {
-    expect([...SecretCipher.encodeBufferLen(18)]).toEqual([18]);
-    expect([...SecretCipher.encodeBufferLen(0x80)]).toEqual([0, 0x81]);
-    expect([...SecretCipher.encodeBufferLen(0xff)]).toEqual([0x7f, 0x81]);
-    expect([...SecretCipher.encodeBufferLen(0xffff)]).toEqual([0x7f, 0xff, 0x83]);
-  });
+it('encrypts secrets with a fresh nonce and rejects tampering and the wrong key', () => {
+  const cipher = new SecretCipher(randomBytes(32));
+  const value = '密钥 🔑';
+  const encrypted = cipher.encode(value);
+  expect(cipher.decode(encrypted)).toBe(value);
+  expect(cipher.encode(value)).not.toEqual(encrypted);
+  expect(new SecretCipher(randomBytes(32)).decode(encrypted)).toBeUndefined();
+  encrypted[encrypted.length - 1] ^= 1;
+  expect(cipher.decode(encrypted)).toBeUndefined();
+});
 
-  it('decode length', function () {
-    expect(SecretCipher.decodeBufferLen(new Uint8Array([18]))).toEqual([18, 1]);
-    expect(SecretCipher.decodeBufferLen(new Uint8Array([0, 0x81]))).toEqual([0x80, 2]);
-    expect(SecretCipher.decodeBufferLen(new Uint8Array([0x7f, 0x81]))).toEqual([0xff, 2]);
-    expect(SecretCipher.decodeBufferLen(new Uint8Array([0x7f, 0xff, 0x83]))).toEqual([0xffff, 3]);
-
-    expect(SecretCipher.decodeBufferLen(new Uint8Array([0x80]))).toEqual([-1, -1]);
-  });
-
-  it('encode data with different length', function () {
-    const key = '123';
-    for (let i = 0; i < 130; ++i) {
-      const s = ''.padStart(i, String.fromCharCode(Math.round(Math.random() * 80 + 32)));
-      const cipher = new SecretCipher(key);
-      const encrypted = cipher.encode(s);
-      const decrypted = cipher.decode(encrypted);
-      expect(decrypted).toBe(s);
-    }
-  });
-  it('encode data with different key length', function () {
-    for (let i = 1; i < 18; ++i) {
-      const s = ''.padStart(i, String.fromCharCode(Math.round(Math.random() * 80 + 32)));
-      const cipher = new SecretCipher(s);
-      const encrypted = cipher.encode(s);
-      const decrypted = cipher.decode(encrypted);
-      expect(decrypted).toBe(s);
-    }
-  });
+it('reuses the same host key across concurrent startup and restart', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'ticlo-secret-key-'));
+  try {
+    const path = join(dir, '.ticlo-secret.key');
+    const [first, second] = await Promise.all([SecretCipher.fromFile(path), SecretCipher.fromFile(path)]);
+    const encrypted = first.encode('password');
+    expect(second.decode(encrypted)).toBe('password');
+    const restarted = await SecretCipher.fromFile(path);
+    expect(restarted.decode(encrypted)).toBe('password');
+    if (process.platform !== 'win32') expect((await stat(path)).mode & 0o077).toBe(0);
+  } finally {
+    await rm(dir, {recursive: true, force: true});
+  }
 });

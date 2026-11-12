@@ -34,3 +34,20 @@
   overflow: hidden;
   flex: 1;
 }
+
+.ticl-e-object-tree-more {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .ticl-e-error-message {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ant-btn {
+    flex-shrink: 0;
+  }
+}

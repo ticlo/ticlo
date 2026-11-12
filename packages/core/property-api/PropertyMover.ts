@@ -2,6 +2,7 @@ import {Block} from '../block/Block.ts';
 import {BlockIO, BlockProperty, HelperProperty} from '../block/BlockProperty.ts';
 import {PropListener} from '../block/Dispatcher.ts';
 import {BlockBinding} from '../block/BlockBinding.ts';
+import {isDefinedProperty} from '../block/DefinedBlock.ts';
 
 // /**
 //  * @param block
@@ -135,6 +136,7 @@ export function moveProperty(
   newName: string,
   moveOutboundLinks: boolean = false
 ): string {
+  if (isDefinedProperty(block.getProperty(newName, false))) return 'Code-defined property is read-only';
   new PropertyMover(block, oldName, moveOutboundLinks).moveTo(newName);
   return null;
 }

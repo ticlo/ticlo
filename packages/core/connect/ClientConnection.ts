@@ -187,7 +187,10 @@ export abstract class ClientConnection extends ClientConn {
           break;
         }
         case 'error': {
-          req.onError(String(response.msg));
+          req.onError(
+            String(response.msg),
+            response.error && req instanceof ClientRequest ? {...req._data, error: response.error} : undefined
+          );
           break;
         }
         default:
@@ -207,7 +210,7 @@ export abstract class ClientConnection extends ClientConn {
         callbacks = {
           onDone: resolve,
           onUpdate: resolve,
-          onError: reject,
+          onError: (message, data) => reject(data?.error ?? message),
         };
       });
     }

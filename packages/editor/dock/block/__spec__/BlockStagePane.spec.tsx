@@ -1,5 +1,6 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {vi} from 'vitest';
+import {userEvent} from 'vitest/browser';
 import {DockLayout} from 'rc-dock';
 import {Block, Root, type Flow} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -23,6 +24,31 @@ describe('BlockStagePane', () => {
     removeLastTemplate();
     destroyLastLocalConnection();
     Root.instance.deleteValue(flowPath);
+  });
+
+  it('updates open tab paths when the default Library changes', async () => {
+    const [, conn] = makeLocalConnection(Root.instance);
+    const title = BlockStagePane.createDockTab('+main.jobs.daily', conn).title;
+    let setLibrary: (library: string) => void;
+    function App() {
+      const [library, updateLibrary] = useState('main');
+      setLibrary = updateLibrary;
+      return (
+        <TicloApp value={{}} defaultLibrary={library}>
+          {title}
+        </TicloApp>
+      );
+    }
+    const [, div] = loadTemplate(<App />, 'editor');
+    const tabTitle = () => div.querySelector<HTMLElement>('.ticl-e-stage-panel-tab-title');
+    const visiblePath = (path: string) =>
+      Array.from(document.querySelectorAll('.ant-popover:not(.ant-popover-hidden) .ant-popover-content')).some(
+        (content) => content.textContent === path
+      );
+    await userEvent.hover(await shouldHappen(tabTitle));
+    await shouldHappen(() => visiblePath('jobs.daily'));
+    setLibrary('other');
+    await shouldHappen(() => visiblePath('+main.jobs.daily'));
   });
 
   it('activates individual dock tabs, including cached tabs and tabs without save callbacks', async () => {

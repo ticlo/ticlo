@@ -14,7 +14,7 @@ describe('RemoteStorage Git operations', () => {
     expect(fetch.mock.calls[2][1].method).toBe('POST');
   });
 
-  it('uses the project Git endpoints and leaves local without Git support', async () => {
+  it('uses the project Git endpoints and leaves BrowserLocal without Git support', async () => {
     const fetch = vi.fn(async (url: string, options: RequestInit) =>
       Response.json(
         url.includes('gitCommit')
@@ -30,7 +30,7 @@ describe('RemoteStorage Git operations', () => {
     );
     const storage = new RemoteStorage({baseURL: 'https://example.com/file', fetch: fetch as typeof globalThis.fetch});
     expect(storage.supportsGit('main')).toBe(true);
-    expect(storage.supportsGit('local')).toBe(false);
+    expect(storage.supportsGit('BrowserLocal')).toBe(false);
     expect(await storage.getGitInfo('main')).toEqual({initialized: false});
     expect(await storage.initGit('main')).toEqual({initialized: true, branch: 'main'});
     expect((await storage.commitGit('main', '')).hash).toBe('abc');
@@ -52,9 +52,11 @@ describe('RemoteStorage Git operations', () => {
     expect(changed).toHaveBeenCalledWith('snapshot');
     expect(fetch.mock.calls[4][0]).toContain('op=gitReset&id=main&commit=abc');
     expect(fetch.mock.calls[5][0]).toContain('op=createProj&name=snapshot&template=main&commit=abc');
-    await expect(storage.restoreGitFile('local/a.txt')).rejects.toMatchObject({code: 'readonly'});
-    await expect(storage.resetGitToCommit('local', 'abc')).rejects.toMatchObject({code: 'readonly'});
-    await expect(storage.createProjectFromCommit('local', 'snapshot', 'abc')).rejects.toMatchObject({code: 'readonly'});
+    await expect(storage.restoreGitFile('BrowserLocal/a.txt')).rejects.toMatchObject({code: 'readonly'});
+    await expect(storage.resetGitToCommit('BrowserLocal', 'abc')).rejects.toMatchObject({code: 'readonly'});
+    await expect(storage.createProjectFromCommit('BrowserLocal', 'snapshot', 'abc')).rejects.toMatchObject({
+      code: 'readonly',
+    });
   });
 
   it('reports an old file server clearly', async () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import {ClientConn, encode, DataMap, isDataTruncated, translateEditor} from '@ticlo/core/editor.ts';
+import {ClientConn, encode, DataMap, isDataTruncated, translateEditor, type PropDesc} from '@ticlo/core/editor.ts';
 import {Menu, Dropdown, Button, Spin} from 'antd';
 import CodeMirror from '@uiw/react-codemirror';
 import {parse as ParseYaml} from 'yaml';
@@ -50,12 +50,13 @@ export const editorHighlighting = syntaxHighlighting(
 );
 
 interface Props {
-  conn: ClientConn;
+  conn?: ClientConn;
   mime: string;
   asObject: boolean;
   paths: string[];
   defaultValue: any;
   readonly?: boolean;
+  onChange?: (value: unknown) => void;
 }
 
 interface State {
@@ -67,6 +68,26 @@ interface State {
 export class TextEditorPane extends React.PureComponent<Props, State> {
   static contextType = EditPolicyContext;
   declare context: React.ContextType<typeof EditPolicyContext>;
+  static openValuePanel(layout: DockLayout, value: unknown, desc: PropDesc, onChange?: (value: unknown) => void) {
+    const asObject =
+      desc.mime === 'object' ||
+      ['object', 'array', 'table'].includes(desc.type) ||
+      (desc.type === 'any' && typeof value !== 'string');
+    createDockDialog(
+      layout,
+      `${translateEditor(onChange ? 'Edit' : 'View')} ${desc.name}`,
+      <TextEditorPane
+        paths={[]}
+        defaultValue={value}
+        asObject={asObject}
+        mime={desc.mime === 'object' ? 'application/json' : (desc.mime ?? (asObject ? 'application/json' : undefined))}
+        readonly={!onChange || desc.readonly}
+        onChange={onChange}
+      />,
+      undefined,
+      {preferredWidth: 600, preferredHeight: 500}
+    );
+  }
   static openFloatPanel(
     layout: DockLayout,
     conn: ClientConn,
@@ -162,7 +183,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
     super(props);
     const {defaultValue} = props;
 
-    if (isDataTruncated(defaultValue)) {
+    if (props.conn && props.paths.length && isDataTruncated(defaultValue)) {
       const selectedPath = props.paths[0];
       this.loadData(selectedPath);
       this.state = {value: this.convertValue(defaultValue), loading: true};
@@ -238,6 +259,10 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
         return false;
       }
     }
+    if (this.props.onChange) {
+      this.props.onChange(value);
+      return true;
+    }
     for (const path of paths) {
       const error = this.context.check({cmd: 'set', path, value});
       if (error) {
@@ -286,7 +311,7 @@ export class TextEditorPane extends React.PureComponent<Props, State> {
         onApply={readonly ? null : this.onApply}
         saveDisabled={loading}
         footerExtra={
-          paths.length === 1 ? (
+          !paths.length ? null : paths.length === 1 ? (
             <Button size="small" onClick={this.onReloadClick}>
               {t('Reload')}
             </Button>

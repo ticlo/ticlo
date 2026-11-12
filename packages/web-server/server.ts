@@ -1,15 +1,17 @@
 import {createNodeWebSocket} from '@hono/node-ws';
 import {Hono} from 'hono';
-import {Root} from '@ticlo/core';
+import {cors} from 'hono/cors';
+import {DefinedBlock, Root} from '@ticlo/core';
 import {WsServerConnection, RestServerConnection} from '@ticlo/node';
 import {decodeReviver} from '@ticlo/core/util/Serialize.ts';
-import {ServerFunction} from './ServerFunction.ts';
+import {requestHandlerSymbol, ServerFunction} from './ServerFunction.ts';
 import {HonoRequestData, HonoResponse} from './HttpRequest.ts';
 
 type HonoApp = Hono<any>;
 
 export interface TicloAppOptions {
   app?: HonoApp;
+  root?: Root;
   apiPath?: string;
   editorPath?: string;
   serverBlockName?: string;
@@ -82,24 +84,38 @@ function getRequestData(c: any): HonoRequestData {
 }
 
 /**
- * open a port for the http:server service
+ * Attach the host's HTTP routes to a code-defined global service.
  * @param app
  * @param basePath
  * @param serverBlockName
  */
-export async function routeTiclo(app: HonoApp, basePath: string, serverBlockName: string = '^local-server') {
+export async function routeTiclo(
+  app: HonoApp,
+  basePath: string,
+  serverBlockName: string = '^web-server',
+  root = Root.instance
+) {
   if (!serverBlockName.startsWith('^')) {
     serverBlockName = '^' + serverBlockName;
   }
-  const globalServiceBlock = Root.instance._globalRoot.createBlock(serverBlockName, true);
-  // This service is provided by the host, even when stored #global flows are disabled.
-  globalServiceBlock._load({'#is': ''});
-  const service = new ServerFunction(globalServiceBlock);
-  service.run();
+  const existing = root._globalRoot.getValue(serverBlockName);
+  // The host owns this service; the ordinary server function's lifecycle is separate.
+  const service =
+    existing instanceof DefinedBlock
+      ? (existing.getValue('#output') as ServerFunction['service'])
+      : new ServerFunction().service;
+  if (existing instanceof DefinedBlock && typeof service?.[requestHandlerSymbol] !== 'function') {
+    throw new Error(`Global definition is not an HTTP server: ${serverBlockName}`);
+  }
+  if (!(existing instanceof DefinedBlock)) {
+    root.defineGlobal(serverBlockName, {'#is': 'web-server:server', '#output': service});
+  }
 
   app.all(`${basePath}/*`, async (c) => {
+    const requestHandler = service?.[requestHandlerSymbol];
+    if (!requestHandler) return c.body(null, 404);
     const res = new HonoResponse();
-    Promise.resolve(service.requestHandler(basePath, getRequestData(c), res)).catch(() => res.code(400).send());
+    Promise.resolve(requestHandler(basePath, getRequestData(c), res)).catch(() => res.code(400).send());
     return res.response;
   });
 }
@@ -109,15 +125,15 @@ export async function routeTiclo(app: HonoApp, basePath: string, serverBlockName
  * @param app
  * @param routeTicloPath
  */
-export async function connectTiclo(app: HonoApp, routeTicloPath: string) {
-  const restServer = new RestServerConnection(Root.instance);
+export async function connectTiclo(app: HonoApp, routeTicloPath: string, root = Root.instance) {
+  const restServer = new RestServerConnection(root);
   const {injectWebSocket, upgradeWebSocket} = createNodeWebSocket({app});
 
   app.get(
     routeTicloPath,
     upgradeWebSocket(() => ({
       onOpen(_event, ws) {
-        new WsServerConnection(ws.raw as any, Root.instance);
+        new WsServerConnection(ws.raw as any, root);
       },
     }))
   );
@@ -141,24 +157,15 @@ export async function connectTiclo(app: HonoApp, routeTicloPath: string) {
 
 export async function createTicloApp(options: TicloAppOptions = {}): Promise<TicloApp> {
   const app = options.app ?? new Hono();
+  const root = options.root ?? Root.instance;
 
   if (options.cors !== false) {
-    app.use('*', async (c, next) => {
-      if (c.req.header('upgrade') === 'websocket') {
-        return next();
-      }
-      c.header('Access-Control-Allow-Origin', '*');
-      c.header('Access-Control-Allow-Headers', 'content-type');
-      c.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-      if (c.req.method === 'OPTIONS') {
-        return c.body(null, 204);
-      }
-      await next();
-    });
+    const corsMiddleware = cors({allowMethods: ['GET', 'POST', 'OPTIONS'], allowHeaders: ['Content-Type']});
+    app.use('*', (c, next) => (c.req.header('upgrade') === 'websocket' ? next() : corsMiddleware(c, next)));
   }
 
-  const ticloWs = options.enableEditor ? await connectTiclo(app, options.editorPath ?? '/ticlo') : undefined;
-  await routeTiclo(app, options.apiPath ?? '/api', options.serverBlockName);
+  await routeTiclo(app, options.apiPath ?? '/api', options.serverBlockName, root);
+  const ticloWs = options.enableEditor ? await connectTiclo(app, options.editorPath ?? '/ticlo', root) : undefined;
 
   if (options.rootRoute !== false) {
     app.get('/', (c) => c.text(''));

@@ -4,8 +4,44 @@ import {NoSerialize} from '../../util/NoSerialize.ts';
 import {Logger} from '../../util/Logger.ts';
 import {makeLocalConnection} from '../LocalConnection.ts';
 import {AsyncClientPromise} from './AsyncClientPromise.ts';
+import {isDataTruncated} from '../../util/DataTypes.ts';
 
 describe('LocalConnection', () => {
+  it.each([true, false])(
+    'keeps preview limits per connection and across reconnect (serialize=%s)',
+    async (serialize) => {
+      const root = new Root();
+      const value = 'x'.repeat(1200);
+      root.addFlow('Main', {value});
+      const [, small] = makeLocalConnection(root, false, undefined, serialize, {maxMessageSize: 256, maxValueSize: 64});
+      const [, large] = makeLocalConnection(root, false, undefined, serialize, {
+        maxMessageSize: 8192,
+        maxValueSize: 4096,
+      });
+      const smallValues = new AsyncClientPromise();
+      const largeValues = new AsyncClientPromise();
+      try {
+        small.subscribe('Main.value', smallValues);
+        large.subscribe('Main.value', largeValues);
+        const preview = (await smallValues.promise).cache.value;
+        expect(isDataTruncated(preview)).toBe(true);
+        expect((await largeValues.firstPromise).cache.value).toBe(value);
+        expect((await small.getValue('Main.value')).value).toBe(value);
+
+        const reconnected = smallValues.promise;
+        small.onDisconnect();
+        small.reconnect();
+        expect((await reconnected).cache.value).toBe(preview);
+      } finally {
+        smallValues.cancel();
+        largeValues.cancel();
+        small.destroy();
+        large.destroy();
+        root.destroy();
+      }
+    }
+  );
+
   it('serializes values by default to match remote connections', async () => {
     const root = new Root();
     const flow = root.addFlow('Main');

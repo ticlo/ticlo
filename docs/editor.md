@@ -1,5 +1,12 @@
 # Editor
 
+Commands with parameters or named results open a submenu with local value editors,
+an explicit Run button, and readonly results. Opening or editing a command does
+not execute it. Draft values and results stay in the browser and do not modify
+Flow properties. The `editValue(value, desc, onChange?)` layout action opens a local
+text/object editor; omitting `onChange` makes it readonly. Table editors also accept
+local values without a connection or property paths.
+
 ## Current stage and commands
 
 `TicloApp` owns a registry of views. Each `TicloStage` has a stable unique `id`
@@ -18,6 +25,10 @@ or declined commands do not fall through. External controls use `runStageCommand
 when its path already matches. Designer-specific activation and input are in
 [designer](designer.md#selection-and-commands).
 
+Block Stage status subscribes to each Block's `#emit` and `#wait`. Error values
+use the [core error contract](core.md#errors-and-runtime-status); status updates
+do not invalidate the Block's body or the stage.
+
 ## Property editors
 
 Descriptor `type` selects an editor from the
@@ -29,6 +40,11 @@ read-only. Common types include `number`, `string`, `toggle`, `select`,
 Use `toggle` for booleans and Luxon `DateTime` for dates; `bool`, `datetime`,
 and `js` are not value-editor types. `any` treats two dates as an array;
 choose `date-range` explicitly for range editing.
+
+Service providers expose their runtime objects through readonly `object`
+outputs. A consuming `service` input uses `options` as source-function tags;
+its picker discovers `^`-prefixed global Blocks with matching tags and binds to
+their `#output`.
 
 Descriptors, bindings, and connection policies determine editability. Flow-local
 descriptors require the owning `funcModule` path; see
@@ -44,6 +60,11 @@ Optional/custom fields and `#extend` preserve unlisted data; functions with
 local to the function type, including its module path for local functions;
 suggestions do not enable fields. Ranking and cache limits are implementation
 choices in [OptionalPropertyHistory](../packages/editor/property/OptionalPropertyHistory.ts).
+
+Property value trees use array preview lengths to select nested arrays without
+first downloading the enclosing object. Truncated arrays of at least 1000 items
+load pages as their last loaded item scrolls into view; smaller arrays read the
+selected value directly. Page boundary mismatches stop loading until reloaded.
 
 ## Table editor
 
@@ -61,11 +82,16 @@ remain supported, with string keys for object rows and nonnegative integer keys
 for array rows. Unlisted fields are preserved. New rows use `init`; `default`
 affects display only.
 
+Tables read pages as the user scrolls and render visible rows virtually.
+Editing stays disabled until all rows have loaded. Object arrays without an
+explicit schema infer columns from the first and last rows of the whole table;
+scanning all loaded rows can reveal additional columns. See
+[paged reads](core.md#connection-layer) for the continuity contract.
+
 Edits remain in a draft until the complete value is committed to the original
-property paths. Connected properties load their full value before editing.
-External changes require reloading the draft before submission. Inline worker
-cells remain in the draft; named workers save to their module. Property and
-column permissions apply throughout.
+property paths. External changes require reloading the draft before submission.
+Inline worker cells remain in the draft; named workers save to their module.
+Property and column permissions apply throughout.
 
 ## File manager
 

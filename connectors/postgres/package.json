@@ -1,0 +1,17 @@
+{
+  "name": "@ticlo/postgres",
+  "version": "0.0.14",
+  "description": "Node.js PostgreSQL connector for Ticlo",
+  "license": "MPL-2.0",
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "dependencies": {
+    "@ticlo/core": "workspace:^",
+    "pg": "^8.23.1",
+    "pg-connection-string": "^2.14.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
+  }
+}

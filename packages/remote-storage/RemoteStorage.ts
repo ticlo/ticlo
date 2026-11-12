@@ -15,7 +15,8 @@ import {
   type ProjectGit,
   type ProjectMetadata,
 } from '@ticlo/core/storage/FileAccess.ts';
-import {BrowserStorage} from './BrowserStorage.ts';
+import {BrowserStorage, isBrowserLocalPath} from './BrowserStorage.ts';
+import {BROWSER_LOCAL_LIBRARY} from './LocalProjectFiles.ts';
 import {LocalFileBackups, type LocalFileBackup} from './LocalFileBackups.ts';
 
 export interface RemoteStorageOptions {
@@ -293,19 +294,19 @@ export class RemoteStorage extends BrowserStorage implements ProjectGit, LocalBa
 
   discardLocalBackup(path: string) {
     filePath(path);
-    if (path === 'local' || path.startsWith('local/'))
+    if (isBrowserLocalPath(path))
       throw new StorageError('Local project files do not have remote backups', 'invalid-path');
     return this.projectFiles.discardLocalBackup(path);
   }
 
   async readProject(id: string, options?: FileRequest): Promise<ProjectMetadata> {
     projectId(id);
-    if (id === 'local') return super.readProject(id, options);
+    if (id === BROWSER_LOCAL_LIBRARY) return super.readProject(id, options);
     return (await this.projectFiles.request('readProj', {id}, undefined, options)).json();
   }
   async createProject(id: string, metadata: Record<string, unknown> = {}): Promise<ProjectMetadata> {
     projectId(id);
-    if (id === 'local') return super.createProject(id, metadata);
+    if (id === BROWSER_LOCAL_LIBRARY) return super.createProject(id, metadata);
     try {
       await this.getFileInfo(id);
     } catch (error) {
@@ -319,7 +320,7 @@ export class RemoteStorage extends BrowserStorage implements ProjectGit, LocalBa
   }
   async updateProject(id: string, metadata: Record<string, unknown>): Promise<ProjectMetadata> {
     projectId(id);
-    if (id === 'local') return super.updateProject(id, metadata);
+    if (id === BROWSER_LOCAL_LIBRARY) return super.updateProject(id, metadata);
     const previous = await this.readProject(id);
     const value = await (
       await this.projectFiles.request('updateProj', {id}, JSON.stringify({...previous, ...metadata, id}))
@@ -329,13 +330,13 @@ export class RemoteStorage extends BrowserStorage implements ProjectGit, LocalBa
   }
   async deleteProject(id: string) {
     projectId(id);
-    if (id === 'local') return super.deleteProject(id);
+    if (id === BROWSER_LOCAL_LIBRARY) return super.deleteProject(id);
     await this.projectFiles.request('deleteProj', {id});
     this.fileChanged(id);
   }
 
   supportsGit(project: string) {
-    return project !== 'local';
+    return project !== BROWSER_LOCAL_LIBRARY;
   }
   private async gitRequest(
     operation: string,
@@ -399,8 +400,7 @@ export class RemoteStorage extends BrowserStorage implements ProjectGit, LocalBa
   }
   async restoreGitFile(path: string, options?: FileRequest): Promise<void> {
     filePath(path);
-    if (path === 'local' || path.startsWith('local/'))
-      throw new StorageError('Git is not available for local files', 'readonly');
+    if (isBrowserLocalPath(path)) throw new StorageError('Git is not available for local files', 'readonly');
     await this.projectFiles.request('gitRestore', {path: `proj/${path}`}, undefined, options);
     this.fileChanged(path);
   }

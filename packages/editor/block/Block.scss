@@ -1,4 +1,5 @@
 @use '../style/variables' as *;
+@use '../style/icon-font';
 
 .ticl-e-block {
   box-sizing: border-box;
@@ -152,6 +153,54 @@ body:not(.dock-dragging) {
   position: relative;
   height: 22px;
   padding: 2px 12px;
+}
+
+.ticl-e-block-status {
+  position: absolute;
+  left: 4px;
+  bottom: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 16px;
+  line-height: 1;
+}
+
+.ticl-e-block-wait,
+.ticl-e-block-error {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.ticl-e-block-wait {
+  font-family: icon-font.$family;
+  font-size: 14px;
+}
+
+.ticl-e-block-error {
+  border-radius: 50%;
+  background: var(--ant-color-error, #ff4d4f);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.ticl-e-block-min > .ticl-e-block-status {
+  left: -3px;
+  bottom: -3px;
+}
+
+.ticl-e-block-error-message {
+  max-width: 360px;
+  max-height: 240px;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .ticl-e-width-drag {

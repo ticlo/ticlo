@@ -10,6 +10,8 @@ import {
   type FileWriteOptions,
 } from '@ticlo/core/storage/FileAccess.ts';
 
+export const BROWSER_LOCAL_LIBRARY = 'BrowserLocal';
+
 interface Entry extends FileEntry {
   parent: string;
   revision?: string;
@@ -89,7 +91,7 @@ export class LocalProjectFiles extends FileAccessBase {
     }
   }
   private root(): Entry {
-    return {path: '', name: 'local', parent: '', type: 'folder'};
+    return {path: '', name: BROWSER_LOCAL_LIBRARY, parent: '', type: 'folder'};
   }
   private async entry(entries: IDBObjectStore, path: string): Promise<Entry> {
     filePath(path, true);

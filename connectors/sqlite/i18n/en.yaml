@@ -1,0 +1,13 @@
+'@library':
+  sqlite:
+    '@name': SQLite
+client:
+  '@name': Client
+  filePath:
+    '@name': File Path
+  readOnly:
+    '@name': Read Only
+  busyTimeout:
+    '@name': Busy Timeout
+  foreignKeys:
+    '@name': Foreign Keys

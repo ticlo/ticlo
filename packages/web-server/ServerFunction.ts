@@ -14,6 +14,8 @@ import {Resolver} from '@ticlo/core/block/Resolver.ts';
 const serviceId: Uid = new Uid();
 export const requestHandlerSymbol = Symbol('requestHandler');
 
+type ServerService = RouteService & {[requestHandlerSymbol]: ServerFunction['requestHandler']};
+
 export class ServerFunction extends BaseFunction<Block> {
   strictRoute: Map<string, Set<RouteFunction>> = new Map();
   wildcardRoute: Map<string, Set<RouteFunction>> = new Map();
@@ -126,7 +128,7 @@ export class ServerFunction extends BaseFunction<Block> {
     emitTask();
   };
 
-  service: RouteService = escapedObject(`server-${serviceId.next(10)}`, {
+  service: ServerService = escapedObject(`server-${serviceId.next(10)}`, {
     addRoute: (path: string, routeFunction: RouteFunction) => {
       const [targetRoute, targetPath] = this.chooseRouteType(path);
       let routes: Set<RouteFunction> = targetRoute.get(targetPath);

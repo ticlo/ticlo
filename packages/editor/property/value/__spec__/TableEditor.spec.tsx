@@ -6,6 +6,7 @@ import {blankFuncDesc, Root, type PropDesc, type Flow} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.ts';
 import {defaultWorkerData} from '@ticlo/core/defaults/DefaultFlows.ts';
+import {truncateData} from '@ticlo/core/util/DataTruncate.ts';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 import {initEditor} from '../../../index.ts';
 import {loadTemplate, removeLastTemplate} from '../../../util/test-util.ts';
@@ -64,6 +65,12 @@ const button = (name: string) => page.getByRole('button', {name, exact: true});
 const rows = () => Array.from(document.querySelectorAll<HTMLElement>('.ticl-e-table-editor .ant-table-row'));
 const confirm = () =>
   document.querySelector<HTMLButtonElement>('.ticl-e-table-editor .ticl-e-box-footer .ant-btn-primary');
+
+function scrollToEnd() {
+  const holder = document.querySelector<HTMLElement>('.ant-table-tbody-virtual-holder');
+  holder.scrollTop = holder.scrollHeight;
+  holder.dispatchEvent(new Event('scroll'));
+}
 
 async function open() {
   let trigger: HTMLButtonElement;
@@ -497,6 +504,7 @@ describe('TableEditor', () => {
     const items = Array.from({length: 15}, (_, count) => ({label: `Row ${count}`, count, hidden: 'x'.repeat(300)}));
     const flow = Root.instance.addFlow('TableEditorTest', {data: {'#is': '', items}});
     const [, conn] = makeLocalConnection(Root.instance, true);
+    const getPage = vi.spyOn(conn, 'getValuePage');
     let layout: DockLayout;
     loadTemplate(
       <TicloLayoutContextType.Provider value={{editTable: (props) => TableEditor.openFloatPanel(layout, props)}}>
@@ -520,10 +528,163 @@ describe('TableEditor', () => {
       'editor'
     );
     await open();
-    expect(rows()).toHaveLength(15);
+    expect(getPage).not.toHaveBeenCalled();
     await fillCell(0, 'Updated');
     await button('OK').click();
     await shouldHappen(() => (flow.queryValue('data.items') as typeof items)[0].label === 'Updated');
     expect(flow.queryValue('data.items')).toEqual([{...items[0], label: 'Updated'}, ...items.slice(1)]);
+  });
+
+  it('appends pages on scroll and only enables editing after every row is loaded', async () => {
+    const items = Array.from({length: 1015}, (_, id) => ({label: `Row ${id}`}));
+    Object.assign(items.at(-1), {tail: 'Last column'});
+    const flow = Root.instance.addFlow('TableEditorTest', {data: {'#is': '', items}});
+    const [, conn] = makeLocalConnection(Root.instance, true);
+    const getPage = vi.spyOn(conn, 'getValuePage');
+    const getValue = vi.spyOn(conn, 'getValue');
+    mount({
+      conn,
+      keys: ['TableEditorTest.data'],
+      value: truncateData(items)[0],
+      onChange: vi.fn(),
+      desc: {name: 'items', type: 'table'},
+    });
+    await open();
+    expect(getPage).toHaveBeenCalledExactlyOnceWith('TableEditorTest.data.items', {
+      select: undefined,
+      offset: 0,
+      limit: 1000,
+    });
+    expect(getValue).not.toHaveBeenCalled();
+    expect(document.querySelector('.ant-table-thead').textContent).toContain('tail');
+    expect(confirm().disabled).toBe(true);
+    await activateCell(0);
+    expect(rows()[0].querySelector('textarea')).toBeNull();
+
+    const settings = document.querySelector<HTMLElement>('button[title="Rows per request"]');
+    await userEvent.click(settings);
+    let input: HTMLInputElement;
+    await shouldHappen(() => (input = document.querySelector('.ticl-e-table-add-column .ant-input-number-input')));
+    await userEvent.fill(input, '5');
+    await userEvent.tab();
+    expect(input.value).toBe('10');
+    await userEvent.click(settings);
+    scrollToEnd();
+    await shouldHappen(
+      () =>
+        getPage.mock.calls.length === 2 &&
+        document.querySelector('.ticl-e-table-toolbar').textContent.includes('1010 / 1015')
+    );
+    expect(getPage.mock.calls[1][1]).toEqual({
+      select: undefined,
+      offset: 1000,
+      limit: 10,
+      anchor: {label: 'Row 999'},
+    });
+    expect(confirm().disabled).toBe(true);
+    scrollToEnd();
+    await shouldHappen(() => !confirm().disabled);
+    expect(getPage.mock.calls.map(([, options]) => options.offset)).toEqual([0, 1000, 1010]);
+    expect(getValue).not.toHaveBeenCalled();
+    const holder = document.querySelector<HTMLElement>('.ant-table-tbody-virtual-holder');
+    holder.scrollTop = 0;
+    holder.dispatchEvent(new Event('scroll'));
+    await shouldHappen(() => rows()[0]?.textContent.includes('Row 0'));
+    await fillCell(0, 'Edited');
+    await button('OK').click();
+    await shouldHappen(() => (flow.queryValue('data.items') as any[])[0].label === 'Edited');
+    expect(flow.queryValue('data.items')).toEqual([{label: 'Edited'}, ...items.slice(1)]);
+  });
+
+  it('detects an in-place boundary mutation on a connection that passes references', async () => {
+    const items = Array.from({length: 1005}, (_, id) => ({label: `Row ${id}`}));
+    const flow = Root.instance.addFlow('TableEditorTest', {data: {'#is': '', items}});
+    const [, conn] = makeLocalConnection(Root.instance, true, undefined, false);
+    const getPage = vi.spyOn(conn, 'getValuePage');
+    mount({conn, keys: ['TableEditorTest.data'], value: items, onChange: vi.fn()});
+    await open();
+    (flow.queryValue('data.items') as typeof items)[999].label = 'Changed boundary';
+    scrollToEnd();
+    await shouldHappen(() => document.querySelector('.ticl-e-error-message')?.textContent.includes('Value changed'));
+    expect(confirm().disabled).toBe(true);
+    expect(getPage).toHaveBeenCalledTimes(2);
+    scrollToEnd();
+    await waitTick(20);
+    expect(getPage).toHaveBeenCalledTimes(2);
+  });
+
+  it('fills a viewport before waiting for further scrolls', async () => {
+    mount({value: Array.from({length: 1005}, (_, id) => ({label: `Row ${id}`}))});
+    await open();
+    const settings = document.querySelector<HTMLElement>('button[title="Rows per request"]');
+    await userEvent.click(settings);
+    let input: HTMLInputElement;
+    await shouldHappen(() => (input = document.querySelector('.ticl-e-table-add-column .ant-input-number-input')));
+    await userEvent.fill(input, '10');
+    await userEvent.tab();
+    await userEvent.click(settings);
+    await button('Reload').click();
+    await shouldHappen(() => document.querySelector('.ticl-e-table-toolbar').textContent.includes('20 / 1005'));
+    scrollToEnd();
+    await shouldHappen(() => document.querySelector('.ticl-e-table-toolbar').textContent.includes('30 / 1005'));
+  });
+
+  it('discards a pending continuation when the table is reloaded', async () => {
+    const items = Array.from({length: 1005}, (_, id) => ({label: `Row ${id}`}));
+    const flow = Root.instance.addFlow('TableEditorTest', {data: {'#is': '', items}});
+    const [, conn] = makeLocalConnection(Root.instance, true);
+    const getPage = vi.spyOn(conn, 'getValuePage');
+    mount({conn, keys: ['TableEditorTest.data'], value: truncateData(items)[0], onChange: vi.fn()});
+    await open();
+    let finish: (page: any) => void;
+    getPage.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        })
+    );
+    scrollToEnd();
+    await shouldHappen(() => Boolean(finish));
+    flow.queryProperty('data.items').setValue([{label: 'Replacement'}]);
+    await button('Reload').click();
+    await shouldHappen(() => !confirm().disabled);
+    finish({items: items.slice(1000), offset: 1000, total: 1005});
+    await waitTick(20);
+    await fillCell(0, 'Saved');
+    await button('OK').click();
+    await shouldHappen(() => (flow.queryValue('data.items') as any[])[0].label === 'Saved');
+    expect(flow.queryValue('data.items')).toEqual([{label: 'Saved'}]);
+  });
+
+  it('pages matrix rows separately and preserves current metadata on save', async () => {
+    const value = {
+      columns: [{name: 'label', type: 'string'}],
+      rows: Array.from({length: 1005}, (_, id) => [`Row ${id}`]),
+      note: 'Original',
+    };
+    const flow = Root.instance.addFlow('TableEditorTest', {data: {'#is': '', 'items': value}});
+    const [, conn] = makeLocalConnection(Root.instance, true);
+    const getPage = vi.spyOn(conn, 'getValuePage');
+    const getValue = vi.spyOn(conn, 'getValue');
+    mount({conn, keys: ['TableEditorTest.data'], value, onChange: vi.fn(), desc: {name: 'items', type: 'table'}});
+    await open();
+    expect(getPage.mock.calls[0][1].select).toEqual(['rows']);
+    expect(getValue).toHaveBeenCalledExactlyOnceWith('TableEditorTest.data.items', {select: ['columns']});
+    expect(confirm().disabled).toBe(true);
+    scrollToEnd();
+    await shouldHappen(() => !confirm().disabled);
+    (flow.queryValue('data.items') as typeof value).note = 'Updated metadata';
+    const holder = document.querySelector<HTMLElement>('.ant-table-tbody-virtual-holder');
+    holder.scrollTop = 0;
+    holder.dispatchEvent(new Event('scroll'));
+    await shouldHappen(() => rows()[0]?.textContent.includes('Row 0'));
+    await fillCell(0, 'Saved');
+    await button('OK').click();
+    await shouldHappen(() => (flow.queryValue('data.items') as typeof value).rows[0][0] === 'Saved');
+    expect(flow.queryValue('data.items')).toEqual({
+      ...value,
+      note: 'Updated metadata',
+      rows: [['Saved'], ...value.rows.slice(1)],
+    });
   });
 });

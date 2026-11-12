@@ -1,0 +1,13 @@
+'@library':
+  postgres:
+    '@name': PostgreSQL
+client:
+  '@name': Client
+  connectionString:
+    '@name': Connection URL
+  maxConnections:
+    '@name': Maximum Connections
+  connectionTimeout:
+    '@name': Connection Timeout
+  statementTimeout:
+    '@name': Statement Timeout

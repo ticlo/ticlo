@@ -11,6 +11,8 @@
     '@name': Repeat
   data:
     '@name': Data
+  sql:
+    '@name': SQL
 
 '@shared':
   '':

@@ -1,0 +1,22 @@
+query:
+  '@name': 查询 # translated from: Query
+  client:
+    '@name': SQL 客户端 # translated from: SQL Client
+  sql:
+    '@name': SQL # no translate
+  params:
+    '@name': 参数 # translated from: Parameters
+  affectedRows:
+    '@name': 影响行数 # translated from: Affected Rows
+  insertId:
+    '@name': 插入 ID # translated from: Insert ID
+transaction:
+  '@name': 事务 # translated from: Transaction
+  client:
+    '@name': SQL 客户端 # translated from: SQL Client
+  statements:
+    '@name': 语句 # translated from: Statements
+  affectedRows:
+    '@name': 影响行数 # translated from: Affected Rows
+  insertId:
+    '@name': 插入 ID # translated from: Insert ID

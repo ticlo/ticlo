@@ -1,17 +1,20 @@
-import React from 'react';
-import {Button} from 'antd';
+import React, {useContext} from 'react';
+import {Button, Popover} from 'antd';
 import {CloseOutlined, SaveOutlined} from '@ant-design/icons';
 
 import {DockContext, DockContextType} from 'rc-dock';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.tsx';
-import {ClientConn, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.ts';
+import {ClientConn, ValueSubscriber, ValueUpdate, getDisplayName} from '@ticlo/core/editor.ts';
+import {flowRefFromPath} from '@ticlo/core/block/FlowRuntime.ts';
 import {TabData} from 'rc-dock';
-import {TicloCurrentFlowContext} from '../../component/LayoutContext.ts';
+import {TicloCurrentFlowContext, TicloDefaultLibraryContext} from '../../component/LayoutContext.ts';
 import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
+import {LocalizedNodeName} from '../../component/LocalizedLabel.tsx';
 
 interface Props {
   conn: ClientConn;
-  title: React.ReactNode;
+  title?: React.ReactNode;
+  icon?: React.ReactNode;
   id: string;
   path: string;
   onSave?: () => void;
@@ -20,6 +23,32 @@ interface Props {
 interface State {
   hasChange: boolean;
 }
+
+function tabPopoverPath(path: string, defaultLibrary: string): string | undefined {
+  if (!path || (path.startsWith('+') && !path.includes('.'))) return undefined;
+  const {library, kind, name} = flowRefFromPath(path);
+  if (library !== defaultLibrary) return library === '#root' ? `#root / ${path}` : path;
+  if (name.includes('.')) return kind === 'module' ? `:${name}` : name;
+}
+
+const StageTabTitle = React.memo(function StageTabTitle({path, title, icon}: Pick<Props, 'path' | 'title' | 'icon'>) {
+  const library = useContext(TicloDefaultLibraryContext);
+  const fullPath = tabPopoverPath(path, library);
+  const name = getDisplayName(path.slice(path.lastIndexOf('.') + 1), null);
+  const label = (
+    <span className="ticl-e-stage-panel-tab-title">
+      {icon}
+      {title ?? (name.startsWith('#') ? <LocalizedNodeName name={name} /> : name)}
+    </span>
+  );
+  return fullPath ? (
+    <Popover content={fullPath} placement="bottom">
+      {label}
+    </Popover>
+  ) : (
+    label
+  );
+});
 
 export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
   static contextType = DockContextType;
@@ -59,7 +88,7 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
   };
 
   renderImpl() {
-    const {title, onSave} = this.props;
+    const {path, title, icon, onSave} = this.props;
     const {hasChange} = this.state;
     let closeButtun: React.ReactElement;
     if (onSave && hasChange) {
@@ -93,7 +122,7 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
             className={`ticl-e-stage-panel-tab${currentFlow.activeStage?.id === this.props.id ? ' ticl-e-stage-panel-tab-focused' : ''}`}
             onClick={() => currentFlow.activateStage(this.props.id)}
           >
-            <span className="ticl-e-stage-panel-tab-title">{title}</span>
+            <StageTabTitle path={path} title={title} icon={icon} />
             {onSave && closeButtun}
           </span>
         )}

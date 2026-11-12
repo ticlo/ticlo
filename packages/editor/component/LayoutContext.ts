@@ -46,8 +46,10 @@ export interface TicloLayoutContext<Stage extends TicloStage = TicloStage> exten
   editFlow?(path: string, onSave: () => void): void;
 
   editProperty?(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void;
+  editValue?(value: unknown, desc: PropDesc, onChange?: (value: unknown) => void): void;
   editSchedule?(path: string, scheduleName?: string, index?: number): void;
   editTable?(props: ValueEditorProps): void;
+  manageDatabase?(conn: ClientConn, path: string): void;
 
   showObjectTree?(path: string, value: any, element: HTMLElement, source: any): void;
   closeObjectTree?(path: string, source: any): void;
@@ -79,6 +81,8 @@ export const TicloLayoutContextType = createContext<TicloLayoutContext>({
   unregisterStage: voidFunction,
 });
 export const TicloLayoutContextConsumer = TicloLayoutContextType.Consumer;
+
+export const TicloDefaultLibraryContext = createContext('#root');
 
 // App-provided values change with language, independently of stage snapshots.
 export const TicloI18NContext = createContext<TicloLayoutContext>({});

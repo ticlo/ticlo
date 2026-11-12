@@ -59,14 +59,13 @@ it('shows stored flows in a main library without loading them', async () => {
       basePaths={['']}
       hideRoot
       showStoredFlows
+      expandPaths={['+main']}
       style={{width: 500, height: 500}}
     />,
     'editor'
   );
 
-  const library = await shouldHappen(() => tree?.rootList[0]?.children?.find((item) => item.key === '+main'));
-  library.open();
-  const stored = await shouldHappen(() => tree.rows.find((item) => item.key === '+main.entry'));
+  const stored = await shouldHappen(() => tree?.rows.find((item) => item.key === '+main.entry'));
   await shouldHappen(() => element.textContent.includes('entry'));
   expect(stored).not.toBeInstanceOf(NodeTreeItem);
   expect(root.getFlowState({library: 'main', kind: 'flow', name: 'entry'})).toBe('unloaded');

@@ -1,5 +1,6 @@
 import {Block} from '../block/Block.ts';
 import {BlockIO} from '../block/BlockProperty.ts';
+import {ErrorEvent} from '../block/Event.ts';
 
 export type DataMap = Record<string, unknown>;
 
@@ -17,6 +18,15 @@ export function isDataMap(val: unknown): val is DataMap {
 export const WS_FRAME_SIZE = 0x80000;
 
 export const TRUNCATED = '·∙·'; // '\u00b7\u2219\u00b7'
+
+/** Original length stored after the marker at the end of an array preview. */
+export function getTruncatedArrayLength(value: unknown): number | undefined {
+  if (Array.isArray(value) && value.length >= 2 && value.at(-2) === TRUNCATED) {
+    const length = value.at(-1);
+    if (Number.isSafeInteger(length) && length >= 0) return length;
+  }
+  return undefined;
+}
 
 export function isPrimitiveType(val: unknown) {
   if (val == null) {
@@ -51,10 +61,20 @@ export function isDataTruncated(val: any): boolean {
     return val.endsWith(TRUNCATED);
   }
   if (Array.isArray(val)) {
-    return val.length > 0 && val.at(-1) === TRUNCATED;
+    return getTruncatedArrayLength(val) !== undefined;
   }
   if (val.constructor === Object) {
     return Boolean(val[TRUNCATED]);
+  }
+  if (val instanceof ErrorEvent) {
+    return isDataTruncated(val.type) || isDataTruncated(val.detail);
+  }
+  if (val instanceof Error) {
+    return (
+      isDataTruncated(val.message) ||
+      isDataTruncated(val.name) ||
+      isDataTruncated((val as Error & {code?: unknown}).code)
+    );
   }
   return false;
 }

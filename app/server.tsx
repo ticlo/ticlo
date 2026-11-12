@@ -9,7 +9,7 @@ import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 import '../packages/react/index.ts';
 import '@ticlo/chart';
 import {FrameServerConnection} from '@ticlo/html';
-import {StaticStorage} from '@ticlo/remote-storage';
+import {BROWSER_LOCAL_LIBRARY, StaticStorage} from '@ticlo/remote-storage';
 import {Library} from '@ticlo/core/block/Library.ts';
 
 WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, '+WorkerEditor');
@@ -25,12 +25,12 @@ window.addEventListener('beforeunload', () => {
 
 (async () => {
   await Root.instance.setStorage(new StaticStorage(new URL('./storage', location.href).href));
-  await Root.instance.start({local: {flows: ['**']}});
+  await Root.instance.start({[BROWSER_LOCAL_LIBRARY]: {flows: ['**']}});
 
-  const reactFlow = Root.instance.addFlow('+local.example');
+  const reactFlow = Root.instance.addFlow(`+${BROWSER_LOCAL_LIBRARY}.example`);
   reactFlow.load(reactData);
 
-  const generalFlow = Root.instance.addFlow('+local.example0');
+  const generalFlow = Root.instance.addFlow(`+${BROWSER_LOCAL_LIBRARY}.example0`);
   generalFlow.load(data);
 
   // create some global blocks

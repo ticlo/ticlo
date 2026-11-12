@@ -1,4 +1,6 @@
 '@library':
+  sql:
+    '@name': SQL # no translate
   math:
     '@name': 数学
   string:

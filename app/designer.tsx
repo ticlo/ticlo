@@ -2,7 +2,7 @@ import './styles.ts';
 import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext} from 'react';
 import {App as AntdApp, Switch} from 'antd';
-import {EditOutlined} from '@ant-design/icons';
+import {ContainerFilled, EditOutlined} from '@ant-design/icons';
 import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -21,7 +21,7 @@ import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.tsx';
 import {BlockStageTabButton} from '@ticlo/editor/dock/block/BlockStageTabButton.tsx';
 import {FunctionSelect} from '@ticlo/editor/function-selector/FunctionSelect.tsx';
 import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
-import {RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
+import {BROWSER_LOCAL_LIBRARY, RemoteStorage, StaticStorage} from '@ticlo/remote-storage';
 import type {FileEntry, ProjectFiles} from '@ticlo/core/storage/FileAccess.ts';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {DockLayout, type LayoutBase, type TabDefinitions, type TabData} from 'rc-dock';
@@ -45,6 +45,7 @@ import {useLibrarySelection} from './useLibrarySelection.ts';
 import type {LibrarySelectionOptions} from '@ticlo/editor/library/LibrarySelectDialog.tsx';
 import {createModuleAutoLoad} from './module-auto-load.ts';
 import {initialUrlParams} from './url-state.ts';
+import {usesDesignerStage} from './designer-flow.ts';
 
 const FileVersionContext = React.createContext(0);
 const strictMode = initialUrlParams().has('strictMode');
@@ -61,40 +62,19 @@ function DesignerProperties({conn}: {conn: ClientConnection}) {
   );
 }
 
-function openDesignerFlow(
-  path: string,
-  flow: Flow,
-  conn: ClientConnection,
-  storage: ProjectFiles,
-  layout: DesignerLayoutContext
-) {
-  const onSave = stageReadonly(storage, path)
-    ? null
-    : () => {
-        conn.applyFlowChange(path, undefined, requestCallbacks);
-      };
-  if (flow.getValue('#is') === 'flow:main' || flow.getValue('#is') === 'flow:worker') {
-    layout.designFlow?.(path, onSave);
-  } else {
-    layout.editFlow?.(path, onSave);
-  }
-}
-
 function DesignerFiles({
   root,
-  conn,
   storage,
   project,
-  layout,
+  onOpen,
   onFilesDeleted,
   onFileDiscarded,
   onProjectReset,
 }: {
   root: Root;
-  conn: ClientConnection;
   storage: ProjectFiles;
   project: string;
-  layout: DesignerLayoutContext;
+  onOpen: (path: string) => void;
   onFilesDeleted: (paths: string[]) => Promise<void>;
   onFileDiscarded: (path: string) => Promise<void>;
   onProjectReset: () => Promise<void>;
@@ -103,8 +83,8 @@ function DesignerFiles({
   const open = async (entry: FileEntry) => {
     const target = fileFlowPath(project, entry.path);
     if (!target) throw new Error('This file is not a loadable flow.');
-    const flow = await root.loadFlow(target.ref);
-    openDesignerFlow(target.path, flow, conn, storage, layout);
+    await root.loadFlow(target.ref);
+    onOpen(target.path);
   };
   return (
     <FileManager
@@ -130,6 +110,7 @@ function DesignerHeader({
   onLibraryChange,
   onLibraryUnload,
   onSetDefaultLibrary,
+  onOpen,
 }: {
   language: string;
   onLanguageChange: (language: string) => void;
@@ -141,6 +122,7 @@ function DesignerHeader({
   onLibraryChange: (name: string, options: LibrarySelectionOptions) => Promise<void>;
   onLibraryUnload: (name: string) => Promise<void>;
   onSetDefaultLibrary: (name: string) => Promise<void>;
+  onOpen: (path: string) => void;
 }) {
   const layout = useContext(DesignerLayoutContextType);
   const {currentPath} = useContext(TicloCurrentFlowContext);
@@ -169,7 +151,7 @@ function DesignerHeader({
         onLibraryChange={onLibraryChange}
         onLibraryUnload={onLibraryUnload}
         onSetDefaultLibrary={onSetDefaultLibrary}
-        onOpen={(path, flow) => openDesignerFlow(path, flow, conn, files.storage, layout)}
+        onOpen={onOpen}
         viewItems={viewItems}
       >
         {content}
@@ -214,7 +196,7 @@ class App extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     const {conn, initialFlow} = props;
-    const initialTab = initialFlow ? this.createDesignerTab(initialFlow) : undefined;
+    const initialTab = initialFlow ? this.createFlowTab(initialFlow) : undefined;
     this.tabs = {
       Navigation: {
         group: 'tool',
@@ -273,9 +255,8 @@ class App extends React.PureComponent<Props, State> {
           content: (
             <DesignerFiles
               root={props.root}
-              conn={conn}
               {...props.files}
-              layout={this.ticloContext}
+              onOpen={this.openFlow}
               onFilesDeleted={this.onFilesDeleted}
               onFileDiscarded={this.onFileDiscarded}
               onProjectReset={this.onProjectReset}
@@ -355,28 +336,13 @@ class App extends React.PureComponent<Props, State> {
     this.layout = layout;
   };
 
+  openFlow = (path: string, onSave?: () => void) => this.showTab(this.createFlowTab(path, onSave));
+
   /// implements TicloLayoutContext
   ticloContext: DesignerLayoutContext = {
     language: this.lng,
-    editFlow: (path: string, onSave: () => void) => {
-      if (!this.layout.updateTab(`blockEditor:${path}`, null, true)) {
-        this.layout.dockMove(
-          connectStageTab(
-            BlockStagePane.createDockTab(path, this.conn, this.onSelect, onSave, {
-              defaultShowPropertyList: false,
-            }),
-            stageReadonly(this.props.files?.storage, path)
-          ),
-          'main',
-          'middle'
-        );
-      }
-    },
-    designFlow: (path: string, onSave: () => void) => {
-      if (!this.layout.updateTab(`designer:${path}`, null, true)) {
-        this.layout.dockMove(this.createDesignerTab(path, onSave), 'main', 'middle');
-      }
-    },
+    editFlow: (path, onSave) => this.showTab(this.createDataflowTab(path, onSave)),
+    designFlow: this.openFlow,
 
     ...createLayoutActions(
       () => this.layout,
@@ -394,26 +360,53 @@ class App extends React.PureComponent<Props, State> {
     }
   };
 
-  createDesignerTab(path: string, onSave?: () => void): TabData {
+  private createFlowTab(path: string, onSave?: () => void) {
+    if (onSave === undefined && !stageReadonly(this.props.files?.storage, path)) {
+      onSave = () => this.conn.applyFlowChange(path, undefined, requestCallbacks);
+    }
+    return usesDesignerStage(this.props.root.queryValue(path))
+      ? this.createDesignerTab(path, onSave)
+      : this.createDataflowTab(path, onSave);
+  }
+
+  private showTab(tab: TabData, replace?: string) {
+    if (this.layout.updateTab(tab.id, null, true)) {
+      const previous = replace && (this.layout.find(replace) as TabData | undefined);
+      if (previous) this.layout.dockMove(previous, null, 'remove');
+    } else if (!replace || !this.layout.updateTab(replace, tab, true)) {
+      this.layout.dockMove(tab, 'main', 'middle');
+    }
+  }
+
+  private createDataflowTab(path: string, onSave?: () => void): TabData {
+    return connectStageTab(
+      BlockStagePane.createDockTab(path, this.conn, this.onSelect, onSave, {defaultShowPropertyList: false}),
+      stageReadonly(this.props.files?.storage, path)
+    );
+  }
+
+  private createDesignerTab(path: string, onSave?: () => void): TabData {
     const readonly = stageReadonly(this.props.files?.storage, path);
     const id = `designer:${path}`;
-    const save =
-      onSave ??
-      (() => {
-        this.conn.applyFlowChange(path, undefined, requestCallbacks);
-      });
     return {
       id,
       title: (
         <StageConnection readonly={readonly}>
-          <BlockStageTabButton conn={this.conn} id={id} path={path} title={path} onSave={save} />
+          <BlockStageTabButton conn={this.conn} id={id} path={path} icon={<ContainerFilled />} onSave={onSave} />
         </StageConnection>
       ),
       group: 'main',
-      closable: false,
+      closable: !onSave,
       content: (
         <StageConnection readonly={readonly}>
-          <DesignerStage root={this.props.root} conn={this.conn} basePath={path} stageId={id} onSave={save} />
+          <DesignerStage
+            root={this.props.root}
+            conn={this.conn}
+            basePath={path}
+            stageId={id}
+            onSave={onSave}
+            onOpenDataflow={() => this.showTab(this.createDataflowTab(path, onSave), id)}
+          />
         </StageConnection>
       ),
     };
@@ -443,7 +436,7 @@ class App extends React.PureComponent<Props, State> {
         <StageConnectionContext.Provider value={conn}>
           <EditPolicyProvider conn={conn}>
             <FileVersionContext.Provider value={this.state.fileVersion}>
-              <DesignerApp value={this.ticloContext}>
+              <DesignerApp value={this.ticloContext} defaultLibrary={this.props.files?.project}>
                 <DesignerHeader
                   language={this.lng}
                   onLanguageChange={this.switchLan}
@@ -455,6 +448,7 @@ class App extends React.PureComponent<Props, State> {
                   onLibraryChange={this.props.onLibraryChange}
                   onLibraryUnload={this.props.onLibraryUnload}
                   onSetDefaultLibrary={this.props.onSetDefaultLibrary}
+                  onOpen={this.openFlow}
                 />
                 <DockLayout
                   defaultLayout={this.defaultDockLayout}
@@ -537,28 +531,32 @@ function DesignerWorkspace({
     }
   } else {
     const storage = new StaticStorage(new URL('./storage', location.href).href);
-    const project = selected?.ref.library ?? params.get('project') ?? 'local';
+    const project = selected?.ref.library ?? params.get('project') ?? BROWSER_LOCAL_LIBRARY;
+    const example = `+${BROWSER_LOCAL_LIBRARY}.designer-example`;
     files = {storage, project};
     await root.setStorage(storage);
     if (selected) {
       const sample =
-        selected.path === '+local.designer-example' &&
-        !(await root.listFlows('local')).some(({name}) => name === 'designer-example');
+        selected.path === example &&
+        !(await root.listFlows(BROWSER_LOCAL_LIBRARY)).some(({name}) => name === 'designer-example');
       await root.start({[selected.ref.library]: {flows: sample ? [] : [selected.ref.name]}});
       if (sample) root.addFlow(selected.path, designerData);
       initialFlow = selected.path;
     } else {
       await root.start({[project]: params.has('project') ? {} : {flows: ['**']}});
-      if (project === 'local' && !params.has('project')) {
-        if (!(root.queryValue('+local.designer-example') instanceof Flow)) {
-          root.addFlow('+local.designer-example', designerData);
+      if (project === BROWSER_LOCAL_LIBRARY && !params.has('project')) {
+        if (!(root.queryValue(example) instanceof Flow)) {
+          root.addFlow(example, designerData);
         }
-        initialFlow = params.get('flow') || '+local.designer-example';
+        initialFlow = params.get('flow') || example;
       }
     }
   }
 
-  const [server, client] = makeLocalConnection(root, true, undefined, false);
+  const [server, client] = makeLocalConnection(root, true, undefined, false, {
+    maxMessageSize: Infinity,
+    maxValueSize: Infinity,
+  });
   createRoot(document.getElementById('app')).render(
     <DesignerWorkspace root={root} conn={client} initialFlow={initialFlow} files={files} />
   );

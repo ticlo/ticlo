@@ -11,6 +11,24 @@ Open `editor.html?host=http://127.0.0.1:8010/` to edit its runtime. Browser proj
 use the separate `proj` scope; see [storage routing](remote-storage.md#paths-and-scopes).
 For static-only hosting, see [static storage](static-storage.md).
 
+The server seeds an editable `examples` project in `serv` with a 100,000-row
+table Flow, `+examples.large-table`. Existing example files are preserved; the
+Flow is not auto-loaded by default.
+
+When embedding the HTTP host, create its app before attaching storage so
+`^web-server` exists when global data and flows load:
+
+```ts
+const root = new Root();
+const {app, ticloWs} = await createTicloApp({root, enableEditor: true});
+await root.setStorage(storage);
+await root.start();
+```
+
+`root` defaults to `Root.instance`. See
+[code-defined globals](runtime-lifecycle.md#code-defined-globals) for the service
+and constant lifetime contract.
+
 ## Validation
 
 | Change | Focused check |

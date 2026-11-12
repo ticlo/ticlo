@@ -44,6 +44,10 @@
 }
 
 .ticl-e-stage-panel-tab {
+  .ticl-e-stage-panel-tab-title > .anticon {
+    margin-inline-end: 6px;
+  }
+
   &.ticl-e-stage-panel-tab-focused > .ticl-e-stage-panel-tab-title {
     font-weight: 600;
   }

@@ -251,7 +251,7 @@
   "GET"
  ],
  "path": "/get1",
- "~server": "^local-server.#output"
+ "~server": "^web-server.#output"
 },
 "route-error1": {
  "#is": "web-server:route",
@@ -271,7 +271,7 @@
   "GET"
  ],
  "path": "/error/456",
- "~server": "^local-server.#output"
+ "~server": "^web-server.#output"
 },
 "route-post1": {
  "#is": "web-server:route",
@@ -291,7 +291,7 @@
   "POST"
  ],
  "path": "/post1",
- "~server": "^local-server.#output"
+ "~server": "^web-server.#output"
 },
 "static-response": {
  "#is": "web-server:static-response",

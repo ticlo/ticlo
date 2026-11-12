@@ -18,8 +18,10 @@ interface Props {
   onSelect?: (keys: string[]) => void;
   showMenu?: boolean;
   openActions?: readonly NodeTreeOpenAction[];
+  onOpenStoredFlow?: NodeTreeOpenAction['onOpen'];
   moduleAutoLoad?: ModuleAutoLoad;
   showStoredFlows?: boolean;
+  expandPaths?: string[];
 }
 
 interface State {
@@ -91,7 +93,8 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
     }
   };
   render() {
-    const {conn, basePaths, hideRoot, onSelect, showMenu, openActions, moduleAutoLoad, showStoredFlows} = this.props;
+    const {conn, basePaths, hideRoot, onSelect, showMenu, openActions, moduleAutoLoad, showStoredFlows, expandPaths} =
+      this.props;
     const {selectedKeys} = this.state;
 
     return (
@@ -123,8 +126,9 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
           openActions={openActions}
           moduleAutoLoad={moduleAutoLoad}
           showStoredFlows={showStoredFlows}
+          expandPaths={expandPaths}
           onOpenStoredFlow={(path, canApply) =>
-            this.context.editFlow?.(
+            (this.props.onOpenStoredFlow ?? this.context.editFlow)?.(
               path,
               canApply ? () => conn.applyFlowChange(path, undefined, requestCallbacks) : null
             )

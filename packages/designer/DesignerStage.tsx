@@ -4,6 +4,7 @@ import {FlowWithStatic} from '@ticlo/core/block/StaticBlock.ts';
 import {Button} from 'antd';
 import {useEditPolicy} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {useTicloStage} from '@ticlo/editor/component/useTicloStage.ts';
+import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
 import {ElementMap, TicloPage, revealChild, useValue} from '@ticlo/react';
 import {DesignerSelectionLayer} from './DesignerSelectionLayer.tsx';
@@ -29,6 +30,7 @@ interface Props extends DesignerDropHandlers {
   basePath: string;
   stageId?: string;
   onSave?: () => void;
+  onOpenDataflow?: () => void;
   functionTreeTags?: readonly string[];
   nodeTreeTags?: readonly string[];
 }
@@ -39,6 +41,7 @@ export function DesignerStage({
   basePath,
   stageId,
   onSave,
+  onOpenDataflow,
   onDragOverT,
   onDropT,
   functionTreeTags = defaultFunctionTreeTags,
@@ -139,11 +142,16 @@ export function DesignerStage({
                 </Button>
               ))}
             </div>
+            {onOpenDataflow && (
+              <Button type="link" onClick={onOpenDataflow}>
+                {t('Open with Dataflow Editor')}
+              </Button>
+            )}
           </>
         )}
       </div>
     );
-  }, [flow, policy, conn, basePath, designMode, activate, value]);
+  }, [flow, policy, conn, basePath, designMode, activate, value, onOpenDataflow]);
   return (
     <DragDrop
       className={designMode ? 'ticl-d-stage ticl-d-stage-design' : 'ticl-d-stage'}

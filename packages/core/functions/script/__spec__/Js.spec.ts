@@ -1,7 +1,6 @@
 import {expect} from 'vitest';
 import {Block} from '../../../block/Block.ts';
 import {Flow, Root} from '../../../block/Flow.ts';
-import {WAIT} from '../../../block/Event.ts';
 import {shouldReject, shouldTimeout} from '../../../util/test-util.ts';
 import '../Js.ts';
 
@@ -58,9 +57,12 @@ describe('Js', function () {
     await shouldTimeout(aBlock.waitNextValue('#emit'), 5);
     expect(aBlock.getValue('#emit')).not.toBeDefined();
 
-    aBlock.setValue('#call', {});
-    await shouldTimeout(aBlock.waitNextValue('#emit'), 5); // NOT_READY won't resolve the promise
-    expect(aBlock.getValue('#emit')).toBe(WAIT);
+    for (let i = 0; i < 2; ++i) {
+      aBlock.setValue('#call', {});
+      await shouldTimeout(aBlock.waitNextValue('#emit'), 5);
+      expect(aBlock.getValue('#emit')).not.toBeDefined();
+      expect(aBlock.getValue('#wait')).not.toBeDefined();
+    }
 
     const bBlock = flow.createBlock('b');
     bBlock.setValue('#is', 'js');

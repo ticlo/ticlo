@@ -1,4 +1,5 @@
 export {Block} from './block/Block.ts';
+export {DefinedBlock} from './block/DefinedBlock.ts';
 export {BlockOrder, getBlockOrder} from './block/BlockOrder.ts';
 export {Root, Flow, FlowFolder} from './block/Flow.ts';
 export type {StartOptions, FlowRef, UnloadOptions} from './block/FlowRuntime.ts';
@@ -12,7 +13,8 @@ export * from './block/FunctonData.ts';
 export * from './block/Event.ts';
 export * from './block/Descriptor.ts';
 export {ServerConnection} from './connect/ServerConnection.ts';
-export {type DataMap, TRUNCATED, isStringArray} from './util/DataTypes.ts';
+export type {ConnectionOptions} from './connect/Connection.ts';
+export {type DataMap, TRUNCATED, isDataTruncated, getTruncatedArrayLength, isStringArray} from './util/DataTypes.ts';
 export {convertToObject} from './util/DataTruncate.ts';
 export {forAllPathsBetween} from './util/Path.ts';
 export {encodeDisplay, decode, encode, encodeSorted, decodeReviver} from './util/Serialize.ts';
@@ -35,6 +37,7 @@ export {Uid} from './util/Uid.ts';
 export {escapedObject} from './util/NoSerialize.ts';
 export {arrowReplacer, arrowReviver} from './util/Serialize.ts';
 export {deepEqual, shallowEqual} from './util/Compare.ts';
+export {deepEqualTransport} from './util/TransportValue.ts';
 export {Resolver} from './block/Resolver.ts';
 
 // Export from block subdirectories
@@ -56,6 +59,18 @@ export * from './functions/web-server/RouteFunction.ts';
 
 // Export common data functions
 export * from './functions/data/CreateObject.ts';
+export type {
+  SqlClient,
+  SqlColumn,
+  SqlParams,
+  SqlStatement,
+  SqlResult,
+  SqlTable,
+  SqlEntityRef,
+  SqlEntity,
+  SqlEntityColumn,
+} from './functions/sql/SqlClient.ts';
+export {sqlClientCommands, sqlClientApi} from './functions/sql/SqlClientCommands.ts';
 export * from './property-api/ObjectValue.ts';
 export {moveBlocks} from './property-api/CopyPaste.ts';
 export {deleteBlock} from './property-api/DeleteBlock.ts';
@@ -78,6 +93,7 @@ import './functions/web-server/StaticResponse.ts';
 import './functions/http/CreateHeaders.ts';
 import './functions/http/HttpClient.ts';
 import './functions/http/Fetch.ts';
+import './functions/sql/Query.ts';
 import './functions/script/Js.ts';
 import './functions/data/State.ts';
 import './functions/date/index.ts';

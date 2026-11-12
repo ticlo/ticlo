@@ -331,6 +331,6 @@
   "GET"
  ],
  "path": "/fibonacci",
- "~server": "^local-server.#output"
+ "~server": "^web-server.#output"
 }
 }

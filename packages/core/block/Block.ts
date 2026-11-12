@@ -64,7 +64,7 @@ class PromiseWrapper {
   // REFACTOR(design.md): MUST release rejected async payloads after reporting the failure.
   onError(reason: unknown) {
     if (this._block._funcPromise === this) {
-      this._block.emit(new ErrorEvent('rejected', reason));
+      this._block.emit(reason instanceof ErrorEvent ? reason : new ErrorEvent(ErrorEvent.AsyncError, reason));
       this._block._funcPromise = undefined;
     }
   }
@@ -415,7 +415,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
         } else if (Object.isExtensible(val)) {
           // binding helper
           const name = key.substring(1);
-          this.createHelperBlock(name)._load(val as DataMap);
+          this.getProperty(name)._loadHelper(val as DataMap);
         }
       } else {
         this.getProperty(key)._load(map[key]);
@@ -444,7 +444,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
         } else if (Object.isExtensible(val)) {
           // binding helper
           const name = key.substring(1);
-          this.createHelperBlock(name)._liveUpdate(val as DataMap);
+          this.getProperty(name)._loadHelper(val as DataMap, true);
           loadedFields[name] = true;
           loadedFields[key] = true;
         }
@@ -611,7 +611,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
       try {
         result = this._function.run();
       } catch (err) {
-        result = new ErrorEvent('runtime error', err);
+        result = err instanceof ErrorEvent ? err : new ErrorEvent(ErrorEvent.SyncError, err);
       }
       this._running = false;
       this._called = false;
@@ -640,7 +640,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
         return;
       }
     }
-    const prop = this._props.get('#emit');
+    // Retain failures even when the stage has not subscribed yet.
+    const prop = this._props.get('#emit') ?? (val instanceof ErrorEvent ? this.getProperty('#emit') : undefined);
     if (prop) {
       if (val === undefined) {
         val = new DoneEvent();
@@ -652,7 +653,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   // emit value but maintain the current #wait state
   // REFACTOR(design.md): MUST keep wait state separate from transient event payloads.
   emitOnly(val: unknown) {
-    const prop = this._props.get('#emit');
+    const prop = this._props.get('#emit') ?? (val instanceof ErrorEvent ? this.getProperty('#emit') : undefined);
     if (prop) {
       prop.updateValue(val);
     }

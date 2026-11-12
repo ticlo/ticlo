@@ -25,7 +25,7 @@ function useOpenActions(designFirst = false): NodeTreeOpenAction[] {
 
 export function DesignerNavigationTree(props: React.ComponentProps<typeof NodeTreePane>) {
   const openActions = useOpenActions(true);
-  return <NodeTreePane {...props} openActions={openActions} />;
+  return <NodeTreePane onOpenStoredFlow={openActions[0]?.onOpen} {...props} openActions={openActions} />;
 }
 
 export function DesignerNodeTree() {

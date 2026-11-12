@@ -1,24 +1,29 @@
 import {serve} from '@hono/node-server';
-import {NodeStorage} from '@ticlo/node';
+import {NodeStorage, SecretCipher} from '@ticlo/node';
 import '@ticlo/test';
+import '@ticlo/sqlite';
+import '@ticlo/postgres';
 import {Hono} from 'hono';
 import {cors} from 'hono/cors';
 import {devUserAuth, type AuthProvider} from '@ticlo/file-server';
-import {Root} from '@ticlo/core';
+import {Root, setSecretCipher} from '@ticlo/core';
 import {routeFileStorage} from '@ticlo/web-server/file-storage.ts';
 import {createTicloApp, getEditorUrl} from '@ticlo/web-server/server.ts';
 import {mkdir, writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
+import {initExamples} from './examples.ts';
 
 export async function createServerApp(
   rootDir = fileURLToPath(new URL('./files/', import.meta.url)),
-  authProvider: AuthProvider = () => devUserAuth
+  authProvider: AuthProvider = () => devUserAuth,
+  root = Root.instance
 ) {
   const rootProject = join(rootDir, 'serv/#root');
   if (await mkdir(rootProject, {recursive: true})) {
     await writeFile(join(rootProject, '.proj'), JSON.stringify({id: '#root', name: 'Root'}), {flag: 'wx'});
   }
+  await initExamples(join(rootDir, 'serv'));
 
   const app = new Hono();
   const devCors = cors({exposeHeaders: ['ETag']});
@@ -31,14 +36,16 @@ export async function createServerApp(
       'Ticlo server\n/ticlo — runtime WebSocket and HTTP commands\n/file — project and file storage\n/api/* — flow-defined endpoints\n/health — server health\n'
     )
   );
-  return createTicloApp({app, enableEditor: true, cors: false, rootRoute: false});
+  return createTicloApp({app, root, enableEditor: true, cors: false, rootRoute: false});
 }
 
 async function start() {
-  await Root.instance.setStorage(new NodeStorage(fileURLToPath(new URL('./files/serv/', import.meta.url))));
+  const rootDir = fileURLToPath(new URL('./files/', import.meta.url));
+  await mkdir(rootDir, {recursive: true});
+  setSecretCipher(await SecretCipher.fromFile(join(rootDir, '.ticlo-secret.key')));
+  const {app, ticloWs} = await createServerApp(rootDir);
+  await Root.instance.setStorage(new NodeStorage(join(rootDir, 'serv')));
   await Root.instance.start();
-
-  const {app, ticloWs} = await createServerApp();
 
   const server = serve({fetch: app.fetch, port: 8010, hostname: '127.0.0.1'});
   ticloWs?.injectWebSocket(server);
