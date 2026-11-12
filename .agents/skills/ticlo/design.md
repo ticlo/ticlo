@@ -6,14 +6,15 @@ rewriting or porting Ticlo, implementing its features in another project, or
 borrowing its ideas MUST use this document as the source of truth. Other Ticlo
 documentation and the current code may provide context, but their conflicting
 behavior MUST NOT be copied into a new implementation. `REFACTOR(design.md)`
-comments mark required changes at legacy code locations, not behavior that the
-current code already guarantees. MUST and MUST NOT in this document and those
-comments state requirements for the target implementation.
+comments in `packages/core` mark required changes at legacy code locations, not
+behavior that the current code already guarantees. MUST and MUST NOT in this
+document and those comments state requirements for the target implementation.
 
 Ticlo is a visual dataflow engine. A flow is a graph of blocks connected
-by wires. Events carry values through that graph. The main design goals are
-predictable execution and low memory use: values exist only while they are in
-flight or while a block explicitly retains them.
+by wires, and events carry values through it. Runtime performance is the
+primary design constraint. Keep dispatch, allocations, and memory proportional
+to active work. A value lives only for the part of an operation that needs it
+or in explicitly declared state.
 
 ## Core concepts
 
@@ -45,34 +46,57 @@ A function type defines what happens when its block is created, receives an
 input, and is removed. Initialization may establish resources or emit a source
 event. Input handling may emit zero or more output events. Removal cancels
 pending work, detaches listeners, and releases resources and state. Asynchronous
-work belongs to the block that started it and must not emit after that block is
-removed.
+work belongs to the block that started it. Disablement, replacement, removal,
+and runtime shutdown invalidate completions for the affected operation. Cancel
+or drain the underlying work and release its inputs and results. A database
+client block owns the pool or worker, and each query or transaction owns its
+request resources. Run a transaction on one connection and roll back uncommitted
+changes on failure. Committed writes survive suppression of a stale completion.
 
-Blocks do not get implicit "latest input" or "latest output" storage. A block
-that needs a previous value must declare and manage that state explicitly. This
-keeps retention visible in the function type's contract and lets a flow author
-choose where memory is spent. A function type may define how its explicit state
-is reset or persisted; transient event values are never persisted by default.
+The host installs read-only global configuration and service handles before
+loading saved flows. Saved global data can extend fields that the host leaves
+unclaimed. Host-owned fields keep their identity and values across reloads
+and runtime stop/start. Runtime shutdown detaches consumers and releases
+runtime-owned work. The host controls the lifetime of its services.
+
+Resolve credentials as protected configuration for the owning function.
+Use the host's authenticated codec when persisting credentials. Keep credential
+contents out of ordinary value inspection and diagnostics, including when they
+come from an environment lookup.
+
+Retain the smallest value that future work needs. The function type declares
+its state, capacity, release conditions, and any persistence rules. Input and
+output ports carry transient values and release their references at the last use.
 
 ## Value delivery and memory
 
-When a block emits a value, its output calls the connected binding listeners.
-The output does **not** store the value. Once the listeners have accepted the
-delivery, the block and output release their references to it. A listener or
-scheduler may hold the value only until its queued delivery is handled.
+On emission, hand the value to connected listeners and release the output
+reference. Skip delivery and observer work when there are no recipients.
+Fan-out shares an immutable value. A receiving block copies only the parts
+it needs to mutate. Use graph indexes maintained on edits so the delivery
+path can visit only the affected wires and inputs. Keep graph serialization,
+whole-value copies, and deep comparisons off the generic delivery path.
 
-An input holds its value only while the receiving block uses it. After handling
-finishes, the input deletes its reference. Asynchronous handlers may retain a
-value only for the lifetime of that operation and must release it on completion
-or cancellation. If a block needs the value later, it must copy or transfer it
-into explicit block state. Fan-out deliveries treat a shared value as immutable;
-a block that needs to mutate it must make its own copy.
+An input releases its reference as soon as the handler no longer needs it,
+even if the operation continues asynchronously. Release queued and in-flight
+references when their work finishes or is canceled. Queues bound pending
+work and retained payload volume through admission limits or backpressure.
+Diagnostics and undo history store the metadata they need. The memory
+footprint should track active work and declared state as delivery volume grows.
 
-Queues must have a defined bound or backpressure rule so a fast producer cannot
-create unbounded retained events. Diagnostics, undo history, and debugging tools
-must not quietly retain event payloads. The intended memory footprint is the
-current in-flight work plus explicitly retained state, rather than the history
-of values that passed through the graph.
+Derive wait status from owned work. Produce bounded error summaries on demand
+for observers or declared diagnostic state. Release the original error payload
+after delivery. An error delivered to a flow follows normal event lifetime.
+
+Snapshot subscriptions read configuration or declared state on demand. Event
+observers receive new deliveries. Apply message and value budgets independently.
+Page directly from retained values, validate continuation against the current
+data, and materialize only the requested range. Release inspector read buffers
+when the request finishes and observer caches when the last consumer detaches.
+
+Management commands are policy-checked invocations. Their named results belong
+to the request. An editor view retains only the result data it needs for display
+and releases it on replacement or close.
 
 ## Wire order and routing
 
@@ -85,8 +109,8 @@ For one output emission, deliver its wires in their visible order: top before
 bottom, then left before right. Compare each wire's first route point after the
 source, or its destination port if it has no route point. The editor records
 that order in the wires' metadata and updates it when those positions change.
-The runtime uses the recorded order, with wire ID as a final tie-breaker; it
-never relies on object iteration order, listener registration order, or timing.
+The runtime maintains traversal order when the graph changes and uses the
+recorded order at delivery time, with wire ID as the final tie-breaker.
 Moving a route point changes execution order only if it changes this ordering
 position.
 
@@ -102,6 +126,9 @@ The runtime owns the graph, scheduling, and value lifetimes. The editor owns
 layout and graph-editing commands, while host adapters supply external input
 and output. These parts communicate through explicit graph and event contracts
 so the engine can be implemented without a particular UI or host language.
+The editor chooses the initial view from the loaded graph and its declared page
+entry. View labels and paths are presentation metadata. Editor commands target
+stable graph identities, and each view owns its selection.
 
 A saved flow records its format version, block IDs, fixed function type IDs,
 configuration, block positions, and wires with endpoint IDs, execution order,
@@ -120,10 +147,15 @@ wire order and route points, without resurrecting transient event values.
 An implementation MUST demonstrate the applicable contracts with
 representative flows:
 
-- Repeated large values pass through a chain and fan-out without accumulating
-  output or consumed input references.
+- Measure delivery latency, allocations, and peak memory with repeated large
+  values through chains and fan-out. After draining or canceling work, check that
+  only declared state remains reachable.
 - Stateful behavior retains values only in blocks that explicitly request it,
   and cleanup releases those values.
+- Restarting the runtime preserves host declarations and detaches their old
+  consumers. A canceled database request cannot publish a late result.
+- Reconnecting or paging can inspect retained state without replaying events,
+  and error status remains available without retaining the failed delivery.
 - Simultaneous events and fan-out follow the same visible wire order on repeated
   runs and after save/load.
 - Dragged middle nodes persist, and changing wire geometry preserves or updates

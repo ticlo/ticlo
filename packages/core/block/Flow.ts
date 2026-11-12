@@ -679,6 +679,7 @@ export class Root extends FlowFolder {
     this._props.set('', new BlockConstConfig(this, '', this));
   }
 
+  // REFACTOR(design.md): MUST install host-owned configuration and services before loading the saved graph.
   defineGlobal(name: string, data: DataMap): DefinedBlock {
     if (this._storage || this._globalRoot._loaded) throw new Error('Define global blocks before loading storage');
     if (!name.startsWith('^')) name = `^${name}`;
@@ -686,6 +687,7 @@ export class Root extends FlowFolder {
     return DefinedBlock.create(this._globalRoot, name, data);
   }
 
+  // REFACTOR(design.md): MUST load saved extensions without replacing host-owned fields or starting their services.
   loadGlobal(data: DataMap, applyChange?: FlowLoader['applyChange']) {
     // preload the global settings before loading anything else
     updateGlobalSettings(new DataWrapper(data));

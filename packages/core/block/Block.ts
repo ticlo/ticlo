@@ -479,7 +479,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     this.getProperty(field, val !== undefined)?.updateValue(val);
   }
 
-  // REFACTOR(design.md): MUST emit through the output port without retaining its transient payload.
+  // REFACTOR(design.md): MUST hand off immutable deliveries to connected consumers and release the output reference.
   output(val: unknown, field: string = '#output'): void {
     this.getProperty(field, val !== undefined)?.setOutput(val);
   }
@@ -631,6 +631,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   }
 
   // REFACTOR(design.md): MUST send a transient result through ordered wires and then release its reference.
+  // REFACTOR(design.md): MUST publish compact wait and error status independently of the event payload.
   emit(val: unknown) {
     if (val === WAIT) {
       this.updateValue('#wait', true);
@@ -997,7 +998,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   }
 
   // iterate all BlockIO with a value, ignores all undefined value
-  // REFACTOR(design.md): MUST search only active event inputs and explicitly retained state.
+  // REFACTOR(design.md): MUST distinguish structural child lookups and retained state from handler-scoped input deliveries.
   findFirst(callback: (field: string, value: unknown, prop: BlockIO) => any): unknown {
     if (!this._ioCache) {
       this._initIoCache();
@@ -1089,6 +1090,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     }
     return null;
   }
+  // REFACTOR(design.md): MUST persist credentials as protected configuration through the host codec.
   _saveSecret(): unknown {
     if (this.#secret && this.#secretCipher === undefined) {
       this.#secretCipher = secretCipher;

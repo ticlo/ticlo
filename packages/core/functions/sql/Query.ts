@@ -8,6 +8,7 @@ import type {SqlClient, SqlParams, SqlResult, SqlStatement} from './SqlClient.ts
 abstract class SqlRequestFunction extends BaseFunction {
   private revision = 0;
 
+  // REFACTOR(design.md): MUST release request inputs at last use and retain only result data declared as block state.
   async run() {
     const revision = ++this.revision;
     this.clearOutputs();
@@ -25,6 +26,7 @@ abstract class SqlRequestFunction extends BaseFunction {
 
   protected abstract execute(client: SqlClient): Promise<SqlResult>;
 
+  // REFACTOR(design.md): MUST cancel or drain the request and suppress stale results without changing a committed write.
   cancel() {
     // Discard stale results; canceling a block cannot undo an executed SQL write.
     ++this.revision;

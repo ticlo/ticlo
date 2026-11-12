@@ -243,6 +243,7 @@ export class SubscribeRequest extends MergedClientRequest {
     return super.isEmpty() && this._fullCallbackSet.size === 0;
   }
 
+  // REFACTOR(design.md): MUST recover snapshots on demand and discard stale reads after unsubscribe or reconnect.
   loadFullValue() {
     if (!this._getValuePromise) {
       const version = this._valueVersion;

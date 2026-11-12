@@ -22,6 +22,7 @@ function isObjectRow(value: unknown): value is Record<string, unknown> {
 }
 
 /** Read a complete array slice. The caller checks access to the owning property. */
+// REFACTOR(design.md): MUST validate the transport anchor against retained data and materialize only the requested slice.
 export function readValuePage(value: unknown, {offset, limit, anchor}: ValuePageOptions): ValuePage | string {
   if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(limit) || limit < 1)
     return 'invalid page range';

@@ -652,6 +652,7 @@ export class FlowRuntime {
     }
   }
 
+  // REFACTOR(design.md): MUST toggle runtime-owned global work independently of host-owned service lifetimes.
   private setGlobalsEnabled(enabled: boolean) {
     const globals = this.root._globalRoot;
     if (globals._destroyed) return;
@@ -659,7 +660,7 @@ export class FlowRuntime {
     globals._disabledChanged(globals.getValue('#disabled'));
   }
 
-  // REFACTOR(design.md): MUST release all queued event payloads and owned async work on shutdown.
+  // REFACTOR(design.md): MUST cancel queued deliveries and cancel or drain runtime-owned work on shutdown.
   async stop(options: UnloadOptions = {}) {
     for (const {flow} of this.loaded.values()) this.assertClean(flow, options);
     ++this.generation;

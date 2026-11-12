@@ -35,7 +35,7 @@ export class Resolver implements Runnable {
     this._schedule = schedule;
   }
 
-  // REFACTOR(design.md): MUST admit each event deterministically and enforce the queue's capacity rule.
+  // REFACTOR(design.md): MUST admit events deterministically within bounds for queued work and retained payload volume.
   queueBlock(block: Runnable) {
     if (block._queued) return;
     block._queued = true;

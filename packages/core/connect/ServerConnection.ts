@@ -663,6 +663,7 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Retrieves the current value of the property.
    */
+  // REFACTOR(design.md): MUST read configuration and retained state without preserving consumed events for inspection.
   get({path, select, page}: {path: string; page?: ValuePageOptions} & ValueReadOptions): DataMap | string {
     const property = this.root.queryProperty(path);
     if (property === undefined) return 'invalid path';
@@ -1181,6 +1182,7 @@ export class ServerConnection extends ServerConnectionCore {
   /**
    * Relays a generic block-specific command (`command` parameter) payload down to the Component/Block implementation for executing bespoke logics.
    */
+  // REFACTOR(design.md): MUST target a stable block identity under its policy and keep named results scoped to the request.
   executeCommand({path, command, params}: {path: string; command: string; params: DataMap}) {
     if (typeof command !== 'string') {
       return 'invalid command';
