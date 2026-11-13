@@ -7,8 +7,10 @@ import '@ticlo/chart';
 import '@ticlo/test';
 import './sample-blocks.ts';
 import {initialUrlParams} from './url-state.ts';
+import {mountSecretPreferences} from './SecretPreferences.tsx';
 
 const editors: Window[] = [];
+mountSecretPreferences();
 window.addEventListener('beforeunload', () => {
   for (const editor of editors) {
     if (!editor.closed) {

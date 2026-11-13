@@ -343,6 +343,7 @@ class App extends React.PureComponent<Props, State> {
             <TicloApp value={this.ticloContext} defaultLibrary={this.props.project}>
               <EditorFilesContext.Provider value={this.props.files}>
                 <LibraryMenuHeader
+                  browserSecrets={Boolean(window.opener)}
                   language={this.lng}
                   onLanguageChange={this.switchLan}
                   conn={conn}

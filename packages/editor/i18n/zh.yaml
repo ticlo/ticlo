@@ -26,6 +26,18 @@
 'Library Name': 库名称 # translated from: Library Name
 'Create': 创建 # translated from: Create
 'Load': 加载 # translated from: Load
+'Unload': 卸载 # translated from: Unload
+'Preference': 偏好设置 # translated from: Preference
+'Secret': 密钥 # translated from: Secret
+'Primary': 主密码 # translated from: Primary
+'Set as Primary': 设为主密码 # translated from: Set as Primary
+'New Password': 新密码 # translated from: New Password
+'Add Password': 添加密码 # translated from: Add Password
+'Remove Password': 移除密码 # translated from: Remove Password
+'Set a primary password before saving secrets.': 请先设置主密码，再保存密钥。 # translated from: Set a primary passwo-vqTphzLW
+'Some secrets could not be opened. Add their passwords, then unload and reload the flow.': 部分密钥无法解密。请添加对应的密码，然后卸载并重新加载该流程。 # translated from: Some secrets could n-AwuN5JX5
+'Could not read the browser passwords.': 无法读取浏览器中的密码。 # translated from: Could not read the b-GibGiGq8
+'Could not update the browser passwords.': 无法更新浏览器中的密码。 # translated from: Could not update the-4no6oj6N
 'Dependencies': 依赖项 # translated from: Dependencies
 'View': 视图 # translated from: View
 'Open Flow': 打开数据流 # translated from: Open Flow

@@ -4,15 +4,19 @@ import {flowStoragePath} from '@ticlo/core/util/FlowStoragePath.ts';
 import {type FileAccess, StorageError} from '@ticlo/core/storage/FileAccess.ts';
 import {fileFlowPath} from './flow-path.ts';
 
+export function closeFlowTabs(layout: DockLayout, path: string) {
+  for (const id of [`blockEditor:${path}`, `designer:${path}`]) {
+    const tab = layout.find(id) as TabData | undefined;
+    if (tab) layout.dockMove(tab, null, 'remove');
+  }
+}
+
 export async function unloadDeletedFileFlows(root: Root, layout: DockLayout, project: string, files: string[]) {
   for (const file of files) {
     const target = fileFlowPath(project, file);
     if (!target) continue;
     await root.unloadFlow(target.ref, {discardChanges: true});
-    for (const id of [`blockEditor:${target.path}`, `designer:${target.path}`]) {
-      const tab = layout.find(id) as TabData | undefined;
-      if (tab) layout.dockMove(tab, null, 'remove');
-    }
+    closeFlowTabs(layout, target.path);
   }
 }
 

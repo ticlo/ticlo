@@ -14,6 +14,7 @@ import '@ticlo/html';
 import {data} from './sample-data/data.ts';
 import enEditor from '../i18n/editor/en.json' with {type: 'json'};
 import enCore from '../i18n/core/en.json' with {type: 'json'};
+import {SecretPreferences} from './SecretPreferences.tsx';
 
 function FullscreenButton() {
   const [fullscreen, setFullscreen] = useState(Boolean(document.fullscreenElement));
@@ -64,6 +65,7 @@ function FullscreenButton() {
           <BlockStagePane conn={client} basePath="example" disablePropertyList />
         </TicloApp>
         <FullscreenButton />
+        <SecretPreferences />
       </AntdApp>
     </ConfigProvider>
   );

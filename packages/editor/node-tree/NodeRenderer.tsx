@@ -328,6 +328,7 @@ interface Props {
   onClick: (item: NodeTreeItem, event: React.MouseEvent) => void;
   openActions?: readonly NodeTreeOpenAction[];
   moduleAutoLoad?: ModuleAutoLoad;
+  onUnloadFlow?: (item: NodeTreeItem) => void;
   getOrderedDrag?: (item: NodeTreeItem) => NodeTreeItem[];
   canDropOrdered?: (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => boolean;
   onDropOrdered?: (items: NodeTreeItem[], target: NodeTreeItem, index?: number) => void;
@@ -477,6 +478,18 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         <MenuItem key={action.key} onClick={() => this.openBlock(action)}>
           {action.icon}
           {action.label}
+        </MenuItem>
+      );
+    }
+    const {onUnloadFlow} = this.props;
+    if (
+      onUnloadFlow &&
+      item.functionId === 'flow:main' &&
+      item.getConn().getEditPolicyView().can({cmd: 'unloadFlow', path: item.key})
+    ) {
+      menuItems.push(
+        <MenuItem key="unloadFlow" onClick={() => onUnloadFlow(item)}>
+          {t('Unload')}
         </MenuItem>
       );
     }

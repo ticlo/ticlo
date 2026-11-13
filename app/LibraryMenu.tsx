@@ -229,15 +229,22 @@ export function useLibraryMenu({
 export function LibraryMenuHeader({
   language,
   onLanguageChange,
+  browserSecrets,
   ...props
 }: LibraryMenuProps & {
   language: string;
   onLanguageChange: (language: string) => void;
+  browserSecrets?: boolean;
 }) {
   const menu = useLibraryMenu(props);
   return (
     <>
-      <AppHeader language={language} onLanguageChange={onLanguageChange} libraryItems={menu.items} />
+      <AppHeader
+        language={language}
+        onLanguageChange={onLanguageChange}
+        libraryItems={menu.items}
+        browserSecrets={browserSecrets}
+      />
       {menu.dialogs}
     </>
   );

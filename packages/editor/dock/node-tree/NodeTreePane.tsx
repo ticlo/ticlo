@@ -126,6 +126,7 @@ export class NodeTreePane extends React.PureComponent<Props, State> {
           openActions={openActions}
           moduleAutoLoad={moduleAutoLoad}
           showStoredFlows={showStoredFlows}
+          onFlowUnloaded={this.context.onFlowUnloaded}
           expandPaths={expandPaths}
           onOpenStoredFlow={(path, canApply) =>
             (this.props.onOpenStoredFlow ?? this.context.editFlow)?.(

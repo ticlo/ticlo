@@ -11,6 +11,7 @@ import {designerData} from './sample-data/designer.ts';
 import {EditorWindows} from './EditorWindows.ts';
 import {pageFlowPath} from './flow-path.ts';
 import {initialUrlParams} from './url-state.ts';
+import {SecretPreferences} from './SecretPreferences.tsx';
 
 function Viewer({root, path}: {root: Root; path: string}) {
   const value = useValue(root, path);
@@ -45,7 +46,12 @@ function Viewer({root, path}: {root: Root; path: string}) {
   const editors = new EditorWindows(root);
   (window as typeof window & {openFlowEditor: () => Window | null}).openFlowEditor = () => editors.open(selected.path);
   window.addEventListener('beforeunload', editors.close);
-  createRoot(document.getElementById('app')).render(<Viewer root={root} path={selected.path} />);
+  createRoot(document.getElementById('app')).render(
+    <>
+      <Viewer root={root} path={selected.path} />
+      <SecretPreferences />
+    </>
+  );
 })().catch((error) => {
   console.error(error);
   document.getElementById('app').textContent = `Failed to load viewer: ${error.message}`;

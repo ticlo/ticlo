@@ -1,7 +1,7 @@
 import React from 'react';
 import {App as AntdApp} from 'antd';
 import {afterEach, beforeEach, expect, it, vi} from 'vitest';
-import {Root} from '@ticlo/core';
+import {Root, setSecretCipher} from '@ticlo/core';
 import {MemoryFlowStorage} from '@ticlo/core/block/MemoryFlowStorage.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.ts';
@@ -11,6 +11,7 @@ import {initEditor} from '../../index.ts';
 import {AppTheme} from '../../../../app/AppHeader.tsx';
 import {LibraryMenuHeader, type LibraryFiles} from '../../../../app/LibraryMenu.tsx';
 import {loadLibrarySelection} from '../../../../app/useLibrarySelection.ts';
+import {initBrowserSecretCipher, listSecretPasswords, missingPrimaryPassword} from '@ticlo/remote-storage';
 
 let root: Root;
 let client: ReturnType<typeof makeLocalConnection>[1];
@@ -85,6 +86,47 @@ it('loads a named library through its connection without a file API', async () =
   await choose(await openLibraries(element), 'other');
   await shouldHappen(() => root.getLibraryGraph().roots.includes('other'));
   expect(select).toHaveBeenCalledWith('other', {setDefault: true, unloadOthers: false});
+});
+
+it('opens the same Secret dialog from preferences and a blocked save', async () => {
+  const storageKey = 'ticlo-browser-secret-passwords';
+  const original = localStorage.getItem(storageKey);
+  localStorage.removeItem(storageKey);
+  try {
+    await initBrowserSecretCipher();
+    const {element} = mount();
+    const preferences = await shouldHappen(() =>
+      [...element.querySelectorAll('button')].find((button) => button.textContent === 'Preference')
+    );
+    preferences.dispatchEvent(new MouseEvent('mouseover', {bubbles: true}));
+    const secret = await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ant-dropdown-menu-item')].find(
+        (item) => item.textContent === 'Secret'
+      )
+    );
+    secret.click();
+    const dialog = (await shouldHappen(() => document.querySelector('.ant-modal'))) as HTMLElement;
+    dialog.querySelector<HTMLButtonElement>('.ant-modal-close').click();
+    await shouldHappen(() => !document.querySelector('.ant-modal'));
+
+    const flow = root.addFlow('+main.credential');
+    flow.createBlock('value').setValue('#secret', 'saved value');
+    await expect(client.applyFlowChange('+main.credential')).rejects.toContain(missingPrimaryPassword);
+    const form = await shouldHappen(() => document.querySelector<HTMLFormElement>('.ant-modal form'));
+    const input = form.elements.namedItem('password') as HTMLInputElement;
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, 'dialog password');
+    input.dispatchEvent(new Event('input', {bubbles: true}));
+    await waitTick();
+    form.requestSubmit();
+    await shouldHappen(() => input.value === '');
+    await shouldHappen(() => listSecretPasswords().primary, 2000);
+    await client.applyFlowChange('+main.credential');
+    expect((flow.save().value as Record<string, unknown>)['#secret']).toBeInstanceOf(Uint8Array);
+  } finally {
+    setSecretCipher(undefined);
+    if (original === null) localStorage.removeItem(storageKey);
+    else localStorage.setItem(storageKey, original);
+  }
 });
 
 it('uses a file-only catalog for browsing and creation without changing the runtime', async () => {

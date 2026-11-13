@@ -33,6 +33,7 @@ interface Props {
   moduleAutoLoad?: ModuleAutoLoad;
   showStoredFlows?: boolean;
   onOpenStoredFlow?: (path: string, canApply: boolean) => void;
+  onFlowUnloaded?: (path: string) => void;
 }
 
 export class NodeTree extends LazyUpdateComponent<Props, any> {
@@ -106,6 +107,17 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
       await this.props.conn.setAutoLoadFlow(item.key, !item.autoLoad);
       const dot = item.key.lastIndexOf('.');
       this.props.conn.childrenChangeStream().dispatch({path: dot < 0 ? '' : item.key.slice(0, dot), showNode: true});
+    } catch (error) {
+      requestCallbacks.onError(String(error));
+    }
+  };
+
+  onUnloadFlow = async (item: NodeTreeItem) => {
+    const conn = item.getConn();
+    try {
+      await conn.unloadFlow(item.key);
+      conn.childrenChangeStream().dispatch({path: item.parent?.key ?? ''});
+      if (conn === this.props.conn) this.props.onFlowUnloaded?.(item.key);
     } catch (error) {
       requestCallbacks.onError(String(error));
     }
@@ -294,6 +306,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
         onClick={this.onItemClick}
         openActions={this.props.openActions}
         moduleAutoLoad={this.props.moduleAutoLoad}
+        onUnloadFlow={this.props.showStoredFlows ? this.onUnloadFlow : undefined}
         getOrderedDrag={this.getOrderedDrag}
         canDropOrdered={this.canDropOrdered}
         onDropOrdered={this.onDropOrdered}
