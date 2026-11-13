@@ -18,7 +18,7 @@ export class BaseFunction<T extends FunctionData = FunctionData> {
   isPure: boolean;
 
   constructor(public _data?: T) {}
-  initInputs() {}
+  initInputs(getSecret: () => string | undefined) {}
 
   onCall(val: unknown): boolean {
     return val !== undefined;

@@ -1,11 +1,28 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {Root} from '@ticlo/core';
+import {BaseFunction, Root, decode, globalFunctions, setSecretCipher, type Block} from '@ticlo/core';
+import {aessiv} from '@noble/ciphers/aes.js';
+import {hexToBytes} from '@noble/ciphers/utils.js';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {fileStorageContract} from '@ticlo/core/storage/__spec__/FileStorageContract.ts';
-import {StaticStorage, RemoteStorage} from '../index.ts';
+import {initBrowserSecretCipher, StaticStorage, RemoteStorage} from '../index.ts';
 import {LocalProjectFiles} from '../LocalProjectFiles.ts';
 
 const base = 'https://static.example/files';
+const browserKeyName = 'ticlo-browser-secret-key';
+
+class BrowserSecretTest extends BaseFunction {
+  #getSecret: () => string | undefined;
+
+  initInputs(getSecret: () => string | undefined) {
+    this.#getSecret = getSecret;
+  }
+
+  run() {
+    this._data.output(this.#getSecret());
+  }
+}
+
+globalFunctions.addFactory(BrowserSecretTest, {name: 'browser-secret-test'}, null);
 const files: Record<string, string> = {
   '/files/usr/guest/#global.ticlo': '{"^setting":"guest"}',
   '/files/proj/.list.json': '["main/"]',
@@ -16,7 +33,10 @@ const files: Record<string, string> = {
 describe('mixed browser storage', () => {
   let storage: StaticStorage;
   let root: Root;
+  let originalKey: string | null;
   beforeEach(async () => {
+    originalKey = localStorage.getItem(browserKeyName);
+    localStorage.removeItem(browserKeyName);
     vi.stubGlobal(
       'fetch',
       vi.fn(async (url: string) => {
@@ -31,7 +51,10 @@ describe('mixed browser storage', () => {
   afterEach(async () => {
     root.destroy();
     await storage.close();
+    setSecretCipher(undefined);
     vi.unstubAllGlobals();
+    if (originalKey === null) localStorage.removeItem(browserKeyName);
+    else localStorage.setItem(browserKeyName, originalKey);
   });
   fileStorageContract(() => storage, 'BrowserLocal');
   it('reports successful file writes through the storage instance', async () => {
@@ -75,10 +98,10 @@ describe('mixed browser storage', () => {
       await next.close();
     }
   });
-  it('uses the guest global and denies static/user edits while BrowserLocal remains writable', async () => {
+  it('loads the guest global and keeps static files read-only while BrowserLocal remains writable', async () => {
     await root.setStorage(storage);
-    await root.start({main: {flows: ['entry']}, BrowserLocal: {}});
     expect(root._globalRoot.getValue('^setting')).toBe('guest');
+    await root.start({main: {flows: ['entry']}, BrowserLocal: {}});
     expect(root.queryValue('+main.entry.value')).toBe(1);
     await expect(storage.user.uploadFile('#global.ticlo', 'bad')).rejects.toMatchObject({code: 'readonly'});
     await expect(storage.createDirectory('main/new')).rejects.toMatchObject({code: 'readonly'});
@@ -110,6 +133,106 @@ describe('mixed browser storage', () => {
     const calls = vi.mocked(fetch).mock.calls;
     expect(calls.every(([, options]) => !options?.method || options.method === 'GET')).toBe(true);
     expect(calls.every(([url]) => !String(url).includes('usr/admin'))).toBe(true);
+  });
+  it('persists the browser key encrypted with ticlo and reopens BrowserLocal secrets', async () => {
+    await root.setStorage(storage);
+    const savedKey = localStorage.getItem(browserKeyName);
+    const wrappingKey = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('ticlo')));
+    const key = aessiv(wrappingKey).decrypt(hexToBytes(savedKey));
+    expect(key).toHaveLength(32);
+
+    await root.start({BrowserLocal: {}});
+    const flow = root.addFlow('+BrowserLocal.secrets');
+    const block = flow.createBlock('credential');
+    block.setValue('#secret', '浏览器密码');
+    await flow.applyChange();
+    expect(flow.getValue('@has-change')).toBeUndefined();
+
+    const saved = (await storage.loadFlow('+BrowserLocal.secrets')).credential as Record<string, unknown>;
+    expect(saved['#secret']).toBeInstanceOf(Uint8Array);
+    const {data} = await storage.getFile('BrowserLocal/secrets.ticlo');
+    expect(new TextDecoder().decode(data)).not.toContain('浏览器密码');
+
+    const reopened = new StaticStorage(base);
+    try {
+      root.destroy();
+      root = new Root();
+      await root.setStorage(reopened);
+      await root.start({BrowserLocal: {flows: ['secrets']}});
+      expect(localStorage.getItem(browserKeyName)).toBe(savedKey);
+      expect(root._globalRoot.getValue('^setting')).toBe('guest');
+      const restored = root.queryValue('+BrowserLocal.secrets.credential') as Block;
+      expect(restored._save()).toEqual(saved);
+
+      setSecretCipher(undefined);
+      await initBrowserSecretCipher();
+      const standalone = new Root();
+      try {
+        const flow = standalone.addFlow('dashboard', {credential: {...saved, '#is': 'browser-secret-test'}});
+        standalone.runAll();
+        expect(flow.queryValue('credential.#output')).toBe('浏览器密码');
+        expect((flow.save().credential as Record<string, unknown>)['#secret']).toEqual(saved['#secret']);
+      } finally {
+        standalone.destroy();
+      }
+    } finally {
+      await reopened.close();
+    }
+  });
+  it('reads and writes the server user global with only its Block secret encrypted', async () => {
+    const baseURL = `https://${crypto.randomUUID()}.example/file`;
+    let saved = '{"^setting":"server global"}';
+    let revision = '"initial"';
+    const fetch = vi.fn(async (url: string, init: RequestInit) => {
+      const query = new URL(url).searchParams;
+      const op = query.get('op');
+      if (op === 'user') return Response.json({id: 'alice'});
+      expect(query.get('path')).toBe('usr/alice/#global.ticlo');
+      if (op === 'get') return new Response(saved, {headers: {ETag: revision}});
+      expect(op).toBe('upload');
+      expect(new Headers(init.headers).get('If-Match')).toBe(revision);
+      saved = new TextDecoder().decode(init.body as ArrayBuffer);
+      revision = '"saved"';
+      return new Response('', {headers: {ETag: revision}});
+    });
+    const remote = new RemoteStorage({baseURL, fetch: fetch as typeof globalThis.fetch});
+    const reopened = new RemoteStorage({baseURL, fetch: fetch as typeof globalThis.fetch});
+    const other = new RemoteStorage({baseURL, fetch: fetch as typeof globalThis.fetch});
+    try {
+      await root.setStorage(remote);
+      expect(root._globalRoot.getValue('^setting')).toBe('server global');
+      const block = root._globalRoot.createBlock('credential');
+      block.setValue('#is', 'browser-secret-test');
+      block.setValue('#secret', 'global password');
+      await root._globalRoot.applyChange();
+      const data = decode(saved);
+      expect(data['^setting']).toBe('server global');
+      expect(data.credential['#secret']).toBeInstanceOf(Uint8Array);
+      expect(saved).not.toContain('global password');
+
+      root.destroy();
+      root = new Root();
+      await root.setStorage(reopened);
+      await root.start({BrowserLocal: {flows: []}});
+      root.runAll();
+      expect(root._globalRoot.save()).toEqual(data);
+      expect(root.queryValue('#global.credential.#output')).toBe('global password');
+      expect(fetch.mock.calls.filter(([url]) => new URL(url).searchParams.get('op') === 'get')).toHaveLength(2);
+
+      localStorage.removeItem(browserKeyName);
+      root.destroy();
+      root = new Root();
+      await root.setStorage(other);
+      await root.start({BrowserLocal: {flows: []}});
+      root.runAll();
+      expect(root.queryValue('#global.credential.#output')).toBeUndefined();
+      root._globalRoot.setValue('^setting', 'updated in another browser');
+      await root._globalRoot.applyChange();
+      expect(decode(saved)).toEqual({...data, '^setting': 'updated in another browser'});
+    } finally {
+      await Promise.all([remote.close(), reopened.close(), other.close()]);
+      localStorage.removeItem(`ticlo-file-user:${baseURL}`);
+    }
   });
   it('keeps each flow revision separate from ordinary file-preview reads', async () => {
     await storage.saveFlow(null, {value: 1}, '+BrowserLocal.entry');

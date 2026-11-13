@@ -8,6 +8,7 @@
   "module": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
+    "@noble/ciphers": "^2.4.0",
     "@ticlo/core": "workspace:^",
     "axios": "^1.7.7"
   }

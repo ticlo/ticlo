@@ -79,12 +79,21 @@ the host environment while the saved Flow stores the variable name.
 
 ## Block secrets
 
-`#secret` is a write-only string configuration. The Block's function can read
-it through `_getSecret(this)`. Hosts install a codec with `setSecretCipher()`
-before loading storage to persist secrets. The Node development server
-encrypts them with AES-256-GCM and reuses the key in
-`app/server/files/.ticlo-secret.key` across restarts. Keep the key with the deployment
-when moving saved Flows that contain encrypted secrets.
+`#secret` is a write-only string configuration. The Block passes a `getSecret`
+callback to the function's `initInputs`. A function that needs the secret stores
+the callback in a private field and calls it to read the current value.
+
+Browser runtimes share one AES-SIV codec per page. It uses a random key per
+origin and encrypts the key with the fixed password `ticlo` before storing it in
+`localStorage`. `RemoteStorage` and `StaticStorage` initialize the codec before
+loading Flows. Standalone browser hosts call `initBrowserSecretCipher()` from
+`@ticlo/remote-storage` before loading a Flow. Keep the browser's local storage
+to reopen those secrets.
+
+The Node development server installs its own codec with `setSecretCipher()`
+before loading storage. It uses AES-256-GCM with the key in
+`app/server/files/.ticlo-secret.key`. Keep that key with the deployment when
+moving saved Flows that contain encrypted secrets.
 
 ## Library metadata
 

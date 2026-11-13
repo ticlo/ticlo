@@ -4,6 +4,7 @@ import {createRoot} from 'react-dom/client';
 import {App as AntdApp, Button, ConfigProvider, message} from 'antd';
 import i18next from 'i18next';
 import {Root, addConsoleLogger} from '@ticlo/core';
+import {initBrowserSecretCipher} from '@ticlo/remote-storage';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {initEditor} from '@ticlo/editor';
 import {TicloApp} from '@ticlo/editor/component/TicloApp.tsx';
@@ -53,6 +54,7 @@ function FullscreenButton() {
   i18next.addResourceBundle('en', 'ticlo-core', enCore);
   await i18next.changeLanguage('en');
 
+  await initBrowserSecretCipher();
   Root.instance.addFlow('example', data);
   const [, client] = makeLocalConnection(Root.instance);
   createRoot(document.getElementById('app')).render(

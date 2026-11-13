@@ -1,4 +1,5 @@
 import {ProjectStorage} from '@ticlo/core/storage/ProjectStorage.ts';
+import type {Root} from '@ticlo/core/block/Flow.ts';
 import {
   StorageError,
   filePath,
@@ -9,6 +10,7 @@ import {
   type FileRequest,
   type FileWriteOptions,
 } from '@ticlo/core/storage/FileAccess.ts';
+import {initBrowserSecretCipher} from './BrowserCipher.ts';
 import {BROWSER_LOCAL_LIBRARY, LocalProjectFiles} from './LocalProjectFiles.ts';
 
 const browserLocalPrefix = `${BROWSER_LOCAL_LIBRARY}/`;
@@ -25,6 +27,10 @@ export abstract class BrowserStorage extends ProjectStorage {
     readonly user: FileAccess
   ) {
     super();
+  }
+  override async init(root: Root) {
+    if (typeof window !== 'undefined') await initBrowserSecretCipher();
+    await super.init(root);
   }
   close() {
     return this.local.close();

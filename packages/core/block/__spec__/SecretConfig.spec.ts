@@ -6,9 +6,14 @@ import {Flow, Root} from '../Flow.ts';
 import {expect} from 'vitest';
 
 export class TestSecretFunction extends BaseFunction<Block> {
+  #getSecret: () => string | undefined;
+
+  initInputs(getSecret: () => string | undefined) {
+    this.#getSecret = getSecret;
+  }
+
   run() {
-    const secret = this._data._getSecret(this);
-    this._data.output(secret);
+    this._data.output(this.#getSecret());
   }
   cleanup(): void {
     this._data._setSecret(undefined);

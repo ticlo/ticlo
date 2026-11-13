@@ -15,6 +15,11 @@ import {PostgresClient} from './PostgresClient.ts';
 class PostgresClientFunction extends BaseFunction<Block> {
   private client?: PostgresClient;
   private revision = 0;
+  #getSecret: () => string | undefined;
+
+  initInputs(getSecret: () => string | undefined) {
+    this.#getSecret = getSecret;
+  }
 
   async run() {
     const revision = ++this.revision;
@@ -22,7 +27,7 @@ class PostgresClientFunction extends BaseFunction<Block> {
     this._data.output(undefined);
     const client = await PostgresClient.open({
       connectionString: this._data.getValue('connectionString') as string,
-      password: this._data._getSecret(this) ?? '',
+      password: this.#getSecret() ?? '',
       maxConnections: this._data.getValue('maxConnections') as number | undefined,
       connectionTimeout: this._data.getValue('connectionTimeout') as number | undefined,
       statementTimeout: this._data.getValue('statementTimeout') as number | undefined,

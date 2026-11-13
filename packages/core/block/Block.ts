@@ -23,8 +23,14 @@ export interface BlockChildWatch {
   watchHistory?: boolean;
 }
 
-let secretCipher: {encode: (str: string) => unknown; decode: (data: unknown) => string};
-export function setSecretCipher(cipher: {encode: (str: string) => unknown; decode: (data: unknown) => string}) {
+interface SecretCipher {
+  encode(str: string): unknown;
+  /** Return unreadable ciphertext as bytes to retain it when saving other changes. */
+  decode(data: unknown): string | Uint8Array | undefined;
+}
+
+let secretCipher: SecretCipher;
+export function setSecretCipher(cipher: SecretCipher) {
   secretCipher = cipher;
 }
 
@@ -862,6 +868,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
       this.updateValue('#wait', undefined);
       this.updateValue('#emit', undefined);
       this._called = false;
+      this.#secret = undefined;
     }
     if (factory) {
       if (this._flow._loading && factory !== this._pendingFactory) {
@@ -881,7 +888,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
           this._configMode();
         }
         if (this._function) {
-          this._function.initInputs();
+          this._function.initInputs(this.#getSecret);
           if (this._runOnLoad) {
             const callValue = this.getValue('#call');
             if (callValue !== undefined) {
@@ -1034,8 +1041,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return `͢:Block:${this.getFullPath()}`;
   }
 
-  #secret?: string;
-  #secretCipher: {encode: (str: string) => unknown; decode: (data: unknown) => string};
+  #secret: string | Uint8Array | undefined;
+  #secretCipher: SecretCipher;
   _setSecret(str?: string): boolean {
     if (typeof str === 'string' || str == null) {
       if (this.#secret !== str) {
@@ -1045,14 +1052,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     }
     return false;
   }
-  // only allow the function to access the secret
-  _getSecret(f: BaseFunction): string {
-    if (f === this._function) {
-      return this.#secret;
-    }
-    return null;
-  }
+  #getSecret = () => (typeof this.#secret === 'string' ? this.#secret : undefined);
+
   _saveSecret(): unknown {
+    if (this.#secret instanceof Uint8Array) return this.#secret;
     if (this.#secret && this.#secretCipher === undefined) {
       this.#secretCipher = secretCipher;
     }
@@ -1063,14 +1066,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
       this.#secretCipher = secretCipher;
     }
     if (this.#secretCipher?.decode) {
-      let str = this.#secretCipher?.decode(data);
-      if (typeof str !== 'string') {
-        str = undefined;
-      }
-      if (str !== this.#secret) {
-        this.#secret = str;
-        this.configChanged(this.getProperty('#secret') as BlockConfig, str);
-      }
+      const previous = this.#getSecret();
+      this.#secret = this.#secretCipher.decode(data) ?? undefined;
+      const str = this.#getSecret();
+      if (str !== previous) this.configChanged(this.getProperty('#secret') as BlockConfig, str);
     }
   }
 }
