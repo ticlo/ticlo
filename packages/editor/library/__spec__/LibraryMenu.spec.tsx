@@ -11,7 +11,7 @@ import {initEditor} from '../../index.ts';
 import {AppTheme} from '../../../../app/AppHeader.tsx';
 import {LibraryMenuHeader, type LibraryFiles} from '../../../../app/LibraryMenu.tsx';
 import {loadLibrarySelection} from '../../../../app/useLibrarySelection.ts';
-import {initBrowserSecretCipher, listSecretPasswords, missingPrimaryPassword} from '@ticlo/remote-storage';
+import {initBrowserSecretCipher, listSecretPasswords} from '@ticlo/remote-storage';
 
 let root: Root;
 let client: ReturnType<typeof makeLocalConnection>[1];
@@ -88,13 +88,23 @@ it('loads a named library through its connection without a file API', async () =
   expect(select).toHaveBeenCalledWith('other', {setDefault: true, unloadOthers: false});
 });
 
-it('opens the same Secret dialog from preferences and a blocked save', async () => {
+it('prompts for a password on secret entry and saves after the user re-enters it', async () => {
   const storageKey = 'ticlo-browser-secret-passwords';
   const original = localStorage.getItem(storageKey);
   localStorage.removeItem(storageKey);
   try {
     await initBrowserSecretCipher();
     const {element} = mount();
+    const flow = root.addFlow('+main.credential');
+    const block = flow.createBlock('value');
+    await client.setValue('+main.credential.value.#secret', 'saved value', true);
+    const notice = await shouldHappen(() => document.querySelector('.ant-notification-notice'));
+    expect(notice.textContent).toContain('will be lost when you reopen the flow.');
+    expect(notice.closest('.ant-notification-top')).not.toBeNull();
+    expect(document.querySelector('.ant-modal')).toBeNull();
+    await client.applyFlowChange('+main.credential');
+    expect(block._save()).not.toHaveProperty('#secret');
+
     const preferences = await shouldHappen(() =>
       [...element.querySelectorAll('button')].find((button) => button.textContent === 'Preference')
     );
@@ -105,13 +115,6 @@ it('opens the same Secret dialog from preferences and a blocked save', async () 
       )
     );
     secret.click();
-    const dialog = (await shouldHappen(() => document.querySelector('.ant-modal'))) as HTMLElement;
-    dialog.querySelector<HTMLButtonElement>('.ant-modal-close').click();
-    await shouldHappen(() => !document.querySelector('.ant-modal'));
-
-    const flow = root.addFlow('+main.credential');
-    flow.createBlock('value').setValue('#secret', 'saved value');
-    await expect(client.applyFlowChange('+main.credential')).rejects.toContain(missingPrimaryPassword);
     const form = await shouldHappen(() => document.querySelector<HTMLFormElement>('.ant-modal form'));
     const input = form.elements.namedItem('password') as HTMLInputElement;
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, 'dialog password');
@@ -120,8 +123,10 @@ it('opens the same Secret dialog from preferences and a blocked save', async () 
     form.requestSubmit();
     await shouldHappen(() => input.value === '');
     await shouldHappen(() => listSecretPasswords().primary, 2000);
+    expect(block._save()).not.toHaveProperty('#secret');
+    await client.setValue('+main.credential.value.#secret', 'saved value', true);
     await client.applyFlowChange('+main.credential');
-    expect((flow.save().value as Record<string, unknown>)['#secret']).toBeInstanceOf(Uint8Array);
+    expect(block._save()['#secret']).toBeInstanceOf(Uint8Array);
   } finally {
     setSecretCipher(undefined);
     if (original === null) localStorage.removeItem(storageKey);

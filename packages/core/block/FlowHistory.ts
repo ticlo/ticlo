@@ -53,7 +53,7 @@ export class FlowHistory {
         this._history = [savedData];
       }
     } else {
-      const data = flow.saveSnapshot();
+      const data = flow.save();
       this._hasChange = Boolean(flow.getValue('@has-change'));
       if (!this._hasChange) {
         this._savedData = data;
@@ -78,7 +78,7 @@ export class FlowHistory {
   }
 
   save(preSavedData?: DataMap) {
-    let data = preSavedData ?? this.flow.saveSnapshot();
+    let data = preSavedData ?? this.flow.save();
     if (this.checkAndAdd(data)) {
       this._savedData = data;
     } else {
@@ -90,7 +90,7 @@ export class FlowHistory {
   }
 
   saveCompleted(data: DataMap) {
-    const current = this.flow.saveSnapshot();
+    const current = this.flow.save();
     if (deepEqual(current, data)) return this.save(data);
     // Acknowledging an older snapshot must not move undo history backwards or
     // clear edits made while persistence was pending.
@@ -102,7 +102,7 @@ export class FlowHistory {
 
   undo() {
     if (this._tracking) {
-      this.checkAndAdd(this.flow.saveSnapshot());
+      this.checkAndAdd(this.flow.save());
     }
     if (this._current > 0) {
       --this._current;
@@ -130,7 +130,7 @@ export class FlowHistory {
   }
 
   hasChange() {
-    return !deepEqual(this.flow.saveSnapshot(), this._history[this._current]);
+    return !deepEqual(this.flow.save(), this._history[this._current]);
   }
   // return true when data is changed
   checkAndAdd(data: DataMap) {
@@ -145,7 +145,7 @@ export class FlowHistory {
   }
   _trackChangeCallback = debounce(() => {
     this._tracking = false;
-    this.checkAndAdd(this.flow.saveSnapshot());
+    this.checkAndAdd(this.flow.save());
   }, FlowHistory._debounceInterval);
 
   _tracking = false;

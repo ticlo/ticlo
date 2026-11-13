@@ -16,35 +16,13 @@ import {FunctionData, FunctionOutput} from './FunctonData.ts';
 import {getMaxFlowDepth} from '../util/Settings.ts';
 import {Logger} from '../util/Logger.ts';
 import {Library} from './Library.ts';
-import {SecretSnapshot} from '../util/SecretSnapshot.ts';
+
+export {setSecretCipher} from './BlockConfigs.ts';
 
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;
 
   watchHistory?: boolean;
-}
-
-interface SecretCipher {
-  encode(str: string, snapshot?: boolean): unknown;
-  /** Return unreadable ciphertext as bytes to retain it when saving other changes. */
-  decode(data: unknown): string | Uint8Array | undefined;
-  readonly preserveEncoded?: boolean;
-}
-
-let secretCipher: SecretCipher;
-export function setSecretCipher(cipher: SecretCipher) {
-  secretCipher = cipher;
-}
-
-let savingSecretSnapshot = false;
-export function withSecretSnapshot<T>(save: () => T): T {
-  const previous = savingSecretSnapshot;
-  savingSecretSnapshot = true;
-  try {
-    return save();
-  } finally {
-    savingSecretSnapshot = previous;
-  }
 }
 
 export interface Runnable {
@@ -881,10 +859,6 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
       this.updateValue('#wait', undefined);
       this.updateValue('#emit', undefined);
       this._called = false;
-      if (!this.#secretCipher?.preserveEncoded) {
-        this.#secret = undefined;
-        this.#savedSecret = undefined;
-      }
     }
     if (factory) {
       if (this._flow._loading && factory !== this._pendingFactory) {
@@ -1057,49 +1031,12 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return `͢:Block:${this.getFullPath()}`;
   }
 
-  #secret: string | Uint8Array | undefined;
-  #savedSecret?: Uint8Array | SecretSnapshot;
-  #secretCipher: SecretCipher;
-  _setSecret(str?: string): boolean {
-    if (typeof str === 'string' || str == null) {
-      if (this.#secret !== str) {
-        this.#secret = str;
-        if (secretCipher?.preserveEncoded) this.#secretCipher ??= secretCipher;
-        this.#savedSecret = undefined;
-        return true;
-      }
-    }
-    return false;
-  }
-  #getSecret = () => (typeof this.#secret === 'string' ? this.#secret : undefined);
-
-  _saveSecret(): unknown {
-    if (this.#secret instanceof Uint8Array) return this.#secret;
-    if (this.#savedSecret instanceof Uint8Array || (savingSecretSnapshot && this.#savedSecret))
-      return this.#savedSecret;
-    if (typeof this.#secret === 'string' && this.#secretCipher === undefined) {
-      this.#secretCipher = secretCipher;
-    }
-    const encoded = this.#secretCipher?.encode(this.#secret, savingSecretSnapshot);
-    if (encoded instanceof SecretSnapshot || (encoded instanceof Uint8Array && this.#secretCipher.preserveEncoded)) {
-      this.#savedSecret = encoded;
-    }
-    return encoded;
-  }
-  _loadSecret(data: unknown) {
-    if (this.#secretCipher === undefined) {
-      this.#secretCipher = secretCipher;
-    }
-    if (this.#secretCipher?.decode) {
-      const previous = this.#getSecret();
-      this.#secret = (data instanceof SecretSnapshot ? data.decode() : this.#secretCipher.decode(data)) ?? undefined;
-      const str = this.#getSecret();
-      this.#savedSecret =
-        data instanceof SecretSnapshot ||
-        (str !== undefined && data instanceof Uint8Array && this.#secretCipher.preserveEncoded)
-          ? data
-          : undefined;
-      if (str !== previous) this.configChanged(this.getProperty('#secret') as BlockConfig, str);
-    }
+  #secret: string | undefined;
+  #getSecret = () => this.#secret;
+  _setSecret(value: unknown): boolean {
+    const secret = typeof value === 'string' ? value : undefined;
+    if (this.#secret === secret) return false;
+    this.#secret = secret;
+    return true;
   }
 }

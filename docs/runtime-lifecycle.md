@@ -83,19 +83,23 @@ the host environment while the saved Flow stores the variable name.
 callback to the function's `initInputs`. A function that needs the secret stores
 the callback in a private field and calls it to read the current value.
 
+Ticlo encrypts a secret when it is entered. Saves and undo history reuse the
+ciphertext, even when the current key cannot decrypt it. Re-entering the same
+secret encrypts it with the current key.
+
 In browser runtimes, **Preference → Secret** manages the passwords for the
 current browser origin. Ticlo derives each 32-byte key from the UTF-8 password
 using PBKDF2-HMAC-SHA-256 with 600,000 iterations and salt `ticlo`. It wraps the
 derived keys with `ticlo` for `localStorage` and clears the password input after
 submission. Re-enter the same password in another browser to open its secrets.
 
-New or replaced secrets use the primary key. The browser stores a format header,
-AES-SIV ciphertext, and the first eight bytes of the key's SHA-256 digest as one
-Base93-encoded binary value. If no primary key is available, the save prompts
-for one. Set the password and save again. Existing ciphertext stays in the Flow
-when a key is missing. Add the corresponding password, then unload and reload
-the Flow to use the secret. Legacy browser secrets still use the original local
-key when it is available.
+The browser encrypts new entries with the primary key. If there is no primary
+key, Ticlo keeps the previous secret and prompts you to set a password and
+re-enter the secret. You can still save other Flow edits. The browser stores a
+format header, AES-SIV ciphertext, and the first eight bytes of the key's SHA-256
+digest as one Base93-encoded binary value. To open a secret whose key is missing,
+add the corresponding password, then unload and reload the Flow. Legacy browser
+secrets still use the original local key when it is available.
 
 `RemoteStorage` and `StaticStorage` initialize the browser codec before loading
 Flows. Standalone browser hosts call `initBrowserSecretCipher()` first.

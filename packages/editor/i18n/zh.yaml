@@ -34,7 +34,7 @@
 'New Password': 新密码 # translated from: New Password
 'Add Password': 添加密码 # translated from: Add Password
 'Remove Password': 移除密码 # translated from: Remove Password
-'Set a primary password before saving secrets.': 请先设置主密码，再保存密钥。 # translated from: Set a primary passwo-vqTphzLW
+'Without a primary password, the secret you just entered will be lost when you reopen the flow. Set a password in Preference → Secret, then enter the secret again.': 未设置主密码，刚输入的密钥会在重新打开流程时丢失。请在「偏好设置 → 密钥」中设置密码，然后重新输入密钥。 # translated from: Without a primary pa-9EY89VbV
 'Some secrets could not be opened. Add their passwords, then unload and reload the flow.': 部分密钥无法解密。请添加对应的密码，然后卸载并重新加载该流程。 # translated from: Some secrets could n-AwuN5JX5
 'Could not read the browser passwords.': 无法读取浏览器中的密码。 # translated from: Could not read the b-GibGiGq8
 'Could not update the browser passwords.': 无法更新浏览器中的密码。 # translated from: Could not update the-4no6oj6N

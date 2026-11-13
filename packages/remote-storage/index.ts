@@ -7,7 +7,6 @@ export {
   addSecretPassword,
   initBrowserSecretCipher,
   listSecretPasswords,
-  missingPrimaryPassword,
   onBrowserSecretNotice,
   removeSecretPassword,
   setPrimarySecretPassword,

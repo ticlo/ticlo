@@ -1,7 +1,6 @@
 import {aessiv} from '@noble/ciphers/aes.js';
 import {bytesToHex, hexToBytes} from '@noble/ciphers/utils.js';
 import {setSecretCipher} from '@ticlo/core';
-import {SecretSnapshot} from '@ticlo/core/util/SecretSnapshot.ts';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -10,11 +9,9 @@ const wrappingKey = hexToBytes('ff4c67eaa14b56bfd7584bb70a657eea4aadb539a7b74ba7
 const passwordSalt = encoder.encode('ticlo');
 const secretContext = encoder.encode('#secret');
 const format = encoder.encode('TicloSecret\x01');
-const snapshotContext = encoder.encode('#secret snapshot');
 const idSize = 8;
 const passwordStorage = 'ticlo-browser-secret-passwords';
 const legacyStorage = 'ticlo-browser-secret-key';
-export const missingPrimaryPassword = 'Set a primary password before saving secrets.';
 
 interface Passwords {
   primary?: string;
@@ -24,11 +21,6 @@ interface Passwords {
 let savedPasswords: string | null | undefined;
 let passwords: Passwords = {keys: new Map()};
 let legacyKey: Uint8Array | undefined;
-let snapshotKey: Uint8Array | undefined;
-
-function decodeSnapshot(bytes: Uint8Array) {
-  return decoder.decode(aessiv(snapshotKey, snapshotContext).decrypt(bytes));
-}
 
 function readPasswords() {
   const saved = localStorage.getItem(passwordStorage);
@@ -142,18 +134,13 @@ function hasSecretHeader(data: Uint8Array) {
 }
 
 const browserCipher = {
-  encode(value: string, snapshot = false) {
-    if (typeof value !== 'string') return undefined;
-    if (snapshot) {
-      snapshotKey ??= crypto.getRandomValues(new Uint8Array(32));
-      return new SecretSnapshot(decodeSnapshot, aessiv(snapshotKey, snapshotContext).encrypt(encoder.encode(value)));
-    }
+  encode(value: string) {
     const {keys, primary} = readPasswords();
     const key = keys.get(primary);
     if (!key) {
       pendingPrimary = true;
       scheduleNotices();
-      throw new Error(missingPrimaryPassword);
+      return undefined;
     }
     const id = hexToBytes(primary);
     const encrypted = aessiv(key, secretContext, format, id).encrypt(encoder.encode(value));
@@ -180,13 +167,12 @@ const browserCipher = {
         return decoder.decode(aessiv(legacyKey, secretContext).decrypt(value));
       }
     } catch {
-      // Retain missing or unauthenticated secrets as their original ciphertext.
+      // Report authentication failures together with missing keys.
     }
     failedIds.add(id);
     scheduleNotices();
-    return value;
+    return undefined;
   },
-  preserveEncoded: true,
 };
 
 export async function initBrowserSecretCipher(): Promise<void> {

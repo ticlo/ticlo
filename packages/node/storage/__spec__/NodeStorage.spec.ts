@@ -2,8 +2,10 @@ import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 import {mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {Root, FlowFolder} from '@ticlo/core';
+import {Root, FlowFolder, setSecretCipher} from '@ticlo/core';
+import {randomBytes} from 'node:crypto';
 import {NodeStorage} from '../NodeStorage.ts';
+import {SecretCipher} from '../../secret/SecretCipher.ts';
 import {fileStorageContract} from '@ticlo/core/storage/__spec__/FileStorageContract.ts';
 
 describe('NodeStorage', () => {
@@ -20,6 +22,42 @@ describe('NodeStorage', () => {
     await rm(dir, {recursive: true, force: true});
   });
   fileStorageContract(() => storage, 'main');
+  it('reuses saved ciphertext across saves and key changes until the secret is entered again', async () => {
+    const first = new SecretCipher(randomBytes(32));
+    const second = new SecretCipher(randomBytes(32));
+    setSecretCipher(first);
+    try {
+      await root.setStorage(storage);
+      await root.start();
+      const flow = root.addFlow('entry');
+      flow.startHistory();
+      flow.setValue('#secret', 'test secret');
+      flow.trackChange();
+      await flow.applyChange();
+      const initial = (await storage.loadFlow('entry'))['#secret'];
+      expect(first.decode(initial)).toBe('test secret');
+      expect(flow.getValue('@has-change')).toBeUndefined();
+
+      setSecretCipher(second);
+      flow.setValue('note', 'edited');
+      await flow.applyChange();
+      expect(await storage.loadFlow('entry')).toMatchObject({'#secret': initial, 'note': 'edited'});
+
+      await root.unloadFlow({library: '#root', kind: 'flow', name: 'entry'});
+      const reopened = await root.loadFlow({library: '#root', kind: 'flow', name: 'entry'});
+      reopened.setValue('note', 'edited without the key');
+      await reopened.applyChange();
+      expect(await storage.loadFlow('entry')).toMatchObject({'#secret': initial, 'note': 'edited without the key'});
+
+      reopened.setValue('#secret', 'test secret');
+      await reopened.applyChange();
+      const replaced = (await storage.loadFlow('entry'))['#secret'];
+      expect(replaced).not.toEqual(initial);
+      expect(second.decode(replaced)).toBe('test secret');
+    } finally {
+      setSecretCipher(undefined);
+    }
+  });
   it('uses #root for user globals and reads the file-server project layout directly', async () => {
     await storage.user.uploadFile('#global.ticlo', '{"^setting":42}');
     await storage.uploadFile('main/folder/flow.ticlo', '{"value":7}');

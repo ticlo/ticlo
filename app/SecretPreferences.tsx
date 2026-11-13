@@ -5,14 +5,15 @@ import {translateEditor} from '@ticlo/core/util/i18n.ts';
 import {
   addSecretPassword,
   listSecretPasswords,
-  missingPrimaryPassword,
   onBrowserSecretNotice,
   removeSecretPassword,
   setPrimarySecretPassword,
 } from '@ticlo/remote-storage';
 
 const unreadableSecrets = 'Some secrets could not be opened. Add their passwords, then unload and reload the flow.';
-const noticeOptions = {placement: 'topRight', top: 16, getContainer: () => document.body} as const;
+const missingPrimaryPassword =
+  'Without a primary password, the secret you just entered will be lost when you reopen the flow. Set a password in Preference → Secret, then enter the secret again.';
+const noticeOptions = {placement: 'top', top: 16, getContainer: () => document.body} as const;
 
 function label(key: string) {
   return translateEditor(key, {defaultValue: key}) ?? key;
@@ -26,32 +27,28 @@ export function mountSecretPreferences() {
 
 export function SecretPreferences({open = false, onClose}: {open?: boolean; onClose?: () => void}) {
   const [notices, noticeHolder] = notification.useNotification(noticeOptions);
-  const [requested, setRequested] = useState(false);
   const [busy, setBusy] = useState(false);
   const [entries, setEntries] = useState({ids: [] as string[], primary: undefined as string | undefined});
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const visible = open || requested;
 
   useEffect(
     () =>
       onBrowserSecretNotice((notice) => {
-        if (notice.type === 'primary') setRequested(true);
-        else {
-          const text = label(unreadableSecrets);
-          const ids = notice.ids.filter(Boolean);
-          notices.warning({
-            title: label('Secret'),
-            description: ids.length ? `${text} (${ids.join(', ')})` : text,
-            duration: 10,
-          });
-        }
+        const text = label(notice.type === 'primary' ? missingPrimaryPassword : unreadableSecrets);
+        const ids = notice.type === 'decrypt' ? notice.ids.filter(Boolean) : undefined;
+        notices.warning({
+          key: notice.type,
+          title: label('Secret'),
+          description: ids?.length ? `${text} (${ids.join(', ')})` : text,
+          duration: 10,
+        });
       }),
     [notices]
   );
 
   useEffect(() => {
-    if (!visible) return;
+    if (!open) return;
     const refresh = () => {
       try {
         setEntries(listSecretPasswords());
@@ -62,7 +59,7 @@ export function SecretPreferences({open = false, onClose}: {open?: boolean; onCl
     refresh();
     window.addEventListener('storage', refresh);
     return () => window.removeEventListener('storage', refresh);
-  }, [visible]);
+  }, [open]);
 
   const update = async (operation: () => Promise<unknown>) => {
     if (busy) return;
@@ -83,18 +80,16 @@ export function SecretPreferences({open = false, onClose}: {open?: boolean; onCl
       {noticeHolder}
       <Modal
         title={label('Secret')}
-        open={visible}
+        open={open}
         footer={null}
         destroyOnHidden
         onCancel={() => {
           if (busy) return;
           setPassword('');
           setError('');
-          setRequested(false);
           onClose?.();
         }}
       >
-        {requested && !entries.primary && <p>{label(missingPrimaryPassword)}</p>}
         <Space orientation="vertical" style={{width: '100%'}}>
           {entries.ids.map((id) => (
             <Space key={id} wrap>

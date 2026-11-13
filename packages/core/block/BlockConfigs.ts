@@ -63,24 +63,50 @@ class BlockCancelConfig extends BlockProperty {
   }
 }
 
+interface SecretCipher {
+  encode(value: string): unknown;
+  decode(data: unknown): string | Uint8Array | undefined;
+}
+
+let secretCipher: SecretCipher;
+export function setSecretCipher(cipher: SecretCipher) {
+  secretCipher = cipher;
+}
+
 class BlockSecretConfig extends BlockConfig {
-  onChange(val: unknown, save?: boolean): boolean {
-    if (this._block._setSecret(val as string)) {
+  #encoded: unknown;
+
+  setValue(val: unknown) {
+    if (typeof val !== 'string' && val != null) return;
+    const encoded = typeof val === 'string' ? secretCipher?.encode(val) : undefined;
+    if (typeof val === 'string' && secretCipher && encoded === undefined) return;
+    this.#encoded = encoded;
+    super.setValue(val);
+  }
+  setBinding(path: string) {
+    if (path != null && path !== this._bindingPath) this.#encoded = undefined;
+    super.setBinding(path);
+  }
+  onChange(val: unknown): boolean {
+    if ((typeof val === 'string' || val == null) && this._block._setSecret(val)) {
       this._block.configChanged(this, val);
     }
     return false;
   }
   _saveValue(): unknown {
-    return this._block._saveSecret();
+    return this.#encoded;
   }
   _load(val: unknown) {
-    this._block._loadSecret(val);
+    const decoded = secretCipher?.decode(val);
+    const value = typeof decoded === 'string' ? decoded : undefined;
+    this.#encoded = val instanceof Uint8Array || value !== undefined ? val : decoded;
+    super.setValue(value);
   }
   _liveUpdate(val: unknown) {
-    this._block._loadSecret(val);
+    if (val !== this.#encoded || this._bindingSource) this._load(val);
   }
   _liveClear() {
-    this._block._loadSecret(undefined);
+    this.setValue(undefined);
   }
 }
 

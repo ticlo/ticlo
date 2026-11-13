@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {BaseFunction, Root, decode, encodeSorted, globalFunctions, setSecretCipher, type Block} from '@ticlo/core';
+import {BaseFunction, Root, decode, globalFunctions, setSecretCipher, type Block, type Flow} from '@ticlo/core';
 import {aessiv} from '@noble/ciphers/aes.js';
 import {bytesToHex, hexToBytes} from '@noble/ciphers/utils.js';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -8,7 +8,6 @@ import {
   addSecretPassword,
   initBrowserSecretCipher,
   listSecretPasswords,
-  missingPrimaryPassword,
   onBrowserSecretNotice,
   removeSecretPassword,
   setPrimarySecretPassword,
@@ -149,7 +148,7 @@ describe('mixed browser storage', () => {
     expect(calls.every(([, options]) => !options?.method || options.method === 'GET')).toBe(true);
     expect(calls.every(([url]) => !String(url).includes('usr/admin'))).toBe(true);
   });
-  it('prompts only when saving a pending secret and preserves undo and redo', async () => {
+  it('rejects secret entry without a primary password and saves other edits', async () => {
     const notice = vi.fn();
     const unsubscribe = onBrowserSecretNotice(notice);
     try {
@@ -160,34 +159,43 @@ describe('mixed browser storage', () => {
       block.setValue('#is', 'browser-secret-test');
       await flow.applyChange();
       flow.startHistory();
-      block.setValue('#secret', 'pending value');
+      block.setValue('#secret', 'rejected value');
+      await Promise.resolve();
+      expect(notice).toHaveBeenCalledExactlyOnceWith({type: 'primary'});
+      root.runAll();
+      expect(block.getValue('#output')).toBeUndefined();
+      block.setValue('note', 'edited without a password');
+      await flow.applyChange();
+      expect((await storage.loadFlow('+BrowserLocal.secrets')).credential).toEqual({
+        '#is': 'browser-secret-test',
+        'note': 'edited without a password',
+      });
+      expect(notice).toHaveBeenCalledTimes(1);
+
+      const password = await addSecretPassword(encoder.encode('first password'));
+      expect(block._save()).not.toHaveProperty('#secret');
+      block.setValue('#secret', 'accepted value');
+      const encoded = block._save()['#secret'];
+      expect(encoded).toBeInstanceOf(Uint8Array);
       flow.trackChange();
       flow.undo();
       root.runAll();
       expect(block.getValue('#output')).toBeUndefined();
       flow.redo();
       root.runAll();
-      expect(block.getValue('#output')).toBe('pending value');
-      expect(notice).not.toHaveBeenCalled();
-      expect(() => encodeSorted(flow.saveSnapshot())).toThrow('cannot be serialized');
-      await expect(flow.applyChange()).rejects.toThrow(missingPrimaryPassword);
-      expect(notice).toHaveBeenCalledExactlyOnceWith({type: 'primary'});
-      expect((await storage.loadFlow('+BrowserLocal.secrets')).credential).not.toHaveProperty('#secret');
-      expect(flow.getValue('@has-change')).toBe(true);
-      await addSecretPassword(encoder.encode('first password'));
+      expect(block.getValue('#output')).toBe('accepted value');
+      expect(block._save()['#secret']).toBe(encoded);
+
+      await removeSecretPassword(password);
+      block.setValue('#secret', 'rejected replacement');
+      await Promise.resolve();
+      root.runAll();
+      expect(block.getValue('#output')).toBe('accepted value');
+      expect(notice).toHaveBeenCalledTimes(2);
       await flow.applyChange();
       expect(flow.getValue('@has-change')).toBeUndefined();
-      expect((await storage.loadFlow('+BrowserLocal.secrets')).credential).toHaveProperty('#secret');
-
-      await storage.saveModule('+BrowserLocal', 'tools', {});
-      const module = await root.loadFlow({library: 'BrowserLocal', kind: 'module', name: 'tools'});
-      module.createBlock('credential').setValue('#secret', 'module value');
-      await removeSecretPassword(listSecretPasswords().primary);
-      await expect(module.applyChange()).rejects.toThrow(missingPrimaryPassword);
-      expect(await storage.loadModule('+BrowserLocal', 'tools')).toEqual({});
-      await addSecretPassword(encoder.encode('first password'));
-      await module.applyChange();
-      expect((await storage.loadModule('+BrowserLocal', 'tools')).credential).toHaveProperty('#secret');
+      expect((await storage.loadFlow('+BrowserLocal.secrets')).credential).toMatchObject({'#secret': encoded});
+      expect(notice).toHaveBeenCalledTimes(2);
     } finally {
       unsubscribe();
     }
@@ -210,12 +218,12 @@ describe('mixed browser storage', () => {
     const flow = root.addFlow('+BrowserLocal.secrets');
     const block = flow.createBlock('credential');
     block.setValue('#secret', '浏览器密码');
+    await setPrimarySecretPassword(second);
     await flow.applyChange();
     expect(flow.getValue('@has-change')).toBeUndefined();
 
     const initial = (await storage.loadFlow('+BrowserLocal.secrets')).credential as {'#secret': Uint8Array};
     expect(bytesToHex(initial['#secret'].subarray(-8))).toBe(first);
-    await setPrimarySecretPassword(second);
     const next = flow.createBlock('next');
     next.setValue('#secret', 'another secret');
     await flow.applyChange();
@@ -236,6 +244,11 @@ describe('mixed browser storage', () => {
       expect(root._globalRoot.getValue('^setting')).toBe('guest');
       const restored = root.queryValue('+BrowserLocal.secrets.credential') as Block;
       expect(restored._save()).toEqual(initial);
+
+      restored.setValue('#secret', '浏览器密码');
+      await (root.queryValue('+BrowserLocal.secrets') as Flow).applyChange();
+      const replaced = (await reopened.loadFlow('+BrowserLocal.secrets')).credential as {'#secret': Uint8Array};
+      expect(bytesToHex(replaced['#secret'].subarray(-8))).toBe(second);
 
       setSecretCipher(undefined);
       await initBrowserSecretCipher();

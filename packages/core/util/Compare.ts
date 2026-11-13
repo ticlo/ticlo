@@ -1,8 +1,7 @@
 import {isDateSame} from './DateTime.ts';
 import {DateTime} from 'luxon';
-import {SecretSnapshot} from './SecretSnapshot.ts';
 
-export function arrayEqual(a1: ArrayLike<unknown>, a2: ArrayLike<unknown>) {
+export function arrayEqual(a1: any[], a2: any[]) {
   if (a1.length !== a2.length) {
     return false;
   }
@@ -44,8 +43,6 @@ function _deepEqual(a: any, b: any, map: Map<unknown, unknown>) {
     }
 
     switch (Cls) {
-      case SecretSnapshot:
-        return arrayEqual(a.bytes, b.bytes);
       case Object: {
         const keys = keyList(a);
         if (keys.length !== keyList(b).length) {

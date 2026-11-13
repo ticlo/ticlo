@@ -26,19 +26,19 @@ export class FlowFunctionModule extends FunctionModule {
   }
 
   protected trackFlowChange(previous: DataMap | undefined) {
-    if (!this._loading && previous && !deepEqual(previous, this.flow.saveSnapshot())) {
+    if (!this._loading && previous && !deepEqual(previous, this.flow.save())) {
       this.flow.trackChange();
     }
   }
 
   add(factory: FunctionFactory, library?: string | null) {
-    const previous = this._loading ? undefined : this.flow?.saveSnapshot();
+    const previous = this._loading ? undefined : this.flow?.save();
     super.add(factory, library);
     this.trackFlowChange(previous);
   }
 
   delete(id: string): void {
-    const previous = this._loading ? undefined : this.flow?.saveSnapshot();
+    const previous = this._loading ? undefined : this.flow?.save();
     super.delete(id);
     this.trackFlowChange(previous);
   }

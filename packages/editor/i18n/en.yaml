@@ -25,7 +25,7 @@
 'New Password': 'New Password'
 'Add Password': 'Add Password'
 'Remove Password': 'Remove Password'
-'Set a primary password before saving secrets.': 'Set a primary password before saving secrets.'
+'Without a primary password, the secret you just entered will be lost when you reopen the flow. Set a password in Preference → Secret, then enter the secret again.': 'Without a primary password, the secret you just entered will be lost when you reopen the flow. Set a password in Preference → Secret, then enter the secret again.'
 'Some secrets could not be opened. Add their passwords, then unload and reload the flow.': 'Some secrets could not be opened. Add their passwords, then unload and reload the flow.'
 'Could not read the browser passwords.': 'Could not read the browser passwords.'
 'Could not update the browser passwords.': 'Could not update the browser passwords.'

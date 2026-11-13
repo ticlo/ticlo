@@ -3,12 +3,10 @@ import {DateTime} from 'luxon';
 import {decodeDateTime, encodeDateTime, formatDate} from './DateTime.ts';
 import {decodeUnknown, encodeUnknown, NoSerialize} from './NoSerialize.ts';
 import {ErrorEvent} from '../block/Event.ts';
-import {SecretSnapshot} from './SecretSnapshot.ts';
 
 const arrow = new Arrow({encodeDate: false});
 arrow.registerRaw('Ts', DateTime, encodeDateTime, decodeDateTime);
 arrow.registerRaw('', NoSerialize, encodeUnknown, decodeUnknown);
-arrow.registerRaw(null, SecretSnapshot, (snapshot: SecretSnapshot) => snapshot.toJSON(), null);
 
 function encodeError(error: Error & {code?: string | number}): string {
   const data: unknown[] = [error.message];

@@ -1,4 +1,4 @@
-import {Block, BlockChildWatch, Runnable, withSecretSnapshot} from './Block.ts';
+import {Block, BlockChildWatch, Runnable} from './Block.ts';
 import {InputsBlock} from './FlowIO.ts';
 import {BlockConfig, BlockIO, BlockProperty, ContextProperty} from './BlockProperty.ts';
 import {Resolver} from './Resolver.ts';
@@ -194,10 +194,6 @@ export class Flow extends Block {
     return super._save();
   }
 
-  saveSnapshot(): DataMap {
-    return withSecretSnapshot(() => this.save());
-  }
-
   _applyChange: FlowLoader['applyChange'];
   _onStateChange: (flow: Flow, state: FlowState) => void;
 
@@ -346,7 +342,7 @@ export class Flow extends Block {
       if (this._history) {
         savedData = asynchronous ? this._history.saveCompleted(savedData) : this._history.save(savedData);
       } else if (asynchronous) {
-        this.updateValue('@has-change', !deepEqual(this.saveSnapshot(), savedData) || undefined);
+        this.updateValue('@has-change', !deepEqual(this.save(), savedData) || undefined);
       } else {
         this.deleteValue('@has-change');
       }

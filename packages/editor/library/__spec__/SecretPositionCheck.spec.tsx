@@ -27,13 +27,12 @@ it('positions the missing-secret notification in the viewport', async () => {
     const holder = notice.closest('.ant-notification') as HTMLElement;
     const rect = (await shouldHappen(() => {
       const bounds = notice.getBoundingClientRect();
-      return getComputedStyle(holder).position === 'fixed' && bounds.right <= innerWidth && bounds;
+      return getComputedStyle(holder).position === 'fixed' && Math.abs(bounds.top - 16) < 0.5 && bounds;
     }, 2000)) as DOMRect;
     expect(holder.parentElement).toBe(document.body);
     expect(holder.style.getPropertyValue('--notification-top')).toBe('16px');
     expect(rect.top).toBeCloseTo(16, 0);
-    expect(rect.right).toBeGreaterThan(innerWidth - 50);
-    expect(rect.right).toBeLessThanOrEqual(innerWidth);
+    expect(rect.left + rect.width / 2).toBeCloseTo(innerWidth / 2, 0);
   } finally {
     flow.destroy();
   }

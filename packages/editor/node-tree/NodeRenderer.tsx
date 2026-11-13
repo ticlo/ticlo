@@ -481,18 +481,6 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         </MenuItem>
       );
     }
-    const {onUnloadFlow} = this.props;
-    if (
-      onUnloadFlow &&
-      item.functionId === 'flow:main' &&
-      item.getConn().getEditPolicyView().can({cmd: 'unloadFlow', path: item.key})
-    ) {
-      menuItems.push(
-        <MenuItem key="unloadFlow" onClick={() => onUnloadFlow(item)}>
-          {t('Unload')}
-        </MenuItem>
-      );
-    }
     if (item.functionId === 'flow:module' && this.props.moduleAutoLoad) {
       menuItems.push(
         <MenuItem key="autoLoad" onClick={() => void this.toggleAutoLoad()}>
@@ -543,6 +531,8 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
 
     return menuItems;
   };
+
+  unloadFlow = () => this.props.onUnloadFlow?.(this.props.item);
 
   onDragStart = (e: DragState) => {
     const {item} = this.props;
@@ -730,6 +720,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
           functionId={item.functionId}
           canApply={item.canApply}
           getMenu={this.getMenu}
+          onUnloadFlow={this.props.onUnloadFlow && item.functionId === 'flow:main' ? this.unloadFlow : undefined}
           menuVersion={item.functionId === 'flow:main' && !this.state.canAutoLoad ? undefined : this.state.autoLoad}
           onMenuOpen={this.readAutoLoad}
           disabled={disabled}
