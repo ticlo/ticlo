@@ -4,9 +4,9 @@
   "description": "Ticlo charts powered by Chart.js",
   "license": "MPL-2.0",
   "type": "module",
-  "main": "./index.js",
-  "module": "./index.js",
-  "types": "./index.d.ts",
+  "main": "./index.ts",
+  "module": "./index.ts",
+  "types": "./index.ts",
   "style": "./style/index.css",
   "dependencies": {
     "@ticlo/core": "workspace:^",

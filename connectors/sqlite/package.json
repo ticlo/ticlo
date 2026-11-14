@@ -4,8 +4,8 @@
   "description": "Node.js SQLite connector for Ticlo",
   "license": "MPL-2.0",
   "type": "module",
-  "main": "./index.js",
-  "types": "./index.d.ts",
+  "main": "./index.ts",
+  "types": "./index.ts",
   "engines": {
     "node": ">=24.11.0"
   },

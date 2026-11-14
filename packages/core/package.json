@@ -12,9 +12,9 @@
   },
   "license": "MPL-2.0",
   "type": "module",
-  "main": "./index.js",
-  "module": "./index.js",
-  "types": "./index.d.ts",
+  "main": "./index.ts",
+  "module": "./index.ts",
+  "types": "./index.ts",
   "dependencies": {
     "@types/luxon": "^3.7.5",
     "axios": "1.20.0",
