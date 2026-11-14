@@ -1,6 +1,6 @@
 import React from 'react';
 import {simulate} from 'simulate-event';
-import {afterEach, expect, it, vi} from 'vitest';
+import {afterEach, expect, it} from 'vitest';
 import {Root} from '@ticlo/core';
 import {MemoryFlowStorage} from '@ticlo/core/block/MemoryFlowStorage.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -51,7 +51,6 @@ it('loads and unloads a stored flow from navigation without removing its saved d
   await root.setStorage(storage);
   await root.start({main: {}});
   [, client] = makeLocalConnection(root);
-  const onFlowUnloaded = vi.fn();
   let tree: NodeTree;
   const [, element] = loadTemplate(
     <NodeTree
@@ -62,7 +61,6 @@ it('loads and unloads a stored flow from navigation without removing its saved d
       basePaths={['']}
       hideRoot
       showStoredFlows
-      onFlowUnloaded={onFlowUnloaded}
       expandPaths={['+main']}
       style={{width: 500, height: 500}}
     />,
@@ -100,7 +98,6 @@ it('loads and unloads a stored flow from navigation without removing its saved d
   expect(root.getFlowState({library: 'main', kind: 'flow', name: 'entry'})).toBe('unloaded');
   expect(root.queryValue('+main.entry')).toBeUndefined();
   expect(await storage.loadFlow('+main.entry')).toEqual({value: 1});
-  expect(onFlowUnloaded).toHaveBeenCalledExactlyOnceWith('+main.entry');
   await tree.onStoredOpen(stored);
   expect(root.queryValue('+main.entry.value')).toBe(1);
 });

@@ -8,7 +8,6 @@ import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.tsx'
 import {TableEditor} from '@ticlo/editor/property/value/TableEditor.tsx';
 import {openSqlClientDialog} from '@ticlo/editor/popup/SqlClientDialog.tsx';
 import type {DockLayout, SideColumns, TabGroup} from 'rc-dock';
-import {closeFlowTabs} from './file-flow-lifecycle.ts';
 
 export function stageReadonly(storage: ProjectFiles | undefined, path: string) {
   if (!storage || path === '#temp' || path.startsWith('#temp.')) return false;
@@ -39,12 +38,8 @@ export const toolGroup: TabGroup = {
 export function createLayoutActions(
   getLayout: () => DockLayout,
   getConn: () => ClientConn
-): Pick<
-  TicloLayoutContext,
-  'onFlowUnloaded' | 'editProperty' | 'editValue' | 'editSchedule' | 'editTable' | 'manageDatabase'
-> {
+): Pick<TicloLayoutContext, 'editProperty' | 'editValue' | 'editSchedule' | 'editTable' | 'manageDatabase'> {
   return {
-    onFlowUnloaded: (path) => closeFlowTabs(getLayout(), path),
     editProperty: (paths, propDesc, defaultValue, mime, readonly) => {
       if (!mime) {
         if (propDesc.mime) {

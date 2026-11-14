@@ -33,7 +33,6 @@ interface Props {
   moduleAutoLoad?: ModuleAutoLoad;
   showStoredFlows?: boolean;
   onOpenStoredFlow?: (path: string, canApply: boolean) => void;
-  onFlowUnloaded?: (path: string) => void;
 }
 
 export class NodeTree extends LazyUpdateComponent<Props, any> {
@@ -117,7 +116,6 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     try {
       await conn.unloadFlow(item.key);
       conn.childrenChangeStream().dispatch({path: item.parent?.key ?? ''});
-      if (conn === this.props.conn) this.props.onFlowUnloaded?.(item.key);
     } catch (error) {
       requestCallbacks.onError(String(error));
     }

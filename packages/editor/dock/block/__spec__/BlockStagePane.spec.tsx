@@ -3,12 +3,14 @@ import {vi} from 'vitest';
 import {userEvent} from 'vitest/browser';
 import {DockLayout} from 'rc-dock';
 import {Block, Root, type Flow} from '@ticlo/core';
+import {MemoryFlowStorage} from '@ticlo/core/block/MemoryFlowStorage.ts';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 import {initEditor} from '../../../index.ts';
 import {loadTemplate, removeLastTemplate} from '../../../util/test-util.ts';
 import {BlockStagePane} from '../BlockStagePane.tsx';
+import {BlockStageTabButton} from '../BlockStageTabButton.tsx';
 import {TicloApp} from '../../../component/TicloApp.tsx';
 import {TicloCurrentFlowContext, type TicloCurrentFlow} from '../../../component/LayoutContext.ts';
 import {StagePanelFocus} from '../../StagePanelFocus.tsx';
@@ -113,6 +115,78 @@ describe('BlockStagePane', () => {
     await shouldHappen(() => layout.find(second.id) === undefined);
     expect(layout.find(first.id)).toBeDefined();
     expect(layout.find(third.id)).toBeDefined();
+  });
+
+  it('closes designer and dataflow tabs when their subscribed targets disappear', async () => {
+    const root = new Root();
+    const storage = new MemoryFlowStorage();
+    const path = '+main.jobs.entry';
+    const data = {child: {'#is': '', 'nested': {'#is': ''}}, removed: {'#is': ''}};
+    await storage.saveLibraryMetadata('main', {});
+    await storage.saveFlow(null, data, path);
+    await storage.saveFlow(null, {'#is': ''}, `${path}Other`);
+    await root.setStorage(storage);
+    await root.start({main: {flows: ['jobs.entry', 'jobs.entryOther']}});
+    const [, conn] = makeLocalConnection(root);
+    const [, otherConn] = makeLocalConnection(root, false);
+    const designer = {
+      id: `designer:${path}`,
+      title: <BlockStageTabButton conn={conn} id={`designer:${path}`} path={path} />,
+      content: <div />,
+      group: 'main',
+    };
+    const flow = BlockStagePane.createDockTab(path, conn);
+    const child = BlockStagePane.createDockTab(`${path}.child`, conn);
+    const nested = BlockStagePane.createDockTab(`${path}.child.nested`, conn);
+    const removed = BlockStagePane.createDockTab(`${path}.removed`, conn);
+    const unrelated = BlockStagePane.createDockTab(`${path}Other`, conn);
+    let layout: DockLayout;
+    try {
+      loadTemplate(
+        <DockLayout
+          ref={(value) => {
+            layout = value;
+          }}
+          defaultLayout={{
+            dockbox: {mode: 'horizontal', children: [{tabs: [designer, flow, child, nested, removed, unrelated]}]},
+          }}
+        />,
+        'editor'
+      );
+      await shouldHappen(
+        () =>
+          [path, `${path}.child`, `${path}.child.nested`, `${path}.removed`].every(
+            (target) => conn.subscribes.get(target)?._hasUpdate
+          ),
+        2000
+      );
+      expect(layout.find(child.id)).toBeDefined();
+      expect(layout.find(nested.id)).toBeDefined();
+
+      const oldSubscription = conn.subscribes.get(`${path}.child.nested`);
+      await otherConn.addBlock(`${path}.child`, data.child);
+      await shouldHappen(() => {
+        const subscription = conn.subscribes.get(`${path}.child.nested`);
+        return subscription !== oldSubscription && subscription?._hasUpdate;
+      });
+      expect(layout.find(nested.id)).toBeDefined();
+
+      await otherConn.deleteBlock(`${path}.removed`);
+      await shouldHappen(() => !layout.find(removed.id));
+      expect(layout.find(child.id)).toBeDefined();
+      expect(layout.find(designer.id)).toBeDefined();
+
+      await otherConn.unloadFlow(path, {discardChanges: true});
+      await shouldHappen(() => [designer, flow, child, nested].every((tab) => !layout.find(tab.id)), 2000);
+      expect(layout.find(unrelated.id)).toBeDefined();
+      expect(await storage.loadFlow(path)).toEqual(data);
+    } finally {
+      removeLastTemplate();
+      conn.destroy();
+      destroyLastLocalConnection();
+      await root.stop({discardChanges: true});
+      root.destroy();
+    }
   });
 
   it.each([true, false])('reloads a runtime worker after consecutive saves (serialize=%s)', async (serialize) => {

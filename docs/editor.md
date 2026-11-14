@@ -18,6 +18,8 @@ stages activate on mount; supplying `stageId` leaves activation to the host.
 Dock tabs activate through `StagePanelFocus`. An ID can activate before its stage
 registers. Removing a background stage preserves the active view; removing the
 active stage clears it until another activates.
+Designer and Dataflow tabs subscribe to their target path and close when its
+Block is removed or its Flow is unloaded.
 
 Save, copy, paste, delete, undo, and redo target only the active stage. Unsupported
 or declined commands do not fall through. External controls use `runStageCommand`.

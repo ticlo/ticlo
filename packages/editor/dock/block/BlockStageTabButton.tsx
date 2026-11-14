@@ -4,8 +4,10 @@ import {CloseOutlined, SaveOutlined} from '@ant-design/icons';
 
 import {DockContext, DockContextType} from 'rc-dock';
 import {LazyUpdateComponent} from '../../component/LazyUpdateComponent.tsx';
-import {ClientConn, ValueSubscriber, ValueUpdate, getDisplayName} from '@ticlo/core/editor.ts';
+import {Block} from '@ticlo/core';
+import {ClientConn, ValueSubscriber, ValueUpdate, getDisplayName, TRUNCATED} from '@ticlo/core/editor.ts';
 import {flowRefFromPath} from '@ticlo/core/block/FlowRuntime.ts';
+import {NoSerialize} from '@ticlo/core/util/NoSerialize.ts';
 import {TabData} from 'rc-dock';
 import {TicloCurrentFlowContext, TicloDefaultLibraryContext} from '../../component/LayoutContext.ts';
 import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
@@ -69,16 +71,47 @@ export class BlockStageTabButton extends LazyUpdateComponent<Props, State> {
     },
   });
 
+  private targetListener = new ValueSubscriber({
+    onUpdate: ({cache, change}) => {
+      if (!Object.hasOwn(change ?? cache, 'value')) return;
+      const {value} = cache;
+      if (
+        !(value instanceof Block || (value instanceof NoSerialize && value.type === 'Block') || value === TRUNCATED)
+      ) {
+        this.closeTab();
+      }
+    },
+    onError: (error) => {
+      if (error === 'invalid path') this.closeTab();
+    },
+  });
+
+  componentDidMount() {
+    super.componentDidMount();
+    if (this.context) this.targetListener.subscribe(this.props.conn, this.props.path);
+  }
+
+  componentDidUpdate({conn, path}: Props) {
+    if (this.context && (conn !== this.props.conn || path !== this.props.path)) {
+      this.targetListener.subscribe(this.props.conn, this.props.path);
+    }
+  }
+
   componentWillUnmount(): void {
-    const {conn, path} = this.props;
+    this.targetListener.unsubscribe();
     this.hasChangeListener.unsubscribe();
     super.componentWillUnmount();
   }
 
+  private closeTab = () => {
+    if (!this._mounted) return;
+    const tab = this.context?.find(this.props.id) as TabData | undefined;
+    if (tab) this.context.dockMove(tab, null, 'remove');
+  };
+
   onClose = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const {id} = this.props;
-    this.context.dockMove(this.context.find(id) as TabData, null, 'remove');
+    this.closeTab();
   };
   onSave = (e: React.MouseEvent) => {
     e.stopPropagation();

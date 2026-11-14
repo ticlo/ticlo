@@ -1,22 +1,13 @@
 import type {Root} from '@ticlo/core';
-import type {DockLayout, TabData} from 'rc-dock';
 import {flowStoragePath} from '@ticlo/core/util/FlowStoragePath.ts';
 import {type FileAccess, StorageError} from '@ticlo/core/storage/FileAccess.ts';
 import {fileFlowPath} from './flow-path.ts';
 
-export function closeFlowTabs(layout: DockLayout, path: string) {
-  for (const id of [`blockEditor:${path}`, `designer:${path}`]) {
-    const tab = layout.find(id) as TabData | undefined;
-    if (tab) layout.dockMove(tab, null, 'remove');
-  }
-}
-
-export async function unloadDeletedFileFlows(root: Root, layout: DockLayout, project: string, files: string[]) {
+export async function unloadDeletedFileFlows(root: Root, project: string, files: string[]) {
   for (const file of files) {
     const target = fileFlowPath(project, file);
     if (!target) continue;
     await root.unloadFlow(target.ref, {discardChanges: true});
-    closeFlowTabs(layout, target.path);
   }
 }
 
@@ -27,7 +18,7 @@ export async function reloadDiscardedFileFlow(root: Root, project: string, file:
   await root.loadFlow(target.ref);
 }
 
-export async function resetProjectFlows(root: Root, layout: DockLayout, storage: FileAccess, project: string) {
+export async function resetProjectFlows(root: Root, storage: FileAccess, project: string) {
   for (const ref of root.getLoadedFlowRefs(project)) {
     const name = ref.kind === 'module' ? `:${ref.name}` : ref.name;
     const file = `${project}/${flowStoragePath(name)}`;
@@ -38,6 +29,6 @@ export async function resetProjectFlows(root: Root, layout: DockLayout, storage:
       if (!(error instanceof StorageError && error.code === 'not-found')) throw error;
     }
     if (exists) await reloadDiscardedFileFlow(root, project, file);
-    else await unloadDeletedFileFlows(root, layout, project, [file]);
+    else await unloadDeletedFileFlows(root, project, [file]);
   }
 }

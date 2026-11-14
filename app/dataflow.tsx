@@ -143,11 +143,9 @@ class App extends React.PureComponent<Props, State> {
     await Root.instance.loadFlow(target.ref);
     this.openFlow(target.path);
   };
-  onFilesDeleted = (paths: string[]) =>
-    unloadDeletedFileFlows(Root.instance, this.layout, this.props.files.project, paths);
+  onFilesDeleted = (paths: string[]) => unloadDeletedFileFlows(Root.instance, this.props.files.project, paths);
   onFileDiscarded = (path: string) => reloadDiscardedFileFlow(Root.instance, this.props.files.project, path);
-  onProjectReset = () =>
-    resetProjectFlows(Root.instance, this.layout, this.props.files.storage, this.props.files.project);
+  onProjectReset = () => resetProjectFlows(Root.instance, this.props.files.storage, this.props.files.project);
   defaultDockLayout: LayoutBase;
   tabs: TabDefinitions;
   constructor(props: Props) {

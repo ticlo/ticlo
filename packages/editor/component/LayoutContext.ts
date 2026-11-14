@@ -44,7 +44,6 @@ export interface TicloCurrentFlow<Stage extends TicloStage = TicloStage> {
 
 export interface TicloLayoutContext<Stage extends TicloStage = TicloStage> extends Partial<TicloCurrentFlow<Stage>> {
   editFlow?(path: string, onSave: () => void): void;
-  onFlowUnloaded?(path: string): void;
 
   editProperty?(paths: string[], propDesc: PropDesc, defaultValue?: any, mime?: string, readonly?: boolean): void;
   editValue?(value: unknown, desc: PropDesc, onChange?: (value: unknown) => void): void;
