@@ -27,9 +27,9 @@ or declined commands do not fall through. External controls use `runStageCommand
 when its path already matches. Designer-specific activation and input are in
 [designer](designer.md#selection-and-commands).
 
-Block Stage status subscribes to each Block's `#emit` and `#wait`. Error values
-use the [core error contract](core.md#errors-and-runtime-status); status updates
-do not invalidate the Block's body or the stage.
+Block Stage status subscribes to each Block's `#emit` and `#wait` to show its
+[runtime status](core.md#errors-and-runtime-status). Status updates are scoped to
+the indicator.
 
 ## Property editors
 

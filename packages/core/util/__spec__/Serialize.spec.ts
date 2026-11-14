@@ -1,6 +1,6 @@
 import {expect} from 'vitest';
 import {encode, decode, encodeSorted, encodeDisplay, hashData} from '../Serialize.ts';
-import {ErrorEvent, EventType} from '../../block/Event.ts';
+import {ErrorEvent, EventType, WarningEvent} from '../../block/Event.ts';
 import {DateTime} from 'luxon';
 import {formatDate, isDateSame} from '../DateTime.ts';
 
@@ -39,6 +39,13 @@ describe('Serialize', function () {
       expect(event.type).toBe('timeout');
       expect(event.detail).toEqual(detail);
     }
+  });
+
+  it('roundtrips warnings as diagnostic events', () => {
+    const warning = decode(encode(new WarningEvent(WarningEvent.OutOfSync)));
+    expect(warning).toBeInstanceOf(WarningEvent);
+    expect(warning.type).toBe(WarningEvent.OutOfSync);
+    expect(warning.check()).toBe(EventType.VOID);
   });
 
   it('hashes clipboard data consistently across key ordering and Arrow roundtrips', () => {

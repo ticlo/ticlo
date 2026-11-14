@@ -1,6 +1,6 @@
 import React from 'react';
 import {userEvent} from 'vitest/browser';
-import {ErrorEvent, Root, WAIT} from '@ticlo/core';
+import {ErrorEvent, Root, WAIT, WarningEvent} from '@ticlo/core';
 import type {Block, Flow} from '@ticlo/core';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.ts';
@@ -21,7 +21,7 @@ describe('Block runtime status', () => {
     vi.restoreAllMocks();
   });
 
-  it('shows transported errors and wait state on the right block without rerendering block bodies', async () => {
+  it('shows transported diagnostics and wait state on the right block without rerendering block bodies', async () => {
     flow = Root.instance.addFlow('BlockStatusTest', {
       first: {'#is': '', '@b-xyw': [50, 50, 200]},
       second: {'#is': '', '@b-xyw': [350, 50, 0]},
@@ -43,9 +43,17 @@ describe('Block runtime status', () => {
     first.emit(WAIT);
     await shouldHappen(() => block.querySelector('.ticl-e-block-wait'));
     expect(block.querySelector('.ticl-e-block-error')).toBeNull();
+    first.emit(new WarningEvent(WarningEvent.OutOfSync));
+    await shouldHappen(() => block.querySelector('.ticl-e-block-warning'));
+    expect(block.querySelector('.ticl-e-block-wait')).not.toBeNull();
+    await userEvent.click(block.querySelector('.ticl-e-block-warning'));
+    await shouldHappen(() =>
+      Array.from(document.querySelectorAll('.ant-popover-title')).some((title) => title.textContent === 'Out of sync')
+    );
     first.emitOnly(new ErrorEvent('validation', 'still waiting'));
     await shouldHappen(() => block.querySelector('.ticl-e-block-error'));
     expect(block.querySelector('.ticl-e-block-wait')).not.toBeNull();
+    expect(block.querySelector('.ticl-e-block-warning')).toBeNull();
     first.emit(undefined);
     await shouldHappen(() => !block.querySelector('.ticl-e-block-status'));
     expect(div.querySelectorAll('.ticl-e-block-error').length).toBe(1);

@@ -631,6 +631,7 @@ export class Root extends FlowFolder {
     this._resolver._queued = false;
     Event._uid.next();
     Resolver._executeFinalResolved();
+    this._resolver._emitOutOfSync();
   };
 
   runAll(maxRound = 10) {

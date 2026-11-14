@@ -50,6 +50,11 @@ no type is supplied.
 Failures are retained even without a subscriber; later emissions replace them.
 `emitOnly()` changes the event without ending the current wait state.
 
+Warnings are diagnostic `#emit` values. Publishing a warning preserves `#wait`
+and any current `ErrorEvent`. Warning values are ignored by `#call`. After each
+Resolver round, `OutOfSync` identifies blocks with a dropped execution request
+and no subsequent run in that round, including synchronous runs.
+
 Arrow encodes `ErrorEvent` with the `E` tag and native JavaScript errors with
 `e`. Compact array payloads preserve event types and details, including native
 error names, messages, and driver codes. Stack traces and event loop IDs are

@@ -2,7 +2,7 @@ import Arrow from 'jsonesc';
 import {DateTime} from 'luxon';
 import {decodeDateTime, encodeDateTime, formatDate} from './DateTime.ts';
 import {decodeUnknown, encodeUnknown, NoSerialize} from './NoSerialize.ts';
-import {ErrorEvent} from '../block/Event.ts';
+import {ErrorEvent, WarningEvent} from '../block/Event.ts';
 
 const arrow = new Arrow({encodeDate: false, encodeBigInt: true});
 arrow.registerRaw('Ts', DateTime, encodeDateTime, decodeDateTime);
@@ -45,6 +45,12 @@ arrow.register(
       ? new ErrorEvent(undefined, data.length ? arrow.decode(data[0]) : undefined)
       : new ErrorEvent(data[0], arrow.decode(data[1]));
   }
+);
+arrow.register(
+  'W',
+  WarningEvent,
+  (event: WarningEvent) => event.type,
+  (type: string) => new WarningEvent(type)
 );
 
 export const arrowReplacer = arrow.replacer.bind(arrow);

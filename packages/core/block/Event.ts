@@ -56,6 +56,14 @@ export class ErrorEvent extends Event {
   }
 }
 
+export class WarningEvent extends Event<never> {
+  static readonly OutOfSync = 'OutOfSync';
+
+  check(): EventType {
+    return EventType.VOID;
+  }
+}
+
 export class WaitEvent extends Event {
   constructor() {
     super('notReady');
