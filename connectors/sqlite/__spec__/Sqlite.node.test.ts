@@ -155,11 +155,11 @@ describe('SQLite connector', () => {
     let service: SqlClient;
     try {
       const block = flow.createBlock('database');
-      block._load({'#is': 'sqlite:client', 'filePath': ':memory:'});
+      block._load({'#is': 'database:sqlite', 'filePath': ':memory:'});
       Root.run();
       service = await shouldHappen(() => block.getValue('#output'), 3000);
-      expect(globalFunctions.getDesc('sqlite:client').tags).toContain('sql-client');
-      expect(encode(service)).toContain('sqlite:client');
+      expect(globalFunctions.getDesc('database:sqlite').tags).toContain('sql-client');
+      expect(encode(service)).toContain('database:sqlite');
       await service.query('CREATE TABLE items (name TEXT)');
       const query = flow.createBlock('query');
       query._load({
@@ -202,7 +202,7 @@ describe('SQLite connector', () => {
     const storage = new MemoryFlowStorage();
     storage.saveFlow(
       null,
-      {'^sqlite': {'#is': 'sqlite:client', 'filePath': relative(process.cwd(), filePath)}},
+      {'^sqlite': {'#is': 'database:sqlite', 'filePath': relative(process.cwd(), filePath)}},
       '#global'
     );
     let service: SqlClient;

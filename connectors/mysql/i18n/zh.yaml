@@ -1,0 +1,8 @@
+mysql:
+  '@name': MySQL # no translate
+  connectionString:
+    '@name': 连接 URL # translated from: Connection URL
+  maxConnections:
+    '@name': 最大连接数 # translated from: Maximum Connections
+  connectionTimeout:
+    '@name': 连接超时 # translated from: Connection Timeout

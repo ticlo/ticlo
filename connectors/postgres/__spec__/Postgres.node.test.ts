@@ -115,7 +115,7 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () =>
     try {
       const block = flow.createBlock('database');
       block._load({
-        '#is': 'postgres:client',
+        '#is': 'database:postgres',
         'connectionString': url.toString(),
         '~#secret': {'#is': 'node:env', 'name': passwordEnv},
       });
@@ -125,7 +125,7 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () =>
         5000,
         'Database block did not connect'
       );
-      expect(encode(service)).toContain('postgres:client');
+      expect(encode(service)).toContain('database:postgres');
       expect(block.getValue('#secret')).toBeUndefined();
       expect(flow.save().database).not.toHaveProperty('#secret');
 

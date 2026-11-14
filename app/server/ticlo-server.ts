@@ -3,6 +3,7 @@ import {NodeStorage, SecretCipher} from '@ticlo/node';
 import '@ticlo/test';
 import '@ticlo/sqlite';
 import '@ticlo/postgres';
+import '@ticlo/mysql';
 import {Hono} from 'hono';
 import {cors} from 'hono/cors';
 import {devUserAuth, type AuthProvider} from '@ticlo/file-server';

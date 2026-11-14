@@ -1,8 +1,5 @@
-'@library':
-  sqlite:
-    '@name': SQLite
-client:
-  '@name': Client
+sqlite:
+  '@name': SQLite
   filePath:
     '@name': File Path
   readOnly:

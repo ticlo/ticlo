@@ -10,6 +10,8 @@ import enReact from '../i18n/react/en.json' with {type: 'json'};
 import zhReact from '../i18n/react/zh.json' with {type: 'json'};
 import enChart from '../i18n/chart/en.json' with {type: 'json'};
 import zhChart from '../i18n/chart/zh.json' with {type: 'json'};
+import enDatabase from '../i18n/database/en.json' with {type: 'json'};
+import zhDatabase from '../i18n/database/zh.json' with {type: 'json'};
 import enTest from '../i18n/test/en.json' with {type: 'json'};
 import zhTest from '../i18n/test/zh.json' with {type: 'json'};
 
@@ -27,6 +29,7 @@ export function initAppI18n() {
         'ticlo-core': enCore,
         'ticlo-react': enReact,
         'ticlo-chart': enChart,
+        'ticlo-database': enDatabase,
         'ticlo-test': enTest,
       },
       zh: {
@@ -34,6 +37,7 @@ export function initAppI18n() {
         'ticlo-core': zhCore,
         'ticlo-react': zhReact,
         'ticlo-chart': zhChart,
+        'ticlo-database': zhDatabase,
         'ticlo-test': zhTest,
       },
     },

@@ -74,6 +74,18 @@ jobs:
           --health-interval 2s
           --health-timeout 5s
           --health-retries 15
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: ticlo_test
+          MARIADB_DATABASE: ticlo_test
+        ports:
+          - 3306/tcp
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -87,6 +99,7 @@ jobs:
       - name: Vitest
         env:
           TICLO_TEST_POSTGRES_URL: postgresql://postgres:ticlo_test@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres
+          TICLO_TEST_MYSQL_URL: mysql://root:ticlo_test@127.0.0.1:${{ job.services.mariadb.ports[3306] }}/ticlo_test
         run: pnpm run test-coverage
       - name: Coveralls Vitest
         if: github.event_name != 'pull_request'

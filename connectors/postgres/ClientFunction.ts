@@ -10,6 +10,7 @@ import {
   type BlockConfig,
   type SqlClient,
 } from '@ticlo/core';
+import '@ticlo/core/functions/sql/DatabaseCategory.ts';
 import {PostgresClient} from './PostgresClient.ts';
 
 class PostgresClientFunction extends BaseFunction<Block> {
@@ -38,7 +39,7 @@ class PostgresClientFunction extends BaseFunction<Block> {
     }
     this.client = client;
     this._data.output(
-      escapedObject<SqlClient>('postgres:client', {
+      escapedObject<SqlClient>('database:postgres', {
         query: client.query.bind(client),
         transaction: client.transaction.bind(client),
         listEntities: client.listEntities.bind(client),
@@ -76,17 +77,10 @@ class PostgresClientFunction extends BaseFunction<Block> {
   }
 }
 
-globalFunctions.addCategory({
-  id: 'postgres',
-  name: 'postgres',
-  libraryId: 'postgres',
-  icon: '15:PG',
-  color: '36a',
-});
 globalFunctions.addFactory(
   PostgresClientFunction,
   {
-    name: 'client',
+    name: 'postgres',
     icon: '15:PG',
     mode: 'onLoad',
     priority: 2,
@@ -101,6 +95,6 @@ globalFunctions.addFactory(
       {name: '#output', type: 'object', readonly: true, pinned: true},
     ],
   },
-  'postgres',
+  'database',
   sqlClientApi
 );

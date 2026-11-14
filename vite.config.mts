@@ -25,7 +25,7 @@ async function checkFiles() {
   if (checked) {
     return;
   }
-  if (!fs.existsSync('i18n/core/en.json')) {
+  if (!fs.existsSync('i18n/core/en.json') || !fs.existsSync('i18n/database/en.json')) {
     console.log('Building i18n files...');
     await runNpmScript('build-i18n');
   }
