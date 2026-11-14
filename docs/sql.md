@@ -14,10 +14,11 @@ service input/output descriptors.
 to each database adapter. Parameters are bound by the driver, not interpolated
 into the SQL string.
 
-The function defaults to `onCall`. Editing SQL or parameters does not execute a
-statement in this mode. Trigger `#call` to execute; normal Block `#wait` and
+The function defaults to `onLoad`, which runs it when the block loads and when
+inputs change. It skips execution while the client is unavailable. For explicit
+execution, set `#mode` to `onCall` and trigger `#call`. Normal Block `#wait` and
 `#emit` events report completion or errors. Canceling or replacing a call
-discards its eventual output; it does not roll back database writes.
+discards its eventual output. Database writes that already ran still take effect.
 
 `SqlResult.table`, when present, contains `columns: SqlColumn[]` and
 `rows: unknown[][]`. Column names are unique; `sourceName` can preserve a driver's

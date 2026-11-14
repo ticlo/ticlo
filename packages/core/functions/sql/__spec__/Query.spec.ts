@@ -1,5 +1,5 @@
 import {Flow, Root} from '../../../block/Flow.ts';
-import {ErrorEvent} from '../../../block/Event.ts';
+import {ErrorEvent, NO_EMIT} from '../../../block/Event.ts';
 import {DataWrapper} from '../../../block/FunctonData.ts';
 import {shouldHappen} from '../../../util/test-util.ts';
 import {SqlQueryFunction} from '../Query.ts';
@@ -12,7 +12,8 @@ class QueryData extends DataWrapper {
 }
 
 describe('sql:query', () => {
-  it('executes only when called and clears old results on failure', async () => {
+  it('executes on load and clears old results when an input change fails', async () => {
+    const sql = 'INSERT INTO test VALUES (?) RETURNING id';
     const table = {columns: [{name: 'id', type: 'number' as const}], rows: [[1]]};
     const query = vi
       .fn()
@@ -24,27 +25,21 @@ describe('sql:query', () => {
       block._load({
         '#is': 'sql:query',
         'client': {query},
-        'sql': 'INSERT INTO test VALUES (?) RETURNING id',
+        sql,
         'params': [1],
       });
       block.getProperty('#emit', true);
       Root.run();
-      expect(query).not.toHaveBeenCalled();
-      block.setValue('params', [2]);
-      Root.run();
-      expect(query).not.toHaveBeenCalled();
-
-      block.updateValue('#call', {});
-      Root.run();
       expect(block.getValue('#wait')).toBe(true);
       await shouldHappen(() => block.getValue('#output') === table);
-      expect(query).toHaveBeenCalledWith('INSERT INTO test VALUES (?) RETURNING id', [2]);
+      expect(query).toHaveBeenNthCalledWith(1, sql, [1]);
       expect(block.getValue('affectedRows')).toBe(1);
       expect(block.getValue('insertId')).toBe(1);
 
-      block.updateValue('#call', {});
+      block.setValue('params', [2]);
       Root.run();
       await shouldHappen(() => block.getValue('#emit') instanceof ErrorEvent);
+      expect(query).toHaveBeenNthCalledWith(2, sql, [2]);
       expect(block.getValue('#output')).toBeUndefined();
       expect(block.getValue('affectedRows')).toBeUndefined();
       expect(block.getValue('insertId')).toBeUndefined();
@@ -90,11 +85,11 @@ describe('sql:query', () => {
     expect(data.outputs['#output']).toBeUndefined();
   });
 
-  it('rejects invalid inputs before calling the service', async () => {
+  it('skips execution without a client and validates inputs once a client is available', async () => {
     const query = vi.fn();
     const data = new QueryData({sql: 'SELECT 1'});
     const fn = new SqlQueryFunction(data);
-    await expect(fn.run()).rejects.toThrow('Invalid SQL client');
+    await expect(fn.run()).resolves.toBe(NO_EMIT);
     data.inputs.client = {query};
     data.inputs.sql = ' ';
     await expect(fn.run()).rejects.toThrow('non-empty string');

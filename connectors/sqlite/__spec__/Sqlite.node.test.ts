@@ -170,8 +170,6 @@ describe('SQLite connector', () => {
       });
       Root.run();
       expect(query.getValue('client')).toBe(service);
-      query.updateValue('#call', {});
-      Root.run();
       const table = (await shouldHappen(() => query.getValue('#output'), 3000)) as SqlResult['table'];
       expect(table.rows).toEqual([['test']]);
 
