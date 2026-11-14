@@ -59,6 +59,7 @@
 'Properties': 属性
 'Functions': 功能
 'Pinned': 直接显示
+'Inline': 行内编辑 # translated from: Inline
 '#global': '#全局'
 '#shared': '#公用'
 '#temp': '#临时'

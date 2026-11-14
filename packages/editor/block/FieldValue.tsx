@@ -1,15 +1,114 @@
 import React, {useContext, useEffect, useRef} from 'react';
 import {useConnectionValue} from '../component/useConnectionValue.ts';
-import {ClientConn} from '@ticlo/core/editor.ts';
+import {
+  type ClientConn,
+  type FunctionDesc,
+  type PropDesc,
+  getInlineProp,
+  isDataTruncated,
+  stopPropagation,
+} from '@ticlo/core/editor.ts';
 import {Popup} from '../component/ClickPopup.tsx';
 import {ObjectTree} from '../object-tree/ObjectTree.tsx';
 import {TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {renderValue} from '../component/renderValue.tsx';
+import {typeEditorMap} from '../property/value/index.ts';
+import {ServiceEditor} from '../property/value/ServiceEditor.tsx';
+import {requestCallbacks} from '../util/RequestCallbacks.ts';
+
+export function getInlineEditorDesc(base: PropDesc, inline: ReturnType<typeof getInlineProp>) {
+  if (!inline || base.readonly || base.type === 'none' || base.name.endsWith('[]')) return;
+  const desc = inline === true ? base : {...base, ...inline, name: base.name};
+  if (!desc.readonly && desc.type !== 'none' && (desc.type === 'service' || Object.hasOwn(typeEditorMap, desc.type))) {
+    return desc;
+  }
+}
 
 interface Props {
   conn: ClientConn;
   path: string;
 }
+
+interface InlineProps extends Props {
+  keys: string[];
+  name: string;
+  desc: PropDesc;
+  funcDesc: FunctionDesc;
+  funcModule: string;
+}
+
+export const InlineFieldValue = React.memo(function InlineFieldValue({
+  conn,
+  path,
+  keys,
+  name,
+  desc,
+  funcDesc,
+  funcModule,
+}: InlineProps) {
+  const value = useConnectionValue(conn, path);
+  const layout = useContext(TicloLayoutContextType);
+  const commit = (value: unknown): void => {
+    void conn.setUnboundValue(path, value).catch(requestCallbacks.onError);
+  };
+  const onEditValue = layout.editValue
+    ? (desc: PropDesc, mime?: string) => {
+        void conn
+          .getValue(path)
+          .then(({value}) => {
+            layout.editValue(
+              value === undefined ? desc.default : value,
+              {...desc, name, mime: mime ?? desc.mime},
+              commit
+            );
+          })
+          .catch(requestCallbacks.onError);
+      }
+    : undefined;
+
+  // Keep the value area out of stage gestures and leave native input behavior intact.
+  const onKeyDown = (event: React.KeyboardEvent) => {
+    if (!(event.key.toLowerCase() === 's' && (event.ctrlKey || event.metaKey))) event.stopPropagation();
+  };
+  const Editor = typeEditorMap[desc.type];
+  return (
+    <div
+      className="ticl-e-field-value ticl-e-inline-value"
+      onMouseDown={stopPropagation}
+      onTouchStart={stopPropagation}
+      onKeyDown={onKeyDown}
+      onPaste={stopPropagation}
+    >
+      {desc.type === 'service' ? (
+        <ServiceEditor
+          conn={conn}
+          keys={keys}
+          value={value}
+          funcDesc={funcDesc}
+          desc={desc}
+          bindingPath={null}
+          funcModule={funcModule}
+          onPathChange={(from): void => {
+            void conn.setUnboundBinding(path, from).catch(requestCallbacks.onError);
+          }}
+        />
+      ) : (
+        <Editor
+          inline
+          conn={conn}
+          keys={keys}
+          name={name}
+          value={value === undefined ? desc.default : value}
+          funcDesc={funcDesc}
+          desc={desc}
+          funcModule={funcModule}
+          onEditValue={onEditValue}
+          onChange={isDataTruncated(value) && !['object', 'array', 'table'].includes(desc.type) ? undefined : commit}
+        />
+      )}
+    </div>
+  );
+});
 
 export const FieldValue = React.memo(function FieldValue({conn, path}: Props) {
   const value = useConnectionValue(conn, path);

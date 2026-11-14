@@ -53,8 +53,8 @@ export function createLayoutActions(
     editValue: (value, desc, onChange) => {
       TextEditorPane.openValuePanel(getLayout(), value, desc, onChange);
     },
-    editSchedule: (path, scheduleName, index) => {
-      SchedulePane.openFloatPanel(getLayout(), getConn(), path, scheduleName, index);
+    editSchedule: (path, scheduleName, index, unbound) => {
+      SchedulePane.openFloatPanel(getLayout(), getConn(), path, scheduleName, index, unbound);
     },
     editTable: (props) => {
       TableEditor.openFloatPanel(getLayout(), props);

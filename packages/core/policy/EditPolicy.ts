@@ -321,6 +321,8 @@ export function checkEditPolicy(
     case 'hideProps':
     case 'moveShownProp':
       return checkProp(`${path}.@b-p`);
+    case 'setInlineProp':
+      return checkProp(path);
     case 'moveCustomProp':
       return checkProp(`${path}.#custom`);
     case 'moveOptionalProp':

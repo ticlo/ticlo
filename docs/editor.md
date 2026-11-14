@@ -68,6 +68,18 @@ first downloading the enclosing object. Truncated arrays of at least 1000 items
 load pages as their last loaded item scrolls into view; smaller arrays read the
 selected value directly. Page boundary mismatches stop loading until reloaded.
 
+## Inline property editing
+
+The property menu's **Inline** checkbox enables editing in Block Stage.
+**Pinned** controls whether the property row appears. Unpinning retains its
+inline setting. Bound or read-only values are displayed in the row, and a
+binding added while editing prevents the draft from being saved to that field.
+
+In saved data, `"@b-inline": {"input": true}` uses the original property
+descriptor. An object such as `{"type": "select", "options": [1, 5, 10]}`
+overrides the editor on the stage. The map key is the actual field name,
+including the index for a group member. Unchecking Inline removes its entry.
+
 ## Table editor
 
 `type: 'table'` accepts arrays of objects or an explicit schema and row arrays:

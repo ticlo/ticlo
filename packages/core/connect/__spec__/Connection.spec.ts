@@ -1021,6 +1021,48 @@ describe('Connection', function () {
     Root.instance.deleteValue('Connection22_2');
   });
 
+  it('updates inline settings independently and protects bindings added before a commit', async () => {
+    const path = 'InlineConnection.block';
+    const descriptor = {type: 'select', options: [1, 2]};
+    const flow = Root.instance.addFlow('InlineConnection');
+    flow.load({block: {'#is': '', 'input': 1, 'source': 2, '@b-inline': {input: descriptor}}}, null, (flow) =>
+      flow.save()
+    );
+    const [, client] = makeLocalConnection(Root.instance, false);
+    const [, other] = makeLocalConnection(Root.instance, false);
+    client.watch('InlineConnection', {});
+    try {
+      await Promise.all([
+        client.setInlineProp(path, 'input', true),
+        client.setInlineProp(path, 'a', true),
+        other.setInlineProp(path, 'b', true),
+      ]);
+      expect(flow.queryValue('block.@b-inline')).toEqual({input: descriptor, a: true, b: true});
+      await client.undo('InlineConnection');
+      expect(flow.queryValue('block.@b-inline')).toEqual({input: descriptor});
+      await client.redo('InlineConnection');
+      expect(flow.queryValue('block.@b-inline')).toEqual({input: descriptor, a: true, b: true});
+
+      await client.setUnboundValue(`${path}.input`, 5);
+      expect(flow.queryValue('block.input')).toBe(5);
+      await client.undo('InlineConnection');
+      expect(flow.queryValue('block.input')).toBe(1);
+      await client.redo('InlineConnection');
+      expect(flow.queryValue('block.input')).toBe(5);
+
+      await other.setBinding(`${path}.input`, 'source', false, true);
+      expect(await shouldReject(client.setUnboundValue(`${path}.input`, 9))).toBe('Property is bound');
+      expect(flow.queryProperty('block.input')._bindingPath).toBe('source');
+      expect(flow.queryValue('block.input')).toBe(2);
+      await client.setInlineProp(path, 'input', false);
+      expect(flow.queryValue('block.@b-inline')).toEqual({a: true, b: true});
+    } finally {
+      client.destroy();
+      other.destroy();
+      Root.instance.deleteValue('InlineConnection');
+    }
+  });
+
   it('undo redo', async function () {
     const flow = Root.instance.addFlow('Connection23');
     flow.load({'#is': '', 'a': 1}, null, (flow: Flow) => flow.save());

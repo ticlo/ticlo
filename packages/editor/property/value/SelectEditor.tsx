@@ -45,7 +45,7 @@ export class MultiSelectEditor extends SelectEditor {
   };
 
   render() {
-    const {desc, value, locked, onChange} = this.props;
+    const {desc, value, locked, onChange, inline} = this.props;
     const optionNodes = this.getOptions();
     return (
       <Select
@@ -55,6 +55,8 @@ export class MultiSelectEditor extends SelectEditor {
         disabled={locked || onChange == null}
         onChange={this.onValuesChange}
         placeholder={desc.placeholder}
+        maxTagCount={inline ? 0 : undefined}
+        maxTagPlaceholder={inline ? (hidden) => `+${hidden.length}` : undefined}
       >
         {optionNodes}
       </Select>

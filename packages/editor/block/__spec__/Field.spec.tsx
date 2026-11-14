@@ -1,4 +1,6 @@
-import {expect} from 'vitest';
+import {expect, vi} from 'vitest';
+import {page, userEvent} from 'vitest/browser';
+import {ConfigProvider} from 'antd';
 import {simulate} from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage.tsx';
@@ -6,7 +8,9 @@ import {type Flow, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.ts';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.ts';
-import {initEditor} from '../../index.ts';
+import {initEditor, PropertyList} from '../../index.ts';
+import {theme} from '../../style/theme.ts';
+import {TicloLayoutContextType} from '../../component/LayoutContext.ts';
 
 describe('editor Block Field', function () {
   let flow: Flow;
@@ -82,6 +86,120 @@ describe('editor Block Field', function () {
         div
       )
     );
+  });
+
+  it('toggles inline editing and uses the stage descriptor on the same property', async () => {
+    const basePath = 'BlockFieldInline';
+    const path = `${basePath}.block`;
+    flow = Root.instance.addFlow(basePath, {
+      block: {
+        '#is': '',
+        '#custom': [{name: 'input', type: 'string'}],
+        'input': 'abc',
+        'source': 'bound',
+        '@b-xyw': [100, 100, 240],
+        '@b-p': ['input'],
+      },
+    });
+    const [, conn] = makeLocalConnection(Root.instance);
+    const [, div] = loadTemplate(
+      <>
+        <BlockStage conn={conn} basePath={basePath} />
+        <PropertyList conn={conn} paths={[path]} />
+      </>,
+      'editor'
+    );
+    const stageInput = () => div.querySelector<HTMLInputElement>('.ticl-e-inline-value input');
+    const fieldName = await shouldHappen(() => div.querySelector('.ticl-e-field-name > span'));
+    simulate(fieldName, 'contextmenu', {button: 2});
+    const checkbox = await shouldHappen(() => {
+      const labels = document.querySelectorAll<HTMLLabelElement>('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden) label');
+      const label = [...labels].find((label) => label.textContent.includes('Inline'));
+      const input = label?.querySelector('input');
+      return input && !input.disabled && input;
+    });
+    checkbox.click();
+    const input = await shouldHappen(stageInput);
+    expect(flow.queryValue('block.@b-inline')).toEqual({input: true});
+    await userEvent.fill(page.elementLocator(input), 'from stage');
+    simulate(input, 'keydown', {key: 'Enter'});
+    await shouldHappen(() => flow.queryValue('block.input') === 'from stage');
+
+    await conn.setValue(`${path}.@b-inline`, {input: {type: 'select', options: ['from stage', 'second']}}, true);
+    await shouldHappen(() => div.querySelector('.ticl-e-inline-value .ant-select'));
+    expect(div.querySelector('.ticl-e-property-list textarea')).not.toBeNull();
+    await conn.setBinding(`${path}.input`, 'source', false, true);
+    await shouldHappen(() => !div.querySelector('.ticl-e-inline-value'));
+    expect(div.querySelector('.ticl-e-field-value').textContent).toContain('bound');
+  });
+
+  it('fits inline controls and their expand buttons inside a single stage row', async () => {
+    const basePath = 'BlockFieldInlineHeight';
+    const options = ['Apple', 'Banana', 'Cherry', 'Durian'];
+    flow = Root.instance.addFlow(basePath, {
+      block: {
+        '#is': '',
+        '#custom': [
+          {name: 'text', type: 'string'},
+          {name: 'dynamic', type: 'any'},
+          {name: 'choices', type: 'multi-select', options},
+          {name: 'number', type: 'number', unit: 'ms'},
+        ],
+        'text': 'first line\nsecond line',
+        'dynamic': 'dynamic text',
+        'choices': options,
+        'number': 1,
+        '@b-xyw': [100, 100, 200],
+        '@b-p': ['text', 'dynamic', 'choices', 'number'],
+        '@b-inline': {text: true, dynamic: true, choices: true, number: true},
+      },
+    });
+    const [, conn] = makeLocalConnection(Root.instance);
+    const editValue = vi.fn();
+    const [, div] = loadTemplate(
+      <ConfigProvider theme={theme}>
+        <div className="css-var-r0">
+          <TicloLayoutContextType.Provider value={{editValue}}>
+            <BlockStage conn={conn} basePath={basePath} />
+          </TicloLayoutContextType.Provider>
+        </div>
+      </ConfigProvider>,
+      'editor'
+    );
+    await shouldHappen(() => div.querySelector('.ticl-e-inline-value .ant-select-selection-item'));
+    const input = div.querySelector<HTMLInputElement>('.ticl-e-inline-value input');
+    await shouldHappen(
+      () =>
+        getComputedStyle(input.closest('.ticl-e-field')).display === 'flex' &&
+        getComputedStyle(div.querySelector('.ticl-e-inline-value .ant-select-content')).display === 'flex'
+    );
+    expect(input.readOnly).toBe(true);
+    expect(input.value).toBe('first line…');
+    expect(div.querySelector('.ticl-e-inline-value .ant-select-selection-item').textContent).toBe('+4');
+    const rows = div.querySelectorAll('.ticl-e-inline-value');
+    expect(rows.length).toBe(4);
+    const buttons = div.querySelectorAll('.ticl-e-inline-value .ticl-e-expand-button');
+    expect(buttons.length).toBe(2);
+    for (const button of buttons) {
+      const value = button.closest('.ticl-e-inline-value').getBoundingClientRect();
+      const field = button.closest('.ticl-e-field').getBoundingClientRect();
+      const bounds = button.getBoundingClientRect();
+      expect(bounds.left).toBeGreaterThanOrEqual(value.right);
+      expect(bounds.right).toBeLessThanOrEqual(field.right);
+      expect(
+        document
+          .elementFromPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
+          ?.closest('.ticl-e-expand-button')
+      ).toBe(button);
+    }
+    expect(input.getBoundingClientRect().right).toBe(rows[0].getBoundingClientRect().right);
+    for (const row of rows) {
+      expect(row.parentElement.getBoundingClientRect().height).toBe(24);
+      expect(row.firstElementChild.getBoundingClientRect().height).toBeLessThanOrEqual(22);
+    }
+    await userEvent.click(buttons[0]);
+    await shouldHappen(() => editValue.mock.calls.length === 1);
+    expect(editValue.mock.calls[0][0]).toBe('first line\nsecond line');
   });
 
   it('sub block', async function () {

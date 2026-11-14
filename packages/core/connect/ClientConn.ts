@@ -100,6 +100,10 @@ export abstract class ClientConn {
     return this.sendValueRequest({cmd: 'set', path, value}, important);
   }
 
+  setUnboundValue(path: string, value: unknown): Promise<any> {
+    return this.simpleRequest({cmd: 'set', path, value, unbound: true});
+  }
+
   /**
    * Updates the value of a property at the given path without replacing the entire property.
    * Calls `property.updateValue(value)`, which is useful for partial object updates.
@@ -137,6 +141,10 @@ export abstract class ClientConn {
     important: boolean | ClientCallbacks = false
   ): Promise<any> | string {
     return this.sendValueRequest({cmd: 'bind', path, from, absolute}, important);
+  }
+
+  setUnboundBinding(path: string, from: string): Promise<any> {
+    return this.simpleRequest({cmd: 'bind', path, from, absolute: true, unbound: true});
   }
 
   /**
@@ -316,6 +324,12 @@ export abstract class ClientConn {
    */
   hideProps(path: string, props: string[], callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'hideProps', path, props}, callbacks);
+  }
+
+  setInlineProp(path: string, name: string, enabled: boolean): Promise<unknown>;
+  setInlineProp(path: string, name: string, enabled: boolean, callbacks: ClientCallbacks): Promise<unknown> | string;
+  setInlineProp(path: string, name: string, enabled: boolean, callbacks?: ClientCallbacks): Promise<unknown> | string {
+    return this.simpleRequest({cmd: 'setInlineProp', path: `${path}.@b-inline`, name, enabled}, callbacks);
   }
 
   /**

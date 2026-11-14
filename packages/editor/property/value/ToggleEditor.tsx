@@ -16,7 +16,7 @@ export class ToggleEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   render() {
-    const {desc, locked, onChange, funcDesc, name} = this.props;
+    const {desc, locked, onChange, funcDesc, name, inline} = this.props;
     let {value} = this.props;
     const {options} = desc;
     let checkedChildren: React.ReactNode;
@@ -31,6 +31,7 @@ export class ToggleEditor extends React.PureComponent<ValueEditorProps, any> {
     }
     return (
       <Switch
+        size={inline ? 'small' : undefined}
         checked={Boolean(value)}
         disabled={locked || onChange == null}
         unCheckedChildren={unCheckedChildren}

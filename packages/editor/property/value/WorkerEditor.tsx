@@ -22,14 +22,18 @@ export class WorkerEditor extends FunctionEditor {
   }
 
   canEditWorker(policy?: EditPolicyView) {
-    const {conn, keys, desc, value, onChange, locked, onEditWorker} = this.props;
+    const {conn, keys, desc, name, inline, value, onChange, locked, onEditWorker} = this.props;
     return (
       value != null &&
       onChange != null &&
       !locked &&
+      (!inline || this.context?.editFlow != null) &&
       (onEditWorker ||
         (keys?.length > 0 &&
-          (policy ?? conn.getEditPolicyView()).can({cmd: 'editWorker', path: `${keys[0]}.#edit-${desc.name}`})))
+          (policy ?? conn.getEditPolicyView()).can({
+            cmd: 'editWorker',
+            path: `${keys[0]}.#edit-${inline ? name : desc.name}`,
+          })))
     );
   }
 
@@ -39,12 +43,21 @@ export class WorkerEditor extends FunctionEditor {
       this.props.onEditWorker();
       return;
     }
-    const {conn, keys, desc} = this.props;
-    const flowEditorPath = `${keys[0]}.#edit-${desc.name}`;
-    conn.editWorker(flowEditorPath, desc.name);
-    this.context.editFlow(flowEditorPath, () => {
-      conn.applyFlowChange(flowEditorPath, undefined, requestCallbacks);
-    });
+    const {conn, keys, desc, name, inline, funcModule} = this.props;
+    const fromField = inline ? name : desc.name;
+    const path = `${keys[0]}.#edit-${fromField}`;
+    const open = () =>
+      this.context.editFlow?.(path, () => {
+        conn.simpleRequest({cmd: 'applyFlowChange', path, unbound: inline}, requestCallbacks);
+      });
+    if (inline) {
+      void conn
+        .simpleRequest({cmd: 'editWorker', path, fromField, funcModule, unbound: true})
+        .then(open, requestCallbacks.onError);
+    } else {
+      conn.editWorker(path, fromField);
+      open();
+    }
   };
 
   onFunctionClick = (name: string, desc: FunctionDesc) => {

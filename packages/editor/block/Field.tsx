@@ -9,6 +9,7 @@ import {
   blankPropDesc,
   buildPropDescCache,
   findPropDesc,
+  getInlineProp,
   FunctionDesc,
   PropDesc,
   PropGroupDesc,
@@ -21,7 +22,7 @@ import {
 import {TIcon} from '../icon/Icon.tsx';
 import {DragDropDiv, DragState} from 'rc-dock';
 import type {DragHandler} from 'rc-dock/lib/dragdrop/DragManager.js';
-import {FieldValue} from './FieldValue.tsx';
+import {FieldValue, InlineFieldValue, getInlineEditorDesc} from './FieldValue.tsx';
 import {isBindable, propAcceptsBlock} from '@ticlo/core';
 import {LocalizedPropertyName} from '../component/LocalizedLabel.tsx';
 import {PropertyDropdown} from '../popup/PropertyDropdown.tsx';
@@ -79,6 +80,8 @@ export class FieldItem extends DataRendererItem {
   // a cached array used by PropertyDropdown to prevent re-render
   pathArrayCache: string[];
   desc: PropDesc = blankPropDesc;
+  inline: ReturnType<typeof getInlineProp>;
+  inlineDesc?: PropDesc;
 
   indent = 0;
   subBlock?: SubBlockItem;
@@ -127,6 +130,15 @@ export class FieldItem extends DataRendererItem {
   setDesc(desc: PropDesc) {
     if (desc !== this.desc) {
       this.desc = desc;
+      this.inlineDesc = getInlineEditorDesc(desc, this.inline);
+      this.forceUpdate();
+    }
+  }
+
+  setInline(inline: FieldItem['inline']) {
+    if (!deepEqual(inline, this.inline)) {
+      this.inline = inline;
+      this.inlineDesc = getInlineEditorDesc(this.desc, inline);
       this.forceUpdate();
     }
   }
@@ -493,6 +505,14 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   renderImpl(): React.ReactNode {
     const {item} = this.props;
     const desc = item.block.desc;
+    const editorDesc = item.cache.bindingPath == null && item.name !== '@b-inline' && item.inlineDesc;
+    const inlineDesc =
+      editorDesc &&
+      this.context.can({
+        cmd: editorDesc.type === 'event' ? 'callFunction' : editorDesc.type === 'service' ? 'bind' : 'set',
+        path: editorDesc.type === 'event' ? item.block.path : item.path,
+      }) &&
+      editorDesc;
 
     let showOutBound = item.cache.hasListener || (item.subBlock && item.subBlock.hidden);
 
@@ -547,7 +567,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
 
     return (
       <DragDropDiv
-        className={fieldClass}
+        className={inlineDesc ? `${fieldClass} ticl-e-field-inline` : fieldClass}
         onDragStartT={this.onDragStart}
         onDragMoveT={this.onDragMove}
         onDragEndT={this.onDragEnd}
@@ -570,7 +590,20 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
           ) : null}
           {propName}
         </div>
-        <FieldValue conn={item.getConn()} path={item.path} />
+        {inlineDesc ? (
+          <InlineFieldValue
+            key={item.path}
+            conn={item.getConn()}
+            path={item.path}
+            keys={item.pathArrayCache}
+            name={item.name}
+            desc={inlineDesc}
+            funcDesc={desc}
+            funcModule={item.block.stage.getFuncModule()}
+          />
+        ) : (
+          <FieldValue conn={item.getConn()} path={item.path} />
+        )}
       </DragDropDiv>
     );
   }
@@ -600,6 +633,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   desc: FunctionDesc = blankFuncDesc;
   custom: (PropDesc | PropGroupDesc)[];
   propDescCache: {[key: string]: PropDesc};
+  optionalPropDescs: {[key: string]: PropDesc};
   fields: string[] = [];
   fieldItems: Map<string, FieldItem> = new Map<string, FieldItem>();
 
@@ -680,6 +714,17 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
       }
     },
   });
+  inlineConfig: unknown;
+  inlineListener = new ValueSubscriber({
+    onUpdate: ({cache}) => {
+      const value = cache.value;
+      if (Object.is(value, this.inlineConfig)) return;
+      this.inlineConfig = value;
+      for (const [name, item] of this.fieldItems) {
+        item.setInline(getInlineProp(value, name));
+      }
+    },
+  });
 
   descLoaded = false;
   descListener = (funcDesc: FunctionDesc) => {
@@ -691,6 +736,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     this.isListener.subscribe(this.conn, `${this.path}.#is`, true);
     this.customListener.subscribe(this.conn, `${this.path}.#custom`, true);
     this.pListener.subscribe(this.conn, `${this.path}.@b-p`, true);
+    this.inlineListener.subscribe(this.conn, `${this.path}.@b-inline`, true);
   }
 
   setDesc(desc: FunctionDesc) {
@@ -704,8 +750,16 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   createField(name: string): FieldItem {
     const item = new FieldItem(this, name);
-    item.setDesc(findPropDesc(name, this.propDescCache));
+    item.setDesc(this.getFieldDesc(name));
+    item.setInline(getInlineProp(this.inlineConfig, name));
     return item;
+  }
+
+  private getFieldDesc(name: string) {
+    const desc = findPropDesc(name, this.propDescCache);
+    if (desc !== blankPropDesc) return desc;
+    if (this.optionalPropDescs && Object.hasOwn(this.optionalPropDescs, name)) return this.optionalPropDescs[name];
+    return blankPropDesc;
   }
 
   setP(fields: string[], forceRefresh = false) {
@@ -731,8 +785,9 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   updatePropCache() {
     this.propDescCache = buildPropDescCache(this.desc, this.custom);
+    this.optionalPropDescs = this.conn.getOptionalProps(this.desc, this.stage.getFuncModule());
     for (const [key, item] of this.fieldItems) {
-      item.setDesc(findPropDesc(key, this.propDescCache));
+      item.setDesc(this.getFieldDesc(key));
     }
   }
 
@@ -754,6 +809,8 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     this.isListener.unsubscribe();
     this.customListener.unsubscribe();
     this.pListener.unsubscribe();
+    this.inlineListener.unsubscribe();
+    this.inlineConfig = undefined;
     this.conn.unwatchDesc(this.descListener);
     for (const [, fieldItem] of this.fieldItems) {
       fieldItem.destroy();

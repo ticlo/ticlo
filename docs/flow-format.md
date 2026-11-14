@@ -68,6 +68,8 @@ flow, and `#+` its library root.
 Preserve saved layout when editing:
 
 - `@b-p`: displayed property order.
+- `@b-inline`: property editor overrides for Block Stage. See
+  [inline property editing](editor.md#inline-property-editing).
 - `@b-pself`: show the block's own property in its footer for binding from the
   block path; defaults to `false`.
 - `@b-xyw`: `[x, y, width]`.
