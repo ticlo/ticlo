@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons';
 import type {DockLayout} from 'rc-dock';
 import CodeMirror from '@uiw/react-codemirror';
+import {EditorView} from '@codemirror/view';
 import type {PropDesc, SqlEntity, SqlEntityColumn, SqlResult, SqlTable} from '@ticlo/core';
 import {sqlClientCommands} from '@ticlo/core';
 import {type ClientConn, translateEditor} from '@ticlo/core/editor.ts';
@@ -34,6 +35,48 @@ interface EntityNode extends TreeDataNode {
 
 const queryFunction = {name: 'query'};
 const parameterDesc: PropDesc = {name: 'params', type: 'any', types: ['array', 'object']};
+const SQL_NAME_MIME = 'application/x-ticlo-sql-name';
+
+function startSqlNameDrag(event: React.DragEvent, text: string) {
+  event.stopPropagation();
+  event.dataTransfer.setData('text/plain', text);
+  event.dataTransfer.setData(SQL_NAME_MIME, text);
+  event.dataTransfer.effectAllowed = 'copy';
+}
+
+function dropSqlName(event: DragEvent, view: EditorView | null | undefined) {
+  if (!view || view.state.readOnly || !event.dataTransfer) return false;
+  const text = event.dataTransfer.getData(SQL_NAME_MIME);
+  if (!text) return false;
+  const rect = view.dom.getBoundingClientRect();
+  const hasCoords = event.clientX !== 0 || event.clientY !== 0 || (rect.left <= 0 && rect.top <= 0);
+  const dropPos =
+    (hasCoords ? view.posAtCoords({x: event.clientX, y: event.clientY}, false) : null) ??
+    view.state.selection.main.head;
+  const cursor = dropPos + text.length;
+  view.focus();
+  view.dispatch({
+    changes: {from: dropPos, insert: text},
+    selection: {anchor: cursor, head: cursor},
+    userEvent: 'input.drop',
+  });
+  return true;
+}
+
+const sqlEditorExtensions = [
+  EditorView.domEventHandlers({
+    dragover(event) {
+      if (event.dataTransfer?.types.includes(SQL_NAME_MIME)) {
+        event.dataTransfer.dropEffect = 'copy';
+        return true;
+      }
+      return false;
+    },
+    drop(event, view) {
+      return dropSqlName(event, view);
+    },
+  }),
+];
 
 function buildEntityTree(entities: SqlEntity[], columns: Record<string, SqlEntityColumn[]>) {
   const nodes: EntityNode[] = [];
@@ -57,14 +100,29 @@ function buildEntityTree(entities: SqlEntity[], columns: Record<string, SqlEntit
       key,
       entity,
       icon: entity.kind === 'view' ? <EyeOutlined /> : <TableOutlined />,
-      title: name,
+      title: (
+        <span
+          className="ticl-e-sql-entity"
+          title={name}
+          draggable
+          onDragStart={(event) => startSqlNameDrag(event, name)}
+        >
+          {name}
+        </span>
+      ),
       isLeaf: false,
       children: columns[key]?.map((column, index) => ({
         key: `${key}:${index}`,
         isLeaf: true,
         title: (
-          <span title={column.defaultExpression}>
-            {column.primaryKey ? <KeyOutlined /> : null} {column.name}
+          <span
+            className="ticl-e-sql-column"
+            title={column.defaultExpression}
+            draggable
+            onDragStart={(event) => startSqlNameDrag(event, column.name)}
+          >
+            {column.primaryKey ? <KeyOutlined /> : null}
+            {column.name}
             <span className="ticl-e-sql-column-type">{column.databaseType}</span>
           </span>
         ),
@@ -142,6 +200,10 @@ function SqlClientPanel({conn, path}: Props) {
   const session = useRef({active: false});
   const entitySession = useRef({id: 0, active: false});
   const inFlight = useRef(false);
+  const editorView = useRef<EditorView | null>(null);
+  const onCreateEditor = useCallback((view: EditorView) => {
+    editorView.current = view;
+  }, []);
   const target = useMemo(() => ({conn, path, service}), [conn, path, service]);
   const current = useRef(target);
   current.current = target;
@@ -268,6 +330,17 @@ function SqlClientPanel({conn, path}: Props) {
       <div className="ticl-e-sql-main">
         <div
           className="ticl-e-sql-input"
+          onDragOver={(event) => {
+            if (event.dataTransfer?.types.includes(SQL_NAME_MIME)) {
+              event.dataTransfer.dropEffect = 'copy';
+              event.preventDefault();
+            }
+          }}
+          onDrop={(event) => {
+            if (!event.defaultPrevented && dropSqlName(event.nativeEvent, editorView.current)) {
+              event.preventDefault();
+            }
+          }}
           onKeyDown={(event) => {
             if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
               event.preventDefault();
@@ -275,7 +348,14 @@ function SqlClientPanel({conn, path}: Props) {
             }
           }}
         >
-          <CodeMirror value={sql} onChange={setSql} height="180px" theme={editorTheme} />
+          <CodeMirror
+            value={sql}
+            onChange={setSql}
+            onCreateEditor={onCreateEditor}
+            height="180px"
+            theme={editorTheme}
+            extensions={sqlEditorExtensions}
+          />
         </div>
         <div className="ticl-e-sql-toolbar">
           <Button
@@ -316,7 +396,7 @@ function SqlClientPanel({conn, path}: Props) {
             value={params}
             readonly={running}
             label={
-              service instanceof NoSerialize && service.title === 'postgres:client' ? <code>$1, $2, …</code> : null
+              service instanceof NoSerialize && service.title === 'database:postgres' ? <code>$1, $2, …</code> : null
             }
             onChange={changeParams}
           />

@@ -33,6 +33,18 @@ function resolveWorkspaceDependencies(manifest: any) {
   }
 }
 
+/** Rewrite source entry fields to compiled JS and declaration outputs for published packages. */
+function resolvePublishedEntryPoints(manifest: Record<string, any>) {
+  for (const field of ['main', 'module']) {
+    if (typeof manifest[field] === 'string') {
+      manifest[field] = manifest[field].replace(/\.tsx?$/, '.js');
+    }
+  }
+  if (typeof manifest.types === 'string') {
+    manifest.types = manifest.types.replace(/\.tsx?$/, '.d.ts');
+  }
+}
+
 function makeDir(path: string) {
   if (path.lastIndexOf('.') > path.length - 5) {
     // when there is extension, use parent folder
@@ -85,6 +97,7 @@ async function buildPackage(fromDir: string) {
   // update package.json
   const packageJson: any = JSON.parse(fs.readFileSync(`${fromDir}/package.json`, {encoding: 'utf8'}));
   resolveWorkspaceDependencies(packageJson);
+  resolvePublishedEntryPoints(packageJson);
   fs.writeFileSync(`${targetDir}/package.json`, JSON.stringify(packageJson, null, 2));
 
   buildPackageCss(fromDir, targetDir);

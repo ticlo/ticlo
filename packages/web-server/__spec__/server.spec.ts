@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {once} from 'node:events';
 import {serve} from '@hono/node-server';
 import {Hono} from 'hono';
-import {Root, type Block} from '@ticlo/core';
+import {globalFunctions, Root, type Block} from '@ticlo/core';
 import {WsClientConnection} from '@ticlo/node/connect/WsClientConnection.ts';
 import {AsyncClientPromise} from '@ticlo/core/connect/__spec__/AsyncClientPromise.ts';
 import {connectTiclo, createTicloApp, getEditorUrl, routeTiclo} from '../server.ts';
@@ -81,6 +81,7 @@ describe('routeTiclo', () => {
       const service = root.queryValue('#global.^typed-server') as Block;
       const output = service.getValue('#output');
       expect(service.getValue('#is')).toBe('web-server:server');
+      expect(globalFunctions.getDesc('web-server:server').tags).toEqual(['route-server', 'context-service']);
       expect(service.getFunctionClass()).toBeUndefined();
       root.addFlow('serverIdentityRoute', {
         route: {

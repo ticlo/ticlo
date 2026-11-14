@@ -325,11 +325,9 @@ class App extends React.PureComponent<Props, State> {
     this.props.conn.callImmediate(this.forceUpdateLambda);
   };
   onFilesChange = () => this.setState(({fileVersion}) => ({fileVersion: fileVersion + 1}));
-  onFilesDeleted = (paths: string[]) =>
-    unloadDeletedFileFlows(this.props.root, this.layout, this.props.files.project, paths);
+  onFilesDeleted = (paths: string[]) => unloadDeletedFileFlows(this.props.root, this.props.files.project, paths);
   onFileDiscarded = (path: string) => reloadDiscardedFileFlow(this.props.root, this.props.files.project, path);
-  onProjectReset = () =>
-    resetProjectFlows(this.props.root, this.layout, this.props.files.storage, this.props.files.project);
+  onProjectReset = () => resetProjectFlows(this.props.root, this.props.files.storage, this.props.files.project);
 
   layout: DockLayout;
   getLayout = (layout: DockLayout) => {

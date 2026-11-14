@@ -1,5 +1,5 @@
 import {expect, it} from 'vitest';
-import {mkdtemp, readdir, readFile, rm, writeFile} from 'node:fs/promises';
+import {cp, lstat, mkdtemp, readdir, readFile, realpath, rm, symlink, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {once} from 'node:events';
@@ -9,6 +9,7 @@ import {WsClientConnection} from '@ticlo/node/connect/WsClientConnection.ts';
 import {AsyncClientPromise} from '@ticlo/core/connect/__spec__/AsyncClientPromise.ts';
 import {ScopedFileServerFiles} from '@ticlo/remote-storage';
 import {NodeStorage} from '@ticlo/node';
+import {bundledBrowserExamples} from '../examples.ts';
 import {createServerApp} from '../ticlo-server.ts';
 
 it('serves files, runtime commands, WebSockets and flow routes on one port with open CORS', async () => {
@@ -151,13 +152,23 @@ it('serves project Git operations from the installed file server', async () => {
   }
 });
 
-it('seeds a large table in the server examples project and preserves edits', async () => {
+it('serves linked browser examples separately from Node.js examples', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'ticlo-server-examples-'));
   const root = new Root();
   try {
-    const {app} = await createServerApp(dir, undefined, root);
-    const catalog = await app.request('/file?op=listProj&scope=serv');
-    expect(await catalog.json()).toContainEqual({id: 'examples', name: 'Examples'});
+    const source = join(dir, 'bundled');
+    await cp(bundledBrowserExamples, source, {recursive: true});
+    const {app} = await createServerApp(dir, undefined, root, source);
+    const browserProject = join(dir, 'proj/examples');
+    const nodeProject = join(dir, 'serv/examples');
+    expect(await realpath(browserProject)).toBe(await realpath(source));
+    expect((await lstat(nodeProject)).isDirectory()).toBe(true);
+
+    const browserCatalog = await app.request('/file?op=listProj&scope=proj');
+    expect(await browserCatalog.json()).toContainEqual({id: 'examples'});
+    const nodeCatalog = await app.request('/file?op=listProj&scope=serv');
+    expect(await nodeCatalog.json()).toContainEqual({id: 'examples', name: 'Examples'});
+
     await root.setStorage(new NodeStorage(join(dir, 'serv')));
     await root.start();
     expect(root.queryValue('+examples.large-table')).toBeUndefined();
@@ -167,13 +178,23 @@ it('seeds a large table in the server examples project and preserves edits', asy
     expect(rows[0]).toMatchObject({id: 1, firstRow: 'First row'});
     expect(rows.at(-1)).toMatchObject({id: 100_000, lastRow: 'Last row'});
 
-    const project = join(dir, 'serv/examples');
+    const flow = 'layout/horizontal.ticlo';
     const edited = '{"#is":"","note":"Edited example"}';
-    await writeFile(join(project, 'large-table.ticlo'), edited);
-    await writeFile(join(project, '.proj'), '{"id":"examples","name":"My examples"}');
-    await createServerApp(dir, undefined, root);
-    expect(await readFile(join(project, 'large-table.ticlo'), 'utf8')).toBe(edited);
-    expect(JSON.parse(await readFile(join(project, '.proj'), 'utf8')).name).toBe('My examples');
+    const upload = await app.request(`/file?op=upload&path=proj/examples/${flow}`, {
+      method: 'POST',
+      body: edited,
+    });
+    expect(upload.ok).toBe(true);
+    const nodeFlow = join(nodeProject, 'large-table.ticlo');
+    await writeFile(nodeFlow, edited);
+    const {app: restarted} = await createServerApp(dir, undefined, root, source);
+    expect(await readFile(join(source, flow), 'utf8')).toBe(edited);
+    expect(await readFile(nodeFlow, 'utf8')).toBe(edited);
+    expect((await restarted.request(`/file/serv/examples/${flow}`)).status).toBe(404);
+    expect((await restarted.request('/file/proj/examples/large-table.ticlo')).status).toBe(404);
+
+    await symlink(dir, join(source, 'outside'), 'dir');
+    expect((await restarted.request(`/file/proj/examples/outside/bundled/${flow}`)).status).toBe(403);
   } finally {
     await root.stop({discardChanges: true});
     root.destroy();

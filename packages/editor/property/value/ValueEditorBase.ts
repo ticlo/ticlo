@@ -10,8 +10,10 @@ export interface ValueEditorProps {
   value: any;
   funcDesc: FunctionDesc;
   desc: PropDesc;
+  inline?: boolean;
   locked?: boolean;
   onChange?: (value: any, field: string) => void;
+  onEditValue?: (desc: PropDesc, mime?: string) => void;
   addSubBlock?: (id: string, desc?: FunctionDesc, data?: any) => void;
   onConvertToHelper?: () => void;
   onConvertToObject?: () => void;

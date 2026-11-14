@@ -18,7 +18,7 @@ export class BaseFunction<T extends FunctionData = FunctionData> {
   isPure: boolean;
 
   constructor(public _data?: T) {}
-  initInputs() {}
+  initInputs(getSecret: () => string | undefined) {}
 
   // REFACTOR(design.md): MUST admit calls as transient events in the deterministic delivery queue.
   onCall(val: unknown): boolean {

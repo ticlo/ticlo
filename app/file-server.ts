@@ -7,6 +7,7 @@ import '@ticlo/chart';
 import '@ticlo/test';
 import './sample-blocks.ts';
 import {initialUrlParams} from './url-state.ts';
+import {mountSecretPreferences} from './SecretPreferences.tsx';
 
 const params = initialUrlParams();
 const storage = new RemoteStorage({baseURL: params.get('host') || 'http://127.0.0.1:8010/file'});
@@ -15,6 +16,7 @@ const project = params.get('project') || '#root';
 const button = document.querySelector('button');
 const status = document.getElementById('status');
 const editors: Window[] = [];
+mountSecretPreferences();
 
 window.addEventListener('beforeunload', () => {
   for (const editor of editors) {

@@ -18,6 +18,8 @@ stages activate on mount; supplying `stageId` leaves activation to the host.
 Dock tabs activate through `StagePanelFocus`. An ID can activate before its stage
 registers. Removing a background stage preserves the active view; removing the
 active stage clears it until another activates.
+Designer and Dataflow tabs subscribe to their target path and close when its
+Block is removed or its Flow is unloaded.
 
 Save, copy, paste, delete, undo, and redo target only the active stage. Unsupported
 or declined commands do not fall through. External controls use `runStageCommand`.
@@ -25,9 +27,9 @@ or declined commands do not fall through. External controls use `runStageCommand
 when its path already matches. Designer-specific activation and input are in
 [designer](designer.md#selection-and-commands).
 
-Block Stage status subscribes to each Block's `#emit` and `#wait`. Error values
-use the [core error contract](core.md#errors-and-runtime-status); status updates
-do not invalidate the Block's body or the stage.
+Block Stage status subscribes to each Block's `#emit` and `#wait` to show its
+[runtime status](core.md#errors-and-runtime-status). Status updates are scoped to
+the indicator.
 
 ## Property editors
 
@@ -65,6 +67,18 @@ Property value trees use array preview lengths to select nested arrays without
 first downloading the enclosing object. Truncated arrays of at least 1000 items
 load pages as their last loaded item scrolls into view; smaller arrays read the
 selected value directly. Page boundary mismatches stop loading until reloaded.
+
+## Inline property editing
+
+The property menu's **Inline** checkbox enables editing in Block Stage.
+**Pinned** controls whether the property row appears. Unpinning retains its
+inline setting. Bound or read-only values are displayed in the row, and a
+binding added while editing prevents the draft from being saved to that field.
+
+In saved data, `"@b-inline": {"input": true}` uses the original property
+descriptor. An object such as `{"type": "select", "options": [1, 5, 10]}`
+overrides the editor on the stage. The map key is the actual field name,
+including the index for a group member. Unchecking Inline removes its entry.
 
 ## Table editor
 

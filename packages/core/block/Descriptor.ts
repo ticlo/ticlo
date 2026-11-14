@@ -101,6 +101,16 @@ export interface TableColumnDesc extends Omit<PropDesc, 'name'> {
   title?: string;
 }
 
+export function getInlineProp(config: unknown, name: string): true | Partial<PropDesc> | undefined {
+  if (!config || typeof config !== 'object' || Array.isArray(config) || !Object.hasOwn(config, name)) return;
+  const entry = (config as DataMap)[name];
+  if (entry === true) return entry;
+  if (entry && typeof entry === 'object') {
+    const prototype = Object.getPrototypeOf(entry);
+    if (prototype === Object.prototype || prototype === null) return entry as Partial<PropDesc>;
+  }
+}
+
 export interface PropGroupDesc {
   name: string;
   type: 'group';

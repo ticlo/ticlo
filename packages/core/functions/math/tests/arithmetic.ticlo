@@ -45,7 +45,7 @@
  ],
  "[]": 2,
  "expect0": 2,
- "expect1": "͢NaN",
+ "expect1": "\bNaN",
  "matchMode": "always-match",
  "~actual0": "##.divide1.#output",
  "~actual1": "##.divide.#output"

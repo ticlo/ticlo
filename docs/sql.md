@@ -14,10 +14,11 @@ service input/output descriptors.
 to each database adapter. Parameters are bound by the driver, not interpolated
 into the SQL string.
 
-The function defaults to `onCall`. Editing SQL or parameters does not execute a
-statement in this mode. Trigger `#call` to execute; normal Block `#wait` and
+The function defaults to `onLoad`, which runs it when the block loads and when
+inputs change. It skips execution while the client is unavailable. For explicit
+execution, set `#mode` to `onCall` and trigger `#call`. Normal Block `#wait` and
 `#emit` events report completion or errors. Canceling or replacing a call
-discards its eventual output; it does not roll back database writes.
+discards its eventual output. Database writes that already ran still take effect.
 
 `SqlResult.table`, when present, contains `columns: SqlColumn[]` and
 `rows: unknown[][]`. Column names are unique; `sourceName` can preserve a driver's
@@ -40,9 +41,20 @@ starts with its SQL keyword. The client commits on success and rolls back on
 failure. The outputs describe the final statement after a successful commit.
 Cancellation follows the same rules as `sql:query`.
 
-## SQLite
+## Database connectors
 
-Import `@ticlo/sqlite` in Node.js to register `sqlite:client`. It is not a browser
+SQLite, PostgreSQL, and MySQL appear under Database in the function selector.
+For existing flows, update the saved function IDs to the corresponding IDs below.
+
+| Previous ID | Current ID |
+| --- | --- |
+| `sqlite:client` | `database:sqlite` |
+| `postgres:client` | `database:postgres` |
+| `mysql:client` | `database:mysql` |
+
+### SQLite
+
+Import `@ticlo/sqlite` in Node.js to register `database:sqlite`. It is not a browser
 module. Applications must explicitly import connectors; the development server
 already imports this one.
 
@@ -72,9 +84,9 @@ ID is reported when the connection's last insert row ID changes during the call;
 it may be absent when SQLite reuses the same ID. Schema-only statements report
 zero affected rows rather than reusing a preceding write's metadata.
 
-## PostgreSQL
+### PostgreSQL
 
-Import `@ticlo/postgres` in Node.js to register `postgres:client`. The development
+Import `@ticlo/postgres` in Node.js to register `database:postgres`. The development
 server imports it. Enter a URL such as `postgresql://app@db.example:5432/mydb` in
 `connectionString` and set the database password through the Block's
 [`#secret` configuration](runtime-lifecycle.md#block-secrets). Move passwords
@@ -93,9 +105,35 @@ and calendar and timestamp values are returned as text to preserve precision.
 `bytea` values are returned as `Uint8Array`. Use `sql:transaction` for a group
 of statements that must share a transaction.
 
-Set `TICLO_TEST_POSTGRES_URL` to a disposable database URL and run
-`pnpm test connectors/postgres` to exercise the connector against PostgreSQL.
-The test account needs permission to create and drop test schemas.
+Run `pnpm test connectors/postgres` to exercise the connector. Locally, the
+suite uses a `postgres:18` Podman container on an available loopback port. The
+Git-ignored `connectors/postgres/__spec__/postgres.podman.local.cid` records its ID.
+Later runs reuse the container and start it if stopped. The local test database
+and username are both `postgres`, and the password is `ticlo_test`. Each run
+drops its own test schema. Set `TICLO_TEST_POSTGRES_URL` to use a disposable
+database that allows the test account to create and drop schemas. GitHub
+Actions supplies that URL from a PostgreSQL service managed by the runner.
+
+### MySQL and MariaDB
+
+Import `@ticlo/mysql` in a Node.js host to register `database:mysql`. The
+development server imports it. Set `connectionString` to a URL such as
+`mysql://app@127.0.0.1:3306/mydb` and put the password in
+[`#secret`](runtime-lifecycle.md#block-secrets). Add `?ssl=true` to use TLS
+with certificate verification. `maxConnections` defaults to 10 and
+`connectionTimeout` defaults to 5000 ms.
+
+Use `?` placeholders with an array of values. Results preserve `BIGINT`,
+`DECIMAL`, and date and time values as strings and return binary columns as
+`Uint8Array`. Use transactional tables such as InnoDB with `sql:transaction`.
+The connector validates the batch and rolls back on statement errors.
+
+Run `pnpm test connectors/mysql` to test against MariaDB. Locally, the suite
+reuses a MariaDB 11.8 Podman container with database `ticlo_test`, user `root`,
+and password `ticlo_test`. The Git-ignored
+`connectors/mysql/__spec__/mariadb.podman.local.cid` records its ID. Use
+`TICLO_TEST_MYSQL_URL` to supply a test database with permission to create and
+drop databases. GitHub Actions supplies the URL for its MariaDB service.
 
 ## Client management
 

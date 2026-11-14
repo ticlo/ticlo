@@ -8,6 +8,7 @@ import {
   FunctionCommandDesc,
   FunctionDesc,
   getDefaultFuncData,
+  getInlineProp,
   getSubBlockFuncData,
   getTailingNumber,
   Logger,
@@ -48,6 +49,44 @@ interface Props {
   baseName?: string;
   funcModule?: string;
   onAddSubBlock: (id: string, desc?: FunctionDesc, data?: any) => void;
+}
+
+function InlineCheckbox({conn, paths, name}: Pick<Props, 'conn' | 'paths' | 'name'>) {
+  const [status, setStatus] = React.useState({loaded: 0, checked: 0});
+  React.useEffect(() => {
+    const checkedByPath = new Map<string, boolean>();
+    setStatus({loaded: 0, checked: 0});
+    const subscribers = paths.map((path) => {
+      const subscriber = new ValueSubscriber({
+        onUpdate: ({cache}) => {
+          const checked = getInlineProp(cache.value, name) !== undefined;
+          const previous = checkedByPath.get(path);
+          if (previous === checked) return;
+          checkedByPath.set(path, checked);
+          setStatus(({loaded, checked: count}) => ({
+            loaded: previous === undefined ? loaded + 1 : loaded,
+            checked: count + (checked ? 1 : 0) - (previous ? 1 : 0),
+          }));
+        },
+      });
+      subscriber.subscribe(conn, `${path}.@b-inline`, true);
+      return subscriber;
+    });
+    return () => subscribers.forEach((subscriber) => subscriber.unsubscribe());
+  }, [conn, paths, name]);
+
+  return (
+    <Checkbox
+      checked={status.checked === paths.length}
+      indeterminate={status.checked > 0 && status.checked < paths.length}
+      disabled={status.loaded !== paths.length}
+      onChange={(event) => {
+        for (const path of paths) conn.setInlineProp(path, name, event.target.checked, requestCallbacks);
+      }}
+    >
+      {t('Inline')}
+    </Checkbox>
+  );
 }
 
 const PendingUpdate = <div />;
@@ -336,11 +375,26 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       }
     }
 
-    if (this.can(display ? 'hideProps' : 'showProps')) {
+    const canPin = this.can(display ? 'hideProps' : 'showProps');
+    const canInline =
+      name !== '@b-inline' &&
+      !name.endsWith('[]') &&
+      !propDesc.readonly &&
+      propDesc.type !== 'none' &&
+      paths.length > 0 &&
+      paths.every((path) => this.context.can({cmd: 'setInlineProp', path: `${path}.@b-inline`}));
+    if (canPin || canInline) {
       menuItems.push(
-        <Checkbox key="showHide" onChange={this.onShowHide} checked={display}>
-          {t('Pinned')}
-        </Checkbox>
+        <div key="showHide" className="ticl-e-property-menu-flags">
+          {canPin ? (
+            <Checkbox onChange={this.onShowHide} checked={display}>
+              {t('Pinned')}
+            </Checkbox>
+          ) : null}
+          {canInline && this.state.visible ? (
+            <InlineCheckbox key={JSON.stringify([name, paths])} conn={conn} paths={paths} name={name} />
+          ) : null}
+        </div>
       );
     }
     if (isCustom) {

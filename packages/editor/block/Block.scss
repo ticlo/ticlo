@@ -1,5 +1,4 @@
 @use '../style/variables' as *;
-@use '../style/icon-font';
 
 .ticl-e-block {
   box-sizing: border-box;
@@ -168,25 +167,23 @@ body:not(.dock-dragging) {
 }
 
 .ticl-e-block-wait,
-.ticl-e-block-error {
+.ticl-e-block-error,
+.ticl-e-block-warning {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 16px;
   height: 16px;
-}
-
-.ticl-e-block-wait {
-  font-family: icon-font.$family;
   font-size: 14px;
 }
 
 .ticl-e-block-error {
-  border-radius: 50%;
-  background: var(--ant-color-error, #ff4d4f);
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
+  color: $error-color;
+  cursor: pointer;
+}
+
+.ticl-e-block-warning {
+  color: var(--ant-color-warning, #faad14);
   cursor: pointer;
 }
 

@@ -95,7 +95,7 @@ globalFunctions.addFactory(
       {name: 'optionalHeaders', type: 'object', create: 'http:create-headers'},
       {name: '#output', type: 'object', readonly: true, pinned: true},
     ],
-    tags: ['http-client'],
+    tags: ['http-client', 'context-service'],
   },
   'http'
 );

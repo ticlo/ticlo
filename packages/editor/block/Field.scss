@@ -1,11 +1,13 @@
 @use '../style/variables' as *;
 
+$field-padding-right: 12px;
+
 .ticl-e-field {
   position: relative;
   border-bottom: 1px solid var(--ant-color-border, #ddd);
   height: 24px;
   line-height: 19px;
-  padding: 2px 12px 2px 16px;
+  padding: 2px $field-padding-right 2px 16px;
   display: flex;
   &:first-child {
     /* allows the sub icon to overlap the next row but still clickable */
@@ -34,6 +36,84 @@
     position: absolute;
     top: 0;
     right: 0;
+  }
+}
+
+.ticl-e-field-inline {
+  padding-block: 0;
+  align-items: center;
+
+  > .ticl-e-field-name {
+    border-right: 0;
+  }
+}
+
+.ticl-e-inline-value {
+  display: flex;
+  align-items: center;
+  height: 22px;
+  line-height: 18px;
+  text-align: start;
+  user-select: text;
+
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-picker,
+  .ant-btn-sm,
+  .ant-radio-button-wrapper,
+  .ticl-e-object-editor {
+    height: 22px;
+    line-height: 18px;
+    padding-block: 0;
+  }
+
+  .ant-color-picker-trigger {
+    min-height: 22px;
+  }
+
+  .ant-select-sm {
+    --ant-select-height: 22px;
+    --ant-select-font-height: 18px;
+    line-height: 18px;
+  }
+
+  .ant-select-multiple .ant-select-content {
+    flex-wrap: nowrap;
+  }
+
+  .ant-select,
+  .ant-picker,
+  .ticl-e-number-input,
+  .ticl-e-object-editor {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .ticl-e-number-input {
+    .ant-input,
+    .ant-btn-icon-only {
+      height: 20px;
+    }
+  }
+
+  .ant-radio-group {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .ant-radio-button-wrapper {
+    flex-shrink: 0;
+  }
+
+  .ticl-e-dynamic-editor {
+    display: flex;
+    align-items: center;
+    padding-inline-end: 13px;
+
+    > .ticl-e-dynamic-type-icon {
+      right: $field-padding-right;
+    }
   }
 }
 

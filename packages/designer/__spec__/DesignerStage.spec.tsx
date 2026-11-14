@@ -1,12 +1,17 @@
 import React, {StrictMode, useContext, useState} from 'react';
 import {vi} from 'vitest';
+import {DockLayout} from 'rc-dock';
 import '../style/index.css';
 import {Block, Root, globalFunctions, type DataMap} from '@ticlo/core';
+import {MemoryFlowStorage} from '@ticlo/core/block/MemoryFlowStorage.ts';
 import {ComponentContext, type ComponentContextValue} from '@ticlo/react';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {loadTemplate, removeLastTemplate, querySingle} from '@ticlo/editor/util/test-util.ts';
 import {initEditor} from '@ticlo/editor';
+import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.tsx';
+import {BlockStageTabButton} from '@ticlo/editor/dock/block/BlockStageTabButton.tsx';
+import {StagePanelFocus} from '@ticlo/editor/dock/StagePanelFocus.tsx';
 import {DesignerStage} from '../DesignerStage.tsx';
 import {
   DesignerLayoutContextType,
@@ -72,6 +77,81 @@ describe('DesignerStage', () => {
     button.click();
     expect(open).toHaveBeenCalledOnce();
     expect(flow.getValue('#main')).toBeUndefined();
+  });
+
+  it('closes a child dataflow opened from the outline when its flow is unloaded', async () => {
+    await initEditor();
+    const root = new Root();
+    const storage = new MemoryFlowStorage();
+    const data = {
+      '#main': {'#is': 'react:div', '#order': ['a'], 'a': {'#is': 'react:p', 'content': 'Child'}},
+    };
+    storage.saveFlow(null, data, path);
+    await root.setStorage(storage);
+    await root.start({['#root']: {flows: [path]}});
+    const [, conn] = makeLocalConnection(root, true, undefined, false, {
+      maxMessageSize: Infinity,
+      maxValueSize: Infinity,
+    });
+    const designerId = `designer:${path}`;
+    const childPath = `${path}.#main.a`;
+    const childId = `blockEditor:${childPath}`;
+    const designer = {
+      id: designerId,
+      group: 'main',
+      title: <BlockStageTabButton conn={conn} id={designerId} path={path} />,
+      content: <DesignerStage root={root} conn={conn} basePath={path} stageId={designerId} />,
+    };
+    let layout: DockLayout;
+    const send = conn.doSend.bind(conn);
+    const unload = vi.fn(() => root.unloadFlow({library: '#root', kind: 'flow', name: path}));
+    const sendSpy = vi.spyOn(conn, 'doSend').mockImplementation((requests) => {
+      send(requests);
+      if (!unload.mock.calls.length && requests.some((req) => req.cmd === 'subscribe' && req.path === childPath)) {
+        void unload();
+      }
+    });
+    try {
+      const [, div] = loadTemplate(
+        <DesignerApp
+          value={{
+            editFlow: (target, save) => {
+              layout.dockMove(BlockStagePane.createDockTab(target, conn, undefined, save), 'main', 'middle');
+            },
+          }}
+        >
+          <DockLayout
+            ref={(value) => {
+              layout = value;
+            }}
+            groups={{main: {panelExtra: (panel) => <StagePanelFocus panel={panel} />}}}
+            defaultLayout={{dockbox: {mode: 'horizontal', children: [{id: 'main', tabs: [designer]}]}}}
+            style={{width: 800, height: 500}}
+          />
+          <div style={{height: 240}}>
+            <DesignerNodeTree />
+          </div>
+        </DesignerApp>,
+        'editor'
+      );
+      const arrow = await shouldHappen(() => div.querySelector<HTMLElement>('.ticl-d-node-tree .ticl-e-tree-arr'));
+      arrow.click();
+      const child = await shouldHappen(
+        () => querySingle("//div.ticl-e-tree-node-text[text()='a']", div) as HTMLElement
+      );
+      child.dispatchEvent(new MouseEvent('dblclick', {bubbles: true}));
+      await shouldHappen(() => unload.mock.calls.length);
+      await unload.mock.results[0].value;
+      await shouldHappen(() => !layout.find(designerId), 1500, 'Designer tab closes');
+      await shouldHappen(() => !layout.find(childId), 1500, 'Outline child tab closes');
+      expect(await storage.loadFlow(path)).toEqual(data);
+    } finally {
+      sendSpy.mockRestore();
+      removeLastTemplate();
+      destroyLastLocalConnection();
+      await root.stop({discardChanges: true});
+      root.destroy();
+    }
   });
 
   it('initializes a page without replacing flow data and supports undo', async () => {

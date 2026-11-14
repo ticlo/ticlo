@@ -1,0 +1,70 @@
+{
+  "#is": "",
+  "#main": {
+    "#is": "react:vertical",
+    "#order": [
+      "heading",
+      "row",
+      "footer"
+    ],
+    "style": {
+      "width": 620,
+      "gap": 12,
+      "padding": 20,
+      "border": "1px solid #ddd",
+      "borderRadius": 10
+    },
+    "heading": {
+      "#is": "react:div",
+      "content": "Header",
+      "style": {
+        "padding": 20,
+        "borderRadius": 8,
+        "backgroundColor": "#ffe0e7",
+        "color": "#202636"
+      }
+    },
+    "row": {
+      "#is": "react:horizontal",
+      "#order": [
+        "left",
+        "right"
+      ],
+      "style": {
+        "gap": 12
+      },
+      "left": {
+        "#is": "react:div",
+        "content": "Left column",
+        "style": {
+          "padding": 20,
+          "borderRadius": 8,
+          "backgroundColor": "#d9f0ff",
+          "color": "#202636",
+          "flex": 1
+        }
+      },
+      "right": {
+        "#is": "react:div",
+        "content": "Right column",
+        "style": {
+          "padding": 20,
+          "borderRadius": 8,
+          "backgroundColor": "#e3f5e9",
+          "color": "#202636",
+          "flex": 1
+        }
+      }
+    },
+    "footer": {
+      "#is": "react:div",
+      "content": "Footer",
+      "style": {
+        "padding": 20,
+        "borderRadius": 8,
+        "backgroundColor": "#fff0cd",
+        "color": "#202636"
+      }
+    }
+  }
+}

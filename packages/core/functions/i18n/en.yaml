@@ -13,6 +13,8 @@
     '@name': Data
   sql:
     '@name': SQL
+  database:
+    '@name': Database
 
 '@shared':
   '':

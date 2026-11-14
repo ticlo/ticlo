@@ -1,0 +1,97 @@
+{
+  "#is": "",
+  "#functions": {
+    ":mark": {
+      "type": "worker",
+      "worker": {
+        "#is": "",
+        "#desc": {
+          "tags": [
+            "react-comp"
+          ]
+        },
+        "#inputs": {
+          "#is": "",
+          "#custom": [
+            {
+              "name": "value",
+              "type": "number"
+            }
+          ]
+        },
+        "#main": {
+          "#is": "react:div",
+          "style": {
+            "width": "100%",
+            "height": "100%",
+            "display": "flex",
+            "alignItems": "center",
+            "justifyContent": "center",
+            "backgroundColor": "rgb(255, 99, 132)",
+            "color": "white",
+            "borderRadius": 6,
+            "fontWeight": 600
+          },
+          "~content": "##.#inputs.value"
+        },
+        "#outputs": {
+          "#is": "",
+          "~#return": "##.#main"
+        }
+      }
+    }
+  },
+  "#main": {
+    "#is": "chart:chart",
+    "type": "column",
+    "style": {
+      "width": 560,
+      "height": 340
+    },
+    "options": {
+      "scales": {
+        "y": {
+          "beginAtZero": true
+        }
+      },
+      "plugins": {
+        "legend": {
+          "display": false
+        }
+      }
+    },
+    "#order": [
+      "sales"
+    ],
+    "sales": {
+      "#is": "chart:series",
+      "label": "Sales",
+      "dataset": {
+        "borderColor": "rgb(255, 99, 132)"
+      },
+      "renderer": ":mark",
+      "data": [
+        {
+          "id": "jan",
+          "label": "Jan",
+          "value": 14
+        },
+        {
+          "id": "feb",
+          "label": "Feb",
+          "value": 22
+        },
+        {
+          "id": "mar",
+          "label": "Mar",
+          "value": 18
+        },
+        {
+          "id": "apr",
+          "label": "Apr",
+          "value": 30
+        }
+      ]
+    }
+  }
+}

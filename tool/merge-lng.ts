@@ -17,10 +17,10 @@ function mergeData(to: DataMap, from: DataMap) {
   }
 }
 
-function mergeI18n(src: string, dest: string) {
+function mergeI18n(sources: string[], dest: string) {
   const outputs: Map<string, any> = new Map<string, any>();
 
-  const files: string[] = glob.sync(`${src}/*.yaml`, {posix: true, ignore: '**/node_modules/**'});
+  const files = glob.sync(sources, {posix: true, ignore: '**/node_modules/**'});
 
   for (const path of files) {
     if (path.endsWith('en.base.yaml')) {
@@ -50,13 +50,23 @@ function mergeI18n(src: string, dest: string) {
   }
 }
 
+const databaseConnectors = ['sqlite', 'postgres', 'mysql'].map((pkg) => `connectors/${pkg}`);
 const packageDirs = [
   ...['editor', 'core', 'web-server', 'html', 'node', 'react', 'chart', 'test'].map((pkg) => `packages/${pkg}`),
-  ...glob.sync('connectors/*/package.json', {posix: true}).map((path) => path.slice(0, -'/package.json'.length)),
+  ...glob
+    .sync('connectors/*/package.json', {posix: true})
+    .map((path) => path.slice(0, -'/package.json'.length))
+    .filter((dir) => !databaseConnectors.includes(dir)),
 ];
 for (const dir of packageDirs) {
   const pkg = dir.split('/').at(-1);
   const outdir = `./i18n/${pkg}`;
   fs.mkdirSync(outdir, {recursive: true});
-  mergeI18n(`./${dir}/**/i18n`, outdir);
+  mergeI18n([`./${dir}/**/i18n/*.yaml`], outdir);
 }
+
+fs.mkdirSync('./i18n/database', {recursive: true});
+mergeI18n(
+  databaseConnectors.map((dir) => `./${dir}/i18n/*.yaml`),
+  './i18n/database'
+);

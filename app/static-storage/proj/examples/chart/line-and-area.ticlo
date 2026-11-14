@@ -1,0 +1,72 @@
+{
+  "#is": "",
+  "#main": {
+    "#is": "chart:chart",
+    "type": "line",
+    "style": {
+      "width": 560,
+      "height": 340
+    },
+    "data": {
+      "labels": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat"
+      ]
+    },
+    "options": {
+      "plugins": {
+        "legend": {
+          "position": "bottom"
+        }
+      },
+      "scales": {
+        "y": {
+          "beginAtZero": true
+        }
+      }
+    },
+    "#order": [
+      "area",
+      "line"
+    ],
+    "area": {
+      "#is": "chart:series",
+      "label": "Forecast area",
+      "dataset": {
+        "data": [
+          10,
+          16,
+          14,
+          22,
+          20,
+          28
+        ],
+        "fill": "origin",
+        "backgroundColor": "rgba(255, 99, 132, 0.25)",
+        "borderColor": "rgb(255, 99, 132)",
+        "tension": 0.35
+      }
+    },
+    "line": {
+      "#is": "chart:series",
+      "label": "Actual line",
+      "dataset": {
+        "data": [
+          9,
+          13,
+          18,
+          19,
+          24,
+          26
+        ],
+        "borderColor": "rgb(54, 162, 235)",
+        "tension": 0.35,
+        "pointRadius": 4
+      }
+    }
+  }
+}

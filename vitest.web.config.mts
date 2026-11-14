@@ -20,14 +20,14 @@ export default defineConfig({
     // Browser tests run through Vite's dependency optimizer. On a cold cache,
     // duplicate dependency instances can make constructor-identity checks fail
     // before the optimized deps are warmed.
-    dedupe: ['arrow-code', 'i18next', 'luxon'],
+    dedupe: ['i18next', 'jsonesc', 'luxon'],
     alias: {
       // These are package-level deps, so pin them to one workspace instance.
       // That lets optimizeDeps resolve them from this root config and prevents
       // browser tests from mixing package-local copies during cold startup.
-      'arrow-code': coreNodeModules('arrow-code'),
-      'i18next': coreNodeModules('i18next'),
-      'luxon': coreNodeModules('luxon'),
+      i18next: coreNodeModules('i18next'),
+      jsonesc: coreNodeModules('jsonesc'),
+      luxon: coreNodeModules('luxon'),
     },
   },
   optimizeDeps: {
@@ -36,8 +36,8 @@ export default defineConfig({
     // polyfill entries prevent Vite from reloading the browser mid-test when it
     // discovers them during the first cold run.
     include: [
-      'arrow-code',
       'i18next',
+      'jsonesc',
       'luxon',
       'url',
       'vite-plugin-node-polyfills/shims/buffer',

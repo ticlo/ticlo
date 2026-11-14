@@ -10,11 +10,17 @@ import {
   type BlockConfig,
   type SqlClient,
 } from '@ticlo/core';
+import '@ticlo/core/functions/sql/DatabaseCategory.ts';
 import {PostgresClient} from './PostgresClient.ts';
 
 class PostgresClientFunction extends BaseFunction<Block> {
   private client?: PostgresClient;
   private revision = 0;
+  #getSecret: () => string | undefined;
+
+  initInputs(getSecret: () => string | undefined) {
+    this.#getSecret = getSecret;
+  }
 
   async run() {
     const revision = ++this.revision;
@@ -22,7 +28,7 @@ class PostgresClientFunction extends BaseFunction<Block> {
     this._data.output(undefined);
     const client = await PostgresClient.open({
       connectionString: this._data.getValue('connectionString') as string,
-      password: this._data._getSecret(this) ?? '',
+      password: this.#getSecret() ?? '',
       maxConnections: this._data.getValue('maxConnections') as number | undefined,
       connectionTimeout: this._data.getValue('connectionTimeout') as number | undefined,
       statementTimeout: this._data.getValue('statementTimeout') as number | undefined,
@@ -33,7 +39,7 @@ class PostgresClientFunction extends BaseFunction<Block> {
     }
     this.client = client;
     this._data.output(
-      escapedObject<SqlClient>('postgres:client', {
+      escapedObject<SqlClient>('database:postgres', {
         query: client.query.bind(client),
         transaction: client.transaction.bind(client),
         listEntities: client.listEntities.bind(client),
@@ -71,21 +77,14 @@ class PostgresClientFunction extends BaseFunction<Block> {
   }
 }
 
-globalFunctions.addCategory({
-  id: 'postgres',
-  name: 'postgres',
-  libraryId: 'postgres',
-  icon: '15:PG',
-  color: '36a',
-});
 globalFunctions.addFactory(
   PostgresClientFunction,
   {
-    name: 'client',
+    name: 'postgres',
     icon: '15:PG',
     mode: 'onLoad',
     priority: 2,
-    tags: ['sql-client'],
+    tags: ['sql-client', 'context-service'],
     commands: sqlClientCommands,
     properties: [
       {name: 'connectionString', type: 'string', pinned: true},
@@ -96,6 +95,6 @@ globalFunctions.addFactory(
       {name: '#output', type: 'object', readonly: true, pinned: true},
     ],
   },
-  'postgres',
+  'database',
   sqlClientApi
 );

@@ -1,0 +1,107 @@
+{
+  "#is": "",
+  "#functions": {
+    ":mark": {
+      "type": "worker",
+      "worker": {
+        "#is": "",
+        "#desc": {
+          "tags": [
+            "react-comp"
+          ]
+        },
+        "#inputs": {
+          "#is": "",
+          "#custom": [
+            {
+              "name": "label",
+              "type": "string"
+            }
+          ]
+        },
+        "#main": {
+          "#is": "react:div",
+          "#optional": [
+            "title"
+          ],
+          "style": {
+            "width": "100%",
+            "height": "100%",
+            "borderRadius": "50%",
+            "backgroundColor": "rgb(255, 99, 132)",
+            "border": "2px solid white",
+            "boxSizing": "border-box",
+            "boxShadow": "0 0 0 2px rgb(255, 99, 132)"
+          },
+          "~title": "##.#inputs.label"
+        },
+        "#outputs": {
+          "#is": "",
+          "~#return": "##.#main"
+        }
+      }
+    }
+  },
+  "#main": {
+    "#is": "chart:chart",
+    "type": "line",
+    "style": {
+      "width": 560,
+      "height": 340
+    },
+    "options": {
+      "scales": {
+        "y": {
+          "beginAtZero": true
+        }
+      },
+      "plugins": {
+        "legend": {
+          "display": false
+        }
+      }
+    },
+    "#order": [
+      "trend"
+    ],
+    "trend": {
+      "#is": "chart:series",
+      "label": "Trend",
+      "dataset": {
+        "borderColor": "rgb(255, 99, 132)",
+        "backgroundColor": "rgba(255, 99, 132, 0.2)",
+        "fill": "origin",
+        "tension": 0.3
+      },
+      "renderer": ":mark",
+      "markerSize": 18,
+      "data": [
+        {
+          "id": "mon",
+          "label": "Mon",
+          "value": 8
+        },
+        {
+          "id": "tue",
+          "label": "Tue",
+          "value": 16
+        },
+        {
+          "id": "wed",
+          "label": "Wed",
+          "value": 12
+        },
+        {
+          "id": "thu",
+          "label": "Thu",
+          "value": 23
+        },
+        {
+          "id": "fri",
+          "label": "Fri",
+          "value": 19
+        }
+      ]
+    }
+  }
+}

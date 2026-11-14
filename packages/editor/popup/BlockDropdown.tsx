@@ -4,6 +4,7 @@ import {NodeTreeItem} from '../node-tree/NodeRenderer.tsx';
 import React from 'react';
 import {
   BuildOutlined,
+  CloseOutlined,
   DeleteOutlined,
   DatabaseOutlined,
   EditOutlined,
@@ -42,6 +43,7 @@ interface Props {
   // When disabled is null, don't show the menu item.
   disabled?: boolean;
   getMenu?: () => React.ReactElement[];
+  onUnloadFlow?: () => void;
   menuVersion?: boolean;
   onMenuOpen?: () => void;
 }
@@ -129,7 +131,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
   };
 
   getMenu = () => {
-    const {conn, canApply, disabled, functionId, getMenu, funcModule} = this.props;
+    const {conn, canApply, disabled, functionId, getMenu, funcModule, onUnloadFlow, path} = this.props;
     const funcDesc = conn.watchDesc(functionId, getDescModule(functionId, funcModule));
 
     let menuitems: React.ReactElement[] = [];
@@ -246,6 +248,15 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
       }
 
       menuitems.push(...commandMenus);
+    }
+
+    if (onUnloadFlow && conn.getEditPolicyView().can({cmd: 'unloadFlow', path})) {
+      menuitems.push(
+        <MenuItem key="unloadFlow" onClick={onUnloadFlow}>
+          <CloseOutlined />
+          {t('Unload')}
+        </MenuItem>
+      );
     }
 
     return menuitems.length ? <Menu>{menuitems}</Menu> : null;

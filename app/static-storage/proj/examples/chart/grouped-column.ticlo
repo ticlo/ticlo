@@ -1,0 +1,64 @@
+{
+  "#is": "",
+  "#main": {
+    "#is": "chart:chart",
+    "type": "column",
+    "style": {
+      "width": 560,
+      "height": 340
+    },
+    "data": {
+      "labels": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May"
+      ]
+    },
+    "options": {
+      "plugins": {
+        "legend": {
+          "position": "bottom"
+        }
+      },
+      "scales": {
+        "y": {
+          "beginAtZero": true
+        }
+      }
+    },
+    "#order": [
+      "north",
+      "south"
+    ],
+    "north": {
+      "#is": "chart:series",
+      "label": "North",
+      "dataset": {
+        "data": [
+          18,
+          23,
+          20,
+          28,
+          31
+        ],
+        "backgroundColor": "rgb(255, 99, 132)"
+      }
+    },
+    "south": {
+      "#is": "chart:series",
+      "label": "South",
+      "dataset": {
+        "data": [
+          12,
+          19,
+          25,
+          22,
+          27
+        ],
+        "backgroundColor": "rgb(54, 162, 235)"
+      }
+    }
+  }
+}

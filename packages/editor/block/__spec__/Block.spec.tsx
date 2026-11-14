@@ -4,7 +4,7 @@ import React from 'react';
 import {BlockStage} from '../BlockStage.tsx';
 import {FunctionView} from '../../function-selector/FunctionView.tsx';
 import type {Flow} from '@ticlo/core';
-import {Block, Root} from '@ticlo/core';
+import {Block, globalFunctions, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {FlowEditor} from '@ticlo/core/worker/FlowEditor.ts';
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.ts';
@@ -390,6 +390,85 @@ describe('editor BlockStage', function () {
     }
     expect(flow.queryValue('#edit-func.add')).not.toBeDefined();
   });
+
+  it.each([
+    {
+      basePath: '#global',
+      descId: 'http:client',
+      expectedName: '^client',
+      policy: undefined,
+      blocked: false,
+    },
+    {
+      basePath: '#global',
+      descId: 'http:client',
+      expectedName: '^client',
+      policy: {allowCreateBlock: false},
+      blocked: true,
+    },
+    {basePath: '#global', descId: 'add', expectedName: 'add', policy: undefined, blocked: false},
+    {
+      basePath: '+BlockStageContextDrop.#context',
+      descId: 'http:client',
+      expectedName: '^client',
+      policy: undefined,
+      blocked: false,
+    },
+  ])(
+    'prefixes ^ when dropping $descId into $basePath (blocked=$blocked)',
+    async function ({basePath, descId, expectedName, policy, blocked}) {
+      if (basePath.startsWith('+')) {
+        Root.instance.addFlowFolder('+BlockStageContextDrop');
+      }
+      const [, base] = makeLocalConnection(Root.instance);
+      const client = base.withPolicy(policy);
+      const canSpy = vi.spyOn(Object.getPrototypeOf(client.getEditPolicyView()), 'can');
+      const desc = globalFunctions.getDesc(descId);
+
+      try {
+        const [, div] = loadTemplate(
+          <>
+            <div style={{height: '32px'}}>
+              <FunctionView conn={client} desc={desc} />
+            </div>
+            <BlockStage conn={client} basePath={basePath} style={{width: '800px', height: '800px'}} />
+          </>,
+          'editor'
+        );
+
+        await shouldHappen(() => div.querySelector('.ticl-e-func-view') && div.querySelector('.ticl-e-stage-scroll'));
+
+        const funcView = div.querySelector('.ticl-e-func-view') as HTMLDivElement;
+        simulate(funcView, 'mousedown', fakeMouseEvent(16, 16, {button: 0}));
+        simulate(document.body, 'mousemove', fakeMouseEvent(80, 80));
+        simulate(document.body, 'mousemove', fakeMouseEvent(180, 180));
+        try {
+          expect(document.querySelector('.dragging-layer')).not.toBeNull();
+          expect(Boolean(document.querySelector('.dragging-layer .drag-accept-reject'))).toBe(blocked);
+        } finally {
+          simulate(document.body, 'mouseup', fakeMouseEvent(180, 180));
+        }
+
+        expect(canSpy).toHaveBeenCalledWith(
+          expect.objectContaining({cmd: 'addBlock', path: `${basePath}.${expectedName}`, findName: true})
+        );
+        await client.getValue(basePath);
+        if (blocked) {
+          expect(Root.instance.queryValue(`${basePath}.${expectedName}`)).toBeUndefined();
+        } else {
+          await shouldHappen(() => Root.instance.queryValue(`${basePath}.${expectedName}`) instanceof Block);
+        }
+        if (expectedName.startsWith('^')) {
+          expect(Root.instance.queryValue(`${basePath}.${expectedName.slice(1)}`)).toBeUndefined();
+        }
+      } finally {
+        canSpy.mockRestore();
+        Root.instance._globalRoot.deleteValue('^client');
+        Root.instance._globalRoot.deleteValue('add');
+        Root.instance.deleteValue('+BlockStageContextDrop');
+      }
+    }
+  );
 
   it('min block and wire', async function () {
     flow = Root.instance.addFlow('BlockStage4');

@@ -1,4 +1,4 @@
-import {Runnable} from './Block.ts';
+import {Block, type Runnable} from './Block.ts';
 
 export class Resolver implements Runnable {
   static _finalResolved: Set<() => void> = new Set<() => void>();
@@ -22,6 +22,7 @@ export class Resolver implements Runnable {
 
   // REFACTOR(design.md): MUST replace the unbounded block wait list with a bounded delivery queue or backpressure.
   private _queueWait: Runnable[] = [];
+  private _outOfSync?: Set<Block>;
 
   // queue has 4 priority groups
   // REFACTOR(design.md): MUST order deliveries by persisted wire order and source position, not queue group alone.
@@ -37,11 +38,27 @@ export class Resolver implements Runnable {
 
   // REFACTOR(design.md): MUST admit events deterministically within bounds for queued work and retained payload volume.
   queueBlock(block: Runnable) {
-    if (block._queued) return;
+    if (block._queued) {
+      if (block._queueToRun === false && block instanceof Block) {
+        const candidates = (this._outOfSync ??= new Set());
+        candidates.add(block);
+        block._outOfSync = candidates;
+        this.schedule();
+      }
+      return;
+    }
     block._queued = true;
     block._queueToRun = true;
     this._queueWait.push(block);
     this.schedule();
+  }
+
+  _emitOutOfSync() {
+    const candidates = this._outOfSync;
+    if (candidates) {
+      this._outOfSync = undefined;
+      for (const block of candidates) block._emitOutOfSync(candidates);
+    }
   }
 
   /**

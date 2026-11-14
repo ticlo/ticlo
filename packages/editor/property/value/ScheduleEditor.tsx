@@ -10,7 +10,11 @@ export class ScheduleEditor extends React.PureComponent<ValueEditorProps, any> {
   declare context: TicloLayoutContext;
 
   popup = () => {
-    const {keys, name, desc, value} = this.props;
+    const {keys, name, desc, value, inline, onEditValue} = this.props;
+    if (inline) {
+      onEditValue?.(desc, 'object');
+      return;
+    }
     this.context.editProperty(
       keys.map((key) => `${key}.${name}`),
       desc,
@@ -20,33 +24,33 @@ export class ScheduleEditor extends React.PureComponent<ValueEditorProps, any> {
     );
   };
   onClick = () => {
-    const {keys, name} = this.props;
+    const {keys, name, inline} = this.props;
     const key0 = keys[0].split('.');
     const scheduleName = key0.pop();
     const parentPath = key0.join('.');
     const indexStr = name.match(/\d+$/)?.[0];
     const index = indexStr ? parseInt(indexStr) : undefined;
-    this.context?.editSchedule(parentPath, scheduleName, index);
+    this.context?.editSchedule(parentPath, scheduleName, index, inline);
   };
 
   render() {
-    const {value, desc, onChange} = this.props;
+    const {value, inline, onEditValue, onChange} = this.props;
     const editor = (
       <Button
         size="small"
         icon={<CalendarOutlined />}
-        disabled={onChange == null || this.context?.editSchedule == null}
+        disabled={onChange == null || !this.context?.editSchedule}
         onClick={this.onClick}
       >
         {renderValue(value)}
       </Button>
     );
 
-    if (this.context?.editProperty) {
+    if (inline ? onEditValue : this.context?.editProperty) {
       return (
         <>
           {editor}
-          <div className="ticl-e-expand-button" title={'Edit'} onClick={this.popup}>
+          <div className="ticl-e-expand-button" title="Edit" onClick={this.popup}>
             <div className="ticl-e-expand-icon-11" />
           </div>
         </>

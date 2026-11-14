@@ -1,0 +1,96 @@
+{
+  "#is": "",
+  "#functions": {
+    ":item": {
+      "type": "worker",
+      "worker": {
+        "#is": "",
+        "#desc": {
+          "tags": [
+            "react-comp"
+          ]
+        },
+        "#inputs": {
+          "#is": "",
+          "#custom": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "label",
+              "type": "string"
+            },
+            {
+              "name": "value",
+              "type": "number"
+            }
+          ]
+        },
+        "#main": {
+          "#is": "react:horizontal",
+          "#order": [
+            "name",
+            "amount"
+          ],
+          "style": {
+            "width": 360,
+            "justifyContent": "space-between",
+            "padding": "12px 16px",
+            "borderRadius": 8,
+            "backgroundColor": "#ffe0e7",
+            "boxSizing": "border-box"
+          },
+          "name": {
+            "#is": "react:span",
+            "~content": "##.##.#inputs.label"
+          },
+          "amount": {
+            "#is": "react:span",
+            "~content": "##.##.#inputs.value",
+            "style": {
+              "fontWeight": 700
+            }
+          }
+        },
+        "#outputs": {
+          "#is": "",
+          "~#return": "##.#main"
+        }
+      }
+    }
+  },
+  "items": [
+    {
+      "id": "apples",
+      "label": "Apples",
+      "value": 12
+    },
+    {
+      "id": "oranges",
+      "label": "Oranges",
+      "value": 7
+    },
+    {
+      "id": "pears",
+      "label": "Pears",
+      "value": 9
+    }
+  ],
+  "#main": {
+    "#is": "react:vertical",
+    "~content": {
+      "#is": "multi-worker",
+      "~input": "##.##.items",
+      "key": "id",
+      "use": ":item"
+    },
+    "style": {
+      "width": 400,
+      "gap": 10,
+      "padding": 20,
+      "border": "1px solid #ddd",
+      "borderRadius": 10
+    }
+  }
+}

@@ -11,7 +11,11 @@ export class StringEditor extends StringEditorBase {
   declare context: TicloLayoutContext;
 
   popup = () => {
-    const {keys, name, desc, value} = this.props;
+    const {keys, name, desc, value, inline, onEditValue} = this.props;
+    if (inline) {
+      onEditValue?.(desc);
+      return;
+    }
     this.context.editProperty(
       keys.map((key) => `${key}.${name}`),
       desc,
@@ -22,7 +26,7 @@ export class StringEditor extends StringEditorBase {
   };
 
   render() {
-    const {desc, locked} = this.props;
+    const {desc, locked, inline, onEditValue} = this.props;
     let {value, onChange} = this.props;
     if (this._pendingValue != null) {
       value = this._pendingValue;
@@ -34,6 +38,28 @@ export class StringEditor extends StringEditorBase {
       value = encodeDisplay(value);
     }
     const multiLine = typeof value === 'string' && value.length > 8;
+    if (inline) {
+      const hasNewline = typeof value === 'string' && /[\r\n]/.test(value);
+      return (
+        <>
+          <Input
+            size="small"
+            placeholder={desc.placeholder}
+            value={hasNewline ? value.split(/[\r\n]/, 1)[0] + '…' : value}
+            readOnly={hasNewline}
+            disabled={onChange == null}
+            onChange={this.onInputChange}
+            onBlur={this.onBlur}
+            onKeyDown={hasNewline ? undefined : this.onKeyDown}
+          />
+          {onEditValue ? (
+            <div className="ticl-e-expand-button" title="Edit" onClick={this.popup}>
+              <div className="ticl-e-expand-icon-11" />
+            </div>
+          ) : null}
+        </>
+      );
+    }
     return (
       <>
         <TextArea

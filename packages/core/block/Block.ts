@@ -4,7 +4,7 @@ import {BlockBinding} from './BlockBinding.ts';
 import {FunctionFactory, BaseFunction} from './BlockFunction.ts';
 import {PropDispatcher, PropListener, Destroyable} from './Dispatcher.ts';
 import {FunctionDispatcher, globalFunctions} from './FunctionModule.ts';
-import {DoneEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT} from './Event.ts';
+import {DoneEvent, ErrorEvent, Event, EventType, NO_EMIT, WAIT, WarningEvent} from './Event.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {Uid} from '../util/Uid.ts';
 import {voidProperty} from './Void.ts';
@@ -17,15 +17,12 @@ import {getMaxFlowDepth} from '../util/Settings.ts';
 import {Logger} from '../util/Logger.ts';
 import {Library} from './Library.ts';
 
+export {setSecretCipher} from './BlockConfigs.ts';
+
 export interface BlockChildWatch {
   onChildChange(property: BlockProperty, saved?: boolean): void;
 
   watchHistory?: boolean;
-}
-
-let secretCipher: {encode: (str: string) => unknown; decode: (data: unknown) => string};
-export function setSecretCipher(cipher: {encode: (str: string) => unknown; decode: (data: unknown) => string}) {
-  secretCipher = cipher;
 }
 
 export interface Runnable {
@@ -115,6 +112,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   _queued: boolean = false;
   // something to run, if equals to false, Resolve will skip the block
   _queueToRun: boolean = false;
+  // The resolver's candidate set, cleared when the function actually runs.
+  _outOfSync?: Set<Block>;
 
   _running: boolean = false;
   _destroyed: boolean = false;
@@ -607,6 +606,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
         this._cancelFunction(EventType.VOID);
       }
       this._running = true;
+      if (this._outOfSync) this._outOfSync = undefined;
       let result: unknown;
       try {
         result = this._function.run();
@@ -633,6 +633,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   // REFACTOR(design.md): MUST send a transient result through ordered wires and then release its reference.
   // REFACTOR(design.md): MUST publish compact wait and error status independently of the event payload.
   emit(val: unknown) {
+    if (val instanceof WarningEvent) {
+      this.emitOnly(val);
+      return;
+    }
     if (val === WAIT) {
       this.updateValue('#wait', true);
     } else {
@@ -654,9 +658,22 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   // emit value but maintain the current #wait state
   // REFACTOR(design.md): MUST keep wait state separate from transient event payloads.
   emitOnly(val: unknown) {
+    if (val instanceof WarningEvent) {
+      const prop = this.getProperty('#emit');
+      if (!(prop.getValue() instanceof ErrorEvent)) prop.setOutput(val);
+      return;
+    }
     const prop = this._props.get('#emit') ?? (val instanceof ErrorEvent ? this.getProperty('#emit') : undefined);
     if (prop) {
       prop.updateValue(val);
+    }
+  }
+
+  _emitOutOfSync(candidates: Set<Block>) {
+    if (this._outOfSync !== candidates) return;
+    this._outOfSync = undefined;
+    if (this._function && !this._destroyed && !this._disabled && this._flow._enabled) {
+      this.emitOnly(new WarningEvent(WarningEvent.OutOfSync));
     }
   }
 
@@ -705,8 +722,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   // REFACTOR(design.md): MUST admit calls into the same serial queue as input and wire deliveries.
   _onCall(val: unknown): void {
     if (!this._disabled) {
-      if (val === WAIT) {
-        // ignore NOT_READY
+      if (val === WAIT || val instanceof WarningEvent) {
+        // ignore diagnostic and wait states before invoking the function's onCall
       } else {
         if (this._function && !this._function.onCall(val)) {
           // rejected by onCall
@@ -759,7 +776,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
 
   _queueFunctionOnChange() {
     if (this._runOnChange) {
-      if (!this._queued) {
+      if (!this._queued || this._queueToRun === false) {
         if (this._runOnLoad || !this._flow._loading) {
           this._flow.queueBlock(this);
         }
@@ -770,7 +787,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   // REFACTOR(design.md): MUST queue individual bounded deliveries rather than coalescing only by block identity.
   _queueFunction() {
     // put it in queue
-    if (!this._queued) {
+    if (!this._queued || this._queueToRun === false) {
       this._flow.queueBlock(this);
     } else if (this._queueToRun === null) {
       // It's not run previously, just canceled. So it should be able to run once.
@@ -897,6 +914,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
       this.updateValue('#emit', undefined);
       this._called = false;
     }
+    this._outOfSync = undefined;
     if (factory) {
       if (this._flow._loading && factory !== this._pendingFactory) {
         // when function changed during load()
@@ -915,10 +933,10 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
           this._configMode();
         }
         if (this._function) {
-          this._function.initInputs();
+          this._function.initInputs(this.#getSecret);
           if (this._runOnLoad) {
             const callValue = this.getValue('#call');
-            if (callValue !== undefined) {
+            if (callValue !== undefined && !(callValue instanceof WarningEvent)) {
               this._function.onCall(callValue);
             }
             this._queueFunction();
@@ -1061,6 +1079,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
 
     this._bindings = null;
     this._queueToRun = false;
+    this._outOfSync = undefined;
     this._watchers = null;
   }
 
@@ -1069,47 +1088,15 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   }
 
   toArrow() {
-    return `͢:Block:${this.getFullPath()}`;
+    return `\b:Block:${this.getFullPath()}`;
   }
 
-  #secret?: string;
-  #secretCipher: {encode: (str: string) => unknown; decode: (data: unknown) => string};
-  _setSecret(str?: string): boolean {
-    if (typeof str === 'string' || str == null) {
-      if (this.#secret !== str) {
-        this.#secret = str;
-        return true;
-      }
-    }
-    return false;
-  }
-  // only allow the function to access the secret
-  _getSecret(f: BaseFunction): string {
-    if (f === this._function) {
-      return this.#secret;
-    }
-    return null;
-  }
-  // REFACTOR(design.md): MUST persist credentials as protected configuration through the host codec.
-  _saveSecret(): unknown {
-    if (this.#secret && this.#secretCipher === undefined) {
-      this.#secretCipher = secretCipher;
-    }
-    return this.#secretCipher?.encode(this.#secret);
-  }
-  _loadSecret(data: unknown) {
-    if (this.#secretCipher === undefined) {
-      this.#secretCipher = secretCipher;
-    }
-    if (this.#secretCipher?.decode) {
-      let str = this.#secretCipher?.decode(data);
-      if (typeof str !== 'string') {
-        str = undefined;
-      }
-      if (str !== this.#secret) {
-        this.#secret = str;
-        this.configChanged(this.getProperty('#secret') as BlockConfig, str);
-      }
-    }
+  #secret: string | undefined;
+  #getSecret = () => this.#secret;
+  _setSecret(value: unknown): boolean {
+    const secret = typeof value === 'string' ? value : undefined;
+    if (this.#secret === secret) return false;
+    this.#secret = secret;
+    return true;
   }
 }

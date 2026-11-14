@@ -1,0 +1,68 @@
+{
+  "#is": "",
+  "#main": {
+    "#is": "chart:chart",
+    "type": "bar",
+    "style": {
+      "width": 560,
+      "height": 340
+    },
+    "data": {
+      "labels": [
+        "Design",
+        "Build",
+        "Test",
+        "Ship"
+      ]
+    },
+    "options": {
+      "indexAxis": "y",
+      "scales": {
+        "x": {
+          "stacked": true,
+          "beginAtZero": true
+        },
+        "y": {
+          "stacked": true
+        }
+      },
+      "plugins": {
+        "legend": {
+          "position": "bottom"
+        }
+      }
+    },
+    "#order": [
+      "planned",
+      "done"
+    ],
+    "planned": {
+      "#is": "chart:series",
+      "label": "Planned",
+      "dataset": {
+        "data": [
+          14,
+          22,
+          10,
+          8
+        ],
+        "backgroundColor": "rgb(255, 99, 132)",
+        "stack": "work"
+      }
+    },
+    "done": {
+      "#is": "chart:series",
+      "label": "Done",
+      "dataset": {
+        "data": [
+          8,
+          15,
+          7,
+          5
+        ],
+        "backgroundColor": "rgb(75, 192, 192)",
+        "stack": "work"
+      }
+    }
+  }
+}

@@ -1,8 +1,5 @@
-'@library':
-  postgres:
-    '@name': PostgreSQL
-client:
-  '@name': Client
+postgres:
+  '@name': PostgreSQL
   connectionString:
     '@name': Connection URL
   maxConnections:

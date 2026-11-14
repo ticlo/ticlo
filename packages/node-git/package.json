@@ -4,9 +4,9 @@
   "description": "Node.js Git operations for Ticlo project storage",
   "license": "MPL-2.0",
   "type": "module",
-  "main": "./gitOperations.js",
-  "module": "./gitOperations.js",
-  "types": "./gitOperations.d.ts",
+  "main": "./gitOperations.ts",
+  "module": "./gitOperations.ts",
+  "types": "./gitOperations.ts",
   "dependencies": {
     "luxon": "^3.7.2"
   }

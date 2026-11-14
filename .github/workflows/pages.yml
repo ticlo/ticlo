@@ -26,9 +26,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - uses: actions/configure-pages@v5
       - run: pnpm run build-pages
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
+          include-hidden-files: true
 
   deploy:
     if: github.ref == 'refs/heads/dev'

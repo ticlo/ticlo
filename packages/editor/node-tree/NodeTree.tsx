@@ -111,6 +111,16 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
     }
   };
 
+  onUnloadFlow = async (item: NodeTreeItem) => {
+    const conn = item.getConn();
+    try {
+      await conn.unloadFlow(item.key);
+      conn.childrenChangeStream().dispatch({path: item.parent?.key ?? ''});
+    } catch (error) {
+      requestCallbacks.onError(String(error));
+    }
+  };
+
   private appendStored(item: StoredFlowItem) {
     this.rows.push(item);
     if (this.expandedStored.has(item.key)) {
@@ -294,6 +304,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
         onClick={this.onItemClick}
         openActions={this.props.openActions}
         moduleAutoLoad={this.props.moduleAutoLoad}
+        onUnloadFlow={this.props.showStoredFlows ? this.onUnloadFlow : undefined}
         getOrderedDrag={this.getOrderedDrag}
         canDropOrdered={this.canDropOrdered}
         onDropOrdered={this.onDropOrdered}

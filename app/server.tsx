@@ -11,10 +11,12 @@ import '@ticlo/chart';
 import {FrameServerConnection} from '@ticlo/html';
 import {BROWSER_LOCAL_LIBRARY, StaticStorage} from '@ticlo/remote-storage';
 import {Library} from '@ticlo/core/block/Library.ts';
+import {mountSecretPreferences} from './SecretPreferences.tsx';
 
 WorkerFunctionGen.registerType({'#is': ''}, {name: 'class1'}, '+WorkerEditor');
 
 const editors: Window[] = [];
+mountSecretPreferences();
 window.addEventListener('beforeunload', () => {
   for (const editor of editors) {
     if (!editor.closed) {

@@ -11,9 +11,10 @@ Open `editor.html?host=http://127.0.0.1:8010/` to edit its runtime. Browser proj
 use the separate `proj` scope; see [storage routing](remote-storage.md#paths-and-scopes).
 For static-only hosting, see [static storage](static-storage.md).
 
-The server seeds an editable `examples` project in `serv` with a 100,000-row
-table Flow, `+examples.large-table`. Existing example files are preserved; the
-Flow is not auto-loaded by default.
+The browser project at `app/server/files/proj/examples` links to the bundled
+examples. Edits to that project on port 8010 update the bundled files. The Node.js
+runtime keeps its own `app/server/files/serv/examples` project, which includes
+the 100,000-row `+examples.large-table` Flow.
 
 When embedding the HTTP host, create its app before attaching storage so
 `^web-server` exists when global data and flows load:

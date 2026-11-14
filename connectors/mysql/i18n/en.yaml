@@ -1,0 +1,8 @@
+mysql:
+  '@name': MySQL
+  connectionString:
+    '@name': Connection URL
+  maxConnections:
+    '@name': Maximum Connections
+  connectionTimeout:
+    '@name': Connection Timeout

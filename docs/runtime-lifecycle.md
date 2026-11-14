@@ -79,12 +79,35 @@ the host environment while the saved Flow stores the variable name.
 
 ## Block secrets
 
-`#secret` is a write-only string configuration. The Block's function can read
-it through `_getSecret(this)`. Hosts install a codec with `setSecretCipher()`
-before loading storage to persist secrets. The Node development server
-encrypts them with AES-256-GCM and reuses the key in
-`app/server/files/.ticlo-secret.key` across restarts. Keep the key with the deployment
-when moving saved Flows that contain encrypted secrets.
+`#secret` is a write-only string configuration. The Block passes a `getSecret`
+callback to the function's `initInputs`. A function that needs the secret stores
+the callback in a private field and calls it to read the current value.
+
+Ticlo encrypts a secret when it is entered. Saves and undo history reuse the
+ciphertext, even when the current key cannot decrypt it. Re-entering the same
+secret encrypts it with the current key.
+
+In browser runtimes, **Preference → Secret** manages the passwords for the
+current browser origin. Ticlo derives each 32-byte key from the UTF-8 password
+using PBKDF2-HMAC-SHA-256 with 600,000 iterations and salt `ticlo`. It wraps the
+derived keys with `ticlo` for `localStorage` and clears the password input after
+submission. Re-enter the same password in another browser to open its secrets.
+
+The browser encrypts new entries with the primary key. If there is no primary
+key, Ticlo keeps the previous secret and prompts you to set a password and
+re-enter the secret. You can still save other Flow edits. The browser stores a
+format header, AES-SIV ciphertext, and the first eight bytes of the key's SHA-256
+digest as one Base93-encoded binary value. To open a secret whose key is missing,
+add the corresponding password, then unload and reload the Flow. Legacy browser
+secrets still use the original local key when it is available.
+
+`RemoteStorage` and `StaticStorage` initialize the browser codec before loading
+Flows. Standalone browser hosts call `initBrowserSecretCipher()` first.
+
+The Node development server installs its own codec with `setSecretCipher()`
+before loading storage. It uses AES-256-GCM with the key in
+`app/server/files/.ticlo-secret.key`. Keep that key with the deployment when
+moving saved Flows that contain encrypted secrets.
 
 ## Library metadata
 

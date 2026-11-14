@@ -76,7 +76,7 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
 
   static openFloatPanel(layout: DockLayout, props: ValueEditorProps) {
     const paths = props.keys?.map((key) => `${key}.${props.name}`) ?? [];
-    const id = paths.length ? `table-${[...paths].sort().join('..')}` : undefined;
+    const id = paths.length ? `${props.inline ? 'inline-' : ''}table-${[...paths].sort().join('..')}` : undefined;
     createDockDialog(
       layout,
       `${translateEditor(props.locked || !props.onChange ? 'View table' : 'Edit table')} ${props.name}`,
@@ -182,7 +182,11 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
   private openTable = () => this.context.editTable?.({...this.props, locked: !this.editable()});
 
   popup = () => {
-    const {desc, value} = this.props;
+    const {desc, value, inline, onEditValue} = this.props;
+    if (inline) {
+      if (this.editable()) onEditValue?.(desc, 'object');
+      return;
+    }
     this.context.editProperty(this.paths(), desc, value, 'object', !this.editable());
   };
 
@@ -435,7 +439,11 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
           const denied = conn.getEditPolicyView().check({cmd: 'set', path, value: nextValue(current[index])});
           if (denied) throw new Error(denied);
         }
-        for (const [index, path] of paths.entries()) await conn.setValue(path, nextValue(current[index]), true);
+        for (const [index, path] of paths.entries()) {
+          const value = nextValue(current[index]);
+          if (this.props.inline) await conn.setUnboundValue(path, value);
+          else await conn.setValue(path, value, true);
+        }
       } else {
         onChange(nextValue(this.loadedValue), name);
       }
@@ -667,7 +675,11 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
                 ? `(${getTruncatedArrayLength(value.rows) ?? value.rows.length})`
                 : null}
           </Button>
-          {this.context?.editProperty && this.props.keys?.length ? (
+          {(
+            this.props.inline
+              ? this.props.onEditValue && this.editable()
+              : this.context?.editProperty && this.props.keys?.length
+          ) ? (
             <div className="ticl-e-expand-button" title="Edit" onClick={this.popup}>
               <div className="ticl-e-expand-icon-11" />
             </div>

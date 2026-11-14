@@ -48,7 +48,7 @@ describe('DateTime', () => {
 
       const invalidDt = DateTimeUtil.invalidDate;
       const encodedInvalid = DateTimeUtil.encodeDateTime(invalidDt);
-      expect(encodedInvalid).toBe('͢Ts:!invalid input');
+      expect(encodedInvalid).toBe('\bTs:!invalid input');
       const decodedInvalid = DateTimeUtil.decodeDateTime(encodedInvalid);
       expect(decodedInvalid.invalidReason).toBe('invalid input');
     });

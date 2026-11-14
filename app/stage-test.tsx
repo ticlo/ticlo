@@ -4,6 +4,7 @@ import {createRoot} from 'react-dom/client';
 import {App as AntdApp, Button, ConfigProvider, message} from 'antd';
 import i18next from 'i18next';
 import {Root, addConsoleLogger} from '@ticlo/core';
+import {initBrowserSecretCipher} from '@ticlo/remote-storage';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {initEditor} from '@ticlo/editor';
 import {TicloApp} from '@ticlo/editor/component/TicloApp.tsx';
@@ -13,6 +14,7 @@ import '@ticlo/html';
 import {data} from './sample-data/data.ts';
 import enEditor from '../i18n/editor/en.json' with {type: 'json'};
 import enCore from '../i18n/core/en.json' with {type: 'json'};
+import {SecretPreferences} from './SecretPreferences.tsx';
 
 function FullscreenButton() {
   const [fullscreen, setFullscreen] = useState(Boolean(document.fullscreenElement));
@@ -53,6 +55,7 @@ function FullscreenButton() {
   i18next.addResourceBundle('en', 'ticlo-core', enCore);
   await i18next.changeLanguage('en');
 
+  await initBrowserSecretCipher();
   Root.instance.addFlow('example', data);
   const [, client] = makeLocalConnection(Root.instance);
   createRoot(document.getElementById('app')).render(
@@ -62,6 +65,7 @@ function FullscreenButton() {
           <BlockStagePane conn={client} basePath="example" disablePropertyList />
         </TicloApp>
         <FullscreenButton />
+        <SecretPreferences />
       </AntdApp>
     </ConfigProvider>
   );

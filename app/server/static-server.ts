@@ -2,18 +2,20 @@ import Fs from 'node:fs/promises';
 import Path from 'node:path';
 import {createServer} from 'node:http';
 import {fileURLToPath} from 'node:url';
+import {linkBrowserExamples} from './examples.ts';
 
 const dir = fileURLToPath(new URL('./files/', import.meta.url));
 
-async function indexFolder(folder: string) {
+async function indexFolder(folder: string, allowProjectSymlink: (directory: string) => Promise<boolean>) {
   const files: string[] = [];
   for (const entry of await Fs.readdir(folder, {withFileTypes: true})) {
     if (folder === dir && entry.name === 'serv') continue;
     if (entry.name.startsWith('.')) {
       continue;
     }
-    if (entry.isDirectory()) {
-      await indexFolder(Path.join(folder, entry.name));
+    const directory = Path.join(folder, entry.name);
+    if (entry.isDirectory() || (entry.isSymbolicLink() && (await allowProjectSymlink(directory)))) {
+      await indexFolder(directory, allowProjectSymlink);
       files.push(`${entry.name}/`);
     } else if (entry.isFile()) {
       files.push(entry.name);
@@ -45,7 +47,8 @@ async function start() {
     await Fs.rename(Path.join(folder, '_proj.json'), Path.join(folder, '.proj'));
   }
   await Fs.mkdir(Path.join(dir, 'usr'), {recursive: true});
-  await indexFolder(dir);
+  const allowProjectSymlink = await linkBrowserExamples(Path.join(dir, 'proj'));
+  await indexFolder(dir, allowProjectSymlink);
 
   const server = createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');

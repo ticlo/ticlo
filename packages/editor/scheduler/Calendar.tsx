@@ -12,6 +12,7 @@ import {CalendarEventEditor, sortDateItem} from './CalendarEventEditor.tsx';
 import {SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent.ts';
 import {scat} from '@ticlo/core/util/String.ts';
 import {DateTime} from 'luxon';
+import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
 const CalendarT = Calendar<CalendarEvent>;
 
@@ -20,6 +21,7 @@ interface Props {
   parentPath: string;
   scheduleName: string;
   index: number;
+  unbound?: boolean;
 }
 
 interface State {
@@ -171,9 +173,11 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
   }
 
   updateConfig = (config: SchedulerConfig) => {
-    const {conn, parentPath} = this.props;
+    const {conn, parentPath, unbound} = this.props;
     const {selectedSchedule, selectedIdx} = this.state;
-    conn.setValue(`${parentPath}.${selectedSchedule}.config${selectedIdx}`, config);
+    const path = `${parentPath}.${selectedSchedule}.config${selectedIdx}`;
+    if (unbound) void conn.setUnboundValue(path, config).catch(requestCallbacks.onError);
+    else conn.setValue(path, config);
   };
 
   _calendar: {state: {context: any}};

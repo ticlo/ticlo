@@ -1,0 +1,102 @@
+{
+  "#is": "",
+  "#functions": {
+    ":mark": {
+      "type": "worker",
+      "worker": {
+        "#is": "",
+        "#desc": {
+          "tags": [
+            "react-comp"
+          ]
+        },
+        "#inputs": {
+          "#is": "",
+          "#custom": [
+            {
+              "name": "value",
+              "type": "number"
+            },
+            {
+              "name": "color",
+              "type": "string"
+            }
+          ]
+        },
+        "#main": {
+          "#is": "react:div",
+          "~style": {
+            "#is": "html:create-style",
+            "#optional": [
+              "backgroundColor"
+            ],
+            "#extend": {
+              "width": "100%",
+              "height": "100%",
+              "display": "flex",
+              "alignItems": "center",
+              "justifyContent": "center",
+              "color": "white",
+              "borderRadius": 6,
+              "fontWeight": 600
+            },
+            "~backgroundColor": "##.##.#inputs.color"
+          },
+          "~content": "##.#inputs.value"
+        },
+        "#outputs": {
+          "#is": "",
+          "~#return": "##.#main"
+        }
+      }
+    }
+  },
+  "#main": {
+    "#is": "chart:chart",
+    "type": "column",
+    "style": {
+      "width": 600,
+      "height": 360
+    },
+    "options": {
+      "scales": {
+        "y": {
+          "beginAtZero": true
+        }
+      },
+      "plugins": {
+        "legend": {
+          "position": "bottom"
+        }
+      }
+    },
+    "#order": [
+      "north",
+      "south"
+    ],
+    "north": {
+      "#is": "chart:series",
+      "label": "North",
+      "color": "rgb(255, 99, 132)",
+      "renderer": ":mark",
+      "data": [
+        {"id": "jan", "label": "Jan", "value": 14},
+        {"id": "feb", "label": "Feb", "value": 22},
+        {"id": "mar", "label": "Mar", "value": 18},
+        {"id": "apr", "label": "Apr", "value": 30}
+      ]
+    },
+    "south": {
+      "#is": "chart:series",
+      "label": "South",
+      "color": "rgb(54, 162, 235)",
+      "renderer": ":mark",
+      "data": [
+        {"id": "jan", "label": "Jan", "value": 20},
+        {"id": "feb", "label": "Feb", "value": 16},
+        {"id": "mar", "label": "Mar", "value": 27},
+        {"id": "apr", "label": "Apr", "value": 24}
+      ]
+    }
+  }
+}

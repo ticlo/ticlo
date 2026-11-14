@@ -1,4 +1,3 @@
-import {lstat} from 'node:fs/promises';
 import {
   commitGit,
   deleteGitBranch,
@@ -8,7 +7,14 @@ import {
   initGit,
   resetGitToCommit,
 } from './gitOperations.ts';
-import {ensureRead, ensureWrite, resolveAuth, streamToBuffer, type FileRouteContext} from './fileOperations.ts';
+import {
+  ensureNoSymlink,
+  ensureRead,
+  ensureWrite,
+  resolveAuth,
+  streamToBuffer,
+  type FileRouteContext,
+} from './fileOperations.ts';
 import {projectDirectoryExists, projectRootPath, projectScopeDir, sanitizeProjectId} from './projectOperations.ts';
 import {FileQuerystring, StorageContext, StorageError} from './types.ts';
 import {handleErrors, type HonoReply} from './utils.ts';
@@ -24,9 +30,9 @@ async function projectContext(
   const auth = await resolveAuth(context.authProvider, request);
   if (write) await ensureWrite(auth, id);
   else await ensureRead(auth, id);
-  if (!(await projectDirectoryExists(baseDir, id))) throw new StorageError('Project not found', 404);
   const root = projectRootPath(baseDir, id);
-  if ((await lstat(root)).isSymbolicLink()) throw new StorageError('Symlinks are not supported', 403);
+  await ensureNoSymlink(root, context);
+  if (!(await projectDirectoryExists(baseDir, id))) throw new StorageError('Project not found', 404);
   return {id, auth, root};
 }
 

@@ -1,10 +1,10 @@
-import Arrow from 'arrow-code';
+import Arrow from 'jsonesc';
 import {DateTime} from 'luxon';
 import {decodeDateTime, encodeDateTime, formatDate} from './DateTime.ts';
 import {decodeUnknown, encodeUnknown, NoSerialize} from './NoSerialize.ts';
-import {ErrorEvent} from '../block/Event.ts';
+import {ErrorEvent, WarningEvent} from '../block/Event.ts';
 
-const arrow = new Arrow({encodeDate: false});
+const arrow = new Arrow({encodeDate: false, encodeBigInt: true});
 arrow.registerRaw('Ts', DateTime, encodeDateTime, decodeDateTime);
 arrow.registerRaw('', NoSerialize, encodeUnknown, decodeUnknown);
 
@@ -33,8 +33,8 @@ arrow.register(
   (event: ErrorEvent) => {
     const detail =
       event.detail instanceof Error
-        ? `͢e:${encodeError(event.detail)}`
-        : (arrow.encode(event.detail) ?? `͢${arrow.stringify(event.detail)}`);
+        ? `\be:${encodeError(event.detail)}`
+        : (arrow.encode(event.detail) ?? `\b${arrow.stringify(event.detail)}`);
     return JSON.stringify(
       event.type === ErrorEvent.defaultType ? (event.detail === undefined ? [] : [detail]) : [event.type, detail]
     );
@@ -45,6 +45,12 @@ arrow.register(
       ? new ErrorEvent(undefined, data.length ? arrow.decode(data[0]) : undefined)
       : new ErrorEvent(data[0], arrow.decode(data[1]));
   }
+);
+arrow.register(
+  'W',
+  WarningEvent,
+  (event: WarningEvent) => event.type,
+  (type: string) => new WarningEvent(type)
 );
 
 export const arrowReplacer = arrow.replacer.bind(arrow);
@@ -85,9 +91,9 @@ export function decode(str: string): any {
   return arrow.parse(str);
 }
 
-export const decodeReviver = (key: string, value: any) => arrow.reviver(key, value);
+export const decodeReviver = arrowReviver;
 
-const displayRegex = /"͢(\w*:)?([^"]*)"/g;
+const displayRegex = /"\\b(\w*:)?([^"]*)"/g;
 
 function replaceDisplay(str: string, g1: string, g2: string) {
   return g2;

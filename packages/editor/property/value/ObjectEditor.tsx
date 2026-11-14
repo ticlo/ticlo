@@ -15,7 +15,11 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   popup = () => {
-    const {keys, name, desc, value} = this.props;
+    const {keys, name, desc, value, inline, onEditValue} = this.props;
+    if (inline) {
+      onEditValue?.(desc, 'object');
+      return;
+    }
     this.context.editProperty(
       keys.map((key) => `${key}.${name}`),
       desc,
@@ -26,9 +30,9 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   render() {
-    const {value, desc, onChange, onConvertToHelper, onConvertToObject} = this.props;
+    const {value, desc, inline, addSubBlock, onEditValue, onChange, onConvertToHelper, onConvertToObject} = this.props;
     let editor: React.ReactNode;
-    if (value === undefined && onChange && desc.create) {
+    if (value === undefined && onChange && desc.create && addSubBlock) {
       let create = desc.create;
       const colonIndex = create.indexOf(':');
       if (colonIndex > -1) {
@@ -68,7 +72,7 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
             />
           </Dropdown>
         ) : null}
-        {this.context?.editProperty ? (
+        {(inline ? onEditValue : this.context?.editProperty) ? (
           <div className="ticl-e-expand-button" title={'Edit'} onClick={this.popup}>
             <div className="ticl-e-expand-icon-11" />
           </div>

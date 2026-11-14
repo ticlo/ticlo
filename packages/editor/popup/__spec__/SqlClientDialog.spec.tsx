@@ -186,4 +186,102 @@ describe('SQL client management dialog', () => {
     await userEvent.click(entitySwitcher());
     await shouldHappen(() => replacement.getColumns.mock.calls.length === 1);
   });
+
+  it('drags table, view, and column names into the SQL query editor', async () => {
+    const viewEntity = {schema: 'main', name: 'item_view', kind: 'view' as const};
+    const database = escapedObject('sql-client-drag-test', {
+      listEntities: vi.fn().mockResolvedValue([entity, viewEntity]),
+      getColumns: vi.fn().mockResolvedValue([
+        {name: 'id', databaseType: 'INTEGER', primaryKey: true},
+        {name: 'value', databaseType: 'TEXT'},
+      ]),
+      query: vi.fn().mockResolvedValue({table: {columns: [{name: 'value', type: 'any'}], rows: [[42]]}}),
+    });
+    const flow = root.addFlow('Test', {database: {'#is': functionId}});
+    (flow.getValue('database') as Block).output(database);
+    const [, conn] = makeLocalConnection(root, false);
+
+    let layout: DockLayout;
+    const [, div] = loadTemplate(
+      <DockLayout
+        ref={(value) => {
+          layout = value;
+        }}
+        defaultLayout={{
+          dockbox: {mode: 'horizontal', children: [{tabs: [{id: 'base', title: 'Base', content: <div />}]}]},
+        }}
+        style={{width: 400, height: 500}}
+      />,
+      'editor'
+    );
+    div.style.width = '400px';
+    div.style.height = '500px';
+    await shouldHappen(() => layout);
+    flushSync(() => openSqlClientDialog(layout, conn, 'Test.database'));
+    await shouldHappen(() => entityTitle() && editor());
+
+    await userEvent.click(entitySwitcher());
+    const columnNode = await shouldHappen(() =>
+      Array.from(document.querySelectorAll('.ticl-e-sql-column')).find((node) => node.textContent?.includes('value'))
+    );
+    const idColumnNode = Array.from(document.querySelectorAll('.ticl-e-sql-column')).find((node) =>
+      node.textContent?.includes('id')
+    );
+    const tableNode = document.querySelector<HTMLElement>('.ticl-e-sql-entity');
+    const viewNode = Array.from(document.querySelectorAll<HTMLElement>('.ticl-e-sql-entity')).find(
+      (node) => node.textContent === viewEntity.name
+    );
+
+    // Dragging onto an empty query editor works directly.
+    await userEvent.dragAndDrop(columnNode, editor());
+    await shouldHappen(() => editor().textContent === 'value');
+    // Dropping leaves the caret after the inserted name so subsequent typing appends instead of overwriting it.
+    await userEvent.keyboard(' FROM ');
+    await userEvent.dragAndDrop(tableNode, editor());
+    await shouldHappen(() => editor().textContent === 'value FROM items');
+    // Dragging an expanded table keeps its columns expanded.
+    expect(document.querySelector('.ticl-e-sql-column')).not.toBeNull();
+
+    // Dragging a view name onto the gutter/wrapper also inserts into the query editor.
+    await userEvent.keyboard(' JOIN ');
+    await userEvent.dragAndDrop(viewNode, document.querySelector('.ticl-e-sql-input .cm-gutters'));
+    await shouldHappen(() => editor().textContent === 'value FROM items JOIN item_view');
+
+    // Dragging a primary-key column inserts only its name at the drop coordinates.
+    const line = editor().querySelector('.cm-line');
+    const range = document.createRange();
+    range.setStart(line.firstChild, 0);
+    range.collapse(true);
+    const caretRect = range.getBoundingClientRect();
+    const data = new DataTransfer();
+    idColumnNode.dispatchEvent(new DragEvent('dragstart', {bubbles: true, dataTransfer: data}));
+    expect(data.getData('text/plain')).toBe('id');
+    editor().dispatchEvent(
+      new DragEvent('drop', {
+        bubbles: true,
+        cancelable: true,
+        dataTransfer: data,
+        clientX: caretRect.left,
+        clientY: (caretRect.top + caretRect.bottom) / 2,
+      })
+    );
+    await shouldHappen(() => editor().textContent === 'idvalue FROM items JOIN item_view');
+
+    // Plain external text/plain drops still work without breaking CodeMirror's native drop handler.
+    const plain = new DataTransfer();
+    plain.setData('text/plain', ', ');
+    range.setStart(editor().querySelector('.cm-line').firstChild, 2);
+    range.collapse(true);
+    const commaRect = range.getBoundingClientRect();
+    editor().dispatchEvent(
+      new DragEvent('drop', {
+        bubbles: true,
+        cancelable: true,
+        dataTransfer: plain,
+        clientX: commaRect.left,
+        clientY: (commaRect.top + commaRect.bottom) / 2,
+      })
+    );
+    await shouldHappen(() => editor().textContent === 'id, value FROM items JOIN item_view');
+  });
 });

@@ -107,12 +107,12 @@ describe('LocalConnection', () => {
         expect(result.cache.value.value).toBe(child.getFullPath());
         expect(result.cache.bindingPath).toBe('child');
 
-        flow.setValue('source', {block: child, text: '͢:literal'});
+        flow.setValue('source', {block: child, text: '\b:literal'});
         const next = callbacks.promise;
         await client.setBinding('Main.value', 'source', false, true);
         result = await next;
         expect(result.cache.value.block).toBeInstanceOf(NoSerialize);
-        if (!serialize) expect(result.cache.value.text).toBe('͢:literal');
+        if (!serialize) expect(result.cache.value.text).toBe('\b:literal');
 
         const reconnected = callbacks.promise;
         client.onDisconnect();

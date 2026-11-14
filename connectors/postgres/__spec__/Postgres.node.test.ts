@@ -3,6 +3,7 @@ import {
   decode,
   encode,
   encodeSorted,
+  ErrorEvent,
   Flow,
   Root,
   setSecretCipher,
@@ -13,9 +14,10 @@ import {
 import {SecretCipher} from '@ticlo/node';
 import {parseIntoClientConfig} from 'pg-connection-string';
 import {PostgresClient} from '../index.ts';
+import {localPostgresUrl} from './localPostgres.ts';
 
-const connectionEnv = 'TICLO_TEST_POSTGRES_URL';
-const connectionString = process.env[connectionEnv];
+const configuredUrl = process.env.TICLO_TEST_POSTGRES_URL;
+const useLocalPodman = !configuredUrl && process.env.GITHUB_ACTIONS !== 'true';
 const schema = `ticlo.${randomUUID()}`;
 const tableName = 'quote"table';
 const table = `"${schema}"."quote""table"`;
@@ -29,15 +31,20 @@ it('rejects passwords in the public URL for a split connection', async () => {
   }
 });
 
-describe.skipIf(!connectionString)('PostgreSQL connector', () => {
+describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () => {
   let client: PostgresClient;
+  let connectionString = configuredUrl;
 
-  beforeAll(async () => {
-    client = await PostgresClient.open({connectionString, maxConnections: 1});
-    await client.query(`CREATE SCHEMA "${schema}"`);
-    await client.query(`CREATE TABLE ${table} (id integer PRIMARY KEY, label text NOT NULL DEFAULT 'test')`);
-    await client.query(`CREATE VIEW "${schema}".items AS SELECT id FROM ${table}`);
-  });
+  beforeAll(
+    async () => {
+      if (useLocalPodman) connectionString = await localPostgresUrl();
+      client = await PostgresClient.open({connectionString, maxConnections: 1});
+      await client.query(`CREATE SCHEMA "${schema}"`);
+      await client.query(`CREATE TABLE ${table} (id integer PRIMARY KEY, label text NOT NULL DEFAULT 'test')`);
+      await client.query(`CREATE VIEW "${schema}".items AS SELECT id FROM ${table}`);
+    },
+    useLocalPodman ? 130_000 : undefined
+  );
 
   afterAll(async () => {
     if (!client) return;
@@ -108,13 +115,17 @@ describe.skipIf(!connectionString)('PostgreSQL connector', () => {
     try {
       const block = flow.createBlock('database');
       block._load({
-        '#is': 'postgres:client',
+        '#is': 'database:postgres',
         'connectionString': url.toString(),
         '~#secret': {'#is': 'node:env', 'name': passwordEnv},
       });
       Root.run();
-      const service: SqlClient = await shouldHappen(() => block.getValue('#output'), 5000);
-      expect(encode(service)).toContain('postgres:client');
+      const service: SqlClient = await shouldHappen(
+        () => block.getValue('#output'),
+        5000,
+        'Database block did not connect'
+      );
+      expect(encode(service)).toContain('database:postgres');
       expect(block.getValue('#secret')).toBeUndefined();
       expect(flow.save().database).not.toHaveProperty('#secret');
 
@@ -125,11 +136,12 @@ describe.skipIf(!connectionString)('PostgreSQL connector', () => {
         const restored = flow.createBlock('restored');
         restored._load(saved);
         Root.run();
-        await shouldHappen(() => restored.getValue('#output'), 5000);
+        await shouldHappen(() => restored.getValue('#output'), 5000, 'Restored database block did not connect');
         expect(restored.getValue('#secret')).toBeUndefined();
       }
       const transaction = flow.createBlock('transaction');
       transaction._load({
+        '#mode': 'onCall',
         '#is': 'sql:transaction',
         '~client': '##.database.#output',
         'statements': [
@@ -138,9 +150,19 @@ describe.skipIf(!connectionString)('PostgreSQL connector', () => {
         ],
       });
       Root.run();
+      expect(transaction.getValue('client')).toBe(service);
+      expect((await client.query(`SELECT id FROM ${table} WHERE id = 104`)).table.rows).toEqual([]);
       transaction.updateValue('#call', {});
       Root.run();
-      const result: SqlTable = await shouldHappen(() => transaction.getValue('#output'), 5000);
+      const result: SqlTable | ErrorEvent = await shouldHappen(
+        () => {
+          const event = transaction.getValue('#emit');
+          return event instanceof ErrorEvent ? event : transaction.getValue('#output');
+        },
+        5000,
+        'Transaction produced no result'
+      );
+      if (result instanceof ErrorEvent) throw result.detail;
       expect(result.rows).toEqual([["O'Reilly"]]);
       expect(transaction.getValue('affectedRows')).toBe(1);
       expect((await client.query(`SELECT label FROM ${table} WHERE id = 104`)).table.rows).toEqual([["O'Reilly"]]);
@@ -149,5 +171,5 @@ describe.skipIf(!connectionString)('PostgreSQL connector', () => {
       setSecretCipher(undefined);
       vi.unstubAllEnvs();
     }
-  });
+  }, 20_000);
 });

@@ -7,6 +7,7 @@ import {
   FileOutlined,
   MoonOutlined,
   ReloadOutlined,
+  SettingOutlined,
   SunOutlined,
   TagsOutlined,
   TranslationOutlined,
@@ -17,6 +18,7 @@ import {TicloCurrentFlowContext} from '@ticlo/editor/component/LayoutContext.ts'
 import {TooltipIconButton} from '@ticlo/editor/component/TooltipIconButton.tsx';
 import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
 import {theme, darkTheme} from '@ticlo/editor/style/theme.ts';
+import {SecretPreferences} from './SecretPreferences.tsx';
 import './AppHeader.scss';
 
 export const appHeaderHeight = 40;
@@ -60,6 +62,7 @@ export function AppHeader({
   fileItems,
   libraryItems,
   viewItems,
+  browserSecrets = true,
   children,
 }: {
   language: string;
@@ -67,12 +70,14 @@ export function AppHeader({
   fileItems?: MenuProps['items'];
   libraryItems?: MenuProps['items'];
   viewItems?: MenuProps['items'];
+  browserSecrets?: boolean;
   children?: ReactNode;
 }) {
   const {darkMode, setDarkMode} = useContext(ThemeContext);
   const {activeStage: stage} = useContext(TicloCurrentFlowContext);
   const [translateFunctions, setTranslateFunctions] = useState(TicloI18nSettings.shouldTranslateFunction);
   const [localizeNames, setLocalizeNames] = useState(TicloI18nSettings.useLocalizedBlockName);
+  const [secretOpen, setSecretOpen] = useState(false);
   const languageItems: MenuProps['items'] = [
     ...languages.map(({key, name}) => ({
       key,
@@ -112,6 +117,16 @@ export function AppHeader({
         {fileItems?.length ? <HeaderMenu label="File" icon={<FileOutlined />} items={fileItems} /> : null}
         {libraryItems?.length ? <HeaderMenu label="Library" icon={<ApartmentOutlined />} items={libraryItems} /> : null}
         <HeaderMenu label="View" icon={<AppstoreOutlined />} items={viewItems} />
+        {browserSecrets && (
+          <>
+            <HeaderMenu
+              label="Preference"
+              icon={<SettingOutlined />}
+              items={[{key: 'secret', label: t('Secret'), onClick: () => setSecretOpen(true)}]}
+            />
+            <SecretPreferences open={secretOpen} onClose={() => setSecretOpen(false)} />
+          </>
+        )}
       </div>
       <div className="ticl-app-header-center">
         {stage?.conn && stage.undo && stage.redo ? (

@@ -6,7 +6,7 @@ import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {data} from './sample-data/data.ts';
 import reactData from './sample-data/react.ts';
 import {initEditor, PropertyList, BlockStage, NodeTree, FileManager} from '@ticlo/editor';
-import {DockLayout, type LayoutBase, type TabDefinitions, type TabData} from 'rc-dock';
+import {DockLayout, type LayoutBase, type TabDefinitions} from 'rc-dock';
 import {leftSideColumns, stageGroup, toolGroup, createLayoutActions} from './AppLayout.ts';
 import {antdLocales, initAppI18n} from './AppI18n.tsx';
 import {AppTheme, appHeaderHeight} from './AppHeader.tsx';
@@ -287,8 +287,6 @@ class App extends React.PureComponent<Props, State> {
       const target = fileFlowPath(this.props.files.project, file);
       if (!target) continue;
       await this.props.conn.unloadFlow(target.path, {discardChanges: true});
-      const tab = this.layout.find(`blockEditor:${target.path}`) as TabData | undefined;
-      if (tab) this.layout.dockMove(tab, null, 'remove');
     }
   };
 
@@ -313,10 +311,6 @@ class App extends React.PureComponent<Props, State> {
       }
       await this.props.conn.unloadFlow(path, {discardChanges: true});
       if (exists) await this.props.conn.loadFlow(path);
-      else {
-        const tab = this.layout.find(`blockEditor:${path}`) as TabData | undefined;
-        if (tab) this.layout.dockMove(tab, null, 'remove');
-      }
     }
   };
 
@@ -343,6 +337,7 @@ class App extends React.PureComponent<Props, State> {
             <TicloApp value={this.ticloContext} defaultLibrary={this.props.project}>
               <EditorFilesContext.Provider value={this.props.files}>
                 <LibraryMenuHeader
+                  browserSecrets={Boolean(window.opener)}
                   language={this.lng}
                   onLanguageChange={this.switchLan}
                   conn={conn}

@@ -1,8 +1,5 @@
-'@library':
-  postgres:
-    '@name': PostgreSQL # no translate
-client:
-  '@name': 客户端 # translated from: Client
+postgres:
+  '@name': PostgreSQL # no translate
   connectionString:
     '@name': 连接 URL # translated from: Connection URL
   maxConnections:

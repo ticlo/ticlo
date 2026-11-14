@@ -7,6 +7,7 @@ import {
   sqlClientCommands,
   type SqlClient,
 } from '@ticlo/core';
+import '@ticlo/core/functions/sql/DatabaseCategory.ts';
 import {SqliteClient} from './SqliteClient.ts';
 
 export class SqliteClientFunction extends BaseFunction {
@@ -29,7 +30,7 @@ export class SqliteClientFunction extends BaseFunction {
     }
     this.client = client;
     this._data.output(
-      escapedObject<SqlClient>('sqlite:client', {
+      escapedObject<SqlClient>('database:sqlite', {
         query: client.query.bind(client),
         transaction: client.transaction.bind(client),
         listEntities: client.listEntities.bind(client),
@@ -63,21 +64,14 @@ export class SqliteClientFunction extends BaseFunction {
   }
 }
 
-globalFunctions.addCategory({
-  id: 'sqlite',
-  name: 'sqlite',
-  libraryId: 'sqlite',
-  icon: 't11:SQ  b11^:Lite',
-  color: '4af',
-});
 globalFunctions.addFactory(
   SqliteClientFunction,
   {
-    name: 'client',
+    name: 'sqlite',
     icon: 't11:SQ  b11^:Lite',
     mode: 'onLoad',
     priority: 2,
-    tags: ['sql-client'],
+    tags: ['sql-client', 'context-service'],
     commands: sqlClientCommands,
     properties: [
       {name: 'filePath', type: 'string', pinned: true},
@@ -87,6 +81,6 @@ globalFunctions.addFactory(
       {name: '#output', type: 'object', readonly: true, pinned: true},
     ],
   },
-  'sqlite',
+  'database',
   sqlClientApi
 );

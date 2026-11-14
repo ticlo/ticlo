@@ -7,6 +7,7 @@ import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import type {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
+import {initEditor} from '../../index.ts';
 import {NodeTree} from '../NodeTree.tsx';
 import {NodeTreeItem} from '../NodeRenderer.tsx';
 
@@ -41,7 +42,8 @@ it('hides unloaded libraries while retaining shared dependencies', async () => {
   expect(element.textContent).toContain('+other');
 });
 
-it('shows stored flows in a main library without loading them', async () => {
+it('loads and unloads a stored flow from navigation without removing its saved data', async () => {
+  await initEditor();
   root = new Root();
   const storage = new MemoryFlowStorage();
   await storage.saveLibraryMetadata('main', {autoLoadFlows: []});
@@ -71,8 +73,33 @@ it('shows stored flows in a main library without loading them', async () => {
   expect(root.getFlowState({library: 'main', kind: 'flow', name: 'entry'})).toBe('unloaded');
   await tree.onStoredOpen(stored);
   await shouldHappen(() => root.getFlowState({library: 'main', kind: 'flow', name: 'entry'}) === 'enabled');
-  await shouldHappen(() => tree.rows.find((item) => item.key === '+main.entry') instanceof NodeTreeItem);
+  await shouldHappen(() =>
+    tree.rows.some(
+      (item) => item instanceof NodeTreeItem && item.key === '+main.entry' && item.functionId === 'flow:main'
+    )
+  );
   expect(tree.rows.filter((item) => item.key === '+main.entry')).toHaveLength(1);
+
+  const row = await shouldHappen(() =>
+    [...element.querySelectorAll<HTMLElement>('.ticl-e-tree-node-content')].find(
+      (node) => node.textContent === 'entry' && !node.classList.contains('ticl-e-stored-flow')
+    )
+  );
+  simulate(row, 'contextmenu', {button: 2, clientX: 50, clientY: 15});
+  const unload = await shouldHappen(() =>
+    [
+      ...document.querySelectorAll<HTMLElement>(
+        '.ticl-e-dropdown:not(.ticl-e-dropdown-hidden) .ticl-e-dropdown-menu-item'
+      ),
+    ].find((item) => item.textContent === 'Unload')
+  );
+  simulate(unload, 'click');
+  await shouldHappen(() => tree.rows.some((item) => item.key === '+main.entry' && !(item instanceof NodeTreeItem)));
+  expect(root.getFlowState({library: 'main', kind: 'flow', name: 'entry'})).toBe('unloaded');
+  expect(root.queryValue('+main.entry')).toBeUndefined();
+  expect(await storage.loadFlow('+main.entry')).toEqual({value: 1});
+  await tree.onStoredOpen(stored);
+  expect(root.queryValue('+main.entry.value')).toBe(1);
 });
 
 it('offers Auto Load on a loaded normal flow without the stored-flow catalog', async () => {

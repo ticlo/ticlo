@@ -1,0 +1,63 @@
+{
+  "#is": "",
+  "#main": {
+    "#is": "react:absolute",
+    "#order": [
+      "back",
+      "middle",
+      "front"
+    ],
+    "style": {
+      "width": 600,
+      "height": 350,
+      "border": "1px solid #ddd",
+      "borderRadius": 10,
+      "backgroundColor": "#f8f9fc"
+    },
+    "back": {
+      "#is": "react:div",
+      "content": "Left / top",
+      "style": {
+        "padding": 20,
+        "borderRadius": 8,
+        "backgroundColor": "#ffe0e7",
+        "color": "#202636",
+        "position": "absolute",
+        "left": 24,
+        "top": 24,
+        "width": 180,
+        "height": 90
+      }
+    },
+    "middle": {
+      "#is": "react:div",
+      "content": "Overlapping panel",
+      "style": {
+        "padding": 20,
+        "borderRadius": 8,
+        "backgroundColor": "#d9f0ff",
+        "color": "#202636",
+        "position": "absolute",
+        "left": 145,
+        "top": 110,
+        "width": 240,
+        "height": 130
+      }
+    },
+    "front": {
+      "#is": "react:div",
+      "content": "Right / bottom",
+      "style": {
+        "padding": 20,
+        "borderRadius": 8,
+        "backgroundColor": "#e3f5e9",
+        "color": "#202636",
+        "position": "absolute",
+        "left": 355,
+        "top": 230,
+        "width": 190,
+        "height": 80
+      }
+    }
+  }
+}

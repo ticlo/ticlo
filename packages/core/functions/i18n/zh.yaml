@@ -1,6 +1,8 @@
 '@library':
   sql:
     '@name': SQL # no translate
+  database:
+    '@name': 数据库 # translated from: Database
   math:
     '@name': 数学
   string:

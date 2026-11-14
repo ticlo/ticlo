@@ -173,7 +173,7 @@ globalFunctions.addFactory(
     name: 'server',
     icon: 'svg:network-wired',
     properties: [{name: '#output', pinned: true, type: 'object', readonly: true}],
-    tags: ['route-server'],
+    tags: ['route-server', 'context-service'],
   },
   'web-server'
 );

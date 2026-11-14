@@ -1,0 +1,105 @@
+{
+  "#is": "",
+  "#functions": {
+    ":mark": {
+      "type": "worker",
+      "worker": {
+        "#is": "",
+        "#desc": {
+          "tags": [
+            "react-comp"
+          ]
+        },
+        "#inputs": {
+          "#is": "",
+          "#custom": [
+            {
+              "name": "label",
+              "type": "string"
+            }
+          ]
+        },
+        "#main": {
+          "#is": "react:div",
+          "style": {
+            "width": "100%",
+            "height": "100%",
+            "borderRadius": "50%",
+            "backgroundColor": "rgba(255, 99, 132, 0.75)",
+            "border": "2px solid rgb(255, 99, 132)",
+            "boxSizing": "border-box",
+            "display": "flex",
+            "alignItems": "center",
+            "justifyContent": "center",
+            "color": "white",
+            "fontWeight": 600
+          },
+          "~content": "##.#inputs.label"
+        },
+        "#outputs": {
+          "#is": "",
+          "~#return": "##.#main"
+        }
+      }
+    }
+  },
+  "#main": {
+    "#is": "chart:chart",
+    "type": "bubble",
+    "style": {
+      "width": 560,
+      "height": 340
+    },
+    "options": {
+      "scales": {
+        "x": {
+          "min": 0,
+          "max": 10
+        },
+        "y": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      "plugins": {
+        "legend": {
+          "display": false
+        }
+      }
+    },
+    "#order": [
+      "cities"
+    ],
+    "cities": {
+      "#is": "chart:series",
+      "label": "Cities",
+      "dataset": {
+        "backgroundColor": "rgb(255, 99, 132)"
+      },
+      "renderer": ":mark",
+      "data": [
+        {
+          "id": "a",
+          "label": "A",
+          "x": 2,
+          "y": 4,
+          "r": 20
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "x": 5,
+          "y": 7,
+          "r": 28
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "x": 8,
+          "y": 3,
+          "r": 16
+        }
+      ]
+    }
+  }
+}
