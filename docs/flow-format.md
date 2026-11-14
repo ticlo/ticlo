@@ -2,7 +2,8 @@
 
 A `.ticlo` file is a JSON object (`DataMap`) describing a flow's block tree.
 Only saved values and binding declarations serialize, not computed outputs.
-Use `encodeSorted()`/`decode()` for values such as Luxon dates encoded by `arrow-code`.
+Use `encodeSorted()` and `decode()` for values such as Luxon dates. Ticlo
+uses `jsonesc` to encode tagged strings with a backspace prefix (`\b` in JSON).
 
 ## Blocks and values
 

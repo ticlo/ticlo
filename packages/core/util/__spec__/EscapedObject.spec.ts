@@ -2,7 +2,7 @@ import {expect} from 'vitest';
 import {decodeUnknown, NoSerialize} from '../NoSerialize.ts';
 
 describe('EscapedObject', function () {
-  const encodedString = '"͢:title"';
+  const encodedString = '"\\b:title"';
   it('basic', function () {
     const esc = new NoSerialize('title');
     expect(JSON.stringify(esc)).toBe(encodedString);

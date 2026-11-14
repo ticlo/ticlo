@@ -65,7 +65,7 @@ class BlockCancelConfig extends BlockProperty {
 
 interface SecretCipher {
   encode(value: string): unknown;
-  decode(data: unknown): string | Uint8Array | undefined;
+  decode(data: unknown): string | undefined;
 }
 
 let secretCipher: SecretCipher;
@@ -97,9 +97,8 @@ class BlockSecretConfig extends BlockConfig {
     return this.#encoded;
   }
   _load(val: unknown) {
-    const decoded = secretCipher?.decode(val);
-    const value = typeof decoded === 'string' ? decoded : undefined;
-    this.#encoded = val instanceof Uint8Array || value !== undefined ? val : decoded;
+    const value = secretCipher?.decode(val);
+    this.#encoded = val instanceof Uint8Array || value !== undefined ? val : undefined;
     super.setValue(value);
   }
   _liveUpdate(val: unknown) {

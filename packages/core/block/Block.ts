@@ -1028,7 +1028,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   }
 
   toArrow() {
-    return `͢:Block:${this.getFullPath()}`;
+    return `\b:Block:${this.getFullPath()}`;
   }
 
   #secret: string | undefined;

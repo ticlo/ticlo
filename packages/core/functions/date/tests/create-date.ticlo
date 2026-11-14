@@ -14,8 +14,8 @@
   270
  ],
  "[]": 2,
- "expect0": "͢Ts:!invalid input",
- "expect1": "͢Ts:!unsupported zone",
+ "expect0": "\bTs:!invalid input",
+ "expect1": "\bTs:!unsupported zone",
  "matchMode": "always-match",
  "~actual0": "##.invalid-date.#output",
  "~actual1": "##.invalid-timezone.#output"
@@ -38,10 +38,10 @@
   374
  ],
  "[]": 4,
- "expect0": "͢Ts:2001-01-01T01:01:01.001@UTC+8",
- "expect1": "͢Ts:2001-01-01T00:00:00.000@UTC+8",
- "expect2": "͢Ts:2001-01-01T00:00:00.000",
- "expect3": "͢Ts:2001-08-08T00:00:00.000*",
+ "expect0": "\bTs:2001-01-01T01:01:01.001@UTC+8",
+ "expect1": "\bTs:2001-01-01T00:00:00.000@UTC+8",
+ "expect2": "\bTs:2001-01-01T00:00:00.000",
+ "expect3": "\bTs:2001-08-08T00:00:00.000*",
  "matchMode": "always-match",
  "~actual0": "##.create-date1.#output",
  "~actual1": "##.create-date2.#output",

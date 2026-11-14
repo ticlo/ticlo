@@ -14,7 +14,7 @@ export class NoSerialize {
     return `${this.title}`;
   }
   toJSON() {
-    return `͢:${this.title}`;
+    return `\b:${this.title}`;
   }
 }
 
@@ -23,7 +23,7 @@ export function decodeUnknown(str: string): any {
 }
 
 export function encodeUnknown(obj: object): any {
-  return `͢:${obj.toString()}`;
+  return `\b:${obj.toString()}`;
 }
 
 export function escapedObject<T>(title: string, obj: T): T & NoSerialize {

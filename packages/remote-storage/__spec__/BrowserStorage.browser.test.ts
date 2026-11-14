@@ -232,7 +232,7 @@ describe('mixed browser storage', () => {
     expect(bytesToHex((persisted.next as {'#secret': Uint8Array})['#secret'].subarray(-8))).toBe(second);
     const {data} = await storage.getFile('BrowserLocal/secrets.ticlo');
     expect(new TextDecoder().decode(data)).not.toContain('浏览器密码');
-    expect(new TextDecoder().decode(data)).toContain('͢Bin:');
+    expect(new TextDecoder().decode(data)).toContain('\\bBin:');
 
     const reopened = new StaticStorage(base);
     try {

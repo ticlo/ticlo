@@ -10,7 +10,7 @@ describe('Serialize', function () {
       name = 'DatabaseError';
       code = 'SQLITE_ERROR';
     }
-    const error = new DatabaseError('bad SQL: "select"\n͢Ts:literal');
+    const error = new DatabaseError('bad SQL: "select"\n\bTs:literal');
     const event = new ErrorEvent(undefined, error);
     for (const serialize of [encode, encodeSorted]) {
       const wire = serialize({event, native: new TypeError('invalid input')});
@@ -33,7 +33,7 @@ describe('Serialize', function () {
   });
 
   it('preserves explicit error types and structured or Arrow-prefixed details', () => {
-    for (const detail of ['͢Ts:literal', {value: NaN, bytes: new Uint8Array([0, 255])}, undefined]) {
+    for (const detail of ['\bTs:literal', {value: NaN, bytes: new Uint8Array([0, 255])}, undefined]) {
       const event = decode(encode(new ErrorEvent('timeout', detail)));
       expect(event).toBeInstanceOf(ErrorEvent);
       expect(event.type).toBe('timeout');
@@ -61,25 +61,25 @@ describe('Serialize', function () {
     const dateStr = '2014-11-27T11:07:00.000';
     const date = DateTime.fromISO(dateStr);
     const encodedStr = encode(date);
-    expect(encodedStr).toBe('"͢Ts:2014-11-27T11:07:00.000"');
+    expect(encodedStr).toBe('"\\bTs:2014-11-27T11:07:00.000"');
     expect(isDateSame(date, decode(encodedStr))).toBe(true);
     expect(encodeDisplay(date)).toBe('2014-11-27 11:07:00 PST');
     expect(formatDate(date, false)).toBe('2014-11-27');
     // decode from ISO format
-    expect(isDateSame(date, decode(`"͢Ts:${dateStr}"`))).toBe(true);
+    expect(isDateSame(date, decode(`"\\bTs:${dateStr}"`))).toBe(true);
   });
   it('DateTime tz', function () {
     const dateStr = '2014-11-27T11:07:00.000-03:00';
     const date = DateTime.fromISO(dateStr, {setZone: true});
     const encodedStr = encode(date);
-    expect(encodedStr).toBe('"͢Ts:2014-11-27T11:07:00.000@UTC-3"');
+    expect(encodedStr).toBe('"\\bTs:2014-11-27T11:07:00.000@UTC-3"');
     expect(isDateSame(date, decode(encodedStr))).toBe(true);
     expect(encodeDisplay(date)).toBe('2014-11-27 11:07:00 UTC-3');
   });
   it('DateTime invalid', function () {
     const date = DateTime.invalid('test invalid');
     const encodedStr = encode(date);
-    expect(encodedStr).toBe('"͢Ts:!test invalid"');
+    expect(encodedStr).toBe('"\\bTs:!test invalid"');
     expect(isDateSame(date, decode(encodedStr))).toBe(true);
     expect(encodeDisplay(date)).toBe('test invalid');
   });
@@ -95,8 +95,8 @@ describe('Serialize', function () {
     const d8 = DateTime.fromISO('2024-11-03T01:30:21.123-08:00');
     const d7Encoded = encode(d7);
     const d8Encoded = encode(d8);
-    expect(d7Encoded).toBe('"͢Ts:2024-11-03T01:30:21.123*"');
-    expect(d8Encoded).toBe('"͢Ts:2024-11-03T01:30:21.123"');
+    expect(d7Encoded).toBe('"\\bTs:2024-11-03T01:30:21.123*"');
+    expect(d8Encoded).toBe('"\\bTs:2024-11-03T01:30:21.123"');
     expect(isDateSame(d7, decode(d7Encoded))).toBe(true);
     expect(isDateSame(d8, decode(d8Encoded))).toBe(true);
 
@@ -104,8 +104,8 @@ describe('Serialize', function () {
     const s10 = DateTime.fromISO('2025-04-06T02:30:00.000+10:00', {zone: 'Australia/Sydney'});
     const s11Encoded = encode(s11);
     const s10Encoded = encode(s10);
-    expect(s11Encoded).toBe('"͢Ts:2025-04-06T02:30:00.000*@Australia/Sydney"');
-    expect(s10Encoded).toBe('"͢Ts:2025-04-06T02:30:00.000@Australia/Sydney"');
+    expect(s11Encoded).toBe('"\\bTs:2025-04-06T02:30:00.000*@Australia/Sydney"');
+    expect(s10Encoded).toBe('"\\bTs:2025-04-06T02:30:00.000@Australia/Sydney"');
     expect(isDateSame(s11, decode(s11Encoded))).toBe(true);
     expect(isDateSame(s10, decode(s10Encoded))).toBe(true);
   });

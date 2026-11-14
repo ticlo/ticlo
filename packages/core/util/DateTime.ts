@@ -39,9 +39,9 @@ export function isDateSame(a: DateTime, b: DateTime) {
 
 export function encodeDateTime(val: DateTime): string {
   if (val.invalidReason) {
-    return `͢Ts:!${val.invalidReason}`;
+    return `\bTs:!${val.invalidReason}`;
   }
-  let s = `͢Ts:${val.toISO({includeOffset: false})}`;
+  let s = `\bTs:${val.toISO({includeOffset: false})}`;
   if (val.isInDST) {
     s = s + '*';
   }

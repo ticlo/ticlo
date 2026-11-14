@@ -298,9 +298,6 @@ importers:
       antd:
         specifier: 6.6.3
         version: 6.6.3(luxon@3.7.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      arrow-code:
-        specifier: ^0.3.3
-        version: 0.3.3
       axios:
         specifier: 1.20.0
         version: 1.20.0(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0)
@@ -325,6 +322,9 @@ importers:
       hono:
         specifier: ^4.13.7
         version: 4.13.7
+      jsonesc:
+        specifier: ^0.5.0
+        version: 0.5.0
       oxfmt:
         specifier: ^0.67.0
         version: 0.67.0
@@ -498,9 +498,6 @@ importers:
       '@types/luxon':
         specifier: ^3.7.5
         version: 3.7.5
-      arrow-code:
-        specifier: ^0.3.3
-        version: 0.3.3
       axios:
         specifier: 1.20.0
         version: 1.20.0(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0)
@@ -510,6 +507,9 @@ importers:
       i18next:
         specifier: ^26.4.2
         version: 26.4.2(typescript@6.0.3)
+      jsonesc:
+        specifier: ^0.5.0
+        version: 0.5.0
       lodash:
         specifier: ^4.18.1
         version: 4.18.1
@@ -2700,9 +2700,6 @@ packages:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
 
-  arrow-code@0.3.3:
-    resolution: {integrity: sha512-UR0By5efgTB7iOBghUamYCHeDYqZJIzexqHYBRSUq9HBMPflNcivBcUW4mBJeYkGYo7qxJGm+XF61a3qHulwQQ==}
-
   asn1.js@4.10.1:
     resolution: {integrity: sha512-p32cOF5q0Zqs9uBiONKYLm6BClCoBCM5O9JfeUSlnQLBTxYdTK+pW+nXflm8UkKd2UYlEbYz5qEi0JuZR9ckSw==}
 
@@ -3503,6 +3500,9 @@ packages:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
     engines: {node: '>=6'}
     hasBin: true
+
+  jsonesc@0.5.0:
+    resolution: {integrity: sha512-QHoyFnywMI0Ovwchr1vHC0JN0G4VbRRvLEPdh4GFofVp3vW7bl1JV3Lx5kK/jHmll2czeCFypKHp9HtC2n2b/w==}
 
   kind-of@6.0.3:
     resolution: {integrity: sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==}
@@ -6647,8 +6647,6 @@ snapshots:
       - luxon
       - moment
 
-  arrow-code@0.3.3: {}
-
   asn1.js@4.10.1:
     dependencies:
       bn.js: 4.12.5
@@ -7566,6 +7564,10 @@ snapshots:
       string-convert: 0.2.1
 
   json5@2.2.3: {}
+
+  jsonesc@0.5.0:
+    dependencies:
+      base64-js: 1.5.1
 
   kind-of@6.0.3: {}
 
