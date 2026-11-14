@@ -620,7 +620,8 @@ export class ValueSubscriber {
   }
 
   onError(error: string, data?: DataMap): void {
-    if (this.wasValid) {
+    // The source can change before the first value reaches the client.
+    if (this.wasValid || error === 'source changed') {
       this.wasValid = false;
       this.reSubscribe();
     } else {
