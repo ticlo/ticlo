@@ -12,6 +12,17 @@
     overflow: auto;
     border-right: 1px solid var(--ant-color-border, #ddd);
     padding-right: 8px;
+
+    .ant-tree-node-content-wrapper {
+      display: inline-flex;
+      align-items: center;
+    }
+    .ant-tree-iconEle {
+      flex: none;
+    }
+    .ant-tree-title {
+      flex: 1;
+    }
   }
   .ticl-e-sql-main {
     flex: 1;
@@ -33,8 +44,18 @@
   .ticl-e-sql-entities .ticl-e-sql-toolbar {
     justify-content: space-between;
   }
+  .ticl-e-sql-entity,
+  .ticl-e-sql-column {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    white-space: nowrap;
+    cursor: grab;
+  }
+  .ticl-e-sql-column {
+    gap: 8px;
+  }
   .ticl-e-sql-column-type {
-    margin-left: 8px;
     color: var(--ant-color-text-secondary, #666);
   }
   .ticl-e-sql-table {
