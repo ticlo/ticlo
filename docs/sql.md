@@ -93,9 +93,14 @@ and calendar and timestamp values are returned as text to preserve precision.
 `bytea` values are returned as `Uint8Array`. Use `sql:transaction` for a group
 of statements that must share a transaction.
 
-Set `TICLO_TEST_POSTGRES_URL` to a disposable database URL and run
-`pnpm test connectors/postgres` to exercise the connector against PostgreSQL.
-The test account needs permission to create and drop test schemas.
+Run `pnpm test connectors/postgres` to exercise the connector. Locally, the
+suite uses a `postgres:18` Podman container on an available loopback port. The
+Git-ignored `connectors/postgres/__spec__/postgres.podman.local.cid` records its ID.
+Later runs reuse the container and start it if stopped. The local test database
+and username are both `postgres`, and the password is `ticlo_test`. Each run
+drops its own test schema. Set `TICLO_TEST_POSTGRES_URL` to use a disposable
+database that allows the test account to create and drop schemas. GitHub
+Actions supplies that URL from a PostgreSQL service managed by the runner.
 
 ## Client management
 

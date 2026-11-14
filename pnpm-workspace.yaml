@@ -14,5 +14,6 @@ peerDependencyRules:
 minimumReleaseAgeExclude:
   - '@types/node@26.5.0'
   - antd@6.6.3
+  - jsonesc@0.5.0
   - marked@18.0.12
   - rc-dock@5.0.0-alpha.4
