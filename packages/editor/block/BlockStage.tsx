@@ -6,7 +6,7 @@ import {BlockView} from './Block.tsx';
 import {WireView} from './Wire.tsx';
 import {DragDropDiv, DragState} from 'rc-dock';
 import {cssNumber} from '../util/Types.tsx';
-import {onDragBlockOver, onDropBlock} from './DragDropBlock.tsx';
+import {getDropBlockName, onDragBlockOver, onDropBlock} from './DragDropBlock.tsx';
 import ResizeObserver_ from 'resize-observer-polyfill';
 const ResizeObserver = (ResizeObserver_ as any).default || ResizeObserver_;
 import {BlockStageBase, StagePropsBase} from './BlockStageBase.ts';
@@ -278,16 +278,16 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   };
 
   onDrop = (e: DragState) => {
-    const {conn} = this.props;
+    const {conn, basePath} = this.props;
     if (!this.canDropBlock(e)) return;
-    onDropBlock(conn, e, this.createBlock, this._bgNode);
+    onDropBlock(conn, e, this.createBlock, this._bgNode, basePath);
   };
 
   canDropBlock(e: DragState) {
     const {conn, basePath} = this.props;
     const data = DragState.getData('blockData', conn.getBaseConn());
     if (!data) return false;
-    const name = (DragState.getData('blockName', conn.getBaseConn()) || data['#is'] || '').split('.').pop();
+    const name = getDropBlockName(conn, e, basePath, data);
     const parent =
       e.event.altKey || DragState.getData('isStaticBlock', conn.getBaseConn()) ? this._staticPath : basePath;
     return this.policy.can({cmd: 'addBlock', path: `${parent}.${name}`, data, findName: true});

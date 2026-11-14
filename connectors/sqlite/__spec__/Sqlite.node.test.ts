@@ -158,7 +158,7 @@ describe('SQLite connector', () => {
       block._load({'#is': 'database:sqlite', 'filePath': ':memory:'});
       Root.run();
       service = await shouldHappen(() => block.getValue('#output'), 3000);
-      expect(globalFunctions.getDesc('database:sqlite').tags).toContain('sql-client');
+      expect(globalFunctions.getDesc('database:sqlite').tags).toEqual(['sql-client', 'context-service']);
       expect(encode(service)).toContain('database:sqlite');
       await service.query('CREATE TABLE items (name TEXT)');
       const query = flow.createBlock('query');

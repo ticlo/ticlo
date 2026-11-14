@@ -71,7 +71,7 @@ globalFunctions.addFactory(
     icon: 't11:SQ  b11^:Lite',
     mode: 'onLoad',
     priority: 2,
-    tags: ['sql-client'],
+    tags: ['sql-client', 'context-service'],
     commands: sqlClientCommands,
     properties: [
       {name: 'filePath', type: 'string', pinned: true},

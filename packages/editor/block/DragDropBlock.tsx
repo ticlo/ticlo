@@ -1,7 +1,41 @@
 import React from 'react';
-import {ClientConn} from '@ticlo/core/editor.ts';
+import {ClientConn, FunctionDesc} from '@ticlo/core/editor.ts';
 import {Modal, Input, type InputProps, type InputRef} from 'antd';
 import {DragState} from 'rc-dock';
+import {getDescModule} from '../util/FunctionModule.ts';
+
+function prefixContextBlockName(
+  conn: ClientConn,
+  e: DragState,
+  basePath: string,
+  blockData: {[key: string]: any},
+  name: string
+): string {
+  const scope = conn.getBaseConn();
+  const isStatic = e.event.altKey || Boolean(DragState.getData('isStaticBlock', scope));
+  if (!isStatic && name && !name.startsWith('^') && (basePath === '#global' || /^\+[^.]+\.#context$/.test(basePath))) {
+    const funcId = blockData?.['#is'];
+    const desc: FunctionDesc =
+      DragState.getData('functionDesc', scope) ?? conn.watchDesc(funcId, getDescModule(funcId, basePath));
+    if (desc?.tags?.includes('context-service')) {
+      return `^${name}`;
+    }
+  }
+  return name;
+}
+
+export function getDropBlockName(
+  conn: ClientConn,
+  e: DragState,
+  basePath = '',
+  blockData = DragState.getData('blockData', conn.getBaseConn())
+): string {
+  let blockName = DragState.getData('blockName', conn.getBaseConn()) || blockData?.['#is'] || '';
+  if (blockName.includes('.')) {
+    blockName = blockName.split('.').pop();
+  }
+  return prefixContextBlockName(conn, e, basePath, blockData, blockName);
+}
 
 function BlockNameInput(props: InputProps) {
   const inputRef = React.useRef<InputRef>(null);
@@ -25,7 +59,13 @@ function alignXY(val: number) {
   return Math.floor((val - 12) / 24) * 24 + 12;
 }
 
-export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateBlockCallback, bgElement: HTMLElement) {
+export function onDropBlock(
+  conn: ClientConn,
+  e: DragState,
+  createBlock: CreateBlockCallback,
+  bgElement: HTMLElement,
+  basePath = ''
+) {
   const blockData = DragState.getData('blockData', conn.getBaseConn());
   if (blockData && Object.hasOwn(blockData, '#is')) {
     const rect = bgElement.getBoundingClientRect();
@@ -49,14 +89,18 @@ export function onDropBlock(conn: ClientConn, e: DragState, createBlock: CreateB
         }
       }
       blockData['@b-xyw'] = xyw;
-      createBlock(name, blockData, e.event.altKey || Boolean(DragState.getData('isStaticBlock', conn.getBaseConn())));
+      createBlock(
+        prefixContextBlockName(conn, e, basePath, blockData, name),
+        blockData,
+        e.event.altKey || Boolean(DragState.getData('isStaticBlock', conn.getBaseConn()))
+      );
     };
     if (blockName.includes('.')) {
       blockName = blockName.split('.').pop();
     }
     if (blockName === '' || e.event.shiftKey) {
       // drop with shift to force change name
-      blockName = blockName || blockData['#is'];
+      blockName = prefixContextBlockName(conn, e, basePath, blockData, blockName || blockData['#is']);
       const onInputChange = (change: React.ChangeEvent<HTMLInputElement>) => {
         blockName = change.target.value;
       };

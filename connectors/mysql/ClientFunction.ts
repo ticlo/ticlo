@@ -83,7 +83,7 @@ globalFunctions.addFactory(
     icon: '14:My',
     mode: 'onLoad',
     priority: 2,
-    tags: ['sql-client'],
+    tags: ['sql-client', 'context-service'],
     commands: sqlClientCommands,
     properties: [
       {name: 'connectionString', type: 'string', pinned: true},
