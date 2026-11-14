@@ -8,7 +8,7 @@ import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {initEditor} from '../../index.ts';
 import {FileManager} from '../FileManager.tsx';
 import {RemoteStorage} from '@ticlo/remote-storage';
-import {Flow, Root as TicloRoot} from '@ticlo/core';
+import {Flow, Root as TicloRoot, setSecretCipher} from '@ticlo/core';
 import {file, fixtureClient, folder} from './fixtures.ts';
 import type {FileManagerProps} from '../FileManager.tsx';
 
@@ -23,6 +23,7 @@ describe('FileManager', () => {
     root = undefined;
     div?.remove();
     removeLastTemplate();
+    setSecretCipher(undefined);
     vi.restoreAllMocks();
   });
 

@@ -3,7 +3,7 @@ import type {Block} from '../Block.ts';
 import {setSecretCipher} from '../Block.ts';
 import {globalFunctions} from '../FunctionModule.ts';
 import {Flow, Root} from '../Flow.ts';
-import {expect} from 'vitest';
+import {afterEach, beforeEach, expect} from 'vitest';
 
 export class TestSecretFunction extends BaseFunction<Block> {
   #getSecret: () => string | undefined;
@@ -23,6 +23,9 @@ export class TestSecretFunction extends BaseFunction<Block> {
 globalFunctions.addFactory(TestSecretFunction, {name: 'test-secret'}, null);
 
 describe('Secret Property', function () {
+  beforeEach(() => setSecretCipher(undefined));
+  afterEach(() => setSecretCipher(undefined));
+
   it('set and read secret', function () {
     const flow = new Flow();
     const aBlock = flow.createBlock('a');

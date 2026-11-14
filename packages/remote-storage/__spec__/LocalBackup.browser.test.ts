@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
-import {Root, type Flow} from '@ticlo/core';
+import {Root, setSecretCipher, type Flow} from '@ticlo/core';
 import {LocalFileBackups} from '../LocalFileBackups.ts';
 import {LocalProjectFiles} from '../LocalProjectFiles.ts';
 import {RemoteStorage} from '../RemoteStorage.ts';
@@ -8,6 +8,7 @@ describe('remote file backups', () => {
   const opened: RemoteStorage[] = [];
   const roots: Root[] = [];
   afterEach(async () => {
+    setSecretCipher(undefined);
     for (const root of roots) root.destroy();
     roots.length = 0;
     await Promise.all(opened.map((storage) => storage.close()));
