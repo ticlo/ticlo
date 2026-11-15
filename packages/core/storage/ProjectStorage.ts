@@ -11,10 +11,12 @@ import {
   StorageError,
   projectId,
   type FileAccess,
+  type FileReadResult,
   type FileRequest,
   type ProjectFiles,
   type ProjectMetadata,
 } from './FileAccess.ts';
+import {fetchFileResult, parseFilePath} from './FilePath.ts';
 
 /** Shared file-to-flow mapping. Backends implement only file operations. */
 export abstract class ProjectStorage extends FileAccessBase implements FlowStorage, ProjectFiles {
@@ -218,6 +220,30 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
   }
   async deleteProject(id: string) {
     return this.deleteFile(projectId(id));
+  }
+
+  resolveFilePath(_path: string, _library?: string): string | undefined | Promise<string | undefined> {
+    return undefined;
+  }
+
+  protected readUrlFile(url: string, options?: FileRequest): Promise<FileReadResult> {
+    return fetchFileResult(url, options);
+  }
+
+  protected async readExternalFile(_path: string, _library?: string, _options?: FileRequest): Promise<FileReadResult> {
+    throw new StorageError('External file path is not allowed', 'permission-denied');
+  }
+
+  async readFile(path: string, library?: string, options?: FileRequest): Promise<FileReadResult> {
+    const parsed = parseFilePath(path, library);
+    switch (parsed.kind) {
+      case 'url':
+        return this.readUrlFile(parsed.path, options);
+      case 'external':
+        return this.readExternalFile(parsed.path, library, options);
+      case 'project':
+        return this.getFile(parsed.storagePath, options);
+    }
   }
 
   /** String storage functions share the same files and project routing. */

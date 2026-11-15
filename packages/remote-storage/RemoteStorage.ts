@@ -7,6 +7,7 @@ import {
   projectId,
   type FileEntry,
   type FilePayload,
+  type FileReadResult,
   type FileRequest,
   type FileWriteOptions,
   type GitCommit,
@@ -15,6 +16,7 @@ import {
   type ProjectGit,
   type ProjectMetadata,
 } from '@ticlo/core/storage/FileAccess.ts';
+import {buildProjectFileUrl, fetchFileResult} from '@ticlo/core/storage/FilePath.ts';
 import {BrowserStorage, isBrowserLocalPath} from './BrowserStorage.ts';
 import {BROWSER_LOCAL_LIBRARY} from './LocalProjectFiles.ts';
 import {LocalFileBackups, type LocalFileBackup} from './LocalFileBackups.ts';
@@ -233,6 +235,8 @@ export class RemoteFiles extends FileAccessBase {
 export class RemoteStorage extends BrowserStorage implements ProjectGit, LocalBackupAccess {
   private readonly projectFiles: RemoteFiles;
   private readonly backups: LocalFileBackups;
+  private readonly baseURL: string;
+  private readonly customFetch?: typeof fetch;
   constructor(options: RemoteStorageOptions) {
     const backups = new LocalFileBackups();
     let changed = (_path: string) => {};
@@ -285,7 +289,17 @@ export class RemoteStorage extends BrowserStorage implements ProjectGit, LocalBa
     super(projects, files);
     this.projectFiles = projects;
     this.backups = backups;
+    this.baseURL = baseURL;
+    this.customFetch = options.fetch;
     changed = (path) => this.fileChanged(path);
+  }
+
+  protected override resolveProjectFileUrl(storagePath: string) {
+    return buildProjectFileUrl(this.baseURL, storagePath);
+  }
+
+  protected override readUrlFile(url: string, options?: FileRequest): Promise<FileReadResult> {
+    return fetchFileResult(url, {...options, fetch: this.customFetch});
   }
 
   override async close() {

@@ -301,11 +301,15 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
           break;
         }
         default:
-          prop = new BlockIO(this, field);
+          prop = this._createIO(field);
       }
     }
     this._props.set(field, prop);
     return prop;
+  }
+
+  _createIO(field: string): BlockProperty {
+    return new BlockIO(this, field);
   }
 
   _createConfig(field: string): BlockProperty {

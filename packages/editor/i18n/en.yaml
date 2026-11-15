@@ -121,6 +121,7 @@
 'Must have 0 or 2 options': 'Must have 0 or 2 options'
 'number': 'number'
 'string': 'string'
+'file-path': 'file-path'
 'toggle': 'toggle'
 'select': 'select'
 'radio-button': 'radio-button'

@@ -5,6 +5,7 @@ export {Root, Flow, FlowFolder} from './block/Flow.ts';
 export type {StartOptions, FlowRef, UnloadOptions} from './block/FlowRuntime.ts';
 export {type FlowStorage, type Storage, type LibraryMetadata} from './block/Storage.ts';
 export * from './storage/FileAccess.ts';
+export * from './storage/FilePath.ts';
 export {ProjectStorage} from './storage/ProjectStorage.ts';
 export {BlockProperty, BlockIO} from './block/BlockProperty.ts';
 export {BaseFunction, StatefulFunction, PureFunction} from './block/BlockFunction.ts';

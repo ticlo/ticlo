@@ -10,10 +10,12 @@ import {EventEditor} from './EventEditor.tsx';
 import {ScheduleEditor} from './ScheduleEditor.tsx';
 import {TimeEditor} from './TimeEditor.tsx';
 import {TableEditor} from './TableEditor.tsx';
+import {StringEditor} from './StringEditor.tsx';
 
 export const typeEditorMap: {[key: string]: any} = {
   ...dynamicEditorMap,
 
+  'file-path': StringEditor,
   'select': SelectEditor,
   'multi-select': MultiSelectEditor,
   'combo-box': ComboEditor,

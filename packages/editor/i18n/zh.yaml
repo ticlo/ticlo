@@ -133,6 +133,7 @@
 'Must have 0 or 2 options': 只支持0个或2个选项
 'number': 数值
 'string': 字符串
+'file-path': 文件路径 # translated from: file-path
 'toggle': 布尔
 'select': 下拉菜单
 'radio-button': 单选按钮

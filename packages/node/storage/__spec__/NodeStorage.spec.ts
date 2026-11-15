@@ -1,4 +1,4 @@
-import {afterEach, beforeEach, describe, expect, it} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -132,5 +132,54 @@ describe('NodeStorage', () => {
     expect(await storage.getGitBranches('main')).toContain(backupBranch);
     await storage.deleteGitBranch('main', backupBranch);
     expect(await storage.getGitBranches('main')).toEqual(['main']);
+  });
+
+  it('resolves project/external file paths and reads project, callback, and network files', async () => {
+    await storage.uploadFile('main/local.txt', 'from-main');
+    await storage.uploadFile('#root/root.txt', 'from-root');
+
+    // Default storage forbids case 1) urls and case 2) external paths in resolveFilePath.
+    expect(storage.resolveFilePath('http://example.com/a.txt', '+main')).toBeUndefined();
+    expect(storage.resolveFilePath('https://example.com/a.txt', '+main')).toBeUndefined();
+    expect(storage.resolveFilePath('//cdn.example.com/a.txt', '+main')).toBeUndefined();
+    expect(storage.resolveFilePath('/etc/passwd', '+main')).toBeUndefined();
+    expect(storage.resolveFilePath('./a.txt', '+main')).toBeUndefined();
+    expect(storage.resolveFilePath('../a.txt', '+main')).toBeUndefined();
+
+    // Case 3) and 4) resolve to local full paths.
+    expect(storage.resolveFilePath('+main/local.txt')).toBe(join(dir, 'main/local.txt'));
+    expect(storage.resolveFilePath('local.txt', '+main')).toBe(join(dir, 'main/local.txt'));
+    expect(storage.resolveFilePath('root.txt', '+#root')).toBe(join(dir, '#root/root.txt'));
+    expect(storage.resolveFilePath('+main/../escape.txt')).toBeUndefined();
+
+    await expect(storage.readFile('/etc/passwd')).rejects.toMatchObject({code: 'permission-denied'});
+    expect(new TextDecoder().decode((await storage.readFile('local.txt', '+main')).data)).toBe('from-main');
+    expect(new TextDecoder().decode((await storage.readFile('+main/local.txt', '+other')).data)).toBe('from-main');
+
+    // Custom callback enables case 2) resolution and reading.
+    const externalFile = join(dir, 'external-asset.txt');
+    await writeFile(externalFile, 'external-data');
+    const customStorage = new NodeStorage(dir, (filePath, lib) =>
+      filePath === './asset.txt' && lib === 'main' ? externalFile : undefined
+    );
+    expect(customStorage.resolveFilePath('//cdn.example.com/a.txt', '+main')).toBeUndefined();
+    expect(customStorage.resolveFilePath('./asset.txt', '+main')).toBe(externalFile);
+    expect(customStorage.resolveFilePath('./other.txt', '+main')).toBeUndefined();
+    expect(new TextDecoder().decode((await customStorage.readFile('./asset.txt', '+main')).data)).toBe('external-data');
+    await expect(customStorage.readFile('./other.txt', '+main')).rejects.toMatchObject({code: 'permission-denied'});
+
+    // Case 1) reads from network via fetch (including // -> https://).
+    const mockFetch = vi.fn(async (url: string) => new Response(`fetched:${url}`, {headers: {ETag: '"v1"'}}));
+    vi.stubGlobal('fetch', mockFetch);
+    try {
+      const httpRes = await storage.readFile('https://example.com/data.txt');
+      expect(new TextDecoder().decode(httpRes.data)).toBe('fetched:https://example.com/data.txt');
+      expect(httpRes.revision).toBe('"v1"');
+
+      const protoRelRes = await storage.readFile('//cdn.example.com/data.txt');
+      expect(new TextDecoder().decode(protoRelRes.data)).toBe('fetched:https://cdn.example.com/data.txt');
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

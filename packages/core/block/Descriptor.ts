@@ -12,6 +12,7 @@ export type BlockMode = (typeof BlockModeList)[number];
 export type ValueType =
   | 'number'
   | 'string'
+  | 'file-path'
   | 'toggle'
   | 'select'
   | 'multi-select'

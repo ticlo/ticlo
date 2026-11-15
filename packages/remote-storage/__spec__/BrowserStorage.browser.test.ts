@@ -366,4 +366,33 @@ describe('mixed browser storage', () => {
       await other.close();
     }
   });
+
+  it('resolves StaticStorage URLs and BrowserLocal async ObjectURLs with cache invalidation', async () => {
+    expect(storage.resolveFilePath('https://example.com/a.png')).toBe('https://example.com/a.png');
+    expect(storage.resolveFilePath('//cdn.example.com/a.png')).toBe('//cdn.example.com/a.png');
+    expect(storage.resolveFilePath('./rel.png', '+main')).toBe('./rel.png');
+    expect(storage.resolveFilePath('entry.ticlo', '+main')).toBe('https://static.example/files/proj/main/entry.ticlo');
+    expect(storage.resolveFilePath('entry.ticlo', '+#root')).toBe(
+      'https://static.example/files/proj/%23root/entry.ticlo'
+    );
+
+    const staticRead = await storage.readFile('entry.ticlo', '+main');
+    expect(new TextDecoder().decode(staticRead.data)).toBe('{"value":1}');
+
+    await storage.uploadFile('BrowserLocal/pic.txt', 'v1');
+    const url1 = await storage.resolveFilePath('pic.txt', '+BrowserLocal');
+    expect(url1?.startsWith('blob:')).toBe(true);
+    // Cached hit returns synchronously.
+    expect(storage.resolveFilePath('+BrowserLocal/pic.txt')).toBe(url1);
+    expect(new TextDecoder().decode((await storage.readFile('pic.txt', '+BrowserLocal')).data)).toBe('v1');
+
+    // Uploading invalidates the previous ObjectURL and produces a fresh one.
+    await storage.uploadFile('BrowserLocal/pic.txt', 'v2');
+    const url2 = await storage.resolveFilePath('pic.txt', '+BrowserLocal');
+    expect(url2?.startsWith('blob:')).toBe(true);
+    expect(url2).not.toBe(url1);
+
+    await storage.deleteFile('BrowserLocal/pic.txt');
+    expect(await storage.resolveFilePath('pic.txt', '+BrowserLocal')).toBeUndefined();
+  });
 });

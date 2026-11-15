@@ -10,6 +10,7 @@ import {
   type FileRequest,
   type FileWriteOptions,
 } from '@ticlo/core/storage/FileAccess.ts';
+import {tryParseFilePath} from '@ticlo/core/storage/FilePath.ts';
 import {initBrowserSecretCipher} from './BrowserCipher.ts';
 import {BROWSER_LOCAL_LIBRARY, LocalProjectFiles} from './LocalProjectFiles.ts';
 
@@ -22,6 +23,8 @@ export function isBrowserLocalPath(path: string) {
 export abstract class BrowserStorage extends ProjectStorage {
   private readonly local = new LocalProjectFiles();
   private readonly fileChangeListeners = new Set<(path: string) => void>();
+  private readonly objectUrls = new Map<string, string>();
+  private readonly pendingObjectUrls = new Map<string, Promise<string | undefined>>();
   constructor(
     private readonly remote: FileAccess,
     readonly user: FileAccess
@@ -33,6 +36,9 @@ export abstract class BrowserStorage extends ProjectStorage {
     await super.init(root);
   }
   close() {
+    for (const url of this.objectUrls.values()) URL.revokeObjectURL(url);
+    this.objectUrls.clear();
+    this.pendingObjectUrls.clear();
     return this.local.close();
   }
   subscribeFileChanges(listener: (path: string) => void) {
@@ -40,10 +46,77 @@ export abstract class BrowserStorage extends ProjectStorage {
     return () => this.fileChangeListeners.delete(listener);
   }
   protected fileChanged(path: string) {
+    if (isBrowserLocalPath(path)) {
+      const prefix = `${path}/`;
+      for (const [key, url] of this.objectUrls) {
+        if (key === path || key.startsWith(prefix)) {
+          URL.revokeObjectURL(url);
+          this.objectUrls.delete(key);
+        }
+      }
+      for (const key of this.pendingObjectUrls.keys()) {
+        if (key === path || key.startsWith(prefix)) this.pendingObjectUrls.delete(key);
+      }
+    }
     for (const listener of this.fileChangeListeners) listener(path);
   }
   notifyFileChange(path: string) {
     this.fileChanged(path);
+  }
+  private resolveBrowserLocalUrl(storagePath: string): string | Promise<string | undefined> {
+    const cached = this.objectUrls.get(storagePath);
+    if (cached !== undefined) return cached;
+    const pending = this.pendingObjectUrls.get(storagePath);
+    if (pending) return pending;
+    const relPath = storagePath.slice(browserLocalPrefix.length);
+    const request: Promise<string | undefined> = this.local
+      .getFile(relPath)
+      .then((result: FileReadResult) => {
+        if (this.pendingObjectUrls.get(storagePath) !== request) return undefined;
+        const url = URL.createObjectURL(new Blob([result.data], {type: result.contentType}));
+        this.objectUrls.set(storagePath, url);
+        return url;
+      })
+      .catch((error: unknown): undefined => {
+        if (error instanceof StorageError && error.code === 'not-found') return undefined;
+        throw error;
+      })
+      .finally(() => {
+        if (this.pendingObjectUrls.get(storagePath) === request) {
+          this.pendingObjectUrls.delete(storagePath);
+        }
+      });
+    this.pendingObjectUrls.set(storagePath, request);
+    return request;
+  }
+  protected resolveExternalUrl(path: string, _library?: string): string | undefined | Promise<string | undefined> {
+    return path;
+  }
+  protected resolveProjectFileUrl(_storagePath: string): string | undefined | Promise<string | undefined> {
+    return undefined;
+  }
+  override resolveFilePath(path: string, library?: string): string | undefined | Promise<string | undefined> {
+    const parsed = tryParseFilePath(path, library);
+    if (!parsed) return undefined;
+    switch (parsed.kind) {
+      case 'url':
+        return parsed.path;
+      case 'external':
+        return this.resolveExternalUrl(parsed.path, library);
+      case 'project':
+        return parsed.project === BROWSER_LOCAL_LIBRARY
+          ? this.resolveBrowserLocalUrl(parsed.storagePath)
+          : this.resolveProjectFileUrl(parsed.storagePath);
+    }
+  }
+  protected override async readExternalFile(
+    path: string,
+    library?: string,
+    options?: FileRequest
+  ): Promise<FileReadResult> {
+    const url = await this.resolveFilePath(path, library);
+    if (!url) throw new StorageError('External file path is not allowed', 'permission-denied');
+    return this.readUrlFile(url, options);
   }
   private route(path: string) {
     filePath(path, true);
