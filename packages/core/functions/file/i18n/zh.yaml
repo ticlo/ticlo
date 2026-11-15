@@ -1,0 +1,9 @@
+'file:toUrl':
+  '@name': 转为 URL # translated from: To URL
+  '@keywords': 'url,file,css'
+  path:
+    '@name': 路径 # translated from: Path
+  host:
+    '@name': 主机 # translated from: Host
+  css:
+    '@name': CSS # no translate

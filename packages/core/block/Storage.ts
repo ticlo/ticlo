@@ -51,6 +51,9 @@ export interface FlowStorage {
   /** Resolve a file-path string to a local path (Node) or URL (browser). */
   resolveFilePath?(path: string, library?: string): string | undefined | Promise<string | undefined>;
 
+  /** Resolve a file-path string to a URL (browser or HTTP-exposed Node storage). */
+  resolveFileUrl?(path: string, library?: string): string | undefined | Promise<string | undefined>;
+
   /** Asynchronously read a file-path into a unified FileReadResult across browser and Node. */
   readFile?(path: string, library?: string, options?: FileRequest): Promise<FileReadResult>;
 }

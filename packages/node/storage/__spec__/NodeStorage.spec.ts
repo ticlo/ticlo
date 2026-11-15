@@ -223,4 +223,49 @@ describe('NodeStorage', () => {
     expect(resolveFilePath(standaloneBlock, '/tmp/test.sqlite')).toBe('/tmp/test.sqlite');
     standalone.destroy();
   });
+
+  it('resolves HTTP URLs via fileBaseUrl/fileUrlScope for NodeStorage and file:toUrl', async () => {
+    const {Flow, Root} = await import('@ticlo/core');
+    let dynamicBase: string | undefined = 'http://127.0.0.1:8010/file';
+    const urlStorage = new NodeStorage(dir, {
+      fileBaseUrl: () => dynamicBase,
+      fileUrlScope: 'serv',
+    });
+
+    expect(urlStorage.resolveFileUrl('+/img/logo 1.png', '+proj1')).toBe(
+      'http://127.0.0.1:8010/file/serv/proj1/img/logo%201.png'
+    );
+    expect(urlStorage.resolveFileUrl('+other/icon#1.svg', '+proj1')).toBe(
+      'http://127.0.0.1:8010/file/serv/other/icon%231.svg'
+    );
+    expect(urlStorage.resolveFileUrl('https://cdn.example.com/a.png', '+proj1')).toBe('https://cdn.example.com/a.png');
+    expect(urlStorage.resolveFileUrl('./local.png', '+proj1')).toBe('./local.png');
+    expect(storage.resolveFileUrl('+/img/logo.png', '+proj1')).toBeUndefined();
+
+    const urlRoot = new Root();
+    try {
+      await urlRoot.setStorage(urlStorage);
+      await urlRoot.start();
+      const flow = urlRoot.addFlow('+proj1.main', undefined, undefined, true);
+      const block = flow.createBlock('toUrl');
+      block.setValue('#is', 'file:toUrl');
+      block.setValue('path', '+/bg.png');
+      urlRoot._run();
+      expect(block.getValue('#output')).toBe('http://127.0.0.1:8010/file/serv/proj1/bg.png');
+
+      block.setValue('host', 'https://assets.example.com');
+      block.setValue('css', true);
+      urlRoot._run();
+      expect(block.getValue('#output')).toBe("url('https://assets.example.com/file/serv/proj1/bg.png')");
+
+      dynamicBase = undefined;
+      urlStorage.setFileBaseUrl('http://127.0.0.1:9000/file');
+      block.setValue('host', undefined);
+      block.setValue('css', false);
+      urlRoot._run();
+      expect(block.getValue('#output')).toBe('http://127.0.0.1:9000/file/serv/proj1/bg.png');
+    } finally {
+      urlRoot.destroy();
+    }
+  });
 });

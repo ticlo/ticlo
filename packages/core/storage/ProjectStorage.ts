@@ -226,6 +226,10 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
     return undefined;
   }
 
+  resolveFileUrl(_path: string, _library?: string): string | undefined | Promise<string | undefined> {
+    return undefined;
+  }
+
   protected readUrlFile(url: string, options?: FileRequest): Promise<FileReadResult> {
     return fetchFileResult(url, options);
   }

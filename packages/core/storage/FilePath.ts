@@ -99,10 +99,10 @@ export function tryParseFilePath(path: string, library?: string): ParsedFilePath
   }
 }
 
-export function buildProjectFileUrl(baseURL: string, storagePath: string): string {
+export function buildProjectFileUrl(baseURL: string, storagePath: string, scope = 'proj'): string {
   filePath(storagePath, true);
   const encoded = storagePath.split('/').map(encodeURIComponent).join('/');
-  return `${baseURL.replace(/\/$/, '')}/proj/${encoded}`;
+  return `${baseURL.replace(/\/$/, '')}/${scope}/${encoded}`;
 }
 
 export async function fetchFileResult(

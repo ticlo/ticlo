@@ -32,9 +32,22 @@ import {
   type FileWriteOptions,
   type ProjectGit,
 } from '@ticlo/core/storage/FileAccess.ts';
-import {classifyFilePath, fetchFileResult, normalizeLibraryId, tryParseFilePath} from '@ticlo/core/storage/FilePath.ts';
+import {
+  buildProjectFileUrl,
+  classifyFilePath,
+  fetchFileResult,
+  normalizeLibraryId,
+  tryParseFilePath,
+} from '@ticlo/core/storage/FilePath.ts';
 
 export type NodeFilePathResolver = (path: string, library?: string) => string | undefined;
+export type NodeFileBaseUrl = string | (() => string | undefined);
+
+export interface NodeStorageOptions {
+  resolveExternalPath?: NodeFilePathResolver;
+  fileBaseUrl?: NodeFileBaseUrl;
+  fileUrlScope?: string;
+}
 
 /** Resolve a block function's `file-path` input to a local path via its Root storage. */
 export function resolveFilePath(data: FunctionData, path: string): string | undefined | Promise<string | undefined> {
@@ -52,15 +65,26 @@ export function resolveFilePath(data: FunctionData, path: string): string | unde
 export class NodeStorage extends ProjectStorage implements ProjectGit {
   readonly dir: string;
   readonly user: ScopedFiles;
+  private readonly resolveExternalPath?: NodeFilePathResolver;
+  private fileBaseUrl?: NodeFileBaseUrl;
+  private readonly fileUrlScope: string;
   private readonly mutations = new Map<string, Promise<unknown>>();
   private readonly gitUser = {getUserId: () => 'node'};
-  constructor(
-    dir: string,
-    private readonly resolveExternalPath?: NodeFilePathResolver
-  ) {
+  constructor(dir: string, optionsOrResolver?: NodeFilePathResolver | NodeStorageOptions) {
     super();
     this.dir = Path.resolve(dir);
     this.user = new ScopedFiles(this, '#root');
+    if (typeof optionsOrResolver === 'function') {
+      this.resolveExternalPath = optionsOrResolver;
+      this.fileUrlScope = 'proj';
+    } else {
+      this.resolveExternalPath = optionsOrResolver?.resolveExternalPath;
+      this.fileBaseUrl = optionsOrResolver?.fileBaseUrl;
+      this.fileUrlScope = optionsOrResolver?.fileUrlScope ?? 'proj';
+    }
+  }
+  setFileBaseUrl(fileBaseUrl?: NodeFileBaseUrl) {
+    this.fileBaseUrl = fileBaseUrl;
   }
   override resolveFilePath(path: string, library?: string): string | undefined {
     const parsed = tryParseFilePath(path, library);
@@ -72,6 +96,19 @@ export class NodeStorage extends ProjectStorage implements ProjectGit {
         return this.resolveExternalPath?.(parsed.path, normalizeLibraryId(library));
       case 'project':
         return Path.resolve(this.dir, parsed.storagePath);
+    }
+  }
+  override resolveFileUrl(path: string, library?: string): string | undefined {
+    const parsed = tryParseFilePath(path, library);
+    if (!parsed) return undefined;
+    switch (parsed.kind) {
+      case 'url':
+      case 'external':
+        return parsed.path;
+      case 'project': {
+        const base = typeof this.fileBaseUrl === 'function' ? this.fileBaseUrl() : this.fileBaseUrl;
+        return base ? buildProjectFileUrl(base, parsed.storagePath, this.fileUrlScope) : undefined;
+      }
     }
   }
   protected override readUrlFile(url: string, options?: FileRequest): Promise<FileReadResult> {

@@ -109,6 +109,9 @@ export abstract class BrowserStorage extends ProjectStorage {
           : this.resolveProjectFileUrl(parsed.storagePath);
     }
   }
+  override resolveFileUrl(path: string, library?: string): string | undefined | Promise<string | undefined> {
+    return this.resolveFilePath(path, library);
+  }
   protected override async readExternalFile(
     path: string,
     library?: string,

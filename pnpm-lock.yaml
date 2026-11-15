@@ -493,6 +493,9 @@ importers:
       '@ticlo/core':
         specifier: workspace:^
         version: link:../../packages/core
+      '@ticlo/node':
+        specifier: workspace:^
+        version: link:../../packages/node
 
   packages/chart:
     dependencies:

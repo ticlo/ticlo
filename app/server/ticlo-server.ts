@@ -47,7 +47,9 @@ async function start() {
   await mkdir(rootDir, {recursive: true});
   setSecretCipher(await SecretCipher.fromFile(join(rootDir, '.ticlo-secret.key')));
   const {app, ticloWs} = await createServerApp(rootDir);
-  await Root.instance.setStorage(new NodeStorage(join(rootDir, 'serv')));
+  await Root.instance.setStorage(
+    new NodeStorage(join(rootDir, 'serv'), {fileBaseUrl: 'http://127.0.0.1:8010/file', fileUrlScope: 'serv'})
+  );
   await Root.instance.start();
 
   const server = serve({fetch: app.fetch, port: 8010, hostname: '127.0.0.1'});

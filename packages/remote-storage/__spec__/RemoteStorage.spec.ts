@@ -78,6 +78,8 @@ describe('RemoteStorage request compatibility', () => {
     expect(storage.resolveFilePath('+proj1/a b.txt', '+main')).toBe('https://example.com/file/proj/proj1/a%20b.txt');
     expect(storage.resolveFilePath('+/local.txt', '+main')).toBe('https://example.com/file/proj/main/local.txt');
     expect(storage.resolveFilePath('+/root.txt', '+#root')).toBe('https://example.com/file/proj/%23root/root.txt');
+    expect(storage.resolveFileUrl('+/root.txt', '+#root')).toBe('https://example.com/file/proj/%23root/root.txt');
+    expect(storage.resolveFileUrl('./rel.txt', '+main')).toBe('./rel.txt');
     expect(storage.resolveFilePath('bare.txt', '+main')).toBeUndefined();
     expect(storage.resolveFilePath('+main/../bad.txt')).toBeUndefined();
 

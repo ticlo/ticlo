@@ -87,6 +87,7 @@ import './functions/string/Join.ts';
 import './functions/string/Replace.ts';
 import './functions/string/Slice.ts';
 import './functions/string/Split.ts';
+import './functions/file/ToUrl.ts';
 import './functions/data/CreateObject.ts';
 import './functions/web-server/HttpRequest.ts';
 import './functions/web-server/RouteFunction.ts';
