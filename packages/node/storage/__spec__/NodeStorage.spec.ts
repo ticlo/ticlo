@@ -268,4 +268,46 @@ describe('NodeStorage', () => {
       urlRoot.destroy();
     }
   });
+
+  it('resolves and reads ++proj frontend paths when frontendDir is configured, and rejects them in backend-only mode', async () => {
+    const {Flow, Root, StorageError} = await import('@ticlo/core');
+    const backendDir = join(dir, 'serv');
+    const frontendDir = join(dir, 'proj');
+    await mkdir(join(frontendDir, 'ui'), {recursive: true});
+    await writeFile(join(frontendDir, 'ui/logo.txt'), 'frontend-logo');
+
+    const backendOnly = new NodeStorage(backendDir, {
+      fileBaseUrl: 'http://127.0.0.1:8010/file',
+      fileUrlScope: 'serv',
+    });
+    expect(backendOnly.resolveFilePath('++ui/logo.txt', '+proj1')).toBeUndefined();
+    expect(backendOnly.resolveFileUrl('++ui/logo.txt', '+proj1')).toBeUndefined();
+    await expect(backendOnly.readFile('++ui/logo.txt', '+proj1')).rejects.toThrowError(StorageError);
+
+    const dualStorage = new NodeStorage(backendDir, {
+      fileBaseUrl: 'http://127.0.0.1:8010/file',
+      fileUrlScope: 'serv',
+      frontendDir,
+      frontendUrlScope: 'proj',
+    });
+    expect(dualStorage.resolveFilePath('++ui/logo.txt', '+proj1')).toBe(join(frontendDir, 'ui/logo.txt'));
+    expect(dualStorage.resolveFileUrl('++ui/logo.txt', '+proj1')).toBe('http://127.0.0.1:8010/file/proj/ui/logo.txt');
+    const read = await dualStorage.readFile('++ui/logo.txt', '+proj1');
+    expect(new TextDecoder().decode(read.data)).toBe('frontend-logo');
+
+    const dualRoot = new Root();
+    try {
+      await dualRoot.setStorage(dualStorage);
+      await dualRoot.start();
+      const flow = dualRoot.addFlow('+proj1.main', undefined, undefined, true);
+      const block = flow.createBlock('toUrl');
+      block.setValue('#is', 'file:toUrl');
+      block.setValue('path', '++ui/logo.txt');
+      dualRoot._run();
+      expect(block.getValue('#output')).toBe('http://127.0.0.1:8010/file/proj/ui/logo.txt');
+    } finally {
+      await dualRoot.stop({discardChanges: true});
+      dualRoot.destroy();
+    }
+  });
 });

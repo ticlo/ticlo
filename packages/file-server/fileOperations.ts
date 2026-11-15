@@ -33,13 +33,13 @@ const CRC32_TABLE = (() => {
   return table;
 })();
 
-interface FileRouteContext extends Pick<FileStorageOptions, 'allowProjectSymlink'> {
+interface FileRouteContext extends Pick<FileStorageOptions, 'allowProjectSymlink' | 'scopes'> {
   rootDir: string;
   authProvider: AuthProvider;
   logger: StorageLogger;
 }
 
-function buildStoragePath(rawPath: string, baseDir: string): StoragePath {
+function buildStoragePath(rawPath: string, baseDir: string, scopes?: readonly StorageScope[]): StoragePath {
   const normalized = normalizeInput(rawPath);
   const segments = normalized.split('/').filter(Boolean);
   if (segments.length < 2) {
@@ -50,6 +50,9 @@ function buildStoragePath(rawPath: string, baseDir: string): StoragePath {
     throw new StorageError('Unsupported storage scope', 400);
   }
   const scope = rawScope as StorageScope;
+  if (scopes && !scopes.includes(scope)) {
+    throw new StorageError('Storage scope is not enabled', 404);
+  }
   if (scope !== 'usr' && id.includes('.')) {
     throw new StorageError('Project id cannot contain dots', 400);
   }
@@ -298,7 +301,7 @@ async function resolveStorageContext(
   request: StorageContext,
   context: FileRouteContext
 ): Promise<{storage: StoragePath; auth: UserAuth}> {
-  const storage = buildStoragePath(rawPath, context.rootDir);
+  const storage = buildStoragePath(rawPath, context.rootDir, context.scopes);
   await ensureNoSymlink(storage.absolute, context);
   const auth = await resolveAuth(context.authProvider, request);
   return {storage, auth};
@@ -541,7 +544,7 @@ async function handleMoveOp(
         throw new StorageError('Source and destination paths are required', 400);
       }
       const {storage: source, auth} = await resolveStorageContext(query.path, request, context);
-      const destination = buildStoragePath(query.dest, context.rootDir);
+      const destination = buildStoragePath(query.dest, context.rootDir, context.scopes);
       await ensureNoSymlink(destination.absolute, context);
       if (source.scope !== destination.scope || source.id !== destination.id) {
         throw new StorageError('Move must remain within the same scope and identifier', 400);
@@ -578,7 +581,7 @@ async function handleCopyOp(
         throw new StorageError('Source and destination paths are required', 400);
       }
       const {storage: source, auth} = await resolveStorageContext(query.path, request, context);
-      const destination = buildStoragePath(query.dest, context.rootDir);
+      const destination = buildStoragePath(query.dest, context.rootDir, context.scopes);
       await ensureNoSymlink(destination.absolute, context);
       if (source.scope !== destination.scope || source.id !== destination.id) {
         throw new StorageError('Copy must remain within the same scope and identifier', 400);

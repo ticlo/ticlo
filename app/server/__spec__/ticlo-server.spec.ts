@@ -201,3 +201,21 @@ it('serves linked browser examples separately from Node.js examples', async () =
     await rm(dir, {recursive: true, force: true});
   }
 });
+
+it('supports backend-only mode with enableFrontend: false', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'ticlo-server-backend-only-'));
+  const root = new Root();
+  try {
+    const {app} = await createServerApp(dir, undefined, root, undefined, {enableFrontend: false});
+    expect(await readdir(dir)).not.toContain('proj');
+    expect((await app.request('/file?op=listProj&scope=proj')).status).toBe(404);
+    expect((await app.request('/file/proj/%23root/hello.txt')).status).toBe(404);
+
+    const serverCatalog = await app.request('/file?op=listProj&scope=serv');
+    expect(serverCatalog.status).toBe(200);
+    expect(await serverCatalog.json()).toEqual(expect.arrayContaining([expect.objectContaining({id: '#root'})]));
+  } finally {
+    root.destroy();
+    await rm(dir, {recursive: true, force: true});
+  }
+});

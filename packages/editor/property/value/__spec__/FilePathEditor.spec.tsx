@@ -97,6 +97,7 @@ describe('FilePathEditor', () => {
       './rel.png',
       '../up.png',
       '+other/x.png',
+      '++web/x.png',
     ]) {
       await userEvent.fill(input(), sample);
       await shouldHappen(() => addon() === null);
@@ -184,5 +185,88 @@ describe('FilePathEditor', () => {
 
     await shouldHappen(() => committed.at(-1) === '+other/shared/doc.json');
     expect(div.querySelector<HTMLInputElement>('input').value).toBe('+other/shared/doc.json');
+  });
+
+  it('lists frontend projects annotated with (frontend) and emits ++projid paths when frontendStorage is provided', async () => {
+    const backendFixture = fixtureClient([file('main/server.db'), file('#root/root.db')]);
+    const backendStorage = Object.assign(backendFixture.client, {
+      listProjects: async () => [{id: '#root'}, {id: 'main'}],
+    });
+    const frontendFixture = fixtureClient([file('web/banner.png'), file('#root/fav.ico')]);
+    const frontendStorage = Object.assign(frontendFixture.client, {
+      listProjects: async () => [{id: '#root'}, {id: 'web'}],
+    });
+
+    const committed: unknown[] = [];
+    const [, div] = loadTemplate(
+      <ControlledEditor
+        initialValue=""
+        files={{storage: backendStorage, frontendStorage, project: 'main'}}
+        onValues={(v) => committed.push(v)}
+      />,
+      'editor'
+    );
+
+    const browseBtn = await shouldHappen(() => div.querySelector<HTMLButtonElement>('.ticl-e-file-path-browse'));
+    await userEvent.click(browseBtn);
+
+    const select = await shouldHappen(() =>
+      document.querySelector<HTMLElement>('.ticl-e-file-picker-project .ant-select')
+    );
+    await userEvent.click(select);
+
+    await shouldHappen(() =>
+      Array.from(document.querySelectorAll<HTMLElement>('.ant-select-item-option')).some(
+        (el) => el.textContent === 'web (frontend)'
+      )
+    );
+    const optionTexts = Array.from(document.querySelectorAll<HTMLElement>('.ant-select-item-option')).map(
+      (el) => el.textContent
+    );
+    expect(optionTexts).toContain('#root');
+    expect(optionTexts).toContain('main');
+    expect(optionTexts).toContain('#root (frontend)');
+    expect(optionTexts).toContain('web (frontend)');
+
+    const webFrontendOption = Array.from(document.querySelectorAll<HTMLElement>('.ant-select-item-option')).find(
+      (el) => el.textContent === 'web (frontend)'
+    )!;
+    await userEvent.click(webFrontendOption);
+
+    const row = (path: string) => document.querySelector<HTMLElement>(`.ticl-e-file-row[data-path="${path}"]`);
+    await shouldHappen(() => row('web/banner.png'));
+    await userEvent.dblClick(row('web/banner.png'));
+
+    await shouldHappen(() => committed.at(-1) === '++web/banner.png');
+    expect(div.querySelector<HTMLInputElement>('input').value).toBe('++web/banner.png');
+    expect(div.querySelector('.ticl-e-file-path-addon')).toBeNull();
+  });
+
+  it('omits frontend projects when frontendStorage is unavailable (backend-only)', async () => {
+    const backendFixture = fixtureClient([file('main/server.db')]);
+    const backendStorage = Object.assign(backendFixture.client, {
+      listProjects: async () => [{id: 'main'}],
+    });
+
+    const [, div] = loadTemplate(
+      <ControlledEditor initialValue="" files={{storage: backendStorage, project: 'main'}} />,
+      'editor'
+    );
+
+    const browseBtn = await shouldHappen(() => div.querySelector<HTMLButtonElement>('.ticl-e-file-path-browse'));
+    await userEvent.click(browseBtn);
+
+    const select = await shouldHappen(() =>
+      document.querySelector<HTMLElement>('.ticl-e-file-picker-project .ant-select')
+    );
+    await userEvent.click(select);
+
+    const optionTexts = await shouldHappen(() => {
+      const texts = Array.from(document.querySelectorAll<HTMLElement>('.ant-select-item-option')).map(
+        (el) => el.textContent
+      );
+      return texts.length ? texts : undefined;
+    });
+    expect(optionTexts).toEqual(['main']);
   });
 });

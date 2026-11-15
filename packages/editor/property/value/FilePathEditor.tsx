@@ -26,7 +26,7 @@ export function getFilePathAddonState(
   manualRaw: boolean | null
 ): FilePathAddonState {
   const kind = classifyFilePath(displayText);
-  if (kind === 'url' || kind === 'external' || kind === 'project') {
+  if (kind === 'url' || kind === 'external' || kind === 'frontend' || kind === 'project') {
     return 'none';
   }
   if (manualRaw !== null) {
@@ -211,6 +211,7 @@ export class FilePathEditor extends React.PureComponent<ValueEditorProps, State>
           <FilePickerModal
             open={this.state.pickerOpen}
             storage={files.storage}
+            frontendStorage={files.frontendStorage}
             currentProject={currentProject}
             initialValue={this._pendingText != null ? this._pendingText : value}
             onSelectPath={this.onPickPath}

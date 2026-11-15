@@ -4,6 +4,7 @@ import type {ValueEditorProps} from '../property/value/ValueEditorBase.ts';
 
 export interface TicloFilesAccess {
   storage: FileAccess & Partial<Pick<ProjectFiles, 'listProjects'>>;
+  frontendStorage?: FileAccess & Partial<Pick<ProjectFiles, 'listProjects'>>;
   project: string;
 }
 

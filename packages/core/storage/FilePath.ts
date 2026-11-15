@@ -1,11 +1,11 @@
 import {StorageError, filePath, projectId, type FileReadResult, type FileRequest} from './FileAccess.ts';
 
-export type FilePathKind = 'url' | 'external' | 'project' | 'relative';
+export type FilePathKind = 'url' | 'external' | 'frontend' | 'project' | 'relative';
 
 export type ParsedFilePath =
   | {kind: 'url'; path: string}
   | {kind: 'external'; path: string}
-  | {kind: 'project'; project: string; relativePath: string; storagePath: string};
+  | {kind: 'project' | 'frontend'; project: string; relativePath: string; storagePath: string};
 
 export function normalizeLibraryId(library?: string): string {
   if (!library) return '#root';
@@ -13,11 +13,12 @@ export function normalizeLibraryId(library?: string): string {
 }
 
 /**
- * Classify a file-path string according to the 4 Ticlo path rules:
+ * Classify a file-path string according to the Ticlo path rules:
  * 1) url: http://, https://, // (checked before '/' so '//' is not treated as external)
  * 2) external: /, ./, ../
- * 3) project: +project/path
- * 4) relative: +/path (resolved under current project)
+ * 3) frontend: ++project/path (frontend project file when connected to backend storage)
+ * 4) project: +project/path
+ * 5) relative: +/path (resolved under current project)
  */
 export function classifyFilePath(path: string): FilePathKind | undefined {
   if (typeof path !== 'string' || !path) return undefined;
@@ -26,6 +27,9 @@ export function classifyFilePath(path: string): FilePathKind | undefined {
   }
   if (path.startsWith('/') || path.startsWith('./') || path.startsWith('../')) {
     return 'external';
+  }
+  if (path.startsWith('++')) {
+    return 'frontend';
   }
   if (path.startsWith('+/')) {
     return 'relative';
@@ -73,9 +77,10 @@ export function parseFilePath(path: string, library?: string): ParsedFilePath {
   if (kind === 'external') {
     return {kind: 'external', path};
   }
-  const raw = path.slice(1);
+  const isFrontend = kind === 'frontend';
+  const raw = path.slice(isFrontend ? 2 : 1);
   const slash = raw.indexOf('/');
-  if (slash < 0 || slash === raw.length - 1) {
+  if ((isFrontend ? slash <= 0 : slash < 0) || slash === raw.length - 1) {
     throw new StorageError('Invalid file path', 'invalid-path');
   }
   const project = slash === 0 ? normalizeLibraryId(library) : raw.slice(0, slash);
@@ -83,7 +88,7 @@ export function parseFilePath(path: string, library?: string): ParsedFilePath {
   projectId(project);
   filePath(relativePath);
   return {
-    kind: 'project',
+    kind: isFrontend ? 'frontend' : 'project',
     project,
     relativePath,
     storagePath: `${project}/${relativePath}`,

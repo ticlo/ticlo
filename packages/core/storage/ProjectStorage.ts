@@ -238,6 +238,10 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
     throw new StorageError('External file path is not allowed', 'permission-denied');
   }
 
+  protected async readFrontendFile(_storagePath: string, _options?: FileRequest): Promise<FileReadResult> {
+    throw new StorageError('Frontend file storage is not available', 'not-found');
+  }
+
   async readFile(path: string, library?: string, options?: FileRequest): Promise<FileReadResult> {
     const parsed = parseFilePath(path, library);
     switch (parsed.kind) {
@@ -245,6 +249,8 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
         return this.readUrlFile(parsed.path, options);
       case 'external':
         return this.readExternalFile(parsed.path, library, options);
+      case 'frontend':
+        return this.readFrontendFile(parsed.storagePath, options);
       case 'project':
         return this.getFile(parsed.storagePath, options);
     }

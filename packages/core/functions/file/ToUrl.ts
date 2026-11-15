@@ -92,7 +92,7 @@ globalFunctions.addFactory(
   ToUrlFunction,
   {
     name: 'toUrl',
-    icon: ':url',
+    icon: '15:url',
     priority: 0,
     properties: [
       {name: 'path', type: 'file-path', pinned: true},

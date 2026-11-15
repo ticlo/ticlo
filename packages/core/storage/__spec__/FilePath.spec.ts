@@ -20,6 +20,9 @@ describe('FilePath helpers', () => {
     expect(classifyFilePath('./a.txt')).toBe('external');
     expect(classifyFilePath('../a.txt')).toBe('external');
 
+    expect(classifyFilePath('++proj1/file1.txt')).toBe('frontend');
+    expect(classifyFilePath('++#root/file1.txt')).toBe('frontend');
+
     expect(classifyFilePath('+proj1/file1.txt')).toBe('project');
     expect(classifyFilePath('+#root/file1.txt')).toBe('project');
 
@@ -80,9 +83,18 @@ describe('FilePath helpers', () => {
       relativePath: 'dir/file1.txt',
       storagePath: 'project1/dir/file1.txt',
     });
+    expect(parseFilePath('++project1/dir/file1.txt', '+proj2')).toEqual({
+      kind: 'frontend',
+      project: 'project1',
+      relativePath: 'dir/file1.txt',
+      storagePath: 'project1/dir/file1.txt',
+    });
 
     expect(() => parseFilePath('')).toThrowError('Invalid file path');
     expect(() => parseFilePath('+/')).toThrowError('Invalid file path');
+    expect(() => parseFilePath('++/file.txt')).toThrowError('Invalid file path');
+    expect(() => parseFilePath('++proj1')).toThrowError('Invalid file path');
+    expect(() => parseFilePath('++proj1/')).toThrowError('Invalid file path');
     expect(() => parseFilePath('file2.txt')).toThrowError('Invalid file path');
     expect(() => parseFilePath('+proj1')).toThrowError('Invalid file path');
     expect(() => parseFilePath('+proj1/')).toThrowError('Invalid file path');
@@ -99,6 +111,7 @@ describe('FilePath helpers', () => {
     expect(resolveSubflowFilePath('file.txt', '+proj1', '+proj2')).toBe('file.txt');
     expect(resolveSubflowFilePath('+/', '+proj1', '+proj2')).toBe('+/');
     expect(resolveSubflowFilePath('+proj3/file.txt', '+proj1', '+proj2')).toBe('+proj3/file.txt');
+    expect(resolveSubflowFilePath('++proj3/file.txt', '+proj1', '+proj2')).toBe('++proj3/file.txt');
     expect(resolveSubflowFilePath('https://a.com/x', '+proj1', '+proj2')).toBe('https://a.com/x');
     expect(resolveSubflowFilePath('//a.com/x', '+proj1', '+proj2')).toBe('//a.com/x');
     expect(resolveSubflowFilePath('/abs/x', '+proj1', '+proj2')).toBe('/abs/x');

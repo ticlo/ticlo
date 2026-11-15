@@ -104,6 +104,7 @@ export abstract class BrowserStorage extends ProjectStorage {
       case 'external':
         return this.resolveExternalUrl(parsed.path, library);
       case 'project':
+      case 'frontend':
         return parsed.project === BROWSER_LOCAL_LIBRARY
           ? this.resolveBrowserLocalUrl(parsed.storagePath)
           : this.resolveProjectFileUrl(parsed.storagePath);
@@ -111,6 +112,9 @@ export abstract class BrowserStorage extends ProjectStorage {
   }
   override resolveFileUrl(path: string, library?: string): string | undefined | Promise<string | undefined> {
     return this.resolveFilePath(path, library);
+  }
+  protected override readFrontendFile(storagePath: string, options?: FileRequest): Promise<FileReadResult> {
+    return this.getFile(storagePath, options);
   }
   protected override async readExternalFile(
     path: string,

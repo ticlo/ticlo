@@ -15,23 +15,38 @@ import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
 import {initServerExamples, linkBrowserExamples} from './examples.ts';
 
+export interface ServerAppOptions {
+  enableFrontend?: boolean;
+  enableEditor?: boolean;
+}
+
 export async function createServerApp(
   rootDir = fileURLToPath(new URL('./files/', import.meta.url)),
   authProvider: AuthProvider = () => devUserAuth,
   root = Root.instance,
-  browserExamples?: string
+  browserExamples?: string,
+  options?: ServerAppOptions
 ) {
+  const enableFrontend = options?.enableFrontend ?? true;
+  const enableEditor = options?.enableEditor ?? true;
   const rootProject = join(rootDir, 'serv/#root');
   if (await mkdir(rootProject, {recursive: true})) {
     await writeFile(join(rootProject, '.proj'), JSON.stringify({id: '#root', name: 'Root'}), {flag: 'wx'});
   }
   await initServerExamples(join(rootDir, 'serv'));
-  const allowProjectSymlink = await linkBrowserExamples(join(rootDir, 'proj'), browserExamples);
+  const allowProjectSymlink = enableFrontend
+    ? await linkBrowserExamples(join(rootDir, 'proj'), browserExamples)
+    : undefined;
 
   const app = new Hono();
   const devCors = cors({exposeHeaders: ['ETag']});
   app.use('*', (c, next) => (c.req.header('upgrade') === 'websocket' ? next() : devCors(c, next)));
-  routeFileStorage(app, {rootDir, authProvider, allowProjectSymlink});
+  routeFileStorage(app, {
+    rootDir,
+    authProvider,
+    allowProjectSymlink,
+    scopes: enableFrontend ? undefined : ['serv', 'usr'],
+  });
 
   app.get('/health', (c) => c.json({status: 'ok'}));
   app.get('/', (c) =>
@@ -39,16 +54,21 @@ export async function createServerApp(
       'Ticlo server\n/ticlo — runtime WebSocket and HTTP commands\n/file — project and file storage\n/api/* — flow-defined endpoints\n/health — server health\n'
     )
   );
-  return createTicloApp({app, root, enableEditor: true, cors: false, rootRoute: false});
+  return createTicloApp({app, root, enableEditor, cors: false, rootRoute: false});
 }
 
 async function start() {
+  const enableFrontend = !process.argv.slice(2).includes('--no-frontend');
   const rootDir = fileURLToPath(new URL('./files/', import.meta.url));
   await mkdir(rootDir, {recursive: true});
   setSecretCipher(await SecretCipher.fromFile(join(rootDir, '.ticlo-secret.key')));
-  const {app, ticloWs} = await createServerApp(rootDir);
+  const {app, ticloWs} = await createServerApp(rootDir, undefined, Root.instance, undefined, {enableFrontend});
   await Root.instance.setStorage(
-    new NodeStorage(join(rootDir, 'serv'), {fileBaseUrl: 'http://127.0.0.1:8010/file', fileUrlScope: 'serv'})
+    new NodeStorage(join(rootDir, 'serv'), {
+      fileBaseUrl: 'http://127.0.0.1:8010/file',
+      fileUrlScope: 'serv',
+      ...(enableFrontend ? {frontendDir: join(rootDir, 'proj'), frontendUrlScope: 'proj'} : undefined),
+    })
   );
   await Root.instance.start();
 

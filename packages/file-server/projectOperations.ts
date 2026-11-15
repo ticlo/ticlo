@@ -4,17 +4,22 @@ import path from 'node:path';
 import AdmZip, {IZipEntry} from 'adm-zip';
 import type {UserAuth} from './auth.ts';
 import {ensureParentDirectory, ensureWrite} from './fileOperations.ts';
-import {ProjectMetadata, StorageError} from './types.ts';
+import {ProjectMetadata, StorageError, type StorageScope} from './types.ts';
 
 const {access, readdir, mkdir, copyFile, writeFile, readFile, rm, rename} = fs;
 
 const PROJECT_METADATA_FILE = '.proj';
 const KEEP_DIRECTORY_PLACEHOLDER = '.DGSERVER_KEEP_DIRECTORY';
 
-function projectScopeDir(rootDir: string, scope?: string): string {
-  if (scope !== undefined && scope !== 'proj' && scope !== 'serv')
+function projectScopeDir(rootDir: string, scope?: string, scopes?: readonly StorageScope[]): string {
+  const resolvedScope = scope ?? (scopes && !scopes.includes('proj') && scopes.includes('serv') ? 'serv' : 'proj');
+  if (resolvedScope !== 'proj' && resolvedScope !== 'serv') {
     throw new StorageError('Unsupported project scope', 400);
-  return path.join(rootDir, scope ?? 'proj');
+  }
+  if (scopes && !scopes.includes(resolvedScope)) {
+    throw new StorageError('Storage scope is not enabled', 404);
+  }
+  return path.join(rootDir, resolvedScope);
 }
 
 function sanitizeProjectId(rawId?: string | null, field = 'Project id'): string {

@@ -19,7 +19,7 @@ export function useResolvedFilePath(block: Block, path?: string): string | undef
       const kind = classifyFilePath(path);
       return {
         sync: true as const,
-        value: kind === 'project' || kind === 'relative' ? undefined : path,
+        value: kind === 'project' || kind === 'relative' || kind === 'frontend' ? undefined : path,
       };
     }
     const result = storage.resolveFilePath(path, library);

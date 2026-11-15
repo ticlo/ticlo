@@ -47,6 +47,9 @@ export interface NodeStorageOptions {
   resolveExternalPath?: NodeFilePathResolver;
   fileBaseUrl?: NodeFileBaseUrl;
   fileUrlScope?: string;
+  frontendDir?: string;
+  frontendFileBaseUrl?: NodeFileBaseUrl;
+  frontendUrlScope?: string;
 }
 
 /** Resolve a block function's `file-path` input to a local path via its Root storage. */
@@ -58,16 +61,19 @@ export function resolveFilePath(data: FunctionData, path: string): string | unde
     return storage.resolveFilePath(path, flow._library);
   }
   const kind = classifyFilePath(path);
-  return kind === 'url' || kind === 'project' || kind === 'relative' ? undefined : path;
+  return kind === 'url' || kind === 'project' || kind === 'relative' || kind === 'frontend' ? undefined : path;
 }
 
 /** Projects are direct children of dir; #root is also the current user's directory. */
 export class NodeStorage extends ProjectStorage implements ProjectGit {
   readonly dir: string;
+  readonly frontendDir?: string;
   readonly user: ScopedFiles;
   private readonly resolveExternalPath?: NodeFilePathResolver;
   private fileBaseUrl?: NodeFileBaseUrl;
   private readonly fileUrlScope: string;
+  private frontendFileBaseUrl?: NodeFileBaseUrl;
+  private readonly frontendUrlScope: string;
   private readonly mutations = new Map<string, Promise<unknown>>();
   private readonly gitUser = {getUserId: () => 'node'};
   constructor(dir: string, optionsOrResolver?: NodeFilePathResolver | NodeStorageOptions) {
@@ -77,14 +83,21 @@ export class NodeStorage extends ProjectStorage implements ProjectGit {
     if (typeof optionsOrResolver === 'function') {
       this.resolveExternalPath = optionsOrResolver;
       this.fileUrlScope = 'proj';
+      this.frontendUrlScope = 'proj';
     } else {
       this.resolveExternalPath = optionsOrResolver?.resolveExternalPath;
       this.fileBaseUrl = optionsOrResolver?.fileBaseUrl;
       this.fileUrlScope = optionsOrResolver?.fileUrlScope ?? 'proj';
+      this.frontendDir = optionsOrResolver?.frontendDir ? Path.resolve(optionsOrResolver.frontendDir) : undefined;
+      this.frontendFileBaseUrl = optionsOrResolver?.frontendFileBaseUrl;
+      this.frontendUrlScope = optionsOrResolver?.frontendUrlScope ?? 'proj';
     }
   }
   setFileBaseUrl(fileBaseUrl?: NodeFileBaseUrl) {
     this.fileBaseUrl = fileBaseUrl;
+  }
+  setFrontendFileBaseUrl(fileBaseUrl?: NodeFileBaseUrl) {
+    this.frontendFileBaseUrl = fileBaseUrl;
   }
   override resolveFilePath(path: string, library?: string): string | undefined {
     const parsed = tryParseFilePath(path, library);
@@ -94,6 +107,8 @@ export class NodeStorage extends ProjectStorage implements ProjectGit {
         return undefined;
       case 'external':
         return this.resolveExternalPath?.(parsed.path, normalizeLibraryId(library));
+      case 'frontend':
+        return this.frontendDir ? Path.resolve(this.frontendDir, parsed.storagePath) : undefined;
       case 'project':
         return Path.resolve(this.dir, parsed.storagePath);
     }
@@ -105,6 +120,11 @@ export class NodeStorage extends ProjectStorage implements ProjectGit {
       case 'url':
       case 'external':
         return parsed.path;
+      case 'frontend': {
+        const baseRaw = this.frontendFileBaseUrl ?? (this.frontendDir ? this.fileBaseUrl : undefined);
+        const base = typeof baseRaw === 'function' ? baseRaw() : baseRaw;
+        return base ? buildProjectFileUrl(base, parsed.storagePath, this.frontendUrlScope) : undefined;
+      }
       case 'project': {
         const base = typeof this.fileBaseUrl === 'function' ? this.fileBaseUrl() : this.fileBaseUrl;
         return base ? buildProjectFileUrl(base, parsed.storagePath, this.fileUrlScope) : undefined;
@@ -113,6 +133,18 @@ export class NodeStorage extends ProjectStorage implements ProjectGit {
   }
   protected override readUrlFile(url: string, options?: FileRequest): Promise<FileReadResult> {
     return fetchFileResult(url.startsWith('//') ? `https:${url}` : url, options);
+  }
+  protected override async readFrontendFile(storagePath: string, options: FileRequest = {}): Promise<FileReadResult> {
+    if (!this.frontendDir) {
+      throw new StorageError('Frontend file storage is not available', 'not-found');
+    }
+    filePath(storagePath, true);
+    options.signal?.throwIfAborted();
+    return this.io(async () => {
+      const target = Path.resolve(this.frontendDir!, storagePath);
+      const data = await fs.readFile(target, {signal: options.signal});
+      return {data: Uint8Array.from(data).buffer, revision: this.revision(data)};
+    });
   }
   protected override async readExternalFile(
     path: string,
