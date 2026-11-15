@@ -7,6 +7,7 @@ import {
   sqlClientCommands,
   type SqlClient,
 } from '@ticlo/core';
+import {resolveFilePath} from '@ticlo/node';
 import '@ticlo/core/functions/sql/DatabaseCategory.ts';
 import {SqliteClient} from './SqliteClient.ts';
 
@@ -18,8 +19,16 @@ export class SqliteClientFunction extends BaseFunction {
     const revision = ++this.revision;
     this.release();
     this._data.output(undefined);
+    const rawPath = this._data.getValue('filePath') as string;
+    const filePath = rawPath === ':memory:' ? rawPath : rawPath ? await resolveFilePath(this._data, rawPath) : '';
+    if (revision !== this.revision || !this._data) {
+      return;
+    }
+    if (rawPath && !filePath) {
+      throw new Error(`Invalid or disallowed SQLite file path: ${rawPath}`);
+    }
     const client = await SqliteClient.open({
-      filePath: this._data.getValue('filePath') as string,
+      filePath,
       readOnly: Boolean(this._data.getValue('readOnly')),
       busyTimeout: (this._data.getValue('busyTimeout') as number) ?? 5000,
       foreignKeys: this._data.getValue('foreignKeys') !== false,
@@ -74,7 +83,7 @@ globalFunctions.addFactory(
     tags: ['sql-client', 'context-service'],
     commands: sqlClientCommands,
     properties: [
-      {name: 'filePath', type: 'string', pinned: true},
+      {name: 'filePath', type: 'file-path', pinned: true},
       {name: 'readOnly', type: 'toggle', default: false},
       {name: 'busyTimeout', type: 'number', default: 5000, min: 0, unit: 'ms'},
       {name: 'foreignKeys', type: 'toggle', default: true},

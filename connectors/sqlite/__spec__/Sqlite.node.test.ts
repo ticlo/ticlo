@@ -1,8 +1,9 @@
-import {mkdtemp, rm, stat} from 'node:fs/promises';
+import {mkdir, mkdtemp, rm, stat} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join, relative} from 'node:path';
 import {ErrorEvent, Flow, Root, MemoryFlowStorage, encode, globalFunctions, shouldHappen} from '@ticlo/core';
 import type {Block, SqlClient, SqlResult} from '@ticlo/core';
+import {NodeStorage} from '@ticlo/node/storage/NodeStorage.ts';
 import {SqliteClient} from '../index.ts';
 import {SqliteClientFunction} from '../ClientFunction.ts';
 import {DataWrapper} from '@ticlo/core/block/FunctonData.ts';
@@ -232,5 +233,46 @@ describe('SQLite connector', () => {
     fn.destroy();
     await opening;
     expect(data.outputs['undefined']).toBeUndefined();
+  });
+
+  it('resolves project file-path inputs through FlowStorage and blocks disallowed paths', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'ticlo-sqlite-storage-'));
+    directories.push(directory);
+    await mkdir(join(directory, 'proj1'), {recursive: true});
+
+    const desc = globalFunctions.getDesc('database:sqlite');
+    expect(desc.properties?.find((prop) => prop.name === 'filePath')?.type).toBe('file-path');
+
+    const root = new Root();
+    const storage = new NodeStorage(directory);
+
+    try {
+      await root.setStorage(storage);
+      await root.start();
+      const flow = root.addFlow(
+        '+proj1.main',
+        {db: {'#is': 'database:sqlite', 'filePath': '+/app.sqlite'}},
+        undefined,
+        true
+      );
+      const block = flow.getValue('db') as Block;
+      const service = (await shouldHappen(() => block.getValue('#output'), 3000)) as SqlClient;
+      expect((await stat(join(directory, 'proj1', 'app.sqlite'))).isFile()).toBe(true);
+      await service.query('CREATE TABLE t (v INTEGER)');
+      await service.query('INSERT INTO t VALUES (7)');
+      expect((await service.query('SELECT v FROM t')).table.rows).toEqual([[7]]);
+
+      block.getProperty('#emit', true);
+      block.setValue('filePath', 'https://example.com/remote.sqlite');
+      await shouldHappen(() => block.getValue('#emit') instanceof ErrorEvent, 3000);
+      expect(block.getValue('#output')).toBeUndefined();
+
+      block.setValue('filePath', ':memory:');
+      const memoryService = (await shouldHappen(() => block.getValue('#output'), 3000)) as SqlClient;
+      expect((await memoryService.query('SELECT 1 AS ok')).table.rows).toEqual([[1]]);
+    } finally {
+      await root.stop({discardChanges: true});
+      root.destroy();
+    }
   });
 });

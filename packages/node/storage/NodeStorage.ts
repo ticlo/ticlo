@@ -15,6 +15,8 @@ import {
   withCommitWorktree,
 } from '@ticlo/node-git/gitOperations.ts';
 import {GitError} from '@ticlo/node-git/GitError.ts';
+import {Block, type FunctionData} from '@ticlo/core';
+import {Library} from '@ticlo/core/block/Library.ts';
 import {ProjectStorage} from '@ticlo/core/storage/ProjectStorage.ts';
 import {
   ScopedFiles,
@@ -30,9 +32,21 @@ import {
   type FileWriteOptions,
   type ProjectGit,
 } from '@ticlo/core/storage/FileAccess.ts';
-import {fetchFileResult, normalizeLibraryId, tryParseFilePath} from '@ticlo/core/storage/FilePath.ts';
+import {classifyFilePath, fetchFileResult, normalizeLibraryId, tryParseFilePath} from '@ticlo/core/storage/FilePath.ts';
 
 export type NodeFilePathResolver = (path: string, library?: string) => string | undefined;
+
+/** Resolve a block function's `file-path` input to a local path via its Root storage. */
+export function resolveFilePath(data: FunctionData, path: string): string | undefined | Promise<string | undefined> {
+  if (!path || typeof path !== 'string') return undefined;
+  const flow = data instanceof Block ? data._flow : undefined;
+  const storage = flow ? Library.rootOf(flow)._storage : undefined;
+  if (storage?.resolveFilePath) {
+    return storage.resolveFilePath(path, flow._library);
+  }
+  const kind = classifyFilePath(path);
+  return kind === 'url' || kind === 'project' || kind === 'relative' ? undefined : path;
+}
 
 /** Projects are direct children of dir; #root is also the current user's directory. */
 export class NodeStorage extends ProjectStorage implements ProjectGit {

@@ -184,4 +184,43 @@ describe('NodeStorage', () => {
       vi.unstubAllGlobals();
     }
   });
+
+  it('resolves function file-path inputs from Root storage and guards unresolved project/url paths', async () => {
+    const {Flow, MemoryFlowStorage, Root} = await import('@ticlo/core');
+    const {resolveFilePath} = await import('../../index.ts');
+
+    const root = new Root();
+    try {
+      await root.setStorage(storage);
+      await root.start();
+      const flow = root.addFlow('+proj1.main', undefined, undefined, true);
+      const block = flow.createBlock('reader');
+      expect(resolveFilePath(block, '+/db.sqlite')).toBe(join(dir, 'proj1/db.sqlite'));
+      expect(resolveFilePath(block, '+other/db.sqlite')).toBe(join(dir, 'other/db.sqlite'));
+      expect(resolveFilePath(block, 'https://example.com/db.sqlite')).toBeUndefined();
+      expect(resolveFilePath(block, './external.sqlite')).toBeUndefined();
+      expect(resolveFilePath(block, '')).toBeUndefined();
+    } finally {
+      await root.stop({discardChanges: true});
+      root.destroy();
+    }
+
+    const memRoot = new Root();
+    try {
+      await memRoot.setStorage(new MemoryFlowStorage());
+      const flow = memRoot.addFlow('+proj1.main', undefined, undefined, true);
+      const block = flow.createBlock('reader');
+      expect(resolveFilePath(block, '+/db.sqlite')).toBeUndefined();
+      expect(resolveFilePath(block, '+other/db.sqlite')).toBeUndefined();
+      expect(resolveFilePath(block, 'https://example.com/db.sqlite')).toBeUndefined();
+      expect(resolveFilePath(block, './local.sqlite')).toBe('./local.sqlite');
+    } finally {
+      memRoot.destroy();
+    }
+
+    const standalone = new Flow();
+    const standaloneBlock = standalone.createBlock('node');
+    expect(resolveFilePath(standaloneBlock, '/tmp/test.sqlite')).toBe('/tmp/test.sqlite');
+    standalone.destroy();
+  });
 });
