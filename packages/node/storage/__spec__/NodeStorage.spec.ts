@@ -148,12 +148,14 @@ describe('NodeStorage', () => {
 
     // Case 3) and 4) resolve to local full paths.
     expect(storage.resolveFilePath('+main/local.txt')).toBe(join(dir, 'main/local.txt'));
-    expect(storage.resolveFilePath('local.txt', '+main')).toBe(join(dir, 'main/local.txt'));
-    expect(storage.resolveFilePath('root.txt', '+#root')).toBe(join(dir, '#root/root.txt'));
+    expect(storage.resolveFilePath('+/local.txt', '+main')).toBe(join(dir, 'main/local.txt'));
+    expect(storage.resolveFilePath('+/root.txt', '+#root')).toBe(join(dir, '#root/root.txt'));
+    expect(storage.resolveFilePath('local.txt', '+main')).toBeUndefined();
     expect(storage.resolveFilePath('+main/../escape.txt')).toBeUndefined();
 
     await expect(storage.readFile('/etc/passwd')).rejects.toMatchObject({code: 'permission-denied'});
-    expect(new TextDecoder().decode((await storage.readFile('local.txt', '+main')).data)).toBe('from-main');
+    await expect(storage.readFile('local.txt', '+main')).rejects.toMatchObject({code: 'invalid-path'});
+    expect(new TextDecoder().decode((await storage.readFile('+/local.txt', '+main')).data)).toBe('from-main');
     expect(new TextDecoder().decode((await storage.readFile('+main/local.txt', '+other')).data)).toBe('from-main');
 
     // Custom callback enables case 2) resolution and reading.

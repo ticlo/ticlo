@@ -23,15 +23,19 @@ describe('FilePath helpers', () => {
     expect(classifyFilePath('+proj1/file1.txt')).toBe('project');
     expect(classifyFilePath('+#root/file1.txt')).toBe('project');
 
-    expect(classifyFilePath('file2.txt')).toBe('relative');
-    expect(classifyFilePath('sub/file2.txt')).toBe('relative');
-    expect(classifyFilePath('.hidden')).toBe('relative');
-    expect(classifyFilePath('http-file.txt')).toBe('relative');
+    expect(classifyFilePath('+/file2.txt')).toBe('relative');
+    expect(classifyFilePath('+/sub/file2.txt')).toBe('relative');
+
+    expect(classifyFilePath('file2.txt')).toBeUndefined();
+    expect(classifyFilePath('sub/file2.txt')).toBeUndefined();
+    expect(classifyFilePath('.hidden')).toBeUndefined();
+    expect(classifyFilePath('http-file.txt')).toBeUndefined();
   });
 
-  it('matches isRelativeProjectFilePath identically to classifyFilePath === relative', () => {
+  it('matches isRelativeProjectFilePath identically to non-empty +/ relative paths', () => {
     const samples = [
       '',
+      '+/',
       'http://example.com/a',
       'https://example.com/a',
       '//cdn.example.com/a',
@@ -39,6 +43,8 @@ describe('FilePath helpers', () => {
       './rel/a',
       '../rel/a',
       '+proj1/a',
+      '+/a.txt',
+      '+/sub/a.txt',
       'a.txt',
       'sub/a.txt',
       '.dotfile',
@@ -46,7 +52,7 @@ describe('FilePath helpers', () => {
       'h',
     ];
     for (const sample of samples) {
-      expect(isRelativeProjectFilePath(sample)).toBe(classifyFilePath(sample) === 'relative');
+      expect(isRelativeProjectFilePath(sample)).toBe(classifyFilePath(sample) === 'relative' && sample.length > 2);
     }
   });
 
@@ -56,13 +62,13 @@ describe('FilePath helpers', () => {
     expect(normalizeLibraryId('+proj2')).toBe('proj2');
     expect(normalizeLibraryId('proj2')).toBe('proj2');
 
-    expect(parseFilePath('file2.txt', '+proj2')).toEqual({
+    expect(parseFilePath('+/file2.txt', '+proj2')).toEqual({
       kind: 'project',
       project: 'proj2',
       relativePath: 'file2.txt',
       storagePath: 'proj2/file2.txt',
     });
-    expect(parseFilePath('file2.txt')).toEqual({
+    expect(parseFilePath('+/file2.txt')).toEqual({
       kind: 'project',
       project: '#root',
       relativePath: 'file2.txt',
@@ -76,17 +82,22 @@ describe('FilePath helpers', () => {
     });
 
     expect(() => parseFilePath('')).toThrowError('Invalid file path');
+    expect(() => parseFilePath('+/')).toThrowError('Invalid file path');
+    expect(() => parseFilePath('file2.txt')).toThrowError('Invalid file path');
     expect(() => parseFilePath('+proj1')).toThrowError('Invalid file path');
     expect(() => parseFilePath('+proj1/')).toThrowError('Invalid file path');
     expect(() => parseFilePath('+proj1/../escape.txt')).toThrowError('Invalid file path');
-    expect(() => parseFilePath('sub/../escape.txt', '+proj2')).toThrowError('Invalid file path');
+    expect(() => parseFilePath('+/sub/../escape.txt', '+proj2')).toThrowError('Invalid file path');
     expect(tryParseFilePath('+proj1/../escape.txt')).toBeUndefined();
+    expect(tryParseFilePath('file2.txt')).toBeUndefined();
   });
 
-  it('rewrites only non-empty relative paths across different libraries', () => {
-    expect(resolveSubflowFilePath('file.txt', '+proj1', '+proj2')).toBe('+proj1/file.txt');
-    expect(resolveSubflowFilePath('file.txt', '+#root', '+proj2')).toBe('+#root/file.txt');
-    expect(resolveSubflowFilePath('file.txt', '+proj1', '+proj1')).toBe('file.txt');
+  it('rewrites only non-empty +/ relative paths across different libraries', () => {
+    expect(resolveSubflowFilePath('+/file.txt', '+proj1', '+proj2')).toBe('+proj1/file.txt');
+    expect(resolveSubflowFilePath('+/file.txt', '+#root', '+proj2')).toBe('+#root/file.txt');
+    expect(resolveSubflowFilePath('+/file.txt', '+proj1', '+proj1')).toBe('+/file.txt');
+    expect(resolveSubflowFilePath('file.txt', '+proj1', '+proj2')).toBe('file.txt');
+    expect(resolveSubflowFilePath('+/', '+proj1', '+proj2')).toBe('+/');
     expect(resolveSubflowFilePath('+proj3/file.txt', '+proj1', '+proj2')).toBe('+proj3/file.txt');
     expect(resolveSubflowFilePath('https://a.com/x', '+proj1', '+proj2')).toBe('https://a.com/x');
     expect(resolveSubflowFilePath('//a.com/x', '+proj1', '+proj2')).toBe('//a.com/x');

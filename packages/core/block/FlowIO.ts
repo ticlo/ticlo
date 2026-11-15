@@ -145,13 +145,9 @@ export class InputsBlock extends Block {
               property._bindingSource.unlisten(property);
               property._bindingSource = null;
             }
-            if (
-              needFilePathResolve &&
-              typeof value === 'string' &&
-              value.length > 0 &&
-              isRelativeProjectFilePath(value)
-            ) {
-              value = `${outerLibrary}/${value}`;
+            if (needFilePathResolve && typeof value === 'string' && isRelativeProjectFilePath(value)) {
+              const prefix = outerLibrary.startsWith('+') ? outerLibrary : `+${outerLibrary}`;
+              value = `${prefix}${value.slice(1)}`;
             }
           }
           this.updateValue(name, value);

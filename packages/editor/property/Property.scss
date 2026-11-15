@@ -314,3 +314,20 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.ticl-e-file-path-editor {
+  width: 100%;
+
+  & > .ant-input {
+    min-width: 0;
+  }
+
+  & > .ticl-e-file-path-addon {
+    padding-inline: 5px;
+    font-family: monospace;
+  }
+
+  & > .ticl-e-file-path-addon-raw {
+    color: var(--ant-color-error, #ff4d4f);
+  }
+}

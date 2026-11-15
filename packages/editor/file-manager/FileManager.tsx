@@ -612,7 +612,12 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   }
 
   private open(entry: FileEntry) {
-    if (entry.gitStatus !== 'deleted' && entry.type === 'file' && entry.name.endsWith('.ticlo') && this.props.onOpen) {
+    if (
+      entry.gitStatus !== 'deleted' &&
+      entry.type === 'file' &&
+      (this.props.picker || entry.name.endsWith('.ticlo')) &&
+      this.props.onOpen
+    ) {
       void this.run(() => Promise.resolve(this.props.onOpen(entry)), false, false);
     }
   }

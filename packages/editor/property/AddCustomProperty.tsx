@@ -173,13 +173,13 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
           <Select size="small" value={type.value} onChange={type.onChange}>
             <Option value="number">{t('number')}</Option>
             <Option value="string">{t('string')}</Option>
-            <Option value="file-path">{t('file-path')}</Option>
             <Option value="toggle">{t('toggle')}</Option>
             <Option value="select">{t('select')}</Option>
             <Option value="radio-button">{t('radio-button')}</Option>
             <Option value="color">{t('color')}</Option>
             <Option value="date">{t('date')}</Option>
             <Option value="date-range">{t('date-range')}</Option>
+            <Option value="file-path">{t('file-path')}</Option>
             <Option value="password">{t('password')}</Option>
             <Option value="any">{t('dynamic')}</Option>
             <Option value="table">{t('table')}</Option>

@@ -76,8 +76,9 @@ describe('RemoteStorage request compatibility', () => {
     expect(storage.resolveFilePath('../rel.txt', '+main')).toBe('../rel.txt');
     // Case 3) & 4) build encoded project download URLs (including #root -> %23root).
     expect(storage.resolveFilePath('+proj1/a b.txt', '+main')).toBe('https://example.com/file/proj/proj1/a%20b.txt');
-    expect(storage.resolveFilePath('local.txt', '+main')).toBe('https://example.com/file/proj/main/local.txt');
-    expect(storage.resolveFilePath('root.txt', '+#root')).toBe('https://example.com/file/proj/%23root/root.txt');
+    expect(storage.resolveFilePath('+/local.txt', '+main')).toBe('https://example.com/file/proj/main/local.txt');
+    expect(storage.resolveFilePath('+/root.txt', '+#root')).toBe('https://example.com/file/proj/%23root/root.txt');
+    expect(storage.resolveFilePath('bare.txt', '+main')).toBeUndefined();
     expect(storage.resolveFilePath('+main/../bad.txt')).toBeUndefined();
 
     const cdnRead = await storage.readFile('https://cdn.example.com/a.txt');
@@ -89,6 +90,6 @@ describe('RemoteStorage request compatibility', () => {
 
     expect(new TextDecoder().decode((await storage.readFile('//cdn.example.com/proto.txt')).data)).toBe('proto-data');
     expect(new TextDecoder().decode((await storage.readFile('/assets/logo.txt')).data)).toBe('asset-data');
-    expect(new TextDecoder().decode((await storage.readFile('local.txt', '+main')).data)).toBe('project-data');
+    expect(new TextDecoder().decode((await storage.readFile('+/local.txt', '+main')).data)).toBe('project-data');
   });
 });

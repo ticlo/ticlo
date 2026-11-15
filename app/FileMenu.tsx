@@ -215,7 +215,7 @@ export function FileMenuHeader({
               picker
               defaultPreview={false}
               onSelect={(entries) => setSelected(entries.length === 1 ? entries[0] : null)}
-              onOpen={open}
+              onOpen={(entry) => (fileFlowPath(project, entry.path) ? open(entry) : undefined)}
             />
           )}
         </div>

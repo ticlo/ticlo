@@ -17,7 +17,7 @@ export function normalizeLibraryId(library?: string): string {
  * 1) url: http://, https://, // (checked before '/' so '//' is not treated as external)
  * 2) external: /, ./, ../
  * 3) project: +project/path
- * 4) relative: any other non-empty string (resolved under current project)
+ * 4) relative: +/path (resolved under current project)
  */
 export function classifyFilePath(path: string): FilePathKind | undefined {
   if (typeof path !== 'string' || !path) return undefined;
@@ -27,25 +27,22 @@ export function classifyFilePath(path: string): FilePathKind | undefined {
   if (path.startsWith('/') || path.startsWith('./') || path.startsWith('../')) {
     return 'external';
   }
+  if (path.startsWith('+/')) {
+    return 'relative';
+  }
   if (path.startsWith('+')) {
     return 'project';
   }
-  return 'relative';
+  return undefined;
 }
 
-/** Fast O(1) check for non-empty case 4) paths on hot input paths. */
+/** Fast O(1) check for non-empty case 4) (+/...) paths on hot input paths. */
 export function isRelativeProjectFilePath(path: string): boolean {
-  if (!path) return false;
-  const c0 = path.charCodeAt(0);
-  // '+' -> case 3, '/' -> case 1 ('//') or case 2 ('/')
-  if (c0 === 43 || c0 === 47) return false;
-  if (c0 === 46 && (path.startsWith('./') || path.startsWith('../'))) return false;
-  if (c0 === 104 && (path.startsWith('http://') || path.startsWith('https://'))) return false;
-  return true;
+  return path.length > 2 && path.charCodeAt(0) === 43 && path.charCodeAt(1) === 47;
 }
 
 /**
- * Rewrite case 4) file-path strings to case 3) when crossing library boundaries into a subflow.
+ * Rewrite case 4) (+/...) file-path strings to case 3) (+outerLibrary/...) when crossing library boundaries into a subflow.
  */
 export function resolveSubflowFilePath(value: unknown, outerLibrary?: string, subLibrary?: string): unknown {
   if (
@@ -55,7 +52,8 @@ export function resolveSubflowFilePath(value: unknown, outerLibrary?: string, su
     typeof value === 'string' &&
     isRelativeProjectFilePath(value)
   ) {
-    return `${outerLibrary}/${value}`;
+    const prefix = outerLibrary.startsWith('+') ? outerLibrary : `+${outerLibrary}`;
+    return `${prefix}${value.slice(1)}`;
   }
   return value;
 }
@@ -75,20 +73,13 @@ export function parseFilePath(path: string, library?: string): ParsedFilePath {
   if (kind === 'external') {
     return {kind: 'external', path};
   }
-  let project: string;
-  let relativePath: string;
-  if (kind === 'project') {
-    const raw = path.slice(1);
-    const slash = raw.indexOf('/');
-    if (slash <= 0 || slash === raw.length - 1) {
-      throw new StorageError('Invalid file path', 'invalid-path');
-    }
-    project = raw.slice(0, slash);
-    relativePath = raw.slice(slash + 1);
-  } else {
-    project = normalizeLibraryId(library);
-    relativePath = path;
+  const raw = path.slice(1);
+  const slash = raw.indexOf('/');
+  if (slash < 0 || slash === raw.length - 1) {
+    throw new StorageError('Invalid file path', 'invalid-path');
   }
+  const project = slash === 0 ? normalizeLibraryId(library) : raw.slice(0, slash);
+  const relativePath = raw.slice(slash + 1);
   projectId(project);
   filePath(relativePath);
   return {

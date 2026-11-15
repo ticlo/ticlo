@@ -268,6 +268,7 @@ class App extends React.PureComponent<Props, State> {
       () => this.props.conn
     ),
     getSelectedPaths: () => this.selectedPaths,
+    getFiles: () => this.props.files,
     showModal: (modal: React.ReactElement) => this.setState({modal}),
   };
 

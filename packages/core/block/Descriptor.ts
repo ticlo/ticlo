@@ -12,7 +12,6 @@ export type BlockMode = (typeof BlockModeList)[number];
 export type ValueType =
   | 'number'
   | 'string'
-  | 'file-path'
   | 'toggle'
   | 'select'
   | 'multi-select'
@@ -22,6 +21,7 @@ export type ValueType =
   | 'event'
   | 'date'
   | 'date-range'
+  | 'file-path'
   | 'password'
   | 'js'
   | 'object'

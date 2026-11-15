@@ -244,3 +244,11 @@
   overflow-wrap: anywhere;
   color: var(--ant-color-error, #ff4d4f);
 }
+
+.ticl-e-file-picker-project {
+  margin-bottom: 8px;
+
+  & > .ant-select {
+    width: 100%;
+  }
+}
