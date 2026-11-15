@@ -40,7 +40,9 @@ describe('PropertyEditor', function () {
       <>
         <BlockStage conn={conn} basePath="PropertyLabelTest" style={{width: 400, height: 300}} />
         <NodeTree conn={conn} basePaths={[path]} style={{width: 300, height: 100}} />
-        <PropertyList ref={list} conn={conn} paths={[path]} />
+        <div data-testid="property-label-list">
+          <PropertyList ref={list} conn={conn} paths={[path]} />
+        </div>
       </>,
       'editor'
     );
@@ -54,6 +56,7 @@ describe('PropertyEditor', function () {
       const header = () => div.querySelector('.ticl-e-block-head-label')?.textContent;
       const node = () => div.querySelector('.ticl-e-tree-node-text')?.textContent;
 
+      await shouldHappen(() => header() === 'block' && node() === 'block');
       await userEvent.fill(page.elementLocator(await shouldHappen(input)), 'Friendly label');
       await userEvent.keyboard('{Enter}');
       await shouldHappen(() => header() === 'Friendly label' && node() === 'Friendly label');

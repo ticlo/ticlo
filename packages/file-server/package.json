@@ -12,6 +12,6 @@
     "adm-zip": "^0.5.16"
   },
   "peerDependencies": {
-    "hono": "^4.13.7"
+    "hono": "^4.13.18"
   }
 }
