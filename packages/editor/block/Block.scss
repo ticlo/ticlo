@@ -188,8 +188,11 @@ body:not(.dock-dragging) {
 }
 
 .ticl-e-block-min > .ticl-e-block-status {
-  left: -3px;
-  bottom: -3px;
+  left: 3px;
+  bottom: -12px;
+  border-radius: 8px;
+  border: 1px solid var(--ticl-block-color);
+  background: var(--ant-color-bg-container, #fff);
 }
 
 .ticl-e-block-error-message {
