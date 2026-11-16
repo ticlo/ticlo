@@ -269,4 +269,71 @@ describe('FilePathEditor', () => {
     });
     expect(optionTexts).toEqual(['main']);
   });
+
+  it('allows creating a new folder and manually entering a non-existent filename in the picker modal', async () => {
+    const fixture = fixtureClient([file('main/readme.txt'), folder('main/existing')]);
+    const storage = Object.assign(fixture.client, {
+      listProjects: async () => [{id: 'main'}],
+    });
+    const committed: unknown[] = [];
+    const [, div] = loadTemplate(
+      <ControlledEditor initialValue="" files={{storage, project: 'main'}} onValues={(v) => committed.push(v)} />,
+      'editor'
+    );
+
+    const browseBtn = await shouldHappen(() => div.querySelector<HTMLButtonElement>('.ticl-e-file-path-browse'));
+    await userEvent.click(browseBtn);
+
+    const row = (path: string) => document.querySelector<HTMLElement>(`.ticl-e-file-row[data-path="${path}"]`);
+    await shouldHappen(() => row('main/existing'));
+
+    // Select an existing folder first so clicking New Folder creates a nested folder inside it.
+    await userEvent.click(row('main/existing'));
+    const pathInput = () => document.querySelector<HTMLInputElement>('.ticl-e-file-picker-input input');
+    await shouldHappen(() => pathInput()?.value === 'existing/');
+
+    // OK stays disabled while only a folder trailing slash is filled (no filename yet).
+    const pickerOk = () =>
+      document
+        .querySelector<HTMLElement>('.ticl-e-file-picker-input')
+        ?.closest('.ant-modal')
+        ?.querySelector<HTMLButtonElement>('.ant-modal-footer .ant-btn-primary');
+    expect(pickerOk()?.disabled).toBe(true);
+
+    // Click New Folder button, create "data" inside main/existing.
+    const newFolderBtn = document.querySelector<HTMLButtonElement>('.ticl-e-file-picker-new-folder')!;
+    await userEvent.click(newFolderBtn);
+
+    const modals = () => Array.from(document.querySelectorAll<HTMLElement>('.ant-modal'));
+    const folderModal = (await shouldHappen(() =>
+      modals().find((m) => !m.querySelector('.ticl-e-file-picker-input'))
+    )) as HTMLElement;
+    const folderInput = folderModal.querySelector<HTMLInputElement>('input')!;
+    await userEvent.fill(folderInput, 'data');
+    const folderOk = folderModal.querySelector<HTMLButtonElement>('.ant-modal-footer .ant-btn-primary')!;
+    await shouldHappen(() => !folderOk.disabled);
+    await userEvent.click(folderOk);
+
+    await shouldHappen(() => row('main/existing/data'));
+    expect(fixture.methods.createDirectory).toHaveBeenCalledWith('main/existing/data', expect.anything());
+    await shouldHappen(() => pathInput()?.value === 'existing/data/');
+
+    // Enter a non-existent filename and confirm via OK.
+    await userEvent.fill(pathInput()!, 'existing/data/app.sqlite');
+    await shouldHappen(() => pickerOk() && !pickerOk()!.disabled);
+    await userEvent.click(pickerOk()!);
+
+    await shouldHappen(() => committed.at(-1) === '+/existing/data/app.sqlite');
+    expect(div.querySelector<HTMLInputElement>('input')!.value).toBe('existing/data/app.sqlite');
+
+    // Re-open after close animation and type a completely new top-level filename + press Enter directly.
+    await shouldHappen(() => !document.querySelector('.ant-modal-root'));
+    await userEvent.click(browseBtn);
+    await shouldHappen(() => pathInput()?.value === 'existing/data/app.sqlite');
+    await userEvent.fill(pathInput()!, 'brand-new/file.json');
+    await userEvent.keyboard('{Enter}');
+
+    await shouldHappen(() => committed.at(-1) === '+/brand-new/file.json');
+    expect(div.querySelector<HTMLInputElement>('input')!.value).toBe('brand-new/file.json');
+  });
 });

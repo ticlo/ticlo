@@ -1,8 +1,9 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react';
-import {Modal, Select} from 'antd';
-import type {FileAccess, FileEntry, ProjectFiles} from '@ticlo/core';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {Button, Input, Modal, Select, Space} from 'antd';
+import {FolderAddOutlined} from '@ant-design/icons';
+import {filePath, type FileAccess, type FileEntry, type ProjectFiles} from '@ticlo/core';
 import {translateEditor} from '@ticlo/core/editor.ts';
-import {FileManager} from './FileManager.tsx';
+import {FileManager, type FileManagerHandle} from './FileManager.tsx';
 import {TicloI18NContext} from '../component/LayoutContext.ts';
 import {t} from '../component/LocalizedLabel.tsx';
 
@@ -30,19 +31,45 @@ function parsePickerKey(key: string): PickerTarget {
   return {project: key.startsWith('+') ? key.slice(1) : key, frontend: false};
 }
 
-function initialTargetKey(value: unknown, currentProject: string, hasFrontendStorage: boolean): string {
+function parseInitialPickerState(
+  value: unknown,
+  currentProject: string,
+  hasFrontendStorage: boolean
+): {key: string; relativePath: string} {
   if (typeof value === 'string') {
     if (value.startsWith('++')) {
       const slash = value.indexOf('/');
       if (slash > 2 && hasFrontendStorage) {
-        return value.slice(0, slash);
+        return {key: value.slice(0, slash), relativePath: value.slice(slash + 1)};
       }
-    } else if (value.startsWith('+') && !value.startsWith('+/')) {
+    } else if (value.startsWith('+/')) {
+      return {key: `+${currentProject}`, relativePath: value.slice(2)};
+    } else if (value.startsWith('+')) {
       const slash = value.indexOf('/');
-      if (slash > 1) return value.slice(0, slash);
+      if (slash > 1) {
+        return {key: value.slice(0, slash), relativePath: value.slice(slash + 1)};
+      }
     }
   }
-  return `+${currentProject}`;
+  return {key: `+${currentProject}`, relativePath: ''};
+}
+
+function stripProjectPrefix(entryPath: string, selectedProject: string): string {
+  if (entryPath === selectedProject) return '';
+  const prefix = `${selectedProject}/`;
+  return entryPath.startsWith(prefix) ? entryPath.slice(prefix.length) : entryPath;
+}
+
+export function formatPickedRelativePath(
+  relativePath: string,
+  selectedProject: string,
+  currentProject: string,
+  frontend = false
+): string {
+  if (frontend) {
+    return `++${selectedProject}/${relativePath}`;
+  }
+  return selectedProject === currentProject ? `+/${relativePath}` : `+${selectedProject}/${relativePath}`;
 }
 
 export function formatPickedFilePath(
@@ -51,12 +78,22 @@ export function formatPickedFilePath(
   currentProject: string,
   frontend = false
 ): string {
-  const prefix = `${selectedProject}/`;
-  const relativePath = entryPath.startsWith(prefix) ? entryPath.slice(prefix.length) : entryPath;
-  if (frontend) {
-    return `++${selectedProject}/${relativePath}`;
+  return formatPickedRelativePath(
+    stripProjectPrefix(entryPath, selectedProject),
+    selectedProject,
+    currentProject,
+    frontend
+  );
+}
+
+function normalizePickedRelativePath(raw: string): string | undefined {
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+  try {
+    return filePath(trimmed);
+  } catch {
+    return undefined;
   }
-  return selectedProject === currentProject ? `+/${relativePath}` : `+${selectedProject}/${relativePath}`;
 }
 
 async function loadStorageProjects(storage: PickerStorage, signal: AbortSignal): Promise<string[]> {
@@ -79,17 +116,20 @@ export function FilePickerModal({
   onCancel,
 }: FilePickerModalProps) {
   useContext(TicloI18NContext);
-  const [selectedKey, setSelectedKey] = useState(() =>
-    initialTargetKey(initialValue, currentProject, Boolean(frontendStorage))
-  );
+  const initial = parseInitialPickerState(initialValue, currentProject, Boolean(frontendStorage));
+  const [selectedKey, setSelectedKey] = useState(initial.key);
   const [projects, setProjects] = useState<string[]>([]);
   const [frontendProjects, setFrontendProjects] = useState<string[]>([]);
-  const [selected, setSelected] = useState<FileEntry | null>(null);
+  const [pathInput, setPathInput] = useState(initial.relativePath);
+  const manualEditedRef = useRef(false);
+  const fileManagerRef = useRef<FileManagerHandle>(null);
 
   useEffect(() => {
     if (!open) return;
-    setSelectedKey(initialTargetKey(initialValue, currentProject, Boolean(frontendStorage)));
-    setSelected(null);
+    const nextInitial = parseInitialPickerState(initialValue, currentProject, Boolean(frontendStorage));
+    setSelectedKey(nextInitial.key);
+    setPathInput(nextInitial.relativePath);
+    manualEditedRef.current = false;
 
     const controller = new AbortController();
     let active = true;
@@ -130,19 +170,46 @@ export function FilePickerModal({
   }, [currentProject, target, projects, frontendStorage, frontendProjects, frontendLabel]);
 
   const activeStorage = target.frontend && frontendStorage ? frontendStorage : storage;
+  const canCreateFolder = Boolean(activeStorage.getCapabilities(target.project).write);
+  const normalizedPath = normalizePickedRelativePath(pathInput);
+  const projectPrefix = formatPickedRelativePath('', target.project, currentProject, target.frontend);
 
-  const confirm = (entry: FileEntry) => {
+  const confirmEntry = (entry: FileEntry) => {
     if (entry.type !== 'file' || entry.gitStatus === 'deleted') return;
     onSelectPath(formatPickedFilePath(entry.path, target.project, currentProject, target.frontend));
+  };
+
+  const confirmPath = () => {
+    if (!normalizedPath) return;
+    onSelectPath(formatPickedRelativePath(normalizedPath, target.project, currentProject, target.frontend));
+  };
+
+  const handleTreeSelect = (entries: FileEntry[]) => {
+    const entry = entries.length === 1 ? entries[0] : null;
+    if (!entry || entry.gitStatus === 'deleted') return;
+    const rel = stripProjectPrefix(entry.path, target.project);
+    if (entry.type === 'file') {
+      manualEditedRef.current = false;
+      setPathInput(rel);
+      return;
+    }
+    setPathInput((prev) => {
+      if (manualEditedRef.current) {
+        const trimmed = prev.trim();
+        const base = trimmed.endsWith('/') ? '' : (trimmed.split('/').pop() ?? '');
+        return base ? (rel ? `${rel}/${base}` : base) : rel ? `${rel}/` : '';
+      }
+      return rel ? `${rel}/` : '';
+    });
   };
 
   return (
     <Modal
       title={t('Select File')}
       open={open}
-      onOk={() => selected && confirm(selected)}
+      onOk={confirmPath}
       onCancel={onCancel}
-      okButtonProps={{disabled: !selected}}
+      okButtonProps={{disabled: !normalizedPath}}
       destroyOnHidden
     >
       <div className="ticl-e-file-picker-project">
@@ -152,25 +219,49 @@ export function FilePickerModal({
           options={projectOptions}
           onChange={(next) => {
             setSelectedKey(next);
-            setSelected(null);
+            manualEditedRef.current = false;
+            setPathInput('');
           }}
         />
+        <Button
+          size="small"
+          className="ticl-e-file-picker-new-folder"
+          title={translateEditor('New Folder')}
+          icon={<FolderAddOutlined />}
+          disabled={!canCreateFolder}
+          onClick={() => fileManagerRef.current?.createFolder()}
+        />
       </div>
-      <div style={{height: 400}}>
+      <div style={{height: 360}}>
         {open && (
           <FileManager
             key={selectedKey}
+            actionsRef={fileManagerRef}
             storage={activeStorage}
             project={target.project}
             picker
+            allowCreateFolder
             defaultPreview={false}
-            onSelect={(entries) => {
-              const entry = entries.length === 1 ? entries[0] : null;
-              setSelected(entry?.type === 'file' && entry.gitStatus !== 'deleted' ? entry : null);
-            }}
-            onOpen={confirm}
+            onSelect={handleTreeSelect}
+            onOpen={confirmEntry}
           />
         )}
+      </div>
+      <div className="ticl-e-file-picker-input">
+        <Space.Compact size="small" style={{width: '100%'}}>
+          <span className="ticl-e-file-picker-prefix">{projectPrefix}</span>
+          <Input
+            size="small"
+            value={pathInput}
+            placeholder={translateEditor('File Name')}
+            onChange={(event) => {
+              const next = event.target.value;
+              manualEditedRef.current = Boolean(next.trim() && !next.endsWith('/'));
+              setPathInput(next);
+            }}
+            onPressEnter={confirmPath}
+          />
+        </Space.Compact>
       </div>
     </Modal>
   );

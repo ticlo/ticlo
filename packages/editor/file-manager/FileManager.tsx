@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useImperativeHandle, useRef} from 'react';
 import {Button, Dropdown, Input, Modal, Popover, Spin, Table, Tree, type MenuProps} from 'antd';
 import {DateTime} from 'luxon';
 import {
@@ -44,6 +44,10 @@ import {FilePreview, isCodeFile, previewType} from './FilePreview.tsx';
 import {FileCodeOutlined, FileTicloOutlined} from '../icon/FileIcons.tsx';
 import {droppedUploads, fileError, FileOperations, parentPath, topEntries, validFileName} from './FileOperations.ts';
 
+export interface FileManagerHandle {
+  createFolder: () => void;
+}
+
 export interface FileManagerProps {
   storage: FileAccess;
   /** Project / library ID, without a leading +; #root is the global library. */
@@ -51,6 +55,9 @@ export interface FileManagerProps {
   defaultPreview?: boolean;
   /** Show only the file tree for a file selection dialog. */
   picker?: boolean;
+  /** Allow creating folders while picker mode hides the full management toolbar and actions. */
+  allowCreateFolder?: boolean;
+  actionsRef?: React.Ref<FileManagerHandle>;
   onSelect?: (entries: FileEntry[]) => void;
   onOpen?: (entry: FileEntry) => void | Promise<void>;
   onFilesDeleted?: (paths: string[]) => void | Promise<void>;
@@ -177,6 +184,14 @@ function splitCommitMessage(message: string) {
 
 export function FileManager(props: FileManagerProps) {
   useContext(TicloI18NContext);
+  const panelRef = useRef<FileManagerPanel>(null);
+  useImperativeHandle(
+    props.actionsRef,
+    () => ({
+      createFolder: () => panelRef.current?.openNewFolder(),
+    }),
+    []
+  );
   const [modal, holder] = Modal.useModal();
   const confirm: PanelProps['confirm'] = (title, content, signal) => {
     if (signal.aborted) return Promise.resolve(false);
@@ -196,7 +211,7 @@ export function FileManager(props: FileManagerProps) {
   };
   return (
     <>
-      <FileManagerPanel key={props.project} {...props} confirm={confirm} />
+      <FileManagerPanel ref={panelRef} key={props.project} {...props} confirm={confirm} />
       {holder}
     </>
   );
@@ -326,8 +341,16 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
 
   private directory() {
     const [entry] = this.selected();
-    return entry ? (entry.type === 'folder' ? entry.path : parentPath(entry.path)) : this.files.root;
+    if (!entry || entry.gitStatus === 'deleted') return this.files.root;
+    return entry.type === 'folder' ? entry.path : parentPath(entry.path);
   }
+
+  openNewFolder = () => {
+    if (this.locked || this.state.busy) return;
+    const dir = this.directory();
+    if (!this.props.storage.getCapabilities(dir).write) return;
+    this.newFolder(dir);
+  };
 
   private select(paths: string[]) {
     this.setState({selected: paths});
@@ -774,7 +797,13 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
         this.expanded.add(dialog.directory);
         this.setState({dialog: undefined});
         await this.props.onOpen?.(entry);
-      } else await files.createFolder(dialog.directory, name.trim());
+      } else {
+        const trimmed = name.trim();
+        await files.createFolder(dialog.directory, trimmed);
+        files.signal.throwIfAborted();
+        this.expanded.add(dialog.directory);
+        this.setState({selected: [`${dialog.directory}/${trimmed}`], dialog: undefined});
+      }
       if (!files.signal.aborted) this.setState({dialog: undefined});
     });
   };
@@ -850,6 +879,14 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
       typeof (this.props.storage as Partial<LocalBackupAccess>).discardLocalBackup === 'function';
     const disabled = this.state.busy;
     const readonly = !this.props.storage.getCapabilities(this.files.root).write;
+    if (this.props.picker) {
+      return {
+        onClick: ({key}) => this.command(key),
+        items: this.props.allowCreateFolder
+          ? [{key: 'new', label: t('New Folder'), icon: <FolderAddOutlined />, disabled: disabled || readonly}]
+          : [],
+      };
+    }
     return {
       onClick: ({key}) => this.command(key),
       items: [
@@ -1213,7 +1250,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
   };
 
   render() {
-    const {project, storage, style, className, picker} = this.props;
+    const {project, storage, style, className, picker, allowCreateFolder} = this.props;
     if (storage !== this.files.storage) return <div className="ticl-e-file-manager" style={style} />;
     const {busy, error, preview, dialog, name} = this.state;
     const readonly = !storage.getCapabilities(this.files.root).write;
@@ -1339,12 +1376,15 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             />
           </div>
         ) : null}
-        <Dropdown menu={picker ? {items: []} : this.fileMenu()} trigger={picker ? [] : ['contextMenu']}>
+        <Dropdown
+          menu={picker && !allowCreateFolder ? {items: []} : this.fileMenu()}
+          trigger={picker && !allowCreateFolder ? [] : ['contextMenu']}
+        >
           <div
             className="ticl-e-file-tree-area"
             onMouseDown={() => this.container.focus()}
             onContextMenu={(event) => {
-              if (!picker && !(event.target as HTMLElement).closest('.ticl-e-file-row')) {
+              if ((!picker || allowCreateFolder) && !(event.target as HTMLElement).closest('.ticl-e-file-row')) {
                 this.menuDirectory = this.files.root;
                 this.setState({folderMenu: true});
                 this.select([this.files.root]);
@@ -1377,7 +1417,7 @@ class FileManagerPanel extends React.Component<PanelProps, State> {
             onDownload={this.download}
           />
         ) : null}
-        {!picker && (
+        {(!picker || allowCreateFolder) && (
           <Modal
             title={dialog?.entry ? t('Rename') : dialog?.flow ? t('New Dataflow') : t('New Folder')}
             open={Boolean(dialog)}
