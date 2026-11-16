@@ -242,6 +242,29 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
     throw new StorageError('Frontend file storage is not available', 'not-found');
   }
 
+  protected getFrontendFileAccess(): FileAccess | undefined {
+    return undefined;
+  }
+
+  resolveFileAccess(
+    path: string,
+    library?: string,
+    options?: {allowEmptyRelative?: boolean}
+  ): {access: FileAccess; path: string} | undefined {
+    const parsed = parseFilePath(path, library, options);
+    if (parsed.kind === 'project') {
+      return {access: this, path: parsed.storagePath};
+    }
+    if (parsed.kind === 'frontend') {
+      const frontend = this.getFrontendFileAccess();
+      if (!frontend) {
+        throw new StorageError('Frontend file storage is not available', 'not-found');
+      }
+      return {access: frontend, path: parsed.storagePath};
+    }
+    return undefined;
+  }
+
   async readFile(path: string, library?: string, options?: FileRequest): Promise<FileReadResult> {
     const parsed = parseFilePath(path, library);
     switch (parsed.kind) {

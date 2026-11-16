@@ -102,6 +102,39 @@ describe('FilePath helpers', () => {
     expect(() => parseFilePath('+/sub/../escape.txt', '+proj2')).toThrowError('Invalid file path');
     expect(tryParseFilePath('+proj1/../escape.txt')).toBeUndefined();
     expect(tryParseFilePath('file2.txt')).toBeUndefined();
+
+    expect(parseFilePath('+/', '+proj2', {allowEmptyRelative: true})).toEqual({
+      kind: 'project',
+      project: 'proj2',
+      relativePath: '',
+      storagePath: 'proj2',
+    });
+    expect(parseFilePath('+proj1', '+proj2', {allowEmptyRelative: true})).toEqual({
+      kind: 'project',
+      project: 'proj1',
+      relativePath: '',
+      storagePath: 'proj1',
+    });
+    expect(parseFilePath('+proj1/', '+proj2', {allowEmptyRelative: true})).toEqual({
+      kind: 'project',
+      project: 'proj1',
+      relativePath: '',
+      storagePath: 'proj1',
+    });
+    expect(parseFilePath('++web', '+proj2', {allowEmptyRelative: true})).toEqual({
+      kind: 'frontend',
+      project: 'web',
+      relativePath: '',
+      storagePath: 'web',
+    });
+    expect(parseFilePath('++web/', '+proj2', {allowEmptyRelative: true})).toEqual({
+      kind: 'frontend',
+      project: 'web',
+      relativePath: '',
+      storagePath: 'web',
+    });
+    expect(() => parseFilePath('++/', '+proj2', {allowEmptyRelative: true})).toThrowError('Invalid file path');
+    expect(() => parseFilePath('+', '+proj2', {allowEmptyRelative: true})).toThrowError('Invalid file path');
   });
 
   it('rewrites only non-empty +/ relative paths across different libraries', () => {

@@ -66,7 +66,12 @@ export function resolveSubflowFilePath(value: unknown, outerLibrary?: string, su
  * Parse and validate a file-path into url, external, or project storage path.
  * Throws StorageError('invalid-path') for empty or invalid project/relative paths.
  */
-export function parseFilePath(path: string, library?: string): ParsedFilePath {
+export function parseFilePath(
+  path: string,
+  library?: string,
+  options?: {allowEmptyRelative?: boolean}
+): ParsedFilePath {
+  const allowEmpty = Boolean(options?.allowEmptyRelative);
   const kind = classifyFilePath(path);
   if (!kind) {
     throw new StorageError('Invalid file path', 'invalid-path');
@@ -79,25 +84,35 @@ export function parseFilePath(path: string, library?: string): ParsedFilePath {
   }
   const isFrontend = kind === 'frontend';
   const raw = path.slice(isFrontend ? 2 : 1);
-  const slash = raw.indexOf('/');
-  if ((isFrontend ? slash <= 0 : slash < 0) || slash === raw.length - 1) {
+  if (!raw) {
     throw new StorageError('Invalid file path', 'invalid-path');
   }
-  const project = slash === 0 ? normalizeLibraryId(library) : raw.slice(0, slash);
-  const relativePath = raw.slice(slash + 1);
+  const slash = raw.indexOf('/');
+  if (slash === 0 && isFrontend) {
+    throw new StorageError('Invalid file path', 'invalid-path');
+  }
+  if (!allowEmpty && ((isFrontend ? slash <= 0 : slash < 0) || slash === raw.length - 1)) {
+    throw new StorageError('Invalid file path', 'invalid-path');
+  }
+  const project = slash < 0 ? raw : slash === 0 ? normalizeLibraryId(library) : raw.slice(0, slash);
+  const relativePath = slash < 0 ? '' : raw.slice(slash + 1);
   projectId(project);
-  filePath(relativePath);
+  filePath(relativePath, allowEmpty);
   return {
     kind: isFrontend ? 'frontend' : 'project',
     project,
     relativePath,
-    storagePath: `${project}/${relativePath}`,
+    storagePath: relativePath ? `${project}/${relativePath}` : project,
   };
 }
 
-export function tryParseFilePath(path: string, library?: string): ParsedFilePath | undefined {
+export function tryParseFilePath(
+  path: string,
+  library?: string,
+  options?: {allowEmptyRelative?: boolean}
+): ParsedFilePath | undefined {
   try {
-    return parseFilePath(path, library);
+    return parseFilePath(path, library, options);
   } catch (error) {
     if (error instanceof StorageError && error.code === 'invalid-path') return undefined;
     throw error;

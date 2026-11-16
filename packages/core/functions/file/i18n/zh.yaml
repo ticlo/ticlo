@@ -7,3 +7,77 @@
     '@name': 主机 # translated from: Host
   css:
     '@name': CSS # no translate
+'file:read':
+  '@name': 读取文件
+  '@keywords': 'file,read,load,get'
+  path:
+    '@name': 路径
+  format:
+    '@name': 格式
+    '@options':
+      text: 文本
+      json: JSON
+      binary: 二进制
+  revision:
+    '@name': 版本
+  contentType:
+    '@name': 内容类型
+'file:list':
+  '@name': 列出文件
+  '@keywords': 'file,list,dir,folder'
+  path:
+    '@name': 路径
+'file:info':
+  '@name': 文件信息
+  '@keywords': 'file,info,stat,exists'
+  path:
+    '@name': 路径
+  exists:
+    '@name': 存在
+'file:write':
+  '@name': 写入文件
+  '@keywords': 'file,write,save,upload'
+  path:
+    '@name': 路径
+  data:
+    '@name': 数据
+  existsBehavior:
+    '@name': 已存在处理
+    '@options':
+      overwrite: 覆盖
+      fail: 失败
+  revision:
+    '@name': 版本
+'file:mkdir':
+  '@name': 创建文件夹
+  '@keywords': 'file,mkdir,folder,directory'
+  path:
+    '@name': 路径
+'file:delete':
+  '@name': 删除文件
+  '@keywords': 'file,delete,remove'
+  path:
+    '@name': 路径
+  revision:
+    '@name': 版本
+'file:copy':
+  '@name': 复制文件
+  '@keywords': 'file,copy'
+  source:
+    '@name': 源路径
+  destination:
+    '@name': 目标路径
+'file:move':
+  '@name': 移动文件
+  '@keywords': 'file,move'
+  source:
+    '@name': 源路径
+  destination:
+    '@name': 目标路径
+'file:rename':
+  '@name': 重命名文件
+  '@keywords': 'file,rename'
+  path:
+    '@name': 路径
+  name:
+    '@name': 名称

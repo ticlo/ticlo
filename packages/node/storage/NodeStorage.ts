@@ -26,6 +26,7 @@ import {
   fileBytes,
   filePath,
   projectId,
+  type FileAccess,
   type FilePayload,
   type FileReadResult,
   type FileRequest,
@@ -74,6 +75,7 @@ export class NodeStorage extends ProjectStorage implements ProjectGit {
   private readonly fileUrlScope: string;
   private frontendFileBaseUrl?: NodeFileBaseUrl;
   private readonly frontendUrlScope: string;
+  private frontendStorage?: NodeStorage;
   private readonly mutations = new Map<string, Promise<unknown>>();
   private readonly gitUser = {getUserId: () => 'node'};
   constructor(dir: string, optionsOrResolver?: NodeFilePathResolver | NodeStorageOptions) {
@@ -130,6 +132,10 @@ export class NodeStorage extends ProjectStorage implements ProjectGit {
         return base ? buildProjectFileUrl(base, parsed.storagePath, this.fileUrlScope) : undefined;
       }
     }
+  }
+  protected override getFrontendFileAccess(): FileAccess | undefined {
+    if (!this.frontendDir) return undefined;
+    return (this.frontendStorage ??= new NodeStorage(this.frontendDir));
   }
   protected override readUrlFile(url: string, options?: FileRequest): Promise<FileReadResult> {
     return fetchFileResult(url.startsWith('//') ? `https:${url}` : url, options);
