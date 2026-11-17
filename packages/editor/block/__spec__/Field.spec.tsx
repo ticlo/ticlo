@@ -133,7 +133,7 @@ describe('editor Block Field', function () {
     expect(div.querySelector('.ticl-e-field-value').textContent).toContain('bound');
   });
 
-  it('fits inline controls and their expand buttons inside a single stage row', async () => {
+  it('fits inline controls in a single stage row and shows action buttons outside on hover', async () => {
     const basePath = 'BlockFieldInlineHeight';
     const options = ['Apple', 'Banana', 'Cherry', 'Durian'];
     flow = Root.instance.addFlow(basePath, {
@@ -176,30 +176,84 @@ describe('editor Block Field', function () {
     expect(input.readOnly).toBe(true);
     expect(input.value).toBe('first line…');
     expect(div.querySelector('.ticl-e-inline-value .ant-select-selection-item').textContent).toBe('+4');
+    const block = div.querySelector('.ticl-e-block');
+    const blockBounds = block.getBoundingClientRect();
     const rows = div.querySelectorAll('.ticl-e-inline-value');
     expect(rows.length).toBe(4);
-    const buttons = div.querySelectorAll('.ticl-e-inline-value .ticl-e-expand-button');
-    expect(buttons.length).toBe(2);
-    for (const button of buttons) {
-      const value = button.closest('.ticl-e-inline-value').getBoundingClientRect();
-      const field = button.closest('.ticl-e-field').getBoundingClientRect();
+    const expandButtons = div.querySelectorAll<HTMLElement>('.ticl-e-inline-value .ticl-e-expand-button');
+    const typeButton = div.querySelector<HTMLElement>('.ticl-e-inline-value .ticl-e-dynamic-type-icon');
+    expect(expandButtons.length).toBe(2);
+    expect(typeButton).not.toBeNull();
+
+    // No reserved width inside the block, including inside the dynamic editor.
+    expect(input.getBoundingClientRect().right).toBe(rows[0].getBoundingClientRect().right);
+    const dynamicInput = rows[1].querySelector<HTMLInputElement>('input');
+    expect(dynamicInput.getBoundingClientRect().right).toBe(rows[1].getBoundingClientRect().right);
+    for (const row of rows) {
+      const field = row.parentElement;
+      expect(row.getBoundingClientRect().right).toBe(field.getBoundingClientRect().right);
+      expect(field.getBoundingClientRect().height).toBe(24);
+      expect(row.firstElementChild.getBoundingClientRect().height).toBeLessThanOrEqual(22);
+    }
+
+    // Small action buttons are hidden by default.
+    for (const button of [...expandButtons, typeButton]) {
+      expect(getComputedStyle(button).visibility).toBe('hidden');
       const bounds = button.getBoundingClientRect();
-      expect(bounds.left).toBeGreaterThanOrEqual(value.right);
-      expect(bounds.right).toBeLessThanOrEqual(field.right);
       expect(
         document
           .elementFromPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
-          ?.closest('.ticl-e-expand-button')
-      ).toBe(button);
+          ?.closest('.ticl-e-expand-button, .ticl-e-dynamic-type-icon')
+      ).toBeNull();
     }
-    expect(input.getBoundingClientRect().right).toBe(rows[0].getBoundingClientRect().right);
-    for (const row of rows) {
-      expect(row.parentElement.getBoundingClientRect().height).toBe(24);
-      expect(row.firstElementChild.getBoundingClientRect().height).toBeLessThanOrEqual(22);
-    }
-    await userEvent.click(buttons[0]);
+
+    // Hovering the text row reveals only its expand button outside the block boundary.
+    await userEvent.hover(page.elementLocator(rows[0].parentElement));
+    await shouldHappen(() => getComputedStyle(expandButtons[0]).visibility === 'visible');
+    expect(getComputedStyle(expandButtons[1]).visibility).toBe('hidden');
+    expect(getComputedStyle(typeButton).visibility).toBe('hidden');
+    const firstBounds = expandButtons[0].getBoundingClientRect();
+    expect(firstBounds.left).toBeGreaterThanOrEqual(blockBounds.right);
+    expect(
+      document
+        .elementFromPoint(firstBounds.x + firstBounds.width / 2, firstBounds.y + firstBounds.height / 2)
+        ?.closest('.ticl-e-expand-button')
+    ).toBe(expandButtons[0]);
+
+    await userEvent.click(expandButtons[0]);
     await shouldHappen(() => editValue.mock.calls.length === 1);
     expect(editValue.mock.calls[0][0]).toBe('first line\nsecond line');
+
+    // Hovering the dynamic row shows the type button aligned directly above the expand button outside the block.
+    await userEvent.hover(page.elementLocator(rows[1].parentElement));
+    await shouldHappen(
+      () =>
+        getComputedStyle(typeButton).visibility === 'visible' &&
+        getComputedStyle(expandButtons[1]).visibility === 'visible'
+    );
+    expect(getComputedStyle(expandButtons[0]).visibility).toBe('hidden');
+    const typeBounds = typeButton.getBoundingClientRect();
+    const dynamicExpandBounds = expandButtons[1].getBoundingClientRect();
+    expect(typeBounds.left).toBeGreaterThanOrEqual(blockBounds.right);
+    expect(typeBounds.left).toBe(dynamicExpandBounds.left);
+    expect(typeBounds.right).toBe(dynamicExpandBounds.right);
+    expect(typeBounds.bottom).toBeLessThanOrEqual(dynamicExpandBounds.top);
+    expect(
+      document
+        .elementFromPoint(typeBounds.x + typeBounds.width / 2, typeBounds.y + typeBounds.height / 2)
+        ?.closest('.ticl-e-dynamic-type-icon')
+    ).toBe(typeButton);
+
+    // Clicking the dynamic type button opens the menu and switches the inline editor type.
+    await userEvent.click(typeButton);
+    const numberItem = await shouldHappen(() =>
+      [...document.querySelectorAll('.ant-dropdown-menu-item')].find((el) => el.textContent?.includes('number'))
+    );
+    await userEvent.click(numberItem);
+    await shouldHappen(() => rows[1].querySelector('.ticl-e-number-input'));
+
+    await userEvent.unhover(page.elementLocator(rows[1].parentElement));
+    await shouldHappen(() => getComputedStyle(typeButton).visibility === 'hidden');
   });
 
   it('sub block', async function () {

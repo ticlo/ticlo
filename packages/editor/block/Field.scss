@@ -1,13 +1,11 @@
 @use '../style/variables' as *;
 
-$field-padding-right: 12px;
-
 .ticl-e-field {
   position: relative;
   border-bottom: 1px solid var(--ant-color-border, #ddd);
   height: 24px;
   line-height: 19px;
-  padding: 2px $field-padding-right 2px 16px;
+  padding: 2px 12px 2px 16px;
   display: flex;
   &:first-child {
     /* allows the sub icon to overlap the next row but still clickable */
@@ -41,10 +39,42 @@ $field-padding-right: 12px;
 
 .ticl-e-field-inline {
   padding-block: 0;
+  padding-inline-end: 0;
   align-items: center;
 
   > .ticl-e-field-name {
     border-right: 0;
+  }
+
+  // Bridge the 1px block border so moving from the row to the outside buttons keeps :hover active.
+  &:hover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: -13px;
+    width: 13px;
+    z-index: 1;
+  }
+
+  .ticl-e-inline-value {
+    .ticl-e-expand-button,
+    .ticl-e-dynamic-type-icon {
+      right: -12px;
+      z-index: 2;
+      visibility: hidden;
+    }
+
+    .ticl-e-dynamic-type-icon.ant-dropdown-open {
+      visibility: visible;
+    }
+  }
+
+  &:hover .ticl-e-inline-value {
+    .ticl-e-expand-button,
+    .ticl-e-dynamic-type-icon {
+      visibility: visible;
+    }
   }
 }
 
@@ -110,11 +140,6 @@ $field-padding-right: 12px;
   .ticl-e-dynamic-editor {
     display: flex;
     align-items: center;
-    padding-inline-end: 13px;
-
-    > .ticl-e-dynamic-type-icon {
-      right: $field-padding-right;
-    }
   }
 }
 
