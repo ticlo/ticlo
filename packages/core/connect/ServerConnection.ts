@@ -16,7 +16,14 @@ import {flowRefFromPath} from '../block/FlowRuntime.ts';
 import {FlowWithStatic, StaticConfig} from '../block/StaticBlock.ts';
 import {PropDispatcher, PropListener} from '../block/Dispatcher.ts';
 import {DescListener, FunctionModule, globalFunctions} from '../block/FunctionModule.ts';
-import {FunctionDesc, getInlineProp, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
+import {
+  buildPropDescCache,
+  findPropDesc,
+  FunctionDesc,
+  getInlineProp,
+  PropDesc,
+  PropGroupDesc,
+} from '../block/Descriptor.ts';
 import {propRelative} from '../util/PropPath.ts';
 import {
   insertGroupProperty,
@@ -35,7 +42,7 @@ import {
 import {FlowEditor} from '../worker/FlowEditor.ts';
 import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty.ts';
 import {WorkerFunctionGen} from '../worker/WorkerFunctionGen.ts';
-import {isBindable, splitPathName, validateNodePath} from '../util/Path.ts';
+import {isBindable, validateNodePath} from '../util/Path.ts';
 import {ClientCallbacks} from './ClientRequests.ts';
 import {
   copyProperties,
@@ -51,14 +58,12 @@ import {Query, queryBlock} from './Query.ts';
 import {getGlobalSettingsData} from '../util/Settings.ts';
 import {DoneEvent} from '../block/Event.ts';
 import {Library} from '../block/Library.ts';
-import {checkEditPolicy, type EditPolicy} from '../policy/EditPolicy.ts';
-import {libraryFromPath, libraryPath, validateLibrary} from '../util/LibraryMetadata.ts';
+import {libraryFromPath, validateLibrary} from '../util/LibraryMetadata.ts';
 import {readValuePage, type ValuePageOptions, type ValueReadOptions} from './ValuePage.ts';
 
 export class ServerRequest extends ConnectionSendingData {
   id: string;
   connection: ServerConnection;
-  request: DataMap;
 
   close(): void {
     // to be overridden
@@ -376,47 +381,59 @@ function trackChange(property: BlockProperty, path: string, root: Root) {
   getTrackedFlow(property._block, path, root).trackChange();
 }
 
+export interface ServerConnectionOptions extends ConnectionOptions {
+  readonly?: boolean;
+}
+
+const readCommands = new Set([
+  'get',
+  'list',
+  'query',
+  'subscribe',
+  'watch',
+  'watchDesc',
+  'getSettings',
+  'getFlowState',
+  'getAutoLoadFlow',
+  'listMainFlows',
+  'listLoadedFlows',
+  'getLibraryGraph',
+  'getLibraryMetadata',
+  'close',
+]);
+
+const runtimeCommands = new Set([
+  'loadFlow',
+  'unloadFlow',
+  'enableFlow',
+  'disableFlow',
+  'enableLibrary',
+  'unloadLibrary',
+  'retainLibraries',
+  'callFunction',
+]);
+
 class ServerConnectionCore extends Connection {
   requests: {[key: string]: ServerRequest} = {};
+  readonly readonly: boolean;
 
   constructor(
     public root: Root,
-    private _editPolicy?: EditPolicy,
-    options?: ConnectionOptions
+    options?: ServerConnectionOptions
   ) {
     super(options);
-  }
-
-  getEditPolicy() {
-    return this._editPolicy;
+    this.readonly = options?.readonly === true;
   }
 
   protected canWriteLibraryMetadata(path: string) {
     const storage = this.root._storage;
     return Boolean(
-      !this._editPolicy?.readonly &&
+      !this.readonly &&
       storage?.getLibraryMetadata &&
       storage.saveLibraryMetadata &&
       (storage.isPersistent ? storage.isPersistent(libraryFromPath(path)) : storage.persistent !== false) &&
       storage.canWriteFlow?.(path) !== false
     );
-  }
-
-  setEditPolicy(policy?: EditPolicy) {
-    this._editPolicy = policy;
-    this.sendEditPolicy();
-    for (const request of Object.values(this.requests)) {
-      this.checkPolicyBeforeSend(request);
-    }
-  }
-
-  private sendEditPolicy() {
-    this.addSend(new ConnectionSend({cmd: 'editPolicy', policy: this._editPolicy ?? null}));
-  }
-
-  onConnect() {
-    super.onConnect();
-    this.sendEditPolicy();
   }
 
   /** Shared by framed transports and REST. Kept off the wire-command prototype. */
@@ -426,36 +443,12 @@ class ServerConnectionCore extends Connection {
     if (!Object.hasOwn(ServerConnection.prototype, cmd)) return 'invalid command';
     const func: Function = (this as any)[cmd];
     if (typeof func !== 'function' || func.length !== 1 || cmd.startsWith('on')) return 'invalid command';
+    // Function commands resolve their readonly mode when they resolve the target block.
+    if (cmd === 'executeCommand') return func.call(this, request);
     const canWrite = this.root._storage?.canWriteFlow?.bind(this.root._storage);
-    if (
-      canWrite &&
-      ![
-        'get',
-        'list',
-        'query',
-        'subscribe',
-        'watch',
-        'watchDesc',
-        'getSettings',
-        'getFlowState',
-        'getAutoLoadFlow',
-        'listMainFlows',
-        'listLoadedFlows',
-        'getLibraryGraph',
-        'getLibraryMetadata',
-        'close',
-        'loadFlow',
-        'unloadFlow',
-        'enableFlow',
-        'disableFlow',
-        'enableLibrary',
-        'unloadLibrary',
-        'retainLibraries',
-        'callFunction',
-      ].includes(cmd) &&
-      !(cmd === 'copy' && !request.cut) &&
-      !(cmd === 'executeCommand' && this.isReadonlyCommand(request))
-    ) {
+    const read = (this.readonly || canWrite) && (readCommands.has(cmd) || (cmd === 'copy' && !request.cut));
+    if (this.readonly && !read) return 'readonly';
+    if (canWrite && !read && !runtimeCommands.has(cmd)) {
       const path = cmd === 'deleteFunction' ? (request.funcModule ?? request.funcId) : request.path;
       if (typeof path !== 'string') return 'invalid path';
       if (!canWrite(path) || (typeof request.to === 'string' && !canWrite(request.to))) return 'Storage is read-only';
@@ -466,65 +459,7 @@ class ServerConnectionCore extends Connection {
       const [owner, name] = this.root.queryBlockField(path);
       if (owner && owner !== this.root && !canWrite(`${owner.getFullPath()}.${name}`)) return 'Storage is read-only';
     }
-    if (this._editPolicy?.readonly && !['listMainFlows', 'listLoadedFlows', 'getLibraryGraph'].includes(cmd)) {
-      const error = this.checkRequestPolicy(request);
-      if (error) return error;
-    }
-    const result = func.call(this, request);
-    if (result instanceof ServerRequest) result.request = request;
-    return result;
-  }
-
-  private isReadonlyCommand(request: DataMap): boolean {
-    const block = this.root.queryProperty(request.path as string, false)?._value;
-    return (
-      block instanceof Block &&
-      globalFunctions.getDesc(block._funcId)?.commands?.[request.command as string]?.readonly === true
-    );
-  }
-
-  protected checkRequestPolicy(request: DataMap): string | null {
-    if (this._editPolicy?.readonly) {
-      const lookup = (path: string) => {
-        const prop = this.root.queryProperty(path, false);
-        return (
-          prop?._value instanceof Block ||
-          prop?._saved instanceof Block ||
-          prop?._helperProperty?._saved instanceof Block
-        );
-      };
-      const checkAt = (path: string) => checkEditPolicy(this._editPolicy, {...request, path}, lookup, 'server');
-      const error = checkAt(request.path as string);
-      if (error) return error;
-      if (request.cmd === 'getSettings') return null;
-      // A path through a block-valued reference must also be allowed at its owner.
-      const [parent, name] = this.root.queryBlockField(request.path as string);
-      if (parent && parent !== this.root) {
-        const ownerPath = `${parent.getFullPath()}.${name}`;
-        if (ownerPath !== request.path) {
-          const ownerError = checkAt(ownerPath);
-          if (ownerError) return ownerError;
-        }
-      }
-      const block = this.root.queryProperty(request.path as string, false)?._value;
-      if (block instanceof Block) {
-        const ownerError = checkAt(block.getFullPath());
-        if (ownerError) return ownerError;
-      }
-    }
-    return null;
-  }
-
-  protected checkPolicyBeforeSend(data: ConnectionSendingData): boolean {
-    if (this._editPolicy?.readonly && data instanceof ServerRequest) {
-      const error = this.checkRequestPolicy(data.request);
-      if (error) {
-        this.close(data.id);
-        this.sendError(data.id, error);
-        return false;
-      }
-    }
-    return true;
+    return func.call(this, request);
   }
 
   addRequest(id: string, req: ServerRequest) {
@@ -827,24 +762,9 @@ export class ServerConnection extends ServerConnectionCore {
 
   getLibraryGraph({path}: {path: string}) {
     if (path !== '') return 'invalid path';
-    const graph = this.root.getLibraryGraph();
-    const policy = this.getEditPolicy();
-    if (policy?.readonly) {
-      const visible = new Set(
-        Object.keys(graph.dependencies).filter(
-          (name) => !checkEditPolicy(policy, {cmd: 'getLibraryMetadata', path: libraryPath(name)}, undefined, 'server')
-        )
-      );
-      graph.roots = graph.roots.filter((name) => visible.has(name));
-      graph.dependencies = Object.fromEntries(
-        Object.entries(graph.dependencies)
-          .filter(([name]) => visible.has(name))
-          .map(([name, dependencies]) => [name, dependencies.filter((name) => visible.has(name))])
-      );
-    }
     return {
-      ...graph,
-      canLoad: !policy?.readonly && Boolean(this.root._storage),
+      ...this.root.getLibraryGraph(),
+      canLoad: !this.readonly && Boolean(this.root._storage),
       hasMetadata: Boolean(this.root._storage?.getLibraryMetadata),
     };
   }
@@ -900,27 +820,11 @@ export class ServerConnection extends ServerConnectionCore {
 
   async listMainFlows({path}: {path: string}) {
     if (path !== '') return 'invalid path';
-    const flows = await this.root.listMainFlows();
-    const policy = this.getEditPolicy();
-    if (!policy?.readonly) return {flows};
-    return {
-      flows: flows.filter(({library, name}) => {
-        const flowPath = library === '#root' ? name : `+${library}.${name}`;
-        return !checkEditPolicy(policy, {cmd: 'getFlowState', path: flowPath}, undefined, 'server');
-      }),
-    };
+    return {flows: await this.root.listMainFlows()};
   }
 
   listLoadedFlows({path}: {path: string}) {
-    const flows = this.root.getLoadedFlowRefs(path);
-    const policy = this.getEditPolicy();
-    if (!policy?.readonly) return {flows};
-    return {
-      flows: flows.filter((ref) => {
-        const flowPath = `${ref.library === '#root' ? '' : `+${ref.library}.`}${ref.kind === 'module' ? ':' : ''}${ref.name}`;
-        return !checkEditPolicy(policy, {cmd: 'getFlowState', path: flowPath}, undefined, 'server');
-      }),
-    };
+    return {flows: this.root.getLoadedFlowRefs(path)};
   }
 
   async setAutoLoadFlow({path, enabled}: {path: string; enabled: boolean}) {
@@ -1191,19 +1095,31 @@ export class ServerConnection extends ServerConnectionCore {
       return 'invalid command';
     }
     const property = this.root.queryProperty(path);
+    const block = property?._value;
+    if (!(block instanceof Block)) return 'invalid path';
 
-    if (property && property._value instanceof Block) {
-      const readonly = this.getEditPolicy()?.readonly === true;
-      const result = property._value.executeCommand(command, params, readonly);
-      const finish = (result: unknown) => {
-        if (result != null) return {result};
-        if (!readonly) trackChange(property, path, this.root);
-        return null;
-      };
-      return result instanceof Promise ? result.then(finish) : finish(result);
-    } else {
-      return 'invalid path';
+    const storage = this.root._storage;
+    let readonly = this.readonly;
+    if (!readonly && storage?.canWriteFlow) {
+      const ownerPath = block.getFullPath();
+      readonly = !storage.canWriteFlow(path) || (ownerPath !== path && !storage.canWriteFlow(ownerPath));
     }
+    if (readonly) {
+      const desc = globalFunctions.getDesc(block._funcId);
+      const commandDesc =
+        (typeof params?.property === 'string'
+          ? findPropDesc(params.property, buildPropDescCache(desc, null))?.commands?.[command]
+          : undefined) ?? desc?.commands?.[command];
+      if (commandDesc?.readonly !== true) return this.readonly ? 'readonly' : 'Storage is read-only';
+    }
+
+    const result = block.executeCommand(command, params, readonly);
+    const finish = (value: unknown) => {
+      if (value != null) return {result: value};
+      if (!readonly) trackChange(property, path, this.root);
+      return null;
+    };
+    return result instanceof Promise ? result.then(finish) : finish(result);
   }
 
   /**
@@ -1617,26 +1533,6 @@ export class ServerConnection extends ServerConnectionCore {
   copy({path, props, cut}: {path: string; props: string[]; cut: boolean}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
-      if (this.getEditPolicy()?.readonly) {
-        const blocks = new Set<Block>();
-        const collectBlock = (prop: BlockProperty) => {
-          const saved = prop?._bindingPath ? prop._helperProperty?._saved : prop?._saved;
-          if (saved instanceof Block) blocks.add(saved);
-        };
-        for (const name of props) {
-          const target = path ? `${path}.${name}` : name;
-          const error = this.checkRequestPolicy({cmd: 'get', path: target});
-          if (error) return error;
-          collectBlock(this.root.queryProperty(target));
-        }
-        // Saved references and binding helpers can serialize blocks outside the requested subtree.
-        for (const block of blocks) {
-          const [parent, name] = splitPathName(block.getFullPath());
-          const error = this.checkRequestPolicy({cmd: 'copy', path: parent, props: [name]});
-          if (error) return error;
-          for (const prop of block._props.values()) collectBlock(prop);
-        }
-      }
       const value = copyProperties(property._value, props);
       if (typeof value === 'string') {
         return value;

@@ -14,7 +14,7 @@ export {FunctionModule as Functions, globalFunctions as globalFunctions} from '.
 export * from './block/FunctonData.ts';
 export * from './block/Event.ts';
 export * from './block/Descriptor.ts';
-export {ServerConnection} from './connect/ServerConnection.ts';
+export {ServerConnection, type ServerConnectionOptions} from './connect/ServerConnection.ts';
 export type {ConnectionOptions} from './connect/Connection.ts';
 export {type DataMap, TRUNCATED, isDataTruncated, getTruncatedArrayLength, isStringArray} from './util/DataTypes.ts';
 export {convertToObject} from './util/DataTruncate.ts';

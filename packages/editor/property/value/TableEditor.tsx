@@ -122,7 +122,6 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
       const header = this.table.current?.nativeElement.querySelector('.ant-table-header');
       if (header) this.resizeObserver.observe(header);
       this.resizeTable();
-      this.props.conn?.editPolicyChanges().listen(this.onPolicyChange);
       void this.load();
     }
   }
@@ -139,8 +138,6 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
     }
   }
 
-  private onPolicyChange = () => this.forceUpdate();
-
   private resizeTable = () => {
     const container = this.tableContainer.current;
     const header = this.table.current?.nativeElement.querySelector<HTMLElement>('.ant-table-header');
@@ -152,7 +149,6 @@ export class TableEditor extends React.PureComponent<TableEditorProps, State> {
   componentWillUnmount() {
     ++this.requestId;
     this.resizeObserver?.disconnect();
-    if (this.props.dockPanel) this.props.conn?.editPolicyChanges().unlisten(this.onPolicyChange);
   }
 
   private paths() {

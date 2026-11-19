@@ -78,13 +78,13 @@ unload checks, asynchronous saves, and lifecycle state are defined in
 
 `makeLocalConnection()` serializes by default to match remote transport; its
 `serialize` option can pass values by reference. Local and Frame server
-connections accept `ConnectionOptions` with independent `maxMessageSize`
+connections accept `ServerConnectionOptions` with independent `maxMessageSize`
 (default 524288) and `maxValueSize` (default 1024). Both must be positive safe
 integers with `maxValueSize < maxMessageSize`:
 
 ```ts
 const options = {maxMessageSize: 1024 * 1024, maxValueSize: 64 * 1024};
-makeLocalConnection(root, true, undefined, true, options);
+makeLocalConnection(root, true, options);
 new FrameServerConnection(editorWindow, root, options);
 ```
 
@@ -114,7 +114,7 @@ replace newer subscription values.
 slice and returns `{items, offset, total, keys?}`. `select` traverses own keys of
 plain objects and arrays inside the property's value; it also works with
 `getValue`, for example `getValue(path, {select: ['columns']})`. Both use the
-existing `get` command and its access policy. Pages bypass preview truncation.
+existing `get` command. Pages bypass preview truncation.
 
 Start at offset zero. To continue, send the preceding page's last row as `anchor`
 and the number of loaded rows as `offset`. The server compares it with the row
@@ -125,8 +125,18 @@ passes mutable references. A partial first page of object rows includes `keys`,
 the union of the whole array's first and last row keys.
 
 `ServerConnection` dispatches requests to its one-argument command methods and
-awaits asynchronous results. Server policies enforce access independently of
-client restrictions; storage-backed commands must propagate promises.
+awaits asynchronous results. Storage-backed commands must propagate promises.
+Set `ServerConnectionOptions.readonly` when creating a Local, Frame, WebSocket
+or REST connection to reject writes such as cut, undo, redo and lifecycle
+changes. Reads and subscriptions remain available. Function commands receive
+the connection's readonly flag and enforce it in their handler. The default
+is writable, subject to storage restrictions.
+
+Use `client.withPolicy(policy)` to limit editing for demos and tutorials. It
+creates a client view with its own `EditPolicy` and shares the original
+connection's transport and caches. The application configures this view in
+the frontend. Use `client.withPolicy({readonly: true})` to disable editing in
+the UI.
 
 Function commands return named values in an object, synchronously or as a Promise. `executeCommand` waits before
 returning `{result}`; a null or undefined result retains the existing Flow change
@@ -147,8 +157,11 @@ callbacks as the fourth argument. The connection chooses the transport:
 mixed browser connections use HTTP for commands marked `largeData`, otherwise
 WebSocket; local and frame connections ignore the hint. A failed HTTP command
 is not retried over WebSocket. `hidden` omits a command from generic menus for dedicated UIs.
-`readonly` identifies commands that need no writable Flow storage; implementations
-must still honor the server's readonly flag for any writes.
+`FunctionCommandDesc.readonly: true` marks a command that supports readonly
+execution. When the server connection or target Flow storage is readonly, only
+commands with this flag may run. The handler receives the effective readonly
+mode and uses it to guard its behavior. The same command receives `false` on a
+writable connection with writable storage.
 
 `ServerSubscribe` watches values, bindings, listener dots, and errors;
 `ServerWatch` watches children and history; `ServerDescWatcher` watches function

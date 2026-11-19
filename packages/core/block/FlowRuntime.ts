@@ -3,7 +3,7 @@ import {Library} from './Library.ts';
 import type {LibraryMetadata} from './Storage.ts';
 import {libraryPrefix, readLibraryMetadata, validateLibrary} from '../util/LibraryMetadata.ts';
 import {validFlowEntry} from '../util/FlowStoragePath.ts';
-import {matchEditPath} from '../policy/EditPolicy.ts';
+import {matchPathPattern} from '../util/PathPattern.ts';
 import type {DataMap} from '../util/DataTypes.ts';
 
 export type StartOptions = Record<string, {flows?: string[]}>;
@@ -209,7 +209,7 @@ export class FlowRuntime {
       if (!/[?*]/.test(pattern) && !names.includes(pattern)) throw new Error(`Missing flow: ${library}/${pattern}`);
     }
     const flows = names
-      .filter((name) => patterns.some((pattern) => matchEditPath(pattern, name)))
+      .filter((name) => patterns.some((pattern) => matchPathPattern(pattern, name)))
       .map((name) => {
         const ref: FlowRef = {library, kind: 'flow', name};
         return {ref, data: this.prefetch(ref)};

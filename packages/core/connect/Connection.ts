@@ -157,7 +157,6 @@ export class Connection {
     let sendingSize = 0;
     for (const s of this._sending) {
       this._sending.delete(s);
-      if (!this.checkPolicyBeforeSend(s)) continue;
       const {data, size} = s.getSendingData();
       if (data != null) {
         sendingSize += size;
@@ -174,10 +173,6 @@ export class Connection {
       this.doSend([]);
     }
     this._mustSend = false;
-  }
-
-  protected checkPolicyBeforeSend(data: ConnectionSendingData): boolean {
-    return true;
   }
 
   _destroyed = false;

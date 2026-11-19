@@ -41,6 +41,7 @@ class PostgresClientFunction extends BaseFunction<Block> {
     this._data.output(
       escapedObject<SqlClient>('database:postgres', {
         query: client.query.bind(client),
+        queryReadonly: client.queryReadonly.bind(client),
         transaction: client.transaction.bind(client),
         listEntities: client.listEntities.bind(client),
         getColumns: client.getColumns.bind(client),

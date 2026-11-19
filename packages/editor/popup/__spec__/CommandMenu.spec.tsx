@@ -6,7 +6,7 @@ import {Root, globalFunctions, type FunctionCommandDesc} from '@ticlo/core';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.ts';
 import {initEditor} from '../../index.ts';
-import {loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
+import {loadPolicyTemplate, loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
 import {TicloLayoutContextType} from '../../component/LayoutContext.ts';
 import {EditPolicyProvider} from '../../component/EditPolicyContext.tsx';
 import {TextEditorPane} from '../../dock/text-editor/TextEditorPane.tsx';
@@ -173,26 +173,29 @@ describe('Command menus', () => {
 
   it('keeps property command results per target, prevents duplicate runs, and enforces changed permissions', async () => {
     root.addFlow('Test', {first: {'#is': functionId}, second: {'#is': functionId}});
-    const [server, conn] = makeLocalConnection(root, true);
+    const [, base] = makeLocalConnection(root, true);
     const pending = Promise.withResolvers<unknown>();
     execute.mockImplementation((path) =>
       path === 'Test.first' ? pending.promise : Promise.reject(new Error('second failed'))
     );
-    loadTemplate(
-      <EditPolicyProvider conn={conn}>
-        <PropertyDropdown
-          conn={conn}
-          paths={['Test.first', 'Test.second']}
-          name="value"
-          display
-          funcDesc={globalFunctions.getDesc(functionId)}
-          propDesc={{name: 'value', type: 'any', commands: {inspect: commandDesc}}}
-          bindingPath=""
-          onAddSubBlock={() => {}}
-        >
-          <div className="command-header">property</div>
-        </PropertyDropdown>
-      </EditPolicyProvider>,
+    const [replacePolicy] = loadPolicyTemplate(
+      base,
+      (conn) => (
+        <EditPolicyProvider conn={conn}>
+          <PropertyDropdown
+            conn={conn}
+            paths={['Test.first', 'Test.second']}
+            name="value"
+            display
+            funcDesc={globalFunctions.getDesc(functionId)}
+            propDesc={{name: 'value', type: 'any', commands: {inspect: commandDesc}}}
+            bindingPath=""
+            onAddSubBlock={() => {}}
+          >
+            <div className="command-header">property</div>
+          </PropertyDropdown>
+        </EditPolicyProvider>
+      ),
       'editor'
     );
     const header = await shouldHappen(() => document.querySelector('.command-header'));
@@ -209,7 +212,7 @@ describe('Command menus', () => {
       'first result'
     );
     expect(execute.mock.calls.every(([, params]) => params.property === 'value')).toBe(true);
-    server.setEditPolicy({readonly: true});
+    replacePolicy({readonly: true});
     await shouldHappen(() => !panel() || runButton().disabled);
     expect(execute).toHaveBeenCalledTimes(2);
   });

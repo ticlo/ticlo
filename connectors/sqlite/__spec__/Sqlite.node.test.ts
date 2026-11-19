@@ -1,7 +1,16 @@
 import {mkdir, mkdtemp, rm, stat} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join, relative} from 'node:path';
-import {ErrorEvent, Flow, Root, MemoryFlowStorage, encode, globalFunctions, shouldHappen} from '@ticlo/core';
+import {
+  ErrorEvent,
+  Flow,
+  Root,
+  MemoryFlowStorage,
+  encode,
+  globalFunctions,
+  makeLocalConnection,
+  shouldHappen,
+} from '@ticlo/core';
 import type {Block, SqlClient, SqlResult} from '@ticlo/core';
 import {NodeStorage} from '@ticlo/node/storage/NodeStorage.ts';
 import {SqliteClient} from '../index.ts';
@@ -149,6 +158,38 @@ describe('SQLite connector', () => {
     await expect(reader.query('DELETE FROM parents')).rejects.toThrow(/readonly/);
     await expect(SqliteClient.open({filePath: join(directory, 'missing.sqlite'), readOnly: true})).rejects.toThrow();
     await expect(SqliteClient.open({filePath, busyTimeout: -1})).rejects.toThrow('busy timeout');
+  });
+
+  it('enforces readonly commands on the worker and restores its prior mode after errors', async () => {
+    const root = new Root();
+    const flow = root.addFlow('Main', {database: {'#is': 'database:sqlite', 'filePath': ':memory:'}});
+    const path = 'Main.database';
+    const [, reader] = makeLocalConnection(root, false, {readonly: true});
+    const [, writer] = makeLocalConnection(root, false);
+    try {
+      root.runAll();
+      const service = (await shouldHappen(() => flow.queryValue('database.#output'), 3000)) as SqlClient;
+      await writer.executeCommand(path, 'query', {sql: 'CREATE TABLE items (value INTEGER)'});
+      for (const sql of ['PRAGMA query_only = OFF', "ATTACH DATABASE ':memory:' AS extra", 'BEGIN']) {
+        await expect(reader.executeCommand(path, 'query', {sql})).rejects.toThrow('not authorized');
+      }
+      const deniedWrite = reader.executeCommand(path, 'query', {sql: 'INSERT INTO items VALUES (1)'});
+      await expect(deniedWrite).rejects.toThrow(/readonly/i);
+      await writer.executeCommand(path, 'query', {sql: 'INSERT INTO items VALUES (?)', params: [2]});
+      const response = await reader.executeCommand(path, 'query', {
+        sql: 'SELECT * FROM items WHERE value = ?',
+        params: [2],
+      });
+      expect(response.result.table.rows).toEqual([[2]]);
+      expect((await service.query('PRAGMA query_only')).table.rows).toEqual([[0]]);
+      await service.query('PRAGMA query_only = ON');
+      await reader.executeCommand(path, 'query', {sql: 'SELECT 1'});
+      expect((await service.query('PRAGMA query_only')).table.rows).toEqual([[1]]);
+    } finally {
+      reader.destroy();
+      writer.destroy();
+      root.destroy();
+    }
   });
 
   it('runs a real sql:query block with a tagged, nonserializable client service', async () => {

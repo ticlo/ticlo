@@ -26,7 +26,8 @@ await root.setStorage(storage);
 await root.start();
 ```
 
-`root` defaults to `Root.instance`. See
+`root` defaults to `Root.instance`. Pass `connectionOptions: {readonly: true}`
+to make both editor transports [readonly](core.md#connection-layer). See
 [code-defined globals](runtime-lifecycle.md#code-defined-globals) for the service
 and constant lifetime contract.
 

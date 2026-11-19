@@ -1,5 +1,5 @@
 import {parentPort} from 'node:worker_threads';
-import {DatabaseSync, type SQLInputValue, type StatementSync} from 'node:sqlite';
+import {constants, DatabaseSync, type SQLInputValue, type StatementSync} from 'node:sqlite';
 import type {SqlParams, SqlResult, SqlEntity, SqlEntityRef, SqlEntityColumn, SqlStatement} from '@ticlo/core';
 import {sqlColumns, validateSqlTransaction} from '@ticlo/core/functions/sql/SqlClient.ts';
 import type {SqliteRequest} from './SqliteClient.ts';
@@ -125,6 +125,36 @@ function query(sql: string, params?: SqlParams): SqlResult {
   }
 }
 
+function queryReadonly(sql: string, params?: SqlParams): SqlResult {
+  const readMode = database.prepare('PRAGMA query_only');
+  let wasReadonly: boolean;
+  try {
+    wasReadonly = Boolean(readMode.get().query_only);
+  } finally {
+    closeStatement(readMode);
+  }
+
+  database.exec('PRAGMA query_only = ON');
+  try {
+    database.setAuthorizer((action) => {
+      switch (action) {
+        case constants.SQLITE_PRAGMA:
+        case constants.SQLITE_ATTACH:
+        case constants.SQLITE_DETACH:
+        case constants.SQLITE_TRANSACTION:
+        case constants.SQLITE_SAVEPOINT:
+          return constants.SQLITE_DENY;
+        default:
+          return constants.SQLITE_OK;
+      }
+    });
+    return query(sql, params);
+  } finally {
+    database.setAuthorizer(null);
+    if (!wasReadonly) database.exec('PRAGMA query_only = OFF');
+  }
+}
+
 function transaction(statements: readonly SqlStatement[]): SqlResult {
   validateSqlTransaction(statements);
   database.exec('BEGIN');
@@ -159,7 +189,7 @@ parentPort.on('message', (request: SqliteRequest & {id: number}) => {
         break;
       }
       case 'query':
-        result = query(request.sql, request.params);
+        result = (request.readonly ? queryReadonly : query)(request.sql, request.params);
         break;
       case 'transaction':
         result = transaction(request.statements);

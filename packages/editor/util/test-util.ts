@@ -1,4 +1,6 @@
-import ReactDOM from 'react-dom';
+import {createElement, useReducer, type ReactNode} from 'react';
+import {flushSync} from 'react-dom';
+import type {ClientConn, EditPolicy} from '@ticlo/core';
 import {createRoot, Root} from 'react-dom/client';
 
 function loadOneCss(url: string) {
@@ -38,6 +40,27 @@ export function loadTemplate<T extends Element>(element: any, style?: string): [
   document.body.appendChild(_lastTemplateDiv);
   _lastTemplateRoot = createRoot(_lastTemplateDiv);
   return [_lastTemplateRoot.render(element), _lastTemplateDiv];
+}
+
+export function loadPolicyTemplate(
+  initial: ClientConn,
+  render: (conn: ClientConn) => ReactNode,
+  style?: string
+): [(policy?: EditPolicy) => void, HTMLDivElement] {
+  let conn = initial;
+  let redraw: () => void;
+  function Template() {
+    [, redraw] = useReducer((version: number) => version + 1, 0);
+    return render(conn);
+  }
+  const [, div] = loadTemplate(createElement(Template), style);
+  const replacePolicy = (policy?: EditPolicy) => {
+    flushSync(() => {
+      conn = initial.withPolicy(policy);
+      redraw();
+    });
+  };
+  return [replacePolicy, div];
 }
 
 export function expandDocumentBody() {

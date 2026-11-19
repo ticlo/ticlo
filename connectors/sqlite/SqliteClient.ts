@@ -18,7 +18,7 @@ export interface SqliteOptions {
 
 export type SqliteRequest =
   | {type: 'open'; options: SqliteOptions}
-  | {type: 'query'; sql: string; params?: SqlParams}
+  | {type: 'query'; sql: string; params?: SqlParams; readonly?: boolean}
   | {type: 'transaction'; statements: readonly SqlStatement[]}
   | {type: 'listEntities'}
   | {type: 'getColumns'; entity: SqlEntityRef}
@@ -68,6 +68,10 @@ export class SqliteClient implements SqlClient {
 
   query(sql: string, params?: SqlParams): Promise<SqlResult> {
     return this.request({type: 'query', sql, params});
+  }
+
+  queryReadonly(sql: string, params?: SqlParams): Promise<SqlResult> {
+    return this.request({type: 'query', sql, params, readonly: true});
   }
 
   transaction(statements: readonly SqlStatement[]): Promise<SqlResult> {

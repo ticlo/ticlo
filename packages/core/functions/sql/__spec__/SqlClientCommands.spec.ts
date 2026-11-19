@@ -20,12 +20,13 @@ globalFunctions.addFactory(
 );
 
 describe('SQL client commands', () => {
-  it('reads metadata from readonly storage without trusting transport permission hints', async () => {
+  it('runs protected queries on readonly storage without trusting request mode', async () => {
     const root = new Root();
     const query = vi.fn();
+    const queryReadonly = vi.fn().mockResolvedValue({table: {columns: [], rows: []}});
     root.defineGlobal('database', {
       '#is': 'sql-client-commands-test',
-      '#output': escapedObject('sql-client-test', {query, listEntities: async (): Promise<[]> => []}),
+      '#output': escapedObject('sql-client-test', {query, queryReadonly, listEntities: async (): Promise<[]> => []}),
     });
     const storage = Object.assign(new MemoryFlowStorage(), {canWriteFlow: () => false});
     await root.setStorage(storage);
@@ -37,11 +38,11 @@ describe('SQL client commands', () => {
           cmd: 'executeCommand',
           path: '#global.^database',
           command: 'query',
-          params: {sql: 'DELETE FROM items'},
-          readonly: true,
-          largeData: true,
+          params: {sql: 'SELECT ?', params: [1]},
+          readonly: false,
         })
-      ).rejects.toBe('Storage is read-only');
+      ).resolves.toMatchObject({result: {table: {rows: []}}});
+      expect(queryReadonly).toHaveBeenCalledExactlyOnceWith('SELECT ?', [1]);
       expect(query).not.toHaveBeenCalled();
     } finally {
       client.destroy();
@@ -137,24 +138,20 @@ describe('SQL client commands', () => {
     }
   );
 
-  it('allows metadata but rejects SQL execution on a readonly server', async () => {
+  it('rejects readonly execution when the current adapter lacks protected queries', async () => {
     const query = vi.fn();
     const root = new Root();
     root.defineGlobal('database', {
       '#is': 'sql-client-commands-test',
       '#output': escapedObject('sql-client-test', {query, listEntities: async (): Promise<[]> => []}),
     });
-    const [server, client] = makeLocalConnection(root, false, {readonly: true, allowPaths: ['#global.^database']});
+    const [, client] = makeLocalConnection(root, false, {readonly: true});
     try {
       expect(await client.executeCommand('#global.^database', 'listEntities')).toMatchObject({result: {entities: []}});
       await expect(
         client.executeCommand('#global.^database', 'query', {sql: 'DELETE FROM test'}) as Promise<any>
-      ).rejects.toThrow('readonly');
+      ).rejects.toThrow('does not support readonly queries');
       expect(query).not.toHaveBeenCalled();
-      server.setEditPolicy({readonly: true, denyPaths: ['#global.**']});
-      await expect(client.executeCommand('#global.^database', 'listEntities') as Promise<any>).rejects.toBe(
-        'restricted path'
-      );
     } finally {
       client.destroy();
       root.destroy();

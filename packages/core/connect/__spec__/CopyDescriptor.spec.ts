@@ -144,7 +144,7 @@ describe('copy custom property descriptor', () => {
     expect(flow.queryValue('add.#custom')).toBeUndefined();
   });
 
-  it('applies schema edit restrictions and readonly server policy', async () => {
+  it('applies client schema limits and server readonly mode', async () => {
     expect(checkEditPolicy({denyProps: ['#custom']}, {cmd: 'copyCustomPropDesc', path: 'Main', name: 'value'})).toBe(
       'restricted operation'
     );

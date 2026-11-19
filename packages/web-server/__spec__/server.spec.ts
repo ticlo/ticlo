@@ -5,7 +5,7 @@ import {Hono} from 'hono';
 import {globalFunctions, Root, type Block} from '@ticlo/core';
 import {WsClientConnection} from '@ticlo/node/connect/WsClientConnection.ts';
 import {AsyncClientPromise} from '@ticlo/core/connect/__spec__/AsyncClientPromise.ts';
-import {connectTiclo, createTicloApp, getEditorUrl, routeTiclo} from '../server.ts';
+import {createTicloApp, getEditorUrl, routeTiclo} from '../server.ts';
 
 it('allows cross-origin runtime reads and flow route responses from the default host', async () => {
   const root = new Root();
@@ -41,13 +41,12 @@ it('allows cross-origin runtime reads and flow route responses from the default 
   }
 });
 
-describe('connectTiclo', () => {
-  it('upgrades editor WebSockets and exchanges flow values through the Node adapter', async () => {
-    const app = new Hono();
+describe('editor transports', () => {
+  it('applies readonly to both editor transports and relays runtime updates', async () => {
     const root = new Root();
-    const {injectWebSocket} = await connectTiclo(app, '/ticlo', root);
+    const {app, ticloWs} = await createTicloApp({root, enableEditor: true, connectionOptions: {readonly: true}});
     const server = serve({fetch: app.fetch, hostname: '127.0.0.1', port: 0});
-    injectWebSocket(server);
+    ticloWs.injectWebSocket(server);
     const flow = root.addFlow('honoWebSocket');
     flow.setValue('value', 42);
     const callbacks = new AsyncClientPromise();
@@ -62,6 +61,14 @@ describe('connectTiclo', () => {
       const update = callbacks.promise;
       flow.setValue('value', 43);
       expect((await update).cache.value).toBe(43);
+      await expect(client.setValue('honoWebSocket.value', 44, true)).rejects.toBe('readonly');
+      const response = await app.request('/ticlo', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({cmd: 'set', path: 'honoWebSocket.value', value: 45}),
+      });
+      expect(await response.json()).toEqual({cmd: 'error', msg: 'readonly'});
+      expect(flow.getValue('value')).toBe(43);
     } finally {
       callbacks.cancel();
       client?.destroy();

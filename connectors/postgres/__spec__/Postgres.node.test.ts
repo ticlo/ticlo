@@ -55,6 +55,20 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () =>
     }
   });
 
+  it('protects readonly queries and returns the pooled connection to writable use', async () => {
+    expect((await client.queryReadonly('SELECT $1::integer AS value', [42])).table.rows).toEqual([[42]]);
+    await expect(
+      client.queryReadonly(`WITH v AS (SELECT 105 AS id) INSERT INTO ${table} (id) SELECT id FROM v`)
+    ).rejects.toThrow(/read-only transaction/i);
+    await expect(client.queryReadonly('SET TRANSACTION READ WRITE')).rejects.toThrow(/read.?only/i);
+    await expect(
+      client.queryReadonly(`WITH v AS (SELECT 1) SELECT * FROM v; INSERT INTO ${table} (id) VALUES (105)`)
+    ).rejects.toThrow();
+    expect((await client.query(`SELECT id FROM ${table} WHERE id = 105`)).table.rows).toEqual([]);
+    await client.query(`INSERT INTO ${table} (id) VALUES (105)`);
+    expect((await client.queryReadonly(`SELECT id FROM ${table} WHERE id = 105`)).table.rows).toEqual([[105]]);
+  });
+
   it('binds values and preserves exact numbers, timestamps, binary data and duplicate column names', async () => {
     const binary = new Uint8Array([0, 255, 8]);
     const {table: result} = await client.query(

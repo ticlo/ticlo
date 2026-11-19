@@ -260,10 +260,11 @@ propagate its possible promise. Destroying runtime flows does not delete saved f
 operations use names, such as `main` or `#root`; the connection maps them to
 canonical runtime paths. Graph reads include `canLoad` and `hasMetadata`;
 metadata reads include `canWrite`. These operations do not require an HTTP file
-API. Readonly server connections filter graph reads and reject lifecycle edits.
+API. Readonly server connections reject lifecycle edits. See the
+[connection layer](core.md#connection-layer).
 
 `ClientConnection` exposes `loadFlow`, `unloadFlow`, `enableFlow`, `disableFlow`,
-and `getFlowState` using paths (plus options where supported). Server policies
-check these commands. Paths use the runtime tree: `+main.jobs.daily`,
-`+shared.:tools`, or `:tools` for a root module. Root module function IDs use
+and `getFlowState` using paths and options where supported. Runtime paths include
+`+main.jobs.daily`, `+shared.:tools`, or `:tools` for a root module. Root module
+function IDs use
 `+#root:tools:function`; `+:tools:function` uses the calling flow's library.

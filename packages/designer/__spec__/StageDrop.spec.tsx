@@ -7,7 +7,7 @@ import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/conne
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {getElementBoxQuads} from '@ticlo/html';
 import {FunctionView} from '@ticlo/editor/function-selector/FunctionView.tsx';
-import {loadTemplate, removeLastTemplate} from '@ticlo/editor/util/test-util.ts';
+import {loadPolicyTemplate, removeLastTemplate} from '@ticlo/editor/util/test-util.ts';
 import {DesignerApp} from '../DesignerApp.tsx';
 import {DesignerStage} from '../DesignerStage.tsx';
 import {useActiveDesignerStage, type DesignerStageContextValue} from '../DesignerContext.tsx';
@@ -35,17 +35,17 @@ describe('designer stage drops', () => {
       {applyChange: (flow) => flow.save()}
     );
     const main = flow.getValue('#main') as Block;
-    const [server, conn] = makeLocalConnection(Root.instance, true, undefined, false);
+    const [, conn] = makeLocalConnection(Root.instance, true, undefined, false);
     let stage: DesignerStageContextValue;
     function Panel(): null {
       stage = useActiveDesignerStage();
       return null;
     }
-    const [, div] = loadTemplate(
+    const [replacePolicy, div] = loadPolicyTemplate(conn, (activeConn) => (
       <StrictMode>
         <DesignerApp value={{}}>
           <div style={{width: 650, height: 500}}>
-            <DesignerStage root={Root.instance} conn={conn} basePath={path} {...handlers} />
+            <DesignerStage root={Root.instance} conn={activeConn} basePath={path} {...handlers} />
           </div>
           <FunctionView conn={conn} desc={desc} data={typeof source === 'string' ? undefined : source} />
           <DragDrop
@@ -60,7 +60,7 @@ describe('designer stage drops', () => {
           <Panel />
         </DesignerApp>
       </StrictMode>
-    );
+    ));
     await shouldHappen(() => stage?.main === main && div.querySelector('.ticl-d-page > div:not(.ticl-d-input-layer)'));
     const host = div.querySelector<HTMLElement>('.ticl-d-stage');
     const page = div.querySelector<HTMLElement>('.ticl-d-page > div:not(.ticl-d-input-layer)');
@@ -88,7 +88,21 @@ describe('designer stage drops', () => {
       move(target, rect.left + offsetX, rect.top + offsetY);
       return () => move(target, rect.left + offsetX, rect.top + offsetY, 'mouseup');
     };
-    return {flow, main, conn, server, div, host, page, element, outline, move, begin, dragTo, getStage: () => stage};
+    return {
+      flow,
+      main,
+      conn,
+      replacePolicy,
+      div,
+      host,
+      page,
+      element,
+      outline,
+      move,
+      begin,
+      dragTo,
+      getStage: () => stage,
+    };
   }
 
   function child(id: string, style: DataMap = {}, extra: DataMap = {}): DataMap {
@@ -466,13 +480,13 @@ describe('designer stage drops', () => {
   });
 
   it('rechecks edit policy at release and clears feedback on leaving or entering preview', async () => {
-    const {main, conn, server, div, page, outline, begin, dragTo, getStage} = await mount({});
+    const {main, conn, replacePolicy, div, page, outline, begin, dragTo, getStage} = await mount({});
     const add = vi.spyOn(conn, 'addBlock');
     begin();
     let finish = dragTo(page);
     await shouldHappen(outline);
-    server.setEditPolicy({denyProps: ['#order']});
-    await shouldHappen(() => conn.getEditPolicyView().policy?.denyProps?.includes('#order'));
+    replacePolicy({denyProps: ['#order']});
+    await shouldHappen(() => getStage().conn.getEditPolicyView().policy?.denyProps?.includes('#order'));
     finish();
     expect(add).not.toHaveBeenCalled();
     await shouldHappen(() => !outline());
@@ -480,8 +494,8 @@ describe('designer stage drops', () => {
     finish = dragTo(page);
     expect(outline()).toBeNull();
     finish();
-    server.setEditPolicy(null);
-    await shouldHappen(() => !conn.getEditPolicyView().policy?.denyProps);
+    replacePolicy(null);
+    await shouldHappen(() => !getStage().conn.getEditPolicyView().policy?.denyProps);
     begin();
     dragTo(page);
     await shouldHappen(outline);

@@ -9,7 +9,7 @@ import {
   type SqlResult,
   type SqlStatement,
 } from '@ticlo/core';
-import {sqlColumns, validateSqlTransaction} from '@ticlo/core/functions/sql/SqlClient.ts';
+import {sqlColumns, validateReadonlyQuery, validateSqlTransaction} from '@ticlo/core/functions/sql/SqlClient.ts';
 
 export interface MysqlOptions {
   connectionString: string;
@@ -117,6 +117,24 @@ export class MysqlClient implements SqlClient {
 
   async query(sql: string, params?: SqlParams): Promise<SqlResult> {
     return query(this.pool, sql, bindParams(params));
+  }
+
+  async queryReadonly(sql: string, params?: SqlParams): Promise<SqlResult> {
+    validateReadonlyQuery(sql);
+    // SELECT can also export files when the database user has the FILE privilege.
+    if (/\b(?:OUTFILE|DUMPFILE)\b/i.test(sql)) throw new Error('File export is unavailable in readonly queries');
+    const values = bindParams(params);
+    const connection = await this.pool.getConnection();
+    try {
+      await connection.query('START TRANSACTION READ ONLY');
+      return await query(connection, sql, values);
+    } finally {
+      await connection.query('ROLLBACK AND NO CHAIN').catch((error) => {
+        connection.destroy();
+        Logger.warn('MySQL readonly query rollback failed', error);
+      });
+      connection.release();
+    }
   }
 
   async transaction(statements: readonly SqlStatement[]): Promise<SqlResult> {

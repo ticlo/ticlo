@@ -1,22 +1,19 @@
-import {ServerConnection} from './ServerConnection.ts';
+import {ServerConnection, type ServerConnectionOptions} from './ServerConnection.ts';
 import {ClientConnection} from './ClientConnection.ts';
 import {Root} from '../block/Flow.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {Logger} from '../util/Logger.ts';
 import {encode, decode} from '../util/Serialize.ts';
-import type {EditPolicy} from '../policy/EditPolicy.ts';
-import type {ConnectionOptions} from './Connection.ts';
 
 class LocalServerConnection extends ServerConnection {
   _client: LocalClientConnection;
 
   constructor(
     root: Root,
-    policy?: EditPolicy,
-    private readonly serialize = true,
-    options?: ConnectionOptions
+    options?: ServerConnectionOptions,
+    private readonly serialize = true
   ) {
-    super(root, policy, options);
+    super(root, options);
     this.onConnect();
   }
 
@@ -50,10 +47,15 @@ class LocalClientConnection extends ClientConnection {
 
   reconnect(): void {
     const previous = this._server;
-    this._server = new LocalServerConnection(previous.root, previous.getEditPolicy(), this.serialize, {
-      maxMessageSize: previous.maxMessageSize,
-      maxValueSize: previous.maxValueSize,
-    });
+    this._server = new LocalServerConnection(
+      previous.root,
+      {
+        readonly: previous.readonly,
+        maxMessageSize: previous.maxMessageSize,
+        maxValueSize: previous.maxValueSize,
+      },
+      this.serialize
+    );
     this._server._client = this;
     this.onConnect();
   }
@@ -80,12 +82,11 @@ let _lastClientConnection: ClientConnection;
 export function makeLocalConnection(
   root: Root,
   editorListeners: boolean = true,
-  serverPolicy?: EditPolicy,
+  options?: ServerConnectionOptions,
   // Match remote transport behavior by default; false passes values by reference.
-  serialize: boolean = true,
-  options?: ConnectionOptions
+  serialize: boolean = true
 ): [ServerConnection, ClientConnection] {
-  const server = new LocalServerConnection(root, serverPolicy, serialize, options);
+  const server = new LocalServerConnection(root, options, serialize);
   const client = new LocalClientConnection(editorListeners, serialize);
   server._client = client;
   client._server = server;

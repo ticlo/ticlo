@@ -4,7 +4,7 @@ import {Block, Root, blankFuncDesc, type PropDesc} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.ts';
 import {initEditor} from '../../../index.ts';
-import {loadTemplate, removeLastTemplate} from '../../../util/test-util.ts';
+import {loadPolicyTemplate, loadTemplate, removeLastTemplate} from '../../../util/test-util.ts';
 import {PropertyEditor} from '../../PropertyEditor.tsx';
 import {EditPolicyProvider} from '../../../component/EditPolicyContext.tsx';
 import {requestCallbacks} from '../../../util/RequestCallbacks.ts';
@@ -137,29 +137,32 @@ describe('ObjectEditor conversion', () => {
     const flow = Root.instance.addFlow('ObjectEditorTest', {
       block: {'#is': '', '~style': {'#is': 'create-object', '#extend': {color: 'red'}}},
     });
-    const [server, conn] = makeLocalConnection(Root.instance, true);
-    loadTemplate(
-      <EditPolicyProvider conn={conn}>
-        <PropertyEditor
-          conn={conn}
-          paths={['ObjectEditorTest.block']}
-          name="style"
-          funcDesc={blankFuncDesc}
-          propDesc={propDesc}
-        />
-      </EditPolicyProvider>,
+    const [, base] = makeLocalConnection(Root.instance, true);
+    const [replacePolicy] = loadPolicyTemplate(
+      base,
+      (conn) => (
+        <EditPolicyProvider conn={conn}>
+          <PropertyEditor
+            conn={conn}
+            paths={['ObjectEditorTest.block']}
+            name="style"
+            funcDesc={blankFuncDesc}
+            propDesc={propDesc}
+          />
+        </EditPolicyProvider>
+      ),
       'editor'
     );
     await shouldHappen(() => document.querySelector('.ticl-e-object-editor'));
     expect(tool()).toBeNull();
     (flow.queryValue('block.~style') as Block).setValue('#is', 'html:create-style');
     await shouldHappen(() => tool());
-    server.setEditPolicy({allowDeleteBlock: false});
+    replacePolicy({allowDeleteBlock: false});
     await shouldHappen(() => !tool());
-    server.setEditPolicy({readonly: true});
+    replacePolicy({readonly: true});
     await shouldHappen(() => document.querySelector('.ticl-e-property-readonly'));
     expect(tool()).toBeNull();
-    server.setEditPolicy({});
+    replacePolicy({});
     await shouldHappen(() => tool());
   });
 

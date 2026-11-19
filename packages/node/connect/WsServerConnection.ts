@@ -1,11 +1,11 @@
 import Websocket from 'ws';
-import {ServerConnection, DataMap, Logger, decode, encode, Root} from '@ticlo/core';
+import {ServerConnection, DataMap, Logger, decode, encode, Root, type ServerConnectionOptions} from '@ticlo/core';
 
 export class WsServerConnection extends ServerConnection {
   _ws: Websocket;
 
-  constructor(ws: Websocket, root: Root) {
-    super(root);
+  constructor(ws: Websocket, root: Root, options?: ServerConnectionOptions) {
+    super(root, options);
     this._ws = ws;
     ws.on('message', this.onMessage);
     ws.on('error', this.onClose);

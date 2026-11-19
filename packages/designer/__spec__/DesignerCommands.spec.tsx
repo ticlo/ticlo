@@ -3,7 +3,7 @@ import {vi} from 'vitest';
 import {Block, Root, decode, encode, type Flow} from '@ticlo/core';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
-import {loadTemplate, removeLastTemplate} from '@ticlo/editor/util/test-util.ts';
+import {loadPolicyTemplate, loadTemplate, removeLastTemplate} from '@ticlo/editor/util/test-util.ts';
 import {BlockStage} from '@ticlo/editor/block/BlockStage.tsx';
 import {TicloCurrentFlowContext, type TicloCurrentFlow} from '@ticlo/editor/component/LayoutContext.ts';
 import {DesignerApp} from '../DesignerApp.tsx';
@@ -57,22 +57,22 @@ describe('designer keyboard commands', () => {
     const container = main.getValue('container') as Block;
     const a = container.getValue('a') as Block;
     const b = container.getValue('b') as Block;
-    const [server, conn] = makeLocalConnection(Root.instance, true, undefined, false);
+    const [, conn] = makeLocalConnection(Root.instance, true, undefined, false);
     let stage: DesignerStageContextValue;
     function Panel(): null {
       stage = useActiveDesignerStage();
       return null;
     }
-    const [, div] = loadTemplate(
+    const [replacePolicy, div] = loadPolicyTemplate(conn, (activeConn) => (
       <DesignerApp value={{}}>
-        <DesignerStage root={Root.instance} conn={conn} basePath={path} onSave={onSave} />
+        <DesignerStage root={Root.instance} conn={activeConn} basePath={path} onSave={onSave} />
         <input className="property-input" />
         <Panel />
       </DesignerApp>
-    );
+    ));
     await shouldHappen(() => stage?.flow === flow && div.querySelector('.ticl-d-page span'));
     const host = div.querySelector<HTMLElement>('.ticl-d-stage');
-    return {flow, main, container, a, b, server, conn, persist, div, host, getStage: () => stage};
+    return {flow, main, container, a, b, replacePolicy, conn, persist, div, host, getStage: () => stage};
   }
 
   it.each([true, false])(
@@ -165,11 +165,11 @@ describe('designer keyboard commands', () => {
 
   it('respects live save, deletion, and creation policy changes', async () => {
     const onSave = vi.fn();
-    const {container, a, server, conn, host, getStage} = await mount(onSave);
+    const {container, a, replacePolicy, conn, host, getStage} = await mount(onSave);
     const remove = vi.spyOn(conn, 'deleteBlock');
     const insert = vi.spyOn(conn, 'paste');
-    server.setEditPolicy({allowDeleteBlock: false, allowCreateBlock: false, denyCmds: ['applyFlowChange']});
-    await shouldHappen(() => conn.getEditPolicyView().policy?.allowDeleteBlock === false);
+    replacePolicy({allowDeleteBlock: false, allowCreateBlock: false, denyCmds: ['applyFlowChange']});
+    await shouldHappen(() => getStage().conn.getEditPolicyView().policy?.allowDeleteBlock === false);
     getStage().select([a]);
     await shouldHappen(() => getStage().selection.blocks[0] === a);
     key(host, 's', {ctrlKey: true});

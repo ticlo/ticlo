@@ -16,10 +16,15 @@ describe('value pages', () => {
     ];
     flow.setValue('items', items);
     flow.setValue('matrix', {columns: [{name: 'id'}], rows: [[1], [2], [3]]});
-    const [, client] = makeLocalConnection(root, false, undefined, serialize, {
-      maxMessageSize: 256,
-      maxValueSize: 64,
-    });
+    const [, client] = makeLocalConnection(
+      root,
+      false,
+      {
+        maxMessageSize: 256,
+        maxValueSize: 64,
+      },
+      serialize
+    );
     try {
       const first = await client.getValuePage('Main.items', {offset: 0, limit: 2});
       expect(first.offset).toBe(0);
@@ -72,12 +77,12 @@ describe('value pages', () => {
     {offset: 0, limit: Infinity},
   ])('rejects invalid ranges %j', (options) => expect(readValuePage([], options)).toBe('invalid page range'));
 
-  it('keeps get permissions and only selects own data', async () => {
+  it('reads pages in readonly mode and only selects own data', async () => {
     const root = new Root();
     root.addFlow('Main', {allowed: {rows: [[1]]}, secret: [2]});
-    const [, client] = makeLocalConnection(root, false, {readonly: true, denyPaths: ['Main.secret']});
+    const [, client] = makeLocalConnection(root, false, {readonly: true});
     try {
-      await expect(client.getValuePage('Main.secret', {offset: 0, limit: 1})).rejects.toBe('restricted path');
+      expect((await client.getValuePage('Main.secret', {offset: 0, limit: 1})).items).toEqual([2]);
       await expect(client.getValue('Main.allowed', {select: ['constructor']})).rejects.toBe('invalid value selection');
       await expect(client.getValue('Main', {select: ['_props']})).rejects.toBe('invalid value selection');
       await expect(client.getValuePage('Main.allowed', {offset: 0, limit: 1})).rejects.toBe('value is not an array');

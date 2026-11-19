@@ -7,7 +7,6 @@ import type {EditPolicy} from '../../policy/EditPolicy.ts';
 describe('Move command', () => {
   let root: Root;
   let client: ReturnType<typeof makeLocalConnection>[1];
-  let server: ReturnType<typeof makeLocalConnection>[0];
 
   beforeEach(() => {
     root = new Root();
@@ -21,7 +20,7 @@ describe('Move command', () => {
       target: {'#is': '', 'inner': {'#is': ''}},
     });
     root.addFlow('Other', {value: 20});
-    [server, client] = makeLocalConnection(root, false);
+    [, client] = makeLocalConnection(root, false);
   });
 
   afterEach(() => {
@@ -89,7 +88,6 @@ describe('Move command', () => {
       expect(root.queryValue('Main.target.a')).toBeUndefined();
     }
     (original as Block).setValue('reference', root.queryValue('Other'));
-    server.setEditPolicy({allowPaths: ['Main', 'Main.**']});
     expect(
       (
         await client

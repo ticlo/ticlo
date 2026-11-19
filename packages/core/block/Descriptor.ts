@@ -42,7 +42,7 @@ export interface FunctionCommandDesc {
   results?: PropDesc[];
   /** Arguments or returned values may be large; the connection chooses a suitable transport. */
   largeData?: boolean;
-  /** Does not write to the Block or an external service. */
+  /** Supports execution in readonly mode; the handler receives the actual mode. */
   readonly?: boolean;
   /** Used by a dedicated UI instead of the generic command menu. */
   hidden?: boolean;

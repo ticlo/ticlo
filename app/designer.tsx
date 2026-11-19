@@ -552,10 +552,15 @@ function DesignerWorkspace({
     }
   }
 
-  const [server, client] = makeLocalConnection(root, true, undefined, false, {
-    maxMessageSize: Infinity,
-    maxValueSize: Infinity,
-  });
+  const [server, client] = makeLocalConnection(
+    root,
+    true,
+    {
+      maxMessageSize: Infinity,
+      maxValueSize: Infinity,
+    },
+    false
+  );
   createRoot(document.getElementById('app')).render(
     <DesignerWorkspace root={root} conn={client} initialFlow={initialFlow} files={files} />
   );

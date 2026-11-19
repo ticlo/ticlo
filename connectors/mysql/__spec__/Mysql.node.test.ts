@@ -41,6 +41,19 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('MySQL connector', () => {
     }
   });
 
+  it('protects readonly queries and returns the pooled connection to writable use', async () => {
+    expect((await client.queryReadonly('SELECT ? AS value', [42])).table.rows).toEqual([[42]]);
+    await expect(client.queryReadonly(`INSERT INTO ${table} (id) VALUES (105)`)).rejects.toThrow(/read.?only/i);
+    await expect(client.queryReadonly("SELECT 1 INTO OUTFILE '/tmp/ticlo.sql'")).rejects.toThrow(/readonly/i);
+    await expect(client.queryReadonly('SET TRANSACTION READ WRITE')).rejects.toThrow(/read.?only/i);
+    await expect(
+      client.queryReadonly(`WITH v AS (SELECT 1) SELECT * FROM v; INSERT INTO ${table} (id) VALUES (105)`)
+    ).rejects.toThrow();
+    expect((await client.query(`SELECT id FROM ${table} WHERE id = 105`)).table.rows).toEqual([]);
+    await client.query(`INSERT INTO ${table} (id) VALUES (105)`);
+    expect((await client.queryReadonly(`SELECT id FROM ${table} WHERE id = 105`)).table.rows).toEqual([['105']]);
+  });
+
   it('preserves precision, binary parameters, duplicate columns, and empty results', async () => {
     const binary = new Uint8Array([0, 255, 8]);
     const {table: result} = await client.query(

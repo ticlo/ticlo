@@ -10,7 +10,7 @@ import {
   type SqlResult,
   type SqlStatement,
 } from '@ticlo/core';
-import {sqlColumns, validateSqlTransaction} from '@ticlo/core/functions/sql/SqlClient.ts';
+import {sqlColumns, validateReadonlyQuery, validateSqlTransaction} from '@ticlo/core/functions/sql/SqlClient.ts';
 
 export interface PostgresOptions {
   connectionString: string;
@@ -168,6 +168,22 @@ export class PostgresClient implements SqlClient {
         throw new Error('Use sql:transaction to run a PostgreSQL transaction');
       return result;
     } finally {
+      connection.release(connection.getTransactionStatus() !== 'I');
+    }
+  }
+
+  async queryReadonly(sql: string, params?: SqlParams): Promise<SqlResult> {
+    validateReadonlyQuery(sql);
+    const connection = await this.pool.connect();
+    try {
+      await connection.query('BEGIN READ ONLY');
+      return await query(connection, sql, params);
+    } finally {
+      if (connection.getTransactionStatus() !== 'I') {
+        await connection
+          .query('ROLLBACK')
+          .catch((error) => Logger.warn('PostgreSQL readonly query rollback failed', error));
+      }
       connection.release(connection.getTransactionStatus() !== 'I');
     }
   }

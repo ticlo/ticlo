@@ -32,6 +32,8 @@ export interface CompletedRequest {
   persist?: boolean;
 }
 
+const unrestrictedEditPolicy = new EditPolicyView();
+
 export abstract class ClientConnection extends ClientConn {
   private readonly transport = new ClientTransport(this);
 
@@ -82,7 +84,6 @@ export abstract class ClientConnection extends ClientConn {
 
   protected constructor(editorListeners: boolean) {
     super();
-    this.updateServerPolicy(undefined, false);
     this._editorListeners = editorListeners;
     if (editorListeners) {
       this._sendSettingsRequest();
@@ -100,22 +101,12 @@ export abstract class ClientConnection extends ClientConn {
     return this;
   }
 
-  private readonly _policyChanges = new StreamDispatcher<EditPolicyView>();
-
   withPolicy(policy?: EditPolicy): ClientConn {
     return policy == null ? this : new PolicyConnection(this, policy);
   }
 
   getEditPolicyView() {
-    return this._policyChanges.value;
-  }
-
-  editPolicyChanges() {
-    return this._policyChanges;
-  }
-
-  private updateServerPolicy(policy?: EditPolicy, ready = true) {
-    this._policyChanges.dispatch(new EditPolicyView(policy, ready));
+    return unrestrictedEditPolicy;
   }
 
   checkEditRequest(data: DataMap, policy?: EditPolicy): string | null {
@@ -198,8 +189,6 @@ export abstract class ClientConnection extends ClientConn {
           req.onDone();
           this.reportCompletedRequest(req);
       }
-    } else if (response.cmd === 'editPolicy') {
-      this.updateServerPolicy((response.policy as EditPolicy) ?? undefined);
     }
   }
   _initSimpleRequest(c: ClientCallbacks): {promise: Promise<any>; callbacks: ClientCallbacks} {
@@ -516,7 +505,6 @@ export abstract class ClientConnection extends ClientConn {
   onDisconnect() {
     this.copiedData = undefined;
     this.transport.onDisconnect();
-    this.updateServerPolicy(undefined, false);
     // remove requests from the map
     // or notify the disconnection
     for (const [key, req] of this.requests) {

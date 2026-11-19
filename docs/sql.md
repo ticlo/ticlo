@@ -137,8 +137,9 @@ drop databases. GitHub Actions supplies the URL for its MariaDB service.
 
 ## Client management
 
-`SqlClient` provides `query(sql, params?)`, `listEntities()`,
-`getColumns(entity)`, and optionally `transaction(statements)`. Entities are
+`SqlClient` provides `query(sql, params?)`, `listEntities()` and
+`getColumns(entity)`. It can also provide `transaction(statements)` and
+`queryReadonly(sql, params?)`. Entities are
 tables or views, identified by a structured `{catalog?, schema?, name}`
 reference. Identifier parts remain separate even when names contain dots or
 quotes. Column metadata includes a name and, when known, database type,
@@ -152,9 +153,17 @@ function API. These expose `listEntities`, `getColumns` (`{catalog?, schema?, na
 (`{sql, params?}`) commands against the current `#output` service, including
 code-defined globals. Named results are `{entities}` for `listEntities`, `{columns}`
 for `getColumns`, and `{table?, affectedRows?, insertId?}` for `query`, inside the
-connection's `{result}` response wrapper. Commands do not paginate or truncate results. Metadata commands
-are readonly. Query commands reject execution on a readonly server connection;
-the database driver's own read-only setting independently controls SQL writes.
+connection's `{result}` response wrapper. Commands do not paginate or truncate
+results. The `query` command calls `queryReadonly` when
+[executing in readonly mode](core.md#connection-layer). An adapter must provide
+that method to run queries in this mode.
+
+SQLite enables `PRAGMA query_only` for the statement, rejects connection and
+transaction control statements, and restores the previous setting afterward.
+PostgreSQL and MySQL run the query inside a read-only transaction and roll it
+back before returning the pooled connection. These two adapters require a
+leading query keyword, such as `SELECT` or `WITH`. MySQL also blocks file
+exports from readonly queries.
 
 The editor opens an rc-dock window from the header menu of any Block tagged
 `sql-client`. Hosts provide the `manageDatabase(conn, path)` layout action;

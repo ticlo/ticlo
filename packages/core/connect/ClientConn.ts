@@ -30,7 +30,6 @@ export abstract class ClientConn {
   abstract sendValueRequest(data: DataMap, important?: boolean | ClientCallbacks): Promise<any> | string;
 
   abstract getEditPolicyView(): EditPolicyView;
-  abstract editPolicyChanges(): StreamDispatcher<EditPolicyView>;
 
   abstract getBaseConn(): ClientConnection;
 

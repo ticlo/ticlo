@@ -41,6 +41,7 @@ export class SqliteClientFunction extends BaseFunction {
     this._data.output(
       escapedObject<SqlClient>('database:sqlite', {
         query: client.query.bind(client),
+        queryReadonly: client.queryReadonly.bind(client),
         transaction: client.transaction.bind(client),
         listEntities: client.listEntities.bind(client),
         getColumns: client.getColumns.bind(client),

@@ -7,7 +7,7 @@ import {MemoryFlowStorage} from '@ticlo/core/block/MemoryFlowStorage.ts';
 import {ComponentContext, type ComponentContextValue} from '@ticlo/react';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
-import {loadTemplate, removeLastTemplate, querySingle} from '@ticlo/editor/util/test-util.ts';
+import {loadPolicyTemplate, loadTemplate, removeLastTemplate, querySingle} from '@ticlo/editor/util/test-util.ts';
 import {initEditor} from '@ticlo/editor';
 import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.tsx';
 import {BlockStageTabButton} from '@ticlo/editor/dock/block/BlockStageTabButton.tsx';
@@ -89,10 +89,15 @@ describe('DesignerStage', () => {
     storage.saveFlow(null, data, path);
     await root.setStorage(storage);
     await root.start({['#root']: {flows: [path]}});
-    const [, conn] = makeLocalConnection(root, true, undefined, false, {
-      maxMessageSize: Infinity,
-      maxValueSize: Infinity,
-    });
+    const [, conn] = makeLocalConnection(
+      root,
+      true,
+      {
+        maxMessageSize: Infinity,
+        maxValueSize: Infinity,
+      },
+      false
+    );
     const designerId = `designer:${path}`;
     const childPath = `${path}.#main.a`;
     const childId = `blockEditor:${childPath}`;
@@ -204,19 +209,19 @@ describe('DesignerStage', () => {
 
   it('respects the connection policy when initializing a page', async () => {
     const flow = Root.instance.addFlow(path, {});
-    const [server, conn] = makeLocalConnection(Root.instance, true, {readonly: true});
-    const [, div] = loadTemplate(
+    const [, base] = makeLocalConnection(Root.instance);
+    const [replacePolicy, div] = loadPolicyTemplate(base.withPolicy({readonly: true}), (conn) => (
       <EditPolicyProvider conn={conn}>
         <DesignerStage root={Root.instance} conn={conn} basePath={path} />
       </EditPolicyProvider>
-    );
+    ));
     await shouldHappen(() => div.querySelector('.ticl-d-layout-options button'));
     const buttons = Array.from(div.querySelectorAll('button'));
     expect(buttons.every((button) => button.disabled)).toBe(true);
     buttons[0].click();
     expect(flow.getValue('#main')).toBeUndefined();
 
-    server.setEditPolicy({allowBlockTypes: ['react:horizontal']});
+    replacePolicy({allowBlockTypes: ['react:horizontal']});
     const horizontal = buttons.find((button) => button.textContent === 'Horizontal');
     await shouldHappen(() => !horizontal.disabled);
     expect(buttons.find((button) => button.textContent === 'Absolute').disabled).toBe(true);
@@ -923,10 +928,15 @@ describe('DesignerStage', () => {
     await root.start({main: {flows: ['CleanPage', 'DirtyPage']}});
     await root.loadFlow({library: 'main', kind: 'module', name: 'Mod'});
 
-    const [, conn] = makeLocalConnection(root, true, undefined, false, {
-      maxMessageSize: Infinity,
-      maxValueSize: Infinity,
-    });
+    const [, conn] = makeLocalConnection(
+      root,
+      true,
+      {
+        maxMessageSize: Infinity,
+        maxValueSize: Infinity,
+      },
+      false
+    );
     const cleanPath = '+main.CleanPage';
     const dirtyPath = '+main.DirtyPage';
     const modPath = '+main.:Mod';
@@ -1038,10 +1048,15 @@ describe('DesignerStage', () => {
     storage.saveFlow(null, {'#is': '', '#main': {'#is': 'react:span', 'content': 'BB'}}, '+main.BB');
     await root.setStorage(storage);
     await root.start({main: {flows: ['Empty', 'AA', 'BB']}});
-    const [, conn] = makeLocalConnection(root, true, undefined, false, {
-      maxMessageSize: Infinity,
-      maxValueSize: Infinity,
-    });
+    const [, conn] = makeLocalConnection(
+      root,
+      true,
+      {
+        maxMessageSize: Infinity,
+        maxValueSize: Infinity,
+      },
+      false
+    );
 
     type HarnessState = {showEmpty: boolean; showBB: boolean; showAA: boolean};
     let setHarness!: React.Dispatch<React.SetStateAction<HarnessState>>;
@@ -1166,10 +1181,15 @@ describe('DesignerStage', () => {
     );
     await root.setStorage(storage);
     await root.start({main: {flows: ['AA']}});
-    const [, conn] = makeLocalConnection(root, true, undefined, false, {
-      maxMessageSize: Infinity,
-      maxValueSize: Infinity,
-    });
+    const [, conn] = makeLocalConnection(
+      root,
+      true,
+      {
+        maxMessageSize: Infinity,
+        maxValueSize: Infinity,
+      },
+      false
+    );
     let stage: DesignerStageContextValue;
     function Probe(): null {
       stage = useActiveDesignerStage();

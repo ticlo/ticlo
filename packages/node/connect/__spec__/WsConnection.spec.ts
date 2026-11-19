@@ -47,7 +47,7 @@ describe('WsConnect', function () {
 
       // A frame already in flight can arrive while the close handshake is pending.
       expect(() => socket.emit('message', Buffer.from('[]'), false)).not.toThrow();
-      expect(() => socket.emit('message', Buffer.from('[{"cmd":"editPolicy"}]'), false)).not.toThrow();
+      expect(() => socket.emit('message', Buffer.from('[{"cmd":"done"}]'), false)).not.toThrow();
       expect(receive).not.toHaveBeenCalled();
 
       await closed;
