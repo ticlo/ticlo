@@ -34,6 +34,17 @@ they must not propagate through this context. Worker render boundaries register
 the outer host's root while keeping internal components outside design mode.
 See [designer ownership](designer.md#rendering-and-context).
 
+## PageInclude and page lifecycle
+
+- `react:page-include` renders a project `.ticlo` Flow (resolved via `src`) as a
+  shared live Flow instance rather than an isolated worker, bridging `#inputs` and
+  `#outputs` between the host block and target Flow.
+- `#closeMode` (`'on' | 'off' | 'disable'`, default `'off'`) controls what the last
+  closing holder does to a clean included Flow; concurrent includes are capped by the
+  target Flow's `#inputs.#maxInstance` (default `8`).
+- `enterPageFlow` and `leavePageFlow` coordinate browser mounts on ordinary
+  storage-backed Flows (`flow:main`); Node.js runtime does not participate.
+
 [Containers](react-containers.md) defines child ordering and View Deck lifecycle;
 [SVG](react-svg.md) defines SVG element contracts. Style imports and builds are in
 [development](development.md#assets-and-builds). React styles are independent of

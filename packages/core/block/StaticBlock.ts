@@ -4,7 +4,7 @@ import {OutputsBlock} from './FlowIO.ts';
 import {BlockConfig, BlockProperty} from './BlockProperty.ts';
 import {DataMap, isSavedBlock} from '../util/DataTypes.ts';
 import {ConfigGenerators, ConstTypeConfig} from './BlockConfigs.ts';
-import {FlowConfigGenerators} from './FlowConfigs.ts';
+import {BlockInputsConfig, BlockOutputsConfig, FlowConfigGenerators} from './FlowConfigs.ts';
 import {Flow} from './Flow.ts';
 import {encodeTicloName} from '../util/Name.ts';
 import {FunctionDispatcher} from './FunctionModule.ts';
@@ -99,7 +99,7 @@ export class StaticBlock extends Block {
       return StaticBlock._dict.get(prop);
     } else {
       const staticBlock = new StaticBlock(prop._block._flow, prop._block, prop);
-      staticBlock._funcDispatcher = functions.listen(funcId, staticBlock._funcListener);
+      staticBlock._funcDispatcher = functions.listen(funcId, staticBlock._funcListener, 'internal');
       staticBlock._cacheKey = prop;
       StaticBlock._dict.set(prop, staticBlock);
       prop.setValue(staticBlock);
@@ -158,6 +158,8 @@ export class StaticBlock extends Block {
 
 export const FlowWithStaticConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,
+  '#inputs': BlockInputsConfig,
+  '#outputs': BlockOutputsConfig,
   '#static': StaticConfig,
 };
 

@@ -68,6 +68,8 @@
     '@name': 'Inputs'
   '#outputs':
     '@name': 'Outputs'
+  '#maxInstance':
+    '@name': 'Max Instance'
   '#input':
     '@name': Input
   '#use':

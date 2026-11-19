@@ -105,12 +105,32 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
     },
   });
 
+  dynamicProps: (PropDesc | PropGroupDesc)[] = null;
+  dynamicPropsListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      let value = response.cache.value;
+      if (!Array.isArray(value)) {
+        value = null;
+      }
+      if (!deepEqual(value, this.dynamicProps)) {
+        this.dynamicProps = value;
+        this.parent.forceUpdate();
+      }
+    },
+  });
+
   desc: FunctionDesc;
   onDesc = (desc: FunctionDesc) => {
     if (desc == null) {
       this.desc = blankFuncDesc;
     } else {
       this.desc = desc;
+    }
+    if (desc?.dynamicProps) {
+      this.dynamicPropsListener.subscribe(this.conn, `${this.path}.#props`, true);
+    } else {
+      this.dynamicPropsListener.unsubscribe();
+      this.dynamicProps = null;
     }
     this.parent.forceUpdate();
   };
@@ -124,6 +144,7 @@ class BlockLoader extends MultiSelectLoader<PropertyList> {
   destroy() {
     this.isListener.unsubscribe();
     this.customListener.unsubscribe();
+    this.dynamicPropsListener.unsubscribe();
     this.widgetListener.unsubscribe();
     this.conn.unwatchDesc(this.onDesc);
   }
@@ -340,7 +361,13 @@ export class PropertyList extends MultiSelectComponent<Props, State, BlockLoader
     const baseDesc = conn.getCommonBaseFunc(optionalDescs, funcModule);
     for (const [path, subscriber] of this.loaders) {
       if (subscriber.desc) {
-        if (!descChecked.has(subscriber.desc.name)) {
+        if (subscriber.desc.dynamicProps) {
+          propMerger.add(
+            subscriber.dynamicProps?.length
+              ? [...subscriber.desc.properties, ...subscriber.dynamicProps]
+              : subscriber.desc.properties
+          );
+        } else if (!descChecked.has(subscriber.desc.name)) {
           descChecked.add(subscriber.desc.name);
           propMerger.add(subscriber.desc.properties);
         }

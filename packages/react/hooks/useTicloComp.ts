@@ -186,10 +186,15 @@ export function useTicloComp(
   useEffect(() => {
     const listener = {onChildChange: onPropertyChange};
     block.watch(listener);
+    setStyle(block.getValue('style'));
+    setClassName(block.getValue('class') as string);
+    if (needChildren) {
+      setContent(block.getValue('content'));
+    }
     return () => {
       block.unwatch(listener);
     };
-  }, [block, onPropertyChange]);
+  }, [block, needChildren, onPropertyChange]);
 
   useEffect(() => {
     if (!(orderList instanceof BlockOrder) || !(orderList.owner instanceof Block) || orderList.owner === block) return;

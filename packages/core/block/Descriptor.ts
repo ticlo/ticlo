@@ -169,6 +169,8 @@ export interface FunctionDesc {
   color?: string;
   // block color and icon can change with @b-style={color,icon}
   dynamicStyle?: boolean;
+  // block properties can change with #props
+  dynamicProps?: boolean;
 
   // to orginize functions in groups
   // category is not used for +library functions, their id always match their positions in function tree
@@ -219,6 +221,7 @@ export const configDescs: {[key: string]: PropDesc} = {
   '#optional': {name: '#optional', type: 'array'},
   // used by worker function to collect user defined descriptor
   '#desc': {name: '#desc', type: 'object'},
+  '#maxInstance': {name: '#maxInstance', type: 'number', min: 1, step: 1},
   '#cacheMode': {name: '#cacheMode', type: 'radio-button', options: ['auto', 'persist'], default: 'auto'},
 };
 
@@ -273,7 +276,7 @@ export function mapAttributeDesc(attributes: (string | PropDesc)[]): PropDesc[] 
 export function buildPropDescCache(
   funcDesc: FunctionDesc,
   custom: (PropDesc | PropGroupDesc)[],
-  andCustom?: (PropDesc | PropGroupDesc)[]
+  dynamicProps?: (PropDesc | PropGroupDesc)[]
 ): {[key: string]: PropDesc} {
   if (!funcDesc) return null;
 
@@ -296,10 +299,80 @@ export function buildPropDescCache(
 
   addProps(mapConfigDesc(funcDesc.configs));
   addProps(custom);
+  addProps(dynamicProps);
   addProps(funcDesc.properties);
   addProps(mapAttributeDesc(funcDesc.attributes));
 
   return result;
+}
+
+export function collectFlowIOProperties(
+  inputs: unknown,
+  outputs: unknown,
+  exclude?: ReadonlySet<string>
+): (PropDesc | PropGroupDesc)[] {
+  const properties: (PropDesc | PropGroupDesc)[] = [];
+  const groups = new Map<string, PropGroupDesc>();
+
+  if (Array.isArray(inputs)) {
+    for (const input of inputs) {
+      if (!input || typeof input !== 'object' || typeof input.name !== 'string' || exclude?.has(input.name)) {
+        continue;
+      }
+      const copyInput = {...input} as PropDesc | PropGroupDesc;
+      delete (copyInput as PropDesc).readonly;
+      if (copyInput.type === 'group') {
+        if (exclude && Array.isArray(copyInput.properties)) {
+          copyInput.properties = copyInput.properties.filter((prop) => !exclude.has(prop.name));
+        }
+        groups.set(copyInput.name, copyInput);
+      }
+      properties.push(copyInput);
+    }
+  }
+
+  let mainOutput: PropDesc | undefined;
+  if (Array.isArray(outputs)) {
+    for (const output of outputs) {
+      if (!output || typeof output !== 'object' || typeof output.name !== 'string' || exclude?.has(output.name)) {
+        continue;
+      }
+      const group = output.type === 'group' && groups.get(output.name);
+      if (group) {
+        if (Array.isArray(output.properties) && output.properties.length > 0) {
+          const groupProperties = Array.isArray(group.properties)
+            ? group.properties.map((prop: PropDesc) => ({...prop}))
+            : [];
+          group.properties = groupProperties;
+          for (const prop of output.properties) {
+            if (!exclude?.has(prop.name)) {
+              groupProperties.push({...prop, readonly: true});
+            }
+          }
+        }
+      } else if (output.name === '#output') {
+        mainOutput = {...output, readonly: true};
+      } else {
+        const copyOutput = {...output} as PropDesc | PropGroupDesc;
+        if (copyOutput.type === 'group') {
+          if (Array.isArray(copyOutput.properties)) {
+            copyOutput.properties = copyOutput.properties
+              .filter((prop) => !exclude?.has(prop.name))
+              .map((prop) => ({...prop, readonly: true}));
+          }
+        } else {
+          copyOutput.readonly = true;
+        }
+        properties.push(copyOutput);
+      }
+    }
+  }
+
+  if (mainOutput) {
+    // #output must be the last property
+    properties.push(mainOutput);
+  }
+  return properties;
 }
 
 const numberReg = /[0-9]/;

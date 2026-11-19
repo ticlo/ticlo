@@ -5,12 +5,12 @@ source through `#use`; `map`, `handler`, and `multi-worker` use `use`.
 
 ## Sources and saves
 
-| Source | Resolution | Save destination |
-| --- | --- | --- |
-| Inline object | Embedded flow definition | Owning worker field |
-| Global ID | `globalFunctions` | Registered function definition |
-| `:functionId` | Owning Flow's `#functions` / `FlowFunctionModule` | Local function definition |
-| `+library:module:functionId` | `LibraryFunctionModule` | Module definition, optionally storage-backed |
+| Source                       | Resolution                                        | Save destination                             |
+| ---------------------------- | ------------------------------------------------- | -------------------------------------------- |
+| Inline object                | Embedded flow definition                          | Owning worker field                          |
+| Global ID                    | `globalFunctions`                                 | Registered function definition               |
+| `:functionId`                | Owning Flow's `#functions` / `FlowFunctionModule` | Local function definition                    |
+| `+library:module:functionId` | `LibraryFunctionModule`                           | Module definition, optionally storage-backed |
 
 String sources subscribe to function changes; replacement rebuilds their workers.
 Missing sources wait for a valid definition. Preserve the caller's function module
@@ -26,7 +26,12 @@ See [flow examples](flow-format.md#examples) and
 
 `WorkerFlow` runs a definition; `RepeaterWorker` supports repeated hosts;
 `FlowEditor` edits a definition through `#edit-*`. `Block.createOutputFlow()`
-connects these flows to a `FunctionOutput` target.
+connects these flows to a `FunctionOutput` target. Named worker definitions cap
+live `FunctionDispatcher` listeners via `#inputs.#maxInstance` (defaulting to
+`65536` for single-instance blocks/`worker` and `8192` for multi-instance
+`map`/`handler`/`multi-worker`); native JS functions are uncapped. `worker`
+blocks also mirror inner `#inputs`/`#outputs` descriptors onto `#props`
+(shared with `react:page-include`).
 
 Named workers share function-owned static data. Inline workers do not support it.
 Ownership, loading, and persistence of `#static` and `#shared` are defined once in
@@ -36,13 +41,13 @@ For editor descriptor lookup, pass the current `funcModule`; see
 
 ## Hosts
 
-| Host | Behavior |
-| --- | --- |
-| `WorkerFunction` | One worker; `#state` controls its lifecycle |
-| `MapFunction` | Array/object results after workers complete; configurable pooling |
-| `MultiWorkerFunction` | One worker per key; incremental results |
-| `HandlerFunction` | Queued tasks; optional ordered completion |
-| `SelectWorkerFunction` | Selects a downstream worker from a collector |
+| Host                   | Behavior                                                          |
+| ---------------------- | ----------------------------------------------------------------- |
+| `WorkerFunction`       | One worker; `#state` controls its lifecycle                       |
+| `MapFunction`          | Array/object results after workers complete; configurable pooling |
+| `MultiWorkerFunction`  | One worker per key; incremental results                           |
+| `HandlerFunction`      | Queued tasks; optional ordered completion                         |
+| `SelectWorkerFunction` | Selects a downstream worker from a collector                      |
 
 ## Multi-worker
 

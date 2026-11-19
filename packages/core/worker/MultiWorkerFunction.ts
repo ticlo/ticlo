@@ -85,7 +85,7 @@ export class MultiWorkerFunction extends StatefulFunction implements BlockChildW
 
   constructor(data: Block) {
     super(data);
-    this.control = new WorkerControl(this, data);
+    this.control = new WorkerControl(this, data, true);
   }
 
   run(): any {

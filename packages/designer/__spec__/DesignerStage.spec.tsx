@@ -2,7 +2,7 @@ import React, {StrictMode, useContext, useState} from 'react';
 import {vi} from 'vitest';
 import {DockLayout} from 'rc-dock';
 import '../style/index.css';
-import {Block, Root, globalFunctions, type DataMap} from '@ticlo/core';
+import {Block, Flow, Root, globalFunctions, type DataMap} from '@ticlo/core';
 import {MemoryFlowStorage} from '@ticlo/core/block/MemoryFlowStorage.ts';
 import {ComponentContext, type ComponentContextValue} from '@ticlo/react';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -905,6 +905,319 @@ describe('DesignerStage', () => {
     } finally {
       globalFunctions.delete(functionId);
       globalFunctions.delete(nodeId);
+    }
+  });
+
+  it('unloads a clean ordinary flow on DesignerStage close and closes its Dataflow tab, while keeping modules and dirty flows loaded', async () => {
+    await initEditor();
+    const root = new Root();
+    const storage = new MemoryFlowStorage();
+    await storage.saveLibraryMetadata('main', {});
+    const cleanData: DataMap = {'#main': {'#is': 'react:div', 'content': 'Clean'}};
+    const dirtyData: DataMap = {'#main': {'#is': 'react:div', 'content': 'Dirty'}};
+    const moduleData: DataMap = {'#is': '', '#main': {'#is': 'react:div', 'content': 'Module'}};
+    storage.saveFlow(null, cleanData, '+main.CleanPage');
+    storage.saveFlow(null, dirtyData, '+main.DirtyPage');
+    storage.saveModule('+main', 'Mod', moduleData);
+    await root.setStorage(storage);
+    await root.start({main: {flows: ['CleanPage', 'DirtyPage']}});
+    await root.loadFlow({library: 'main', kind: 'module', name: 'Mod'});
+
+    const [, conn] = makeLocalConnection(root, true, undefined, false, {
+      maxMessageSize: Infinity,
+      maxValueSize: Infinity,
+    });
+    const cleanPath = '+main.CleanPage';
+    const dirtyPath = '+main.DirtyPage';
+    const modPath = '+main.:Mod';
+    const cleanDesignerId = `designer:${cleanPath}`;
+    const cleanDataflowId = `blockEditor:${cleanPath}`;
+    const dirtyDesignerId = `designer:${dirtyPath}`;
+    const modDesignerId = `designer:${modPath}`;
+
+    let layout: DockLayout;
+    const cleanTab = {
+      id: cleanDesignerId,
+      group: 'main',
+      title: <BlockStageTabButton conn={conn} id={cleanDesignerId} path={cleanPath} />,
+      content: <DesignerStage root={root} conn={conn} basePath={cleanPath} stageId={cleanDesignerId} />,
+    };
+    const dirtyTab = {
+      id: dirtyDesignerId,
+      group: 'main',
+      title: <BlockStageTabButton conn={conn} id={dirtyDesignerId} path={dirtyPath} />,
+      content: <DesignerStage root={root} conn={conn} basePath={dirtyPath} stageId={dirtyDesignerId} />,
+    };
+    const modTab = {
+      id: modDesignerId,
+      group: 'main',
+      title: <BlockStageTabButton conn={conn} id={modDesignerId} path={modPath} />,
+      content: <DesignerStage root={root} conn={conn} basePath={modPath} stageId={modDesignerId} />,
+    };
+    try {
+      const [, div] = loadTemplate(
+        <DesignerApp value={{}}>
+          <DockLayout
+            ref={(value) => {
+              layout = value;
+            }}
+            groups={{main: {panelExtra: (panel) => <StagePanelFocus panel={panel} />}}}
+            defaultLayout={{
+              dockbox: {
+                mode: 'horizontal',
+                children: [
+                  {id: 'cleanPanel', tabs: [cleanTab, BlockStagePane.createDockTab(cleanPath, conn)]},
+                  {id: 'dirtyPanel', tabs: [dirtyTab]},
+                  {id: 'modPanel', tabs: [modTab]},
+                ],
+              },
+            }}
+            style={{width: 800, height: 500}}
+          />
+        </DesignerApp>,
+        'editor'
+      );
+
+      await shouldHappen(
+        () =>
+          Array.from(div.querySelectorAll('.ticl-d-page')).some((el) => el.textContent === 'Module') &&
+          div.querySelectorAll('.ticl-d-stage').length === 3 &&
+          layout?.find(cleanDataflowId) &&
+          layout?.find(cleanDesignerId)
+      );
+
+      // Make DirtyPage dirty before closing its Designer tab.
+      await conn.setValue(`${dirtyPath}.#main.content`, 'Edited Dirty', true);
+      const dirtyFlow = root.queryValue(dirtyPath) as Flow;
+      await shouldHappen(() => dirtyFlow.getValue('@has-change') === true);
+
+      // Close CleanPage's Designer tab -> CleanPage unloads and its Dataflow tab auto-closes.
+      layout.dockMove(layout.find(cleanDesignerId) as any, null, 'remove');
+      await shouldHappen(() => root.getFlowState({library: 'main', kind: 'flow', name: 'CleanPage'}) === 'unloaded');
+      await shouldHappen(() => !layout.find(cleanDataflowId), 1500, 'Dataflow tab closes on flow unload');
+
+      // Close DirtyPage's Designer tab -> stays loaded with @has-change preserved.
+      layout.dockMove(layout.find(dirtyDesignerId) as any, null, 'remove');
+      await shouldHappen(() => div.querySelectorAll('.ticl-d-stage').length === 1);
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(root.getFlowState({library: 'main', kind: 'flow', name: 'DirtyPage'})).toBe('enabled');
+      expect(dirtyFlow.getValue('@has-change')).toBe(true);
+      expect(dirtyFlow.queryValue('#main.content')).toBe('Edited Dirty');
+
+      // Close Module's Designer tab -> modules never auto-unload.
+      layout.dockMove(layout.find(modDesignerId) as any, null, 'remove');
+      await shouldHappen(() => div.querySelectorAll('.ticl-d-stage').length === 0);
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(root.getFlowState({library: 'main', kind: 'module', name: 'Mod'})).toBe('enabled');
+    } finally {
+      removeLastTemplate();
+      destroyLastLocalConnection();
+      await root.stop({discardChanges: true});
+      root.destroy();
+    }
+  });
+
+  it('keeps an empty flow loaded on Open with Dataflow Editor and resolves DesignerStage + PageInclude last-closer-wins', async () => {
+    await initEditor();
+    const root = new Root();
+    const storage = new MemoryFlowStorage();
+    await storage.saveLibraryMetadata('main', {});
+    storage.saveFlow(null, {'#is': ''}, '+main.Empty');
+    storage.saveFlow(
+      null,
+      {
+        '#is': '',
+        '#main': {
+          '#is': 'react:div',
+          '#order': ['inc'],
+          'inc': {'#is': 'react:page-include', 'src': '+/BB.ticlo', '#closeMode': 'disable'},
+        },
+      },
+      '+main.AA'
+    );
+    storage.saveFlow(null, {'#is': '', '#main': {'#is': 'react:span', 'content': 'BB'}}, '+main.BB');
+    await root.setStorage(storage);
+    await root.start({main: {flows: ['Empty', 'AA', 'BB']}});
+    const [, conn] = makeLocalConnection(root, true, undefined, false, {
+      maxMessageSize: Infinity,
+      maxValueSize: Infinity,
+    });
+
+    type HarnessState = {showEmpty: boolean; showBB: boolean; showAA: boolean};
+    let setHarness!: React.Dispatch<React.SetStateAction<HarnessState>>;
+    function Harness() {
+      const [{showEmpty, showBB, showAA}, setState] = useState<HarnessState>({
+        showEmpty: true,
+        showBB: true,
+        showAA: true,
+      });
+      const [openedDataflow, setOpenedDataflow] = useState(false);
+      setHarness = setState;
+      return (
+        <DesignerApp value={{}}>
+          {showEmpty && !openedDataflow && (
+            <DesignerStage
+              root={root}
+              conn={conn}
+              basePath="+main.Empty"
+              stageId="empty"
+              onOpenDataflow={() => setOpenedDataflow(true)}
+            />
+          )}
+          {showBB && <DesignerStage root={root} conn={conn} basePath="+main.BB" stageId="bb" />}
+          {showAA && <DesignerStage root={root} conn={conn} basePath="+main.AA" stageId="aa" />}
+        </DesignerApp>
+      );
+    }
+
+    try {
+      const [, div] = loadTemplate(<Harness />, 'editor');
+      const dataflowBtn = await shouldHappen(() =>
+        Array.from(div.querySelectorAll('button')).find((b) => b.textContent === 'Open with Dataflow Editor')
+      );
+      await shouldHappen(() => div.querySelector('.ticl-page-include span')?.textContent === 'BB');
+
+      // Clicking "Open with Dataflow Editor" unmounts Empty's DesignerStage without unloading Empty.
+      dataflowBtn.click();
+      await shouldHappen(
+        () => !Array.from(div.querySelectorAll('button')).some((b) => b.textContent === 'Open with Dataflow Editor')
+      );
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(root.getFlowState({library: 'main', kind: 'flow', name: 'Empty'})).toBe('enabled');
+
+      // Case 1: Close DesignerStage(BB) first while PageInclude(AA -> BB, disable) stays open -> BB stays enabled;
+      // then close AA -> PageInclude is last closer -> BB becomes disabled.
+      setHarness({showEmpty: false, showBB: false, showAA: true});
+      await shouldHappen(() => div.querySelectorAll('.ticl-d-stage').length === 1);
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(root.getFlowState({library: 'main', kind: 'flow', name: 'BB'})).toBe('enabled');
+
+      setHarness({showEmpty: false, showBB: false, showAA: false});
+      await shouldHappen(() => root.getFlowState({library: 'main', kind: 'flow', name: 'BB'}) === 'disabled');
+      await shouldHappen(() => root.getFlowState({library: 'main', kind: 'flow', name: 'AA'}) === 'unloaded');
+
+      // Case 2: Reopen both (AA + BB); DesignerStage(BB) wakes BB; close AA first (PageInclude on) -> stays enabled;
+      // then close DesignerStage(BB) -> DesignerStage is last closer -> BB unloads.
+      await root.loadFlow({library: 'main', kind: 'flow', name: 'AA'});
+      setHarness({showEmpty: false, showBB: true, showAA: true});
+      await shouldHappen(() => root.getFlowState({library: 'main', kind: 'flow', name: 'BB'}) === 'enabled');
+      await shouldHappen(() => div.querySelector('.ticl-page-include span')?.textContent === 'BB');
+      const aaInc = root.queryValue('+main.AA.#main.inc') as Block;
+      aaInc.setValue('#closeMode', 'on');
+
+      setHarness({showEmpty: false, showBB: true, showAA: false});
+      await shouldHappen(() => !div.querySelector('.ticl-page-include'));
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(root.getFlowState({library: 'main', kind: 'flow', name: 'BB'})).toBe('enabled');
+
+      setHarness({showEmpty: false, showBB: false, showAA: false});
+      await shouldHappen(() => root.getFlowState({library: 'main', kind: 'flow', name: 'BB'}) === 'unloaded');
+    } finally {
+      removeLastTemplate();
+      destroyLastLocalConnection();
+      await root.stop({discardChanges: true});
+      root.destroy();
+    }
+  });
+
+  it('selects the PageInclude host when clicking inside an included flow while keeping slotted AA children selectable', async () => {
+    const root = new Root();
+    const storage = new MemoryFlowStorage();
+    await storage.saveLibraryMetadata('main', {});
+    storage.saveFlow(
+      null,
+      {
+        '#is': '',
+        '#main': {
+          '#is': 'react:div',
+          '#order': ['inc'],
+          'inc': {
+            '#is': 'react:page-include',
+            'src': '+/BB.ticlo',
+            'style': {width: 200, height: 120},
+            '#order': ['slotted'],
+            'slotted': {
+              '#is': 'react:span',
+              '#optional': ['id'],
+              'id': 'aa-slot',
+              'style': {display: 'inline-block', width: 60, height: 30},
+              'content': 'Slot',
+            },
+          },
+        },
+      },
+      '+main.AA'
+    );
+    storage.saveFlow(
+      null,
+      {
+        '#is': '',
+        '#inputs': {'#is': '', '#custom': [{name: '#order', type: 'array'}]},
+        '#main': {
+          '#is': 'react:div',
+          '#optional': ['id'],
+          'id': 'bb-root',
+          'style': {width: 200, height: 120},
+          '~#order': '##.#inputs.#order',
+          'content': 'BB Content',
+        },
+      },
+      '+main.BB'
+    );
+    await root.setStorage(storage);
+    await root.start({main: {flows: ['AA']}});
+    const [, conn] = makeLocalConnection(root, true, undefined, false, {
+      maxMessageSize: Infinity,
+      maxValueSize: Infinity,
+    });
+    let stage: DesignerStageContextValue;
+    function Probe(): null {
+      stage = useActiveDesignerStage();
+      return null;
+    }
+    const clickTarget = (target: Element) => {
+      const rect = target.getBoundingClientRect();
+      for (const type of ['pointerdown', 'pointerup']) {
+        target.dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            isPrimary: true,
+            pointerId: 1,
+            button: 0,
+            buttons: type === 'pointerup' ? 0 : 1,
+            clientX: rect.left + 2,
+            clientY: rect.top + 2,
+          })
+        );
+      }
+    };
+    try {
+      const [, div] = loadTemplate(
+        <DesignerApp value={{}}>
+          <DesignerStage root={root} conn={conn} basePath="+main.AA" />
+          <Probe />
+        </DesignerApp>,
+        'editor'
+      );
+      const bbRoot = await shouldHappen(() => div.querySelector<HTMLElement>('#bb-root'));
+      const slotEl = await shouldHappen(() => div.querySelector<HTMLElement>('#aa-slot'));
+      const incBlock = root.queryValue('+main.AA.#main.inc') as Block;
+      const slotBlock = incBlock.getValue('slotted') as Block;
+
+      expect(stage.elementMap.getBlock(bbRoot)).toBeUndefined();
+      expect(stage.elementMap.getBlock(slotEl)).toBe(slotBlock);
+
+      clickTarget(bbRoot);
+      await shouldHappen(() => stage.selection.blocks[0] === incBlock);
+
+      clickTarget(slotEl);
+      await shouldHappen(() => stage.selection.blocks[0] === slotBlock);
+    } finally {
+      removeLastTemplate();
+      destroyLastLocalConnection();
+      await root.stop({discardChanges: true});
+      root.destroy();
     }
   });
 });

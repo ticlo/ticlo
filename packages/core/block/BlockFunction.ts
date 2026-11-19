@@ -123,6 +123,7 @@ export interface FunctionFactory {
   save?: () => DataMap;
   equals?: (data: DataMap) => boolean;
   ticlWorkerData?: DataMap;
+  maxInstances?: number;
 }
 
 export interface FunctionApi {
@@ -138,6 +139,7 @@ export interface FunctionFactoryOptions {
   save?: () => DataMap;
   equals?: (data: DataMap) => boolean;
   ticlWorkerData?: DataMap;
+  maxInstances?: number;
 }
 
 export function createFunctionFactory(
@@ -157,5 +159,6 @@ export function createFunctionFactory(
     save: options?.save ?? cls?.save,
     equals: options?.equals ?? cls?.equals,
     ticlWorkerData: options?.ticlWorkerData ?? cls?.ticlWorkerData,
+    maxInstances: options?.maxInstances,
   };
 }

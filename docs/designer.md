@@ -25,6 +25,11 @@ root component's own sizing. Custom components attach `useTicloComp`'s
 `optionalHandlers` to their root Element. Portals used by page components should
 remain inside the stage.
 
+Closing a `DesignerStage` unloads clean ordinary storage-backed Flows (`flow:main`),
+excluding modules and dirty Flows (`@has-change`). Switching an empty Flow via
+"Open with Dataflow Editor" keeps the Flow loaded; when shared with
+`react:page-include`, the last closing holder decides whether a clean Flow unloads.
+
 `functionTreeTags` and `nodeTreeTags` independently filter descriptors by any
 matching tag. Both default to `react-comp`, `react-svg`, and `chart-series`.
 Unmatched node branches are hidden. Dataflow stages leave filters undefined.

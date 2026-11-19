@@ -68,6 +68,8 @@
     '@name': 输入 # translated from: Inputs
   '#outputs':
     '@name': 输出 # translated from: Outputs
+  '#maxInstance':
+    '@name': 最大实例数 # translated from: Max Instance
   '#input':
     '@name': 输入
   '#use':

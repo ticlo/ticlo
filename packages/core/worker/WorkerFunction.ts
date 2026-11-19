@@ -9,7 +9,10 @@ import {FlowStorage} from '../block/Storage.ts';
 import {deepEqual} from '../util/Compare.ts';
 import {globalFunctions} from '../block/FunctionModule.ts';
 import {Block, BlockChildWatch} from '../block/Block.ts';
+import {FlowPropsSync} from '../block/FlowIO.ts';
 import {WorkerControl, type WorkerHost} from './WorkerControl.ts';
+
+const WORKER_RESERVED = new Set(['#state', '#use', '#props']);
 
 export enum WorkerMode {
   ON = 'on',
@@ -48,26 +51,42 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
   readonly control: WorkerControl;
 
   _funcFlow: WorkerFlow;
+  private readonly _propsSync: FlowPropsSync;
 
   constructor(data: Block) {
     super(data);
     this.control = new WorkerControl(this, data);
+    this._propsSync = new FlowPropsSync(data, WORKER_RESERVED);
     // make sure collector is emitted even when there are no sync block under it
     data.getProperty('#emit');
+  }
+
+  private _syncProps() {
+    if (this._funcFlow && !this._funcFlow._destroyed) {
+      this._propsSync.setFlow(this._funcFlow);
+    } else {
+      this._propsSync.setData(this.control.getWorkerData());
+    }
   }
 
   configChanged(config: BlockConfig, val: any): boolean {
     switch (config._name) {
       case '#state':
         return true;
-      case '#use':
-        return this.control.onUseChange(val);
+      case '#use': {
+        const changed = this.control.onUseChange(val);
+        if (changed) {
+          this._propsSync.setData(this.control.getWorkerData());
+        }
+        return changed;
+      }
       default:
         return false;
     }
   }
   initInputs() {
     this.control.onUseChange(this._data.getValue('#use'));
+    this._syncProps();
   }
 
   inputChanged(input: BlockIO, val: any): boolean {
@@ -132,6 +151,7 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
         this.createWorker(false);
       }
     }
+    this._syncProps();
 
     if (this._collector) {
       const result = this._collector;
@@ -142,9 +162,12 @@ export class WorkerFunction extends BaseFunction<Block> implements WorkerHost {
 
   cleanup(): void {
     this._data.deleteValue('#worker');
+    this._funcFlow = null;
+    this._propsSync.setData(null);
   }
 
   destroy() {
+    this._propsSync.destroy();
     this.control.destroy();
     super.destroy();
   }
@@ -176,6 +199,7 @@ globalFunctions.addFactory(
   {
     name: 'worker',
     priority: 3,
+    dynamicProps: true,
     properties: [
       {
         name: '#state',

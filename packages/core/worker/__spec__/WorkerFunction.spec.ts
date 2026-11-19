@@ -189,4 +189,92 @@ describe('WorkerFunction', function () {
     Root.instance.deleteValue('WorkerFunctionRuntimeEdit');
     Library.delete(funcId);
   });
+
+  it('syncs inline and named #inputs/#outputs onto #props and tracks live edits', () => {
+    const flow = new Flow();
+    const block = flow.createBlock('w');
+    const inlineDef = {
+      '#is': '',
+      '#inputs': {
+        '#is': '',
+        '#custom': [
+          {name: 'title', type: 'string'},
+          {name: '#use', type: 'string'},
+        ],
+      },
+      '#outputs': {
+        '#is': '',
+        '#custom': [
+          {name: '#output', type: 'number'},
+          {name: 'summary', type: 'string'},
+        ],
+      },
+    };
+
+    // #props stays synced from inline #use even in off, disable, and lazy modes, without mutating saved data.
+    for (const mode of [WorkerMode.OFF, WorkerMode.DISABLE, WorkerMode.LAZY, WorkerMode.ON]) {
+      block.setValue('#is', 'worker');
+      block.setValue('#state', mode);
+      block.setValue('#use', inlineDef);
+      Root.run();
+      expect(block.getValue('#props')).toEqual([
+        {name: 'title', type: 'string'},
+        {name: 'summary', type: 'string', readonly: true},
+        {name: '#output', type: 'number', readonly: true},
+      ]);
+      expect(flow.save()).toEqual({
+        '#is': '',
+        'w': {'#is': 'worker', '#state': mode, '#use': {'#is': inlineDef}},
+      });
+      block.setValue('#is', null);
+      expect(block.getValue('#props')).toBeUndefined();
+    }
+
+    // Live edits inside #worker.#inputs/#outputs update #props automatically.
+    block.setValue('#is', 'worker');
+    block.setValue('#use', inlineDef);
+    Root.run();
+    const workerFlow = block.getValue('#worker') as Flow;
+    workerFlow.queryProperty('#inputs.#custom').setValue([{name: 'count', type: 'number'}]);
+    expect(block.getValue('#props')).toEqual([
+      {name: 'count', type: 'number'},
+      {name: 'summary', type: 'string', readonly: true},
+      {name: '#output', type: 'number', readonly: true},
+    ]);
+
+    // Switching to a named string #use syncs from the registered definition and updates on re-registration.
+    const namedId = '+WorkerFunctionProps::named';
+    WorkerFunctionGen.registerType(
+      {
+        '#is': '',
+        '#inputs': {'#is': '', '#custom': [{name: 'namedIn', type: 'toggle'}]},
+      },
+      {name: 'named'},
+      '+WorkerFunctionProps'
+    );
+    block.setValue('#state', WorkerMode.OFF);
+    block.setValue('#use', namedId);
+    expect(block.getValue('#props')).toEqual([{name: 'namedIn', type: 'toggle'}]);
+
+    WorkerFunctionGen.registerType(
+      {
+        '#is': '',
+        '#inputs': {'#is': '', '#custom': [{name: 'namedIn', type: 'toggle'}]},
+        '#outputs': {'#is': '', '#custom': [{name: 'namedOut', type: 'string'}]},
+      },
+      {name: 'named'},
+      '+WorkerFunctionProps'
+    );
+    Root.run();
+    expect(block.getValue('#props')).toEqual([
+      {name: 'namedIn', type: 'toggle'},
+      {name: 'namedOut', type: 'string', readonly: true},
+    ]);
+
+    block.setValue('#use', null);
+    expect(block.getValue('#props')).toBeUndefined();
+
+    flow.destroy();
+    Library.delete(namedId);
+  });
 });

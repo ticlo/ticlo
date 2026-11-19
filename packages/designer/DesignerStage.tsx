@@ -1,12 +1,22 @@
 import React, {isValidElement, useContext, useEffect, useId, useMemo, useRef, useState} from 'react';
-import {Block, Flow, voidFunction, type ClientConn, type DataMap} from '@ticlo/core';
+import {Block, Flow, Root, voidFunction, type ClientConn, type DataMap} from '@ticlo/core';
+import {Library} from '@ticlo/core/block/Library.ts';
 import {FlowWithStatic} from '@ticlo/core/block/StaticBlock.ts';
 import {Button} from 'antd';
 import {useEditPolicy} from '@ticlo/editor/component/EditPolicyContext.tsx';
 import {useTicloStage} from '@ticlo/editor/component/useTicloStage.ts';
 import {t} from '@ticlo/editor/component/LocalizedLabel.tsx';
 import {requestCallbacks} from '@ticlo/editor/util/RequestCallbacks.ts';
-import {ElementMap, TicloPage, revealChild, useValue} from '@ticlo/react';
+import {
+  ElementMap,
+  TicloPage,
+  enterPageFlow,
+  getManagedPageFlowRef,
+  leavePageFlow,
+  revealChild,
+  useValue,
+  type PageCloseMode,
+} from '@ticlo/react';
 import {DesignerSelectionLayer} from './DesignerSelectionLayer.tsx';
 import {DesignerLayoutContextType, type DesignerStageContextValue} from './DesignerContext.tsx';
 import {useSelection} from './useSelection.ts';
@@ -57,12 +67,38 @@ export function DesignerStage({
   const main = flow && value instanceof Block ? value : null;
   const hasPage = main !== null || isValidElement(value);
   const policy = useEditPolicy();
+  const closeModeRef = useRef<PageCloseMode>('off');
+  const handleOpenDataflow = useMemo(
+    () =>
+      onOpenDataflow
+        ? () => {
+            closeModeRef.current = 'on';
+            onOpenDataflow();
+          }
+        : undefined,
+    [onOpenDataflow]
+  );
   useEffect(() => {
     if (!flow) return;
+    closeModeRef.current = 'off';
+    const flowRoot = root instanceof Root ? root : Library.rootOf(flow);
+    const ref = getManagedPageFlowRef(flowRoot, flow);
+    const token = {};
+    if (ref) void enterPageFlow(flowRoot, ref, 'stage', token).catch(voidFunction);
     const watcher = {watchHistory: true, onChildChange() {}};
     flow.watch(watcher);
-    return () => flow.unwatch(watcher);
-  }, [flow]);
+    return () => {
+      const dirty = !flow._destroyed && Boolean(flow.getValue('@has-change') || flow._history?._tracking);
+      flow.unwatch(watcher);
+      if (!ref) return;
+      if (dirty && closeModeRef.current === 'off') {
+        if (!flow._destroyed) flow.updateValue('@has-change', true);
+        leavePageFlow(flowRoot, ref, 'stage', token, 'on');
+      } else {
+        leavePageFlow(flowRoot, ref, 'stage', token, closeModeRef.current);
+      }
+    };
+  }, [root, flow]);
   const {selection, selectionRef, select, addSelection} = useSelection(root, main);
   const {designMode = true, setDesignMode = voidFunction} = useContext(DesignerLayoutContextType);
   useEffect(() => {
@@ -142,8 +178,8 @@ export function DesignerStage({
                 </Button>
               ))}
             </div>
-            {onOpenDataflow && (
-              <Button type="link" onClick={onOpenDataflow}>
+            {handleOpenDataflow && (
+              <Button type="link" onClick={handleOpenDataflow}>
                 {t('Open with Dataflow Editor')}
               </Button>
             )}
@@ -151,7 +187,7 @@ export function DesignerStage({
         )}
       </div>
     );
-  }, [flow, policy, conn, basePath, designMode, activate, value, onOpenDataflow]);
+  }, [flow, policy, conn, basePath, designMode, activate, value, handleOpenDataflow]);
   return (
     <DragDrop
       className={designMode ? 'ticl-d-stage ticl-d-stage-design' : 'ticl-d-stage'}

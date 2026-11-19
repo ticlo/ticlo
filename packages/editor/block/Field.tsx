@@ -726,6 +726,20 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     },
   });
 
+  dynamicProps: (PropDesc | PropGroupDesc)[] = null;
+  dynamicPropsListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      let value = response.cache.value;
+      if (!Array.isArray(value)) {
+        value = null;
+      }
+      if (!deepEqual(value, this.dynamicProps)) {
+        this.dynamicProps = value;
+        this.updatePropCache();
+      }
+    },
+  });
+
   descLoaded = false;
   descListener = (funcDesc: FunctionDesc) => {
     this.setDesc(funcDesc || blankFuncDesc);
@@ -742,6 +756,12 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   setDesc(desc: FunctionDesc) {
     if (desc !== this.desc) {
       this.desc = desc;
+      if (desc?.dynamicProps) {
+        this.dynamicPropsListener.subscribe(this.conn, `${this.path}.#props`, true);
+      } else {
+        this.dynamicPropsListener.unsubscribe();
+        this.dynamicProps = null;
+      }
       this.updatePropCache();
       this.forceUpdate();
       this.forceRendererChildren();
@@ -784,7 +804,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   }
 
   updatePropCache() {
-    this.propDescCache = buildPropDescCache(this.desc, this.custom);
+    this.propDescCache = buildPropDescCache(this.desc, this.custom, this.dynamicProps);
     this.optionalPropDescs = this.conn.getOptionalProps(this.desc, this.stage.getFuncModule());
     for (const [key, item] of this.fieldItems) {
       item.setDesc(this.getFieldDesc(key));
@@ -808,6 +828,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
   destroy() {
     this.isListener.unsubscribe();
     this.customListener.unsubscribe();
+    this.dynamicPropsListener.unsubscribe();
     this.pListener.unsubscribe();
     this.inlineListener.unsubscribe();
     this.inlineConfig = undefined;

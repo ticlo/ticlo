@@ -32,3 +32,14 @@ view-deck:
 jsx:
   script:
     '@name': Script
+
+page-include:
+  '@name': Page Include
+  src:
+    '@name': Page Source
+  '#closeMode':
+    '@name': Close Mode
+    '@options':
+      'on': Keep On
+      'off': Unload
+      disable: Disable

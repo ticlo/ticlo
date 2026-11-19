@@ -10,6 +10,7 @@ import {PropDispatcher, PropListener} from './Dispatcher.ts';
 import {BlockModeList, FunctionDesc} from './Descriptor.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import type {Flow, Root} from './Flow.ts';
+import {Logger} from '../util/Logger.ts';
 import {encode} from '../util/Serialize.ts';
 
 export {createFunctionFactory};
@@ -18,7 +19,94 @@ export interface DescListener {
   onDescChange(id: string, desc: FunctionDesc): void;
 }
 
-export class FunctionDispatcher extends PropDispatcher<FunctionFactory | null> {}
+export const DEFAULT_MAX_WORKER_INSTANCES = 65536;
+export const DEFAULT_MAX_MULTI_WORKER_INSTANCES = 8192;
+
+export type FunctionListenMode = 'single' | 'multi' | 'internal';
+
+export class FunctionDispatcher extends PropDispatcher<FunctionFactory | null> {
+  _multiListeners?: Set<PropListener<FunctionFactory | null>>;
+  _internalListeners?: Set<PropListener<FunctionFactory | null>>;
+
+  hasListeners(): boolean {
+    return Boolean(this._listeners.size || this._multiListeners?.size || this._internalListeners?.size);
+  }
+
+  private _getLimit(factory: FunctionFactory | null, mode: 'single' | 'multi'): number {
+    if (!(factory?.ticlWorkerData instanceof Object)) return Infinity;
+    if (factory.maxInstances !== undefined) return factory.maxInstances;
+    return mode === 'multi' ? DEFAULT_MAX_MULTI_WORKER_INSTANCES : DEFAULT_MAX_WORKER_INSTANCES;
+  }
+
+  private _logLimit(factory: FunctionFactory | null, limit: number) {
+    Logger.error(`worker function ${factory?.desc?.id ?? 'unknown'} reached max instances (${limit})`);
+  }
+
+  listen(listener: PropListener<FunctionFactory | null>, mode: FunctionListenMode = 'single') {
+    if (mode === 'internal') {
+      (this._internalListeners ??= new Set()).add(listener);
+      listener.onSourceChange?.(this);
+      if (!this._updating) {
+        listener.onChange(this._value);
+      }
+      return;
+    }
+    const set = mode === 'multi' ? (this._multiListeners ??= new Set()) : this._listeners;
+    const limit = this._getLimit(this._value, mode);
+    if (!set.has(listener) && set.size >= limit) {
+      this._logLimit(this._value, limit);
+      listener.onSourceChange?.(this);
+      listener.onChange(null);
+      return;
+    }
+    set.add(listener);
+    listener.onSourceChange?.(this);
+    if (!this._updating) {
+      listener.onChange(this._value);
+    }
+  }
+
+  unlisten(listener: PropListener<FunctionFactory | null>) {
+    this._listeners.delete(listener);
+    this._multiListeners?.delete(listener);
+    this._internalListeners?.delete(listener);
+  }
+
+  protected _dispatch(): void {
+    this._updating = true;
+    this._dispatchSet(this._listeners, this._getLimit(this._value, 'single'));
+    if (this._multiListeners?.size) {
+      this._dispatchSet(this._multiListeners, this._getLimit(this._value, 'multi'));
+    }
+    if (this._internalListeners?.size) {
+      for (const listener of this._internalListeners) {
+        listener.onChange(this._value);
+      }
+    }
+    this._updating = false;
+  }
+
+  private _dispatchSet(set: Set<PropListener<FunctionFactory | null>>, limit: number) {
+    const val = this._value;
+    if (limit < Infinity) {
+      let count = 0;
+      for (const listener of set) {
+        if (count < limit) {
+          ++count;
+          listener.onChange(val);
+        } else {
+          this._logLimit(val, limit);
+          set.delete(listener);
+          listener.onChange(null);
+        }
+      }
+    } else {
+      for (const listener of set) {
+        listener.onChange(val);
+      }
+    }
+  }
+}
 
 // FunctionModule is both a registry and a live dispatcher. Blocks listen to a
 // FunctionDispatcher by id, so replacing or deleting a function factory updates
@@ -114,7 +202,7 @@ export class FunctionModule {
     const func = this._functions[id];
 
     if (func) {
-      if (func._listeners.size === 0) {
+      if (!func.hasListeners()) {
         delete this._functions[id];
       } else {
         func.updateValue(null);
@@ -131,7 +219,11 @@ export class FunctionModule {
     return null;
   }
 
-  listen(id: string, block: PropListener<FunctionFactory | null>): FunctionDispatcher {
+  listen(
+    id: string,
+    block: PropListener<FunctionFactory | null>,
+    mode: FunctionListenMode = 'single'
+  ): FunctionDispatcher {
     if (!id) {
       return null;
     }
@@ -143,7 +235,7 @@ export class FunctionModule {
       this._functions[id] = dispatcher;
     }
     if (block) {
-      dispatcher.listen(block);
+      dispatcher.listen(block, mode);
     }
     return dispatcher;
   }

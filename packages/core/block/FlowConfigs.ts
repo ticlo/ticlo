@@ -1,4 +1,4 @@
-import {InputsBlock, OutputsBlock} from './FlowIO.ts';
+import {FlowInputsBlock, FlowOutputsBlock, InputsBlock, OutputsBlock} from './FlowIO.ts';
 import type {Block} from './Block.ts';
 import {BlockIO, BlockProperty} from './BlockProperty.ts';
 import {BlockConstConfig, ConfigGenerators, ConstTypeConfig} from './BlockConfigs.ts';
@@ -7,8 +7,12 @@ import {FlowFunctionModule} from './LibraryFunctionModule.ts';
 import {isDataMap} from '../util/DataTypes.ts';
 
 export class BlockInputsConfig extends BlockIO {
+  protected _newBlock(): Block {
+    return new InputsBlock(this._block._flow, this._block, this);
+  }
+
   createBlock(save: boolean): Block {
-    const block = new InputsBlock(this._block._flow, this._block, this);
+    const block = this._newBlock();
     if (save) {
       this.setValue(block);
     } else if (save === false) {
@@ -20,8 +24,12 @@ export class BlockInputsConfig extends BlockIO {
 }
 // extends from BlockIO so it shows in the tree
 export class BlockOutputsConfig extends BlockIO {
+  protected _newBlock(): Block {
+    return new OutputsBlock(this._block._flow, this._block, this);
+  }
+
   createBlock(save: boolean): Block {
-    const block = new OutputsBlock(this._block._flow, this._block, this);
+    const block = this._newBlock();
     if (save) {
       this.setValue(block);
     } else if (save === false) {
@@ -29,6 +37,18 @@ export class BlockOutputsConfig extends BlockIO {
     }
     // skip value change when save is undefined
     return block;
+  }
+}
+
+export class FlowInputsConfig extends BlockInputsConfig {
+  protected _newBlock(): Block {
+    return new FlowInputsBlock(this._block._flow, this._block, this);
+  }
+}
+
+export class FlowOutputsConfig extends BlockOutputsConfig {
+  protected _newBlock(): Block {
+    return new FlowOutputsBlock(this._block._flow, this._block, this);
   }
 }
 
@@ -63,8 +83,8 @@ export class BlockFunctionsConfig extends BlockProperty {
 export const FlowConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...ConfigGenerators,
   '#is': ConstTypeConfig('flow:main'),
-  '#inputs': BlockInputsConfig,
-  '#outputs': BlockOutputsConfig,
+  '#inputs': FlowInputsConfig,
+  '#outputs': FlowOutputsConfig,
   '#main': BlockIO,
   '#functions': BlockFunctionsConfig,
   '#shared': BlockConstConfig,
