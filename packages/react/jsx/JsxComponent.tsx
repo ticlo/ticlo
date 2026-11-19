@@ -60,6 +60,10 @@ const jsxComponentDesc: FunctionDesc = {
   attributes: elementAttributes,
   tags: ['react-comp'],
   childrenTags: ['react-comp'],
+  init: {
+    script: `const {style, optionalHandlers} = useTicloComp(block, {noChildren: true});
+return <div style={style} {...optionalHandlers}>jsx</div>;`,
+  },
   properties: [
     {
       name: 'script',
