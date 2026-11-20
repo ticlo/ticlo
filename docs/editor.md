@@ -52,9 +52,11 @@ Descriptors, bindings, and connection policies determine editability. Flow-local
 descriptors require the owning `funcModule` path; see
 [connection scope](core.md#connection-layer).
 
-A property with `create` can convert an object to a helper or convert its output
-back to a value. Each selected Block retains its own full value. Helper creation
-establishes the output binding; setting the object removes the binding and helper.
+An empty object property uses a button with a string `create` and a Select with
+an array of helper types. A string `create` also supports converting an object to a
+helper or converting its output back to a value. Each selected Block retains its
+own full value during conversion. Creating a helper binds the property to its
+output. Setting the object back to a value removes the binding and helper.
 Optional/custom fields and `#extend` preserve unlisted data; functions with
 `recipient` receive the full object in that property.
 

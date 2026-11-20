@@ -67,6 +67,7 @@ jobs:
         image: postgres:18
         env:
           POSTGRES_PASSWORD: ticlo_test
+          POSTGRES_HOST_AUTH_METHOD: scram-sha-256
         ports:
           - 5432/tcp
         options: >-
@@ -86,6 +87,19 @@ jobs:
           --health-interval 2s
           --health-timeout 5s
           --health-retries 15
+      mysql84:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ticlo_test
+          MYSQL_ROOT_HOST: '%'
+          MYSQL_DATABASE: ticlo_test
+        ports:
+          - 3306/tcp
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -100,6 +114,8 @@ jobs:
         env:
           TICLO_TEST_POSTGRES_URL: postgresql://postgres:ticlo_test@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres
           TICLO_TEST_MYSQL_URL: mysql://root:ticlo_test@127.0.0.1:${{ job.services.mariadb.ports[3306] }}/ticlo_test
+          TICLO_TEST_MYSQL84_URL: mysql://root:ticlo_test@127.0.0.1:${{ job.services.mysql84.ports[3306] }}/ticlo_test
+          TICLO_TEST_MQTT_CONTAINER_ENGINE: docker
         run: pnpm run test-coverage
       - name: Coveralls Vitest
         if: github.event_name != 'pull_request'

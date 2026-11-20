@@ -7,7 +7,7 @@ import {
   BlockPropertySubscriber,
   HelperProperty,
 } from '../block/BlockProperty.ts';
-import {DataMap, isPrimitiveType, isStringArray} from '../util/DataTypes.ts';
+import {DataMap, isPrimitiveType, isStringArray, measureObjSize} from '../util/DataTypes.ts';
 import {truncateData} from '../util/DataTruncate.ts';
 import {Block, BlockChildWatch} from '../block/Block.ts';
 import {InputsBlock} from '../block/FlowIO.ts';
@@ -61,6 +61,17 @@ import {Library} from '../block/Library.ts';
 import {libraryFromPath, validateLibrary} from '../util/LibraryMetadata.ts';
 import {readValuePage, type ValuePageOptions, type ValueReadOptions} from './ValuePage.ts';
 
+import {
+  MAX_LIVE_TARGETS,
+  type LiveEvent,
+  type LiveExplorer,
+  type LiveExplorerSource,
+  type LivePageRequest,
+  type LiveQueryEvent,
+  type LiveSubscription,
+  type LiveUpdate,
+} from '../functions/live/LiveSource.ts';
+
 export class ServerRequest extends ConnectionSendingData {
   id: string;
   connection: ServerConnection;
@@ -68,6 +79,186 @@ export class ServerRequest extends ConnectionSendingData {
   close(): void {
     // to be overridden
   }
+}
+
+class ServerLiveWatch extends ServerRequest implements PropListener {
+  private rows = new Map<string, {subscription?: LiveSubscription}>();
+  private pendingRows = new Map<string, {value?: LiveEvent; status?: LiveEvent}>();
+  private pendingFeed: LiveUpdate[] = [];
+  private terminalFeed?: LiveEvent;
+  private pendingQuery?: LiveQueryEvent;
+  private feed?: LiveSubscription;
+  private dropped = 0;
+  private closed = false;
+
+  constructor(
+    connection: ServerConnection,
+    id: string,
+    readonly path: string,
+    private property: BlockProperty,
+    private explorer: LiveExplorer
+  ) {
+    super();
+    this.connection = connection;
+    this.id = id;
+    property.listen(this);
+  }
+
+  onSourceChange(source: PropDispatcher) {
+    if (source !== this.property) this.onChange(undefined);
+  }
+
+  onChange(value: unknown) {
+    if (this.closed || (value as LiveExplorerSource)?.liveExplorer === this.explorer) return;
+    this.connection.close(this.id);
+    this.connection.sendError(this.id, 'Live source changed');
+  }
+
+  capture(query: DataMap, follow: boolean) {
+    this.feed = this.explorer.capture(query, (event) => this.push(event), follow);
+  }
+
+  watchQuery(query: DataMap, limit: number) {
+    this.feed = this.explorer.watchQuery(query, limit, (event) => {
+      if (this.closed) return;
+      if (event.type === 'results') {
+        this.pendingQuery = {...event, rows: event.rows.slice(0, limit)};
+        this.connection.addSend(this);
+      } else {
+        this.push(event);
+      }
+    });
+  }
+
+  canSetTargets() {
+    return !this.feed && Boolean(this.explorer.watchRow);
+  }
+
+  setTargets(targets: string[]) {
+    const desired = new Set(targets);
+    for (const [target, row] of this.rows) {
+      if (!desired.has(target)) {
+        this.rows.delete(target);
+        this.pendingRows.delete(target);
+        row.subscription?.close();
+      }
+    }
+    for (const target of desired) {
+      if (this.rows.has(target)) continue;
+      const row: {subscription?: LiveSubscription} = {};
+      this.rows.set(target, row);
+      try {
+        row.subscription = this.explorer.watchRow(target, (event) => {
+          if (this.rows.get(target) === row) this.push(event, target);
+        });
+      } catch (error) {
+        this.push({type: 'status', status: 'error', message: String(error)}, target);
+      }
+    }
+  }
+
+  private push(event: LiveEvent, target?: string) {
+    if (this.closed) return;
+    if ('value' in event) {
+      const [value] = truncateData(event.value, this.connection.maxValueSize);
+      if (value !== event.value) event = {...event, value};
+    }
+    if (target === undefined) {
+      if (event.type === 'status' && event.status === 'closed') this.terminalFeed = event;
+      else if (this.pendingFeed.length < 64) this.pendingFeed.push({event});
+      else ++this.dropped;
+    } else {
+      let pending = this.pendingRows.get(target);
+      if (!pending) {
+        pending = {};
+        this.pendingRows.set(target, pending);
+      }
+      if (event.type === 'status' || event.type === 'gap') pending.status = event;
+      else pending.value = event;
+    }
+    this.connection.addSend(this);
+  }
+
+  getSendingData() {
+    const updates: LiveUpdate[] = [];
+    let size = 0;
+    const limit = this.connection.maxMessageSize;
+    if (this.dropped) {
+      updates.push({event: {type: 'gap', dropped: this.dropped}});
+      this.dropped = 0;
+      size += 32;
+    }
+    for (const [target, {value, status}] of this.pendingRows) {
+      this.pendingRows.delete(target);
+      for (const event of [status, value]) {
+        if (event) {
+          const update = {target, event};
+          updates.push(update);
+          size += measureObjSize(update);
+        }
+      }
+      if (size >= limit) break;
+    }
+    let sent = 0;
+    if (size < limit) {
+      for (const update of this.pendingFeed) {
+        updates.push(update);
+        ++sent;
+        size += measureObjSize(update);
+        if (size >= limit) break;
+      }
+    }
+    if (sent) this.pendingFeed.splice(0, sent);
+    if (this.pendingQuery && size < limit) {
+      updates.push({event: this.pendingQuery});
+      size += measureObjSize(this.pendingQuery);
+      this.pendingQuery = undefined;
+    }
+    if (this.terminalFeed && !this.pendingFeed.length && size < limit) {
+      updates.push({event: this.terminalFeed});
+      size += measureObjSize(this.terminalFeed);
+      this.terminalFeed = undefined;
+    }
+    if (this.pendingRows.size || this.pendingFeed.length || this.pendingQuery || this.terminalFeed)
+      this.connection.addSend(this);
+    return {data: updates.length ? {cmd: 'update', id: this.id, updates} : null, size};
+  }
+
+  close() {
+    this.closed = true;
+    this.property.unlisten(this);
+    for (const row of this.rows.values()) row.subscription?.close();
+    this.rows.clear();
+    this.pendingRows.clear();
+    this.pendingFeed.length = 0;
+    this.pendingQuery = undefined;
+    this.terminalFeed = undefined;
+    this.feed?.close();
+  }
+}
+
+function validLiveTargets(targets: unknown): targets is string[] {
+  return (
+    Array.isArray(targets) &&
+    targets.length <= MAX_LIVE_TARGETS &&
+    targets.every((target) => typeof target === 'string' && target.length <= 4096)
+  );
+}
+
+function validLivePage({limit, cursor}: LivePageRequest) {
+  return (
+    Number.isSafeInteger(limit) &&
+    limit > 0 &&
+    limit <= 256 &&
+    (cursor === undefined || (typeof cursor === 'string' && cursor.length <= 4096))
+  );
+}
+
+function getLiveExplorer(root: Root, path: string) {
+  const block = root.queryValue(path);
+  const property = block instanceof Block ? block.getProperty('#output', false) : undefined;
+  const explorer = (property?.getValue() as LiveExplorerSource)?.liveExplorer;
+  return {property, explorer};
 }
 
 class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, PropListener<any> {
@@ -392,6 +583,11 @@ const readCommands = new Set([
   'subscribe',
   'watch',
   'watchDesc',
+  'getLiveCapabilities',
+  'listLiveChildren',
+  'searchLive',
+  'watchLive',
+  'setLiveTargets',
   'getSettings',
   'getFlowState',
   'getAutoLoadFlow',
@@ -1078,6 +1274,94 @@ export class ServerConnection extends ServerConnectionCore {
     } else {
       return 'invalid path';
     }
+  }
+
+  getLiveCapabilities({path}: {path: string}) {
+    const {explorer} = getLiveExplorer(this.root, path);
+    if (!explorer) return 'Live source is not ready';
+    const capabilities = explorer.describe();
+    const readonly = this.readonly || this.root._storage?.canWriteFlow?.(path) === false;
+    return {capabilities: readonly ? {...capabilities, publish: undefined} : capabilities};
+  }
+
+  listLiveChildren({path, parent, limit, cursor}: {path: string; parent?: string} & LivePageRequest) {
+    const {explorer} = getLiveExplorer(this.root, path);
+    if (!explorer?.listChildren) return 'Tree browsing is unavailable';
+    if (!validLivePage({limit, cursor}) || (parent !== undefined && typeof parent !== 'string')) return 'Invalid page';
+    return explorer.listChildren(parent, {limit, cursor});
+  }
+
+  searchLive({path, query, limit, cursor}: {path: string; query: DataMap} & LivePageRequest) {
+    const {explorer} = getLiveExplorer(this.root, path);
+    if (!explorer?.search) return 'Search is unavailable';
+    if (!validLivePage({limit, cursor}) || !query || typeof query !== 'object' || Array.isArray(query))
+      return 'Invalid search';
+    return explorer.search(query, {limit, cursor});
+  }
+
+  watchLive({
+    path,
+    id,
+    targets,
+    capture,
+    follow,
+    query,
+    limit,
+  }: {
+    path: string;
+    id: string;
+    targets?: string[];
+    capture?: DataMap;
+    follow?: boolean;
+    query?: DataMap;
+    limit?: number;
+  }) {
+    if (!this._connected || typeof id !== 'string') return 'Live updates require a streaming connection';
+    const {property, explorer} = getLiveExplorer(this.root, path);
+    if (!explorer) return 'Live source is not ready';
+    if (capture !== undefined) {
+      if (
+        !explorer.capture ||
+        !capture ||
+        typeof capture !== 'object' ||
+        Array.isArray(capture) ||
+        (follow !== undefined && typeof follow !== 'boolean') ||
+        (follow && !explorer.describe().follow)
+      )
+        return 'Capture is unavailable';
+    } else if (query !== undefined) {
+      if (
+        !explorer.watchQuery ||
+        !query ||
+        typeof query !== 'object' ||
+        Array.isArray(query) ||
+        !Number.isSafeInteger(limit) ||
+        limit < 1 ||
+        limit > 100
+      )
+        return 'Invalid live query';
+    } else if (!explorer.watchRow || !validLiveTargets(targets)) {
+      return 'Invalid live targets';
+    }
+    const request = new ServerLiveWatch(this, id, path, property, explorer);
+    try {
+      if (capture !== undefined) request.capture(capture, follow === true);
+      else if (query !== undefined) request.watchQuery(query, limit);
+      else request.setTargets(targets);
+      return request;
+    } catch (error) {
+      request.close();
+      throw error;
+    }
+  }
+
+  setLiveTargets({path, watchId, targets}: {path: string; watchId: string; targets: string[]}) {
+    const watch = this.requests[watchId];
+    if (!(watch instanceof ServerLiveWatch) || watch.path !== path || !validLiveTargets(targets))
+      return 'Invalid live watch';
+    if (!watch.canSetTargets()) return 'Cannot change a capture';
+    watch.setTargets(targets);
+    return null;
   }
 
   /**

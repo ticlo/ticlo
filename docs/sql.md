@@ -88,15 +88,10 @@ zero affected rows rather than reusing a preceding write's metadata.
 
 Import `@ticlo/postgres` in Node.js to register `database:postgres`. The development
 server imports it. Enter a URL such as `postgresql://app@db.example:5432/mydb` in
-`connectionString` and set the database password through the Block's
-[`#secret` configuration](runtime-lifecycle.md#block-secrets). Move passwords
-from existing URLs to `#secret` before saving the Flow. The Block opens a pool
-on load and replaces it when its configuration changes. `maxConnections` defaults
+`connectionString`. See [SQL authentication](#sql-authentication) for password
+setup. The Block opens a pool on load and replaces it when its configuration changes. `maxConnections` defaults
 to 10, `connectionTimeout` to 5000 ms, and `statementTimeout` to 30000 ms.
 Set a timeout to 0 to disable it.
-
-To supply the password from the host environment, bind a
-[`node:env` helper](runtime-lifecycle.md#environment-variables) to `#secret`.
 
 Use positional placeholders such as `$1` with an array. A statement with
 `RETURNING` includes a table, and write statements report the driver's affected
@@ -106,20 +101,22 @@ and calendar and timestamp values are returned as text to preserve precision.
 of statements that must share a transaction.
 
 Run `pnpm test connectors/postgres` to exercise the connector. Locally, the
-suite uses a `postgres:18` Podman container on an available loopback port. The
-Git-ignored `connectors/postgres/__spec__/postgres.podman.local.cid` records its ID.
+suite uses a `postgres:18` Podman container with SCRAM authentication on an
+available loopback port. The Git-ignored
+`connectors/postgres/__spec__/postgres.podman.local.cid` records its ID.
 Later runs reuse the container and start it if stopped. The local test database
 and username are both `postgres`, and the password is `ticlo_test`. Each run
 drops its own test schema. Set `TICLO_TEST_POSTGRES_URL` to use a disposable
-database that allows the test account to create and drop schemas. GitHub
-Actions supplies that URL from a PostgreSQL service managed by the runner.
+database with SCRAM authentication that allows the test account to create and
+drop schemas. GitHub Actions supplies that URL from a PostgreSQL service managed
+by the runner.
 
 ### MySQL and MariaDB
 
 Import `@ticlo/mysql` in a Node.js host to register `database:mysql`. The
 development server imports it. Set `connectionString` to a URL such as
-`mysql://app@127.0.0.1:3306/mydb` and put the password in
-[`#secret`](runtime-lifecycle.md#block-secrets). Add `?ssl=true` to use TLS
+`mysql://app@127.0.0.1:3306/mydb`. For password authentication, use the
+[SQL authentication setup](#sql-authentication). Add `?ssl=true` to use TLS
 with certificate verification. `maxConnections` defaults to 10 and
 `connectionTimeout` defaults to 5000 ms.
 
@@ -128,12 +125,27 @@ Use `?` placeholders with an array of values. Results preserve `BIGINT`,
 `Uint8Array`. Use transactional tables such as InnoDB with `sql:transaction`.
 The connector validates the batch and rolls back on statement errors.
 
-Run `pnpm test connectors/mysql` to test against MariaDB. Locally, the suite
-reuses a MariaDB 11.8 Podman container with database `ticlo_test`, user `root`,
-and password `ticlo_test`. The Git-ignored
-`connectors/mysql/__spec__/mariadb.podman.local.cid` records its ID. Use
+Run `pnpm test connectors/mysql` to test MariaDB 11.8 compatibility and MySQL
+8.4 authentication with `caching_sha2_password`. Locally, both use Podman with
+database `ticlo_test`, user `root`, and password `ticlo_test`. Use
 `TICLO_TEST_MYSQL_URL` to supply a test database with permission to create and
-drop databases. GitHub Actions supplies the URL for its MariaDB service.
+drop databases. Use `TICLO_TEST_MYSQL84_URL` to supply a MySQL 8.4 test database
+with a `caching_sha2_password` account that can read its row in `mysql.user`.
+GitHub Actions supplies both URLs through service containers.
+
+### SQL authentication
+
+Choose `auth:password` in the Block's `auth` field or bind it to an existing
+password Auth Block. The database Block keeps its password in
+[`#secret`](runtime-lifecycle.md#block-secrets). An existing
+[`node:env` helper](runtime-lifecycle.md#environment-variables) can supply it.
+Leave `auth` empty for connections without a password.
+
+To upgrade a saved Flow that already sets `#secret` directly or through a
+binding, select `auth:password` in the editor and save. In saved Block data,
+the equivalent edit adds `"~auth": {"#is": "auth:password"}` next to the
+existing secret configuration. Move any URL password into `#secret` and
+remove it from the URL.
 
 ## Client management
 

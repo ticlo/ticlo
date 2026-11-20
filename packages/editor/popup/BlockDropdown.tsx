@@ -118,6 +118,11 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} />, this.context.showModal);
   };
 
+  onManageLiveSource = () => {
+    const {conn, path} = this.props;
+    this.context.manageLiveSource?.(conn, path);
+  };
+
   onManageDatabase = () => {
     const {conn, path} = this.props;
     this.context.manageDatabase?.(conn, path);
@@ -181,6 +186,15 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
 
     const showCallMenu = !functionId.startsWith('flow:') && this.can('callFunction');
     const commandMenus: React.ReactElement[] = [];
+
+    if (funcDesc?.tags?.includes('live-client') && this.context.manageLiveSource) {
+      menuitems.push(
+        <MenuItem key="live-source" onClick={this.onManageLiveSource}>
+          <DatabaseOutlined />
+          {t('Manage live data')}
+        </MenuItem>
+      );
+    }
 
     if (funcDesc?.tags?.includes('sql-client') && this.context.manageDatabase) {
       menuitems.push(

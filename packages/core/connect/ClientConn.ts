@@ -12,6 +12,14 @@ import type {LibraryMetadata} from '../block/Storage.ts';
 import {libraryPath} from '../util/LibraryMetadata.ts';
 import type {ValueReadOptions, ValuePageOptions, ValuePage} from './ValuePage.ts';
 
+import type {
+  LiveCapabilities,
+  LivePage,
+  LivePageRequest,
+  LiveUpdate,
+  LiveWatchOptions,
+} from '../functions/live/LiveSource.ts';
+
 export type {ValueReadOptions, ValuePageOptions, ValuePage} from './ValuePage.ts';
 
 export interface LibraryRuntimeInfo extends LibraryGraph {
@@ -225,6 +233,37 @@ export abstract class ClientConn {
    */
   query(path: string, query: Query, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'query', path, query}, callbacks);
+  }
+
+  getLiveCapabilities(path: string): Promise<{capabilities: LiveCapabilities}> {
+    return this.simpleRequest({cmd: 'getLiveCapabilities', path});
+  }
+
+  listLiveChildren(path: string, parent: string | undefined, page: LivePageRequest): Promise<LivePage> {
+    return this.simpleRequest({cmd: 'listLiveChildren', path, parent, ...page});
+  }
+
+  searchLive(path: string, query: DataMap, page: LivePageRequest): Promise<LivePage> {
+    return this.simpleRequest({cmd: 'searchLive', path, query, ...page});
+  }
+
+  watchLive(
+    path: string,
+    options: LiveWatchOptions,
+    update: (updates: LiveUpdate[]) => void,
+    error: (message: string) => void
+  ): string {
+    return this.simpleRequest(
+      {cmd: 'watchLive', path, ...options},
+      {
+        onUpdate: ({updates}) => update(updates as LiveUpdate[]),
+        onError: error,
+      }
+    ) as string;
+  }
+
+  setLiveTargets(path: string, watchId: string, targets: string[]): Promise<void> {
+    return this.simpleRequest({cmd: 'setLiveTargets', path, watchId, targets});
   }
 
   /**

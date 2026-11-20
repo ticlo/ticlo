@@ -31,6 +31,34 @@ describe('ObjectEditor conversion', () => {
     vi.restoreAllMocks();
   });
 
+  it('creates and binds the only helper type in a create array when allowed', async () => {
+    const flow = Root.instance.addFlow('ObjectEditorTest', {block: {'#is': ''}});
+    const [, base] = makeLocalConnection(Root.instance, true);
+    const [replacePolicy] = loadPolicyTemplate(
+      base.withPolicy({denyBlockTypes: ['auth:password']}),
+      (conn) => (
+        <EditPolicyProvider conn={conn}>
+          <PropertyEditor
+            conn={conn}
+            paths={['ObjectEditorTest.block']}
+            name="auth"
+            funcDesc={blankFuncDesc}
+            propDesc={{name: 'auth', type: 'object', create: ['auth:password']}}
+          />
+        </EditPolicyProvider>
+      ),
+      'editor'
+    );
+    await shouldHappen(() => document.querySelector('.ant-select-disabled'));
+    replacePolicy({});
+    const select = await shouldHappen(() => document.querySelector('.ant-select:not(.ant-select-disabled)'));
+    await userEvent.click(select);
+    await page.getByText('password', {exact: true}).click();
+    await shouldHappen(() => flow.queryProperty('block.auth')?._bindingPath === '~auth.#output');
+    expect(flow.queryValue('block.~auth.#is')).toBe('auth:password');
+    expect(await shouldHappen(() => flow.queryValue('block.auth'))).toEqual({authMode: 'password', showSecret: true});
+  });
+
   it('round-trips each selected block with one full read and one write per block', async () => {
     const first = {color: 'red', width: 12, extra: 'x'.repeat(3000)};
     const second = {color: 'blue', height: 24, extra: 'y'.repeat(3000)};

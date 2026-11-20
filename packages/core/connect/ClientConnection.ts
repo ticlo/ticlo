@@ -1,4 +1,4 @@
-import {Connection, ConnectionSendingData} from './Connection.ts';
+import {Connection, ConnectionSend, ConnectionSendingData} from './Connection.ts';
 import {Uid} from '../util/Uid.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {FunctionDesc, PropDesc} from '../block/Descriptor.ts';
@@ -36,6 +36,7 @@ const unrestrictedEditPolicy = new EditPolicyView();
 
 export abstract class ClientConnection extends ClientConn {
   private readonly transport = new ClientTransport(this);
+  readonly connectionChanges = new StreamDispatcher<boolean>();
 
   get _connected() {
     return this.transport._connected;
@@ -336,6 +337,7 @@ export abstract class ClientConnection extends ClientConn {
   cancel(id: string) {
     const req = this.requests.get(id);
     if (req instanceof ClientRequest) {
+      if (req._data?.cmd === 'watchLive') this.addSend(new ConnectionSend({cmd: 'close', id}));
       req.cancel();
       this.requests.delete(id);
     }
@@ -498,6 +500,7 @@ export abstract class ClientConnection extends ClientConn {
   onConnect() {
     this.copiedData = undefined;
     this.transport.onConnect();
+    this.connectionChanges.dispatch(true);
     // TODO: add some delay to make sure the connection is correct
     this._reconnectInterval = 1;
   }
@@ -505,6 +508,7 @@ export abstract class ClientConnection extends ClientConn {
   onDisconnect() {
     this.copiedData = undefined;
     this.transport.onDisconnect();
+    this.connectionChanges.dispatch(false);
     // remove requests from the map
     // or notify the disconnection
     for (const [key, req] of this.requests) {
@@ -539,6 +543,7 @@ export abstract class ClientConnection extends ClientConn {
       clearTimeout(this._reconnectTimeout);
     }
     this.transport.destroy();
+    this.connectionChanges.dispatch(false);
   }
 }
 

@@ -45,7 +45,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
     this.valueListener.subscribe(this.conn, `${this.path}.${this.name}`);
     this.displayListener.subscribe(this.conn, `${this.path}.@b-p`);
     const {propDesc, funcModule} = this.parent.props;
-    if (propDesc.type === 'object' && propDesc.create) {
+    if (propDesc.type === 'object' && typeof propDesc.create === 'string' && propDesc.create) {
       this.conn.watchDesc(propDesc.create, getDescModule(propDesc.create, funcModule), this.onCreateDesc);
     }
   }
@@ -71,7 +71,8 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
       if (Object.hasOwn(response.change, 'hasListener')) changed = true;
       if (Object.hasOwn(response.change, 'value') || Object.hasOwn(response.change, 'bindingPath')) {
         this.subBlock = response.cache.bindingPath === `~${this.name}.#output`;
-        if (this.parent.props.propDesc.type === 'object' && this.parent.props.propDesc.create && this.subBlock) {
+        const {propDesc} = this.parent.props;
+        if (propDesc.type === 'object' && typeof propDesc.create === 'string' && propDesc.create && this.subBlock) {
           this.helperListener.subscribe(this.conn, `${this.path}.~${this.name}.#is`);
         } else {
           this.helperListener.unsubscribe();
@@ -423,7 +424,14 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
 
   canConvertObject(loader: PropertyLoader, toHelper: boolean) {
     const {name, propDesc} = this.props;
-    if (propDesc.type !== 'object' || !propDesc.create || propDesc.readonly || !loader.cache) return false;
+    if (
+      propDesc.type !== 'object' ||
+      typeof propDesc.create !== 'string' ||
+      !propDesc.create ||
+      propDesc.readonly ||
+      !loader.cache
+    )
+      return false;
     const {value, bindingPath} = loader.cache;
     if (!value || typeof value !== 'object' || !isBaseObject(value)) return false;
     if (!this.context.can({cmd: 'get', path: `${loader.path}.${name}`})) return false;

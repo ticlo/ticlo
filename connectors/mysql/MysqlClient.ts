@@ -13,12 +13,12 @@ import {sqlColumns, validateReadonlyQuery, validateSqlTransaction} from '@ticlo/
 
 export interface MysqlOptions {
   connectionString: string;
-  password?: string;
+  password?: string | null;
   maxConnections?: number;
   connectionTimeout?: number;
 }
 
-function connectionOptions(connectionString: string, password?: string) {
+function connectionOptions(connectionString: string, password?: string | null) {
   let url: URL;
   try {
     url = new URL(connectionString);
@@ -36,7 +36,7 @@ function connectionOptions(connectionString: string, password?: string) {
     port: url.port ? Number(url.port) : 3306,
     user: decodeURIComponent(url.username),
     database: decodeURIComponent(url.pathname.slice(1)) || undefined,
-    password: password ?? decodeURIComponent(url.password),
+    password: password === undefined ? decodeURIComponent(url.password) : (password ?? undefined),
     ssl: ssl ? {rejectUnauthorized: true, verifyIdentity: true} : undefined,
   };
 }

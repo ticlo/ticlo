@@ -22,12 +22,12 @@ const schema = `ticlo.${randomUUID()}`;
 const tableName = 'quote"table';
 const table = `"${schema}"."quote""table"`;
 
-it('rejects passwords in the public URL for a split connection', async () => {
+it.each([null, ''])('rejects passwords in the public URL for Block authentication (%j)', async (password) => {
   for (const connectionString of [
     'postgresql://user:example@localhost/test',
     'postgresql://user@localhost/test?password=example',
   ]) {
-    await expect(PostgresClient.open({connectionString, password: ''})).rejects.toThrow('password in #secret');
+    await expect(PostgresClient.open({connectionString, password})).rejects.toThrow('password in #secret');
   }
 });
 
@@ -124,6 +124,7 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () =>
     url.password = '';
     url.searchParams.delete('password');
     vi.stubEnv(passwordEnv, password);
+    vi.stubEnv('PGPASSWORD', password);
     setSecretCipher(new SecretCipher(randomBytes(32)));
     const flow = new Flow();
     try {
@@ -131,6 +132,7 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () =>
       block._load({
         '#is': 'database:postgres',
         'connectionString': url.toString(),
+        '~auth': {'#is': 'auth:password'},
         '~#secret': {'#is': 'node:env', 'name': passwordEnv},
       });
       Root.run();
@@ -144,6 +146,17 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () =>
       expect(flow.save().database).not.toHaveProperty('#secret');
 
       if (password) {
+        const unauthenticated = flow.createBlock('unauthenticated');
+        unauthenticated._load({'#is': 'database:postgres', 'connectionString': url.toString()});
+        unauthenticated.setValue('#secret', password);
+        Root.run();
+        const {detail} = await shouldHappen(() => {
+          const event = unauthenticated.getValue('#emit');
+          return event instanceof ErrorEvent && event;
+        }, 5000);
+        expect(detail.message).toMatch(/SCRAM.*password/);
+        expect(unauthenticated.getValue('#output')).toBeUndefined();
+
         block.setValue('#secret', password);
         const saved = decode(encodeSorted(block._save())) as Record<string, unknown>;
         expect(saved['#secret']).toBeInstanceOf(Uint8Array);

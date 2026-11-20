@@ -1,7 +1,8 @@
 # Connector packages
 
 The SQLite and PostgreSQL connectors implement the common
-[SQL client contract](sql.md) used by core's `sql:query` and `sql:transaction`.
+[SQL client contract](sql.md) used by core's `sql:query` and `sql:transaction`. The MQTT connector uses the
+[live connector contract](live-connectors.md).
 
 Each `connectors/<name>/` directory with a `package.json` is a pnpm workspace
 package, like a package under `packages/`. Declare Ticlo dependencies with the

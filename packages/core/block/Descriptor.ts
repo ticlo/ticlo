@@ -83,8 +83,8 @@ export interface PropDesc {
   // date, date-range, default is true
   showTime?: boolean;
 
-  // service, object
-  create?: string;
+  // service: one creator; object: one helper type or a list of choices
+  create?: string | readonly string[];
 
   // allowed types in editor for dynamic types
   types?: ValueType[];

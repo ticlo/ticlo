@@ -35,7 +35,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
 
   canCreate() {
     const {conn, desc, onPathChange, locked} = this.props;
-    if (!onPathChange || locked || !desc.create) return false;
+    if (!onPathChange || locked || typeof desc.create !== 'string' || !desc.create) return false;
     const funcDesc = conn.watchDesc(desc.create);
     return (
       funcDesc &&
@@ -51,6 +51,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     if (!this.canCreate()) return;
     const {conn, desc} = this.props;
     const {create} = desc;
+    if (typeof create !== 'string') return;
     const funcDesc = conn.watchDesc(create);
     if (funcDesc) {
       const createdBlock = await conn.addBlock(
@@ -124,7 +125,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
           />
         </Popup>
       );
-    } else if (!locked && create) {
+    } else if (!locked && typeof create === 'string' && create) {
       button = (
         <Button
           className="ticl-e-square-icon-btn"

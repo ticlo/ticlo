@@ -5,6 +5,7 @@ const ResizeObserver = (ResizeObserver_ as any).default || ResizeObserver_;
 interface Props {
   itemCount: number;
   itemHeight: number;
+  onRangeChange?: (start: number, end: number) => void;
   renderer: (idx: number, style: React.CSSProperties) => React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
@@ -44,6 +45,23 @@ export default class VirtualList extends React.Component<Props, State> {
       });
     });
     this.resizeObserver.observe(this.rootNode);
+  }
+
+  componentDidUpdate(previousProps: Props, previousState: State) {
+    const {onRangeChange, itemCount, itemHeight} = this.props;
+    if (
+      onRangeChange &&
+      (previousProps.onRangeChange !== onRangeChange ||
+        previousProps.itemCount !== itemCount ||
+        previousProps.itemHeight !== itemHeight ||
+        previousState.height !== this.state.height ||
+        previousState.offset !== this.state.offset)
+    ) {
+      const {height, offset} = this.state;
+      const start = Math.min(itemCount, Math.floor(offset / itemHeight));
+      const end = height ? Math.min(itemCount, Math.ceil((offset + height) / itemHeight)) : start;
+      onRangeChange(start, end);
+    }
   }
 
   componentWillUnmount() {

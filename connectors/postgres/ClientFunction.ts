@@ -4,6 +4,7 @@ import {
   escapedObject,
   globalFunctions,
   Logger,
+  resolvePasswordAuth,
   sqlClientApi,
   sqlClientCommands,
   type Block,
@@ -28,7 +29,7 @@ class PostgresClientFunction extends BaseFunction<Block> {
     this._data.output(undefined);
     const client = await PostgresClient.open({
       connectionString: this._data.getValue('connectionString') as string,
-      password: this.#getSecret() ?? '',
+      password: resolvePasswordAuth(this._data.getValue('auth'), this.#getSecret) ?? null,
       maxConnections: this._data.getValue('maxConnections') as number | undefined,
       connectionTimeout: this._data.getValue('connectionTimeout') as number | undefined,
       statementTimeout: this._data.getValue('statementTimeout') as number | undefined,
@@ -89,6 +90,7 @@ globalFunctions.addFactory(
     commands: sqlClientCommands,
     properties: [
       {name: 'connectionString', type: 'string', pinned: true},
+      {name: 'auth', type: 'object', create: ['auth:password']},
       configDescs['#secret'],
       {name: 'maxConnections', type: 'number', default: 10, min: 1},
       {name: 'connectionTimeout', type: 'number', default: 5000, min: 0, unit: 'ms'},

@@ -28,6 +28,7 @@
     "@ticlo/editor": "workspace:*",
     "@ticlo/file-server": "workspace:*",
     "@ticlo/html": "workspace:*",
+    "@ticlo/mqtt": "workspace:*",
     "@ticlo/mysql": "workspace:*",
     "@ticlo/node": "workspace:*",
     "@ticlo/postgres": "workspace:*",

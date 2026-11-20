@@ -73,6 +73,10 @@ export type {
   SqlEntityColumn,
 } from './functions/sql/SqlClient.ts';
 export {sqlClientCommands, sqlClientApi} from './functions/sql/SqlClientCommands.ts';
+export {resolvePasswordAuth, type AuthProfile} from './functions/auth/AuthProfile.ts';
+export {createTlsClientIdentity, type TlsClientIdentity} from './functions/auth/TlsClientIdentity.ts';
+export * from './functions/live/LiveSource.ts';
+export {SubscribeFunction} from './functions/live/SubscribeFunction.ts';
 export * from './property-api/ObjectValue.ts';
 export {moveBlocks} from './property-api/CopyPaste.ts';
 export {deleteBlock} from './property-api/DeleteBlock.ts';

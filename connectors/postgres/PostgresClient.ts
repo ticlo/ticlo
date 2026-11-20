@@ -14,7 +14,7 @@ import {sqlColumns, validateReadonlyQuery, validateSqlTransaction} from '@ticlo/
 
 export interface PostgresOptions {
   connectionString: string;
-  password?: string;
+  password?: string | null;
   maxConnections?: number;
   connectionTimeout?: number;
   statementTimeout?: number;
@@ -22,7 +22,7 @@ export interface PostgresOptions {
 
 const {Pool, types} = pg;
 
-function connectionOptions(connectionString: string, password?: string): pg.ClientConfig {
+function connectionOptions(connectionString: string, password?: string | null): pg.ClientConfig {
   if (password === undefined) return {connectionString};
   const {
     host,
@@ -49,7 +49,8 @@ function connectionOptions(connectionString: string, password?: string): pg.Clie
     fallback_application_name,
     options,
     client_encoding,
-    password,
+    // A provider opts out of both PGPASSWORD and pgpass, even without a password.
+    password: () => password ?? undefined,
   };
 }
 const {BYTEA, DATE, INT8, NUMERIC, TIMESTAMP, TIMESTAMPTZ, INTERVAL} = types.builtins;

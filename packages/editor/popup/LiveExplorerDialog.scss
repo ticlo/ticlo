@@ -1,0 +1,56 @@
+.ticl-e-live {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+
+  .ticl-e-live-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px;
+    border-bottom: 1px solid var(--ant-color-border);
+  }
+
+  .ticl-e-live-list {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .ticl-e-live-row {
+    display: flex;
+    align-items: center;
+    padding-inline: 8px;
+    gap: 8px;
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+  }
+
+  .ticl-e-live-label {
+    flex: 0 1 34%;
+  }
+
+  .ticl-e-live-preview {
+    flex: 1;
+  }
+
+  .ticl-e-live-label,
+  .ticl-e-live-preview {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ticl-e-live-expand {
+    border: 0;
+    padding: 0 4px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .ticl-e-live-empty {
+    padding: 12px;
+  }
+}
