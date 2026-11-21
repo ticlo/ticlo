@@ -1,16 +1,32 @@
 import {expect, vi} from 'vitest';
 import {page, userEvent} from 'vitest/browser';
 import {ConfigProvider} from 'antd';
+import {DockLayout} from 'rc-dock';
 import {simulate} from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage.tsx';
-import {type Flow, Root} from '@ticlo/core';
+import {type Flow, PureFunction, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.ts';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.ts';
 import {initEditor, PropertyList} from '../../index.ts';
 import {theme} from '../../style/theme.ts';
 import {TicloLayoutContextType} from '../../component/LayoutContext.ts';
+import {SchedulePane} from '../../dock/schedule/SchedulePane.tsx';
+import {TableEditor} from '../../property/value/TableEditor.tsx';
+import {defaultWorkerData} from '@ticlo/core/defaults/DefaultFlows.ts';
+import '@ticlo/html/functions/CreateStyle.ts';
+
+async function selectOption(label: string) {
+  const option = await shouldHappen(() =>
+    [
+      ...document.querySelectorAll(
+        '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content'
+      ),
+    ].find((element) => element.textContent === label)
+  );
+  await userEvent.click(page.elementLocator(option));
+}
 
 describe('editor Block Field', function () {
   let flow: Flow;
@@ -131,6 +147,108 @@ describe('editor Block Field', function () {
     await conn.setBinding(`${path}.input`, 'source', false, true);
     await shouldHappen(() => !div.querySelector('.ticl-e-inline-value'));
     expect(div.querySelector('.ticl-e-field-value').textContent).toContain('bound');
+  });
+
+  it('creates inline helpers and round-trips an array through a Flow-local helper', async () => {
+    const basePath = 'BlockFieldInlineHelper';
+    const items = [{label: 'x'.repeat(3000)}, {label: 'second'}];
+    flow = Root.instance.addFlow(basePath, {
+      block: {
+        '#is': '',
+        '#custom': [
+          {name: 'auth', type: 'object', create: ['auth:password']},
+          {name: 'style', type: 'object', create: 'html:create-style'},
+          {name: 'items', type: 'array', create: ':array-helper'},
+          {name: 'dynamic', type: 'any', types: ['array'], create: [':array-helper']},
+        ],
+        items,
+        '@b-xyw': [100, 100, 250],
+        '@b-p': ['auth', 'style', 'items', 'dynamic'],
+        '@b-inline': {auth: true, style: true, items: true, dynamic: true},
+      },
+    });
+    class ArrayHelper extends PureFunction {
+      run() {
+        this._data.output(this._data.getValue('input'));
+      }
+    }
+    flow.getFuncModule().addFactory(ArrayHelper, {
+      id: ':array-helper',
+      name: 'array-helper',
+      recipient: 'input',
+      properties: [
+        {name: 'input', type: 'array'},
+        {name: '#output', type: 'array', readonly: true},
+      ],
+    });
+    const [, conn] = makeLocalConnection(Root.instance);
+    const [, div] = loadTemplate(<BlockStage conn={conn} basePath={basePath} funcModule={basePath} />, 'editor');
+    const field = (name: string) =>
+      [...div.querySelectorAll('.ticl-e-field-inline')].find(
+        (row) => row.querySelector('.ticl-e-field-name')?.textContent === name
+      );
+    const click = async (name: string, selector: string) => {
+      const control = await shouldHappen(() => field(name)?.querySelector<HTMLElement>(selector));
+      await userEvent.click(page.elementLocator(control));
+    };
+    await click('auth', '.ant-select:not(.ant-select-disabled)');
+    await selectOption('password');
+    await shouldHappen(() => flow.queryProperty('block.auth')._bindingPath === '~auth.#output');
+    expect(flow.queryValue('block.auth')).toEqual({authMode: 'password', showSecret: true});
+
+    await click('style', 'button:not(:disabled)');
+    await shouldHappen(() => flow.queryProperty('block.style')._bindingPath === '~style.#output');
+
+    await click('dynamic', '.ant-select:not(.ant-select-disabled)');
+    await selectOption('array-helper');
+    await shouldHappen(() => flow.queryValue('block.~dynamic.#is') === ':array-helper');
+
+    await click('items', '.ticl-e-object-convert-button');
+    await page.getByText('Convert to :array-helper', {exact: true}).click();
+    await shouldHappen(() => flow.queryProperty('block.items')._bindingPath === '~items.#output');
+    expect(flow.queryValue('block.~items.input')).toEqual(items);
+    await click('items', '.ticl-e-object-convert-button');
+    await page.getByText('Convert to array value', {exact: true}).click();
+    await shouldHappen(() => flow.queryProperty('block.items')._bindingPath == null);
+    expect(flow.queryValue('block.items')).toEqual(items);
+    expect(flow.queryValue('block.~items')).toBeUndefined();
+  });
+
+  it('binds, rebinds and clears an inline service from the stage', async () => {
+    const basePath = 'BlockFieldInlineService';
+    flow = Root.instance.addFlow(basePath, {
+      block: {
+        '#is': '',
+        '#custom': [{name: 'client', type: 'service', options: ['http-client']}],
+        '@b-xyw': [100, 100, 250],
+        '@b-p': ['client'],
+        '@b-inline': {client: true},
+      },
+    });
+    const [, conn] = makeLocalConnection(Root.instance);
+    const first = '^inline-http-a';
+    const second = '^inline-http-b';
+    try {
+      await conn.addBlock(`#global.${first}`, {'#is': 'http:client'});
+      await conn.addBlock(`#global.${second}`, {'#is': 'http:client'});
+      await shouldHappen(() => conn.findGlobalBlocks(['http-client']).includes(second));
+      const [, div] = loadTemplate(<BlockStage conn={conn} basePath={basePath} />, 'editor');
+      const service: HTMLElement = await shouldHappen(() => div.querySelector('.ticl-e-inline-value .ant-select'));
+      await userEvent.click(page.elementLocator(service));
+      await selectOption(first);
+      await shouldHappen(() => flow.queryProperty('block.client')?._bindingPath === `${first}.#output`);
+      await userEvent.click(page.elementLocator(service));
+      await selectOption(second);
+      await shouldHappen(() => flow.queryProperty('block.client')._bindingPath === `${second}.#output`);
+      await userEvent.hover(page.elementLocator(service));
+      const clear = await shouldHappen(() => service.querySelector<HTMLElement>('.ant-select-clear'));
+      await userEvent.click(page.elementLocator(clear));
+      await shouldHappen(() => flow.queryProperty('block.client')._bindingPath == null);
+      await userEvent.unhover(page.elementLocator(service));
+    } finally {
+      await conn.deleteBlock(`#global.${first}`);
+      await conn.deleteBlock(`#global.${second}`);
+    }
   });
 
   it('fits inline controls in a single stage row and shows action buttons outside on hover', async () => {
@@ -254,6 +372,86 @@ describe('editor Block Field', function () {
 
     await userEvent.unhover(page.elementLocator(rows[1].parentElement));
     await shouldHappen(() => getComputedStyle(typeButton).visibility === 'hidden');
+  });
+
+  it('opens and saves worker, table and schedule edits from inline fields', async () => {
+    const basePath = 'BlockFieldInlinePanels';
+    flow = Root.instance.addFlow(basePath, {
+      block: {
+        '#is': '',
+        '#custom': [
+          {name: 'run', type: 'worker'},
+          {name: 'rows', type: 'table', columns: [{key: 'label', type: 'string'}]},
+        ],
+        'run': {'#is': defaultWorkerData},
+        'rows': [{label: 'Before'}],
+        '@b-xyw': [100, 100, 260],
+        '@b-p': ['run', 'rows'],
+        '@b-inline': {run: true, rows: true},
+      },
+      schedule: {
+        '#is': 'scheduler',
+        'config0': {start: '09:00', duration: 60, repeat: 'daily'},
+        '@b-xyw': [400, 100, 260],
+        '@b-p': ['config0'],
+        '@b-inline': {config0: true},
+      },
+    });
+    const [, conn] = makeLocalConnection(Root.instance);
+    let layout: DockLayout;
+    const editFlow = vi.fn();
+    const [, div] = loadTemplate(
+      <TicloLayoutContextType.Provider
+        value={{
+          editFlow,
+          editTable: (props) => TableEditor.openFloatPanel(layout, props),
+          editSchedule: (path, name, index, unbound) =>
+            SchedulePane.openFloatPanel(layout, conn, path, name, index, unbound),
+        }}
+      >
+        <DockLayout
+          ref={(value) => {
+            layout = value;
+          }}
+          defaultLayout={{
+            dockbox: {
+              mode: 'horizontal',
+              children: [
+                {tabs: [{id: 'stage', title: 'Stage', content: <BlockStage conn={conn} basePath={basePath} />}]},
+              ],
+            },
+          }}
+          style={{width: 950, height: 700}}
+        />
+      </TicloLayoutContextType.Provider>,
+      'editor'
+    );
+    const worker = await shouldHappen(() => div.querySelector('.ticl-e-inline-value button:has(.anticon-edit)'));
+    await userEvent.click(page.elementLocator(worker));
+    await shouldHappen(() => editFlow.mock.calls.length === 1);
+    const [workerPath, saveWorker] = editFlow.mock.calls[0];
+    await conn.setValue(`${workerPath}.marker`, 'saved', true);
+    saveWorker();
+    await shouldHappen(() => (flow.queryValue('block.run') as {marker?: string})?.marker === 'saved');
+
+    await page.getByText('Edit table', {exact: true}).click();
+    const cell = await shouldHappen(() => div.querySelector('.ticl-e-table-editor .ticl-e-table-cell-display'));
+    await userEvent.click(page.elementLocator(cell));
+    const input = await shouldHappen(() => div.querySelector('.ticl-e-table-editor textarea'));
+    await userEvent.fill(page.elementLocator(input), 'After');
+    await page.getByRole('button', {name: 'OK', exact: true}).click();
+    await shouldHappen(() => (flow.queryValue('block.rows') as {label: string}[])[0].label === 'After');
+
+    const calendar = await shouldHappen(() => div.querySelector('.ticl-e-inline-value button:has(.anticon-calendar)'));
+    await userEvent.click(page.elementLocator(calendar));
+    const repeat = await shouldHappen(() =>
+      [...div.querySelectorAll('.ticl-e-schedule-side .ticl-e-property')]
+        .find((row) => row.querySelector('.ticl-e-property-name')?.textContent.toLowerCase() === 'repeat')
+        ?.querySelector('.ant-select')
+    );
+    await userEvent.click(page.elementLocator(repeat));
+    await selectOption('weekly');
+    await shouldHappen(() => (flow.queryValue('schedule.config0') as {repeat: string}).repeat === 'weekly');
   });
 
   it('sub block', async function () {

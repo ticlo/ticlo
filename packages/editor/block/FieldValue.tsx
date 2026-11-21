@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef} from 'react';
+import React, {useContext, useEffect, useReducer, useRef, useState} from 'react';
 import {useConnectionValue} from '../component/useConnectionValue.ts';
 import {
   type ClientConn,
@@ -14,7 +14,11 @@ import {TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {renderValue} from '../component/renderValue.tsx';
 import {typeEditorMap} from '../property/value/index.ts';
 import {ServiceEditor} from '../property/value/ServiceEditor.tsx';
+import type {ValueEditorProps} from '../property/value/ValueEditorBase.ts';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
+import {useEditPolicy} from '../component/EditPolicyContext.tsx';
+import {addSubBlock, canConvertHelper, convertHelper, hasObjectHelpers} from '../property/ObjectHelper.ts';
+import {getDescModule} from '../util/FunctionModule.ts';
 
 export function getInlineEditorDesc(base: PropDesc, inline: ReturnType<typeof getInlineProp>) {
   if (!inline || base.readonly || base.type === 'none' || base.name.endsWith('[]')) return;
@@ -35,6 +39,8 @@ interface InlineProps extends Props {
   desc: PropDesc;
   funcDesc: FunctionDesc;
   funcModule: string;
+  bindingPath?: string;
+  helperType?: string;
 }
 
 export const InlineFieldValue = React.memo(function InlineFieldValue({
@@ -45,32 +51,36 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
   desc,
   funcDesc,
   funcModule,
+  bindingPath,
+  helperType,
 }: InlineProps) {
   const value = useConnectionValue(conn, path);
   const layout = useContext(TicloLayoutContextType);
+  const locked = bindingPath != null;
   const commit = (value: unknown): void => {
     void conn.setUnboundValue(path, value).catch(requestCallbacks.onError);
   };
-  const onEditValue = layout.editValue
-    ? (desc: PropDesc, mime?: string) => {
-        void conn
-          .getValue(path)
-          .then(({value}) => {
-            layout.editValue(
-              value === undefined ? desc.default : value,
-              {...desc, name, mime: mime ?? desc.mime},
-              commit
-            );
-          })
-          .catch(requestCallbacks.onError);
-      }
-    : undefined;
+  const onEditValue =
+    !locked && layout.editValue
+      ? (desc: PropDesc, mime?: string) => {
+          void conn
+            .getValue(path)
+            .then(({value}) => {
+              layout.editValue(
+                value === undefined ? desc.default : value,
+                {...desc, name, mime: mime ?? desc.mime},
+                commit
+              );
+            })
+            .catch(requestCallbacks.onError);
+        }
+      : undefined;
 
   // Keep the value area out of stage gestures and leave native input behavior intact.
   const onKeyDown = (event: React.KeyboardEvent) => {
     if (!(event.key.toLowerCase() === 's' && (event.ctrlKey || event.metaKey))) event.stopPropagation();
   };
-  const Editor = typeEditorMap[desc.type];
+  const Editor = hasObjectHelpers(desc) ? InlineObjectFieldEditor : typeEditorMap[desc.type];
   return (
     <div
       className="ticl-e-field-value ticl-e-inline-value"
@@ -86,10 +96,14 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
           value={value}
           funcDesc={funcDesc}
           desc={desc}
-          bindingPath={null}
+          bindingPath={bindingPath}
           funcModule={funcModule}
           onPathChange={(from): void => {
-            void conn.setUnboundBinding(path, from).catch(requestCallbacks.onError);
+            if (locked) {
+              conn.setBinding(path, from, false, requestCallbacks);
+            } else if (from) {
+              void conn.setUnboundBinding(path, `#global.${from}`).catch(requestCallbacks.onError);
+            }
           }}
         />
       ) : (
@@ -102,13 +116,91 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
           funcDesc={funcDesc}
           desc={desc}
           funcModule={funcModule}
+          locked={locked}
+          bindingPath={bindingPath}
+          helperType={helperType}
           onEditValue={onEditValue}
-          onChange={isDataTruncated(value) && !['object', 'array', 'table'].includes(desc.type) ? undefined : commit}
+          onChange={
+            locked || (isDataTruncated(value) && !['object', 'array', 'table'].includes(desc.type)) ? undefined : commit
+          }
         />
       )}
     </div>
   );
 });
+
+function InlineObjectFieldEditor({
+  bindingPath,
+  helperType,
+  ...props
+}: ValueEditorProps & Pick<InlineProps, 'bindingPath' | 'helperType'>) {
+  const {conn, keys, name, desc, funcModule, value, locked} = props;
+  const policy = useEditPolicy();
+  const creatorId = !locked && value !== undefined && typeof desc.create === 'string' ? desc.create : undefined;
+  const scope = getDescModule(creatorId, funcModule);
+  const [, redraw] = useReducer((version: number) => version + 1, 0);
+  useEffect(() => {
+    if (!creatorId) return;
+    const listener = () => redraw();
+    conn.watchDesc(creatorId, scope, listener);
+    return () => conn.unwatchDesc(listener);
+  }, [conn, creatorId, scope]);
+  const creator = creatorId ? conn.watchDesc(creatorId, scope) : undefined;
+  const [converting, setConverting] = useState(false);
+  const pending = useRef<AbortController>(null);
+  useEffect(
+    () => () => pending.current?.abort(),
+    [conn, keys, name, desc, policy, funcModule, bindingPath, helperType]
+  );
+  const convert = async (toHelper: boolean) => {
+    if (pending.current) return;
+    const operation = new AbortController();
+    pending.current = operation;
+    setConverting(true);
+    try {
+      await convertHelper(
+        conn,
+        policy,
+        keys[0],
+        name,
+        desc,
+        funcModule,
+        () => !operation.signal.aborted,
+        toHelper ? creator : undefined
+      );
+    } catch (error) {
+      requestCallbacks.onError(String(error));
+    } finally {
+      pending.current = null;
+      setConverting(false);
+    }
+  };
+  const Editor = typeEditorMap[desc.type];
+  return (
+    <Editor
+      {...props}
+      addSubBlock={
+        locked
+          ? undefined
+          : (id: string) => {
+              void addSubBlock({conn, paths: keys, name, funcModule}, policy, id).catch(requestCallbacks.onError);
+            }
+      }
+      onConvertToHelper={
+        creator && !converting && canConvertHelper(policy, keys[0], name, desc, value, bindingPath, creator)
+          ? (): void => void convert(true)
+          : undefined
+      }
+      onConvertToObject={
+        helperType &&
+        !converting &&
+        canConvertHelper(policy, keys[0], name, desc, value, bindingPath, undefined, helperType)
+          ? (): void => void convert(false)
+          : undefined
+      }
+    />
+  );
+}
 
 export const FieldValue = React.memo(function FieldValue({conn, path}: Props) {
   const value = useConnectionValue(conn, path);

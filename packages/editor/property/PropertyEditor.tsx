@@ -28,9 +28,8 @@ import {typeEditorMap} from './value/index.ts';
 import {propAcceptsBlock} from '@ticlo/core';
 import {getDescModule} from '../util/FunctionModule.ts';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
-import {getObjectHelperData} from './ObjectHelper.ts';
+import {addSubBlock, canConvertHelper, convertHelper, hasObjectHelpers} from './ObjectHelper.ts';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
-import {isBaseObject} from '@ticlo/core/util/DataTypes.ts';
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   name: string;
@@ -45,7 +44,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
     this.valueListener.subscribe(this.conn, `${this.path}.${this.name}`);
     this.displayListener.subscribe(this.conn, `${this.path}.@b-p`);
     const {propDesc, funcModule} = this.parent.props;
-    if (propDesc.type === 'object' && typeof propDesc.create === 'string' && propDesc.create) {
+    if (hasObjectHelpers(propDesc) && typeof propDesc.create === 'string') {
       this.conn.watchDesc(propDesc.create, getDescModule(propDesc.create, funcModule), this.onCreateDesc);
     }
   }
@@ -72,7 +71,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
       if (Object.hasOwn(response.change, 'value') || Object.hasOwn(response.change, 'bindingPath')) {
         this.subBlock = response.cache.bindingPath === `~${this.name}.#output`;
         const {propDesc} = this.parent.props;
-        if (propDesc.type === 'object' && typeof propDesc.create === 'string' && propDesc.create && this.subBlock) {
+        if (this.subBlock && hasObjectHelpers(propDesc)) {
           this.helperListener.subscribe(this.conn, `${this.path}.~${this.name}.#is`);
         } else {
           this.helperListener.unsubscribe();
@@ -416,37 +415,30 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     }
   };
 
-  onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
-    if (!this.props.paths.every((path) => this.context.canCreateBlock(`${path}.~${this.props.name}`, id))) return;
-    PropertyDropdown.addSubBlock(this.props, id, desc, data);
-    this.safeSetState({showSubBlock: true});
+  onAddSubBlock = async (id: string, desc?: FunctionDesc, data?: DataMap) => {
+    const props = this.props;
+    try {
+      if ((await addSubBlock(props, this.context, id, desc, data)) && this.props === props) {
+        this.safeSetState({showSubBlock: true});
+      }
+    } catch (error) {
+      requestCallbacks.onError(String(error));
+    }
   };
 
   canConvertObject(loader: PropertyLoader, toHelper: boolean) {
     const {name, propDesc} = this.props;
-    if (
-      propDesc.type !== 'object' ||
-      typeof propDesc.create !== 'string' ||
-      !propDesc.create ||
-      propDesc.readonly ||
-      !loader.cache
-    )
-      return false;
+    if (!loader?.cache || (toHelper && !loader.createDesc)) return false;
     const {value, bindingPath} = loader.cache;
-    if (!value || typeof value !== 'object' || !isBaseObject(value)) return false;
-    if (!this.context.can({cmd: 'get', path: `${loader.path}.${name}`})) return false;
-    if (toHelper) {
-      return (
-        !bindingPath &&
-        loader.createDesc != null &&
-        this.context.canCreateBlock(`${loader.path}.~${name}`, propDesc.create)
-      );
-    }
-    return (
-      loader.subBlock &&
-      loader.helperFuncId === propDesc.create &&
-      this.context.can({cmd: 'set', path: `${loader.path}.${name}`}) &&
-      this.context.canDeleteBlock(`${loader.path}.~${name}`)
+    return canConvertHelper(
+      this.context,
+      loader.path,
+      name,
+      propDesc,
+      value,
+      bindingPath,
+      toHelper ? loader.createDesc : undefined,
+      loader.helperFuncId
     );
   }
 
@@ -457,26 +449,24 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     this.safeSetState({converting: true, showSubBlock: false});
     try {
       for (const path of paths) {
-        const {value} = await conn.getValue(`${path}.${name}`);
-        if (
-          !this._mounted ||
-          this.props.conn !== conn ||
-          this.props.name !== name ||
-          this.props.propDesc !== propDesc ||
-          !arrayEqual(this.props.paths, paths) ||
-          !this.canConvertObject(this.loaders.get(path), toHelper)
-        )
-          return;
-        if (!value || typeof value !== 'object' || !isBaseObject(value)) throw new Error('Expected an object value');
-        if (toHelper) {
-          const desc = this.loaders.get(path).createDesc;
-          const data = getObjectHelperData(desc, value, conn.getOptionalProps(desc, funcModule) || {});
-          if (!this.context.can({cmd: 'addBlock', path: `${path}.~${name}`, data})) return;
-          await conn.addBlock(`${path}.~${name}`, data);
-        } else {
-          if (!this.context.can({cmd: 'set', path: `${path}.${name}`, value})) return;
-          await conn.setValue(`${path}.${name}`, value, true);
-        }
+        const loader = this.loaders.get(path);
+        const converted = await convertHelper(
+          conn,
+          this.context,
+          path,
+          name,
+          propDesc,
+          funcModule,
+          () =>
+            this._mounted &&
+            this.props.conn === conn &&
+            this.props.name === name &&
+            this.props.propDesc === propDesc &&
+            arrayEqual(this.props.paths, paths) &&
+            this.canConvertObject(this.loaders.get(path), toHelper),
+          toHelper ? loader.createDesc : undefined
+        );
+        if (!converted) return;
       }
       if (toHelper) this.safeSetState({showSubBlock: true});
     } catch (error) {

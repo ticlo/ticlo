@@ -74,8 +74,14 @@ selected value directly. Page boundary mismatches stop loading until reloaded.
 
 The property menu's **Inline** checkbox enables editing in Block Stage.
 **Pinned** controls whether the property row appears. Unpinning retains its
-inline setting. Bound or read-only values are displayed in the row, and a
-binding added while editing prevents the draft from being saved to that field.
+inline setting. Bound or read-only fields display their current values. Inline service inputs
+keep their binding picker, and fields bound to their own helper can convert the
+helper's output to a plain value. A binding added while editing prevents a draft
+from being saved to that field.
+
+Inline `object`, `array`, and the corresponding `any` editors use the same
+helper creation and conversion as the property panel. Conversion to an array
+helper requires a `recipient` for the complete array.
 
 In saved data, `"@b-inline": {"input": true}` uses the original property
 descriptor. An object such as `{"type": "select", "options": [1, 5, 10]}`

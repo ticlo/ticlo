@@ -7,11 +7,8 @@ import {
   DataMap,
   FunctionCommandDesc,
   FunctionDesc,
-  getDefaultFuncData,
   getInlineProp,
-  getSubBlockFuncData,
   getTailingNumber,
-  Logger,
   PropDesc,
   PropGroupDesc,
   smartStrCompare,
@@ -28,7 +25,6 @@ import {CommandMenu} from './CommandMenu.tsx';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
 import {ExpandIcon} from '../component/Tree.tsx';
 import {ValueUpdate} from '@ticlo/core/connect/ClientRequests.ts';
-import {getDescModule} from '../util/FunctionModule.ts';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 
 interface Props {
@@ -237,35 +233,6 @@ export class PropertyDropdown extends React.PureComponent<Props, State> {
       conn.executeCommand(path, command, {property: name}, requestCallbacks, commandDesc);
     }
   };
-
-  static addSubBlock(
-    props: {
-      conn: ClientConn;
-      paths: string[];
-      name: string;
-      funcModule?: string;
-    },
-    funcId: string,
-    desc?: FunctionDesc,
-    data?: any
-  ) {
-    const {conn, paths, name, funcModule} = props;
-    if (!desc) {
-      desc = conn.watchDesc(funcId, getDescModule(funcId, funcModule));
-    }
-    if (!data) {
-      if (!desc) {
-        Logger.error('unable to add sub block, missing id or desc or data', this);
-        return;
-      }
-      data = getSubBlockFuncData(getDefaultFuncData(desc));
-    }
-
-    if (!paths.every((path) => conn.getEditPolicyView().canCreateBlock(`${path}.~${name}`, funcId))) return;
-    for (const path of paths) {
-      conn.addBlock(`${path}.~${name}`, data);
-    }
-  }
 
   onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
     if (!this.can('addBlock', {data: data ?? {'#is': id}})) return;

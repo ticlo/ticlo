@@ -132,28 +132,14 @@ export class DynamicEditor extends React.PureComponent<ValueEditorProps, State> 
   }
 
   render() {
-    const {conn, keys, name, funcDesc, desc, value, locked, onChange, addSubBlock, inline, onEditValue} = this.props;
+    const {desc, onChange} = this.props;
     const types = desc.types || defaultTypes;
     const currentType = this.getCurrentType();
 
     const EditorClass = dynamicEditorMap[currentType];
     let editor: React.ReactNode;
     if (EditorClass) {
-      editor = (
-        <EditorClass
-          conn={conn}
-          keys={keys}
-          name={name}
-          value={value}
-          funcDesc={funcDesc}
-          desc={desc}
-          locked={locked}
-          inline={inline}
-          onEditValue={onEditValue}
-          onChange={this.onValueChange}
-          addSubBlock={addSubBlock}
-        />
-      );
+      editor = <EditorClass {...this.props} onChange={onChange ? this.onValueChange : undefined} />;
     }
     let typeIcon = (
       <div className="ticl-e-dynamic-type-icon" title={'Change Type'}>

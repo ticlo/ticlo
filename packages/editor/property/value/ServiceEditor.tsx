@@ -1,10 +1,11 @@
-import React, {ReactElement} from 'react';
-import {Button, Input, Select} from 'antd';
+import React from 'react';
+import {Button, Select} from 'antd';
 import {EllipsisOutlined, PlusOutlined} from '@ant-design/icons';
 import {ClientConn, FunctionDesc, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '@ticlo/core/editor.ts';
 import {Popup} from '../../component/ClickPopup.tsx';
 import {PropertyList} from '../PropertyList.tsx';
 import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
+import {requestCallbacks} from '../../util/RequestCallbacks.ts';
 
 const {Option} = Select;
 
@@ -30,7 +31,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
   state: State = {};
 
   onGlobalBlockSelect = (value: string) => {
-    if (!this.props.locked) this.props.onPathChange?.(`${value}.#output`);
+    if (!this.props.locked) this.props.onPathChange?.(value == null ? undefined : `${value}.#output`);
   };
 
   canCreate() {
@@ -49,25 +50,29 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
 
   onCreate = async () => {
     if (!this.canCreate()) return;
-    const {conn, desc} = this.props;
+    const {conn, desc, keys, onPathChange} = this.props;
     const {create} = desc;
     if (typeof create !== 'string') return;
     const funcDesc = conn.watchDesc(create);
     if (funcDesc) {
-      const createdBlock = await conn.addBlock(
-        `#global.^${funcDesc.name}`,
-        getSubBlockFuncData(getDefaultFuncData(funcDesc))
-      );
-      if (createdBlock && Object.hasOwn(createdBlock, 'name') && this.props.onPathChange && !this.props.locked) {
-        this.props.onPathChange(`${createdBlock.name}.#output`);
-        this.openPopup();
+      try {
+        const createdBlock = await conn.addBlock(
+          `#global.^${funcDesc.name}`,
+          getSubBlockFuncData(getDefaultFuncData(funcDesc))
+        );
+        if (createdBlock?.name && keys === this.props.keys && !this.props.locked) {
+          onPathChange?.(`${createdBlock.name}.#output`);
+          this.openPopup();
+        }
+      } catch (error) {
+        requestCallbacks.onError(String(error));
       }
     }
   };
 
   getPopup = () => {
-    const {bindingPath, conn, keys, desc, locked, onPathChange, funcModule} = this.props;
-    if (!this.state.opened) {
+    const {bindingPath, conn, keys, funcModule} = this.props;
+    if (!this.state.opened || !bindingPath) {
       // work around of the pop caching issue
       return <div />;
     }
@@ -94,7 +99,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const {bindingPath, value, conn, desc, locked, onPathChange} = this.props;
+    const {bindingPath, conn, desc, locked, onPathChange} = this.props;
     const {opened} = this.state;
     const {create} = desc;
 
@@ -142,7 +147,11 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
         <Select
           size="small"
           value={selectValue}
+          allowClear={Boolean(bindingPath && onPathChange && !locked)}
           disabled={locked || onPathChange == null}
+          onOpenChange={(open) => {
+            if (open) this.forceUpdate();
+          }}
           onChange={this.onGlobalBlockSelect}
         >
           {optionNodes}
