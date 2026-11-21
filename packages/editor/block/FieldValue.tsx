@@ -44,8 +44,6 @@ interface InlineProps extends Props {
   desc: PropDesc;
   funcDesc: FunctionDesc;
   funcModule: string;
-  bindingPath?: string;
-  embeddedBlockType?: string;
 }
 
 export const InlineFieldValue = React.memo(function InlineFieldValue({
@@ -56,30 +54,26 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
   desc,
   funcDesc,
   funcModule,
-  bindingPath,
-  embeddedBlockType,
 }: InlineProps) {
   const value = useConnectionValue(conn, path);
   const layout = useContext(TicloLayoutContextType);
-  const locked = bindingPath != null;
   const commit = (value: unknown): void => {
     void conn.setUnboundValue(path, value).catch(requestCallbacks.onError);
   };
-  const onEditValue =
-    !locked && layout.editValue
-      ? (desc: PropDesc, mime?: string) => {
-          void conn
-            .getValue(path)
-            .then(({value}) => {
-              layout.editValue(
-                value === undefined ? desc.default : value,
-                {...desc, name, mime: mime ?? desc.mime},
-                commit
-              );
-            })
-            .catch(requestCallbacks.onError);
-        }
-      : undefined;
+  const onEditValue = layout.editValue
+    ? (desc: PropDesc, mime?: string) => {
+        void conn
+          .getValue(path)
+          .then(({value}) => {
+            layout.editValue(
+              value === undefined ? desc.default : value,
+              {...desc, name, mime: mime ?? desc.mime},
+              commit
+            );
+          })
+          .catch(requestCallbacks.onError);
+      }
+    : undefined;
 
   // Keep the value area out of stage gestures and leave native input behavior intact.
   const onKeyDown = (event: React.KeyboardEvent) => {
@@ -101,14 +95,10 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
           value={value}
           funcDesc={funcDesc}
           desc={desc}
-          bindingPath={bindingPath}
+          bindingPath={null}
           funcModule={funcModule}
           onPathChange={(from): void => {
-            if (locked) {
-              conn.setBinding(path, from, false, requestCallbacks);
-            } else if (from) {
-              void conn.setUnboundBinding(path, `#global.${from}`).catch(requestCallbacks.onError);
-            }
+            if (from) void conn.setUnboundBinding(path, `#global.${from}`).catch(requestCallbacks.onError);
           }}
         />
       ) : (
@@ -121,27 +111,19 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
           funcDesc={funcDesc}
           desc={desc}
           funcModule={funcModule}
-          locked={locked}
-          bindingPath={bindingPath}
-          embeddedBlockType={embeddedBlockType}
           onEditValue={onEditValue}
-          onChange={
-            locked || (isDataTruncated(value) && !['object', 'array', 'table'].includes(desc.type)) ? undefined : commit
-          }
+          onChange={isDataTruncated(value) && !['object', 'array', 'table'].includes(desc.type) ? undefined : commit}
         />
       )}
     </div>
   );
 });
 
-function InlineObjectFieldEditor({
-  bindingPath,
-  embeddedBlockType,
-  ...props
-}: ValueEditorProps & Pick<InlineProps, 'bindingPath' | 'embeddedBlockType'>) {
-  const {conn, keys, name, desc, funcModule, value, locked} = props;
+function InlineObjectFieldEditor(props: ValueEditorProps) {
+  const {conn, keys, name, desc, funcModule, value} = props;
   const policy = useEditPolicy();
-  const creatorId = !locked && value !== undefined && typeof desc.create === 'string' ? desc.create : undefined;
+  const creatorId =
+    !desc.disableObjectTools && value !== undefined && typeof desc.create === 'string' ? desc.create : undefined;
   const scope = getDescModule(creatorId, funcModule);
   const [, redraw] = useReducer((version: number) => version + 1, 0);
   useEffect(() => {
@@ -153,11 +135,8 @@ function InlineObjectFieldEditor({
   const creator = creatorId ? conn.watchDesc(creatorId, scope) : undefined;
   const [converting, setConverting] = useState(false);
   const pending = useRef<AbortController>(null);
-  useEffect(
-    () => () => pending.current?.abort(),
-    [conn, keys, name, desc, policy, funcModule, bindingPath, embeddedBlockType]
-  );
-  const convert = async (toEmbeddedBlock: boolean) => {
+  useEffect(() => () => pending.current?.abort(), [conn, keys, name, desc, policy, funcModule]);
+  const convert = async () => {
     if (pending.current) return;
     const operation = new AbortController();
     pending.current = operation;
@@ -171,7 +150,7 @@ function InlineObjectFieldEditor({
         desc,
         funcModule,
         () => !operation.signal.aborted,
-        toEmbeddedBlock ? creator : undefined
+        creator
       );
     } catch (error) {
       requestCallbacks.onError(String(error));
@@ -184,23 +163,12 @@ function InlineObjectFieldEditor({
   return (
     <Editor
       {...props}
-      addSubBlock={
-        locked
-          ? undefined
-          : (id: string) => {
-              void addSubBlock({conn, paths: keys, name, funcModule}, policy, id).catch(requestCallbacks.onError);
-            }
-      }
+      addSubBlock={(id: string) => {
+        void addSubBlock({conn, paths: keys, name, funcModule}, policy, id).catch(requestCallbacks.onError);
+      }}
       onConvertToEmbeddedBlock={
-        creator && !converting && canConvertEmbeddedBlock(policy, keys[0], name, desc, value, bindingPath, creator)
-          ? (): void => void convert(true)
-          : undefined
-      }
-      onConvertToObject={
-        embeddedBlockType &&
-        !converting &&
-        canConvertEmbeddedBlock(policy, keys[0], name, desc, value, bindingPath, undefined, embeddedBlockType)
-          ? (): void => void convert(false)
+        creator && !converting && canConvertEmbeddedBlock(policy, keys[0], name, desc, value, null, creator)
+          ? convert
           : undefined
       }
     />

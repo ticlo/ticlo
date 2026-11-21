@@ -116,7 +116,7 @@ globalFunctions.addFactory(
     commands: {publish: publishCommand},
     properties: [
       {name: 'url', type: 'string', pinned: true},
-      {name: 'auth', type: 'object', create: ['auth:password']},
+      {name: 'auth', type: 'object', create: ['auth:password'], disableObjectTools: true},
       {name: 'username', type: 'string'},
       configDescs['#secret'],
       {name: 'clientId', type: 'string'},

@@ -90,7 +90,7 @@ globalFunctions.addFactory(
     commands: sqlClientCommands,
     properties: [
       {name: 'connectionString', type: 'string', pinned: true},
-      {name: 'auth', type: 'object', create: ['auth:password']},
+      {name: 'auth', type: 'object', create: ['auth:password'], disableObjectTools: true},
       configDescs['#secret'],
       {name: 'maxConnections', type: 'number', default: 10, min: 1},
       {name: 'connectionTimeout', type: 'number', default: 5000, min: 0, unit: 'ms'},

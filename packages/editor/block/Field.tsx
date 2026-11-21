@@ -29,7 +29,6 @@ import {PropertyDropdown} from '../popup/PropertyDropdown.tsx';
 import {BlockDropdown} from '../popup/BlockDropdown.tsx';
 import {getDescModule} from '../util/FunctionModule.ts';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
-import {hasEmbeddedBlockTypes} from '../property/EmbeddedBlock.ts';
 
 export interface Stage {
   getConn(): ClientConn;
@@ -506,13 +505,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
   renderImpl(): React.ReactNode {
     const {item} = this.props;
     const desc = item.block.desc;
-    const {bindingPath} = item.cache;
-    const editDesc = item.inlineDesc;
-    const editorDesc =
-      editDesc &&
-      item.name !== '@b-inline' &&
-      (bindingPath == null || editDesc.type === 'service' || (item.subBlock && hasEmbeddedBlockTypes(editDesc))) &&
-      editDesc;
+    const editorDesc = item.cache.bindingPath == null && item.name !== '@b-inline' && item.inlineDesc;
     const inlineDesc =
       editorDesc &&
       this.context.can({
@@ -607,8 +600,6 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
             desc={inlineDesc}
             funcDesc={desc}
             funcModule={item.block.stage.getFuncModule()}
-            bindingPath={bindingPath}
-            embeddedBlockType={item.subBlock?.isValue}
           />
         ) : (
           <FieldValue conn={item.getConn()} path={item.path} />

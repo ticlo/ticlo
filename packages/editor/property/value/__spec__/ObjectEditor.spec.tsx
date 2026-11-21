@@ -31,7 +31,7 @@ describe('ObjectEditor conversion', () => {
     vi.restoreAllMocks();
   });
 
-  it('creates and binds the only embedded Block type in a create array when allowed', async () => {
+  it('creates an auth Block when allowed and hides the conversion menu', async () => {
     const flow = Root.instance.addFlow('ObjectEditorTest', {block: {'#is': ''}});
     const [, base] = makeLocalConnection(Root.instance, true);
     const [replacePolicy] = loadPolicyTemplate(
@@ -43,7 +43,7 @@ describe('ObjectEditor conversion', () => {
             paths={['ObjectEditorTest.block']}
             name="auth"
             funcDesc={blankFuncDesc}
-            propDesc={{name: 'auth', type: 'object', create: ['auth:password']}}
+            propDesc={{name: 'auth', type: 'object', create: ['auth:password'], disableObjectTools: true}}
           />
         </EditPolicyProvider>
       ),
@@ -57,6 +57,8 @@ describe('ObjectEditor conversion', () => {
     await shouldHappen(() => flow.queryProperty('block.auth')?._bindingPath === '~auth.#output');
     expect(flow.queryValue('block.~auth.#is')).toBe('auth:password');
     expect(await shouldHappen(() => flow.queryValue('block.auth'))).toEqual({authMode: 'password', showSecret: true});
+    await shouldHappen(() => document.querySelector('.ticl-e-object-editor .ticl-e-object-value'));
+    expect(tool()).toBeNull();
   });
 
   it('round-trips each selected block with one full read and one write per block', async () => {

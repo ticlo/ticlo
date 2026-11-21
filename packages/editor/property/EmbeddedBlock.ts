@@ -88,6 +88,7 @@ export function canConvertEmbeddedBlock(
 ) {
   if (
     desc.readonly ||
+    desc.disableObjectTools ||
     !hasEmbeddedBlockTypes(desc) ||
     !isEmbeddedBlockValue(value, desc) ||
     !policy.can({cmd: 'get', path: `${path}.${name}`})

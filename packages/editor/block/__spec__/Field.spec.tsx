@@ -149,7 +149,7 @@ describe('editor Block Field', function () {
     expect(div.querySelector('.ticl-e-field-value').textContent).toContain('bound');
   });
 
-  it('creates embedded Blocks inline and round-trips an array through a Flow-local Block', async () => {
+  it('creates embedded Blocks inline and displays their bound values without inline editors', async () => {
     const basePath = 'BlockFieldInlineHelper';
     const items = [{label: 'x'.repeat(3000)}, {label: 'second'}];
     flow = Root.instance.addFlow(basePath, {
@@ -207,14 +207,11 @@ describe('editor Block Field', function () {
     await page.getByText('Convert to :array-helper', {exact: true}).click();
     await shouldHappen(() => flow.queryProperty('block.items')._bindingPath === '~items.#output');
     expect(flow.queryValue('block.~items.input')).toEqual(items);
-    await click('items', '.ticl-e-object-convert-button');
-    await page.getByText('Convert to array value', {exact: true}).click();
-    await shouldHappen(() => flow.queryProperty('block.items')._bindingPath == null);
     expect(flow.queryValue('block.items')).toEqual(items);
-    expect(flow.queryValue('block.~items')).toBeUndefined();
+    await shouldHappen(() => div.querySelectorAll('.ticl-e-field-inline').length === 0);
   });
 
-  it('binds, rebinds and clears an inline service from the stage', async () => {
+  it('uses an inline service picker only while the service is unbound', async () => {
     const basePath = 'BlockFieldInlineService';
     flow = Root.instance.addFlow(basePath, {
       block: {
@@ -226,28 +223,22 @@ describe('editor Block Field', function () {
       },
     });
     const [, conn] = makeLocalConnection(Root.instance);
-    const first = '^inline-http-a';
-    const second = '^inline-http-b';
+    const source = '^inline-http';
     try {
-      await conn.addBlock(`#global.${first}`, {'#is': 'http:client'});
-      await conn.addBlock(`#global.${second}`, {'#is': 'http:client'});
-      await shouldHappen(() => conn.findGlobalBlocks(['http-client']).includes(second));
+      await conn.addBlock(`#global.${source}`, {'#is': 'http:client'});
+      await shouldHappen(() => conn.findGlobalBlocks(['http-client']).includes(source));
       const [, div] = loadTemplate(<BlockStage conn={conn} basePath={basePath} />, 'editor');
-      const service: HTMLElement = await shouldHappen(() => div.querySelector('.ticl-e-inline-value .ant-select'));
+      const picker = () => div.querySelector<HTMLElement>('.ticl-e-inline-value .ant-select');
+      const service = await shouldHappen(picker);
       await userEvent.click(page.elementLocator(service));
-      await selectOption(first);
-      await shouldHappen(() => flow.queryProperty('block.client')?._bindingPath === `${first}.#output`);
-      await userEvent.click(page.elementLocator(service));
-      await selectOption(second);
-      await shouldHappen(() => flow.queryProperty('block.client')._bindingPath === `${second}.#output`);
-      await userEvent.hover(page.elementLocator(service));
-      const clear = await shouldHappen(() => service.querySelector<HTMLElement>('.ant-select-clear'));
-      await userEvent.click(page.elementLocator(clear));
-      await shouldHappen(() => flow.queryProperty('block.client')._bindingPath == null);
-      await userEvent.unhover(page.elementLocator(service));
+      await selectOption(source);
+      await shouldHappen(() => flow.queryProperty('block.client')?._bindingPath === `${source}.#output`);
+      await shouldHappen(() => div.querySelector('.ticl-e-field-value:not(.ticl-e-inline-value)'));
+      await conn.setBinding(`${basePath}.block.client`, null, true, true);
+      const restoredPicker = await shouldHappen(picker);
+      await userEvent.unhover(page.elementLocator(restoredPicker));
     } finally {
-      await conn.deleteBlock(`#global.${first}`);
-      await conn.deleteBlock(`#global.${second}`);
+      await conn.deleteBlock(`#global.${source}`);
     }
   });
 

@@ -85,6 +85,8 @@ export interface PropDesc {
 
   // service: one creator; object: one embedded Block type or a list of choices
   create?: string | readonly string[];
+  // hide the Object Tools menu for embedded Block conversion
+  disableObjectTools?: boolean;
 
   // allowed types in editor for dynamic types
   types?: ValueType[];
