@@ -29,7 +29,7 @@ import {PropertyDropdown} from '../popup/PropertyDropdown.tsx';
 import {BlockDropdown} from '../popup/BlockDropdown.tsx';
 import {getDescModule} from '../util/FunctionModule.ts';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
-import {hasObjectHelpers} from '../property/ObjectHelper.ts';
+import {hasEmbeddedBlockTypes} from '../property/EmbeddedBlock.ts';
 
 export interface Stage {
   getConn(): ClientConn;
@@ -511,7 +511,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     const editorDesc =
       editDesc &&
       item.name !== '@b-inline' &&
-      (bindingPath == null || editDesc.type === 'service' || (item.subBlock && hasObjectHelpers(editDesc))) &&
+      (bindingPath == null || editDesc.type === 'service' || (item.subBlock && hasEmbeddedBlockTypes(editDesc))) &&
       editDesc;
     const inlineDesc =
       editorDesc &&
@@ -608,7 +608,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
             funcDesc={desc}
             funcModule={item.block.stage.getFuncModule()}
             bindingPath={bindingPath}
-            helperType={item.subBlock?.isValue}
+            embeddedBlockType={item.subBlock?.isValue}
           />
         ) : (
           <FieldValue conn={item.getConn()} path={item.path} />

@@ -230,7 +230,7 @@ describe('EditPolicy', () => {
     expect(new EditPolicyView({readonly: true}).canWriteField('Main.value')).toBe(false);
   });
 
-  it('requires all binding names when automatically naming a helper block', () => {
+  it('requires all binding names when automatically naming an embedded Block', () => {
     const request = {cmd: 'addBlock', path: 'Main.~value1', data: {'#is': 'add'}, findName: true};
     expect(checkEditPolicy({allowBinding: ['value1']}, request)).toBe('restricted binding');
     expect(checkEditPolicy({denyProps: ['value']}, request)).toBe('restricted binding');
@@ -272,7 +272,7 @@ describe('EditPolicy', () => {
     }
   });
 
-  it('checks bindings in pasted data and helper blocks', () => {
+  it('checks bindings in pasted data and embedded Blocks', () => {
     const policy = {allowBinding: ['value']};
     expect(checkEditPolicy(policy, {cmd: 'paste', path: 'Main.a', data: {'~value': 'source'}})).toBeNull();
     expect(checkEditPolicy(policy, {cmd: 'paste', path: 'Main.a', data: {'~other': 'source'}})).toBe(

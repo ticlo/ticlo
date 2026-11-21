@@ -74,7 +74,7 @@ flows. For example, the HTTP host defines `^web-server` with type
 Node hosts that import `@ticlo/node` provide the `node:env` function. Set
 `name` to an environment variable name. On load and when the name changes,
 `#output` is the string from the host process or `undefined` if it is unset.
-As a [helper Block](flow-format.md#bindings-), it can supply a property from
+As an [embedded Block](flow-format.md#bindings-), it can supply a property from
 the host environment while the saved Flow stores the variable name.
 
 ## Block secrets

@@ -9,7 +9,7 @@ import {useEditPolicy} from '../../component/EditPolicyContext.tsx';
 import {LocalizedFunctionName, t} from '../../component/LocalizedLabel.tsx';
 import {getDescModule} from '../../util/FunctionModule.ts';
 
-function HelperCreator({
+function EmbeddedBlockCreator({
   conn,
   create,
   addSubBlock,
@@ -33,11 +33,11 @@ function HelperCreator({
   }, [conn, create, funcModule]);
 
   const options = (typeof create === 'string' ? [create] : create).map((id) => {
-    const helper = conn?.watchDesc(id, getDescModule(id, funcModule));
+    const embeddedBlockDesc = conn?.watchDesc(id, getDescModule(id, funcModule));
     return {
       value: id,
-      label: helper ? <LocalizedFunctionName desc={helper} /> : id,
-      disabled: !helper || !keys?.every((path) => policy.canCreateBlock(`${path}.~${name}`, id)),
+      label: embeddedBlockDesc ? <LocalizedFunctionName desc={embeddedBlockDesc} /> : id,
+      disabled: !embeddedBlockDesc || !keys?.every((path) => policy.canCreateBlock(`${path}.~${name}`, id)),
     };
   });
   if (typeof create === 'string') {
@@ -86,33 +86,42 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   render() {
-    const {value, desc, inline, addSubBlock, onEditValue, onChange, onConvertToHelper, onConvertToObject, locked} =
-      this.props;
+    const {
+      value,
+      desc,
+      inline,
+      addSubBlock,
+      onEditValue,
+      onChange,
+      onConvertToEmbeddedBlock,
+      onConvertToObject,
+      locked,
+    } = this.props;
     const editor =
       value === undefined && onChange && addSubBlock && desc.create?.length && !locked ? (
-        <HelperCreator {...this.props} create={desc.create} />
+        <EmbeddedBlockCreator {...this.props} create={desc.create} />
       ) : (
         <div className="ticl-e-object-editor">{renderValue(value)}</div>
       );
     return (
       <>
         {editor}
-        {onConvertToHelper || onConvertToObject ? (
+        {onConvertToEmbeddedBlock || onConvertToObject ? (
           <Dropdown
             trigger={['click']}
             menu={{
               items: [
                 {
                   key: 'convert',
-                  icon: onConvertToHelper ? <PlusSquareOutlined /> : <CodeOutlined />,
-                  label: onConvertToHelper
+                  icon: onConvertToEmbeddedBlock ? <PlusSquareOutlined /> : <CodeOutlined />,
+                  label: onConvertToEmbeddedBlock
                     ? `Convert to ${desc.create}`
                     : Array.isArray(value)
                       ? 'Convert to array value'
                       : 'Convert to object value',
                 },
               ],
-              onClick: onConvertToHelper || onConvertToObject,
+              onClick: onConvertToEmbeddedBlock || onConvertToObject,
             }}
           >
             <Button

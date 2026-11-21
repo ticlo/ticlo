@@ -5,7 +5,7 @@ import {
   BlockProperty,
   BlockPropertyEvent,
   BlockPropertySubscriber,
-  HelperProperty,
+  EmbeddedBlockSlot,
 } from '../block/BlockProperty.ts';
 import {DataMap, isPrimitiveType, isStringArray, measureObjSize} from '../util/DataTypes.ts';
 import {truncateData} from '../util/DataTruncate.ts';
@@ -1158,8 +1158,8 @@ export class ServerConnection extends ServerConnectionCore {
         // We can skip the next setion if we already adjusted the name
         parentBlock.createBlock(property._name);
       } else {
-        if (property instanceof HelperProperty) {
-          // create a sub block and move the current property into the sub block if possible
+        if (property instanceof EmbeddedBlockSlot) {
+          // Create an embedded Block and transfer the current property when supported.
           const baseProperty = property._block.getProperty(property._name.substring(1));
           // check the current value and binding
           if (baseProperty._saved !== undefined) {
@@ -1174,7 +1174,7 @@ export class ServerConnection extends ServerConnectionCore {
             }
           }
           property.setValue(undefined);
-          property._block.createHelperBlock(baseProperty._name);
+          property._block.createEmbeddedBlock(baseProperty._name);
         } else {
           property.setValue(undefined);
           property._block.createBlock(property._name);

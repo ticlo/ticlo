@@ -53,10 +53,11 @@ descriptors require the owning `funcModule` path; see
 [connection scope](core.md#connection-layer).
 
 An empty object property uses a button with a string `create` and a Select with
-an array of helper types. A string `create` also supports converting an object to a
-helper or converting its output back to a value. Each selected Block retains its
-own full value during conversion. Creating a helper binds the property to its
-output. Setting the object back to a value removes the binding and helper.
+an array of embedded Block types. A string `create` also supports converting a
+value to an embedded Block. The editor can convert an embedded Block's output
+back to a value. Each selected Block retains its own full value during conversion.
+Creating an embedded Block binds the property to its output. Setting the property
+back to a value removes the binding and the embedded Block.
 Optional/custom fields and `#extend` preserve unlisted data; functions with
 `recipient` receive the full object in that property.
 
@@ -75,13 +76,13 @@ selected value directly. Page boundary mismatches stop loading until reloaded.
 The property menu's **Inline** checkbox enables editing in Block Stage.
 **Pinned** controls whether the property row appears. Unpinning retains its
 inline setting. Bound or read-only fields display their current values. Inline service inputs
-keep their binding picker, and fields bound to their own helper can convert the
-helper's output to a plain value. A binding added while editing prevents a draft
-from being saved to that field.
+keep their binding picker, and fields bound to their own embedded Block can
+convert its output to a plain value. A binding added while editing prevents
+a draft from being saved to that field.
 
 Inline `object`, `array`, and the corresponding `any` editors use the same
-helper creation and conversion as the property panel. Conversion to an array
-helper requires a `recipient` for the complete array.
+embedded Block creation and conversion as the property panel. Converting an array
+requires an embedded Block with a `recipient` for the complete array.
 
 In saved data, `"@b-inline": {"input": true}` uses the original property
 descriptor. An object such as `{"type": "select", "options": [1, 5, 10]}`

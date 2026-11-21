@@ -31,7 +31,7 @@ strings to ordinary blocks does not construct those classes. Use flow/folder API
 | --- | --- |
 | none | Normal inputs/outputs |
 | `#` | Engine and function configuration |
-| `~` | Binding path or helper block |
+| `~` | Binding slot for a path or an embedded Block |
 | `^` | Context inherited through parent flows, library `#context`, and root `#global` |
 | `@` | Editor attributes, not function inputs |
 | `+` | Library entries under the runtime root, such as `+main` |
@@ -56,9 +56,12 @@ Never save runtime references such as `#module` or `#name`.
 
 ### Bindings (`~`)
 
-`"~value": "##.step1.#output"` binds `value` to sibling `step1`'s output.
-`"~value": {"#is": "...", ...}` creates a helper block whose `#output` drives
-`value`. Unresolved paths produce `undefined` without throwing.
+A key such as `~value` is the binding slot for `value`. The string form
+`"~value": "##.step1.#output"` binds `value` to the sibling Block's output.
+The object form `"~value": {"#is": "...", ...}` stores an embedded Block
+whose `#output` supplies `value`. At runtime, the target property holds the
+binding path, and an `EmbeddedBlockSlot` holds the Block for the object form.
+Unresolved paths produce `undefined` without throwing.
 
 Paths use dots: `#` is the current block, `##` its parent, `#flow` the containing
 flow, and `#+` its library root.

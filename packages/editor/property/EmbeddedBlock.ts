@@ -13,7 +13,7 @@ import {getDescModule} from '../util/FunctionModule.ts';
 
 const savedValue = (value: unknown) => (isSavedBlock(value) ? {'#is': value} : value);
 
-function getObjectHelperData(
+function getEmbeddedBlockData(
   desc: FunctionDesc,
   value: DataMap | unknown[],
   optional: Record<string, PropDesc>
@@ -23,7 +23,7 @@ function getObjectHelperData(
     data[desc.recipient] = savedValue(value);
     return data;
   }
-  if (Array.isArray(value)) throw new Error('The helper cannot receive an array');
+  if (Array.isArray(value)) throw new Error('The embedded Block cannot receive an array');
 
   const optionalNames: string[] = [];
   const custom: PropDesc[] = [];
@@ -47,10 +47,10 @@ function getObjectHelperData(
   return data;
 }
 
-type HelperTarget = {conn: ClientConn; paths: string[]; name: string; funcModule?: string};
+type EmbeddedBlockTarget = {conn: ClientConn; paths: string[]; name: string; funcModule?: string};
 
 export async function addSubBlock(
-  {conn, paths, name, funcModule}: HelperTarget,
+  {conn, paths, name, funcModule}: EmbeddedBlockTarget,
   policy: EditPolicyView,
   id: string,
   desc?: FunctionDesc,
@@ -67,16 +67,16 @@ export async function addSubBlock(
   return true;
 }
 
-export function hasObjectHelpers(desc: PropDesc) {
+export function hasEmbeddedBlockTypes(desc: PropDesc) {
   return Boolean(desc.create?.length && (desc.type === 'object' || desc.type === 'array' || desc.type === 'any'));
 }
 
-function isHelperValue(value: unknown, desc: PropDesc): value is DataMap | unknown[] {
+function isEmbeddedBlockValue(value: unknown, desc: PropDesc): value is DataMap | unknown[] {
   if (Array.isArray(value)) return desc.type !== 'object';
   return desc.type !== 'array' && value != null && typeof value === 'object' && isBaseObject(value);
 }
 
-export function canConvertHelper(
+export function canConvertEmbeddedBlock(
   policy: EditPolicyView,
   path: string,
   name: string,
@@ -84,33 +84,33 @@ export function canConvertHelper(
   value: unknown,
   bindingPath: string | null,
   creator?: FunctionDesc,
-  helperType?: string
+  embeddedBlockType?: string
 ) {
   if (
     desc.readonly ||
-    !hasObjectHelpers(desc) ||
-    !isHelperValue(value, desc) ||
+    !hasEmbeddedBlockTypes(desc) ||
+    !isEmbeddedBlockValue(value, desc) ||
     !policy.can({cmd: 'get', path: `${path}.${name}`})
   )
     return false;
-  const helperPath = `${path}.~${name}`;
+  const embeddedBlockPath = `${path}.~${name}`;
   if (creator) {
     return (
       bindingPath == null &&
       (!Array.isArray(value) || Boolean(creator.recipient)) &&
-      policy.canCreateBlock(helperPath, creator.id)
+      policy.canCreateBlock(embeddedBlockPath, creator.id)
     );
   }
   return (
     bindingPath === `~${name}.#output` &&
-    Boolean(helperType) &&
-    (typeof desc.create === 'string' ? desc.create === helperType : desc.create.includes(helperType)) &&
+    Boolean(embeddedBlockType) &&
+    (typeof desc.create === 'string' ? desc.create === embeddedBlockType : desc.create.includes(embeddedBlockType)) &&
     policy.can({cmd: 'set', path: `${path}.${name}`}) &&
-    policy.canDeleteBlock(helperPath)
+    policy.canDeleteBlock(embeddedBlockPath)
   );
 }
 
-export async function convertHelper(
+export async function convertEmbeddedBlock(
   conn: ClientConn,
   policy: EditPolicyView,
   path: string,
@@ -123,10 +123,10 @@ export async function convertHelper(
   const field = `${path}.${name}`;
   const {value} = await conn.getValue(field);
   if (!stillEditing()) return false;
-  if (!isHelperValue(value, desc)) throw new Error('Expected an object or array value');
+  if (!isEmbeddedBlockValue(value, desc)) throw new Error('Expected an object or array value');
   if (creator) {
     if (Array.isArray(value) && !creator.recipient) return false;
-    const data = getObjectHelperData(creator, value, conn.getOptionalProps(creator, funcModule) || {});
+    const data = getEmbeddedBlockData(creator, value, conn.getOptionalProps(creator, funcModule) || {});
     return addSubBlock({conn, paths: [path], name, funcModule}, policy, creator.id, creator, data);
   }
   if (!policy.can({cmd: 'set', path: field, value}) || !policy.canDeleteBlock(`${path}.~${name}`)) return false;

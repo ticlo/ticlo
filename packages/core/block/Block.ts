@@ -1,4 +1,4 @@
-import {BlockProperty, BlockIO, HelperProperty, BlockBindingSource, BlockConfig} from './BlockProperty.ts';
+import {BlockProperty, BlockIO, EmbeddedBlockSlot, BlockBindingSource, BlockConfig} from './BlockProperty.ts';
 import {ListenPromise} from './ListenPromise.ts';
 import {BlockBinding} from './BlockBinding.ts';
 import {FunctionFactory, BaseFunction} from './BlockFunction.ts';
@@ -246,7 +246,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     const firstChar = field.charCodeAt(0);
 
     // Property prefixes are part of the file format contract:
-    // # is engine or function config, ^ is inherited context, ~ is a helper block,
+    // # is engine or function config, ^ is inherited context, ~ is a binding slot,
     // @ is editor metadata, everything else is IO.
     if (firstChar === 35) {
       // # config
@@ -292,8 +292,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     } else {
       switch (firstChar) {
         case 126:
-          // ~ binding property
-          prop = new HelperProperty(this, field);
+          // Runtime slot for an embedded Block
+          prop = new EmbeddedBlockSlot(this, field);
           break;
         case 64: {
           // @ attribute
@@ -402,9 +402,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
           const name = key.substring(1);
           this.setBinding(name, val);
         } else if (Object.isExtensible(val)) {
-          // binding helper
+          // embedded Block binding
           const name = key.substring(1);
-          this.getProperty(name)._loadHelper(val as DataMap);
+          this.getProperty(name)._loadEmbeddedBlock(val as DataMap);
         }
       } else {
         this.getProperty(key)._load(map[key]);
@@ -430,9 +430,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
           this.setBinding(name, val);
           loadedFields[name] = true;
         } else if (Object.isExtensible(val)) {
-          // binding helper
+          // embedded Block binding
           const name = key.substring(1);
-          this.getProperty(name)._loadHelper(val as DataMap, true);
+          this.getProperty(name)._loadEmbeddedBlock(val as DataMap, true);
           loadedFields[name] = true;
           loadedFields[key] = true;
         }
@@ -509,17 +509,17 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return this.getProperty(field).createBlock(false);
   }
 
-  createHelperBlock(field: string): Block {
+  createEmbeddedBlock(field: string): Block {
     const prop = this.getProperty(field);
-    const helperProp = this.getProperty(`~${field}`) as HelperProperty;
+    const embeddedBlockSlot = this.getProperty(`~${field}`) as EmbeddedBlockSlot;
     let block: Block;
-    if (!(helperProp._saved instanceof Block) || helperProp._saved._prop !== prop) {
-      block = helperProp.createBlock(true);
+    if (!(embeddedBlockSlot._saved instanceof Block) || embeddedBlockSlot._saved._prop !== prop) {
+      block = embeddedBlockSlot.createBlock(true);
     } else {
-      block = helperProp._saved;
+      block = embeddedBlockSlot._saved;
     }
     prop.setBinding(`~${field}.#output`);
-    prop.setBindProperty(helperProp);
+    prop.setEmbeddedBlockSlot(embeddedBlockSlot);
     return block;
   }
 

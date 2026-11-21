@@ -149,7 +149,7 @@ describe('editor Block Field', function () {
     expect(div.querySelector('.ticl-e-field-value').textContent).toContain('bound');
   });
 
-  it('creates inline helpers and round-trips an array through a Flow-local helper', async () => {
+  it('creates embedded Blocks inline and round-trips an array through a Flow-local Block', async () => {
     const basePath = 'BlockFieldInlineHelper';
     const items = [{label: 'x'.repeat(3000)}, {label: 'second'}];
     flow = Root.instance.addFlow(basePath, {

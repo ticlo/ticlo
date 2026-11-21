@@ -42,7 +42,7 @@ it to register these functions.
 
 For `mqtt:client`, set `url` to an `mqtt://`, `mqtts://`, `ws://`, or
 `wss://` broker URL. Set the optional client ID separately. Create an
-`auth:password` helper in `auth` or bind `auth` to the output of a shared
+embedded `auth:password` Block in `auth` or bind `auth` to the output of a shared
 profile Block. The profile provides `authMode` and `showSecret`. Set
 `username` and `#secret` on the MQTT Block itself. An unset or null `auth`
 connects without credentials. This also applies while a binding yields `undefined`.

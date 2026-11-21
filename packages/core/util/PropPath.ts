@@ -1,6 +1,6 @@
 import {Block} from '../block/Block.ts';
 import {Flow, FlowFolder, Root} from '../block/Flow.ts';
-import {BlockProperty, HelperProperty} from '../block/BlockProperty.ts';
+import {BlockProperty, EmbeddedBlockSlot} from '../block/BlockProperty.ts';
 
 function propRelativeImpl(
   flow: Flow,
@@ -25,8 +25,8 @@ function propRelativeImpl(
   let firstLayerBase = baseBlock._parent === flow;
   while (baseBlock !== flow) {
     baseBlocks.push(baseBlock);
-    if (baseBlock._prop instanceof HelperProperty && baseBlock._parent._parent === flow) {
-      // helper block should check if owner block is first layer
+    if (baseBlock._prop instanceof EmbeddedBlockSlot && baseBlock._parent._parent === flow) {
+      // For an embedded Block, check whether its owner is in the first layer.
       firstLayerBase = true;
     }
     baseBlock = baseBlock._parent;

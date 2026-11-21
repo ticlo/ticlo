@@ -1,5 +1,5 @@
 import {Block} from '../block/Block.ts';
-import {BlockIO, BlockProperty, HelperProperty} from '../block/BlockProperty.ts';
+import {BlockIO, BlockProperty, EmbeddedBlockSlot} from '../block/BlockProperty.ts';
 import {PropListener} from '../block/Dispatcher.ts';
 import {BlockBinding} from '../block/BlockBinding.ts';
 import {isDefinedProperty} from '../block/DefinedBlock.ts';
@@ -41,8 +41,8 @@ export class PropertyMover {
   }[];
   syncChildren: Block[];
 
-  // move the helper property
-  helperMover: PropertyMover;
+  // Move the embedded Block slot.
+  embeddedBlockSlotMover: PropertyMover;
 
   constructor(block: Block, oldName: string, moveOutboundLinks = false) {
     this.block = block;
@@ -53,11 +53,11 @@ export class PropertyMover {
       // moveTo() can recreate the same semantic property under a different name.
       if (property._bindingPath) {
         this.binding = property._bindingPath;
-        if (property._helperProperty) {
-          this.helperMover = new PropertyMover(block, property._helperProperty._name, moveOutboundLinks);
+        if (property._embeddedBlockSlot) {
+          this.embeddedBlockSlotMover = new PropertyMover(block, property._embeddedBlockSlot._name, moveOutboundLinks);
         }
-      } else if (property instanceof HelperProperty) {
-        // default _saveValue for HelperProperty always return null, use __save() instead
+      } else if (property instanceof EmbeddedBlockSlot) {
+        // Read the embedded Block data from the slot.
         this.saved = property.__save();
       } else {
         this.saved = property._saveValue();
@@ -110,9 +110,9 @@ export class PropertyMover {
       }
     }
     if (this.binding) {
-      if (this.helperMover) {
-        this.block.createHelperBlock(newName);
-        this.helperMover.moveTo(`~${newName}`);
+      if (this.embeddedBlockSlotMover) {
+        this.block.createEmbeddedBlock(newName);
+        this.embeddedBlockSlotMover.moveTo(`~${newName}`);
       } else {
         this.block.setBinding(newName, this.binding);
       }

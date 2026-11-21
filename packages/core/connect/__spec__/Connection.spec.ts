@@ -669,7 +669,7 @@ describe('Connection', function () {
     Root.instance.deleteValue('Connection11');
   });
 
-  it('helper property', async function () {
+  it('embedded Block slot', async function () {
     const flow1 = Root.instance.addFlow('Connection12');
 
     const [server, client] = makeLocalConnection(Root.instance, false);

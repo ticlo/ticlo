@@ -58,7 +58,7 @@ describe('PropertyUtil', function () {
     expect(flow.queryValue('b3.v')).toBe(2);
 
     // move sub block
-    flow.createHelperBlock('a4').setValue('v', 3);
+    flow.createEmbeddedBlock('a4').setValue('v', 3);
     renameProperty(flow, 'a4', 'b4');
     expect(flow.isPropertyUsed('a4')).toBe(false);
     expect(flow.getValue('~b4')).toBeInstanceOf(Block);

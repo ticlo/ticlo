@@ -17,7 +17,12 @@ import {ServiceEditor} from '../property/value/ServiceEditor.tsx';
 import type {ValueEditorProps} from '../property/value/ValueEditorBase.ts';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
 import {useEditPolicy} from '../component/EditPolicyContext.tsx';
-import {addSubBlock, canConvertHelper, convertHelper, hasObjectHelpers} from '../property/ObjectHelper.ts';
+import {
+  addSubBlock,
+  canConvertEmbeddedBlock,
+  convertEmbeddedBlock,
+  hasEmbeddedBlockTypes,
+} from '../property/EmbeddedBlock.ts';
 import {getDescModule} from '../util/FunctionModule.ts';
 
 export function getInlineEditorDesc(base: PropDesc, inline: ReturnType<typeof getInlineProp>) {
@@ -40,7 +45,7 @@ interface InlineProps extends Props {
   funcDesc: FunctionDesc;
   funcModule: string;
   bindingPath?: string;
-  helperType?: string;
+  embeddedBlockType?: string;
 }
 
 export const InlineFieldValue = React.memo(function InlineFieldValue({
@@ -52,7 +57,7 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
   funcDesc,
   funcModule,
   bindingPath,
-  helperType,
+  embeddedBlockType,
 }: InlineProps) {
   const value = useConnectionValue(conn, path);
   const layout = useContext(TicloLayoutContextType);
@@ -80,7 +85,7 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
   const onKeyDown = (event: React.KeyboardEvent) => {
     if (!(event.key.toLowerCase() === 's' && (event.ctrlKey || event.metaKey))) event.stopPropagation();
   };
-  const Editor = hasObjectHelpers(desc) ? InlineObjectFieldEditor : typeEditorMap[desc.type];
+  const Editor = hasEmbeddedBlockTypes(desc) ? InlineObjectFieldEditor : typeEditorMap[desc.type];
   return (
     <div
       className="ticl-e-field-value ticl-e-inline-value"
@@ -118,7 +123,7 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
           funcModule={funcModule}
           locked={locked}
           bindingPath={bindingPath}
-          helperType={helperType}
+          embeddedBlockType={embeddedBlockType}
           onEditValue={onEditValue}
           onChange={
             locked || (isDataTruncated(value) && !['object', 'array', 'table'].includes(desc.type)) ? undefined : commit
@@ -131,9 +136,9 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
 
 function InlineObjectFieldEditor({
   bindingPath,
-  helperType,
+  embeddedBlockType,
   ...props
-}: ValueEditorProps & Pick<InlineProps, 'bindingPath' | 'helperType'>) {
+}: ValueEditorProps & Pick<InlineProps, 'bindingPath' | 'embeddedBlockType'>) {
   const {conn, keys, name, desc, funcModule, value, locked} = props;
   const policy = useEditPolicy();
   const creatorId = !locked && value !== undefined && typeof desc.create === 'string' ? desc.create : undefined;
@@ -150,15 +155,15 @@ function InlineObjectFieldEditor({
   const pending = useRef<AbortController>(null);
   useEffect(
     () => () => pending.current?.abort(),
-    [conn, keys, name, desc, policy, funcModule, bindingPath, helperType]
+    [conn, keys, name, desc, policy, funcModule, bindingPath, embeddedBlockType]
   );
-  const convert = async (toHelper: boolean) => {
+  const convert = async (toEmbeddedBlock: boolean) => {
     if (pending.current) return;
     const operation = new AbortController();
     pending.current = operation;
     setConverting(true);
     try {
-      await convertHelper(
+      await convertEmbeddedBlock(
         conn,
         policy,
         keys[0],
@@ -166,7 +171,7 @@ function InlineObjectFieldEditor({
         desc,
         funcModule,
         () => !operation.signal.aborted,
-        toHelper ? creator : undefined
+        toEmbeddedBlock ? creator : undefined
       );
     } catch (error) {
       requestCallbacks.onError(String(error));
@@ -186,15 +191,15 @@ function InlineObjectFieldEditor({
               void addSubBlock({conn, paths: keys, name, funcModule}, policy, id).catch(requestCallbacks.onError);
             }
       }
-      onConvertToHelper={
-        creator && !converting && canConvertHelper(policy, keys[0], name, desc, value, bindingPath, creator)
+      onConvertToEmbeddedBlock={
+        creator && !converting && canConvertEmbeddedBlock(policy, keys[0], name, desc, value, bindingPath, creator)
           ? (): void => void convert(true)
           : undefined
       }
       onConvertToObject={
-        helperType &&
+        embeddedBlockType &&
         !converting &&
-        canConvertHelper(policy, keys[0], name, desc, value, bindingPath, undefined, helperType)
+        canConvertEmbeddedBlock(policy, keys[0], name, desc, value, bindingPath, undefined, embeddedBlockType)
           ? (): void => void convert(false)
           : undefined
       }

@@ -31,7 +31,7 @@ describe('ObjectEditor conversion', () => {
     vi.restoreAllMocks();
   });
 
-  it('creates and binds the only helper type in a create array when allowed', async () => {
+  it('creates and binds the only embedded Block type in a create array when allowed', async () => {
     const flow = Root.instance.addFlow('ObjectEditorTest', {block: {'#is': ''}});
     const [, base] = makeLocalConnection(Root.instance, true);
     const [replacePolicy] = loadPolicyTemplate(
@@ -98,15 +98,15 @@ describe('ObjectEditor conversion', () => {
       ['first', first],
       ['second', second],
     ] as const) {
-      const helper = flow.queryValue(`${name}.~style`) as Block;
-      expect(helper.getValue('#is')).toBe('html:create-style');
-      expect(helper.getValue('#optional')).toEqual(Object.keys(value).filter((name) => name !== 'extra'));
-      expect(helper.getValue('#extend')).toEqual({extra: value.extra});
+      const embeddedBlock = flow.queryValue(`${name}.~style`) as Block;
+      expect(embeddedBlock.getValue('#is')).toBe('html:create-style');
+      expect(embeddedBlock.getValue('#optional')).toEqual(Object.keys(value).filter((name) => name !== 'extra'));
+      expect(embeddedBlock.getValue('#extend')).toEqual({extra: value.extra});
       expect(flow.queryValue(`${name}.style`)).toEqual(value);
       expect(flow.queryProperty(`${name}.style`)._bindingPath).toBe('~style.#output');
     }
-    const helper = flow.queryValue('first.~style') as Block;
-    helper.setValue('color', 'green');
+    const embeddedBlock = flow.queryValue('first.~style') as Block;
+    embeddedBlock.setValue('color', 'green');
     await shouldHappen(() => (flow.queryValue('first.style') as typeof first).color === 'green');
     await waitTick(30);
     get.mockClear();
@@ -119,7 +119,7 @@ describe('ObjectEditor conversion', () => {
       ['ObjectEditorTest.second.style', second, true],
     ]);
     expect(add).not.toHaveBeenCalled();
-    expect(helper._destroyed).toBe(true);
+    expect(embeddedBlock._destroyed).toBe(true);
     expect(flow.queryValue('first.~style')).toBeUndefined();
     expect(flow.queryValue('second.~style')).toBeUndefined();
     expect(flow.queryProperty('first.style')._bindingPath).toBeNull();
@@ -149,19 +149,19 @@ describe('ObjectEditor conversion', () => {
     await convert('Convert to create-object');
     await shouldHappen(() => tool() && flow.queryProperty('block.style')._bindingPath === '~style.#output');
     await shouldHappen(() => document.querySelector('.ticl-e-property-list .ticl-e-type-editor'));
-    const helper = flow.queryValue('block.~style') as Block;
-    expect(helper.getValue('#custom')).toEqual([
+    const embeddedBlock = flow.queryValue('block.~style') as Block;
+    expect(embeddedBlock.getValue('#custom')).toEqual([
       {name: 'label', type: 'any'},
       {name: 'nested', type: 'any'},
     ]);
-    expect(helper.getValue('nested')).toEqual(value.nested);
+    expect(embeddedBlock.getValue('nested')).toEqual(value.nested);
     expect(flow.queryValue('block.style')).toEqual(value);
     await convert('Convert to object value');
     await shouldHappen(() => tool() && flow.queryProperty('block.style')._bindingPath == null);
     expect(flow.save()).toEqual({'#is': '', 'block': {'#is': '', 'style': {'#is': value}}});
   });
 
-  it('updates the tool when the helper function changes and honors edit policies', async () => {
+  it('updates the tool when the embedded Block function changes and honors edit policies', async () => {
     const flow = Root.instance.addFlow('ObjectEditorTest', {
       block: {'#is': '', '~style': {'#is': 'create-object', '#extend': {color: 'red'}}},
     });

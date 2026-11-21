@@ -906,7 +906,7 @@ describe('designer stage gestures', () => {
       ),
     });
     const a = main.getValue('a') as Block;
-    const helper = a.getValue('~style') as Block;
+    const embeddedBlock = a.getValue('~style') as Block;
     await shouldHappen(() => (a.getValue('style') as any)?.left === 10);
     await shouldHappen(() => getComputedStyle(element('a')).position === 'absolute');
     getStage().select([a]);
@@ -915,24 +915,24 @@ describe('designer stage gestures', () => {
     const track = vi.spyOn(flow, 'trackChange');
     pointer(element('a'), 'pointerdown', 10, 10);
     pointer(document, 'pointermove', 30, 25);
-    await expect.poll(() => helper.getValue('left')).toBeCloseTo(30, 4);
-    expect(helper.getProperty('left')._bindingPath).toBe('origin');
-    expect(helper.getValue('#optional')).toContain('top');
+    await expect.poll(() => embeddedBlock.getValue('left')).toBeCloseTo(30, 4);
+    expect(embeddedBlock.getProperty('left')._bindingPath).toBe('origin');
+    expect(embeddedBlock.getValue('#optional')).toContain('top');
     expect(flow.save()).toEqual(saved);
-    helper.updateValue('origin', 50);
+    embeddedBlock.updateValue('origin', 50);
     pointer(document, 'pointermove', 40, 30);
-    await expect.poll(() => helper.getValue('left')).toBeCloseTo(40, 4);
+    await expect.poll(() => embeddedBlock.getValue('left')).toBeCloseTo(40, 4);
     document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true, cancelable: true}));
     await expect.poll(() => (a.getValue('style') as any).left).toBeCloseTo(50, 4);
-    expect(helper.getValue('top')).toBeUndefined();
-    expect(helper.getValue('#optional')).toEqual(['position', 'left', 'width', 'height']);
-    expect(helper.getProperty('left')._bindingPath).toBe('origin');
+    expect(embeddedBlock.getValue('top')).toBeUndefined();
+    expect(embeddedBlock.getValue('#optional')).toEqual(['position', 'left', 'width', 'height']);
+    expect(embeddedBlock.getProperty('left')._bindingPath).toBe('origin');
     expect(flow.save()).toEqual(saved);
     expect(track).not.toHaveBeenCalled();
     pointer(document, 'pointerup', 40, 30);
   });
 
-  it('commits helper coordinates and optional fields while retaining the owning style binding', async () => {
+  it('commits embedded Block coordinates and optional fields while retaining the owning style binding', async () => {
     const {main, element, getStage} = await mount({
       '#order': ['a'],
       'a': child(
@@ -953,7 +953,7 @@ describe('designer stage gestures', () => {
       ),
     });
     const a = main.getValue('a') as Block;
-    const helper = a.getValue('~style') as Block;
+    const embeddedBlock = a.getValue('~style') as Block;
     await shouldHappen(() => (a.getValue('style') as any)?.left === 10);
     await shouldHappen(() => getComputedStyle(element('a')).position === 'absolute');
     getStage().select([a]);
@@ -961,15 +961,15 @@ describe('designer stage gestures', () => {
     pointer(element('a'), 'pointerdown', 10, 10);
     pointer(document, 'pointermove', 30, 25);
     pointer(document, 'pointerup', 35, 30);
-    expect(helper.getProperty('left')._bindingPath).toBeNull();
-    expect(helper.getProperty('left')._saved).toBe(35);
-    expect(helper.getProperty('top')._saved).toBe(20);
-    expect(helper.getProperty('#optional')._saved).toContain('top');
-    expect(a.getProperty('style')._helperProperty.getValue()).toBe(helper);
+    expect(embeddedBlock.getProperty('left')._bindingPath).toBeNull();
+    expect(embeddedBlock.getProperty('left')._saved).toBe(35);
+    expect(embeddedBlock.getProperty('top')._saved).toBe(20);
+    expect(embeddedBlock.getProperty('#optional')._saved).toContain('top');
+    expect(a.getProperty('style')._embeddedBlockSlot.getValue()).toBe(embeddedBlock);
   });
 
   it.each([null, undefined])(
-    'previews a missing style (%s) as an object, creates its helper only on up, and merges consecutive drags',
+    'previews a missing style (%s) as an object, creates the embedded Block on pointer release, and merges consecutive drags',
     async (style) => {
       const {flow, main, element, div, getStage} = await mount({
         '#order': ['a'],
@@ -994,15 +994,15 @@ describe('designer stage gestures', () => {
       pointer(element('a'), 'pointerdown', 10, 10);
       pointer(document, 'pointermove', 30, 25);
       pointer(document, 'pointerup', 30, 25);
-      const helper = a.getValue('~style') as Block;
-      expect(helper.getValue('#is')).toBe('html:create-style');
-      expect(helper.getValue('#optional')).toEqual(['left', 'top']);
+      const embeddedBlock = a.getValue('~style') as Block;
+      expect(embeddedBlock.getValue('#is')).toBe('html:create-style');
+      expect(embeddedBlock.getValue('#optional')).toEqual(['left', 'top']);
       await expect.poll(() => (a.getValue('style') as any)?.left).toBeCloseTo(60, 4);
       pointer(element('a'), 'pointerdown', 10, 10);
       pointer(document, 'pointermove', 20, 20);
       pointer(document, 'pointerup', 20, 20);
-      expect(a.getValue('~style')).toBe(helper);
-      expect(helper.getProperty('left')._saved).toBeCloseTo(70, 4);
+      expect(a.getValue('~style')).toBe(embeddedBlock);
+      expect(embeddedBlock.getProperty('left')._saved).toBeCloseTo(70, 4);
       expect(flow._history._tracking).toBe(true);
       getStage().undo();
       await shouldHappen(() => a.getValue('style') === style);
@@ -1469,7 +1469,7 @@ describe('designer stage gestures', () => {
     );
   });
 
-  it('previews helper dimensions, restores current bindings on cancel, and retains the style helper on commit', async () => {
+  it('previews embedded Block dimensions, restores current bindings on cancel, and retains the embedded style Block on commit', async () => {
     const {flow, main, element, div, getStage} = await mount({
       '#order': ['a'],
       'a': child(
@@ -1491,29 +1491,29 @@ describe('designer stage gestures', () => {
       ),
     });
     const a = main.getValue('a') as Block;
-    const helper = a.getValue('~style') as Block;
+    const embeddedBlock = a.getValue('~style') as Block;
     getStage().select([a]);
     await shouldHappen(() => div.querySelector('[data-handle="bottom-right"]'));
     const saved = flow.save();
     const before = element('a').getBoundingClientRect();
     pointer(div.querySelector('[data-handle="bottom-right"]'), 'pointerdown', before.right, before.bottom);
     pointer(document, 'pointermove', before.right + 20, before.bottom + 10);
-    await shouldHappen(() => helper.getValue('width') === 120);
+    await shouldHappen(() => embeddedBlock.getValue('width') === 120);
     expect(flow.save()).toEqual(saved);
-    expect(helper.getValue('#optional')).toContain('height');
-    helper.updateValue('source', 140);
+    expect(embeddedBlock.getValue('#optional')).toContain('height');
+    embeddedBlock.updateValue('source', 140);
     document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
     await shouldHappen(() => (a.getValue('style') as any).width === 140);
-    expect(helper.getValue('height')).toBeUndefined();
-    expect(helper.getValue('#optional')).toEqual(['position', 'left', 'top', 'width']);
-    expect(helper.getProperty('width')._bindingPath).toBe('source');
+    expect(embeddedBlock.getValue('height')).toBeUndefined();
+    expect(embeddedBlock.getValue('#optional')).toEqual(['position', 'left', 'top', 'width']);
+    expect(embeddedBlock.getProperty('width')._bindingPath).toBe('source');
     expect(flow.save()).toEqual(saved);
     await shouldHappen(() => getComputedStyle(element('a')).width === '140px');
     const next = element('a').getBoundingClientRect();
     pointer(div.querySelector('[data-handle="bottom-right"]'), 'pointerdown', next.right, next.bottom);
     pointer(document, 'pointerup', next.right + 20, next.bottom + 10);
-    expect(helper.getProperty('width')._bindingPath).toBeNull();
-    expect(helper.getProperty('width')._saved).toBe(160);
-    expect(a.getProperty('style')._helperProperty.getValue()).toBe(helper);
+    expect(embeddedBlock.getProperty('width')._bindingPath).toBeNull();
+    expect(embeddedBlock.getProperty('width')._saved).toBe(160);
+    expect(a.getProperty('style')._embeddedBlockSlot.getValue()).toBe(embeddedBlock);
   });
 });

@@ -28,7 +28,7 @@ import {typeEditorMap} from './value/index.ts';
 import {propAcceptsBlock} from '@ticlo/core';
 import {getDescModule} from '../util/FunctionModule.ts';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
-import {addSubBlock, canConvertHelper, convertHelper, hasObjectHelpers} from './ObjectHelper.ts';
+import {addSubBlock, canConvertEmbeddedBlock, convertEmbeddedBlock, hasEmbeddedBlockTypes} from './EmbeddedBlock.ts';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
@@ -44,22 +44,22 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
     this.valueListener.subscribe(this.conn, `${this.path}.${this.name}`);
     this.displayListener.subscribe(this.conn, `${this.path}.@b-p`);
     const {propDesc, funcModule} = this.parent.props;
-    if (hasObjectHelpers(propDesc) && typeof propDesc.create === 'string') {
+    if (hasEmbeddedBlockTypes(propDesc) && typeof propDesc.create === 'string') {
       this.conn.watchDesc(propDesc.create, getDescModule(propDesc.create, funcModule), this.onCreateDesc);
     }
   }
 
   cache: ValueState;
   subBlock = false;
-  helperFuncId: string;
+  embeddedBlockFuncId: string;
   createDesc: FunctionDesc;
   onCreateDesc = (desc: FunctionDesc) => {
     this.createDesc = desc;
     this.parent.forceUpdate();
   };
-  helperListener = new ValueSubscriber({
+  embeddedBlockListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      this.helperFuncId = response.cache.value;
+      this.embeddedBlockFuncId = response.cache.value;
       this.parent.forceUpdate();
     },
   });
@@ -71,11 +71,11 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
       if (Object.hasOwn(response.change, 'value') || Object.hasOwn(response.change, 'bindingPath')) {
         this.subBlock = response.cache.bindingPath === `~${this.name}.#output`;
         const {propDesc} = this.parent.props;
-        if (this.subBlock && hasObjectHelpers(propDesc)) {
-          this.helperListener.subscribe(this.conn, `${this.path}.~${this.name}.#is`);
+        if (this.subBlock && hasEmbeddedBlockTypes(propDesc)) {
+          this.embeddedBlockListener.subscribe(this.conn, `${this.path}.~${this.name}.#is`);
         } else {
-          this.helperListener.unsubscribe();
-          this.helperFuncId = undefined;
+          this.embeddedBlockListener.unsubscribe();
+          this.embeddedBlockFuncId = undefined;
         }
         changed = true;
       }
@@ -104,7 +104,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   destroy() {
     this.valueListener.unsubscribe();
     this.displayListener.unsubscribe();
-    this.helperListener.unsubscribe();
+    this.embeddedBlockListener.unsubscribe();
     this.conn.unwatchDesc(this.onCreateDesc);
   }
 }
@@ -426,31 +426,34 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     }
   };
 
-  canConvertObject(loader: PropertyLoader, toHelper: boolean) {
+  canConvertObject(loader: PropertyLoader, toEmbeddedBlock: boolean) {
     const {name, propDesc} = this.props;
-    if (!loader?.cache || (toHelper && !loader.createDesc)) return false;
+    if (!loader?.cache || (toEmbeddedBlock && !loader.createDesc)) return false;
     const {value, bindingPath} = loader.cache;
-    return canConvertHelper(
+    return canConvertEmbeddedBlock(
       this.context,
       loader.path,
       name,
       propDesc,
       value,
       bindingPath,
-      toHelper ? loader.createDesc : undefined,
-      loader.helperFuncId
+      toEmbeddedBlock ? loader.createDesc : undefined,
+      loader.embeddedBlockFuncId
     );
   }
 
-  convertObject = async (toHelper: boolean) => {
-    if (this.state.converting || ![...this.loaders.values()].every((loader) => this.canConvertObject(loader, toHelper)))
+  convertObject = async (toEmbeddedBlock: boolean) => {
+    if (
+      this.state.converting ||
+      ![...this.loaders.values()].every((loader) => this.canConvertObject(loader, toEmbeddedBlock))
+    )
       return;
     const {conn, paths, name, propDesc, funcModule} = this.props;
     this.safeSetState({converting: true, showSubBlock: false});
     try {
       for (const path of paths) {
         const loader = this.loaders.get(path);
-        const converted = await convertHelper(
+        const converted = await convertEmbeddedBlock(
           conn,
           this.context,
           path,
@@ -463,12 +466,12 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
             this.props.name === name &&
             this.props.propDesc === propDesc &&
             arrayEqual(this.props.paths, paths) &&
-            this.canConvertObject(this.loaders.get(path), toHelper),
-          toHelper ? loader.createDesc : undefined
+            this.canConvertObject(this.loaders.get(path), toEmbeddedBlock),
+          toEmbeddedBlock ? loader.createDesc : undefined
         );
         if (!converted) return;
       }
-      if (toHelper) this.safeSetState({showSubBlock: true});
+      if (toEmbeddedBlock) this.safeSetState({showSubBlock: true});
     } catch (error) {
       requestCallbacks.onError(String(error));
     } finally {
@@ -476,7 +479,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     }
   };
 
-  onConvertToHelper = () => this.convertObject(true);
+  onConvertToEmbeddedBlock = () => this.convertObject(true);
   onConvertToObject = () => this.convertObject(false);
 
   cachedPaths: string[] = [];
@@ -591,9 +594,9 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           locked={locked && !unlocked}
           onChange={onChange}
           addSubBlock={this.onAddSubBlock}
-          onConvertToHelper={
+          onConvertToEmbeddedBlock={
             !this.state.converting && [...this.loaders.values()].every((loader) => this.canConvertObject(loader, true))
-              ? this.onConvertToHelper
+              ? this.onConvertToEmbeddedBlock
               : undefined
           }
           onConvertToObject={

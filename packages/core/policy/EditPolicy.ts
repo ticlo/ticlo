@@ -134,7 +134,7 @@ export function checkEditPolicy(
     if (policy.allowBlockTypes?.length === 0) return 'restricted block type';
     const error = checkPath(target) || checkType(data?.['#is'] ?? (preview ? undefined : ''));
     if (error) return error;
-    // A helper block also replaces the parent field's binding.
+    // An embedded Block also replaces the parent field's binding.
     const [parent, name] = splitPathName(target);
     if (name.startsWith('~')) {
       if (autoName && target === path) {

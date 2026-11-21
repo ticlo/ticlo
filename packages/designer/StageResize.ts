@@ -43,21 +43,21 @@ export function createStageResize(
   )
     return null;
   const property = block.getProperty('style', false);
-  const helperValue = property?._helperProperty?.getValue();
-  const helper =
-    helperValue instanceof Block &&
-    helperValue.getParent() === block &&
-    helperValue.getValue('#is') === 'html:create-style'
-      ? helperValue
+  const embeddedBlockValue = property?._embeddedBlockSlot?.getValue();
+  const embeddedBlock =
+    embeddedBlockValue instanceof Block &&
+    embeddedBlockValue.getParent() === block &&
+    embeddedBlockValue.getValue('#is') === 'html:create-style'
+      ? embeddedBlockValue
       : null;
-  if (!helper && (property?._bindingPath != null || property?._bindingSource)) return null;
+  if (!embeddedBlock && (property?._bindingPath != null || property?._bindingSource)) return null;
   const saved = property?._saved;
-  if (!helper && saved != null && (typeof saved !== 'object' || Array.isArray(saved) || saved instanceof Block))
+  if (!embeddedBlock && saved != null && (typeof saved !== 'object' || Array.isArray(saved) || saved instanceof Block))
     return null;
   const value = block.getValue('style');
   const style: Record<string, unknown> = value && typeof value === 'object' ? {...value} : {};
   const defined = (name: string) => {
-    const prop = helper?.getProperty(name, false);
+    const prop = embeddedBlock?.getProperty(name, false);
     return (
       (style[name] != null && style[name] !== 'auto') ||
       (prop && (prop._saved !== undefined || prop._bindingPath != null) && prop.getValue() !== 'auto')
@@ -105,7 +105,7 @@ export function createStageResize(
   if (!anchor) return null;
   const offsetX = stage.scrollLeft - stage.clientLeft;
   const offsetY = stage.scrollTop - stage.clientTop;
-  const optionalValue = helper?.getValue('#optional');
+  const optionalValue = embeddedBlock?.getValue('#optional');
   const optional: string[] = Array.isArray(optionalValue) ? optionalValue.slice() : [];
   const fields = new Set<string>();
   let addedOptional = false;
@@ -126,17 +126,17 @@ export function createStageResize(
       : null;
   };
   const cancel = () => {
-    if (block._destroyed || helper?._destroyed) return;
-    if (helper) {
-      if (addedOptional) restore(helper.getProperty('#optional', false));
-      for (const name of fields) restore(helper.getProperty(name, false));
+    if (block._destroyed || embeddedBlock?._destroyed) return;
+    if (embeddedBlock) {
+      if (addedOptional) restore(embeddedBlock.getProperty('#optional', false));
+      for (const name of fields) restore(embeddedBlock.getProperty(name, false));
     } else restore(block.getProperty('style', false));
   };
   return {
     preview,
     update(screenX: number, screenY: number) {
       const point = projectPoint(inverse, startX + screenX, startY + screenY);
-      if (!point || block._destroyed || helper?._destroyed) return null;
+      if (!point || block._destroyed || embeddedBlock?._destroyed) return null;
       dw = handle.x ? Math.max(-width, handle.x * (point.x - start.x)) : 0;
       dh = handle.y ? Math.max(-height, handle.y * (point.y - start.y)) : 0;
       if (Math.abs(dw) < 1e-9) dw = 0;
@@ -202,24 +202,24 @@ export function createStageResize(
           values.bottom = insets.bottom - shift.y - dh;
       }
       for (const name of Object.keys(values)) fields.add(name);
-      if (helper) {
+      if (embeddedBlock) {
         const nextOptional = [...optional, ...[...fields].filter((name) => !optional.includes(name))];
         if (nextOptional.length !== optional.length) {
           addedOptional = true;
-          helper.updateValue('#optional', nextOptional);
+          embeddedBlock.updateValue('#optional', nextOptional);
         }
-        for (const [name, value] of Object.entries(values)) helper.updateValue(name, value);
+        for (const [name, value] of Object.entries(values)) embeddedBlock.updateValue(name, value);
       } else block.updateValue('style', {...style, ...values});
       return preview();
     },
     commit() {
-      if ((!dw && !dh) || block._destroyed || helper?._destroyed) {
+      if ((!dw && !dh) || block._destroyed || embeddedBlock?._destroyed) {
         cancel();
         return false;
       }
-      let target = helper;
+      let target = embeddedBlock;
       if (!target && saved == null) {
-        target = block.createHelperBlock('style');
+        target = block.createEmbeddedBlock('style');
         target.setValue('#is', 'html:create-style');
       }
       if (target) {

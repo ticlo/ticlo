@@ -75,13 +75,13 @@ Selection outlines use stage-local coordinates. The HTML package owns the
 SVG position editing is described in [React SVG](react-svg.md).
 
 Movement requires absolute positioning and a writable style object, unset style,
-or the component's own `html:create-style` helper. Other style bindings are
-preserved. Eligible siblings receive the same local delta. Resizing adjusts
+or the component's own embedded `html:create-style` Block. Other style bindings
+are preserved. Eligible siblings receive the same local delta. Resizing adjusts
 dimensions and, for positioned elements, the insets needed to retain the opposite
 edge. When both insets define an axis, those insets are adjusted instead of size.
 
 Gestures preview runtime values. Release commits final values through existing
-history tracking. Helper edits retain the owning style binding and enable newly
-used fields. Escape, cancellation, blur, preview mode, or unmount restores saved
+history tracking. Edits to the embedded Block retain the owning style binding
+and enable newly used fields. Escape, cancellation, blur, preview mode, or unmount restores saved
 values and current binding sources without an edit. No-op gestures must not
 create a history entry.
