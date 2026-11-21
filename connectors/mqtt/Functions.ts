@@ -94,7 +94,6 @@ globalFunctions.addFactory(
   {
     id: 'mqtt:subscribe',
     name: 'subscribe',
-    category: 'mqtt',
     mode: 'onLoad',
     priority: 2,
     configs: defaultConfigs.concat('#cancel'),
@@ -120,7 +119,6 @@ globalFunctions.addFactory(
   {
     id: 'mqtt:query',
     name: 'query',
-    category: 'mqtt',
     mode: 'onCall',
     priority: 1,
     properties: [
@@ -139,7 +137,6 @@ globalFunctions.addFactory(
   {
     id: 'mqtt:publish',
     name: 'publish',
-    category: 'mqtt',
     mode: 'onCall',
     priority: 3,
     properties: [clientProp, ...mqttPublishParameters],

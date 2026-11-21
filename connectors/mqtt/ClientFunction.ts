@@ -102,14 +102,13 @@ const api: FunctionApi = {
   },
 };
 
-globalFunctions.addCategory({id: 'mqtt:mqtt', name: 'MQTT', libraryId: 'mqtt', icon: '13:MQ'});
+globalFunctions.addCategory({id: 'mqtt:', name: 'MQTT', libraryId: 'mqtt', icon: '13:MQ'});
 
 globalFunctions.addFactory(
   MqttClientFunction,
   {
     id: 'mqtt:client',
     name: 'client',
-    category: 'mqtt',
     mode: 'onLoad',
     priority: 2,
     tags: ['mqtt-client', 'live-client', 'context-service'],
