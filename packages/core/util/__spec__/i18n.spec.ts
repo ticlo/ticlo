@@ -24,6 +24,19 @@ describe('i18n', function () {
 
     expect(i18n.translateFunction(null, null, 'testi18n')).toBe('');
     expect(i18n.translateFunction('aaa', 'aaa', 'testi18n')).toBe('AAA');
+
+    expect(i18n.translateFunction('sqlite:client', 'client', 'sqlite', undefined, 'sqlite-client')).toBe(
+      'sqlite-client'
+    );
+    expect(i18n.translateFunction('aaa', 'aaa', 'testi18n', undefined, 'fallback')).toBe('AAA');
+    try {
+      i18n.TicloI18nSettings.shouldTranslateFunction = false;
+      expect(i18n.translateFunction('sqlite:client', 'client', 'sqlite', undefined, 'sqlite-client')).toBe(
+        'sqlite-client'
+      );
+    } finally {
+      i18n.TicloI18nSettings.shouldTranslateFunction = true;
+    }
   });
 
   it('property name', function () {

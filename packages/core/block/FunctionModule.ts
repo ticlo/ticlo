@@ -130,10 +130,6 @@ export class FunctionModule {
       desc.priority = 0;
     }
     desc.libraryId = library;
-    if (desc.category && library != null) {
-      // make sure category is in the same library
-      desc.category = `${library}:${desc.category.split(':').pop()}`;
-    }
     let id: string;
     if (desc.id) {
       id = desc.id;

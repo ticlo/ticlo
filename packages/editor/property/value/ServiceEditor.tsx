@@ -1,7 +1,14 @@
 import React from 'react';
 import {Button, Select} from 'antd';
 import {EllipsisOutlined, PlusOutlined} from '@ant-design/icons';
-import {ClientConn, FunctionDesc, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '@ticlo/core/editor.ts';
+import {
+  ClientConn,
+  FunctionDesc,
+  getDefaultFuncData,
+  getFuncDefaultName,
+  getSubBlockFuncData,
+  PropDesc,
+} from '@ticlo/core/editor.ts';
 import {Popup} from '../../component/ClickPopup.tsx';
 import {PropertyList} from '../PropertyList.tsx';
 import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
@@ -42,7 +49,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
       funcDesc &&
       this.context.can({
         cmd: 'addBlock',
-        path: `#global.^${funcDesc.name}`,
+        path: `#global.^${getFuncDefaultName(funcDesc)}`,
         data: getSubBlockFuncData(getDefaultFuncData(funcDesc)),
       })
     );
@@ -57,7 +64,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
     if (funcDesc) {
       try {
         const createdBlock = await conn.addBlock(
-          `#global.^${funcDesc.name}`,
+          `#global.^${getFuncDefaultName(funcDesc)}`,
           getSubBlockFuncData(getDefaultFuncData(funcDesc))
         );
         if (createdBlock?.name && keys === this.props.keys && !this.props.locked) {

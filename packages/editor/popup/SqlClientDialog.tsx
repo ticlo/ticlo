@@ -396,7 +396,7 @@ function SqlClientPanel({conn, path}: Props) {
             value={params}
             readonly={running}
             label={
-              service instanceof NoSerialize && service.title === 'database:postgres' ? <code>$1, $2, …</code> : null
+              service instanceof NoSerialize && service.title === 'postgres:client' ? <code>$1, $2, …</code> : null
             }
             onChange={changeParams}
           />

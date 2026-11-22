@@ -177,6 +177,8 @@ export interface FunctionDesc {
   // to orginize functions in groups
   // category is not used for +library functions, their id always match their positions in function tree
   category?: string;
+  /** Display in function tree and name dropped blocks as `<library>-<name>`. */
+  useFullName?: boolean;
 }
 
 export const blankFuncDesc: FunctionDesc = {
@@ -422,6 +424,13 @@ function initBlockProperties(data: DataMap, properties: (PropDesc | PropGroupDes
     }
   }
   data['@b-p'] = props;
+}
+
+export function getFuncDefaultName(desc: FunctionDesc): string {
+  if (desc.useFullName && desc.id) {
+    return desc.id.split(':').filter(Boolean).join('-') || desc.name;
+  }
+  return desc.name;
 }
 
 export function getDefaultFuncData(desc: FunctionDesc) {

@@ -1,12 +1,13 @@
 import {once} from 'node:events';
 import {createServer, type Socket} from 'node:net';
 import {createRequire} from 'node:module';
-import {Root, makeLocalConnection, shouldHappen, type Block, type LiveUpdate} from '@ticlo/core';
+import {Root, globalFunctions, makeLocalConnection, shouldHappen, type Block, type LiveUpdate} from '@ticlo/core';
 import '../index.ts';
 
 const createBroker: typeof import('aedes').createBroker = createRequire(import.meta.url)('aedes');
 
 it('sends local credentials only when auth is a password profile', async () => {
+  expect(globalFunctions.getDesc('mqtt:client')?.useFullName).toBe(true);
   const attempts = new Map<string, {username: string | undefined; password: string | undefined}>();
   const broker = createBroker({
     authenticate(client, username, password, done) {

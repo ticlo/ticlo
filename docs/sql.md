@@ -43,18 +43,19 @@ Cancellation follows the same rules as `sql:query`.
 
 ## Database connectors
 
-SQLite, PostgreSQL, and MySQL appear under Database in the function selector.
+SQLite (`sqlite-client`), PostgreSQL (`postgres-client`), and MySQL
+(`mysql-client`) appear under Database in the function selector.
 For existing flows, update the saved function IDs to the corresponding IDs below.
 
 | Previous ID | Current ID |
 | --- | --- |
-| `sqlite:client` | `database:sqlite` |
-| `postgres:client` | `database:postgres` |
-| `mysql:client` | `database:mysql` |
+| `database:sqlite` | `sqlite:client` |
+| `database:postgres` | `postgres:client` |
+| `database:mysql` | `mysql:client` |
 
 ### SQLite
 
-Import `@ticlo/sqlite` in Node.js to register `database:sqlite`. It is not a browser
+Import `@ticlo/sqlite` in Node.js to register `sqlite:client`. It is not a browser
 module. Applications must explicitly import connectors; the development server
 already imports this one.
 
@@ -86,7 +87,7 @@ zero affected rows rather than reusing a preceding write's metadata.
 
 ### PostgreSQL
 
-Import `@ticlo/postgres` in Node.js to register `database:postgres`. The development
+Import `@ticlo/postgres` in Node.js to register `postgres:client`. The development
 server imports it. Enter a URL such as `postgresql://app@db.example:5432/mydb` in
 `connectionString`. See [SQL authentication](#sql-authentication) for password
 setup. The Block opens a pool on load and replaces it when its configuration changes. `maxConnections` defaults
@@ -113,7 +114,7 @@ by the runner.
 
 ### MySQL and MariaDB
 
-Import `@ticlo/mysql` in a Node.js host to register `database:mysql`. The
+Import `@ticlo/mysql` in a Node.js host to register `mysql:client`. The
 development server imports it. Set `connectionString` to a URL such as
 `mysql://app@127.0.0.1:3306/mydb`. For password authentication, use the
 [SQL authentication setup](#sql-authentication). Add `?ssl=true` to use TLS

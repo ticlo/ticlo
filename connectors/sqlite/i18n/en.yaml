@@ -1,5 +1,4 @@
-sqlite:
-  '@name': SQLite
+client:
   filePath:
     '@name': File Path
   readOnly:

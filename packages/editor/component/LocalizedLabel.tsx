@@ -3,6 +3,7 @@ import {
   DataMap,
   FunctionDesc,
   TicloI18nSettings,
+  getFuncDefaultName,
   translateEditor,
   translatePropContent,
   translateFunction,
@@ -22,7 +23,11 @@ export function t(label: string, options?: DataMap) {
 
 export const LocalizedFunctionName = ({desc, className}: {desc: FunctionDesc; className?: string}) => {
   useContext(TicloI18NContext);
-  return <span className={className}>{translateFunction(desc.id, desc.name, desc.libraryId)}</span>;
+  return (
+    <span className={className}>
+      {translateFunction(desc.id, desc.name, desc.libraryId, undefined, getFuncDefaultName(desc))}
+    </span>
+  );
 };
 
 export const LocalizedPropertyName = ({

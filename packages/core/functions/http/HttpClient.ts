@@ -164,6 +164,7 @@ globalFunctions.addFactory(
   HttpClientFunction,
   {
     name: 'client',
+    useFullName: true,
     icon: 'svg:file-arrow-down',
     mode: 'onLoad',
     priority: 1,

@@ -28,6 +28,7 @@ import {
   ValueSubscriber,
   getOutputDesc,
   getDisplayName,
+  getFuncDefaultName,
   deepEqual,
   ClientConn,
   isStringArray,
@@ -568,7 +569,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
     if (items?.length && canDropOrdered?.(items, target, index)) return {items, target, index, position};
     if (data && desc) {
-      const name = (DragState.getData('blockName', item.getBaseConn()) || desc.name || desc.id).split('.').pop();
+      const name = (DragState.getData('blockName', item.getBaseConn()) || getFuncDefaultName(desc) || desc.id)
+        .split('.')
+        .pop();
       const functionDrag = {data, desc, name};
       if (canDropFunction?.(functionDrag, target, index)) return {functionDrag, target, index, position};
     }

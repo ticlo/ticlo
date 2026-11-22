@@ -1,5 +1,15 @@
 import {randomBytes, randomUUID} from 'node:crypto';
-import {decode, encodeSorted, ErrorEvent, Flow, Root, setSecretCipher, shouldHappen, type SqlClient} from '@ticlo/core';
+import {
+  decode,
+  encodeSorted,
+  ErrorEvent,
+  Flow,
+  globalFunctions,
+  Root,
+  setSecretCipher,
+  shouldHappen,
+  type SqlClient,
+} from '@ticlo/core';
 import {SecretCipher} from '@ticlo/node';
 import {MysqlClient} from '../index.ts';
 import {localMysql84Url, localMysqlUrl} from './localMysql.ts';
@@ -8,6 +18,15 @@ const configuredUrl = process.env.TICLO_TEST_MYSQL_URL;
 const useLocalPodman = !configuredUrl && process.env.GITHUB_ACTIONS !== 'true';
 const schema = `ticlo_test_${randomUUID().replaceAll('-', '')}`;
 const table = `\`${schema}\`.\`items\``;
+
+it('registers mysql:client under the database category with full-name display', () => {
+  expect(globalFunctions.getDesc('mysql:client')).toMatchObject({
+    category: 'database',
+    libraryId: 'mysql',
+    useFullName: true,
+    tags: ['sql-client', 'context-service'],
+  });
+});
 
 it.each([null, ''])('rejects a URL password for Block authentication (%j)', async (password) => {
   await expect(MysqlClient.open({connectionString: 'mysql://root:example@localhost/test', password})).rejects.toThrow(
@@ -120,7 +139,7 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('MySQL connector', () => {
     const flow = new Flow();
     try {
       const block = flow.createBlock('database');
-      block._load({'#is': 'database:mysql', 'connectionString': url.toString(), '~auth': {'#is': 'auth:password'}});
+      block._load({'#is': 'mysql:client', 'connectionString': url.toString(), '~auth': {'#is': 'auth:password'}});
       block.setValue('#secret', password);
       Root.run();
       const service: SqlClient = await shouldHappen(
@@ -153,13 +172,13 @@ it('authenticates with MySQL 8.4 caching_sha2_password only when auth is configu
   try {
     const authenticated = flow.createBlock('authenticated');
     authenticated._load({
-      '#is': 'database:mysql',
+      '#is': 'mysql:client',
       'connectionString': url.toString(),
       '~auth': {'#is': 'auth:password'},
     });
     authenticated.setValue('#secret', password);
     const unauthenticated = flow.createBlock('unauthenticated');
-    unauthenticated._load({'#is': 'database:mysql', 'connectionString': url.toString(), 'auth': null});
+    unauthenticated._load({'#is': 'mysql:client', 'connectionString': url.toString(), 'auth': null});
     unauthenticated.setValue('#secret', password);
     Root.run();
     const service: SqlClient = await shouldHappen(() => authenticated.getValue('#output'), 5000);

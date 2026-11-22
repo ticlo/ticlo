@@ -39,7 +39,7 @@ export class SqliteClientFunction extends BaseFunction {
     }
     this.client = client;
     this._data.output(
-      escapedObject<SqlClient>('database:sqlite', {
+      escapedObject<SqlClient>('sqlite:client', {
         query: client.query.bind(client),
         queryReadonly: client.queryReadonly.bind(client),
         transaction: client.transaction.bind(client),
@@ -77,7 +77,9 @@ export class SqliteClientFunction extends BaseFunction {
 globalFunctions.addFactory(
   SqliteClientFunction,
   {
-    name: 'sqlite',
+    name: 'client',
+    category: 'database',
+    useFullName: true,
     icon: 't11:SQ  b11^:Lite',
     mode: 'onLoad',
     priority: 2,
@@ -91,6 +93,6 @@ globalFunctions.addFactory(
       {name: '#output', type: 'object', readonly: true, pinned: true},
     ],
   },
-  'database',
+  'sqlite',
   sqlClientApi
 );

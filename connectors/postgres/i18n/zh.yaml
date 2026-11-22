@@ -1,5 +1,4 @@
-postgres:
-  '@name': PostgreSQL # no translate
+client:
   connectionString:
     '@name': 连接 URL # translated from: Connection URL
   maxConnections:

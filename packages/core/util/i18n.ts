@@ -29,9 +29,15 @@ export class TicloI18nSettings {
 // match numbers in the end of inputs, as well as the array input []
 const numberReg = /([0-9]+|\[\])$/;
 
-export function translateFunction(funcId: string, funcName?: string, library?: string, lng?: string): string {
+export function translateFunction(
+  funcId: string,
+  funcName?: string,
+  library?: string,
+  lng?: string,
+  defaultName?: string
+): string {
   if (!TicloI18nSettings.shouldTranslateFunction || !funcId) {
-    return nameFromPath(funcName) || '';
+    return defaultName || nameFromPath(funcName) || '';
   }
   if (!library) {
     library = 'core';
@@ -47,7 +53,7 @@ export function translateFunction(funcId: string, funcName?: string, library?: s
     }
   }
   const localeId = `ticlo-${library}`;
-  return i18next.t(`${funcNameKey}.@name`, {ns: localeId, defaultValue: funcName, lng});
+  return i18next.t(`${funcNameKey}.@name`, {ns: localeId, defaultValue: defaultName || funcName, lng});
 }
 
 export function translateProperty(funcName: string, propName: string, library?: string): string {

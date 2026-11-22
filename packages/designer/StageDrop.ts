@@ -1,4 +1,4 @@
-import {Block, isStringArray, type ClientConn, type DataMap, type FunctionDesc} from '@ticlo/core';
+import {Block, getFuncDefaultName, isStringArray, type ClientConn, type DataMap, type FunctionDesc} from '@ticlo/core';
 import {Library} from '@ticlo/core/block/Library.ts';
 import {getElementBoxQuads, getElementGeometry} from '@ticlo/html';
 import type {ElementMap} from '@ticlo/react';
@@ -62,7 +62,7 @@ export function getStageChildDrop(
   const source: DataMap = DragState.getData('blockData', scope);
   const desc: FunctionDesc = DragState.getData('functionDesc', scope);
   if (!source || !desc || source['#is'] !== desc.id || !target) return null;
-  const name = (DragState.getData('blockName', scope) || desc.name || desc.id).split('.').pop();
+  const name = (DragState.getData('blockName', scope) || getFuncDefaultName(desc) || desc.id).split('.').pop();
   if (!name) return null;
   let container: DesignerDropTarget;
   for (let element = target.element; element && element !== stage; element = element.parentElement) {

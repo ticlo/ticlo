@@ -1,5 +1,4 @@
-mysql:
-  '@name': MySQL
+client:
   connectionString:
     '@name': Connection URL
   maxConnections:

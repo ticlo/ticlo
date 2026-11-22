@@ -40,7 +40,7 @@ class PostgresClientFunction extends BaseFunction<Block> {
     }
     this.client = client;
     this._data.output(
-      escapedObject<SqlClient>('database:postgres', {
+      escapedObject<SqlClient>('postgres:client', {
         query: client.query.bind(client),
         queryReadonly: client.queryReadonly.bind(client),
         transaction: client.transaction.bind(client),
@@ -82,7 +82,9 @@ class PostgresClientFunction extends BaseFunction<Block> {
 globalFunctions.addFactory(
   PostgresClientFunction,
   {
-    name: 'postgres',
+    name: 'client',
+    category: 'database',
+    useFullName: true,
     icon: '15:PG',
     mode: 'onLoad',
     priority: 2,
@@ -98,6 +100,6 @@ globalFunctions.addFactory(
       {name: '#output', type: 'object', readonly: true, pinned: true},
     ],
   },
-  'database',
+  'postgres',
   sqlClientApi
 );

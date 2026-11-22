@@ -395,14 +395,14 @@ describe('editor BlockStage', function () {
     {
       basePath: '#global',
       descId: 'http:client',
-      expectedName: '^client',
+      expectedName: '^http-client',
       policy: undefined,
       blocked: false,
     },
     {
       basePath: '#global',
       descId: 'http:client',
-      expectedName: '^client',
+      expectedName: '^http-client',
       policy: {allowCreateBlock: false},
       blocked: true,
     },
@@ -410,7 +410,7 @@ describe('editor BlockStage', function () {
     {
       basePath: '+BlockStageContextDrop.#context',
       descId: 'http:client',
-      expectedName: '^client',
+      expectedName: '^http-client',
       policy: undefined,
       blocked: false,
     },
@@ -463,8 +463,9 @@ describe('editor BlockStage', function () {
         }
       } finally {
         canSpy.mockRestore();
-        Root.instance._globalRoot.deleteValue('^client');
-        Root.instance._globalRoot.deleteValue('add');
+        if (basePath === '#global') {
+          Root.instance._globalRoot.deleteValue(expectedName);
+        }
         Root.instance.deleteValue('+BlockStageContextDrop');
       }
     }

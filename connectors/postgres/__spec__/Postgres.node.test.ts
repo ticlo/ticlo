@@ -5,6 +5,7 @@ import {
   encodeSorted,
   ErrorEvent,
   Flow,
+  globalFunctions,
   Root,
   setSecretCipher,
   shouldHappen,
@@ -21,6 +22,15 @@ const useLocalPodman = !configuredUrl && process.env.GITHUB_ACTIONS !== 'true';
 const schema = `ticlo.${randomUUID()}`;
 const tableName = 'quote"table';
 const table = `"${schema}"."quote""table"`;
+
+it('registers postgres:client under the database category with full-name display', () => {
+  expect(globalFunctions.getDesc('postgres:client')).toMatchObject({
+    category: 'database',
+    libraryId: 'postgres',
+    useFullName: true,
+    tags: ['sql-client', 'context-service'],
+  });
+});
 
 it.each([null, ''])('rejects passwords in the public URL for Block authentication (%j)', async (password) => {
   for (const connectionString of [
@@ -130,7 +140,7 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () =>
     try {
       const block = flow.createBlock('database');
       block._load({
-        '#is': 'database:postgres',
+        '#is': 'postgres:client',
         'connectionString': url.toString(),
         '~auth': {'#is': 'auth:password'},
         '~#secret': {'#is': 'node:env', 'name': passwordEnv},
@@ -141,13 +151,13 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () =>
         5000,
         'Database block did not connect'
       );
-      expect(encode(service)).toContain('database:postgres');
+      expect(encode(service)).toContain('postgres:client');
       expect(block.getValue('#secret')).toBeUndefined();
       expect(flow.save().database).not.toHaveProperty('#secret');
 
       if (password) {
         const unauthenticated = flow.createBlock('unauthenticated');
-        unauthenticated._load({'#is': 'database:postgres', 'connectionString': url.toString()});
+        unauthenticated._load({'#is': 'postgres:client', 'connectionString': url.toString()});
         unauthenticated.setValue('#secret', password);
         Root.run();
         const {detail} = await shouldHappen(() => {

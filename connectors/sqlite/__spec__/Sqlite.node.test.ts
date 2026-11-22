@@ -162,7 +162,7 @@ describe('SQLite connector', () => {
 
   it('enforces readonly commands on the worker and restores its prior mode after errors', async () => {
     const root = new Root();
-    const flow = root.addFlow('Main', {database: {'#is': 'database:sqlite', 'filePath': ':memory:'}});
+    const flow = root.addFlow('Main', {database: {'#is': 'sqlite:client', 'filePath': ':memory:'}});
     const path = 'Main.database';
     const [, reader] = makeLocalConnection(root, false, {readonly: true});
     const [, writer] = makeLocalConnection(root, false);
@@ -197,11 +197,16 @@ describe('SQLite connector', () => {
     let service: SqlClient;
     try {
       const block = flow.createBlock('database');
-      block._load({'#is': 'database:sqlite', 'filePath': ':memory:'});
+      block._load({'#is': 'sqlite:client', 'filePath': ':memory:'});
       Root.run();
       service = await shouldHappen(() => block.getValue('#output'), 3000);
-      expect(globalFunctions.getDesc('database:sqlite').tags).toEqual(['sql-client', 'context-service']);
-      expect(encode(service)).toContain('database:sqlite');
+      expect(globalFunctions.getDesc('sqlite:client')).toMatchObject({
+        category: 'database',
+        libraryId: 'sqlite',
+        useFullName: true,
+        tags: ['sql-client', 'context-service'],
+      });
+      expect(encode(service)).toContain('sqlite:client');
       await service.query('CREATE TABLE items (name TEXT)');
       const query = flow.createBlock('query');
       query._load({
@@ -242,7 +247,7 @@ describe('SQLite connector', () => {
     const storage = new MemoryFlowStorage();
     storage.saveFlow(
       null,
-      {'^sqlite': {'#is': 'database:sqlite', 'filePath': relative(process.cwd(), filePath)}},
+      {'^sqlite': {'#is': 'sqlite:client', 'filePath': relative(process.cwd(), filePath)}},
       '#global'
     );
     let service: SqlClient;
@@ -281,7 +286,10 @@ describe('SQLite connector', () => {
     directories.push(directory);
     await mkdir(join(directory, 'proj1'), {recursive: true});
 
-    const desc = globalFunctions.getDesc('database:sqlite');
+    const desc = globalFunctions.getDesc('sqlite:client');
+    expect(desc.category).toBe('database');
+    expect(desc.libraryId).toBe('sqlite');
+    expect(desc.useFullName).toBe(true);
     expect(desc.properties?.find((prop) => prop.name === 'filePath')?.type).toBe('file-path');
 
     const root = new Root();
@@ -292,7 +300,7 @@ describe('SQLite connector', () => {
       await root.start();
       const flow = root.addFlow(
         '+proj1.main',
-        {db: {'#is': 'database:sqlite', 'filePath': '+/app.sqlite'}},
+        {db: {'#is': 'sqlite:client', 'filePath': '+/app.sqlite'}},
         undefined,
         true
       );

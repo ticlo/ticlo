@@ -1,5 +1,5 @@
-postgres:
-  '@name': PostgreSQL
+client:
+  '@keywords': postgresql
   connectionString:
     '@name': Connection URL
   maxConnections:

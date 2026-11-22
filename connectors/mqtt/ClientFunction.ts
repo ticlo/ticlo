@@ -145,6 +145,7 @@ globalFunctions.addFactory(
   {
     id: 'mqtt:client',
     name: 'client',
+    useFullName: true,
     mode: 'onLoad',
     priority: 2,
     tags: ['mqtt-client', 'live-client', 'context-service'],

@@ -39,7 +39,7 @@ class MysqlClientFunction extends BaseFunction<Block> {
     }
     this.client = client;
     this._data.output(
-      escapedObject<SqlClient>('database:mysql', {
+      escapedObject<SqlClient>('mysql:client', {
         query: client.query.bind(client),
         queryReadonly: client.queryReadonly.bind(client),
         transaction: client.transaction.bind(client),
@@ -81,7 +81,9 @@ class MysqlClientFunction extends BaseFunction<Block> {
 globalFunctions.addFactory(
   MysqlClientFunction,
   {
-    name: 'mysql',
+    name: 'client',
+    category: 'database',
+    useFullName: true,
     icon: '14:My',
     mode: 'onLoad',
     priority: 2,
@@ -96,6 +98,6 @@ globalFunctions.addFactory(
       {name: '#output', type: 'object', readonly: true, pinned: true},
     ],
   },
-  'database',
+  'mysql',
   sqlClientApi
 );
