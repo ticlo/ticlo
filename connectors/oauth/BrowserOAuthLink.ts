@@ -1,4 +1,4 @@
-import {HttpAuthRequired} from '@ticlo/core/functions/http/HttpAuth.ts';
+import {AuthorizationRequiredError} from '@ticlo/core';
 import {beginOAuth, exchangeOAuth, type OAuthClient, type OAuthGrant} from './OAuth.ts';
 import {oauthChannelName} from './OAuthBrowserCallback.ts';
 
@@ -24,7 +24,7 @@ export function browserOAuthLink(
     const id = generation;
     const current = () => id === generation && valid();
     const transaction = await beginOAuth(client);
-    if (!current()) throw new HttpAuthRequired();
+    if (!current()) throw new AuthorizationRequiredError();
     channel = new BroadcastChannel(oauthChannelName(transaction.state));
     const expire = () => {
       close();

@@ -1,4 +1,4 @@
-import {HttpAuthRequired, isBearerToken, authUrl} from '@ticlo/core/functions/http/HttpAuth.ts';
+import {AuthorizationRequiredError, authUrl, isBearerToken, normalizeResourceOrigin} from '@ticlo/core';
 
 export interface OAuthClient {
   authorizationUrl: string;
@@ -10,10 +10,19 @@ export interface OAuthClient {
   clientSecret?: string;
 }
 
+export interface OAuthClientCredentialsClient {
+  tokenUrl: string;
+  clientId: string;
+  clientSecret: string;
+  resourceOrigin: string;
+  scope: string;
+}
+
 export interface OAuthGrant {
   accessToken: string;
   refreshToken?: string;
   expiresAt: number;
+  issuedAt?: number;
   scope: string;
 }
 
@@ -21,26 +30,41 @@ export type OAuthPopupResult = OAuthGrant | 'authorization-denied' | 'authorizat
 
 export class OAuthTokenError extends Error {}
 
-export class OAuthGrantRequired extends HttpAuthRequired {
+export class OAuthGrantRequired extends AuthorizationRequiredError {
   constructor(message: string) {
-    super();
-    this.message = message;
+    super(message);
   }
 }
 
 export function oauthClient(client: OAuthClient): Readonly<OAuthClient> {
-  const resource = authUrl(client.resourceOrigin);
+  const resourceOrigin = normalizeResourceOrigin(client.resourceOrigin);
   authUrl(client.authorizationUrl);
   authUrl(client.tokenUrl);
   authUrl(client.redirectUri);
-  if (!client.clientId || resource.href !== `${resource.origin}/`) throw new Error('Invalid OAuth client');
-  return Object.freeze({...client, resourceOrigin: resource.origin});
+  if (!client.clientId) throw new Error('Invalid OAuth client');
+  return Object.freeze({...client, resourceOrigin});
+}
+
+export function oauthClientCredentials(client: OAuthClientCredentialsClient): Readonly<OAuthClientCredentialsClient> {
+  const resourceOrigin = normalizeResourceOrigin(client.resourceOrigin);
+  authUrl(client.tokenUrl);
+  if (!client.clientId || !client.clientSecret) throw new Error('Invalid OAuth client');
+  return Object.freeze({...client, resourceOrigin});
 }
 
 const scopes = (scope: string) => scope.trim().split(/\s+/).filter(Boolean);
 export function includesScopes(granted: string, required: string) {
   const available = new Set(scopes(granted));
   return scopes(required).every((scope) => available.has(scope));
+}
+
+export function isGrantUsable(grant: OAuthGrant, canRefresh: boolean, now = Date.now()): boolean {
+  if (!canRefresh) return grant.expiresAt > now;
+  const leeway =
+    grant.issuedAt !== undefined
+      ? Math.min(30_000, Math.max(0, Math.floor((grant.expiresAt - grant.issuedAt) / 4)))
+      : 30_000;
+  return grant.expiresAt - leeway > now;
 }
 
 const base64url = (bytes: Uint8Array) =>
@@ -69,7 +93,11 @@ export async function beginOAuth(client: OAuthClient, scope = client.scope) {
   return {url: url.href, state, verifier, expires: Date.now() + oauthLifetime};
 }
 
-async function requestToken(client: OAuthClient, params: URLSearchParams, scope: string): Promise<OAuthGrant> {
+async function requestToken(
+  client: Pick<OAuthClient, 'tokenUrl' | 'clientId' | 'clientSecret'>,
+  params: URLSearchParams,
+  scope: string
+): Promise<OAuthGrant> {
   const headers = new Headers({'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'});
   if (client.clientSecret !== undefined) {
     const encode = (value: string) => new URLSearchParams([['', value]]).toString().slice(1);
@@ -112,10 +140,12 @@ async function requestToken(client: OAuthClient, params: URLSearchParams, scope:
   if (!includesScopes(granted, scope)) {
     throw new OAuthGrantRequired('The OAuth provider did not grant all requested permissions.');
   }
+  const now = Date.now();
   return {
     accessToken: data.access_token,
     refreshToken: typeof data.refresh_token === 'string' ? data.refresh_token : undefined,
-    expiresAt: Date.now() + (data.expires_in ?? 300) * 1000,
+    issuedAt: now,
+    expiresAt: now + (data.expires_in ?? 300) * 1000,
     scope: granted,
   };
 }
@@ -134,7 +164,7 @@ export function exchangeOAuth(client: OAuthClient, code: string, verifier: strin
 }
 
 export async function refreshOAuth(client: OAuthClient, grant: OAuthGrant) {
-  if (!grant.refreshToken) throw new HttpAuthRequired();
+  if (!grant.refreshToken) throw new AuthorizationRequiredError();
   const next = await requestToken(
     client,
     new URLSearchParams({
@@ -145,4 +175,10 @@ export async function refreshOAuth(client: OAuthClient, grant: OAuthGrant) {
   );
   next.refreshToken ??= grant.refreshToken;
   return next;
+}
+
+export function requestClientCredentials(client: OAuthClientCredentialsClient, scope = client.scope) {
+  const params = new URLSearchParams({grant_type: 'client_credentials'});
+  if (scope) params.set('scope', scope);
+  return requestToken(client, params, scope);
 }

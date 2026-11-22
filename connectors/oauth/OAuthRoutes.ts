@@ -1,19 +1,22 @@
 import type {Context, Hono, MiddlewareHandler} from 'hono';
 import {NoSerialize} from '@ticlo/core/util/NoSerialize.ts';
-import type {Root} from '@ticlo/core';
+import {AuthorizationRequiredError, authUrl, type OAuthToken, type OAuthTokenOptions, type Root} from '@ticlo/core';
 import {createHash} from 'node:crypto';
-import {HttpAuthRequired, authUrl} from '@ticlo/core/functions/http/HttpAuth.ts';
 import {
   OAuthGrantRequired,
   OAuthTokenError,
   beginOAuth,
   exchangeOAuth,
   includesScopes,
+  isGrantUsable,
   oauthClient,
+  oauthClientCredentials,
   oauthLifetime,
   oauthState,
   refreshOAuth,
+  requestClientCredentials,
   type OAuthClient,
+  type OAuthClientCredentialsClient,
   type OAuthGrant,
 } from './OAuth.ts';
 
@@ -22,10 +25,14 @@ export interface OAuthGrantStore {
   set(key: string, grant: OAuthGrant | undefined): Promise<void>;
 }
 
+export type OAuthConnectionConfig =
+  | (Omit<OAuthClient, 'redirectUri'> & {grantType?: 'authorization_code'})
+  | (OAuthClientCredentialsClient & {grantType: 'client_credentials'});
+
 export interface OAuthServerOptions {
   /** Public origin serving these routes and receiving the provider's callback. */
   origin: string;
-  connections?: Readonly<Record<string, Omit<OAuthClient, 'redirectUri'>>>;
+  connections?: Readonly<Record<string, OAuthConnectionConfig>>;
   /** Permit trusted Flow authors to configure providers. */
   allowFlowClients?: boolean;
   /** Skip the confirmation page when the host has already obtained the user's intent. */
@@ -39,18 +46,36 @@ export interface OAuthServerOptions {
 
 export type OAuthSource = 'connection' | 'currentUser';
 
-interface Registration {
-  name: string;
-  client: Readonly<OAuthClient>;
-  key: string;
-}
+export type Registration =
+  | {
+      grantType: 'authorization_code';
+      name: string;
+      client: Readonly<OAuthClient>;
+      key: string;
+    }
+  | {
+      grantType: 'client_credentials';
+      name: string;
+      client: Readonly<OAuthClientCredentialsClient>;
+      key: string;
+    };
+
+export type AuthCodeRegistration = Extract<Registration, {grantType: 'authorization_code'}>;
 
 interface OAuthHost {
+  readonly allowFlowClients: boolean;
   named(name: string): Registration;
-  configure(name: string, owner: string, config: Omit<OAuthClient, 'redirectUri'>): Registration;
-  connect(registration: Registration, scope: string, authorization: OAuthAuthorization): string;
+  configure(name: string, owner: string, config: Omit<OAuthClient, 'redirectUri'>): AuthCodeRegistration;
+  connect(registration: AuthCodeRegistration, scope: string, authorization: OAuthAuthorization): string;
   status(registration: Registration, scope: string): Promise<string>;
-  token(registration: Registration, scope: string, source: OAuthSource, context: unknown): Promise<string>;
+  token(
+    registration: Registration,
+    scope: string,
+    source: OAuthSource,
+    context: unknown,
+    options?: OAuthTokenOptions
+  ): Promise<OAuthToken>;
+  observe(key: string, listener: (status: string) => void): {close(): void};
 }
 
 export const oauthHosts = new WeakMap<Root, OAuthHost>();
@@ -62,7 +87,7 @@ interface OAuthAuthorization {
 }
 
 interface Ticket extends OAuthAuthorization {
-  registration: Registration;
+  registration: AuthCodeRegistration;
   scope: string;
   expires: number;
 }
@@ -78,8 +103,15 @@ function resultPage(context: Context, message: string, status: 200 | 400 | 403 |
 
 export function routeOAuth(app: Hono, root: Root, options: OAuthServerOptions, apiPath = '/api') {
   const origin = authUrl(options.origin).origin;
-  function registration(name: string, config: Omit<OAuthClient, 'redirectUri'>, owner?: string): Registration {
+  function registration(name: string, config: OAuthConnectionConfig, owner?: string): Registration {
     if (!/^[a-zA-Z0-9_-]+$/.test(name)) throw new Error('Invalid OAuth connection name');
+    if (config.grantType === 'client_credentials') {
+      const client = oauthClientCredentials(config);
+      const fingerprint = ['client_credentials', client.tokenUrl, client.clientId, client.resourceOrigin, client.scope];
+      if (owner !== undefined) fingerprint.push(owner);
+      const key = `${name}.${createHash('sha256').update(JSON.stringify(fingerprint)).digest('hex')}`;
+      return {grantType: 'client_credentials', name, client, key};
+    }
     const client = oauthClient({...config, redirectUri: `${origin}/oauth/callback/${name}`});
     const fingerprint = [
       client.authorizationUrl,
@@ -91,7 +123,7 @@ export function routeOAuth(app: Hono, root: Root, options: OAuthServerOptions, a
     ];
     if (owner !== undefined) fingerprint.push(owner);
     const key = `${name}.${createHash('sha256').update(JSON.stringify(fingerprint)).digest('hex')}`;
-    return {name, client, key};
+    return {grantType: 'authorization_code', name, client, key};
   }
   const clients = new Map(
     Object.entries(options.connections ?? {}).map(([name, config]) => [name, registration(name, config)])
@@ -100,6 +132,12 @@ export function routeOAuth(app: Hono, root: Root, options: OAuthServerOptions, a
   const pending = new Map<string, Pending>();
   const active = new Map<string, string>();
   const operations = new Map<string, Promise<unknown>>();
+  const statusListeners = new Map<string, Set<(status: string) => void>>();
+  const notifyStatus = (key: string, status: string) => {
+    const listeners = statusListeners.get(key);
+    if (!listeners) return;
+    for (const listener of [...listeners]) listener(status);
+  };
   const serialized = <T>(name: string, task: () => Promise<T>) => {
     const next = (operations.get(name) ?? Promise.resolve()).then(task);
     const settled = next.catch(() => {});
@@ -122,7 +160,8 @@ export function routeOAuth(app: Hono, root: Root, options: OAuthServerOptions, a
       if (ticket.current()) ticket.complete('authorization-expired');
     }
   };
-  const validGrant = (grant: OAuthGrant | undefined, scope: string) => grant && includesScopes(grant.scope, scope);
+  const validGrant = (grant: OAuthGrant | undefined, scope: string): grant is OAuthGrant =>
+    Boolean(grant && includesScopes(grant.scope, scope));
 
   const contexts = new WeakMap<object, Context>();
   if (options.userGrant) {
@@ -140,6 +179,7 @@ export function routeOAuth(app: Hono, root: Root, options: OAuthServerOptions, a
   }
 
   oauthHosts.set(root, {
+    allowFlowClients: Boolean(options.allowFlowClients),
     named(name) {
       const entry = clients.get(name);
       if (!entry) throw new Error('Unknown OAuth connection');
@@ -147,7 +187,7 @@ export function routeOAuth(app: Hono, root: Root, options: OAuthServerOptions, a
     },
     configure(name, owner, config) {
       if (!options.allowFlowClients) throw new Error('Flow-configured OAuth is disabled on this host');
-      return registration(name, config, owner);
+      return registration(name, config, owner) as AuthCodeRegistration;
     },
     connect(entry, scope, authorization) {
       if (!includesScopes(entry.client.scope, scope))
@@ -163,43 +203,101 @@ export function routeOAuth(app: Hono, root: Root, options: OAuthServerOptions, a
       });
       return `${origin}/oauth/start/${key}`;
     },
-    async status({key}, scope) {
+    async status(entry, scope) {
+      if (entry.grantType === 'client_credentials') {
+        const grant = await options.store.get(entry.key);
+        return validGrant(grant, scope) && isGrantUsable(grant, true) ? 'authorized' : 'ready';
+      }
       clearExpired();
-      if (active.has(key)) return 'authorization-pending';
-      const grant = await options.store.get(key);
-      return validGrant(grant, scope) && (grant.expiresAt > Date.now() || grant.refreshToken)
+      if (active.has(entry.key)) return 'authorization-pending';
+      const grant = await options.store.get(entry.key);
+      return validGrant(grant, scope) && (grant.expiresAt > Date.now() || Boolean(grant.refreshToken))
         ? 'authorized'
         : 'authorization-required';
     },
-    async token({client, name, key}, scope, source, context) {
-      if (!includesScopes(client.scope, scope)) throw new HttpAuthRequired();
+    async token(entry, scope, source, context, tokenOptions) {
+      if (!includesScopes(entry.client.scope, scope)) throw new AuthorizationRequiredError();
+      if (entry.grantType === 'client_credentials') {
+        if (source === 'currentUser') throw new AuthorizationRequiredError();
+        const read = async () => {
+          const grant = await options.store.get(entry.key);
+          return validGrant(grant, scope) ? grant : undefined;
+        };
+        const grant = await read();
+        if (!tokenOptions?.forceRefresh && grant && isGrantUsable(grant, true)) {
+          return {accessToken: grant.accessToken, expiresAt: grant.expiresAt};
+        }
+        return serialized(entry.key, async () => {
+          const latest = await read();
+          if (latest && isGrantUsable(latest, true)) {
+            if (!tokenOptions?.forceRefresh) {
+              return {accessToken: latest.accessToken, expiresAt: latest.expiresAt};
+            }
+            if (tokenOptions.rejectedToken && latest.accessToken !== tokenOptions.rejectedToken) {
+              return {accessToken: latest.accessToken, expiresAt: latest.expiresAt};
+            }
+          }
+          const next = await requestClientCredentials(entry.client, entry.client.scope);
+          await options.store.set(entry.key, next);
+          notifyStatus(entry.key, 'authorized');
+          return {accessToken: next.accessToken, expiresAt: next.expiresAt};
+        });
+      }
+      const {client, name, key} = entry;
       if (source === 'currentUser') {
         const request = contexts.get(context as object);
-        if (!request) throw new HttpAuthRequired();
+        if (!request) throw new AuthorizationRequiredError();
         const grant = await options.userGrant(request, name, scope);
         if (!contexts.has(context as object) || !validGrant(grant, scope) || !(grant.expiresAt > Date.now()))
-          throw new HttpAuthRequired();
-        return grant.accessToken;
+          throw new AuthorizationRequiredError();
+        return {accessToken: grant.accessToken, expiresAt: grant.expiresAt};
       }
       const read = async () => {
         const grant = await options.store.get(key);
-        if (!validGrant(grant, scope)) throw new HttpAuthRequired();
+        if (!validGrant(grant, scope)) throw new AuthorizationRequiredError();
         return grant;
       };
       const grant = await read();
-      if (grant.expiresAt > Date.now()) return grant.accessToken;
+      if (!tokenOptions?.forceRefresh && isGrantUsable(grant, Boolean(grant.refreshToken))) {
+        return {accessToken: grant.accessToken, expiresAt: grant.expiresAt};
+      }
       return serialized(key, async () => {
         const latest = await read();
-        if (latest.expiresAt > Date.now()) return latest.accessToken;
+        if (isGrantUsable(latest, Boolean(latest.refreshToken))) {
+          if (!tokenOptions?.forceRefresh) {
+            return {accessToken: latest.accessToken, expiresAt: latest.expiresAt};
+          }
+          if (tokenOptions.rejectedToken && latest.accessToken !== tokenOptions.rejectedToken) {
+            return {accessToken: latest.accessToken, expiresAt: latest.expiresAt};
+          }
+        }
         try {
           const refreshed = await refreshOAuth(client, latest);
           await options.store.set(key, refreshed);
-          return refreshed.accessToken;
+          notifyStatus(key, 'authorized');
+          return {accessToken: refreshed.accessToken, expiresAt: refreshed.expiresAt};
         } catch (error) {
-          if (error instanceof HttpAuthRequired) await options.store.set(key, undefined);
+          if (error instanceof AuthorizationRequiredError) {
+            await options.store.set(key, undefined);
+            notifyStatus(key, 'authorization-required');
+          }
           throw error;
         }
       });
+    },
+    observe(key, listener) {
+      let listeners = statusListeners.get(key);
+      if (!listeners) {
+        listeners = new Set();
+        statusListeners.set(key, listeners);
+      }
+      listeners.add(listener);
+      return {
+        close() {
+          listeners.delete(listener);
+          if (!listeners.size) statusListeners.delete(key);
+        },
+      };
     },
   });
 
@@ -279,6 +377,7 @@ export function routeOAuth(app: Hono, root: Root, options: OAuthServerOptions, a
         if (current()) {
           active.delete(key);
           ticket.complete('authorized');
+          notifyStatus(key, 'authorized');
         }
         return true;
       });

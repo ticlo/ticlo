@@ -3,7 +3,16 @@ import {BaseFunction} from '../../block/BlockFunction.ts';
 import {globalFunctions} from '../../block/FunctionModule.ts';
 import {isDataMap} from '../../util/DataTypes.ts';
 import {escapedObject} from '../../util/NoSerialize.ts';
-import {isBearerToken, httpAuthProfiles, HttpAuthRequired, authUrl} from './HttpAuth.ts';
+import {
+  AuthorizationRequiredError,
+  authUrl,
+  clientAuthApi,
+  clientAuthCommands,
+  isBearerToken,
+  oauthProfiles,
+  resourceOriginOf,
+  type OAuthProfileState,
+} from '../auth/OAuthProfile.ts';
 
 export interface HttpClientRequest extends AxiosRequestConfig {
   authContext?: unknown;
@@ -55,7 +64,7 @@ class HttpClientObject implements HttpClient {
     baseUrl: unknown,
     headers?: unknown,
     optionalHeaders?: unknown,
-    private readonly auth?: {value: unknown}
+    private readonly auth?: OAuthProfileState
   ) {
     if (typeof baseUrl === 'string') {
       this.baseUrl = baseUrl;
@@ -87,17 +96,15 @@ class HttpClientObject implements HttpClient {
   }
 
   private async requestWithOAuth(target: URL, config: HttpClientRequest) {
-    const profile = httpAuthProfiles.get(this.auth.value as object);
-    if (!profile) {
-      if (this.auth.value == null) throw new HttpAuthRequired();
-      throw new Error('Unsupported HTTP auth profile');
+    if (!this.auth?.ready) throw new AuthorizationRequiredError(this.auth?.reason);
+    if (resourceOriginOf(target) !== this.auth.origin) {
+      throw new Error('HTTP OAuth destination is outside the configured API');
     }
-    if (target.origin !== profile.origin) throw new Error('HTTP OAuth destination is outside the configured API');
     const headers = AxiosHeaders.from({...this.optionalHeaders, ...config.headers, ...this.headers});
     if (headers.has('Authorization') || config.auth) throw new Error('HTTP OAuth manages the Authorization header');
-    const token = await profile.token(config.authContext);
-    if (!isBearerToken(token)) throw new Error('Invalid OAuth access token');
-    headers.set('Authorization', `Bearer ${token}`);
+    const {accessToken} = await this.auth.token(config.authContext);
+    if (!isBearerToken(accessToken)) throw new Error('Invalid OAuth access token');
+    headers.set('Authorization', `Bearer ${accessToken}`);
     const {method, params, data, responseType, signal} = config;
     const response = await httpRequest({
       url: target.href,
@@ -131,10 +138,25 @@ class HttpClientFunction extends BaseFunction {
     const url = this._data.getValue('url');
     const headers = this._data.getValue('headers');
     const optionalHeaders = this._data.getValue('optionalHeaders');
-    const value = this._data.getValue('auth');
-    const auth = value != null || this._data.getProperty('auth', false)?._bindingSource ? {value} : undefined;
-    const client = new HttpClientObject(url, headers, optionalHeaders, auth);
-    this._data.output(auth ? escapedObject('http:oauth-client', {request: client.request.bind(client)}) : client);
+    const authValue = this._data.getValue('auth');
+    let profile: OAuthProfileState | undefined;
+    if (authValue != null) {
+      profile = oauthProfiles.get(authValue as object);
+      if (!profile) {
+        this._data.output(undefined);
+        throw new Error('Unsupported HTTP auth profile');
+      }
+      if (!profile.ready) {
+        this._data.output(undefined);
+        throw new Error(profile.reason ?? 'Authentication is not ready');
+      }
+    }
+    const client = new HttpClientObject(url, headers, optionalHeaders, profile);
+    this._data.output(profile ? escapedObject('http:oauth-client', {request: client.request.bind(client)}) : client);
+  }
+
+  cleanup() {
+    this._data.output(undefined);
   }
 }
 
@@ -144,7 +166,8 @@ globalFunctions.addFactory(
     name: 'client',
     icon: 'svg:file-arrow-down',
     mode: 'onLoad',
-    priority: 0,
+    priority: 1,
+    commands: clientAuthCommands,
     properties: [
       {name: 'url', type: 'string', pinned: true},
       {name: 'auth', type: 'object', create: ['auth:oauth'], disableObjectTools: true},
@@ -154,5 +177,6 @@ globalFunctions.addFactory(
     ],
     tags: ['http-client', 'context-service'],
   },
-  'http'
+  'http',
+  clientAuthApi
 );

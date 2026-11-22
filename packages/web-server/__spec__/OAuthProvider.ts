@@ -4,19 +4,26 @@ import {serve} from '@hono/node-server';
 import {Hono} from 'hono';
 import {cors} from 'hono/cors';
 
-export async function startOAuthProvider() {
+export interface OAuthProviderOptions {
+  expiresIn?: number;
+  allowClientCredentials?: boolean;
+  signAccessToken?: (grant: {user: string; scope: string; expiresIn: number}) => string;
+}
+
+export async function startOAuthProvider(options?: OAuthProviderOptions) {
   const app = new Hono();
-  const clients = new Map<string, {redirectUri: string; secret?: string}>();
+  const clients = new Map<string, {redirectUri?: string; secret?: string}>();
   const codes = new Map<string, {clientId: string; challenge: string; scope: string}>();
   const access = new Map<string, {user: string; scope: string}>();
   const refresh = new Map<string, {user: string; scope: string}>();
   let refreshes = 0;
+  let tokenGrants = 0;
   app.use('*', cors({allowHeaders: ['Content-Type', 'Authorization']}));
   app.get('/authorize', (c) => {
     const clientId = c.req.query('client_id');
     const client = clients.get(clientId);
     if (
-      !client ||
+      !client?.redirectUri ||
       client.redirectUri !== c.req.query('redirect_uri') ||
       c.req.query('code_challenge_method') !== 'S256'
     ) {
@@ -62,21 +69,28 @@ export async function startOAuthProvider() {
       }
       codes.delete(code);
       grant = {user: id, scope: transaction.scope};
-    } else {
+    } else if (values.grant_type === 'client_credentials') {
+      if (!options?.allowClientCredentials || !secret) return c.json({error: 'unauthorized_client'}, 400);
+      grant = {user: id, scope: typeof values.scope === 'string' ? values.scope : ''};
+    } else if (values.grant_type === 'refresh_token') {
       const key = String(values.refresh_token);
       grant = refresh.get(key);
       if (!grant || grant.user !== id || !refresh.delete(key)) return c.json({error: 'invalid_grant'}, 400);
       ++refreshes;
+    } else {
+      return c.json({error: 'unsupported_grant_type'}, 400);
     }
-    const accessToken = randomUUID();
-    const refreshToken = randomUUID();
+    ++tokenGrants;
+    const expiresIn = options?.expiresIn ?? 3600;
+    const accessToken = options?.signAccessToken ? options.signAccessToken({...grant, expiresIn}) : randomUUID();
+    const refreshToken = values.grant_type === 'client_credentials' ? undefined : randomUUID();
     access.set(accessToken, grant);
-    refresh.set(refreshToken, grant);
+    if (refreshToken) refresh.set(refreshToken, grant);
     return c.json({
       access_token: accessToken,
-      refresh_token: refreshToken,
+      ...(refreshToken ? {refresh_token: refreshToken} : undefined),
       token_type: 'Bearer',
-      expires_in: 3600,
+      expires_in: expiresIn,
       scope: grant.scope,
     });
   });
@@ -94,8 +108,13 @@ export async function startOAuthProvider() {
     origin: `http://127.0.0.1:${address.port}`,
     clients,
     access,
+    revokeAccess: (token: string) => access.delete(token),
+    revokeAllRefresh: () => refresh.clear(),
     get refreshes() {
       return refreshes;
+    },
+    get tokenGrants() {
+      return tokenGrants;
     },
     close: () => new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve()))),
   };

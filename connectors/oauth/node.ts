@@ -1,28 +1,41 @@
 import {
+  AuthorizationRequiredError,
   BaseFunction,
   ErrorEvent,
   Event,
   EventType,
+  Logger,
   configDescs,
+  createUnreadyOAuthProfile,
   globalFunctions,
+  oauthProfiles,
   type Block,
   type BlockConfig,
   type BlockIO,
+  type OAuthToken,
+  type OAuthTokenOptions,
 } from '@ticlo/core';
 import {Library} from '@ticlo/core/block/Library.ts';
-import {HttpAuthRequired, httpAuthProfiles} from '@ticlo/core/functions/http/HttpAuth.ts';
 import {NoSerialize} from '@ticlo/core/util/NoSerialize.ts';
-import {oauthHosts} from './OAuthRoutes.ts';
+import {
+  includesScopes,
+  isGrantUsable,
+  oauthClientCredentials,
+  requestClientCredentials,
+  type OAuthGrant,
+} from './OAuth.ts';
+import {oauthHosts, type AuthCodeRegistration, type Registration} from './OAuthRoutes.ts';
 
-export {routeOAuth, type OAuthGrantStore, type OAuthServerOptions} from './OAuthRoutes.ts';
+export {routeOAuth, type OAuthConnectionConfig, type OAuthGrantStore, type OAuthServerOptions} from './OAuthRoutes.ts';
 export {createFileOAuthGrantStore} from './OAuthGrantStore.ts';
-export type {OAuthClient, OAuthGrant} from './OAuth.ts';
+export type {OAuthClient, OAuthClientCredentialsClient, OAuthGrant} from './OAuth.ts';
 
 const actions = new WeakMap<Block, {start(): string; complete(status: string): void; status(): Promise<string>}>();
 const completionAuthority = Symbol('OAuth completion');
 const missingClientSecret = 'Set the OAuth Client Secret in #secret';
 const inputs = new Set([
   'source',
+  'grantType',
   'connection',
   'clientId',
   'requireClientSecret',
@@ -64,122 +77,316 @@ class NodeOAuthFunction extends BaseFunction<Block> {
   }
 
   run() {
-    this.cleanup();
+    this.#dispose?.();
     const block = this._data;
+    block.output(undefined, 'authorizationLink');
+    block.output(undefined, 'authorized');
     const get = (key: string) => {
       const value = block.getValue(key);
       return typeof value === 'string' ? value.trim() : '';
     };
-    const source = get('source') || 'server';
-    if (source !== 'server' && source !== 'connection' && source !== 'currentUser') {
-      throw new Error('This Flow requires the browser OAuth connector');
-    }
+    const owner = block.getFullPath();
     const root = Library.rootOf(block._flow);
     const host = oauthHosts.get(root);
-    if (!host) {
-      block.output('host-not-configured', 'status');
-      throw new Error('OAuth routes are not configured on this host');
-    }
-    const owner = block.getFullPath();
-    const connection = get('connection');
-    const scope = get('scope');
-    let registration: ReturnType<typeof host.named>;
-    if (source === 'server') {
-      const clientSecret = this.#getSecret() || undefined;
-      if (block.getValue('requireClientSecret') === true && clientSecret === undefined) {
-        block.output('client-secret-required', 'status');
-        throw new Error(missingClientSecret);
+    let publishedStatus = false;
+    const setInitialStatus = (value: string) => {
+      publishedStatus = true;
+      block.output(value, 'status');
+    };
+
+    try {
+      const source = get('source') || 'server';
+      if (source !== 'server' && source !== 'connection' && source !== 'currentUser') {
+        throw new Error('This Flow requires the browser OAuth connector');
       }
-      registration = host.configure(connection, owner, {
-        clientId: get('clientId'),
-        clientSecret,
-        authorizationUrl: get('authorizationUrl'),
-        tokenUrl: get('tokenUrl'),
-        resourceOrigin: get('resourceOrigin'),
-        scope,
-      });
-    } else {
-      registration = host.named(connection);
-    }
-    const profile = Object.freeze(new NoSerialize('auth:oauth'));
-    let active = true;
-    let statusPublished = false;
-    let linkRevision = 0;
-    const current = () => active && block.getFullPath() === owner && oauthHosts.get(root) === host;
-    const publish = (status: string) => {
-      if (!current()) return;
-      statusPublished = true;
-      block.output(status, 'status');
-      if (status === 'authorized') block.output(new Event('authorized'), 'authorized');
-    };
-    this.#dispose = () => {
-      active = false;
-      httpAuthProfiles.delete(profile);
-      actions.delete(block);
-      this.#dispose = undefined;
-    };
-    httpAuthProfiles.set(profile, {
-      origin: registration.client.resourceOrigin,
-      async token(context) {
-        if (!current()) throw new HttpAuthRequired();
+      const explicitGrantType = get('grantType');
+      if (
+        explicitGrantType &&
+        explicitGrantType !== 'authorization_code' &&
+        explicitGrantType !== 'client_credentials'
+      ) {
+        throw new Error('Unsupported OAuth grant type');
+      }
+      const connection = get('connection');
+      const scope = get('scope');
+
+      let registration: Registration | undefined;
+      let grantType: 'authorization_code' | 'client_credentials';
+
+      if (source === 'connection') {
+        if (!host) {
+          setInitialStatus('host-not-configured');
+          throw new Error('OAuth routes are not configured on this host');
+        }
+        registration = host.named(connection);
+        if (explicitGrantType && explicitGrantType !== registration.grantType) {
+          throw new Error('OAuth grantType does not match the configured connection');
+        }
+        grantType = registration.grantType;
+      } else if (source === 'currentUser') {
+        if (explicitGrantType && explicitGrantType !== 'authorization_code') {
+          throw new Error('Client credentials OAuth cannot use currentUser');
+        }
+        if (!host) {
+          setInitialStatus('host-not-configured');
+          throw new Error('OAuth routes are not configured on this host');
+        }
+        registration = host.named(connection);
+        if (registration.grantType !== 'authorization_code') {
+          throw new Error('currentUser requires an authorization_code connection');
+        }
+        grantType = 'authorization_code';
+      } else {
+        grantType = (explicitGrantType as 'authorization_code' | 'client_credentials') || 'authorization_code';
+        if (grantType === 'client_credentials') {
+          if (host && !host.allowFlowClients) {
+            throw new Error('Flow-configured OAuth is disabled on this host');
+          }
+          const clientSecret = this.#getSecret() || undefined;
+          if (clientSecret === undefined) {
+            setInitialStatus('client-secret-required');
+            throw new Error(missingClientSecret);
+          }
+          const client = oauthClientCredentials({
+            clientId: get('clientId'),
+            clientSecret,
+            tokenUrl: get('tokenUrl'),
+            resourceOrigin: get('resourceOrigin'),
+            scope,
+          });
+          registration = {grantType: 'client_credentials', name: connection || owner, client, key: ''};
+        } else {
+          if (!host) {
+            setInitialStatus('host-not-configured');
+            throw new Error('OAuth routes are not configured on this host');
+          }
+          const clientSecret = this.#getSecret() || undefined;
+          if (block.getValue('requireClientSecret') === true && clientSecret === undefined) {
+            setInitialStatus('client-secret-required');
+            throw new Error(missingClientSecret);
+          }
+          registration = host.configure(connection, owner, {
+            clientId: get('clientId'),
+            clientSecret,
+            authorizationUrl: get('authorizationUrl'),
+            tokenUrl: get('tokenUrl'),
+            resourceOrigin: get('resourceOrigin'),
+            scope,
+          });
+        }
+      }
+
+      const profile = Object.freeze(new NoSerialize('auth:oauth'));
+      let active = true;
+      let statusPublished = false;
+      let lastStatus: string | undefined;
+      let linkRevision = 0;
+      const observers = new Set<(status: string) => void>();
+      const current = () =>
+        active &&
+        block.getFullPath() === owner &&
+        (source !== 'server' && !host ? false : oauthHosts.get(root) === host);
+
+      const notifyObservers = (value: string) => {
+        for (const listener of [...observers]) {
+          try {
+            listener(value);
+          } catch (error) {
+            Logger.warn('OAuth status observer failed', error);
+          }
+        }
+      };
+
+      const publish = (value: string) => {
+        if (!current()) return;
+        statusPublished = true;
+        const changed = lastStatus !== value;
+        lastStatus = value;
+        block.output(value, 'status');
+        if (value === 'authorized' && changed) block.output(new Event('authorized'), 'authorized');
+        if (changed) notifyObservers(value);
+      };
+
+      let hostSubscription: {close(): void} | undefined;
+      let cachedGrant: OAuthGrant | undefined;
+      let pendingToken: Promise<OAuthToken> | undefined;
+
+      this.#dispose = () => {
+        active = false;
+        hostSubscription?.close();
+        hostSubscription = undefined;
+        observers.clear();
+        cachedGrant = undefined;
+        oauthProfiles.delete(profile);
+        actions.delete(block);
+        this.#dispose = undefined;
+      };
+
+      const getToken = async (context?: unknown, options?: OAuthTokenOptions): Promise<OAuthToken> => {
+        if (!current()) throw new AuthorizationRequiredError();
+        if (grantType === 'client_credentials' && source === 'server') {
+          const client = (registration as Extract<Registration, {grantType: 'client_credentials'}>).client;
+          if (!includesScopes(client.scope, scope)) throw new AuthorizationRequiredError();
+          if (!options?.forceRefresh && cachedGrant && isGrantUsable(cachedGrant, true)) {
+            return {accessToken: cachedGrant.accessToken, expiresAt: cachedGrant.expiresAt};
+          }
+          if (pendingToken) {
+            const token = await pendingToken;
+            if (!current()) throw new AuthorizationRequiredError();
+            if (!options?.forceRefresh || (options.rejectedToken && token.accessToken !== options.rejectedToken)) {
+              return token;
+            }
+          }
+          const runFetch = (async () => {
+            if (
+              cachedGrant &&
+              isGrantUsable(cachedGrant, true) &&
+              (!options?.forceRefresh || (options.rejectedToken && cachedGrant.accessToken !== options.rejectedToken))
+            ) {
+              return {accessToken: cachedGrant.accessToken, expiresAt: cachedGrant.expiresAt};
+            }
+            const next = await requestClientCredentials(client, client.scope);
+            if (!current()) throw new AuthorizationRequiredError();
+            cachedGrant = next;
+            publish('authorized');
+            return {accessToken: next.accessToken, expiresAt: next.expiresAt};
+          })();
+          const tracked = runFetch.finally(() => {
+            if (pendingToken === tracked) pendingToken = undefined;
+          });
+          pendingToken = tracked;
+          return tracked;
+        }
+
+        if (!host) throw new AuthorizationRequiredError();
         try {
           const token = await host.token(
             registration,
             scope,
             source === 'currentUser' ? source : 'connection',
-            context
+            context,
+            options
           );
-          if (!current()) throw new HttpAuthRequired();
+          if (!current()) throw new AuthorizationRequiredError();
+          if (source !== 'currentUser' && !block.getValue('authorizationLink')) publish('authorized');
           return token;
         } catch (error) {
-          if (source !== 'currentUser' && error instanceof HttpAuthRequired && !block.getValue('authorizationLink')) {
+          if (
+            source !== 'currentUser' &&
+            error instanceof AuthorizationRequiredError &&
+            !block.getValue('authorizationLink')
+          ) {
             publish('authorization-required');
           }
           throw error;
         }
-      },
-    });
-    block.output(profile);
-    if (source === 'currentUser') {
-      block.output('request-context-required', 'status');
-      return;
-    }
-    const status = () => host.status(registration, scope);
-    const publishAuthorization = (value: string) => {
-      block.output(undefined, 'authorizationLink');
-      publish(value);
-    };
-    actions.set(block, {
-      start() {
-        if (!current()) throw new HttpAuthRequired();
-        const revision = ++linkRevision;
-        const linkCurrent = () => revision === linkRevision && current();
-        block.output(undefined, 'authorizationLink');
-        const url = host.connect(registration, scope, {
-          current: linkCurrent,
-          pending() {
-            if (linkCurrent()) publishAuthorization('authorization-pending');
-          },
-          complete(status) {
-            if (linkCurrent()) block.executeCommand('completeAuthorization', {status, authority: completionAuthority});
-          },
-        });
-        block.output(url, 'authorizationLink');
-        publish('authorization-link-ready');
-        return url;
-      },
-      complete: publishAuthorization,
-      status,
-    });
-    block.output('authorization-required', 'status');
-    void status().then(
-      (value) => {
-        if (!statusPublished) publish(value);
-      },
-      () => {
-        if (!statusPublished) publish('authorization-failed');
+      };
+
+      oauthProfiles.set(profile, {
+        ready: true,
+        origin: registration.client.resourceOrigin,
+        requiresContext: source === 'currentUser',
+        token: getToken,
+        observe(listener) {
+          observers.add(listener);
+          return {
+            close() {
+              observers.delete(listener);
+            },
+          };
+        },
+      });
+      block.output(profile);
+
+      if (source === 'currentUser') {
+        block.output('request-context-required', 'status');
+        return;
       }
-    );
+
+      if (grantType === 'client_credentials') {
+        if (host && registration.key) {
+          hostSubscription = host.observe(registration.key, (value) => {
+            if (lastStatus !== value) publish(value);
+          });
+        }
+        const status = () =>
+          host && registration.key ? host.status(registration, scope) : Promise.resolve(lastStatus ?? 'ready');
+        actions.set(block, {
+          start() {
+            throw new Error('Client credentials OAuth does not require interactive authorization');
+          },
+          complete() {},
+          status,
+        });
+        lastStatus = 'ready';
+        block.output('ready', 'status');
+        if (host && registration.key) {
+          void status().then(
+            (value) => {
+              if (!statusPublished) publish(value);
+            },
+            () => {}
+          );
+        }
+        return;
+      }
+
+      const authCodeRegistration = registration as AuthCodeRegistration;
+      const status = () => host.status(authCodeRegistration, scope);
+      const publishAuthorization = (value: string) => {
+        block.output(undefined, 'authorizationLink');
+        publish(value);
+      };
+      hostSubscription = host.observe(authCodeRegistration.key, (value) => {
+        if (lastStatus !== value) publishAuthorization(value);
+      });
+      actions.set(block, {
+        start() {
+          if (!current()) throw new AuthorizationRequiredError();
+          const revision = ++linkRevision;
+          const linkCurrent = () => revision === linkRevision && current();
+          block.output(undefined, 'authorizationLink');
+          const url = host.connect(authCodeRegistration, scope, {
+            current: linkCurrent,
+            pending() {
+              if (linkCurrent()) publishAuthorization('authorization-pending');
+            },
+            complete(status) {
+              if (linkCurrent())
+                block.executeCommand('completeAuthorization', {status, authority: completionAuthority});
+            },
+          });
+          block.output(url, 'authorizationLink');
+          publish('authorization-link-ready');
+          return url;
+        },
+        complete: publishAuthorization,
+        status,
+      });
+      lastStatus = 'authorization-required';
+      block.output('authorization-required', 'status');
+      void status().then(
+        (value) => {
+          if (!statusPublished) publish(value);
+        },
+        () => {
+          if (!statusPublished) publish('authorization-failed');
+        }
+      );
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      const unready = createUnreadyOAuthProfile(reason);
+      this.#dispose = () => {
+        oauthProfiles.delete(unready);
+        actions.delete(block);
+        this.#dispose = undefined;
+      };
+      if (!publishedStatus) {
+        block.output('invalid-config', 'status');
+      }
+      block.output(unready);
+      throw error;
+    }
   }
 
   cleanup() {
@@ -206,6 +413,8 @@ function getActions(block: Block) {
       throw new Error(missingClientSecret);
     case 'request-context-required':
       throw new Error('This OAuth source requires an authenticated request');
+    case 'ready':
+      throw new Error('Client credentials OAuth does not require interactive authorization');
     default:
       throw new Error('OAuth connection is not available');
   }
@@ -221,6 +430,8 @@ export function registerOAuth() {
     NodeOAuthFunction,
     {
       name: 'oauth',
+      mode: 'onLoad',
+      priority: 0,
       tags: ['auth-profile', 'context-service'],
       properties: [
         {
@@ -229,6 +440,12 @@ export function registerOAuth() {
           options: ['server', 'connection', 'currentUser'],
           default: 'server',
           pinned: true,
+        },
+        {
+          name: 'grantType',
+          type: 'select',
+          options: ['authorization_code', 'client_credentials'],
+          default: 'authorization_code',
         },
         {name: 'connection', type: 'string', pinned: true},
         {name: 'clientId', type: 'string'},

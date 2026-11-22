@@ -74,6 +74,21 @@ export type {
 } from './functions/sql/SqlClient.ts';
 export {sqlClientCommands, sqlClientApi} from './functions/sql/SqlClientCommands.ts';
 export {resolvePasswordAuth, type AuthProfile} from './functions/auth/AuthProfile.ts';
+export {
+  AuthorizationRequiredError,
+  authUrl,
+  clientAuthApi,
+  clientAuthCommands,
+  createUnreadyOAuthProfile,
+  forwardEmbeddedAuthCommand,
+  isBearerToken,
+  normalizeResourceOrigin,
+  oauthProfiles,
+  resourceOriginOf,
+  type OAuthProfileState,
+  type OAuthToken,
+  type OAuthTokenOptions,
+} from './functions/auth/OAuthProfile.ts';
 export {createTlsClientIdentity, type TlsClientIdentity} from './functions/auth/TlsClientIdentity.ts';
 export * from './functions/live/LiveSource.ts';
 export {SubscribeFunction} from './functions/live/SubscribeFunction.ts';

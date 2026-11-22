@@ -1,15 +1,26 @@
-# OAuth for HTTP clients
+# OAuth for HTTP and MQTT clients
 
-Set the `auth` property of an `http:client` to an embedded `auth:oauth` Block or
-bind it to a shared OAuth Block's `#output`. Bind `http:fetch.client` to that HTTP
-client. A configured client binding must resolve before the fetch can send a request.
-An explicit OAuth binding that is waiting for authorization yields an
-`authorization-required` error when called.
+Set the `auth` property of an `http:client` or `mqtt:client` to an embedded `auth:oauth` Block or
+bind it to a shared OAuth Block's `#output`. Bind `http:fetch.client` to an HTTP
+client, or MQTT Blocks' `client` property to an MQTT client. `auth:oauth` runs at
+priority `0`, while client Blocks run at priority `1` or higher. While an OAuth
+Block is unready (for example, missing configuration or `#secret`), it outputs an
+unready profile and the client Block refuses to run instead of connecting
+anonymously. An unbound or `undefined` `auth` property connects without OAuth.
 
-The HTTP client attaches a Bearer token when a request is sent. The request
-URL must match both the client's base URL origin and path boundary and the
-OAuth registration's resource origin. OAuth requests reject redirects and
-caller-supplied Authorization headers.
+An explicit OAuth binding that is waiting for user consent yields an
+`authorization-required` error when called. Client Blocks with an embedded `~auth`
+Block forward the hidden `startAuthorization` and `oauthStatus` commands to it so
+`@b-widget: 'web-authorization'` can be placed directly on the client Block.
+
+`resourceOrigin` accepts `https:`, `wss:`, and `mqtts:` origins, or loopback
+(`localhost`, `127.0.0.1`, `[::1]`) `http:`, `ws:`, and `mqtt:` origins.
+`http:client` attaches a Bearer token whose target matches both the client's base
+URL origin and path boundary and the OAuth registration's `resourceOrigin`, and
+rejects redirects and caller-supplied `Authorization` headers. Long-lived
+connectors such as `mqtt:client` observe status changes to auto-connect after
+authorization, refresh proactively before `expiresAt`, and force a single refresh
+on authorization rejection.
 
 Each runtime registers OAuth explicitly before loading Flows. Use
 `registerOAuth()` from `@ticlo/oauth/browser` or `@ticlo/oauth/node`.
@@ -57,6 +68,11 @@ Use `createFileOAuthGrantStore(directory, cipher)` for an encrypted
 store outside all flow and file-server scopes. Keep the cipher key across
 restarts. The host's `authorize` callback checks the operator's permission and
 returns the authenticated session ID for the confirmation and callback.
+
+Set `grantType` to `authorization_code` (default) for interactive consent, or
+`client_credentials` for headless machine-to-machine tokens using `tokenUrl`,
+`clientId`, `#secret`, `resourceOrigin`, and `scope` (which also works on a
+`server` Block without `routeOAuth` when no HTTP host is mounted).
 
 The default **server** source takes `connection`, `clientId`,
 `authorizationUrl`, `tokenUrl`, `resourceOrigin` and `scope` from the Block.
@@ -106,6 +122,10 @@ The page host owns login and any additional consent for the signed-in user.
 ## Testing
 
 `pnpm test packages/web-server/__spec__/OAuth.spec.ts` exercises deployment
-authorization, refresh and per-request grants with a local OAuth provider.
+authorization, refresh, `client_credentials`, embedded command forwarding, and
+per-request grants with a local OAuth provider.
+`pnpm test connectors/mqtt/__spec__/MqttOAuth.node.test.ts` exercises MQTT
+OAuth auto-connect, proactive rotation, revocation recovery, `client_credentials`,
+and MQTT 5 Enhanced Authentication.
 `pnpm test-oauth-browser` runs the popup, callback and a cross-origin HTTP call
 in Chromium with browser security enabled.
