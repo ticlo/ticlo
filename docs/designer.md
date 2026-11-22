@@ -32,11 +32,14 @@ excluding modules and dirty Flows (`@has-change`). Switching an empty Flow via
 
 `functionTreeTags` and `nodeTreeTags` independently filter descriptors by any
 matching tag. Both default to `react-comp`, `react-svg`, and `chart-series`.
-Unmatched node branches are hidden. Dataflow stages leave filters undefined.
+The Designer outline roots at the Flow with both the root and `#main` expanded
+by default, keeping the root visible while filtering its children by
+`nodeTreeTags`. Unmatched node branches are hidden. Dataflow stages leave
+filters undefined.
 
 ## Selection and commands
 
-Outline selection may span parents. Stage additions and group movement retain
+Outline selection may include the Flow root and span parents. Stage additions and group movement retain
 siblings under one parent. `addSelection` uses the last valid added component's
 parent and reports whether any new component was selected. Selecting a hidden
 View Deck descendant reveals its page without saving a selection edit; see
@@ -55,10 +58,11 @@ input and forwards events to stage and ancestor listeners, preserving pointer,
 keyboard, drag, and touch data. Forwarded events are untrusted. Native wheel
 scrolling remains available unless a stage or ancestor prevents it.
 
-Copy requires siblings. Paste inserts into the selected parent, or `#main` when
-there is no child selection. It renames collisions, updates `#order`, and selects
-the inserted Blocks. `onSave` may supply the host's save action; otherwise the
-stage calls `conn.applyFlowChange(basePath)`.
+Copy and delete ignore the Flow root; copy requires siblings. Paste inserts into
+the selected parent, or `#main` when no descendant of `#main` is selected. It
+renames collisions, updates `#order`, and selects the inserted Blocks. `onSave`
+may supply the host's save action; otherwise the stage calls
+`conn.applyFlowChange(basePath)`.
 
 ## Drops and geometry
 

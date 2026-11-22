@@ -163,7 +163,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
       }
       if (event.shiftKey) {
         // shift click, select range
-        if (item.parent.children && this.lastClickedItem?.parent === item.parent) {
+        if (item.parent?.children && this.lastClickedItem?.parent === item.parent) {
           const siblings = this.rows.filter(
             (child): child is NodeTreeItem => child instanceof NodeTreeItem && child.parent === item.parent
           );
@@ -329,7 +329,7 @@ export class NodeTree extends LazyUpdateComponent<Props, any> {
   private expandSelectedPath(item: NodeTreeItem, path: string, openTarget = false): boolean {
     if (item.key === path && !openTarget) return true;
     const {tags} = this.props;
-    if (tags && item.level >= 0 && !item.desc.tags?.some((tag) => tags.includes(tag))) {
+    if (tags && item.parent && !item.desc.tags?.some((tag) => tags.includes(tag))) {
       return item.desc !== blankFuncDesc;
     }
     if (item.opened === 'closed' || item.opened === 'empty') item.open();

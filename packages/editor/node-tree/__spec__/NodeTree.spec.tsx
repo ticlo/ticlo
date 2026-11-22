@@ -3,7 +3,7 @@ import {simulate} from 'simulate-event';
 import React from 'react';
 import {NodeTree, initEditor} from '../../index.ts';
 import type {Block} from '@ticlo/core';
-import {BlockOrder, Root} from '@ticlo/core';
+import {BlockOrder, Root, globalFunctions} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.ts';
@@ -226,5 +226,52 @@ describe('editor NodeTree', function () {
     expect(editFlow.mock.calls[0][0]).toBe('NodeTree');
     editFlow.mock.calls[0][1]();
     await shouldHappen(() => save.mock.calls.length === 1);
+  });
+
+  it('keeps an untagged visible root with tags + expandPaths while still filtering hidden-root children', async function () {
+    await initEditor();
+    const taggedId = 'node-tree-tagged-test';
+    globalFunctions.addFactory(null, {id: taggedId, name: taggedId, tags: ['view'], properties: []});
+    try {
+      Root.instance.addFlow('NodeTree', {
+        '#main': {
+          '#is': taggedId,
+          'child': {'#is': taggedId},
+        },
+        'sibling': {'#is': taggedId},
+        'hidden': {'#is': 'add'},
+      });
+      [server, client] = makeLocalConnection(Root.instance);
+
+      const [, div] = loadTemplate(
+        <NodeTree
+          conn={client}
+          basePaths={['NodeTree']}
+          tags={['view']}
+          expandPaths={['NodeTree', 'NodeTree.#main']}
+          style={{width: 600, height: 300}}
+        />,
+        'editor'
+      );
+      await shouldHappen(() => getVisibleNodeNames(div).join(',') === 'NodeTree,#main,child,sibling');
+      expect(querySingle("//div.ticl-e-tree-node-text[text()='hidden']", div)).toBeNull();
+
+      removeLastTemplate();
+      const [, hiddenRootDiv] = loadTemplate(
+        <NodeTree
+          conn={client}
+          basePaths={['NodeTree']}
+          hideRoot
+          tags={['view']}
+          expandPaths={['NodeTree.#main']}
+          style={{width: 600, height: 300}}
+        />,
+        'editor'
+      );
+      await shouldHappen(() => getVisibleNodeNames(hiddenRootDiv).join(',') === '#main,child,sibling');
+      expect(querySingle("//div.ticl-e-tree-node-text[text()='hidden']", hiddenRootDiv)).toBeNull();
+    } finally {
+      globalFunctions.delete(taggedId);
+    }
   });
 });

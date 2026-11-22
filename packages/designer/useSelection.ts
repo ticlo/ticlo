@@ -1,24 +1,25 @@
 import {useCallback, useEffect} from 'react';
-import {Block} from '@ticlo/core';
+import {Block, Flow} from '@ticlo/core';
 import {useRefState} from '@ticlo/react/util/react-tools.ts';
 import type {DesignerSelection} from './DesignerContext.tsx';
 
 function resolveSelection(
   root: Block,
-  main: Block | null,
+  flow: Flow | null,
   items: (Block | string)[],
   parent?: Block
 ): DesignerSelection {
   const blocks: Block[] = [];
   const paths: string[] = [];
-  const mainPath = main?.getFullPath();
-  if (main) {
+  const flowPath = flow?.getFullPath();
+  const prefix = flowPath ? `${flowPath}.` : '';
+  if (flow) {
     for (const item of items) {
       const block = typeof item === 'string' ? root.queryValue(item) : item;
       if (!(block instanceof Block) || block._destroyed || blocks.includes(block)) continue;
       if (parent && block.getParent() !== parent) continue;
       const path = block.getFullPath();
-      if (path !== mainPath && !path.startsWith(`${mainPath}.`)) continue;
+      if (path !== flowPath && !path.startsWith(prefix)) continue;
       if (root.queryValue(path) !== block) continue;
       blocks.push(block);
       paths.push(path);
@@ -27,15 +28,15 @@ function resolveSelection(
   return {blocks, paths};
 }
 
-export function useSelection(root: Block, main: Block | null) {
+export function useSelection(root: Block, flow: Flow | null) {
   const [selection, setSelection, selectionRef] = useRefState<DesignerSelection>(() => ({blocks: [], paths: []}));
   const updateSelection = useCallback(
     (items?: (Block | string)[], append = false) => {
       const previous = selectionRef.current;
-      const current = append ? resolveSelection(root, main, items.slice().reverse()).blocks[0] : undefined;
+      const current = append ? resolveSelection(root, flow, items.slice().reverse()).blocks[0] : undefined;
       const next = resolveSelection(
         root,
-        main,
+        flow,
         append ? [...previous.blocks, ...items] : (items ?? previous.blocks),
         current?.getParent()
       );
@@ -48,7 +49,7 @@ export function useSelection(root: Block, main: Block | null) {
       }
       return added;
     },
-    [root, main]
+    [root, flow]
   );
   const select = useCallback((items: (Block | string)[]) => updateSelection(items), [updateSelection]);
   const addSelection = useCallback((items: (Block | string)[]) => updateSelection(items, true), [updateSelection]);

@@ -298,4 +298,40 @@ describe('designer keyboard commands', () => {
     expect(saveDesigner).toHaveBeenCalledTimes(2);
     expect(saveDataflow).toHaveBeenCalledTimes(1);
   });
+
+  it('ignores the flow root in delete/copy and pastes into #main when the flow root is selected', async () => {
+    const {flow, main, container, a, conn, host, getStage} = await mount();
+    const remove = vi.spyOn(conn, 'deleteBlock');
+    const copy = vi.spyOn(conn, 'copy');
+    const write = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+
+    getStage().select([flow]);
+    await shouldHappen(() => getStage().selection.blocks[0] === flow);
+    expect(key(host, 'Delete').defaultPrevented).toBe(false);
+    expect(key(host, 'c', {ctrlKey: true}).defaultPrevented).toBe(false);
+    expect(remove).not.toHaveBeenCalled();
+    expect(copy).not.toHaveBeenCalled();
+    expect(flow.isDestroyed()).toBe(false);
+
+    expect(paste(host, encode({pasted: {'#is': 'react:span', 'content': 'Pasted'}})).defaultPrevented).toBe(true);
+    await shouldHappen(
+      () => main.getValue('pasted') instanceof Block && getStage().selection.blocks[0] === main.getValue('pasted')
+    );
+    expect(main.getValue('#order')).toEqual(['container', 'outside', 'pasted']);
+    expect(flow.getValue('pasted')).toBeUndefined();
+
+    getStage().select([flow, a]);
+    await shouldHappen(() => getStage().selection.blocks.length === 2);
+    expect(key(host, 'c', {ctrlKey: true}).defaultPrevented).toBe(true);
+    await shouldHappen(() => write.mock.calls.length === 1);
+    expect(copy).toHaveBeenCalledTimes(1);
+    expect(copy).toHaveBeenLastCalledWith(`${path}.#main.container`, ['a']);
+
+    expect(key(host, 'Delete').defaultPrevented).toBe(true);
+    await shouldHappen(() => !container.getValue('a'));
+    expect(remove).toHaveBeenCalledTimes(1);
+    expect(remove).toHaveBeenLastCalledWith(`${path}.#main.container.a`, expect.anything());
+    expect(flow.isDestroyed()).toBe(false);
+    expect(getStage().selection.blocks).toEqual([flow]);
+  });
 });

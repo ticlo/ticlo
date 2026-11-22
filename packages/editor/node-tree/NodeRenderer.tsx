@@ -102,7 +102,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
   addToList(list: NodeTreeItem[], tags?: readonly string[]) {
     if (this.level >= 0) {
-      if (tags && !this.desc.tags?.some((tag) => tags.includes(tag))) return;
+      if (tags && this.parent && !this.desc.tags?.some((tag) => tags.includes(tag))) return;
       list.push(this);
     }
     if (this.opened === 'opened' && this.children) {
@@ -443,7 +443,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         if (request === this.autoLoadRequest) this.safeSetState({autoLoad});
       }
     } catch (error) {
-      requestCallbacks.onError(String(error));
+      if (request === this.autoLoadRequest) requestCallbacks.onError(String(error));
     }
   };
 

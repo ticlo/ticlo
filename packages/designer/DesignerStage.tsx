@@ -99,19 +99,19 @@ export function DesignerStage({
       }
     };
   }, [root, flow]);
-  const {selection, selectionRef, select, addSelection} = useSelection(root, main);
+  const {selection, selectionRef, select, addSelection} = useSelection(root, flow);
   const {designMode = true, setDesignMode = voidFunction} = useContext(DesignerLayoutContextType);
   useEffect(() => {
     if (!designMode) return;
     const ancestors: [Block, Block][] = [];
-    for (let child = selection.blocks.at(-1); child && child !== main;) {
+    for (let child = selection.blocks.at(-1); child && child !== main && child !== flow;) {
       const parent = child.getParent();
       if (!parent) break;
       ancestors.push([parent, child]);
       child = parent;
     }
     for (const [parent, child] of ancestors.reverse()) revealChild(parent, child);
-  }, [designMode, main, selection]);
+  }, [designMode, flow, main, selection]);
   const componentContext = useMemo(
     () => ({designMode, elementMap, select, addSelection}),
     [designMode, elementMap, select, addSelection]
