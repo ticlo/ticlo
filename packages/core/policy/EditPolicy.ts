@@ -36,6 +36,7 @@ const unrestrictedCommands = new Set([
   'subscribe',
   'watch',
   'watchDesc',
+  'findContextBlocks',
   'getLiveCapabilities',
   'listLiveChildren',
   'searchLive',

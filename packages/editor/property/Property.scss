@@ -305,6 +305,13 @@
     flex: 1 1 auto;
   }
 }
+
+.ant-select-item-group.ticl-e-service-scope-divider {
+  border-top: 1px solid var(--ant-color-split, rgba(5, 5, 5, 0.06));
+  border-radius: 0;
+  margin-top: 4px;
+  padding-top: 6px;
+}
 .ticl-e-object-editor,
 .ticl-e-readonly-editor {
   border: 1px solid var(--ant-color-border-secondary, #f0f0f0);

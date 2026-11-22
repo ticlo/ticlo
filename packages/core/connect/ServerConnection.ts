@@ -12,11 +12,12 @@ import {DataMap, isPrimitiveType, isStringArray, measureObjSize} from '../util/D
 import {truncateData} from '../util/DataTruncate.ts';
 import {Block, BlockChildWatch} from '../block/Block.ts';
 import {InputsBlock} from '../block/FlowIO.ts';
-import {Flow, Root} from '../block/Flow.ts';
+import {Flow, FlowLibrary, LibraryContextFlow, Root} from '../block/Flow.ts';
 import {flowRefFromPath} from '../block/FlowRuntime.ts';
 import {FlowWithStatic, StaticConfig} from '../block/StaticBlock.ts';
 import {PropDispatcher, PropListener} from '../block/Dispatcher.ts';
 import {DescListener, FunctionModule, globalFunctions} from '../block/FunctionModule.ts';
+import {FlowFunctionModule, LibraryFunctionModule} from '../block/LibraryFunctionModule.ts';
 import {
   buildPropDescCache,
   findPropDesc,
@@ -45,6 +46,7 @@ import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from 
 import {WorkerFunctionGen} from '../worker/WorkerFunctionGen.ts';
 import {isBindable, validateNodePath} from '../util/Path.ts';
 import {ClientCallbacks} from './ClientRequests.ts';
+import type {ContextBlockScope} from './ClientConn.ts';
 import {
   copyProperties,
   createStaticBlock,
@@ -573,6 +575,78 @@ function trackChange(property: BlockProperty, path: string, root: Root) {
   getTrackedFlow(property._block, path, root).trackChange();
 }
 
+function getBlockFuncDesc(flow: Flow, funcId: string, root: Root): FunctionDesc {
+  if (!funcId) return null;
+  if (funcId.startsWith(':')) {
+    return flow._funcModule?.getDesc(funcId) ?? null;
+  }
+  if (funcId.startsWith('+')) {
+    const resolvedId = funcId.startsWith('+:') && flow._library ? `${flow._library}${funcId.substring(1)}` : funcId;
+    return Library.getFunctionModule(resolvedId, root, false)?.getDesc(resolvedId) ?? null;
+  }
+  return globalFunctions.getDesc(funcId) ?? null;
+}
+
+function collectContextScopes(block: Block, root: Root): {flow: Flow; scope: ContextBlockScope['scope']}[] {
+  const visited = new Set<Flow>();
+  const scopes: {flow: Flow; scope: ContextBlockScope['scope']}[] = [];
+  const addScope = (flow: Flow, scope: ContextBlockScope['scope']) => {
+    if (flow && !visited.has(flow)) {
+      visited.add(flow);
+      scopes.push({flow, scope});
+    }
+  };
+  let current: Flow = block._flow;
+  while (current) {
+    if (current === root._globalRoot) {
+      addScope(root._globalRoot, 'global');
+      break;
+    }
+    if (current instanceof LibraryContextFlow) {
+      addScope(current, 'context');
+      addScope(root._globalRoot, 'global');
+      break;
+    }
+    if (current instanceof FlowLibrary) {
+      addScope(current._contextRoot, 'context');
+      addScope(root._globalRoot, 'global');
+      break;
+    }
+    if (current instanceof Root || current === root._tempRoot) {
+      addScope(root._globalRoot, 'global');
+      break;
+    }
+    if (visited.has(current)) {
+      break;
+    }
+    addScope(current, 'flow');
+    if (!current._parent || current._parent === current) {
+      addScope(root._globalRoot, 'global');
+      break;
+    }
+    const parentFlow = current._parent._flow;
+    if (parentFlow === root._tempRoot) {
+      if (
+        current._funcModule instanceof FlowFunctionModule &&
+        !(current._funcModule instanceof LibraryFunctionModule) &&
+        current._funcModule.flow
+      ) {
+        current = current._funcModule.flow;
+      } else {
+        if (current._library && current._library !== '+#root') {
+          const lib = root.getValue(current._library);
+          if (lib instanceof FlowLibrary) addScope(lib._contextRoot, 'context');
+        }
+        addScope(root._globalRoot, 'global');
+        break;
+      }
+    } else {
+      current = parentFlow;
+    }
+  }
+  return scopes;
+}
+
 export interface ServerConnectionOptions extends ConnectionOptions {
   readonly?: boolean;
 }
@@ -584,6 +658,7 @@ const readCommands = new Set([
   'subscribe',
   'watch',
   'watchDesc',
+  'findContextBlocks',
   'getLiveCapabilities',
   'listLiveChildren',
   'searchLive',
@@ -1179,7 +1254,7 @@ export class ServerConnection extends ServerConnectionCore {
           property._block.createEmbeddedBlock(baseProperty._name);
         } else {
           property.setValue(undefined);
-          property._block.createBlock(property._name);
+          property = property._block.createBlock(property._name)?._prop ?? property;
         }
       }
 
@@ -1248,6 +1323,40 @@ export class ServerConnection extends ServerConnectionCore {
     } else {
       return 'invalid path';
     }
+  }
+
+  /**
+   * Lists matching `^` context blocks along the active context inheritance chain of `path`.
+   */
+  findContextBlocks({path, tags}: {path: string; tags: string[]}): string | {scopes: ContextBlockScope[]} {
+    if (!isStringArray(tags)) return 'invalid tags';
+    const property = path === '' ? this.root.getProperty('', false) : this.root.queryProperty(path, false);
+    if (!property) return 'invalid path';
+    const block = property._value instanceof Block ? property._value : property._block;
+    if (!block) return 'invalid path';
+    if (tags.length === 0) return {scopes: []};
+
+    const result: ContextBlockScope[] = [];
+    const seen = new Set<string>();
+    for (const {flow, scope} of collectContextScopes(block, this.root)) {
+      const blocks: string[] = [];
+      for (const [name, prop] of flow._props) {
+        if (!name.startsWith('^') || prop.isCleared()) continue;
+        if (seen.has(name)) continue;
+        seen.add(name);
+        const child = prop._saved;
+        if (child instanceof Block && child._prop === prop && child !== block) {
+          const desc = getBlockFuncDesc(flow, child._funcId, this.root);
+          if (desc?.tags && tags.some((tag) => desc.tags.includes(tag))) {
+            blocks.push(name);
+          }
+        }
+      }
+      if (blocks.length > 0) {
+        result.push({path: flow.getFullPath(), scope, blocks});
+      }
+    }
+    return {scopes: result};
   }
 
   /**

@@ -7,7 +7,6 @@ import {
   ClientRequest,
   ClientDescListener,
   DescRequest,
-  GlobalWatch,
   SetRequest,
   SubscribeCallbacks,
   SubscribeRequest,
@@ -80,7 +79,6 @@ export abstract class ClientConnection extends ClientConn {
   readonly descRequests: Map<string, DescRequest> = new Map();
   /** Maps each listener to the function scope of its DescRequest. */
   readonly descListenerPaths: Map<ClientDescListener, string> = new Map();
-  readonly globalWatch: GlobalWatch;
   private _editorListeners: boolean;
 
   protected constructor(editorListeners: boolean) {
@@ -91,10 +89,6 @@ export abstract class ClientConnection extends ClientConn {
 
       // watchDesc - create global DescRequest
       this._getOrCreateDescRequest('');
-
-      // watch #global
-      this.globalWatch = new GlobalWatch(this);
-      this.watch('#global', this.globalWatch);
     }
   }
 
@@ -471,24 +465,6 @@ export abstract class ClientConnection extends ClientConn {
         break;
       }
     } while (desc);
-    return result;
-  }
-
-  findGlobalBlocks(tags: string[]): string[] {
-    const result: string[] = [];
-    if (this.globalWatch && Array.isArray(tags)) {
-      for (const [key, listener] of this.globalWatch.isListeners) {
-        const funcDesc = this.watchDesc(listener.value);
-        if (funcDesc && funcDesc.tags) {
-          for (const tag of tags) {
-            if (funcDesc.tags.includes(tag)) {
-              result.push(key);
-              break;
-            }
-          }
-        }
-      }
-    }
     return result;
   }
 

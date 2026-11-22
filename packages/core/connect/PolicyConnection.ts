@@ -52,6 +52,5 @@ export class PolicyConnection extends ClientConn {
   getCategory: ClientConn['getCategory'] = (...args) => this.base.getCategory(...args);
   getCommonBaseFunc: ClientConn['getCommonBaseFunc'] = (...args) => this.base.getCommonBaseFunc(...args);
   getOptionalProps: ClientConn['getOptionalProps'] = (...args) => this.base.getOptionalProps(...args);
-  findGlobalBlocks: ClientConn['findGlobalBlocks'] = (...args) => this.base.findGlobalBlocks(...args);
   cancel: ClientConn['cancel'] = (id) => this.base.cancel(id);
 }

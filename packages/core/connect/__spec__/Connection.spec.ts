@@ -18,7 +18,7 @@ import {FlowEditor} from '../../worker/FlowEditor.ts';
 import {WorkerFlow} from '../../worker/WorkerFlow.ts';
 import {Logger} from '../../util/Logger.ts';
 import {ConnectionSend} from '../Connection.ts';
-import {DescRequest, GlobalWatch, SetRequest, type ValueState} from '../ClientRequests.ts';
+import {DescRequest, SetRequest, type ValueState} from '../ClientRequests.ts';
 
 describe('Connection', function () {
   it('reports subscription errors before receiving the initial full value', async () => {
@@ -812,27 +812,151 @@ describe('Connection', function () {
     Root.instance.deleteValue('Connection17');
   });
 
-  it('findGlobalBlocks', async function () {
-    const [server, client] = makeLocalConnection(Root.instance, true);
+  it('findContextBlocks', async function () {
+    const root = new Root();
+    root.defineGlobal('^defined', {'#is': 'subtract'});
+    const gSub = root._globalRoot.createBlock('^gSub');
+    gSub.setValue('#is', 'subtract');
+    const gAdd = root._globalRoot.createBlock('^gAdd');
+    gAdd.setValue('#is', 'add');
 
-    const a = Root.instance._globalRoot.createBlock('^a');
-    a.setValue('#is', 'add');
-    const b = Root.instance._globalRoot.createBlock('^b');
-    b.setValue('#is', 'subtract');
+    const flow = root.addFlow('+lib.folder.flow', undefined, undefined, true);
+    const folder = root.queryValue('+lib.folder') as Flow;
+    folder.createBlock('^folderCtx').setValue('#is', 'add');
 
-    await shouldHappen(() => client.findGlobalBlocks(['math']).length === 2);
+    const flowMath = flow.createBlock('^flowMath');
+    flowMath.setValue('#is', 'add');
+    const localShadowSub = flow.createBlock('^gSub');
+    localShadowSub.setValue('#is', 'add');
+    const consumer = flow.createBlock('consumer');
+    consumer.setValue('#is', 'add');
+    consumer.setBinding('0', '^defined.#output');
 
-    expect(client.findGlobalBlocks(['math-2'])).toEqual(['^b']);
+    // Demand-created inherited ContextProperty mirror should exist on flow but must not shadow #global.^defined.
+    expect(flow._props.get('^defined')?.isCleared()).toBe(true);
 
-    a.setValue('#is', 'subtract');
-    await shouldHappen(() => client.findGlobalBlocks(['math-2']).length === 2);
-    expect(client.findGlobalBlocks(['math-n'])).toEqual([]);
+    WorkerFunctionGen.registerType(
+      {'#is': '', '#inputs': {'#is': ''}, '#outputs': {'#is': ''}},
+      {id: ':localSvc', name: 'localSvc', tags: ['local-svc']},
+      undefined,
+      flow.getFuncModule()
+    );
+    flow.createBlock('^localSvc').setValue('#is', ':localSvc');
 
-    // clear #global
-    Root.instance._globalRoot._liveUpdate({});
-    await shouldHappen(() => client.findGlobalBlocks(['math']).length === 0);
+    const contextFlow = root.queryValue('+lib.#context') as Flow;
+    contextFlow.createBlock('^ctxMath').setValue('#is', 'subtract');
+    contextFlow.createBlock('^gAdd').setValue('#is', 'subtract');
 
-    client.destroy();
+    const libMod = Library.getFunctionModule('+lib:mod:libSvc', root);
+    WorkerFunctionGen.registerType(
+      {'#is': '', '#inputs': {'#is': ''}, '#outputs': {'#is': ''}},
+      {id: '+lib:mod:libSvc', name: 'libSvc', tags: ['lib-svc']},
+      '+lib',
+      libMod
+    );
+    contextFlow.createBlock('^libSvc').setValue('#is', '+lib:mod:libSvc');
+
+    WorkerFunctionGen.registerType(
+      {'#is': '', '#inputs': {'#is': ''}, '#outputs': {'#is': ''}},
+      {id: '+lib:mod:worker', name: 'worker'},
+      '+lib',
+      libMod
+    );
+    FlowEditor.createFromFunction(root._tempRoot, '#edit-local', ':localWorker', {'#is': ''}, flow.getFuncModule());
+    FlowEditor.createFromFunction(root._tempRoot, '#edit-lib', '+lib:mod:worker', {'#is': ''}, libMod);
+
+    const rootFlow = root.addFlow('rootFlow');
+    rootFlow.createBlock('^rootCtx').setValue('#is', 'add');
+
+    const [, client] = makeLocalConnection(root, true);
+    const [, readonlyClient] = makeLocalConnection(root, false, {readonly: true});
+    const policyClient = client.withPolicy({readonly: true, allowPaths: []});
+
+    try {
+      // flow.^gSub ('add') shadows #global.^gSub ('subtract') even though 'add' doesn't match 'math-2'.
+      expect((await client.findContextBlocks('+lib.folder.flow.consumer', ['math-2'])).scopes).toEqual([
+        {path: '+lib.#context', scope: 'context', blocks: ['^ctxMath', '^gAdd']},
+        {path: '#global', scope: 'global', blocks: ['^defined']},
+      ]);
+
+      // Removing local override restores outer #global.^gSub.
+      flow.deleteValue('^gSub');
+      expect((await client.findContextBlocks('+lib.folder.flow.consumer', ['math'])).scopes).toEqual([
+        {path: '+lib.folder.flow', scope: 'flow', blocks: ['^flowMath']},
+        {path: '+lib.folder', scope: 'flow', blocks: ['^folderCtx']},
+        {path: '+lib.#context', scope: 'context', blocks: ['^ctxMath', '^gAdd']},
+        {path: '#global', scope: 'global', blocks: ['^defined', '^gSub']},
+      ]);
+
+      // Non-block primitive override also shadows an outer matching block.
+      flow.setValue('^defined', 123);
+      expect((await client.findContextBlocks('+lib.folder.flow.consumer', ['math-2'])).scopes).toEqual([
+        {path: '+lib.#context', scope: 'context', blocks: ['^ctxMath', '^gAdd']},
+        {path: '#global', scope: 'global', blocks: ['^gSub']},
+      ]);
+      flow.deleteValue('^defined');
+
+      // Querying directly from a ^ block excludes itself.
+      expect((await client.findContextBlocks('+lib.folder.flow.^flowMath', ['math'])).scopes).toEqual([
+        {path: '+lib.folder', scope: 'flow', blocks: ['^folderCtx']},
+        {path: '+lib.#context', scope: 'context', blocks: ['^ctxMath', '^gAdd']},
+        {path: '#global', scope: 'global', blocks: ['^defined', '^gSub']},
+      ]);
+
+      // Querying from library #context, #global, and #root flow avoid duplication and scope leaks.
+      expect((await client.findContextBlocks('+lib.#context', ['math'])).scopes).toEqual([
+        {path: '+lib.#context', scope: 'context', blocks: ['^ctxMath', '^gAdd']},
+        {path: '#global', scope: 'global', blocks: ['^defined', '^gSub']},
+      ]);
+      expect((await client.findContextBlocks('#global', ['math'])).scopes).toEqual([
+        {path: '#global', scope: 'global', blocks: ['^defined', '^gSub', '^gAdd']},
+      ]);
+      expect((await client.findContextBlocks('rootFlow', ['math'])).scopes).toEqual([
+        {path: 'rootFlow', scope: 'flow', blocks: ['^rootCtx']},
+        {path: '#global', scope: 'global', blocks: ['^defined', '^gSub', '^gAdd']},
+      ]);
+
+      // Local and library function tags resolve cleanly, including inside #temp FlowEditors.
+      expect((await client.findContextBlocks('+lib.folder.flow.consumer', ['local-svc', 'lib-svc'])).scopes).toEqual([
+        {path: '+lib.folder.flow', scope: 'flow', blocks: ['^localSvc']},
+        {path: '+lib.#context', scope: 'context', blocks: ['^libSvc']},
+      ]);
+      expect((await client.findContextBlocks('#temp.#edit-local', ['local-svc', 'lib-svc'])).scopes).toEqual([
+        {path: '+lib.folder.flow', scope: 'flow', blocks: ['^localSvc']},
+        {path: '+lib.#context', scope: 'context', blocks: ['^libSvc']},
+      ]);
+      expect((await client.findContextBlocks('#temp.#edit-lib', ['math-2', 'lib-svc'])).scopes).toEqual([
+        {path: '+lib.#context', scope: 'context', blocks: ['^ctxMath', '^gAdd', '^libSvc']},
+        {path: '#global', scope: 'global', blocks: ['^defined', '^gSub']},
+      ]);
+
+      // Disabled #global still resolves descriptors via _funcId.
+      root._globalRoot._runtimeDisabled = true;
+      root._globalRoot._disabledChanged(false);
+      expect((await readonlyClient.findContextBlocks('rootFlow', ['math-2'])).scopes).toEqual([
+        {path: '#global', scope: 'global', blocks: ['^defined', '^gSub']},
+      ]);
+      expect((await policyClient.findContextBlocks('rootFlow', ['math-2'])).scopes).toEqual([
+        {path: '#global', scope: 'global', blocks: ['^defined', '^gSub']},
+      ]);
+
+      // Empty tags, invalid tags, and invalid path handling.
+      expect((await client.findContextBlocks('rootFlow', [])).scopes).toEqual([]);
+      await client.addBlock('+lib.folder.flow.^added', {'#is': 'add'});
+      expect((await client.findContextBlocks('+lib.folder.flow.consumer', ['math'])).scopes[0]).toEqual({
+        path: '+lib.folder.flow',
+        scope: 'flow',
+        blocks: ['^flowMath', '^added'],
+      });
+      expect(
+        await shouldReject(client.simpleRequest({cmd: 'findContextBlocks', path: 'rootFlow', tags: [1] as any}))
+      ).toBe('invalid tags');
+      expect(await shouldReject(client.findContextBlocks('+lib.folder.missing', ['math']))).toBe('invalid path');
+    } finally {
+      readonlyClient.destroy();
+      client.destroy();
+      root.destroy();
+    }
   });
 
   it('FlowEditor', async function () {
@@ -1259,24 +1383,5 @@ describe('Connection', function () {
       value: {payload: 'x'.repeat(WS_FRAME_SIZE + 1)},
     });
     expect(fakeConn.setRequests.has('ConnectionLarge.a')).toBe(false);
-  });
-
-  it('unsubscribes global type listeners when global blocks disappear', function () {
-    const calls: unknown[] = [];
-    const fakeConn: any = {
-      subscribe: (path: string, listener: unknown) => calls.push(['subscribe', path, listener]),
-      unsubscribe: (path: string, listener: unknown) => calls.push(['unsubscribe', path, listener]),
-    };
-    const watch = new GlobalWatch(fakeConn);
-
-    watch.onUpdate({changes: {'^service': 'block-id'}});
-    const listener = watch.isListeners.get('^service');
-    watch.onUpdate({changes: {'^service': null}});
-
-    expect(calls).toEqual([
-      ['subscribe', '#global.^service.#is', listener],
-      ['unsubscribe', '#global.^service.#is', listener],
-    ]);
-    expect(watch.isListeners.has('^service')).toBe(false);
   });
 });

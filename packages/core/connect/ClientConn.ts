@@ -27,6 +27,15 @@ export interface LibraryRuntimeInfo extends LibraryGraph {
   hasMetadata: boolean;
 }
 
+export interface ContextBlockScope {
+  /** Scope path (e.g. current flow path, '+lib.#context', or '#global'). */
+  path: string;
+  /** Scope kind: flow root/ancestor flow, library #context, or #global. */
+  scope: 'flow' | 'context' | 'global';
+  /** Matching context block names (e.g. ['^sqlite-client']). */
+  blocks: string[];
+}
+
 /** Shared command API for physical connections and policy views. */
 
 export abstract class ClientConn {
@@ -150,8 +159,8 @@ export abstract class ClientConn {
     return this.sendValueRequest({cmd: 'bind', path, from, absolute}, important);
   }
 
-  setUnboundBinding(path: string, from: string): Promise<any> {
-    return this.simpleRequest({cmd: 'bind', path, from, absolute: true, unbound: true});
+  setUnboundBinding(path: string, from: string, absolute = true): Promise<any> {
+    return this.simpleRequest({cmd: 'bind', path, from, absolute, unbound: true});
   }
 
   /**
@@ -653,7 +662,9 @@ export abstract class ClientConn {
 
   abstract getOptionalProps(desc: FunctionDesc, funcModule?: string): {[key: string]: PropDesc};
 
-  abstract findGlobalBlocks(tags: string[]): string[];
+  findContextBlocks(path: string, tags: string[]): Promise<{scopes: ContextBlockScope[]}> {
+    return this.simpleRequest({cmd: 'findContextBlocks', path, tags});
+  }
 
   abstract cancel(id: string): void;
 }

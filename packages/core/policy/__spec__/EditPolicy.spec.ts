@@ -91,7 +91,17 @@ describe('EditPolicy', () => {
     expect(checkEditPolicy(policy, {cmd: 'set', path: 'Main.secret.value'})).toBeNull();
     expect(checkEditPolicy(policy, {cmd: 'set', path: 'Main.a.other'})).toBe('restricted property');
     expect(checkEditPolicy(policy, {cmd: 'bind', path: 'Main.a.value'})).toBe('restricted command');
-    for (const cmd of ['get', 'watch', 'subscribe', 'watchDesc', 'getSettings', 'copy', 'undo', 'redo']) {
+    for (const cmd of [
+      'get',
+      'watch',
+      'subscribe',
+      'watchDesc',
+      'findContextBlocks',
+      'getSettings',
+      'copy',
+      'undo',
+      'redo',
+    ]) {
       expect(checkEditPolicy({allowCmds: [], allowPaths: []}, {cmd, path: 'Other'})).toBeNull();
     }
     expect(checkEditPolicy({allowProps: []}, {cmd: 'set', path: 'Main.a'})).toBe('restricted property');

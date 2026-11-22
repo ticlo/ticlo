@@ -223,22 +223,25 @@ describe('editor Block Field', function () {
       },
     });
     const [, conn] = makeLocalConnection(Root.instance);
-    const source = '^inline-http';
+    const globalSource = '^inline-http';
+    const flowSource = '^flow-http';
     try {
-      await conn.addBlock(`#global.${source}`, {'#is': 'http:client'});
-      await shouldHappen(() => conn.findGlobalBlocks(['http-client']).includes(source));
+      await conn.addBlock(`#global.${globalSource}`, {'#is': 'http:client'});
       const [, div] = loadTemplate(<BlockStage conn={conn} basePath={basePath} />, 'editor');
       const picker = () => div.querySelector<HTMLElement>('.ticl-e-inline-value .ant-select');
       const service = await shouldHappen(picker);
       await userEvent.click(page.elementLocator(service));
-      await selectOption(source);
-      await shouldHappen(() => flow.queryProperty('block.client')?._bindingPath === `${source}.#output`);
+      await selectOption(globalSource);
+      await shouldHappen(() => flow.queryProperty('block.client')?._bindingPath === `${globalSource}.#output`);
       await shouldHappen(() => div.querySelector('.ticl-e-field-value:not(.ticl-e-inline-value)'));
       await conn.setBinding(`${basePath}.block.client`, null, true, true);
+      await conn.addBlock(`${basePath}.${flowSource}`, {'#is': 'http:client'});
       const restoredPicker = await shouldHappen(picker);
-      await userEvent.unhover(page.elementLocator(restoredPicker));
+      await userEvent.click(page.elementLocator(restoredPicker));
+      await selectOption(flowSource);
+      await shouldHappen(() => flow.queryProperty('block.client')?._bindingPath === `${flowSource}.#output`);
     } finally {
-      await conn.deleteBlock(`#global.${source}`);
+      await conn.deleteBlock(`#global.${globalSource}`);
     }
   });
 

@@ -2,19 +2,47 @@ import React from 'react';
 import {Button, Select} from 'antd';
 import {EllipsisOutlined, PlusOutlined} from '@ant-design/icons';
 import {
+  arrayEqual,
   ClientConn,
+  type ContextBlockScope,
   FunctionDesc,
   getDefaultFuncData,
   getFuncDefaultName,
   getSubBlockFuncData,
   PropDesc,
+  splitPathName,
 } from '@ticlo/core/editor.ts';
 import {Popup} from '../../component/ClickPopup.tsx';
 import {PropertyList} from '../PropertyList.tsx';
 import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
+import {t} from '../../component/LocalizedLabel.tsx';
 import {requestCallbacks} from '../../util/RequestCallbacks.ts';
 
-const {Option} = Select;
+function sameTags(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  return Array.isArray(a) && Array.isArray(b) && arrayEqual(a, b);
+}
+
+function sameContextScopes(a: ContextBlockScope[], b: ContextBlockScope[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; ++i) {
+    if (a[i].path !== b[i].path || a[i].scope !== b[i].scope || !arrayEqual(a[i].blocks, b[i].blocks)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function getScopeLabel(scope: ContextBlockScope): React.ReactNode {
+  switch (scope.scope) {
+    case 'global':
+      return t('#global');
+    case 'context':
+      return '#context';
+    case 'flow':
+      return splitPathName(scope.path)[1] || scope.path;
+  }
+}
 
 export interface Props {
   conn?: ClientConn;
@@ -30,14 +58,74 @@ export interface Props {
 
 interface State {
   opened?: boolean;
+  scopes: ContextBlockScope[];
 }
 
 export class ServiceEditor extends React.PureComponent<Props, State> {
   static contextType = EditPolicyContext;
   declare context: React.ContextType<typeof EditPolicyContext>;
-  state: State = {};
+  state: State = {scopes: []};
+  private _mounted = false;
+  private _dropdownOpen = false;
+  private _requestSeq = 0;
 
-  onGlobalBlockSelect = (value: string) => {
+  componentDidMount() {
+    this._mounted = true;
+  }
+
+  componentWillUnmount() {
+    this._mounted = false;
+    ++this._requestSeq;
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (
+      prevProps.conn !== this.props.conn ||
+      prevProps.keys?.[0] !== this.props.keys?.[0] ||
+      !sameTags(prevProps.desc?.options, this.props.desc?.options)
+    ) {
+      ++this._requestSeq;
+      if (this._dropdownOpen) {
+        this.loadContextBlocks();
+      } else if (this.state.scopes.length) {
+        this.setState({scopes: []});
+      }
+    }
+  }
+
+  loadContextBlocks = () => {
+    const {conn, desc, keys} = this.props;
+    const tags = desc?.options;
+    if (!conn || !Array.isArray(tags) || tags.length === 0) {
+      if (this.state.scopes.length) this.setState({scopes: []});
+      return;
+    }
+    const path = keys?.[0] ?? '';
+    const requestSeq = ++this._requestSeq;
+    void conn.findContextBlocks(path, tags as string[]).then(
+      (response) => {
+        if (!this._mounted || requestSeq !== this._requestSeq) return;
+        const scopes = response?.scopes ?? [];
+        if (!sameContextScopes(this.state.scopes, scopes)) {
+          this.setState({scopes});
+        }
+      },
+      () => {
+        if (this._mounted && requestSeq === this._requestSeq && this.state.scopes.length) {
+          this.setState({scopes: []});
+        }
+      }
+    );
+  };
+
+  onOpenChange = (open: boolean) => {
+    this._dropdownOpen = open;
+    if (open) {
+      this.loadContextBlocks();
+    }
+  };
+
+  onBlockSelect = (value: string) => {
     if (!this.props.locked) this.props.onPathChange?.(value == null ? undefined : `${value}.#output`);
   };
 
@@ -106,20 +194,17 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const {bindingPath, conn, desc, locked, onPathChange} = this.props;
-    const {opened} = this.state;
+    const {bindingPath, desc, locked, onPathChange} = this.props;
+    const {opened, scopes} = this.state;
     const {create} = desc;
 
-    const globalNames = conn.findGlobalBlocks(desc.options as string[]);
-
-    const optionNodes: React.ReactNode[] = [];
-    for (const name of globalNames) {
-      optionNodes.push(
-        <Option key={name} value={name}>
-          {name}
-        </Option>
-      );
-    }
+    const options = scopes.map((scope, index) => ({
+      key: scope.path,
+      label: getScopeLabel(scope),
+      title: scope.path,
+      className: index > 0 ? 'ticl-e-service-scope-divider' : undefined,
+      options: scope.blocks.map((name) => ({label: name, value: name})),
+    }));
 
     let selectValue = bindingPath;
     if (typeof selectValue === 'string' && selectValue.endsWith('.#output')) {
@@ -156,13 +241,10 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
           value={selectValue}
           allowClear={Boolean(bindingPath && onPathChange && !locked)}
           disabled={locked || onPathChange == null}
-          onOpenChange={(open) => {
-            if (open) this.forceUpdate();
-          }}
-          onChange={this.onGlobalBlockSelect}
-        >
-          {optionNodes}
-        </Select>
+          options={options}
+          onOpenChange={this.onOpenChange}
+          onChange={this.onBlockSelect}
+        />
         {button}
       </div>
     );

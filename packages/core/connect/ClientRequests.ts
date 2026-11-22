@@ -436,48 +436,6 @@ export class DescRequest extends ConnectionSend implements ClientCallbacks {
   }
 }
 
-class GlobalTypeListener {
-  value: any;
-
-  onUpdate(response: ValueUpdate) {
-    this.value = response.cache.value;
-  }
-}
-
-/**
- * list global objects
- */
-export class GlobalWatch {
-  isListeners: Map<string, GlobalTypeListener> = new Map<string, GlobalTypeListener>();
-
-  conn: ClientConnection;
-
-  constructor(conn: ClientConnection) {
-    this.conn = conn;
-  }
-
-  onUpdate(response: DataMap) {
-    const changes: {[key: string]: any} = response.changes;
-    for (const name in changes) {
-      if (name.startsWith('^')) {
-        const value = changes[name];
-        if (value != null) {
-          if (!this.isListeners.has(name)) {
-            const listener = new GlobalTypeListener();
-            this.isListeners.set(name, listener);
-            this.conn.subscribe(`#global.${name}.#is`, listener);
-          }
-        } else {
-          if (this.isListeners.has(name)) {
-            this.conn.unsubscribe(`#global.${name}.#is`, this.isListeners.get(name));
-            this.isListeners.delete(name);
-          }
-        }
-      }
-    }
-  }
-}
-
 for (const desc of clientDescriptors) {
   DescRequest.editorCache.set(desc.id, desc);
 }

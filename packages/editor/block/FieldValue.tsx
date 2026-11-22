@@ -99,7 +99,7 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
           bindingPath={null}
           funcModule={funcModule}
           onPathChange={(from): void => {
-            if (from) void conn.setUnboundBinding(path, `#global.${from}`).catch(requestCallbacks.onError);
+            if (from) void conn.setUnboundBinding(path, from, false).catch(requestCallbacks.onError);
           }}
         />
       ) : (
