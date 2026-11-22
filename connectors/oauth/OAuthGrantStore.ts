@@ -1,12 +1,14 @@
 import {mkdir, readFile, rename, rm, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {randomUUID} from 'node:crypto';
-import type {OAuthGrant} from '@ticlo/core';
-import type {SecretCipher} from '@ticlo/node';
+import type {OAuthGrant} from './OAuth.ts';
 import type {OAuthGrantStore} from './OAuthRoutes.ts';
 
 /** Store deployment grants outside all flow and file-server storage scopes. */
-export function createFileOAuthGrantStore(directory: string, cipher: SecretCipher): OAuthGrantStore {
+export function createFileOAuthGrantStore(
+  directory: string,
+  cipher: {encode(value: string): Uint8Array | undefined; decode(value: Uint8Array): string | undefined}
+): OAuthGrantStore {
   const path = (key: string) => {
     if (!/^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$/.test(key)) throw new Error('Invalid OAuth grant key');
     return join(directory, key);

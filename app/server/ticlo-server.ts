@@ -5,21 +5,26 @@ import '@ticlo/sqlite';
 import '@ticlo/postgres';
 import '@ticlo/mysql';
 import '@ticlo/mqtt';
-import {Hono} from 'hono';
+import {Hono, type MiddlewareHandler} from 'hono';
 import {cors} from 'hono/cors';
+import {getSignedCookie, setSignedCookie} from 'hono/cookie';
+import {randomUUID} from 'node:crypto';
 import {devUserAuth, type AuthProvider} from '@ticlo/file-server';
 import {Root, setSecretCipher} from '@ticlo/core';
 import {routeFileStorage} from '@ticlo/web-server/file-storage.ts';
-import {createTicloApp, type TicloAppOptions} from '@ticlo/web-server/server.ts';
+import {createTicloApp} from '@ticlo/web-server/server.ts';
+import {createFileOAuthGrantStore, registerOAuth, routeOAuth, type OAuthServerOptions} from '@ticlo/oauth/node';
 import {mkdir, writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
 import {initServerExamples, linkBrowserExamples} from './examples.ts';
-import {devFrontendOrigin} from './dev-frontend.ts';
+import {devFrontendOrigin, devFrontendPort} from './dev-frontend.ts';
 
-export interface ServerAppOptions extends Pick<TicloAppOptions, 'oauth'> {
+export interface ServerAppOptions {
   enableFrontend?: boolean;
   enableEditor?: boolean;
+  oauth?: OAuthServerOptions;
+  setup?: (app: Hono) => void;
 }
 
 export async function createServerApp(
@@ -41,8 +46,11 @@ export async function createServerApp(
     : undefined;
 
   const app = new Hono();
+  options?.setup?.(app);
   const devCors = cors({exposeHeaders: ['ETag']});
   app.use('*', (c, next) => (c.req.header('upgrade') === 'websocket' ? next() : devCors(c, next)));
+  registerOAuth();
+  if (options?.oauth) routeOAuth(app, root, options.oauth);
   routeFileStorage(app, {
     rootDir,
     authProvider,
@@ -62,8 +70,51 @@ export async function createServerApp(
     enableEditor,
     cors: false,
     rootRoute: false,
-    oauth: options?.oauth,
   });
+}
+
+export function localOAuth(origin: string, rootDir: string, cipher: SecretCipher): ServerAppOptions {
+  const cookie = 'ticlo-dev-oauth';
+  const signingKey = randomUUID();
+  const oauth: OAuthServerOptions = {
+    origin,
+    allowFlowClients: true,
+    confirmAuthorization: false,
+    store: createFileOAuthGrantStore(join(rootDir, '.oauth-grants'), cipher),
+    async authorize(c) {
+      const session = await getSignedCookie(c, signingKey, cookie);
+      if (session) return session;
+      // The OAuth handler has already validated the Editor-issued start ticket.
+      if (c.req.method !== 'GET' || !c.req.path.startsWith('/oauth/start/')) return undefined;
+      const nextSession = randomUUID();
+      await setSignedCookie(c, cookie, nextSession, signingKey, {path: '/oauth', httpOnly: true, sameSite: 'Lax'});
+      return nextSession;
+    },
+  };
+  return {
+    oauth,
+    setup(app: Hono) {
+      const localhost = new URL(origin);
+      localhost.hostname = 'localhost';
+      const runtimeOrigins = new Set([origin, localhost.origin]);
+      const allowedOrigins = new Set([...runtimeOrigins, devFrontendOrigin, `http://127.0.0.1:${devFrontendPort}`]);
+      const checkOrigin: MiddlewareHandler = async (c, next) => {
+        const requestOrigin = c.req.header('Origin');
+        // The WebSocket adapter constructs c.req.url with its own base URL.
+        const target =
+          c.req.header('Upgrade')?.toLowerCase() === 'websocket'
+            ? `${localhost.protocol}//${c.req.header('Host')}`
+            : new URL(c.req.url).origin;
+        if (!runtimeOrigins.has(target) || (requestOrigin && !allowedOrigins.has(requestOrigin))) {
+          return c.text('Untrusted Ticlo origin', 403);
+        }
+        return next();
+      };
+      app.use('/ticlo/*', checkOrigin);
+      app.use('/file/*', checkOrigin);
+      app.use('/oauth/*', checkOrigin);
+    },
+  };
 }
 
 async function start() {
@@ -73,8 +124,12 @@ async function start() {
   const enableFrontend = !process.argv.slice(2).includes('--no-frontend');
   const rootDir = fileURLToPath(new URL('./files/', import.meta.url));
   await mkdir(rootDir, {recursive: true});
-  setSecretCipher(await SecretCipher.fromFile(join(rootDir, '.ticlo-secret.key')));
-  const {app, ticloWs} = await createServerApp(rootDir, undefined, Root.instance, undefined, {enableFrontend});
+  const cipher = await SecretCipher.fromFile(join(rootDir, '.ticlo-secret.key'));
+  setSecretCipher(cipher);
+  const {app, ticloWs} = await createServerApp(rootDir, undefined, Root.instance, undefined, {
+    ...localOAuth(origin, rootDir, cipher),
+    enableFrontend,
+  });
   await Root.instance.setStorage(
     new NodeStorage(join(rootDir, 'serv'), {
       fileBaseUrl: `${origin}/file`,

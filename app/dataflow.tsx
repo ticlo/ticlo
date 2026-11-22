@@ -1,3 +1,4 @@
+import {registerOAuth} from '@ticlo/oauth/browser';
 import './styles.ts';
 import * as React from 'react';
 import {StrictMode} from 'react';
@@ -398,6 +399,7 @@ function DataflowWorkspace({
 }
 
 (async () => {
+  registerOAuth();
   addConsoleLogger();
   await initEditor();
 

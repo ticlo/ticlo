@@ -177,6 +177,16 @@ export class FunctionModule {
     this.add(createFunctionFactory(cls, desc, options), library, functionApi);
   }
 
+  addUniqueFactory(cls: FunctionClass, desc: FunctionDesc, library?: string, functionApi?: FunctionApi) {
+    const id = desc.id ?? (library ? `${library}:${desc.name}` : desc.name);
+    const existing = this._functions[id]?.getValue();
+    if (existing) {
+      if (existing.cls !== cls) throw new Error(`A different implementation of ${id} is already registered`);
+      return;
+    }
+    this.addFactory(cls, desc, library, functionApi);
+  }
+
   addCategory(category: FunctionDesc) {
     if (category.properties) {
       // category should not have properties

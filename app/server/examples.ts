@@ -1,4 +1,5 @@
-import {access, mkdir, realpath, symlink, writeFile} from 'node:fs/promises';
+import {access, copyFile, mkdir, realpath, symlink, writeFile} from 'node:fs/promises';
+import {constants} from 'node:fs';
 import {join, relative, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
@@ -18,14 +19,25 @@ export async function linkBrowserExamples(projectDirectory: string, source = bun
     directory === project && (await realpath(project).catch((): undefined => undefined)) === target;
 }
 
-/** Seed editable examples without replacing files from an earlier run. */
-export async function initServerExamples(serverDirectory: string) {
+async function initGoogleDriveExample(serverDirectory: string) {
   const project = join(serverDirectory, 'examples');
   if (await mkdir(project, {recursive: true})) {
     await writeFile(join(project, '.proj'), JSON.stringify({id: 'examples', name: 'Examples'}), {flag: 'wx'});
   }
+  const oauth = join(project, 'oauth');
+  const path = join(oauth, 'google-drive.ticlo');
+  await mkdir(oauth, {recursive: true});
+  try {
+    await copyFile(new URL('./examples/oauth/google-drive.ticlo', import.meta.url), path, constants.COPYFILE_EXCL);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+  }
+}
 
-  const path = join(project, 'large-table.ticlo');
+/** Seed editable examples without replacing files from an earlier run. */
+export async function initServerExamples(serverDirectory: string) {
+  await initGoogleDriveExample(serverDirectory);
+  const path = join(serverDirectory, 'examples/large-table.ticlo');
   try {
     await access(path);
     return;

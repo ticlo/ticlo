@@ -220,6 +220,9 @@ importers:
       '@ticlo/node':
         specifier: workspace:*
         version: link:packages/node
+      '@ticlo/oauth':
+        specifier: workspace:*
+        version: link:connectors/oauth
       '@ticlo/postgres':
         specifier: workspace:*
         version: link:connectors/postgres
@@ -418,6 +421,9 @@ importers:
       '@ticlo/node':
         specifier: workspace:*
         version: link:../packages/node
+      '@ticlo/oauth':
+        specifier: workspace:*
+        version: link:../connectors/oauth
       '@ticlo/react':
         specifier: workspace:*
         version: link:../packages/react
@@ -490,6 +496,15 @@ importers:
       '@ticlo/node':
         specifier: workspace:^
         version: link:../../packages/node
+
+  connectors/oauth:
+    dependencies:
+      '@ticlo/core':
+        specifier: workspace:^
+        version: link:../../packages/core
+      hono:
+        specifier: ^4.13.18
+        version: 4.13.18
 
   connectors/postgres:
     dependencies:

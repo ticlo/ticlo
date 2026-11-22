@@ -1,4 +1,5 @@
-import {isBearerToken, oauthLifetime, type OAuthPopupResult} from './OAuth.ts';
+import {isBearerToken} from '@ticlo/core/functions/http/HttpAuth.ts';
+import {oauthLifetime, type OAuthPopupResult} from './OAuth.ts';
 
 interface GoogleTokenResponse {
   access_token?: string;

@@ -12,6 +12,14 @@ server-only dependencies. Run `pnpm install` after adding a connector to update
 the workspace lockfile. Applications import the connector entry point to register
 its functions; workspace membership does not load it automatically.
 
+If a function has separate implementations, give each implementation an explicit
+package entry point. For example, `@ticlo/oauth/browser` and `@ticlo/oauth/node`
+export `registerOAuth()` and both register `auth:oauth`. The host selects one
+implementation before loading Flows. Each implementation supplies its own
+descriptor. `FunctionModule.addUniqueFactory()` accepts repeat registration of
+the same implementation and reports a conflict for another implementation of
+the same ID.
+
 Connector sources participate in root TypeScript, formatting, and lint checks.
 `pnpm build-package` builds connectors after the currently built core packages,
 placing output in `build/<name>/`. `pnpm build-css` compiles a connector's

@@ -15,7 +15,8 @@ For static-only hosting, see [static storage](static-storage.md).
 The browser project at `app/server/files/proj/examples` links to the bundled
 examples. Edits to that project on port 8010 update the bundled files. The Node.js
 runtime keeps its own `app/server/files/serv/examples` project, which includes
-the 100,000-row `+examples.large-table` Flow.
+the 100,000-row `+examples.large-table` Flow and the
+[Google Drive OAuth example](oauth.md#nodejs-google-drive-example).
 
 When embedding the HTTP host, create its app before attaching storage so
 `^web-server` exists when global data and flows load:

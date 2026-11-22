@@ -14,6 +14,7 @@ import './block/view/NoteView.tsx';
 import './block/view/SliderWidget.tsx';
 import './block/view/NoteWidget.tsx';
 import './block/view/ButtonWidget.tsx';
+import './block/view/WebAuthorizationWidget.tsx';
 
 export async function initEditor() {
   const lng = window.localStorage.getItem('ticlo-lng');

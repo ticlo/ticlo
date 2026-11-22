@@ -1,4 +1,4 @@
-import {finishBrowserOAuth} from '@ticlo/core/functions/auth/OAuthBrowserCallback.ts';
+import {finishBrowserOAuth} from '@ticlo/oauth/browser-callback';
 
 const url = new URL(location.href);
 history.replaceState(null, '', url.pathname);

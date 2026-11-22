@@ -1,4 +1,5 @@
-import {beginOAuth, exchangeOAuth, OAuthRequired, type OAuthClient, type OAuthGrant} from './OAuth.ts';
+import {HttpAuthRequired} from '@ticlo/core/functions/http/HttpAuth.ts';
+import {beginOAuth, exchangeOAuth, type OAuthClient, type OAuthGrant} from './OAuth.ts';
 import {oauthChannelName} from './OAuthBrowserCallback.ts';
 
 // Starting a new transaction also invalidates an earlier code exchange that is still in flight.
@@ -23,7 +24,7 @@ export function browserOAuthLink(
     const id = generation;
     const current = () => id === generation && valid();
     const transaction = await beginOAuth(client);
-    if (!current()) throw new OAuthRequired();
+    if (!current()) throw new HttpAuthRequired();
     channel = new BroadcastChannel(oauthChannelName(transaction.state));
     const expire = () => {
       close();

@@ -1,3 +1,4 @@
+import {registerOAuth} from '@ticlo/oauth/browser';
 import './styles.ts';
 import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext} from 'react';
@@ -498,6 +499,7 @@ function DesignerWorkspace({
 }
 
 (async () => {
+  registerOAuth();
   addConsoleLogger();
   await initEditor();
 

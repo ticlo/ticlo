@@ -5,25 +5,34 @@ import {join} from 'node:path';
 import {randomBytes} from 'node:crypto';
 import {expect, it} from 'vitest';
 import {serve} from '@hono/node-server';
-import type {Hono} from 'hono';
-import {Root, type OAuthGrant} from '@ticlo/core';
+import {Hono} from 'hono';
+import {BaseFunction, Root, globalFunctions} from '@ticlo/core';
+import {createFileOAuthGrantStore, registerOAuth, routeOAuth, type OAuthGrant} from '@ticlo/oauth/node';
 import type {HttpClient} from '@ticlo/core/functions/http/HttpClient.ts';
 import {SecretCipher} from '@ticlo/node';
 import {WsClientConnection} from '@ticlo/node/connect/WsClientConnection.ts';
 import {createTicloApp} from '../server.ts';
-import {createFileOAuthGrantStore} from '../OAuthGrantStore.ts';
 import {startOAuthProvider} from './OAuthProvider.ts';
 
 const session = (id = 'alice') => ({'X-Test-Session': id});
 
 it('authorizes a deployment connection over the editor transport and refreshes it after disconnect', async () => {
+  expect(globalFunctions.getDesc('auth:oauth')).toBeNull();
+  registerOAuth();
+  const desc = globalFunctions.getDesc('auth:oauth');
+  registerOAuth();
+  expect(globalFunctions.getDesc('auth:oauth')).toBe(desc);
+  expect(() => globalFunctions.addUniqueFactory(BaseFunction, {name: 'oauth'}, 'auth')).toThrow(
+    'A different implementation of auth:oauth is already registered'
+  );
+  expect(desc.properties).not.toContainEqual(expect.objectContaining({name: 'appOrigin'}));
   const provider = await startOAuthProvider();
   const root = new Root();
   const directory = await mkdtemp(join(tmpdir(), 'ticlo-oauth-'));
   const cipher = new SecretCipher(randomBytes(32));
   const disk = createFileOAuthGrantStore(directory, cipher);
   let grantKey: string;
-  let app: Hono;
+  const app = new Hono();
   let connection: WsClientConnection;
   const server = serve({fetch: (request) => app.fetch(request), hostname: '127.0.0.1', port: 0});
   try {
@@ -41,31 +50,27 @@ it('authorizes a deployment connection over the editor transport and refreshes i
       scope: 'read',
     };
     let usedHandle: object;
-    const host = await createTicloApp({
-      root,
-      enableEditor: true,
-      oauth: {
-        origin,
-        connections: {team: registration},
-        store: {
-          get: disk.get,
-          async set(key, grant) {
-            grantKey = key;
-            await disk.set(key, grant);
-          },
-        },
-        authorize: (c) =>
-          ['alice', 'bob'].includes(c.req.header('X-Test-Session')) ? c.req.header('X-Test-Session') : undefined,
-        userGrant: async (c): Promise<OAuthGrant | undefined> => {
-          usedHandle = c.get('ticloAuthContext');
-          const user = c.req.header('X-Test-Session');
-          return provider.access.has(user)
-            ? {accessToken: user, scope: 'read', expiresAt: Date.now() + 60000}
-            : undefined;
+    routeOAuth(app, root, {
+      origin,
+      connections: {team: registration},
+      store: {
+        get: disk.get,
+        async set(key, grant) {
+          grantKey = key;
+          await disk.set(key, grant);
         },
       },
+      authorize: (c) =>
+        ['alice', 'bob'].includes(c.req.header('X-Test-Session')) ? c.req.header('X-Test-Session') : undefined,
+      userGrant: async (c): Promise<OAuthGrant | undefined> => {
+        usedHandle = c.get('ticloAuthContext');
+        const user = c.req.header('X-Test-Session');
+        return provider.access.has(user)
+          ? {accessToken: user, scope: 'read', expiresAt: Date.now() + 60000}
+          : undefined;
+      },
     });
-    app = host.app;
+    const host = await createTicloApp({app, root, enableEditor: true});
     host.ticloWs.injectWebSocket(server);
     const flow = root.addFlow('oauth', {
       auth: {'#is': 'auth:oauth', 'source': 'connection', 'connection': 'team', 'scope': 'read'},
@@ -92,7 +97,11 @@ it('authorizes a deployment connection over the editor transport and refreshes i
       'authorization-required'
     );
     connection = new WsClientConnection(origin.replace('http:', 'ws:') + '/ticlo', false);
-    const {result} = await connection.executeCommand('oauth.auth', 'connectOAuth');
+    const {result} = await connection.executeCommand('oauth.auth', 'startAuthorization');
+    await expect(
+      connection.executeCommand('oauth.auth', 'completeAuthorization', {status: 'authorized'})
+    ).rejects.toMatchObject({message: 'Authorization completion is server-only'});
+    expect(flow.queryValue('auth.status')).toBe('authorization-link-ready');
     expect((await app.request(result.url)).status).toBe(403);
     expect((await app.request(result.url, {headers: session()})).status).toBe(200);
     const start = await app.request(result.url, {method: 'POST', headers: {...session(), Origin: origin}});

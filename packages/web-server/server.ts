@@ -6,7 +6,6 @@ import {WsServerConnection, RestServerConnection} from '@ticlo/node';
 import {decodeReviver} from '@ticlo/core/util/Serialize.ts';
 import {requestHandlerSymbol, ServerFunction} from './ServerFunction.ts';
 import {HonoRequestData, HonoResponse} from './HttpRequest.ts';
-import {routeOAuth, type OAuthServerOptions} from './OAuthRoutes.ts';
 
 type HonoApp = Hono<any>;
 
@@ -20,7 +19,6 @@ export interface TicloAppOptions {
   connectionOptions?: ServerConnectionOptions;
   cors?: boolean;
   rootRoute?: boolean;
-  oauth?: OAuthServerOptions;
 }
 
 export interface TicloApp {
@@ -176,7 +174,6 @@ export async function createTicloApp(options: TicloAppOptions = {}): Promise<Tic
   }
 
   const apiPath = options.apiPath ?? '/api';
-  if (options.oauth) routeOAuth(app, root, options.oauth, apiPath);
   await routeTiclo(app, apiPath, options.serverBlockName, root);
   const ticloWs = options.enableEditor
     ? await connectTiclo(app, options.editorPath ?? '/ticlo', root, options.connectionOptions)

@@ -3,7 +3,7 @@ import {BaseFunction} from '../../block/BlockFunction.ts';
 import {globalFunctions} from '../../block/FunctionModule.ts';
 import {isDataMap} from '../../util/DataTypes.ts';
 import {escapedObject} from '../../util/NoSerialize.ts';
-import {isBearerToken, oauthProfiles, OAuthRequired, oauthUrl} from '../auth/OAuth.ts';
+import {isBearerToken, httpAuthProfiles, HttpAuthRequired, authUrl} from './HttpAuth.ts';
 
 export interface HttpClientRequest extends AxiosRequestConfig {
   authContext?: unknown;
@@ -69,13 +69,13 @@ class HttpClientObject implements HttpClient {
   }
 
   async request(config: HttpClientRequest) {
-    const base = this.auth ? oauthUrl(this.baseUrl) : new URL(this.baseUrl);
+    const base = this.auth ? authUrl(this.baseUrl) : new URL(this.baseUrl);
     const target = new URL(config.url.replace(/^\/+/, ''), base);
     const prefix = base.pathname.endsWith('/') ? base.pathname : `${base.pathname}/`;
     if (target.origin !== base.origin || (target.pathname !== base.pathname && !target.pathname.startsWith(prefix))) {
       throw new Error('HTTP destination is outside the configured API');
     }
-    if (this.auth) return this.requestWithOAuth(oauthUrl(target.href), config);
+    if (this.auth) return this.requestWithOAuth(authUrl(target.href), config);
     // Existing clients can also pin a URL prefix that includes credentials or a query.
     if (!target.href.startsWith(this.baseUrl)) throw new Error('HTTP destination is outside the configured API');
     let headers = config.headers;
@@ -87,9 +87,9 @@ class HttpClientObject implements HttpClient {
   }
 
   private async requestWithOAuth(target: URL, config: HttpClientRequest) {
-    const profile = oauthProfiles.get(this.auth.value as object);
+    const profile = httpAuthProfiles.get(this.auth.value as object);
     if (!profile) {
-      if (this.auth.value == null) throw new OAuthRequired();
+      if (this.auth.value == null) throw new HttpAuthRequired();
       throw new Error('Unsupported HTTP auth profile');
     }
     if (target.origin !== profile.origin) throw new Error('HTTP OAuth destination is outside the configured API');

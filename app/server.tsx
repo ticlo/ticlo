@@ -1,3 +1,4 @@
+import {registerOAuth} from '@ticlo/oauth/browser';
 import './styles.ts';
 import {Block, FunctionDesc, Root} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -26,6 +27,7 @@ window.addEventListener('beforeunload', () => {
 });
 
 (async () => {
+  registerOAuth();
   await Root.instance.setStorage(new StaticStorage(new URL('./storage', location.href).href));
   await Root.instance.start({[BROWSER_LOCAL_LIBRARY]: {flows: ['**']}});
 

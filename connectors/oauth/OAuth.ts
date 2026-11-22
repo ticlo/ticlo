@@ -1,4 +1,4 @@
-import type {Root} from '../../block/Flow.ts';
+import {HttpAuthRequired, isBearerToken, authUrl} from '@ticlo/core/functions/http/HttpAuth.ts';
 
 export interface OAuthClient {
   authorizationUrl: string;
@@ -17,48 +17,22 @@ export interface OAuthGrant {
   scope: string;
 }
 
-export class OAuthRequired extends Error {
-  constructor() {
-    super('OAuth authorization required');
-    this.name = 'authorization-required';
+export type OAuthPopupResult = OAuthGrant | 'authorization-denied' | 'authorization-cancelled' | 'authorization-failed';
+
+export class OAuthTokenError extends Error {}
+
+export class OAuthGrantRequired extends HttpAuthRequired {
+  constructor(message: string) {
+    super();
+    this.message = message;
   }
 }
 
-export type OAuthSource = 'connection' | 'currentUser';
-export interface OAuthHost {
-  origin(connection: string): string;
-  token(connection: string, scope: string, source: OAuthSource, context: unknown): Promise<string>;
-  connect(connection: string, scope: string, isCurrent: () => boolean): string;
-  status(connection: string, scope: string): Promise<string>;
-}
-
-export type OAuthPopupResult = OAuthGrant | 'authorization-denied' | 'authorization-cancelled' | 'authorization-failed';
-
-export const oauthHosts = new WeakMap<Root, OAuthHost>();
-export const oauthProfiles = new WeakMap<object, {origin: string; token(context: unknown): Promise<string>}>();
-
-export function isBearerToken(value: unknown): value is string {
-  return typeof value === 'string' && /^[a-zA-Z0-9._~+/-]+=*$/.test(value);
-}
-
-export function oauthUrl(value: string) {
-  const url = new URL(value);
-  if (
-    url.username ||
-    url.password ||
-    url.hash ||
-    (url.protocol !== 'https:' &&
-      !(url.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)))
-  )
-    throw new Error('Invalid OAuth URL');
-  return url;
-}
-
 export function oauthClient(client: OAuthClient): Readonly<OAuthClient> {
-  const resource = oauthUrl(client.resourceOrigin);
-  oauthUrl(client.authorizationUrl);
-  oauthUrl(client.tokenUrl);
-  oauthUrl(client.redirectUri);
+  const resource = authUrl(client.resourceOrigin);
+  authUrl(client.authorizationUrl);
+  authUrl(client.tokenUrl);
+  authUrl(client.redirectUri);
   if (!client.clientId || resource.href !== `${resource.origin}/`) throw new Error('Invalid OAuth client');
   return Object.freeze({...client, resourceOrigin: resource.origin});
 }
@@ -114,20 +88,30 @@ async function requestToken(client: OAuthClient, params: URLSearchParams, scope:
       signal: AbortSignal.timeout(15_000),
     });
   } catch {
-    throw new Error('OAuth token endpoint unavailable');
+    throw new OAuthTokenError('Ticlo could not reach the OAuth token endpoint.');
   }
   const data = await response.json().catch((): null => null);
-  if (data?.error === 'invalid_grant') throw new OAuthRequired();
+  if (data?.error === 'invalid_grant') {
+    throw new OAuthGrantRequired('The OAuth provider rejected the grant. Start a new authorization request.');
+  }
+  if (!response.ok) {
+    const reason =
+      data?.error === 'invalid_client'
+        ? 'The OAuth provider rejected the Client ID or Client Secret. Check the credentials and try again.'
+        : `The OAuth token endpoint rejected the request (HTTP ${response.status}).`;
+    throw new OAuthTokenError(reason);
+  }
   if (
-    !response.ok ||
     !isBearerToken(data?.access_token) ||
     typeof data.token_type !== 'string' ||
     data.token_type.toLowerCase() !== 'bearer' ||
     (data.expires_in !== undefined && (!Number.isFinite(data.expires_in) || data.expires_in <= 0))
   )
-    throw new Error('Invalid OAuth token response');
+    throw new OAuthTokenError('The OAuth token endpoint returned an invalid response.');
   const granted = typeof data.scope === 'string' ? data.scope : scope;
-  if (!includesScopes(granted, scope)) throw new OAuthRequired();
+  if (!includesScopes(granted, scope)) {
+    throw new OAuthGrantRequired('The OAuth provider did not grant all requested permissions.');
+  }
   return {
     accessToken: data.access_token,
     refreshToken: typeof data.refresh_token === 'string' ? data.refresh_token : undefined,
@@ -150,7 +134,7 @@ export function exchangeOAuth(client: OAuthClient, code: string, verifier: strin
 }
 
 export async function refreshOAuth(client: OAuthClient, grant: OAuthGrant) {
-  if (!grant.refreshToken) throw new OAuthRequired();
+  if (!grant.refreshToken) throw new HttpAuthRequired();
   const next = await requestToken(
     client,
     new URLSearchParams({

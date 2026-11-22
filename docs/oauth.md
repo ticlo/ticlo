@@ -11,9 +11,13 @@ URL must match both the client's base URL origin and path boundary and the
 OAuth registration's resource origin. OAuth requests reject redirects and
 caller-supplied Authorization headers.
 
+Each runtime registers OAuth explicitly before loading Flows. Use
+`registerOAuth()` from `@ticlo/oauth/browser` or `@ticlo/oauth/node`.
+Both entries provide `auth:oauth` with properties appropriate to their runtime.
+
 ## Browser runtime
 
-Select **browser** as the source. The default **generic** provider uses
+The default **generic** provider uses
 Authorization Code with PKCE. Set `clientId`, `authorizationUrl`,
 `tokenUrl`, `resourceOrigin` and `scope`. Register a public client. Its redirect
 URI is `oauth-callback.html` next to the runtime page, with the `provider` query
@@ -43,22 +47,51 @@ grants expire in memory and require another click to authorize again.
 The **examples → oauth → google-drive** flow shows these bindings. Switch to
 **Preview**, then click **Connect Google Drive**.
 
-## Deployment connection
+## Node.js runtime
 
-Configure `oauth` in `createTicloApp` or `createServerApp` with the public host
-origin, named OAuth registrations, a grant store and an `authorize` callback.
-Register `/oauth/callback/<connection>` at that origin with the provider.
-`authorize` checks the operator's permission to manage that connection and
-returns the authenticated session ID. Use
-`createFileOAuthGrantStore(directory, cipher)` for an encrypted store in a
-directory outside the host's flow and file-server scopes. Keep the cipher key
-across host restarts.
+The development server provides the OAuth callback routes by default. To embed
+the connector in your own HTTP host, use `registerOAuth` and `routeOAuth` from
+`@ticlo/oauth/node`. The Hono integration provides the callback routes and the
+Flow can define the provider and credentials when the Block is loaded or edited.
+Use `createFileOAuthGrantStore(directory, cipher)` for an encrypted
+store outside all flow and file-server scopes. Keep the cipher key across
+restarts. The host's `authorize` callback checks the operator's permission and
+returns the authenticated session ID for the confirmation and callback.
 
-On the service-side Block, select **connection** and set the connection name
-and required scopes. The host calls the Block's `connectOAuth` command to
-obtain an authorization URL. Its `oauthStatus` command reads whether the
-host has a usable grant. Deployed flows use the saved connection independently
-of the operator's browser.
+The default **server** source takes `connection`, `clientId`,
+`authorizationUrl`, `tokenUrl`, `resourceOrigin` and `scope` from the Block.
+Set `allowFlowClients: true` on a host that trusts its Flow authors. Enter the
+Client Secret in the Block's write-only [`#secret` field](runtime-lifecycle.md#block-secrets).
+Enable `requireClientSecret` if the provider requires a secret. Register
+`/oauth/callback/<connection>` at the host's public origin with the provider.
+
+Use **connection** as the source to select a deployment registration from the
+host's `connections` option by name. Add the [web authorization widget](block-widgets.md#web-authorization)
+to call `startAuthorization` and open the authorization popup. Triggering `#call`
+also publishes a short-lived `authorizationLink`. The host receives the
+provider's callback, saves the grant, and dispatches the internal
+`completeAuthorization` command to the originating Block. The Block emits
+`authorized` on success.
+An existing usable grant also emits `authorized` when the Block loads.
+
+### Node.js Google Drive example
+
+1. In Google Auth Platform, add `http://127.0.0.1:8010/oauth/callback/google-drive`
+   to the authorized redirect URIs for the Web application Client ID
+   `218591242507-jg4hjrjdp9mi1vkmgeu3hvrfkvam9dii.apps.googleusercontent.com`.
+   Enable the Drive API and add your account as a test user if the app is in
+   Testing. See [Google's web server OAuth setup](https://developers.google.com/identity/protocols/oauth2/web-server).
+2. Run `pnpm dev` and open **Examples → oauth → google-drive** in the local Editor.
+3. Select `googleDriveAuth`. Paste the matching Google Client Secret into
+   `#secret` in the Properties panel, press Enter, and save the Flow.
+4. Click **Connect Google Drive** and complete authorization in the Google popup.
+   After consent, `getDriveUser.#output` displays the Drive account's name and email.
+
+The development host binds to loopback and stores encrypted grants under
+`app/server/files/.oauth-grants`. It creates a browser session when the
+authorization popup opens, redirects to the provider, and checks that session
+on callback. Embedded hosts can set `confirmAuthorization: false` to redirect
+directly after validating the start ticket and the operator session.
 
 ## Signed-in user
 

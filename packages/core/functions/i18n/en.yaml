@@ -83,3 +83,5 @@
     '@name': 'XYW'
   '@b-widget':
     '@name': 'Widget'
+    '@options':
+      'web-authorization': 'Web Authorization'

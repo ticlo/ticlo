@@ -31,6 +31,7 @@
     "@ticlo/mqtt": "workspace:*",
     "@ticlo/mysql": "workspace:*",
     "@ticlo/node": "workspace:*",
+    "@ticlo/oauth": "workspace:*",
     "@ticlo/react": "workspace:*",
     "@ticlo/remote-storage": "workspace:*",
     "@ticlo/sqlite": "workspace:*",

@@ -4,9 +4,11 @@ import {expect, it} from 'vitest';
 import {chromium, type Page} from 'playwright';
 import {createServer} from 'vite';
 import {serve} from '@hono/node-server';
-import type {Hono} from 'hono';
+import {Hono} from 'hono';
 import {getCookie} from 'hono/cookie';
-import {Root, type Block, type DataMap, type OAuthGrant} from '@ticlo/core';
+import {Root, setSecretCipher, type DataMap} from '@ticlo/core';
+import {SecretCipher} from '@ticlo/node';
+import {registerOAuth, routeOAuth, type OAuthGrant} from '@ticlo/oauth/node';
 import type {HttpClient} from '@ticlo/core/functions/http/HttpClient.ts';
 import {createTicloApp} from '../server.ts';
 import {startOAuthProvider} from './OAuthProvider.ts';
@@ -44,6 +46,8 @@ function createBrowserHost() {
           <output id="status"></output><output id="result"></output>
           <script type="module">
           import {Event, Root} from '${moduleUrl('../../core/index.ts')}';
+          import {registerOAuth} from '@ticlo/oauth/browser';
+          registerOAuth();
           window.mountOAuthTest = ({data, authPath, fetchPath}) => {
             const root = new Root();
             const flow = root.addFlow('oauth', data);
@@ -147,10 +151,15 @@ it('authorizes a browser flow with PKCE and fetches across origins', async () =>
   }
 }, 60000);
 
-it('submits the server confirmation form and saves the grant in Chromium', async () => {
+it('starts Node OAuth from a Block widget and resumes the Flow after confirmation', async () => {
   const provider = await startOAuthProvider();
   const root = new Root();
-  let app: Hono;
+  const app = new Hono();
+  const vite = await createServer({
+    cacheDir: '../node_modules/.vite-oauth-editor-test',
+    optimizeDeps,
+    server: {host: '127.0.0.1', port: 0, watch: null},
+  });
   let browser: Awaited<ReturnType<typeof chromium.launch>>;
   const server = serve({fetch: (request) => app.fetch(request), hostname: '127.0.0.1', port: 0});
   try {
@@ -160,56 +169,104 @@ it('submits the server confirmation form and saves the grant in Chromium', async
     const origin = `http://127.0.0.1:${address.port}`;
     provider.clients.set('node-client', {redirectUri: `${origin}/oauth/callback/team`, secret: 'test-secret'});
     const grants = new Map<string, OAuthGrant>();
-    ({app} = await createTicloApp({
-      root,
-      oauth: {
-        origin,
-        connections: {
-          team: {
-            clientId: 'node-client',
-            clientSecret: 'test-secret',
-            scope: 'read',
-            resourceOrigin: provider.origin,
-            authorizationUrl: `${provider.origin}/authorize`,
-            tokenUrl: `${provider.origin}/token`,
-          },
+    setSecretCipher(new SecretCipher(new Uint8Array(32)));
+    registerOAuth();
+    routeOAuth(app, root, {
+      origin,
+      allowFlowClients: true,
+      confirmAuthorization: false,
+      authorize: (c) => getCookie(c, 'test-session'),
+      store: {
+        async get(key) {
+          return grants.get(key);
         },
-        authorize: (c) => getCookie(c, 'test-session'),
-        store: {
-          async get(key) {
-            return grants.get(key);
-          },
-          async set(key, grant) {
-            grants.set(key, grant);
-          },
+        async set(key, grant) {
+          grants.set(key, grant);
         },
       },
-    }));
+    });
+    const host = await createTicloApp({app, root, enableEditor: true});
+    host.ticloWs.injectWebSocket(server);
     const flow = root.addFlow('oauth', {
-      auth: {'#is': 'auth:oauth', 'source': 'connection', 'connection': 'team'},
+      auth: {
+        '#is': 'auth:oauth',
+        'connection': 'team',
+        'clientId': 'node-client',
+        'requireClientSecret': true,
+        'scope': 'read',
+        'resourceOrigin': provider.origin,
+        'authorizationUrl': `${provider.origin}/authorize`,
+        'tokenUrl': `${provider.origin}/token`,
+        '@b-xyw': [48, 104, 258],
+        '@b-widget': 'web-authorization',
+      },
+      fetch: {
+        '#is': 'http:fetch',
+        '#mode': 'onCall',
+        '~#call': '##.auth.authorized',
+        '~client': '##.client.#output',
+        'url': '/resource',
+      },
       client: {'#is': 'http:client', 'url': provider.origin, '~auth': '##.auth.#output'},
     });
     root.runAll();
-    const {url} = (await (flow.getValue('auth') as Block).executeCommand('connectOAuth', {})) as {url: string};
+    await vite.listen();
+    const editorAddress = vite.httpServer.address();
+    if (typeof editorAddress !== 'object' || !editorAddress) throw new Error('Missing Editor address');
+    const editorUrl = new URL('/editor.html', `http://127.0.0.1:${editorAddress.port}`);
+    editorUrl.searchParams.set('host', `${origin}/ticlo`);
+    editorUrl.searchParams.set('flow', 'oauth');
     browser = await chromium.launch();
     const context = await browser.newContext();
     await context.addCookies([{name: 'test-session', value: 'operator', url: origin, sameSite: 'Lax'}]);
-    const page = await context.newPage();
-    await page.goto(url);
-    await page.getByRole('button', {name: 'Continue to the OAuth provider'}).click();
-    await page.getByRole('button', {name: 'Allow'}).click();
+    const editor = await context.newPage();
+    await editor.goto(editorUrl.href);
+    await editor
+      .locator('.ticl-e-block-head-label')
+      .filter({hasText: /^auth$/})
+      .click();
+    const secret = editor.locator('.ticl-e-property-list input[type="password"]');
+    const authorize = async () => {
+      const [page] = await Promise.all([
+        context.waitForEvent('page', {timeout: 10000}),
+        editor.locator('.ticl-e-button-view button').click({timeout: 10000}),
+      ]);
+      await page.getByRole('button', {name: 'Allow'}).click();
+      return page;
+    };
+    await secret.fill('wrong-secret');
+    await secret.press('Enter');
+    await expect.poll(() => flow.queryValue('auth.status')).toBe('authorization-required');
+    const rejected = await authorize();
+    await rejected.getByText('The OAuth provider rejected the Client ID or Client Secret.', {exact: false}).waitFor();
+    await rejected.close();
+    expect(flow.queryValue('auth.status')).toBe('authorization-failed');
+
+    await secret.fill('test-secret');
+    await secret.press('Enter');
+    await expect.poll(() => flow.queryValue('auth.status')).toBe('authorization-required');
+    expect(flow.queryValue('auth.#secret')).toBeUndefined();
+    expect(flow.save().auth).toHaveProperty('#secret', expect.any(Uint8Array));
+    console.log(await editor.locator('.ticl-e-button-view button').evaluate((button) => button.outerHTML));
+    const page = await authorize();
     await page.getByText('Authorization saved.', {exact: false}).waitFor();
     const client = flow.queryValue('client.#output') as HttpClient;
     expect((await client.request({url: '/resource'})).data).toEqual({user: 'node-client'});
+    expect(flow.queryValue('auth.status')).toBe('authorized');
+    expect(flow.queryValue('auth.authorizationLink')).toBeUndefined();
+    await expect.poll(() => flow.queryValue('fetch.#output')).toEqual({user: 'node-client'});
+    expect(JSON.stringify(flow.save())).not.toContain('test-secret');
   } finally {
     await browser?.close();
     root.destroy();
+    setSecretCipher(undefined);
     await Promise.all([
+      vite.close(),
       provider.close(),
       new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve()))),
     ]);
   }
-}, 30000);
+}, 60000);
 
 it('authorizes and calls Google Drive when the Designer example button is clicked', async () => {
   const vite = await createServer({

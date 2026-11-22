@@ -13,6 +13,10 @@
 'Block': 数据块
 'Misc': 其他 # translated from: Misc
 'Open': 打开 # translated from: Open
+'Authorize': 授权 # translated from: Authorize
+'Authorization popup blocked': 授权弹窗已被拦截 # translated from: Authorization popup -8EnVjZ0B
+'Authorization URL missing': 缺少授权地址 # translated from: Authorization URL missing
+'Invalid authorization URL': 授权地址无效 # translated from: Invalid authorization URL
 'File': 文件 # translated from: File
 'Library': 库 # translated from: Library
 'Libraries': 库 # translated from: Libraries
