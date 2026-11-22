@@ -80,6 +80,8 @@ function truncateObj(val: any, maxSize: number): [any, number, boolean] {
       return [preview, messageSize + nameSize + codeSize + 12, truncated];
     }
     const encoded = encodeRaw(val);
+    if (encoded?.constructor === Object) return truncateMap(encoded as DataMap, maxSize);
+    if (Array.isArray(encoded)) return truncateArray(encoded, maxSize);
     if (typeof encoded === 'string' && encoded.length <= maxSize) {
       // Keep preview values usable without decoding the whole transport frame.
       return [decodeReviver('', encoded), encoded.length, false];

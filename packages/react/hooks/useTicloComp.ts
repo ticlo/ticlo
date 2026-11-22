@@ -54,9 +54,39 @@ export function getChildren(block: Block, order?: unknown, content?: unknown): (
   return result;
 }
 
+const eventFields = [
+  'timeStamp',
+  'defaultPrevented',
+  'clientX',
+  'clientY',
+  'button',
+  'buttons',
+  'pointerId',
+  'pointerType',
+  'key',
+  'code',
+  'repeat',
+  'altKey',
+  'ctrlKey',
+  'metaKey',
+  'shiftKey',
+  'deltaX',
+  'deltaY',
+  'deltaMode',
+] as const;
+
 class ReactEvent extends Event<SyntheticEvent> {
   constructor(event: SyntheticEvent) {
     super(event.type || 'react', event);
+  }
+
+  toArrow() {
+    const data: Record<string, string | number | boolean> = {};
+    for (const key of eventFields) {
+      const value: unknown = Reflect.get(this.data, key);
+      if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') data[key] = value;
+    }
+    return {type: this.type, data};
   }
 }
 

@@ -11,7 +11,7 @@ it('allows cross-origin runtime reads and flow route responses from the default 
   const root = new Root();
   try {
     const {app} = await createTicloApp({root, enableEditor: true});
-    const origin = 'http://localhost:3003';
+    const origin = 'http://localhost:5476';
     const preflight = await app.request('/ticlo', {
       method: 'OPTIONS',
       headers: {

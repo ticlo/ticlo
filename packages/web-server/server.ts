@@ -6,6 +6,7 @@ import {WsServerConnection, RestServerConnection} from '@ticlo/node';
 import {decodeReviver} from '@ticlo/core/util/Serialize.ts';
 import {requestHandlerSymbol, ServerFunction} from './ServerFunction.ts';
 import {HonoRequestData, HonoResponse} from './HttpRequest.ts';
+import {routeOAuth, type OAuthServerOptions} from './OAuthRoutes.ts';
 
 type HonoApp = Hono<any>;
 
@@ -19,6 +20,7 @@ export interface TicloAppOptions {
   connectionOptions?: ServerConnectionOptions;
   cors?: boolean;
   rootRoute?: boolean;
+  oauth?: OAuthServerOptions;
 }
 
 export interface TicloApp {
@@ -116,7 +118,10 @@ export async function routeTiclo(
     const requestHandler = service?.[requestHandlerSymbol];
     if (!requestHandler) return c.body(null, 404);
     const res = new HonoResponse();
-    Promise.resolve(requestHandler(basePath, getRequestData(c), res)).catch(() => res.code(400).send());
+    const request = getRequestData(c);
+    const authContext = c.get('ticloAuthContext');
+    if (authContext) request.authContext = authContext;
+    Promise.resolve(requestHandler(basePath, request, res)).catch(() => res.code(400).send());
     return res.response;
   });
 }
@@ -170,7 +175,9 @@ export async function createTicloApp(options: TicloAppOptions = {}): Promise<Tic
     app.use('*', (c, next) => (c.req.header('upgrade') === 'websocket' ? next() : corsMiddleware(c, next)));
   }
 
-  await routeTiclo(app, options.apiPath ?? '/api', options.serverBlockName, root);
+  const apiPath = options.apiPath ?? '/api';
+  if (options.oauth) routeOAuth(app, root, options.oauth, apiPath);
+  await routeTiclo(app, apiPath, options.serverBlockName, root);
   const ticloWs = options.enableEditor
     ? await connectTiclo(app, options.editorPath ?? '/ticlo', root, options.connectionOptions)
     : undefined;

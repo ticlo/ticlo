@@ -69,6 +69,15 @@ export function encodeRaw(obj: object) {
   return arrow.replacer('', obj, null);
 }
 
+// Local inspectors receive live instances. Use an object-valued Arrow representation when one is provided.
+export function objectPreview(value: any): any {
+  if (value && typeof value === 'object' && value.constructor !== Object && typeof value.toArrow === 'function') {
+    const encoded = encodeRaw(value);
+    if (encoded?.constructor === Object || Array.isArray(encoded)) return encoded;
+  }
+  return value;
+}
+
 export function encode(value: any, space = 0): string {
   return arrow.stringify(value, space);
 }

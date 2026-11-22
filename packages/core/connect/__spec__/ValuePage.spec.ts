@@ -79,10 +79,19 @@ describe('value pages', () => {
 
   it('reads pages in readonly mode and only selects own data', async () => {
     const root = new Root();
-    root.addFlow('Main', {allowed: {rows: [[1]]}, secret: [2]});
+    const flow = root.addFlow('Main', {allowed: {rows: [[1]]}, secret: [2]});
+    class RuntimeValue {
+      internal = 'runtime only';
+      toArrow() {
+        return {rows: [[3]]};
+      }
+    }
+    flow.updateValue('runtime', new RuntimeValue());
     const [, client] = makeLocalConnection(root, false, {readonly: true});
     try {
       expect((await client.getValuePage('Main.secret', {offset: 0, limit: 1})).items).toEqual([2]);
+      expect((await client.getValue('Main.runtime', {select: ['rows']})).value).toEqual([[3]]);
+      await expect(client.getValue('Main.runtime', {select: ['internal']})).rejects.toBe('invalid value selection');
       await expect(client.getValue('Main.allowed', {select: ['constructor']})).rejects.toBe('invalid value selection');
       await expect(client.getValue('Main', {select: ['_props']})).rejects.toBe('invalid value selection');
       await expect(client.getValuePage('Main.allowed', {offset: 0, limit: 1})).rejects.toBe('value is not an array');

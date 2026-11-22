@@ -74,6 +74,7 @@ export type {
 } from './functions/sql/SqlClient.ts';
 export {sqlClientCommands, sqlClientApi} from './functions/sql/SqlClientCommands.ts';
 export {resolvePasswordAuth, type AuthProfile} from './functions/auth/AuthProfile.ts';
+export type {OAuthClient, OAuthGrant} from './functions/auth/OAuth.ts';
 export {createTlsClientIdentity, type TlsClientIdentity} from './functions/auth/TlsClientIdentity.ts';
 export * from './functions/live/LiveSource.ts';
 export {SubscribeFunction} from './functions/live/SubscribeFunction.ts';
@@ -98,6 +99,7 @@ import './functions/web-server/HttpRequest.ts';
 import './functions/web-server/RouteFunction.ts';
 import './functions/web-server/StaticResponse.ts';
 import './functions/http/CreateHeaders.ts';
+import './functions/auth/OAuthFunction.ts';
 import './functions/http/HttpClient.ts';
 import './functions/http/Fetch.ts';
 import './functions/sql/Query.ts';

@@ -1,3 +1,4 @@
+import {objectPreview} from '../util/Serialize.ts';
 import {Connection, ConnectionSendingData, ConnectionSend, type ConnectionOptions} from './Connection.ts';
 import {
   BlockBindingSource,
@@ -803,6 +804,7 @@ export class ServerConnection extends ServerConnectionCore {
       if (!Array.isArray(select) || select.some((key) => typeof key !== 'string' && !Number.isSafeInteger(key)))
         return 'invalid value selection';
       for (const key of select) {
+        value = objectPreview(value);
         if (
           !value ||
           typeof value !== 'object' ||

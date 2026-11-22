@@ -104,6 +104,7 @@
     "test": "cross-env NODE_ENV=TEST vitest run",
     "test-coverage": "cross-env NODE_ENV=TEST vitest run --coverage",
     "test-browser": "cross-env NODE_ENV=TEST vitest run -c vitest.web.config.mts",
+    "test-oauth-browser": "cross-env NODE_ENV=TEST TICLO_OAUTH_BROWSER=1 vitest run packages/web-server/__spec__/OAuth.browser.e2e.ts",
     "test-browser-ui": "cross-env NODE_ENV=TEST HEADLESS=false vitest -c vitest.web.config.mts --standalone",
     "test-browser-coverage": "cross-env NODE_ENV=TEST vitest run -c vitest.web.config.mts --coverage",
     "ticlo-server": "tsx app/server/ticlo-server.ts",

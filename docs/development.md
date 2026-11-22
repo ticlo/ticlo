@@ -2,13 +2,14 @@
 
 Use the Node.js and pnpm versions in [package.json](../package.json). From the
 repository root, run `pnpm install`, then `pnpm dev` for the combined server and
-Vite apps. `pnpm server` runs the server alone. Project Git operations require
-Git on the server host.
+Vite apps. Vite serves the frontend at `http://localhost:5476`. `pnpm server` runs
+the Ticlo runtime alone. Project Git operations require Git on the server host.
 
 The server runtime stores projects under `app/server/files/serv` and serves
 runtime commands at `/ticlo`, files at `/file`, and flow-defined routes at `/api`.
-Open `editor.html?host=http://127.0.0.1:8010/` to edit its runtime. Browser projects
-use the separate `proj` scope; see [storage routing](remote-storage.md#paths-and-scopes).
+Open the [local editor](http://localhost:5476/editor.html?host=http://127.0.0.1:8010/)
+to edit its runtime. Browser projects use the separate `proj` scope described in
+[storage routing](remote-storage.md#paths-and-scopes).
 For static-only hosting, see [static storage](static-storage.md).
 
 The browser project at `app/server/files/proj/examples` links to the bundled
@@ -32,6 +33,9 @@ to make both editor transports [readonly](core.md#connection-layer). See
 and constant lifetime contract.
 
 ## Validation
+
+See [OAuth for HTTP clients](oauth.md) for OAuth host configuration and local
+provider tests.
 
 | Change | Focused check |
 | --- | --- |

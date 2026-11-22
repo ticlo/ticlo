@@ -1,4 +1,5 @@
-import React, {useContext, useEffect, useReducer, useRef, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useReducer, useRef, useState} from 'react';
+import {objectPreview} from '@ticlo/core/util/Serialize.ts';
 import {useConnectionValue} from '../component/useConnectionValue.ts';
 import {
   type ClientConn,
@@ -176,7 +177,8 @@ function InlineObjectFieldEditor(props: ValueEditorProps) {
 }
 
 export const FieldValue = React.memo(function FieldValue({conn, path}: Props) {
-  const value = useConnectionValue(conn, path);
+  const raw = useConnectionValue(conn, path);
+  const value = useMemo(() => objectPreview(raw), [raw]);
   const context = useContext(TicloLayoutContextType);
   const objectTree = useRef<{close?: () => void}>({});
 

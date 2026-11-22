@@ -5,6 +5,7 @@ export interface HonoRequestData {
   method: string;
   url: string;
   body?: any;
+  authContext?: object;
   query: {[key: string]: string};
   headers: {[key: string]: string};
   getBody(): Promise<any>;
@@ -88,6 +89,7 @@ export class HttpRequest extends BaseHttpRequest {
       body,
       query,
       headers,
+      ...(req.authContext && {authContext: req.authContext}),
       path: path.substring(basePath.length),
     });
     this.req = req;

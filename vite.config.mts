@@ -9,6 +9,7 @@ import path from 'path';
 import {buildCss, stylePackages} from './tool/package-styles.ts';
 import {buildIcons} from './tool/icon-styles.ts';
 import {copyStaticStorage, serveStaticStorage} from './tool/static-storage.ts';
+import {devFrontendPort} from './app/server/dev-frontend.ts';
 
 const execAsync = util.promisify(exec);
 let checked = false; // shared across both hooks
@@ -111,7 +112,8 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     hmr: false,
-    port: 3003,
+    port: devFrontendPort,
+    strictPort: true,
   },
   root: './app',
   build: {
@@ -122,6 +124,7 @@ export default defineConfig({
         'dataflow': fileURLToPath(new URL('./app/dataflow.html', import.meta.url)),
         'designer-app': fileURLToPath(new URL('./app/designer.html', import.meta.url)),
         'viewer': fileURLToPath(new URL('./app/viewer.html', import.meta.url)),
+        'oauth-callback': fileURLToPath(new URL('./app/oauth-callback.html', import.meta.url)),
         'stage-test': fileURLToPath(new URL('./app/stage-test.html', import.meta.url)),
         'index': fileURLToPath(new URL('./app/editor.html', import.meta.url)),
         'server': fileURLToPath(new URL('./app/server.html', import.meta.url)),

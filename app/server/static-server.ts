@@ -3,6 +3,7 @@ import Path from 'node:path';
 import {createServer} from 'node:http';
 import {fileURLToPath} from 'node:url';
 import {linkBrowserExamples} from './examples.ts';
+import {devFrontendOrigin} from './dev-frontend.ts';
 
 const dir = fileURLToPath(new URL('./files/', import.meta.url));
 
@@ -89,7 +90,7 @@ async function start() {
   });
   server.listen(8011, '127.0.0.1', () => {
     console.log('Static storage listening on http://127.0.0.1:8011');
-    console.log('Run pnpm vite-dev, then open http://localhost:3003/static-server.html');
+    console.log(`Run pnpm vite-dev, then open ${devFrontendOrigin}/static-server.html`);
   });
 }
 

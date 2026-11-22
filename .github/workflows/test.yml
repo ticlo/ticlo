@@ -51,6 +51,8 @@ jobs:
       - run: pnpm run build-antd-style
       - name: Vitest Browser
         run: pnpm run test-browser-coverage
+      - name: OAuth browser integration
+        run: pnpm run test-oauth-browser
       - name: Coveralls Vitest Browser
         if: github.event_name != 'pull_request'
         uses: coverallsapp/github-action@v2

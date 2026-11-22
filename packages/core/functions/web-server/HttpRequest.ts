@@ -10,6 +10,7 @@ export interface HttpRequestData {
   body: any;
   query: {[key: string]: any};
   headers: {[key: string]: string | string[]};
+  authContext?: object;
 }
 
 export class HttpRequest extends Task {

@@ -26,7 +26,9 @@ subscriptions refresh only when the selected renderer changes.
 `useTicloComp` supplies styles, classes, resolved children, and `optionalHandlers`.
 Attach those handlers to the component's root Element to retain optional events,
 application refs, and ElementMap registration. Both preview and design mode use
-the same component-facing contract.
+the same component-facing contract. Local event bindings can use the React event
+through `data`. The inspector and serialized values expose the event type and
+scalar fields such as `data.clientX`, `data.ctrlKey`, and `data.key`.
 
 `ComponentContext` contains design mode, the element map, and stable selection
 commands. Selection snapshots and gesture previews belong to designer panels;
