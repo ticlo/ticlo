@@ -1,7 +1,74 @@
 '@library':
-  node:
-    '@name': Node.js # no translate
+  system:
+    '@name': 系统 # translated from: System
 env:
   '@name': 环境变量 # translated from: Environment Variable
+  '@keywords': 'env,environment,variable' # no translate
   name:
     '@name': 变量名 # translated from: Variable Name
+info:
+  '@name': 系统信息 # translated from: System Info
+  '@keywords': 'system,info,platform,os' # no translate
+  platform:
+    '@name': 平台 # translated from: Platform
+  arch:
+    '@name': 架构 # translated from: Architecture
+  runtime:
+    '@name': 运行时 # translated from: Runtime
+  version:
+    '@name': 版本 # translated from: Version
+  hostname:
+    '@name': 主机名 # translated from: Hostname
+  pid:
+    '@name': PID # no translate
+  cpus:
+    '@name': CPU 核心数 # translated from: CPUs
+  totalMemory:
+    '@name': 总内存 # translated from: Total Memory
+stats:
+  '@name': 系统状态 # translated from: System Stats
+  '@keywords': 'stats,metrics,cpu,memory' # no translate
+  uptime:
+    '@name': 运行时间 # translated from: Uptime
+  memoryUsage:
+    '@name': 内存使用 # translated from: Memory Usage
+  freeMemory:
+    '@name': 可用内存 # translated from: Free Memory
+  totalMemory:
+    '@name': 总内存 # translated from: Total Memory
+  loadAvg:
+    '@name': 平均负载 # translated from: Load Average
+  cpuUsage:
+    '@name': CPU 使用 # translated from: CPU Usage
+exec:
+  '@name': 执行命令 # translated from: Execute Command
+  '@keywords': 'exec,command,spawn' # no translate
+  command:
+    '@name': 命令 # translated from: Command
+  args:
+    '@name': 参数 # translated from: Arguments
+  cwd:
+    '@name': 工作目录 # translated from: Working Directory
+  env:
+    '@name': 环境变量 # translated from: Environment
+  stdin:
+    '@name': 标准输入 # translated from: Standard Input
+  timeout:
+    '@name': 超时 # translated from: Timeout
+  stdout:
+    '@name': 标准输出 # translated from: Standard Output
+  stderr:
+    '@name': 标准错误 # translated from: Standard Error
+  exitCode:
+    '@name': 退出码 # translated from: Exit Code
+  signal:
+    '@name': 信号 # translated from: Signal
+signal:
+  '@name': 系统信号 # translated from: System Signal
+  '@keywords': 'signal,sigint,sigterm' # no translate
+  signals:
+    '@name': 监听信号 # translated from: Signals
+  signal:
+    '@name': 信号 # translated from: Signal
+  timestamp:
+    '@name': 时间戳 # translated from: Timestamp

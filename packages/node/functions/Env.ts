@@ -1,4 +1,5 @@
 import {BaseFunction, globalFunctions, NO_EMIT} from '@ticlo/core';
+import './SystemCategory.ts';
 
 class EnvFunction extends BaseFunction {
   run() {
@@ -12,13 +13,6 @@ class EnvFunction extends BaseFunction {
   }
 }
 
-globalFunctions.addCategory({
-  id: 'node',
-  name: 'node',
-  libraryId: 'node',
-  icon: '11:ENV',
-  color: '4af',
-});
 globalFunctions.addFactory(
   EnvFunction,
   {
@@ -31,5 +25,5 @@ globalFunctions.addFactory(
       {name: '#output', type: 'string', readonly: true, pinned: true},
     ],
   },
-  'node'
+  'system'
 );

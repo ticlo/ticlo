@@ -143,7 +143,7 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () =>
         '#is': 'postgres:client',
         'connectionString': url.toString(),
         '~auth': {'#is': 'auth:password'},
-        '~#secret': {'#is': 'node:env', 'name': passwordEnv},
+        '~#secret': {'#is': 'system:env', 'name': passwordEnv},
       });
       Root.run();
       const service: SqlClient = await shouldHappen(

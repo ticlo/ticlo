@@ -18,6 +18,8 @@ import enMysql from '../i18n/mysql/en.json' with {type: 'json'};
 import zhMysql from '../i18n/mysql/zh.json' with {type: 'json'};
 import enTest from '../i18n/test/en.json' with {type: 'json'};
 import zhTest from '../i18n/test/zh.json' with {type: 'json'};
+import enNode from '../i18n/node/en.json' with {type: 'json'};
+import zhNode from '../i18n/node/zh.json' with {type: 'json'};
 
 export const antdLocales: Record<string, Locale> = {
   en: enAntd as unknown as Locale,
@@ -37,6 +39,7 @@ export function initAppI18n() {
         'ticlo-postgres': enPostgres,
         'ticlo-mysql': enMysql,
         'ticlo-test': enTest,
+        'ticlo-system': enNode,
       },
       zh: {
         'ticlo-editor': zhEditor,
@@ -47,6 +50,7 @@ export function initAppI18n() {
         'ticlo-postgres': zhPostgres,
         'ticlo-mysql': zhMysql,
         'ticlo-test': zhTest,
+        'ticlo-system': zhNode,
       },
     },
   });

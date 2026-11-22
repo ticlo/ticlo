@@ -1,5 +1,5 @@
 import {serve} from '@hono/node-server';
-import {NodeStorage, SecretCipher} from '@ticlo/node';
+import {NodeStorage, registerSystemExec, SecretCipher} from '@ticlo/node';
 import '@ticlo/test';
 import '@ticlo/sqlite';
 import '@ticlo/postgres';
@@ -121,7 +121,9 @@ async function start() {
   const hostname = '127.0.0.1';
   const port = 8010;
   const origin = `http://${hostname}:${port}`;
-  const enableFrontend = !process.argv.slice(2).includes('--no-frontend');
+  const args = process.argv.slice(2);
+  const enableFrontend = !args.includes('--no-frontend');
+  if (args.includes('--allow-exec')) registerSystemExec();
   const rootDir = fileURLToPath(new URL('./files/', import.meta.url));
   await mkdir(rootDir, {recursive: true});
   const cipher = await SecretCipher.fromFile(join(rootDir, '.ticlo-secret.key'));

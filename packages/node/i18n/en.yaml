@@ -1,7 +1,74 @@
 '@library':
-  node:
-    '@name': Node.js
+  system:
+    '@name': System
 env:
   '@name': Environment Variable
+  '@keywords': 'env,environment,variable'
   name:
     '@name': Variable Name
+info:
+  '@name': System Info
+  '@keywords': 'system,info,platform,os'
+  platform:
+    '@name': Platform
+  arch:
+    '@name': Architecture
+  runtime:
+    '@name': Runtime
+  version:
+    '@name': Version
+  hostname:
+    '@name': Hostname
+  pid:
+    '@name': PID
+  cpus:
+    '@name': CPUs
+  totalMemory:
+    '@name': Total Memory
+stats:
+  '@name': System Stats
+  '@keywords': 'stats,metrics,cpu,memory'
+  uptime:
+    '@name': Uptime
+  memoryUsage:
+    '@name': Memory Usage
+  freeMemory:
+    '@name': Free Memory
+  totalMemory:
+    '@name': Total Memory
+  loadAvg:
+    '@name': Load Average
+  cpuUsage:
+    '@name': CPU Usage
+exec:
+  '@name': Execute Command
+  '@keywords': 'exec,command,spawn'
+  command:
+    '@name': Command
+  args:
+    '@name': Arguments
+  cwd:
+    '@name': Working Directory
+  env:
+    '@name': Environment
+  stdin:
+    '@name': Standard Input
+  timeout:
+    '@name': Timeout
+  stdout:
+    '@name': Standard Output
+  stderr:
+    '@name': Standard Error
+  exitCode:
+    '@name': Exit Code
+  signal:
+    '@name': Signal
+signal:
+  '@name': System Signal
+  '@keywords': 'signal,sigint,sigterm'
+  signals:
+    '@name': Signals
+  signal:
+    '@name': Signal
+  timestamp:
+    '@name': Timestamp

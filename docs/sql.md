@@ -139,7 +139,7 @@ GitHub Actions supplies both URLs through service containers.
 Choose `auth:password` in the Block's `auth` field or bind it to an existing
 password Auth Block. The database Block keeps its password in
 [`#secret`](runtime-lifecycle.md#block-secrets). An existing
-embedded [`node:env` Block](runtime-lifecycle.md#environment-variables) can supply it.
+embedded [`system:env` Block](runtime-lifecycle.md#system-functions) can supply it.
 Leave `auth` empty for connections without a password.
 
 To upgrade a saved Flow that already sets `#secret` directly or through a
