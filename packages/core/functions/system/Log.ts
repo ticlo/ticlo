@@ -52,6 +52,13 @@ class LogFunction extends BaseFunction<Block> {
     if (result !== undefined) return Promise.resolve(result);
   }
 
+  private getCallOriginPath(): string | undefined {
+    const source = this._data.getProperty('#call', false)?._bindingSource?.getProperty();
+    if (source?._name === '#emit' && source._block && source._block !== this._data) {
+      return source._block.getFullPath?.() || undefined;
+    }
+  }
+
   run() {
     const message = this._data.getValue('message') ?? '';
     const data = this._data.getValue('data');
@@ -59,7 +66,7 @@ class LogFunction extends BaseFunction<Block> {
     if (typeof message !== 'string') throw new Error('Log message must be a string');
     const level = (this._data.getValue('level') ?? 'info') as FlowLogLevel;
     if (!levels.includes(level)) throw new Error('Invalid log level');
-    return this.write(level, message, data);
+    return this.write(level, message, data, this.getCallOriginPath());
   }
 
   runOnError(event: ErrorEvent) {
@@ -71,7 +78,7 @@ class LogFunction extends BaseFunction<Block> {
     try {
       const detailMessage = event.detailMessage;
       const message = detailMessage ? `${event.type}: ${detailMessage}` : event.type;
-      const pending = this.write('error', message, event.detail, event.originPath);
+      const pending = this.write('error', message, event.detail, event.originPath ?? this.getCallOriginPath());
       if (pending) return pending.then(() => event, writeFailed);
     } catch (reason) {
       return writeFailed(reason);

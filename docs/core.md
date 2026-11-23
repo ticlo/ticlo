@@ -88,7 +88,8 @@ A provider exposes a readonly object output with the `log-provider` and
 `escapedObject('my-logger', {write})`. Its `write(record)` method returns `void` or
 `Promise<void>`. `FlowLogRecord` carries the creation time in Unix milliseconds,
 level, message, log block’s `blockPath` when available, optional data, and the
-upstream `originPath` for errors with a known source.
+upstream `originPath` when `#call` is bound to another block’s `#emit` or when
+an error carries a known source.
 `LogProvider`, `FlowLogRecord` and `consoleLogProvider` are exported by
 `@ticlo/core`.
 

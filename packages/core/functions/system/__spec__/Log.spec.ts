@@ -170,3 +170,57 @@ it('ignores a stale asynchronous error completion after a newer input-driven exe
   await new Promise((resolve) => setTimeout(resolve, 0));
   expect(log.getValue('#emit')).toBe(done);
 });
+
+it('uses the upstream #emit block path when #call is bound to another block #emit', () => {
+  const info = vi.spyOn(console, 'info').mockImplementation(() => {});
+  const step = flow.createBlock('step');
+  log.setBinding('#call', '##.step.#emit');
+
+  step.emit(undefined);
+  root.runAll();
+  expect(info.mock.calls).toEqual([['[Main.step] Payment received', {order: 12}]]);
+
+  const write = vi.fn();
+  log.updateValue('provider', {write});
+  step.emit(undefined);
+  root.runAll();
+  expect(write).toHaveBeenCalledExactlyOnceWith({
+    time: expect.any(Number),
+    blockPath: 'Main.log',
+    originPath: 'Main.step',
+    level: 'info',
+    message: 'Payment received',
+    data: {order: 12},
+  });
+
+  write.mockClear();
+  info.mockClear();
+  log.setBinding('#call', '##.step.#output');
+  step.output({});
+  root.runAll();
+  expect(write).toHaveBeenCalledExactlyOnceWith({
+    time: expect.any(Number),
+    blockPath: 'Main.log',
+    originPath: undefined,
+    level: 'info',
+    message: 'Payment received',
+    data: {order: 12},
+  });
+
+  log.setValue('provider', undefined);
+  step.output({next: true});
+  root.runAll();
+  expect(info).toHaveBeenCalledExactlyOnceWith('[Main.log] Payment received', {order: 12});
+
+  write.mockClear();
+  info.mockClear();
+  log.updateValue('provider', {write});
+  log.setBinding('#call', '##.missing.#emit');
+  call();
+  expect(write).toHaveBeenLastCalledWith(expect.objectContaining({blockPath: 'Main.log', originPath: undefined}));
+
+  log.setValue('provider', undefined);
+  log.setBinding('#call', null);
+  call();
+  expect(info).toHaveBeenLastCalledWith('[Main.log] Payment received', {order: 12});
+});
