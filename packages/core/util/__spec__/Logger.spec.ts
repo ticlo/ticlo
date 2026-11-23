@@ -1,5 +1,5 @@
-import {expect} from 'vitest';
-import {Logger} from '../Logger.ts';
+import {expect, vi} from 'vitest';
+import {addConsoleLogger, Logger} from '../Logger.ts';
 
 export class TestLogger {
   logs: string[] = [];
@@ -75,6 +75,40 @@ describe('Logger', function () {
     configLogger1.cancel();
     configLogger2.cancel();
     fatalLogger1.cancel();
+  });
+
+  it('updates console thresholds without installing duplicate sinks and releases the filter', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const message = vi.fn(() => 'details');
+    const remove = addConsoleLogger('trace');
+    try {
+      addConsoleLogger('warn');
+      Logger.warn('once');
+      Logger.info(message);
+      expect(warn.mock.calls).toEqual([['once']]);
+      expect(message).not.toHaveBeenCalled();
+    } finally {
+      remove();
+      warn.mockRestore();
+    }
+    Logger.warn(message);
+    expect(message).not.toHaveBeenCalled();
+  });
+
+  it('continues dispatch after a sink fails', () => {
+    const broken = () => {
+      throw new Error('sink failed');
+    };
+    const other = vi.fn();
+    Logger.add(broken, Logger.ERROR);
+    Logger.add(other, Logger.ERROR);
+    try {
+      Logger.error('problem');
+      expect(other).toHaveBeenCalledExactlyOnceWith('problem', Logger.ERROR, undefined);
+    } finally {
+      Logger.remove(broken);
+      Logger.remove(other);
+    }
   });
 
   it('message lambda', function () {

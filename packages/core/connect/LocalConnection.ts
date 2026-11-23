@@ -2,7 +2,6 @@ import {ServerConnection, type ServerConnectionOptions} from './ServerConnection
 import {ClientConnection} from './ClientConnection.ts';
 import {Root} from '../block/Flow.ts';
 import {DataMap} from '../util/DataTypes.ts';
-import {Logger} from '../util/Logger.ts';
 import {encode, decode} from '../util/Serialize.ts';
 
 class LocalServerConnection extends ServerConnection {
@@ -19,11 +18,7 @@ class LocalServerConnection extends ServerConnection {
 
   doSend(datas: DataMap[]): void {
     if (this.serialize) {
-      const str = encode(datas);
-      Logger.trace(() => 'server send ' + str, this);
-      datas = decode(str);
-    } else {
-      Logger.trace(() => `server send ${datas.length} messages`, this);
+      datas = decode(encode(datas));
     }
     this._client.onReceive(datas);
   }
@@ -62,11 +57,7 @@ class LocalClientConnection extends ClientConnection {
 
   doSend(datas: DataMap[]): void {
     if (this.serialize) {
-      const str = encode(datas);
-      Logger.trace(() => 'client send ' + str, this);
-      datas = decode(str);
-    } else {
-      Logger.trace(() => `client send ${datas.length} messages`, this);
+      datas = decode(encode(datas));
     }
     this._server.onReceive(datas);
   }

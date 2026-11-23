@@ -1,3 +1,4 @@
+import './browser-logging.ts';
 import {registerOAuth} from '@ticlo/oauth/browser';
 import './styles.ts';
 import {Block, FunctionDesc, Root} from '@ticlo/core';

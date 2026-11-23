@@ -120,7 +120,10 @@ export class JsFunction extends BaseFunction<Block> {
       globalFunctions.addFactory(CustomScriptFunction, desc, library);
       return true;
     } catch (err) {
-      Logger.error(`invalid script:\n${script}`);
+      Logger.error(
+        () =>
+          `Failed to compile ${desc.id ?? (library ? `${library}:${desc.name}` : desc.name)} (${err instanceof Error ? err.name : 'invalid script'})`
+      );
     }
     return false;
   }

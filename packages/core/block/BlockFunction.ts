@@ -1,6 +1,6 @@
 import {BlockConfig, BlockIO, BlockProperty} from './BlockProperty.ts';
 import {type Block} from './Block.ts';
-import {EventType} from './Event.ts';
+import {type ErrorEvent, EventType} from './Event.ts';
 import {BlockMode} from './Descriptor.ts';
 import {type FunctionData} from './FunctonData.ts';
 import type {DataMap} from '../util/DataTypes.ts';
@@ -23,6 +23,9 @@ export class BaseFunction<T extends FunctionData = FunctionData> {
   onCall(val: unknown): boolean {
     return val !== undefined;
   }
+
+  /** Opt into scheduled execution for an accepted error on #call. */
+  runOnError?(event: ErrorEvent): unknown;
 
   // return true when it needs to be put in queue
   inputChanged(input: BlockIO, val: unknown): boolean {

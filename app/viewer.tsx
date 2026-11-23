@@ -1,3 +1,4 @@
+import './browser-logging.ts';
 import {registerOAuth} from '@ticlo/oauth/browser';
 import '@ticlo/react/style/index.css';
 import '@ticlo/chart';

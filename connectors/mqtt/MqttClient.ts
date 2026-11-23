@@ -106,6 +106,7 @@ export class MqttClient implements LiveSource<MqttTarget> {
   private epoch = 0;
   private closed = false;
   private connectedOnce = false;
+  private disconnectedAt?: number;
   private status: LiveEvent = {type: 'status', status: 'connecting'};
 
   constructor({
@@ -479,7 +480,14 @@ export class MqttClient implements LiveSource<MqttTarget> {
     }
   }
 
-  private setStatus(event: LiveEvent) {
+  private setStatus(event: Extract<LiveEvent, {type: 'status'}>) {
+    if (event.status === 'connected' && this.disconnectedAt !== undefined) {
+      Logger.info(() => `MQTT broker reconnected after ${Date.now() - this.disconnectedAt} ms`);
+      this.disconnectedAt = undefined;
+    } else if ((event.status === 'disconnected' || event.status === 'error') && this.disconnectedAt === undefined) {
+      this.disconnectedAt = Date.now();
+      Logger.warn('MQTT broker unavailable');
+    }
     this.status = event;
     for (const observer of this.statusObservers) observer(event);
     this.notify(event);

@@ -11,7 +11,7 @@ describe('Serialize', function () {
       code = 'SQLITE_ERROR';
     }
     const error = new DatabaseError('bad SQL: "select"\n\bTs:literal');
-    const event = new ErrorEvent(undefined, error);
+    const event = new ErrorEvent(undefined, error, 'Main.query');
     for (const serialize of [encode, encodeSorted]) {
       const wire = serialize({event, native: new TypeError('invalid input')});
       expect(wire).not.toContain('stack');
@@ -20,6 +20,7 @@ describe('Serialize', function () {
       expect(restored.event).toBeInstanceOf(ErrorEvent);
       expect(restored.event.check()).toBe(EventType.ERROR);
       expect(restored.event.type).toBe('error');
+      expect(restored.event.originPath).toBe('Main.query');
       expect(restored.event.detail).toBeInstanceOf(Error);
       expect(restored.event.detail).toMatchObject({
         name: 'DatabaseError',

@@ -38,6 +38,7 @@ export class Connection {
   // null for new connection
   // false for not connected but scheduled
   _connected?: boolean;
+  private disconnectedAt?: number;
 
   _sending: Set<ConnectionSendingData> = new Set();
   _waitingReceive: boolean = false;
@@ -59,7 +60,12 @@ export class Connection {
   }
 
   onConnect() {
-    Logger.trace('connected', this);
+    if (this.disconnectedAt !== undefined) {
+      Logger.info(() => `${this.constructor.name} reconnected after ${Date.now() - this.disconnectedAt} ms`);
+      this.disconnectedAt = undefined;
+    } else {
+      Logger.trace('connected', this.constructor.name);
+    }
     if (this._connected === false) {
       this._connected = true;
       this._schedule();
@@ -69,7 +75,10 @@ export class Connection {
   }
 
   onDisconnect() {
-    Logger.trace('disconnected', this);
+    if (!this._destroyed && this.disconnectedAt === undefined) {
+      this.disconnectedAt = Date.now();
+      Logger.warn('Connection lost', this.constructor.name);
+    }
     this._connected = false;
     if (this._scheduled) {
       clearTimeout(this._scheduled);
@@ -112,7 +121,17 @@ export class Connection {
     this._immediateLock = 0;
   };
 
+  private traceBatch(direction: string, data: DataMap[], estimatedSize?: number) {
+    if (!Logger.isEnabled(Logger.TRACE)) return;
+    // Only the first command name is needed to identify a batch. Values can contain secrets.
+    const cmd = data[0]?.cmd;
+    const command = typeof cmd === 'string' && /^[a-zA-Z][a-zA-Z0-9]{0,39}$/.test(cmd) ? `, first ${cmd}` : '';
+    const size = estimatedSize === undefined ? '' : `, estimated size ${estimatedSize}`;
+    Logger.trace(`${direction} ${data.length} messages${command}${size}`, this.constructor.name);
+  }
+
   onReceive(data: DataMap[]) {
+    this.traceBatch('receive', data);
     this._waitingReceive = false;
     if (data.length) {
       this._mustSend = true;
@@ -167,10 +186,12 @@ export class Connection {
       }
     }
     if (sending.length) {
+      this.traceBatch('send', sending, sendingSize);
       this.doSend(sending);
       this._waitingReceive = true;
     } else if (this._mustSend) {
-      this.doSend([]);
+      this.traceBatch('send', sending, 0);
+      this.doSend(sending);
     }
     this._mustSend = false;
   }

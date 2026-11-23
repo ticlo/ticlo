@@ -580,20 +580,21 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     }
 
     if (this._function) {
-      if (this._called && this._waiting) {
-        // previous call is still running, cancel it first
+      const call = this._called;
+      this._called = false;
+      if (this._waiting && (call || this._function.runOnError)) {
+        // An explicit call or a rerun of an error handler supersedes pending work.
         this._cancelFunction(EventType.VOID);
       }
       this._running = true;
       if (this._outOfSync) this._outOfSync = undefined;
       let result: unknown;
       try {
-        result = this._function.run();
+        result = typeof call === 'object' ? this._function.runOnError(call) : this._function.run();
       } catch (err) {
         result = err instanceof ErrorEvent ? err : new ErrorEvent(ErrorEvent.SyncError, err);
       }
       this._running = false;
-      this._called = false;
       if (result?.constructor === Promise) {
         // Only the latest promise is allowed to emit. PromiseWrapper checks the
         // current token so stale async results cannot overwrite a newer run.
@@ -622,8 +623,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
         return;
       }
     }
-    // Retain failures even when the stage has not subscribed yet.
-    const prop = this._props.get('#emit') ?? (val instanceof ErrorEvent ? this.getProperty('#emit') : undefined);
+    const prop = this.emitProperty(val);
     if (prop) {
       if (val === undefined) {
         val = new DoneEvent();
@@ -639,10 +639,20 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
       if (!(prop.getValue() instanceof ErrorEvent)) prop.setOutput(val);
       return;
     }
-    const prop = this._props.get('#emit') ?? (val instanceof ErrorEvent ? this.getProperty('#emit') : undefined);
+    const prop = this.emitProperty(val);
     if (prop) {
       prop.updateValue(val);
     }
+  }
+
+  private emitProperty(value: unknown) {
+    const prop = this._props.get('#emit');
+    if (value instanceof ErrorEvent) {
+      // Retain failures and their first source even without subscribers.
+      value.recordOrigin(this);
+      return prop ?? this.getProperty('#emit');
+    }
+    return prop;
   }
 
   _emitOutOfSync(candidates: Set<Block>) {
@@ -693,59 +703,43 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     }
   }
 
-  _called = false;
+  _called: boolean | ErrorEvent = false;
 
   _onCall(val: unknown): void {
-    if (!this._disabled) {
-      if (val === WAIT || val instanceof WarningEvent) {
-        // ignore diagnostic and wait states before invoking the function's onCall
-      } else {
-        if (this._function && !this._function.onCall(val)) {
-          // rejected by onCall
-          // TODO: if #emit and #call is same, need to clear #emit value when #call become undefined
-          return;
-        }
-        switch (Event.check(val)) {
-          case EventType.TRIGGER: {
-            if (this._function) {
-              if (this._sync) {
-                if (this._function.isPure && this._runOnChange && !this._queueToRun) {
-                  // if function is pure, it can't be called synchronously without a change
-                  const prop = this._props.get('#emit');
-                  if (prop && Object.isExtensible(prop._value) && prop._value.constructor === DoneEvent) {
-                    // re-emit complete event
-                    prop.updateValue(new DoneEvent());
-                  }
-                } else {
-                  this._called = true;
-                  if (this._queued) {
-                    this.run();
-                  } else {
-                    // Make sure block is not put into queue again while running itself
-                    this._queued = true;
-                    this.run();
-                    this._queued = false;
-                  }
-                }
-              } else {
-                if (Event.check(val) === EventType.TRIGGER) {
-                  this._called = true;
-                  this._queueFunction();
-                }
-              }
-            } else {
-              // this._queueToRun = false; // No need to reset since it won't be set if function is null.
-            }
-            break;
-          }
-          case EventType.ERROR: {
-            if (this._cancelFunction(EventType.ERROR)) {
-              this.emit(val);
-            }
-            break;
-          }
-        }
+    if (this._disabled || val === WAIT || val instanceof WarningEvent) return;
+    if (this._function && !this._function.onCall(val)) return;
+
+    const func = this._function;
+    const type = Event.check(val);
+    let call: true | ErrorEvent = true;
+    if (type === EventType.ERROR) {
+      if (!(val instanceof ErrorEvent && func?.runOnError)) {
+        if (this._cancelFunction(EventType.ERROR)) this.emit(val);
+        return;
       }
+      call = val;
+    } else if (type !== EventType.TRIGGER) {
+      return;
+    }
+    if (!func) return;
+
+    if (this._sync && call === true && func.isPure && this._runOnChange && !this._queueToRun) {
+      const prop = this._props.get('#emit');
+      if (prop && Object.isExtensible(prop._value) && prop._value.constructor === DoneEvent) {
+        prop.updateValue(new DoneEvent());
+      }
+      return;
+    }
+    this._called = call;
+    if (!this._sync) {
+      this._queueFunction();
+    } else if (this._queued) {
+      this.run();
+    } else {
+      // Prevent the block from requeueing itself during synchronous execution.
+      this._queued = true;
+      this.run();
+      this._queued = false;
     }
   }
 

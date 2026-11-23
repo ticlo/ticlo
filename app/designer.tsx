@@ -1,10 +1,11 @@
+import './browser-logging.ts';
 import {registerOAuth} from '@ticlo/oauth/browser';
 import './styles.ts';
 import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext} from 'react';
 import {App as AntdApp, Switch} from 'antd';
 import {ContainerFilled, EditOutlined} from '@ant-design/icons';
-import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
+import {Root, Flow, Logger, PropDispatcher} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {
@@ -500,7 +501,6 @@ function DesignerWorkspace({
 
 (async () => {
   registerOAuth();
-  addConsoleLogger();
   await initEditor();
 
   await initAppI18n();
@@ -572,4 +572,3 @@ function DesignerWorkspace({
 });
 
 (window as any).Logger = Logger;
-addConsoleLogger(Logger.TRACE_AND_ABOVE);

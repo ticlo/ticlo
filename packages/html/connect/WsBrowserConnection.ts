@@ -37,20 +37,18 @@ export class WsBrowserConnection extends ClientConnection {
 
   doSend(datas: DataMap[]): void {
     const json = encode(datas);
-    Logger.trace(() => 'server send ' + json, this);
     this._ws.send(json);
   }
 
   onMessage = (e: MessageEvent, ws: WebSocket = this._ws) => {
     if (this._ws === ws && typeof e.data === 'string') {
-      Logger.trace(() => 'server receive ' + e.data, this);
       try {
         const decoded = decode(e.data);
         if (Array.isArray(decoded)) {
           this.onReceive(decoded);
         }
       } catch (error) {
-        Logger.warn('client received an invalid websocket message', this);
+        Logger.warn('client received an invalid websocket message');
       }
     }
   };

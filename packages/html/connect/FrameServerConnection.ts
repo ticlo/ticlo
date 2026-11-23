@@ -24,13 +24,11 @@ export class FrameServerConnection extends ServerConnection {
 
   doSend(datas: DataMap[]): void {
     const json = encode({ticloResponses: datas});
-    Logger.trace(() => 'server send ' + json, this);
     this.remote.postMessage(json, '*');
   }
 
   onMessage = (e: MessageEvent) => {
     if (typeof e.data === 'string' && e.source === this.remote) {
-      Logger.trace(() => 'server receive ' + e.data, this);
       const decoded = decode(e.data);
       if (decoded?.ticloReady) {
         this.onConnect();

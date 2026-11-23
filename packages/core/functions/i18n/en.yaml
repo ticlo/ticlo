@@ -1,4 +1,6 @@
 '@library':
+  system:
+    '@name': System
   math:
     '@name': Math
   string:
@@ -85,3 +87,19 @@
     '@name': 'Widget'
     '@options':
       'web-authorization': 'Web Authorization'
+
+log:
+  '@name': Log
+  message:
+    '@name': Message
+  data:
+    '@name': Data
+  provider:
+    '@name': Log Provider
+  level:
+    '@name': Level
+    '@options':
+      debug: Debug
+      info: Info
+      warn: Warning
+      error: Error

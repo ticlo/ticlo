@@ -35,6 +35,7 @@ arrow.register(
       event.detail instanceof Error
         ? `\be:${encodeError(event.detail)}`
         : (arrow.encode(event.detail) ?? `\b${arrow.stringify(event.detail)}`);
+    if (event.originPath !== undefined) return JSON.stringify([event.type, detail, event.originPath]);
     return JSON.stringify(
       event.type === ErrorEvent.defaultType ? (event.detail === undefined ? [] : [detail]) : [event.type, detail]
     );
@@ -43,7 +44,7 @@ arrow.register(
     const data = JSON.parse(encoded);
     return data.length < 2
       ? new ErrorEvent(undefined, data.length ? arrow.decode(data[0]) : undefined)
-      : new ErrorEvent(data[0], arrow.decode(data[1]));
+      : new ErrorEvent(data[0], arrow.decode(data[1]), typeof data[2] === 'string' ? data[2] : undefined);
   }
 );
 arrow.register(

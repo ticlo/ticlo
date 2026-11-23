@@ -16,6 +16,7 @@ import {
   type ProjectGit,
   type ProjectMetadata,
 } from '@ticlo/core/storage/FileAccess.ts';
+import {Logger} from '@ticlo/core/util/Logger.ts';
 import {buildProjectFileUrl, fetchFileResult} from '@ticlo/core/storage/FilePath.ts';
 import {BrowserStorage, isBrowserLocalPath} from './BrowserStorage.ts';
 import {BROWSER_LOCAL_LIBRARY} from './LocalProjectFiles.ts';
@@ -181,15 +182,19 @@ export class RemoteFiles extends FileAccessBase {
       response = await this.request('upload', {path: fullPath}, bytes, options);
     } catch (error) {
       if (scope && !options?.signal?.aborted) {
+        const reason = error instanceof StorageError ? error.code : 'io';
         try {
-          await this.backups.put({
+          const stored = await this.backups.put({
             scope,
             path: fullPath,
             data: bytes,
             revision: options.revision ?? undefined,
             modified: Date.now(),
           });
+          if (stored) Logger.warn(() => `Remote save failed for ${path} (${reason}); local backup stored`);
+          else Logger.error(() => `Remote save failed for ${path} (${reason}); local backup unavailable`);
         } catch (backupError) {
+          Logger.error(() => `Remote save and local backup failed for ${path} (${reason})`);
           throw new StorageError('Remote save failed and the local backup could not be stored', 'io', {
             cause: new AggregateError([error, backupError]),
           });
@@ -198,8 +203,11 @@ export class RemoteFiles extends FileAccessBase {
       }
       throw error;
     }
-    if (scope) await this.backups.delete(scope, fullPath);
-    return {revision: this.revision(response)};
+    const revision = this.revision(response);
+    if (scope && (await this.backups.delete(scope, fullPath, Logger.isEnabled(Logger.INFO)))) {
+      Logger.info(() => `Remote save recovered for ${path}; local backup cleared`);
+    }
+    return {revision};
   }
   async discardLocalBackup(path: string) {
     await this.backups.delete(await this.backupScope(), await this.path(path));

@@ -46,7 +46,8 @@ Blocks publish completion through `#emit` and pending work through `#wait`.
 Thrown exceptions become `ErrorEvent` values with type `SyncError`; rejected
 promises use `AsyncError`. Existing `ErrorEvent` values pass through unchanged,
 including when thrown or rejected. Their constructor defaults to `error` when
-no type is supplied.
+no type is supplied. On first emission an error records the emitting block’s full
+path in `originPath`. Forwarding the event preserves that path.
 Failures are retained even without a subscriber; later emissions replace them.
 `emitOnly()` changes the event without ending the current wait state.
 
@@ -56,11 +57,46 @@ Resolver round, `OutOfSync` identifies blocks with a dropped execution request
 and no subsequent run in that round, including synchronous runs.
 
 Arrow encodes `ErrorEvent` with the `E` tag and native JavaScript errors with
-`e`. Compact array payloads preserve event types and details, including native
+`e`. Compact array payloads preserve event types, origin paths and details, including native
 error names, messages, and driver codes. Stack traces and event loop IDs are
 omitted. Decoding restores an `ErrorEvent` and its error semantics. Connection
 previews preserve recognizable errors while truncating large details to the
 value budget; `isDataTruncated()` recognizes these error previews.
+
+### Logging
+
+The global `log` function is in the System category. Connect an upstream
+`#emit` to `log.#call`. On a normal trigger, it writes the configured string
+`message`, optional `data`, and `level` of `debug`, `info` (default), `warn`,
+or `error`. An empty message with undefined data completes silently.
+
+An `ErrorEvent` on `#call` writes at error level. The message uses its type and
+any string or native error message in its detail. The record carries the original
+detail as data. After writing, the block emits the same upstream error. If the
+write fails, the host Logger reports the provider failure and the block still
+emits the upstream error. The default mode is `onCall`. Input-driven executions
+use the configured message. Queued calls follow the resolver’s normal coalescing
+rules, and `#sync` starts each accepted call immediately.
+
+With an unbound `provider`, `log` writes to the executing runtime’s console.
+To choose a destination, bind a service such as `^appLog.#output`. An unavailable
+bound service or failed message write produces a block error. Async writes use
+the usual `#wait` and `#emit` completion semantics.
+
+A provider exposes a readonly object output with the `log-provider` and
+`context-service` function tags. Publish the service as
+`escapedObject('my-logger', {write})`. Its `write(record)` method returns `void` or
+`Promise<void>`. `FlowLogRecord` carries the creation time in Unix milliseconds,
+level, message, log block’s `blockPath` when available, optional data, and the
+upstream `originPath` for errors with a known source.
+`LogProvider`, `FlowLogRecord` and `consoleLogProvider` are exported by
+`@ticlo/core`.
+
+Hosts configure Ticlo's own diagnostics with `addConsoleLogger('info')`, or
+supply a synchronous sink and level mask to `Logger.add()`. Installing the
+console sink again updates its threshold. The returned function removes the
+console sink. The bundled browser hosts accept `?trace` and the Node runtime
+accepts `--trace` to include protocol batch summaries.
 
 ## Flows and persistence
 

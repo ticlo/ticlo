@@ -1,0 +1,95 @@
+import type {Block} from '../../block/Block.ts';
+import {BaseFunction} from '../../block/BlockFunction.ts';
+import type {PropDesc} from '../../block/Descriptor.ts';
+import {ErrorEvent} from '../../block/Event.ts';
+import {globalFunctions} from '../../block/FunctionModule.ts';
+import {escapedObject} from '../../util/NoSerialize.ts';
+import {Logger, writeConsole, type FlowLogLevel} from '../../util/Logger.ts';
+
+export interface FlowLogRecord {
+  time: number;
+  level: FlowLogLevel;
+  message: string;
+  blockPath?: string;
+  originPath?: string;
+  data?: unknown;
+}
+
+export interface LogProvider {
+  write(record: FlowLogRecord): void | Promise<void>;
+}
+
+export const consoleLogProvider = escapedObject<LogProvider>('log:console', {
+  write({level, message, blockPath, originPath, data}) {
+    const source = originPath ?? blockPath;
+    writeConsole(level, source ? `[${source}] ${message}` : message, data);
+  },
+});
+
+const levels = ['debug', 'info', 'warn', 'error'] as const;
+const providerProperty: PropDesc = {
+  name: 'provider',
+  type: 'service',
+  options: ['log-provider'],
+  placeholder: 'Runtime console',
+};
+
+class LogFunction extends BaseFunction<Block> {
+  private write(level: FlowLogLevel, message: string, data: unknown, originPath?: string) {
+    const block = this._data;
+    let provider = block.getValue('provider') as LogProvider;
+    if (provider === undefined && !block.getProperty('provider', false)?._bindingSource) provider = consoleLogProvider;
+    if (typeof provider?.write !== 'function') throw new Error('Log provider unavailable');
+    const result = provider.write({
+      time: Date.now(),
+      level,
+      message,
+      data,
+      blockPath: block.getFullPath?.(),
+      originPath,
+    });
+    // Block.run recognizes native promises from the executing runtime.
+    if (result !== undefined) return Promise.resolve(result);
+  }
+
+  run() {
+    const message = this._data.getValue('message') ?? '';
+    const data = this._data.getValue('data');
+    if (message === '' && data === undefined) return;
+    if (typeof message !== 'string') throw new Error('Log message must be a string');
+    const level = (this._data.getValue('level') ?? 'info') as FlowLogLevel;
+    if (!levels.includes(level)) throw new Error('Invalid log level');
+    return this.write(level, message, data);
+  }
+
+  runOnError(event: ErrorEvent) {
+    const path = this._data.getFullPath?.();
+    const writeFailed = (reason: unknown) => {
+      Logger.error(() => `Failed to write error log at ${path}`, reason);
+      return event;
+    };
+    try {
+      const detailMessage = event.detailMessage;
+      const message = detailMessage ? `${event.type}: ${detailMessage}` : event.type;
+      const pending = this.write('error', message, event.detail, event.originPath);
+      if (pending) return pending.then(() => event, writeFailed);
+    } catch (reason) {
+      return writeFailed(reason);
+    }
+    return event;
+  }
+}
+
+globalFunctions.addFactory(LogFunction, {
+  name: 'log',
+  category: 'system',
+  icon: '11:LOG',
+  mode: 'onCall',
+  priority: 3,
+  properties: [
+    {name: 'message', type: 'string', pinned: true},
+    {name: 'data', type: 'any'},
+    {name: 'level', type: 'select', options: levels, default: 'info'},
+    providerProperty,
+  ],
+});

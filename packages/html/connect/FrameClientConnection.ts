@@ -26,13 +26,11 @@ export class FrameClientConnection extends ClientConnection {
       return;
     }
     const json = encode({ticloRequests: datas});
-    Logger.trace(() => 'client send ' + json, this);
     this.remote.postMessage(json, '*');
   }
 
   onMessage = (e: MessageEvent) => {
     if (typeof e.data === 'string' && e.source === this.remote) {
-      Logger.trace(() => 'client receive ' + e.data, this);
       const decoded = decode(e.data);
       if (decoded && Array.isArray(decoded.ticloResponses)) {
         this.onReceive(decoded.ticloResponses);

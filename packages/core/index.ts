@@ -23,7 +23,7 @@ export {encodeDisplay, decode, encode, encodeSorted, decodeReviver} from './util
 export * from './util/Name.ts';
 export {endsWithNumberReg, getTailingNumber, smartStrCompare, isColorStr} from './util/String.ts';
 export * from './util/DateTime.ts';
-export {Logger, addConsoleLogger} from './util/Logger.ts';
+export {Logger, addConsoleLogger, type FlowLogLevel} from './util/Logger.ts';
 export {stopPropagation, voidFunction} from './util/Functions.ts';
 export {PropDispatcher} from './block/Dispatcher.ts';
 export {resolvePath, getRelativePath, isBindable} from './util/Path.ts';
@@ -58,6 +58,8 @@ export * from './util/DescriptorHelper.ts';
 // Export for web-server package
 export * from './functions/web-server/HttpRequest.ts';
 export * from './functions/web-server/RouteFunction.ts';
+
+export {consoleLogProvider, type FlowLogRecord, type LogProvider} from './functions/system/Log.ts';
 
 // Export common data functions
 export * from './functions/data/CreateObject.ts';

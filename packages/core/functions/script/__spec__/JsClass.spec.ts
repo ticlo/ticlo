@@ -46,7 +46,7 @@ describe('Js Type', function () {
   it('invalid script', function () {
     const logger = new TestLogger(Logger.ERROR);
     expect(JsFunction.registerType('[[', {name: 'Js-type3'})).toBe(false);
-    expect(logger.logs).toEqual(['invalid script:\n[[']);
+    expect(logger.logs).toEqual(['Failed to compile Js-type3 (SyntaxError)']);
     logger.cancel();
   });
 

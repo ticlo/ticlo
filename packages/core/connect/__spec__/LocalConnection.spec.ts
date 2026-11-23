@@ -67,6 +67,26 @@ describe('LocalConnection', () => {
     }
   });
 
+  it('traces protocol metadata without logging the payload, path or connection object', async () => {
+    const root = new Root();
+    root.addFlow('Main');
+    const [, client] = makeLocalConnection(root, false);
+    const sink = vi.fn();
+    Logger.add(sink, Logger.TRACE);
+    try {
+      await client.setValue('Main.privateField', 'privateValue', true);
+      expect(sink.mock.calls.some(([message]) => message.includes('messages'))).toBe(true);
+      for (const [message, , source] of sink.mock.calls) {
+        expect(message).not.toMatch(/privateField|privateValue/);
+        expect(typeof source).toBe('string');
+      }
+    } finally {
+      Logger.remove(sink);
+      client.destroy();
+      root.destroy();
+    }
+  });
+
   it('passes runtime values by reference without serializing trace logs', async () => {
     const root = new Root();
     const flow = root.addFlow('Main');

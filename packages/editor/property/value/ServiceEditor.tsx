@@ -238,7 +238,8 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
       <div className="ticl-e-hbox ticl-e-service-editor">
         <Select
           size="small"
-          value={selectValue}
+          value={selectValue ?? undefined}
+          placeholder={desc.placeholder ? t(desc.placeholder) : undefined}
           allowClear={Boolean(bindingPath && onPathChange && !locked)}
           disabled={locked || onPathChange == null}
           options={options}

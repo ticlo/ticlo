@@ -1,7 +1,8 @@
+import './browser-logging.ts';
 import './styles.ts';
 import * as React from 'react';
 import {App as AntdApp} from 'antd';
-import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, Root, addConsoleLogger} from '@ticlo/core';
+import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, Root} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {data} from './sample-data/data.ts';
 import reactData from './sample-data/react.ts';
@@ -449,4 +450,3 @@ function EditorWorkspace({
 })();
 
 (window as any).Logger = Logger;
-// addConsoleLogger(Logger.TRACE_AND_ABOVE);

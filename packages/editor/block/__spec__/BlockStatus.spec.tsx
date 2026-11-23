@@ -28,7 +28,9 @@ describe('Block runtime status', () => {
     });
     const first = flow.getValue('first') as Block;
     const second = flow.getValue('second') as Block;
-    first.emit(new ErrorEvent(undefined, new Error('bad SQL')));
+    const failure = new ErrorEvent(undefined, new Error('bad SQL'));
+    second.emit(failure);
+    first.emit(failure);
     second.emit(new ErrorEvent('timeout', 'second error'));
     const [, conn] = makeLocalConnection(Root.instance, true);
     const [, div] = loadTemplate(<BlockStage conn={conn} basePath="BlockStatusTest" />, 'editor');
@@ -38,6 +40,9 @@ describe('Block runtime status', () => {
     await userEvent.click(block.querySelector('.ticl-e-block-error'));
     await shouldHappen(() => document.querySelector('.ticl-e-block-error-message')?.textContent === 'bad SQL');
     expect(document.querySelector('.ant-popover-title')?.textContent).toBe('Error');
+    expect(document.querySelector('.ticl-e-block-error-message')?.parentElement?.textContent).toContain(
+      'BlockStatusTest.second'
+    );
     await userEvent.click(document.querySelector('.ticl-e-block-error-message'));
     expect(div.querySelector('.ticl-e-block-selected')).toBeNull();
     first.emit(WAIT);

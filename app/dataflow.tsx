@@ -1,3 +1,4 @@
+import './browser-logging.ts';
 import {registerOAuth} from '@ticlo/oauth/browser';
 import './styles.ts';
 import * as React from 'react';
@@ -10,7 +11,6 @@ import {
   encodeSorted,
   FunctionDesc,
   Logger,
-  addConsoleLogger,
   PropDispatcher,
   Flow,
   Root,
@@ -400,7 +400,6 @@ function DataflowWorkspace({
 
 (async () => {
   registerOAuth();
-  addConsoleLogger();
   await initEditor();
 
   await initAppI18n();
@@ -454,4 +453,3 @@ function DataflowWorkspace({
 });
 
 (window as any).Logger = Logger;
-addConsoleLogger(Logger.TRACE_AND_ABOVE);

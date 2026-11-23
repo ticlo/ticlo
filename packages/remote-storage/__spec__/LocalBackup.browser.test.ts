@@ -1,5 +1,5 @@
-import {afterEach, describe, expect, it, vi} from 'vitest';
-import {Root, setSecretCipher, type Flow} from '@ticlo/core';
+import {afterEach, describe, expect, it, onTestFinished, vi} from 'vitest';
+import {Logger, Root, setSecretCipher, type Flow} from '@ticlo/core';
 import {LocalFileBackups} from '../LocalFileBackups.ts';
 import {LocalProjectFiles} from '../LocalProjectFiles.ts';
 import {RemoteStorage} from '../RemoteStorage.ts';
@@ -16,6 +16,9 @@ describe('remote file backups', () => {
   });
 
   it('keeps a failed flow save across reloads, reads it offline, and clears it only after a successful save', async () => {
+    const diagnostics = vi.fn();
+    Logger.add(diagnostics, Logger.WARN | Logger.INFO | Logger.ERROR);
+    onTestFinished(() => Logger.remove(diagnostics));
     const baseURL = `https://backup-${crypto.randomUUID()}.example/file`;
     let online = true;
     let writable = false;
@@ -97,6 +100,8 @@ describe('remote file backups', () => {
     expect(await reopened.getFileInfo('main/entry.ticlo')).not.toHaveProperty('localBackup');
     expect((await reopened.getGitInfo('main')).hasUncommittedChanges).toBe(false);
     expect(JSON.parse(saved)).toMatchObject({value: 3});
+    expect(diagnostics).toHaveBeenCalledWith(expect.stringContaining('local backup stored'), Logger.WARN, undefined);
+    expect(diagnostics).toHaveBeenCalledWith(expect.stringContaining('local backup cleared'), Logger.INFO, undefined);
   });
 
   it('does not back up an ordinary file upload', async () => {

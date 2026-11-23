@@ -66,7 +66,7 @@ export function isDataTruncated(val: any): boolean {
     return Boolean(val[TRUNCATED]);
   }
   if (val instanceof ErrorEvent) {
-    return isDataTruncated(val.type) || isDataTruncated(val.detail);
+    return isDataTruncated(val.type) || isDataTruncated(val.originPath) || isDataTruncated(val.detail);
   }
   if (val instanceof Error) {
     return (

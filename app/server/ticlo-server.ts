@@ -10,7 +10,7 @@ import {cors} from 'hono/cors';
 import {getSignedCookie, setSignedCookie} from 'hono/cookie';
 import {randomUUID} from 'node:crypto';
 import {devUserAuth, type AuthProvider} from '@ticlo/file-server';
-import {Root, setSecretCipher} from '@ticlo/core';
+import {Root, addConsoleLogger, setSecretCipher} from '@ticlo/core';
 import {routeFileStorage} from '@ticlo/web-server/file-storage.ts';
 import {createTicloApp} from '@ticlo/web-server/server.ts';
 import {createFileOAuthGrantStore, registerOAuth, routeOAuth, type OAuthServerOptions} from '@ticlo/oauth/node';
@@ -123,6 +123,7 @@ async function start() {
   const origin = `http://${hostname}:${port}`;
   const args = process.argv.slice(2);
   const enableFrontend = !args.includes('--no-frontend');
+  addConsoleLogger(args.includes('--trace') ? 'trace' : 'info');
   if (args.includes('--allow-exec')) registerSystemExec();
   const rootDir = fileURLToPath(new URL('./files/', import.meta.url));
   await mkdir(rootDir, {recursive: true});
