@@ -92,6 +92,8 @@ log:
   '@name': Log
   message:
     '@name': Message
+  maxLength:
+    '@name': Maximum Message Length
   data:
     '@name': Data
   provider:

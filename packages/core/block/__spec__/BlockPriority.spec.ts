@@ -54,6 +54,8 @@ describe('BlockPriority', function () {
     Root.run();
 
     expect(TestFunctionRunner.popLogs()).toEqual(['p0', 'p1', 'p2', 'p3']);
+    p3.setValue('#priority', 'auto');
+    expect(p3.getPriority()).toBe(0);
   });
 
   it('order from binding', function () {

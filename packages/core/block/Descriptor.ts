@@ -9,6 +9,10 @@ export const BlockModeList = [
 ];
 export type BlockMode = (typeof BlockModeList)[number];
 
+export function parsePriorityOverride(value: unknown): number | undefined {
+  if ((value as number) >= 0 && (value as number) <= 3) return Math.round(value as number);
+}
+
 export type ValueType =
   | 'number'
   | 'string'

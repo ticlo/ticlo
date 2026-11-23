@@ -31,6 +31,11 @@ Block Stage status subscribes to each Block's `#emit` and `#wait` to show its
 [runtime status](core.md#errors-and-runtime-status). Status updates are scoped to
 the indicator.
 
+Dropping a Block onto another Block’s footer docks it beneath the parent and
+binds its `#call` to the parent’s `#emit`. A child with priority 3 keeps its
+`#sync` setting when docked or detached. Other priorities enable `#sync` on
+docking and clear it on detaching.
+
 ## Property editors
 
 Descriptor `type` selects an editor from the

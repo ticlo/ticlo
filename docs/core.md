@@ -66,9 +66,14 @@ value budget; `isDataTruncated()` recognizes these error previews.
 ### Logging
 
 The global `log` function is in the System category. Connect an upstream
-`#emit` to `log.#call`. On a normal trigger, it writes the configured string
-`message`, optional `data`, and `level` of `debug`, `info` (default), `warn`,
-or `error`. An empty message with undefined data completes silently.
+`#emit` to `log.#call`. Its default priority is 3. On a normal trigger it writes
+`message`, optional `data`, and a `level` of `debug`, `info` (default), `warn`,
+or `error`. Strings are used directly. Other values, including `null`, use
+`encodeDisplay`. An unset or empty message with undefined data completes silently.
+
+`maxLength` limits ordinary and error messages to 4096 UTF-16 code units by
+default (minimum 3). A shortened message ends in three ASCII dots (`...`),
+which count toward the limit. The provider receives the full structured `data`.
 
 An `ErrorEvent` on `#call` writes at error level. The message uses its type and
 any string or native error message in its detail. The record carries the original

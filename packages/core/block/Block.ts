@@ -11,7 +11,7 @@ import {voidProperty} from './Void.ts';
 import {ConfigGenerators, BlockConstConfig, ConstBinding} from './BlockConfigs.ts';
 import {_strictMode} from './BlockSettings.ts';
 import type {Flow, FlowLoader, Root} from './Flow.ts';
-import {BlockMode} from './Descriptor.ts';
+import {BlockMode, parsePriorityOverride} from './Descriptor.ts';
 import {FunctionData, FunctionOutput} from './FunctonData.ts';
 import {getMaxFlowDepth} from '../util/Settings.ts';
 import {Logger} from '../util/Logger.ts';
@@ -839,9 +839,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   _controlPriority: number = -1;
 
   _priorityChanged(priority: unknown) {
-    if ((priority as number) >= 0 && (priority as number) <= 3) {
-      this._controlPriority = Math.round(priority as number);
-    }
+    this._controlPriority = parsePriorityOverride(priority) ?? -1;
   }
 
   getPriority(): number {

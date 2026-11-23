@@ -10,6 +10,7 @@ import {
   buildPropDescCache,
   findPropDesc,
   getInlineProp,
+  parsePriorityOverride,
   FunctionDesc,
   PropDesc,
   PropGroupDesc,
@@ -999,6 +1000,7 @@ export class BlockItem extends BaseBlockItem {
     super.startSubscribe();
     this.selfField = new BlockSelfFieldItem(this);
     this.syncListener.subscribe(this.conn, `${this.path}.#sync`, true);
+    this.priorityListener.subscribe(this.conn, `${this.path}.#priority`);
     this.xywListener.subscribe(this.conn, `${this.path}.@b-xyw`, true);
   }
 
@@ -1028,6 +1030,17 @@ export class BlockItem extends BaseBlockItem {
       this.forceUpdate();
     },
   });
+
+  private priorityOverride?: number;
+  private priorityListener = new ValueSubscriber({
+    onUpdate: ({cache: {value}}) => {
+      this.priorityOverride = parsePriorityOverride(value);
+    },
+  });
+
+  private get autoSyncOnDrop() {
+    return (this.priorityOverride ?? this.desc.priority) !== 3;
+  }
 
   synced = false;
   syncListener = new ValueSubscriber({
@@ -1183,24 +1196,27 @@ export class BlockItem extends BaseBlockItem {
   canSync() {
     const policy = this.conn.getEditPolicyView();
     return (
+      this.descLoaded &&
+      this.priorityListener.wasValid &&
       policy.canWriteField(`${this.path}.@b-xyw`) &&
-      policy.canWriteField(`${this.path}.#sync`) &&
+      (!this.autoSyncOnDrop || policy.canWriteField(`${this.path}.#sync`)) &&
       policy.canBindField(`${this.path}.#call`)
     );
   }
 
   linkSyncParent(parent: BlockItem) {
-    if (parent.stage === this.stage) {
+    if (parent.stage === this.stage && this.canSync()) {
       this.conn.setValue(`${this.path}.@b-xyw`, parent.name);
       this.conn.setBinding(`${this.path}.#call`, `${parent.path}.#emit`, true);
-      this.conn.setValue(`${this.path}.#sync`, true);
+      if (this.autoSyncOnDrop) this.conn.setValue(`${this.path}.#sync`, true);
       this.setSyncParentPath(parent.path);
     }
   }
 
   unLinkSyncParent() {
+    if (!this.canSync()) return;
     this.conn.setBinding(`${this.path}.#call`, null);
-    this.conn.setValue(`${this.path}.#sync`, undefined);
+    if (this.autoSyncOnDrop) this.conn.setValue(`${this.path}.#sync`, undefined);
     this.setSyncParentPath(null);
   }
 
@@ -1266,6 +1282,7 @@ export class BlockItem extends BaseBlockItem {
       this._syncParent = null;
     }
     this.syncListener.unsubscribe();
+    this.priorityListener.unsubscribe();
     this.xywListener.unsubscribe();
     this.styleListener.unsubscribe();
     if (this._syncChild?._syncParent === this) {

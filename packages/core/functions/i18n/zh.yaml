@@ -92,6 +92,8 @@ log:
   '@name': 日志 # translated from: Log
   message:
     '@name': 消息 # translated from: Message
+  maxLength:
+    '@name': 消息最大长度 # translated from: Maximum Message Length
   data:
     '@name': 数据 # translated from: Data
   provider:

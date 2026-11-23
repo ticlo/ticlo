@@ -24,12 +24,54 @@ function call() {
 it('writes one console record per execution and respects a disabled block', () => {
   const info = vi.spyOn(console, 'info').mockImplementation(() => {});
   root.runAll();
+  expect(log.getPriority()).toBe(3);
   expect(info).not.toHaveBeenCalled();
   call();
   expect(info.mock.calls).toEqual([['[Main.log] Payment received', {order: 12}]]);
   log.setValue('#disabled', true);
   call();
   expect(info).toHaveBeenCalledTimes(1);
+});
+
+it('uses display text for non-string messages and keeps strings literal', () => {
+  const write = vi.fn();
+  log.updateValue('provider', {write});
+  log.deleteValue('data');
+  for (const value of ['plain', 0, false, null, -Infinity, ['x', 2], {count: 2}]) {
+    log.updateValue('message', value);
+    call();
+  }
+  expect(write.mock.calls.map(([record]) => record.message)).toEqual([
+    'plain',
+    '0',
+    'false',
+    'null',
+    '-Inf',
+    '["x",2]',
+    '{"count":2}',
+  ]);
+});
+
+it('bounds formatted messages and error summaries including their three-dot suffix', () => {
+  const write = vi.fn();
+  log.updateValue('provider', {write});
+  log.setValue('message', 'x'.repeat(4097));
+  call();
+  expect(write.mock.lastCall[0].message).toBe('x'.repeat(4093) + '...');
+
+  log.setValue('maxLength', 6);
+  for (const message of ['123456', {a: 1}, 'ab😀cde']) {
+    log.updateValue('message', message);
+    call();
+  }
+  expect(write.mock.calls.slice(1).map(([record]) => record.message)).toEqual(['123456', '{"a...', 'ab...']);
+
+  log.setValue('maxLength', 3);
+  const failure = new ErrorEvent('timeout', new Error('Slow query'));
+  log.updateValue('#call', failure);
+  root.runAll();
+  expect(write.mock.lastCall[0]).toMatchObject({message: '...', level: 'error', data: failure.detail});
+  expect(log.getValue('#emit')).toBe(failure);
 });
 
 it('uses only the bound provider and reports missing, invalid and failed writes on the calling block', async () => {

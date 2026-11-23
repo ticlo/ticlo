@@ -193,7 +193,15 @@ describe('editor EditPolicy', () => {
     {policy: {}, allowed: true},
     {policy: {denyProps: ['#sync']}, allowed: false},
     {policy: {allowBinding: []}, allowed: false},
-  ])('checks sync permissions when starting a block drag: $policy', async ({policy, allowed}) => {
+    {policy: {}, allowed: true, func: 'log'},
+    {policy: {denyProps: ['#sync']}, allowed: true, priority: 3, sync: true},
+    {policy: {denyProps: ['#sync']}, allowed: false, func: 'log', priority: 0},
+  ])('applies the dragged block priority and permissions to a footer link: %j', async (options) => {
+    const {policy, allowed, func, priority, sync} = options;
+    const dragged = Root.instance.queryValue('PolicyUI.add') as Block;
+    if (func) dragged.setValue('#is', func);
+    if (priority !== undefined) dragged.setValue('#priority', priority);
+    if (sync !== undefined) dragged.setValue('#sync', sync);
     const [, base] = makeLocalConnection(Root.instance);
     const client = base.withPolicy(policy);
     let stage: BlockStage;
@@ -218,6 +226,7 @@ describe('editor EditPolicy', () => {
     const targetView = [...target._renderers][0] as BlockView;
     const event = new DragState({type: 'mousedown', ctrlKey: false} as MouseEvent, {dragType: 'left'} as any, true);
     const start = vi.spyOn(event, 'startDrag').mockImplementation(() => {});
+    const write = vi.spyOn(client, 'setValue');
     try {
       sourceView.selectAndDrag(event);
       expect(start).toHaveBeenCalledOnce();
@@ -233,6 +242,13 @@ describe('editor EditPolicy', () => {
         Root.instance.queryProperty('PolicyUI.add.@b-xyw').setValue('other');
       }
       await shouldHappen(() => source._syncParent === target);
+      if (allowed) {
+        const emit = Root.instance.queryProperty('PolicyUI.other.#emit', true);
+        await shouldHappen(() => dragged.getProperty('#call')._bindingSource?.getProperty() === emit);
+        expect(dragged.getValue('#sync')).toBe(dragged.getPriority() === 3 ? sync : true);
+        target.setXYW(target.x + 20, target.y + 20, target.w, true);
+        expect([source.x, source.y]).toEqual([target.x, target.y + target.h]);
+      }
       start.mockClear();
       sourceView.selectAndDrag(event);
       expect(start).toHaveBeenCalledTimes(allowed ? 1 : 0);
@@ -241,12 +257,18 @@ describe('editor EditPolicy', () => {
         sourceView.onDragMove(event);
         expect(source._syncParent).toBeFalsy();
         sourceView.onDragEnd(event);
+        await shouldHappen(() => !dragged.getProperty('#call')._bindingSource);
+        if (dragged.getPriority() === 3) {
+          expect(write.mock.calls.some(([path]) => path === 'PolicyUI.add.#sync')).toBe(false);
+          expect(dragged.getValue('#sync')).toBe(sync);
+        }
       } else {
         expect(stage.isDraggingBlock()).toBe(false);
         expect(source._syncParent).toBe(target);
       }
     } finally {
       event.setData({}, client.getBaseConn());
+      write.mockRestore();
       start.mockRestore();
     }
   });

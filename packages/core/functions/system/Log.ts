@@ -5,6 +5,7 @@ import {ErrorEvent} from '../../block/Event.ts';
 import {globalFunctions} from '../../block/FunctionModule.ts';
 import {escapedObject} from '../../util/NoSerialize.ts';
 import {Logger, writeConsole, type FlowLogLevel} from '../../util/Logger.ts';
+import {encodeDisplay} from '../../util/Serialize.ts';
 
 export interface FlowLogRecord {
   time: number;
@@ -27,6 +28,18 @@ export const consoleLogProvider = escapedObject<LogProvider>('log:console', {
 });
 
 const levels = ['debug', 'info', 'warn', 'error'] as const;
+const defaultMaxLength = 4096;
+
+function limitMessage(message: string, maxLength: unknown): string {
+  const limit =
+    typeof maxLength === 'number' && Number.isFinite(maxLength) ? Math.max(3, Math.floor(maxLength)) : defaultMaxLength;
+  if (message.length <= limit) return message;
+  let end = limit - 3;
+  // Keep both halves of a UTF-16 surrogate pair together.
+  if (message.codePointAt(end - 1) > 0xffff) --end;
+  return message.slice(0, end) + '...';
+}
+
 const providerProperty: PropDesc = {
   name: 'provider',
   type: 'service',
@@ -44,7 +57,7 @@ class LogFunction extends BaseFunction<Block> {
     const result = provider.write({
       time: Date.now(),
       level,
-      message,
+      message: limitMessage(message, block.getValue('maxLength')),
       data,
       blockPath: block.getFullPath?.(),
       originPath,
@@ -61,10 +74,11 @@ class LogFunction extends BaseFunction<Block> {
   }
 
   run() {
-    const message = this._data.getValue('message') ?? '';
+    const value = this._data.getValue('message');
+    let message = '';
+    if (value !== undefined) message = typeof value === 'string' ? value : encodeDisplay(value);
     const data = this._data.getValue('data');
     if (message === '' && data === undefined) return;
-    if (typeof message !== 'string') throw new Error('Log message must be a string');
     const level = (this._data.getValue('level') ?? 'info') as FlowLogLevel;
     if (!levels.includes(level)) throw new Error('Invalid log level');
     return this.write(level, message, data, this.getCallOriginPath());
@@ -95,9 +109,10 @@ globalFunctions.addFactory(LogFunction, {
   mode: 'onCall',
   priority: 3,
   properties: [
-    {name: 'message', type: 'string', pinned: true},
+    {name: 'message', type: 'any', pinned: true},
     {name: 'data', type: 'any'},
     {name: 'level', type: 'select', options: levels, default: 'info'},
+    {name: 'maxLength', type: 'number', default: defaultMaxLength, min: 3, step: 1},
     providerProperty,
   ],
 });
