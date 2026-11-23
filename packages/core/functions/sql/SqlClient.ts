@@ -47,6 +47,8 @@ export interface SqlEntityColumn {
 
 /** A runtime service. SQL syntax and parameter placeholders belong to the adapter. */
 export interface SqlClient {
+  /** Used by SQL-generating services to quote identifiers and bind parameters. */
+  readonly dialect?: 'sqlite' | 'postgres' | 'mysql';
   query(sql: string, params?: SqlParams): Promise<SqlResult>;
   /** Execute one query with the adapter's database-level readonly protection. */
   queryReadonly?(sql: string, params?: SqlParams): Promise<SqlResult>;

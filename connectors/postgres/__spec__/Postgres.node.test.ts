@@ -16,6 +16,7 @@ import {SecretCipher} from '@ticlo/node';
 import {parseIntoClientConfig} from 'pg-connection-string';
 import {PostgresClient} from '../index.ts';
 import {localPostgresUrl} from './localPostgres.ts';
+import {verifySqlLogging} from '@ticlo/core/functions/sql/__spec__/verifySqlLogging.ts';
 
 const configuredUrl = process.env.TICLO_TEST_POSTGRES_URL;
 const useLocalPodman = !configuredUrl && process.env.GITHUB_ACTIONS !== 'true';
@@ -64,6 +65,8 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () =>
       await client.close();
     }
   });
+
+  it('persists flow logs in the selected table', () => verifySqlLogging(client));
 
   it('protects readonly queries and returns the pooled connection to writable use', async () => {
     expect((await client.queryReadonly('SELECT $1::integer AS value', [42])).table.rows).toEqual([[42]]);

@@ -1,3 +1,9 @@
+log-provider:
+  '@name': SQL 日志服务 # translated from: SQL Log Provider
+  client:
+    '@name': SQL 客户端 # translated from: SQL Client
+  tableName:
+    '@name': 表名 # translated from: Table Name
 query:
   '@name': 查询 # translated from: Query
   client:

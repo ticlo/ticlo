@@ -79,6 +79,7 @@ async function query(target: QueryTarget, sql: string, values: ReturnType<typeof
 }
 
 export class MysqlClient implements SqlClient {
+  readonly dialect = 'mysql';
   private closing?: Promise<void>;
 
   private constructor(private readonly pool: Pool) {}

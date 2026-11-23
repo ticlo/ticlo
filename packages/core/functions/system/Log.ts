@@ -31,6 +31,7 @@ const providerProperty: PropDesc = {
   name: 'provider',
   type: 'service',
   options: ['log-provider'],
+  create: 'sql:log-provider',
   placeholder: 'Runtime console',
 };
 

@@ -41,6 +41,25 @@ starts with its SQL keyword. The client commits on success and rolls back on
 failure. The outputs describe the final statement after a successful commit.
 Cancellation follows the same rules as `sql:query`.
 
+## SQL log provider
+
+Bind a SQLite, PostgreSQL or MySQL service to `sql:log-provider.client` and enter
+a `tableName` (default `ticlo_log`). The name identifies one table in the
+connection’s default schema. Bind the provider’s `#output` to [`log.provider`](core.md#logging).
+
+The first write runs `CREATE TABLE IF NOT EXISTS`. Providers using the same
+client and table share that initialization, including concurrent writes. Once
+the table is ready, each log record requires one parameterized `INSERT`.
+A failed initialization can be retried by the next write.
+If the database reports that the target table was dropped, the provider recreates
+it and retries the affected insert once.
+
+The columns are `time` (Unix milliseconds from the original record, stored as
+`BIGINT`), `level`, `message`, `block_path`, `origin_path`, and `data`.
+The optional paths and absent data use SQL `NULL`. Present data uses Ticlo’s
+JSON encoding, preserving values such as native errors and big integers.
+An existing table must accept these columns.
+
 ## Database connectors
 
 SQLite (`sqlite-client`), PostgreSQL (`postgres-client`), and MySQL

@@ -93,6 +93,8 @@ an error carries a known source.
 `LogProvider`, `FlowLogRecord` and `consoleLogProvider` are exported by
 `@ticlo/core`.
 
+The built-in [SQL log provider](sql.md#sql-log-provider) writes records to a configurable table.
+
 Hosts configure Ticlo's own diagnostics with `addConsoleLogger('info')`, or
 supply a synchronous sink and level mask to `Logger.add()`. Installing the
 console sink again updates its threshold. The returned function removes the

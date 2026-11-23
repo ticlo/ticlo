@@ -118,6 +118,7 @@ async function query(connection: pg.PoolClient, sql: string, params?: SqlParams)
 }
 
 export class PostgresClient implements SqlClient {
+  readonly dialect = 'postgres';
   private closing?: Promise<void>;
 
   private constructor(private readonly pool: pg.Pool) {}

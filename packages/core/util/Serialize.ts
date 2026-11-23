@@ -23,6 +23,11 @@ function decodeError(encoded: string): Error {
   return error;
 }
 
+// SQL drivers can subclass Error without registering the subclass with Arrow.
+function errorValue(error: Error): string {
+  return `\be:${encodeError(error)}`;
+}
+
 for (const type of [Error, EvalError, RangeError, ReferenceError, SyntaxError, TypeError, URIError, AggregateError]) {
   arrow.register('e', type, encodeError, decodeError);
 }
@@ -33,7 +38,7 @@ arrow.register(
   (event: ErrorEvent) => {
     const detail =
       event.detail instanceof Error
-        ? `\be:${encodeError(event.detail)}`
+        ? errorValue(event.detail)
         : (arrow.encode(event.detail) ?? `\b${arrow.stringify(event.detail)}`);
     if (event.originPath !== undefined) return JSON.stringify([event.type, detail, event.originPath]);
     return JSON.stringify(
@@ -80,10 +85,12 @@ export function objectPreview(value: any): any {
 }
 
 export function encode(value: any, space = 0): string {
+  if (value instanceof Error) return JSON.stringify(errorValue(value));
   return arrow.stringify(value, space);
 }
 
 export function encodeSorted(value: any, space = 1): string {
+  if (value instanceof Error) return JSON.stringify(errorValue(value));
   return arrow.stringifySorted(value, space);
 }
 

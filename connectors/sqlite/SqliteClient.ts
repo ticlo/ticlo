@@ -32,6 +32,7 @@ export interface SqliteResponse {
 
 /** One worker owns one connection, serializing requests without blocking the host. */
 export class SqliteClient implements SqlClient {
+  readonly dialect = 'sqlite';
   private worker: Worker;
   private nextId = 0;
   private pending = new Map<number, {resolve: (result: any) => void; reject: (error: Error) => void}>();

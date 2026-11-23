@@ -16,6 +16,7 @@ import {NodeStorage} from '@ticlo/node/storage/NodeStorage.ts';
 import {SqliteClient} from '../index.ts';
 import {SqliteClientFunction} from '../ClientFunction.ts';
 import {DataWrapper} from '@ticlo/core/block/FunctonData.ts';
+import {verifySqlLogging} from '@ticlo/core/functions/sql/__spec__/verifySqlLogging.ts';
 
 const clients: SqliteClient[] = [];
 const directories: string[] = [];
@@ -32,6 +33,8 @@ afterEach(async () => {
 });
 
 describe('SQLite connector', () => {
+  it('persists flow logs in the selected table', async () => verifySqlLogging(await open()));
+
   it('lists tables and views across attached schemas and returns columns without interpolating entity names', async () => {
     const client = await open();
     await client.query(

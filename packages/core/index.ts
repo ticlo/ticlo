@@ -118,6 +118,7 @@ import './functions/http/CreateHeaders.ts';
 import './functions/http/HttpClient.ts';
 import './functions/http/Fetch.ts';
 import './functions/sql/Query.ts';
+import './functions/sql/LogProvider.ts';
 import './functions/script/Js.ts';
 import './functions/data/State.ts';
 import './functions/date/index.ts';

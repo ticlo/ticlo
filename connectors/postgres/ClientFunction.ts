@@ -41,6 +41,7 @@ class PostgresClientFunction extends BaseFunction<Block> {
     this.client = client;
     this._data.output(
       escapedObject<SqlClient>('postgres:client', {
+        dialect: client.dialect,
         query: client.query.bind(client),
         queryReadonly: client.queryReadonly.bind(client),
         transaction: client.transaction.bind(client),

@@ -13,6 +13,7 @@ describe('Serialize', function () {
     const error = new DatabaseError('bad SQL: "select"\n\bTs:literal');
     const event = new ErrorEvent(undefined, error, 'Main.query');
     for (const serialize of [encode, encodeSorted]) {
+      expect(decode(serialize(error))).toMatchObject({name: 'DatabaseError', message: error.message, code: error.code});
       const wire = serialize({event, native: new TypeError('invalid input')});
       expect(wire).not.toContain('stack');
       expect(wire).not.toContain('loopId');
