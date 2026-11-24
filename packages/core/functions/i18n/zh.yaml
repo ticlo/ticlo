@@ -79,6 +79,8 @@
 
   '#label':
     '@name': 名称
+  '#hideLabels':
+    '@name': 隐藏标签 # translated from: Hide Labels
   '@b-p':
     '@name': 属性列表
   '@b-xyw':

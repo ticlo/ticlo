@@ -19,6 +19,7 @@ interface BlockViewProps {
 interface BlockViewState {
   moving: boolean;
   footDropping: boolean;
+  resizing: boolean;
 }
 
 function snapW(val: number): number {
@@ -67,7 +68,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         item.stage.focus();
         return;
       }
-      if (draggingBlocks.length === 1 && item.w) {
+      if (draggingBlocks.length === 1 && item.w && !item.isValueBlock) {
         // when dragging 1 block that's not minimized, check if it can be dropped into block footer
         e.setData(
           {moveBlock: item.path, syncBlock: item.canSync() ? item.path : null, stage: item.stage},
@@ -134,6 +135,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
     if (!this.context.canWriteField(`${item.path}.@b-xyw`)) return;
     this._baseW = item.w;
+    this.safeSetState({resizing: true});
     e.startDrag(null, null, {opacity: 0.9});
   };
 
@@ -154,6 +156,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   onDragWEnd = (e: DragState) => {
     this._baseW = -1;
+    this.safeSetState({resizing: false});
   };
 
   static _footerDropMap: WeakMap<DragState, BlockItem> = new WeakMap<DragState, BlockItem>();
@@ -197,15 +200,60 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   constructor(props: BlockViewProps) {
     super(props);
-    this.state = {moving: false, footDropping: false};
+    this.state = {moving: false, footDropping: false, resizing: false};
     this.displayName.subscribe(props.item.conn, `${props.item.path}.#label`);
     this.widget.subscribe(props.item.conn, `${props.item.path}.@b-widget`);
   }
 
+  renderWidthDrag() {
+    const {item} = this.props;
+    if (item._syncParent || !this.context.canWriteField(`${item.path}.@b-xyw`)) {
+      return null;
+    }
+    return (
+      <DragDropDiv
+        className="ticl-e-width-drag"
+        directDragT={true}
+        onDragStartT={this.startDragW}
+        onDragMoveT={this.onDragWMove}
+        onDragEndT={this.onDragWEnd}
+      />
+    );
+  }
+
+  renderIconHead(icon: string, headClasses: string) {
+    const {item} = this.props;
+    return (
+      <BlockDropdown
+        checkPolicy
+        functionId={item.desc.id}
+        conn={item.conn}
+        path={item.path}
+        displayName={this.displayName.value}
+        canApply={false}
+        funcModule={item.stage.getFuncModule()}
+      >
+        <Tooltip title={getDisplayName(item.name, this.displayName.value)} mouseEnterDelay={0}>
+          <DragDrop
+            className={headClasses}
+            directDragT={true}
+            onDoubleClick={this.expandBlock}
+            onDragStartT={this.selectAndDrag}
+            onDragMoveT={this.onDragMove}
+            onDragEndT={this.onDragEnd}
+          >
+            <TIcon icon={icon} />
+          </DragDrop>
+        </Tooltip>
+      </BlockDropdown>
+    );
+  }
+
   renderImpl() {
     const {item} = this.props;
-    const {moving, footDropping} = this.state;
-    const FullView = item.desc.view as new () => React.Component<BlockWidgetProps>;
+    const {moving, footDropping, resizing} = this.state;
+    const FullView =
+      typeof item.desc.view === 'function' ? (item.desc.view as new () => React.Component<BlockWidgetProps>) : null;
 
     const classNames: string[] = [];
     if (item.selected) {
@@ -220,20 +268,13 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (moving) {
       classNames.push('ticl-e-block-moving');
     }
+    if (resizing) {
+      classNames.push('ticl-e-block-resizing');
+    }
 
     if (FullView) {
       classNames.push('ticl-e-block-full-view');
       let width = item.w;
-      const widthDrag =
-        item._syncParent || !this.context.canWriteField(`${item.path}.@b-xyw`) ? null : (
-          <DragDropDiv
-            className="ticl-e-width-drag"
-            directDragT={true}
-            onDragStartT={this.startDragW}
-            onDragMoveT={this.onDragWMove}
-            onDragEndT={this.onDragWEnd}
-          />
-        );
       if (!(width > 80)) {
         width = 143;
       }
@@ -252,7 +293,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         >
           <FullView conn={item.conn} path={item.path} updateViewHeight={item.setViewH} />
           <BlockStatus conn={item.conn} path={item.path} />
-          {widthDrag}
+          {this.renderWidthDrag()}
         </DragDropDiv>
       );
     } else if (!item.descLoaded) {
@@ -268,6 +309,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           icon = dynamicIcon;
         }
       }
+      let headClasses = 'ticl-e-block-head';
+      if (item.isStatic) {
+        headClasses = `${headClasses} ticl-e-block-head-static`;
+      }
       if (item.w) {
         // not minimized
         let widget: React.ReactNode;
@@ -276,6 +321,26 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           widget = (
             <div className="ticl-e-block-view" style={{minHeight: item.viewH}}>
               <WidgetType conn={item.conn} path={item.path} updateViewHeight={item.setViewH} />
+            </div>
+          );
+        }
+        if (item.isValueBlock) {
+          classNames.push('ticl-e-block-value');
+          if (item.hideLabels) {
+            classNames.push('ticl-e-block-hide-labels');
+          }
+          return (
+            <div
+              ref={this.getRef}
+              className={classNames.join(' ')}
+              style={{...colorStyle, top: item.y, left: item.x, width: item.w}}
+            >
+              {this.renderIconHead(icon, headClasses)}
+              <div className="ticl-e-block-value-body">
+                {widget}
+                <div className="ticl-e-block-body">{item.renderFields()}</div>
+              </div>
+              {this.renderWidthDrag()}
             </div>
           );
         }
@@ -321,35 +386,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       } else {
         // minimized block
         classNames.push('ticl-e-block-min');
-        let headClasses = 'ticl-e-block-head';
-        if (item.isStatic) {
-          headClasses = `${headClasses} ticl-e-block-head-static`;
-        }
         return (
           <div ref={this.getRef} className={classNames.join(' ')} style={{...colorStyle, top: item.y, left: item.x}}>
             <div className="ticl-e-block-min-bound" />
-            <BlockDropdown
-              checkPolicy
-              functionId={item.desc.id}
-              conn={item.conn}
-              path={item.path}
-              displayName=""
-              canApply={false}
-              funcModule={item.stage.getFuncModule()}
-            >
-              <Tooltip title={getDisplayName(item.name, this.displayName.value)} mouseEnterDelay={0}>
-                <DragDrop
-                  className={headClasses}
-                  directDragT={true}
-                  onDoubleClick={this.expandBlock}
-                  onDragStartT={this.selectAndDrag}
-                  onDragMoveT={this.onDragMove}
-                  onDragEndT={this.onDragEnd}
-                >
-                  <TIcon icon={icon} />
-                </DragDrop>
-              </Tooltip>
-            </BlockDropdown>
+            {this.renderIconHead(icon, headClasses)}
             <BlockStatus conn={item.conn} path={item.path} />
           </div>
         );

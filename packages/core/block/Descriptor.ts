@@ -168,7 +168,7 @@ export interface FunctionDesc {
   tags?: string[];
   // tags of functions allowed as children in this component's #order
   childrenTags?: string[];
-  // a React class to display special component in block UI in the editor
+  // a React class or built-in view mode (e.g. 'value') to customize block UI in the editor
   // not used on server side
   view?: unknown;
 

@@ -450,7 +450,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         e.accept('tico-svg-right-left');
         return;
       }
-    } else {
+    } else if (!item.block.isValueBlock) {
       // add binding
       const fields: string[] = this.getDraggingFields();
       if (Array.isArray(fields)) {
@@ -481,7 +481,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       if (block === item.block) {
         item.getConn().moveShownProp(block.path, moveShownField, item.name);
       }
-    } else {
+    } else if (!item.block.isValueBlock) {
       const fields: string[] = this.getDraggingFields();
       if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.path) {
         item.getConn().setBinding(item.path, fields[0], true);
@@ -539,7 +539,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         inBoundClass += ' ticl-e-inbound-path';
         inBoundText = item.cache.bindingPath;
       }
-    } else if (item.desc?.readonly || !this.context.canBindField(item.path)) {
+    } else if (item.desc?.readonly || !this.context.canBindField(item.path) || item.block.isValueBlock) {
       inBoundClass = null;
     }
     const indentChildren = [];
@@ -547,24 +547,37 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       indentChildren.push(<div key={i} className={`ticl-e-field-indent${item.indents[i]}`} />);
     }
 
-    const propName = (
-      <PropertyDropdown
-        funcDesc={item.block.desc}
-        propDesc={item.desc}
-        bindingPath={item._bindingPath}
-        conn={item.getConn()}
-        display={true}
-        paths={item.pathArrayCache}
-        name={item.name}
-        onAddSubBlock={voidFunction} // TODO
-        // group={group}
-        // valueDefined={valueDefined}
-        // isCustom={isCustom}
-        // baseName={baseName}
-      >
-        <LocalizedPropertyName desc={desc} name={item.name} />
-      </PropertyDropdown>
-    );
+    let fieldNameNode: React.ReactNode;
+    if (!item.block.hideLabels) {
+      const propName = (
+        <PropertyDropdown
+          funcDesc={item.block.desc}
+          propDesc={item.desc}
+          bindingPath={item._bindingPath}
+          conn={item.getConn()}
+          display={true}
+          paths={item.pathArrayCache}
+          name={item.name}
+          onAddSubBlock={voidFunction} // TODO
+          // group={group}
+          // valueDefined={valueDefined}
+          // isCustom={isCustom}
+          // baseName={baseName}
+        >
+          <LocalizedPropertyName desc={desc} name={item.name} />
+        </PropertyDropdown>
+      );
+      fieldNameNode = (
+        <div className="ticl-e-field-name" onDoubleClick={this.onNameDoubleClick}>
+          {item.subBlock ? (
+            <div className="ticl-e-field-subicon" style={{left: item.indents.length * 18}}>
+              <TIcon icon={item.subBlock.desc.icon} />
+            </div>
+          ) : null}
+          {propName}
+        </div>
+      );
+    }
 
     return (
       <DragDropDiv
@@ -583,14 +596,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         ) : null}
         {showOutBound || this.dragWire ? <div className="ticl-e-outbound" /> : null}
         {indentChildren}
-        <div className="ticl-e-field-name" onDoubleClick={this.onNameDoubleClick}>
-          {item.subBlock ? (
-            <div className="ticl-e-field-subicon" style={{left: item.indents.length * 18}}>
-              <TIcon icon={item.subBlock.desc.icon} />
-            </div>
-          ) : null}
-          {propName}
-        </div>
+        {fieldNameNode}
         {inlineDesc ? (
           <InlineFieldValue
             key={item.path}
@@ -640,6 +646,14 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
 
   getRenderFields() {
     return this.fields;
+  }
+
+  get isValueBlock() {
+    return this.desc.view === 'value';
+  }
+
+  get hideLabels() {
+    return false;
   }
 
   abstract get selected(): boolean;
@@ -958,20 +972,35 @@ export class BlockItem extends BaseBlockItem {
   actualFields: string[] = [];
   headerCallField = false;
   selfField: BlockSelfFieldItem;
+  private _subscribed = false;
+  private _hideLabels = false;
+
+  override get hideLabels() {
+    return this._hideLabels;
+  }
+
+  hideLabelsListener = new ValueSubscriber({
+    onUpdate: (response: ValueUpdate) => {
+      const hideLabels = Boolean(response.cache.value);
+      if (hideLabels !== this._hideLabels) {
+        this._hideLabels = hideLabels;
+        this.forceRendererChildren();
+      }
+    },
+  });
 
   setP(fields: string[]) {
     // in case actual fields changed but super.setP receive same array
     const forceRefresh = fields.length !== this.actualFields.length;
 
     this.actualFields = fields;
-    const FullView = this.desc.view;
     this.headerCallField = false;
     if (
       !(
         this._syncParent || // sync child block doesn't need extra #call item
         fields.includes('#call') ||
-        FullView
-      ) // fullView block doesn't need extra #call item
+        this.desc.view
+      ) // custom view blocks don't need extra #call item
     ) {
       fields = fields.concat(['#call']);
       this.headerCallField = true;
@@ -997,8 +1026,11 @@ export class BlockItem extends BaseBlockItem {
   }
 
   startSubscribe() {
+    this._subscribed = true;
     super.startSubscribe();
-    this.selfField = new BlockSelfFieldItem(this);
+    if (!this.isValueBlock) {
+      this.selfField = new BlockSelfFieldItem(this);
+    }
     this.syncListener.subscribe(this.conn, `${this.path}.#sync`, true);
     this.priorityListener.subscribe(this.conn, `${this.path}.#priority`);
     this.xywListener.subscribe(this.conn, `${this.path}.@b-xyw`, true);
@@ -1006,11 +1038,27 @@ export class BlockItem extends BaseBlockItem {
 
   setDesc(desc: FunctionDesc) {
     if (desc !== this.desc) {
+      const wasValue = this.isValueBlock;
       super.setDesc(desc);
       if (desc.dynamicStyle) {
         this.styleListener.subscribe(this.conn, `${this.path}.@b-style`, true);
       } else {
         this.styleListener.unsubscribe();
+      }
+      if (this.isValueBlock) {
+        this.hideLabelsListener.subscribe(this.conn, `${this.path}.#hideLabels`, true);
+        this.selfField?.destroy();
+        this.selfField = null;
+      } else {
+        this.hideLabelsListener.unsubscribe();
+        this._hideLabels = false;
+        if (!this.selfField && this._subscribed) {
+          this.selfField = new BlockSelfFieldItem(this);
+        }
+      }
+      if (wasValue !== this.isValueBlock) {
+        this.setP(this.actualFields);
+        this.onFieldsChanged();
       }
     }
   }
@@ -1142,7 +1190,7 @@ export class BlockItem extends BaseBlockItem {
   updateFieldPosition = () => {
     let {x, y, w} = this;
 
-    const FullView = this.desc.view;
+    const FullView = typeof this.desc.view === 'function' ? this.desc.view : null;
 
     if (FullView) {
       this.selfField?.updateFieldPos(x, y + this.viewH, w, 0);
@@ -1157,6 +1205,14 @@ export class BlockItem extends BaseBlockItem {
       }
       this.selfField?.updateFieldPos(x, y1, w, 0);
       this.setH(fieldHeight);
+    } else if (this.isValueBlock) {
+      let y1 = y + 1 + fieldYOffset + this.viewH;
+      for (const field of this.getRenderFields()) {
+        y1 = this.fieldItems.get(field).updateFieldPos(x, y1, w, fieldHeight);
+      }
+      const contentH = y1 - fieldYOffset - (y + 1);
+      const h = Math.max(fieldHeight, contentH) + 2;
+      this.setH(h);
     } else {
       let headerHeight = fieldHeight;
 
@@ -1194,6 +1250,7 @@ export class BlockItem extends BaseBlockItem {
   }
 
   canSync() {
+    if (this.isValueBlock) return false;
     const policy = this.conn.getEditPolicyView();
     return (
       this.descLoaded &&
@@ -1273,6 +1330,8 @@ export class BlockItem extends BaseBlockItem {
   }
 
   destroy() {
+    this._subscribed = false;
+    this.hideLabelsListener.unsubscribe();
     if (this._syncChild) {
       this._syncChild.syncParent = null;
       this._syncChild = null;

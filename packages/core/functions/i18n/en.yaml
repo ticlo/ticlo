@@ -79,6 +79,8 @@
 
   '#label':
     '@name': 'Name'
+  '#hideLabels':
+    '@name': 'Hide Labels'
   '@b-p':
     '@name': 'Property List'
   '@b-xyw':
