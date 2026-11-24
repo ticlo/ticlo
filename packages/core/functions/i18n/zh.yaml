@@ -85,6 +85,8 @@
     '@name': 属性列表
   '@b-xyw':
     '@name': XYW
+  '@b-label-w':
+    '@name': 标签宽度 # translated from: Label Width
   '@b-widget':
     '@name': 组件
     '@options':

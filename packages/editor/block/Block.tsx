@@ -33,6 +33,10 @@ function snapW(val: number): number {
   return val;
 }
 
+function normalizeLabelW(val: unknown): number | undefined {
+  return typeof val === 'number' && Number.isFinite(val) && val >= 8 ? val : undefined;
+}
+
 export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> implements XYWRenderer {
   static contextType = EditPolicyContext;
   declare context: React.ContextType<typeof EditPolicyContext>;
@@ -189,6 +193,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   };
 
   displayName = new LazyUpdateSubscriber(this);
+  labelW = new LazyUpdateSubscriber(this);
 
   widget = new LazyUpdateSubscriber((widgetName: string) => {
     if (!widgetName) {
@@ -198,10 +203,85 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     this.forceUpdate();
   });
 
+  private _labelWDragCleanup?: () => void;
+
+  private applyLabelWDom(w: number | undefined) {
+    if (!this._rootNode) return;
+    if (w != null) {
+      this._rootNode.classList.add('ticl-e-block-fixed-label');
+      this._rootNode.style.setProperty('--ticl-label-w', `${w}px`);
+    } else {
+      this._rootNode.classList.remove('ticl-e-block-fixed-label');
+      this._rootNode.style.removeProperty('--ticl-label-w');
+    }
+  }
+
+  onBodyMouseDownCapture = (e: React.MouseEvent) => {
+    if (!e.shiftKey || e.button !== 0) return;
+    const {item} = this.props;
+    if (!this._rootNode || !this.context.canWriteField(`${item.path}.@b-label-w`)) return;
+    const fieldEl = (e.target as HTMLElement)?.closest?.('.ticl-e-field') as HTMLElement | null;
+    const nameEl = fieldEl?.querySelector('.ticl-e-field-name') as HTMLElement | null;
+    if (!nameEl) return;
+    const nameRect = nameEl.getBoundingClientRect();
+    if (Math.abs(e.clientX - nameRect.right) > 10) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    this._labelWDragCleanup?.();
+
+    const rootRect = this._rootNode.getBoundingClientRect();
+    const scale =
+      rootRect.width > 0 && this._rootNode.offsetWidth > 0 ? rootRect.width / this._rootNode.offsetWidth : 1;
+    const initialSaved = normalizeLabelW(this.labelW.value);
+    const indentPx = parseFloat(fieldEl.style.getPropertyValue('--ticl-indent')) || 0;
+    const baseW = initialSaved ?? Math.round(nameEl.offsetWidth + indentPx);
+    const maxW = Math.max(8, Math.round(item.w - (item.isValueBlock ? 48 : 32)));
+    const startX = e.clientX;
+    let currentW = initialSaved;
+    let moved = false;
+
+    const doc = this._rootNode.ownerDocument;
+    const prevCursor = doc.body.style.cursor;
+    doc.body.style.cursor = 'ew-resize';
+
+    const onMove = (ev: MouseEvent) => {
+      const rawW = Math.round(baseW + (ev.clientX - startX) / scale);
+      const nextW = rawW < 8 ? undefined : Math.min(rawW, maxW);
+      currentW = nextW;
+      moved = true;
+      this.applyLabelWDom(nextW);
+      ev.preventDefault();
+    };
+    const finish = (commit: boolean) => {
+      doc.removeEventListener('mousemove', onMove, true);
+      doc.removeEventListener('mouseup', onUp, true);
+      doc.removeEventListener('keydown', onKeyDown, true);
+      doc.body.style.cursor = prevCursor;
+      this._labelWDragCleanup = undefined;
+      if (!commit) {
+        this.applyLabelWDom(initialSaved);
+      } else if (moved && currentW !== initialSaved) {
+        item.conn.setValue(`${item.path}.@b-label-w`, currentW);
+      }
+    };
+    const onUp = () => finish(true);
+    const onKeyDown = (ev: KeyboardEvent) => {
+      if (ev.key === 'Escape') {
+        finish(false);
+      }
+    };
+    doc.addEventListener('mousemove', onMove, true);
+    doc.addEventListener('mouseup', onUp, true);
+    doc.addEventListener('keydown', onKeyDown, true);
+    this._labelWDragCleanup = () => finish(false);
+  };
+
   constructor(props: BlockViewProps) {
     super(props);
     this.state = {moving: false, footDropping: false, resizing: false};
     this.displayName.subscribe(props.item.conn, `${props.item.path}.#label`);
+    this.labelW.subscribe(props.item.conn, `${props.item.path}.@b-label-w`, true);
     this.widget.subscribe(props.item.conn, `${props.item.path}.@b-widget`);
   }
 
@@ -324,32 +404,37 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
             </div>
           );
         }
+        const labelW = normalizeLabelW(this.labelW.value);
+        const blockStyle: React.CSSProperties & {'--ticl-label-w'?: string} = {
+          ...colorStyle,
+          top: item.y,
+          left: item.x,
+          width: item.w,
+        };
+        if (labelW != null) {
+          classNames.push('ticl-e-block-fixed-label');
+          blockStyle['--ticl-label-w'] = `${labelW}px`;
+        }
         if (item.isValueBlock) {
           classNames.push('ticl-e-block-value');
           if (item.hideLabels) {
             classNames.push('ticl-e-block-hide-labels');
           }
           return (
-            <div
-              ref={this.getRef}
-              className={classNames.join(' ')}
-              style={{...colorStyle, top: item.y, left: item.x, width: item.w}}
-            >
+            <div ref={this.getRef} className={classNames.join(' ')} style={blockStyle}>
               {this.renderIconHead(icon, headClasses)}
               <div className="ticl-e-block-value-body">
                 {widget}
-                <div className="ticl-e-block-body">{item.renderFields()}</div>
+                <div className="ticl-e-block-body" onMouseDownCapture={this.onBodyMouseDownCapture}>
+                  {item.renderFields()}
+                </div>
               </div>
               {this.renderWidthDrag()}
             </div>
           );
         }
         return (
-          <div
-            ref={this.getRef}
-            className={classNames.join(' ')}
-            style={{...colorStyle, top: item.y, left: item.x, width: item.w}}
-          >
+          <div ref={this.getRef} className={classNames.join(' ')} style={blockStyle}>
             <BlockHeaderView
               item={item.getHeaderCallField()}
               isStatic={item.isStatic}
@@ -362,7 +447,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               displayName={this.displayName.value}
             />
             {widget}
-            <div className="ticl-e-block-body">{item.renderFields()}</div>
+            <div className="ticl-e-block-body" onMouseDownCapture={this.onBodyMouseDownCapture}>
+              {item.renderFields()}
+            </div>
             <DragDropDiv
               className="ticl-e-block-foot"
               directDragT={true}
@@ -397,7 +484,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   }
   componentWillUnmount() {
+    this._labelWDragCleanup?.();
     this.displayName.unsubscribe();
+    this.labelW.unsubscribe();
     this.widget.unsubscribe();
     super.componentWillUnmount();
   }

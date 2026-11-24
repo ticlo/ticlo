@@ -37,6 +37,18 @@
   }
 }
 
+.ticl-e-block-fixed-label {
+  .ticl-e-field-name {
+    flex: 0 1 max(0px, calc(var(--ticl-label-w) - var(--ticl-indent, 0px)));
+    min-width: 0;
+  }
+
+  .ticl-e-field-value {
+    flex: 1 0 16px;
+    min-width: 0;
+  }
+}
+
 .ticl-e-field-inline {
   padding-block: 0;
   padding-inline-end: 0;

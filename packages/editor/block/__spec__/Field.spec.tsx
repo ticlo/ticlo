@@ -2,13 +2,15 @@ import {expect, vi} from 'vitest';
 import {page, userEvent} from 'vitest/browser';
 import {ConfigProvider} from 'antd';
 import {DockLayout} from 'rc-dock';
+import {flushSync} from 'react-dom';
 import {simulate} from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage.tsx';
+import {EditPolicyProvider} from '../../component/EditPolicyContext.tsx';
 import {type Flow, PureFunction, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.ts';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.ts';
+import {fakeMouseEvent, removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.ts';
 import {initEditor, PropertyList} from '../../index.ts';
 import {theme} from '../../style/theme.ts';
 import {TicloLayoutContextType} from '../../component/LayoutContext.ts';
@@ -621,4 +623,189 @@ describe('editor Block Field', function () {
       expect(div.querySelector('.ticl-e-block-foot > .ticl-e-outbound')).toBeNull();
     }
   );
+
+  it('applies @b-label-w as fixed pixel width across rows and edits it in Misc', async () => {
+    const basePath = 'BlockFieldLabelW';
+    const blockPath = `${basePath}.block`;
+    flow = Root.instance.addFlow(basePath, {
+      block: {
+        '#is': '',
+        '#custom': [
+          {name: 'alpha', type: 'string'},
+          {name: 'beta', type: 'number'},
+        ],
+        'alpha': 'hello',
+        'beta': 1,
+        '~beta': {'#is': 'add', '0': 2, '@b-p': ['0']},
+        '@b-xyw': [40, 40, 220],
+        '@b-p': ['alpha', 'beta'],
+        '@b-inline': {alpha: true},
+        '@b-label-w': 60,
+      },
+      val: {
+        '#is': 'value',
+        '#hideLabels': true,
+        '#custom': [{name: 'value', type: 'number'}],
+        'value': 9,
+        '@b-xyw': [40, 200, 160],
+        '@b-p': ['value'],
+        '@b-label-w': 60,
+      },
+    });
+    const [, conn] = makeLocalConnection(Root.instance);
+    const [, div] = loadTemplate(
+      <div style={{display: 'flex'}}>
+        <BlockStage conn={conn} basePath={basePath} style={{width: 240, height: 320, position: 'relative'}} />
+        <PropertyList conn={conn} paths={[blockPath]} style={{width: 150}} />
+      </div>,
+      'editor'
+    );
+
+    const blockEl: HTMLElement = await shouldHappen(() => div.querySelector('.ticl-e-block.ticl-e-block-fixed-label'));
+    await shouldHappen(() => blockEl.querySelectorAll('.ticl-e-field-name').length === 3);
+    const names = [...blockEl.querySelectorAll<HTMLElement>('.ticl-e-field-name')];
+    await shouldHappen(() => Math.round(names[0].getBoundingClientRect().width) === 60);
+    // All rows (inline and sub-block) align their divider right edge at the same x.
+    const dividerX = names[0].getBoundingClientRect().right;
+    expect(names[1].getBoundingClientRect().right).toBeCloseTo(dividerX, 0);
+    expect(names[2].getBoundingClientRect().right).toBeCloseTo(dividerX, 0);
+
+    // Expanding block width keeps label column fixed at 60px.
+    await conn.setValue(`${blockPath}.@b-xyw`, [40, 40, 320]);
+    await shouldHappen(() => blockEl.offsetWidth === 320);
+    expect(Math.round(names[0].getBoundingClientRect().width)).toBe(60);
+
+    // Value < 8 restores proportional layout.
+    await conn.setValue(`${blockPath}.@b-label-w`, 5);
+    await shouldHappen(() => !blockEl.classList.contains('ticl-e-block-fixed-label'));
+
+    // Misc section exposes @b-label-w and updates the block.
+    const miscExpand = [...div.querySelectorAll('.ticl-e-property-divider')]
+      .find((el) => el.textContent?.includes('Misc'))
+      ?.querySelector<HTMLElement>('.ticl-e-tree-arr');
+    await userEvent.click(page.elementLocator(miscExpand));
+    const labelWInput = await shouldHappen(() => {
+      const row = [...div.querySelectorAll('.ticl-e-property')].find((el) => {
+        const text = el.querySelector('.ticl-e-property-name')?.textContent;
+        return text === 'Label Width' || text === '@b-label-w';
+      });
+      return row?.querySelector<HTMLInputElement>('input');
+    });
+    await userEvent.fill(page.elementLocator(labelWInput), '80');
+    simulate(labelWInput, 'keydown', {key: 'Enter'});
+    await shouldHappen(() => flow.queryValue('block.@b-label-w') === 80);
+    await shouldHappen(() => Math.round(names[0].getBoundingClientRect().width) === 80);
+
+    // #hideLabels on value block still stretches value to full width even with @b-label-w set.
+    const valBlock = div.querySelector('.ticl-e-block-value.ticl-e-block-hide-labels') as HTMLElement;
+    expect(valBlock.querySelector('.ticl-e-field-name')).toBeNull();
+    expect(valBlock.querySelector<HTMLElement>('.ticl-e-field-value').getBoundingClientRect().width).toBeGreaterThan(
+      100
+    );
+    await conn.getValue(`${blockPath}.@b-label-w`);
+  });
+
+  it('resizes label width via Shift+drag on divider, resets below 8px, cancels on Escape, and respects policy', async () => {
+    const basePath = 'BlockFieldShiftDrag';
+    flow = Root.instance.addFlow(basePath, {
+      block: {
+        '#is': '',
+        '#custom': [{name: 'input', type: 'string'}],
+        'input': 'abc',
+        'out': '',
+        '@b-xyw': [40, 40, 220],
+        '@b-p': ['input', 'out'],
+        '@b-inline': {input: true},
+      },
+      target: {
+        '#is': '',
+        '#custom': [{name: 'a', type: 'string'}],
+        '@b-xyw': [40, 160, 143],
+        '@b-p': ['a'],
+      },
+    });
+    const [, baseConn] = makeLocalConnection(Root.instance);
+    let stage: BlockStage;
+    const [, div] = loadTemplate(
+      <BlockStage
+        ref={(inst) => {
+          stage = inst;
+        }}
+        conn={baseConn}
+        basePath={basePath}
+        style={{width: 400, height: 350}}
+      />,
+      'editor'
+    );
+
+    const blockEl: HTMLElement = await shouldHappen(() => div.querySelector('.ticl-e-block'));
+    const inputField = await shouldHappen(
+      () => blockEl.querySelector('.ticl-e-field.ticl-e-field-inline') as HTMLElement
+    );
+    const nameEl = inputField.querySelector('.ticl-e-field-name') as HTMLElement;
+    await shouldHappen(() => nameEl.offsetWidth > 20);
+
+    // Shift+drag near divider on inline row updates live and saves on mouseup (under zoom=2).
+    flushSync(() => stage.setState({zoom: 2}));
+    const startW = Math.round(nameEl.offsetWidth);
+    const rect1 = nameEl.getBoundingClientRect();
+    simulate(nameEl, 'mousedown', fakeMouseEvent(rect1.right - 2, rect1.y + 8, {button: 0, shiftKey: true}));
+    expect(document.body.style.cursor).toBe('ew-resize');
+    simulate(document, 'mousemove', fakeMouseEvent(rect1.right - 2 + 40, rect1.y + 8));
+    expect(blockEl.classList.contains('ticl-e-block-fixed-label')).toBe(true);
+    expect(blockEl.style.getPropertyValue('--ticl-label-w')).toBe(`${startW + 20}px`);
+    // Value wasn't written until mouseup.
+    expect(flow.queryValue('block.@b-label-w')).toBeUndefined();
+    simulate(document, 'mouseup');
+    expect(document.body.style.cursor).toBe('');
+    await shouldHappen(() => flow.queryValue('block.@b-label-w') === startW + 20);
+    await baseConn.getValue(`${basePath}.block.@b-label-w`);
+
+    flushSync(() => stage.setState({zoom: 1}));
+
+    // Escape cancels and restores previous @b-label-w.
+    const rect2 = nameEl.getBoundingClientRect();
+    simulate(nameEl, 'mousedown', fakeMouseEvent(rect2.right, rect2.y + 8, {button: 0, shiftKey: true}));
+    simulate(document, 'mousemove', fakeMouseEvent(rect2.right + 30, rect2.y + 8));
+    expect(blockEl.style.getPropertyValue('--ticl-label-w')).toBe(`${startW + 50}px`);
+    simulate(document, 'keydown', {key: 'Escape'});
+    expect(blockEl.style.getPropertyValue('--ticl-label-w')).toBe(`${startW + 20}px`);
+    expect(flow.queryValue('block.@b-label-w')).toBe(startW + 20);
+
+    // Dragging below 8px resets @b-label-w to undefined.
+    const rect3 = nameEl.getBoundingClientRect();
+    simulate(nameEl, 'mousedown', fakeMouseEvent(rect3.right, rect3.y + 8, {button: 0, shiftKey: true}));
+    simulate(document, 'mousemove', fakeMouseEvent(rect3.right - 200, rect3.y + 8));
+    expect(blockEl.classList.contains('ticl-e-block-fixed-label')).toBe(false);
+    simulate(document, 'mouseup');
+    await shouldHappen(() => flow.queryValue('block.@b-label-w') === undefined);
+    await baseConn.getValue(`${basePath}.block.@b-label-w`);
+
+    // Normal non-Shift drag on field still starts drag wire.
+    const outField = [...blockEl.querySelectorAll<HTMLElement>('.ticl-e-field')][1];
+    const outRect = outField.getBoundingClientRect();
+    simulate(outField, 'mousedown', fakeMouseEvent(outRect.x + 20, outRect.y + 10));
+    simulate(document.body, 'mousemove', fakeMouseEvent(outRect.x + 50, outRect.y + 30));
+    expect(document.querySelector('.ticl-e-drag-wire')).not.toBeNull();
+    simulate(document.body, 'mouseup');
+    expect(document.querySelector('.ticl-e-drag-wire')).toBeNull();
+
+    // Readonly policy blocks Shift+drag divider resize.
+    removeLastTemplate();
+    const readonlyConn = baseConn.withPolicy({readonly: true});
+    const [, roDiv] = loadTemplate(
+      <EditPolicyProvider conn={readonlyConn}>
+        <BlockStage conn={readonlyConn} basePath={basePath} style={{width: 400, height: 350}} />
+      </EditPolicyProvider>,
+      'editor'
+    );
+    const roBlock = await shouldHappen(() => roDiv.querySelector('.ticl-e-block') as HTMLElement);
+    const roName = await shouldHappen(() => roBlock.querySelector('.ticl-e-field-name') as HTMLElement);
+    const roRect = roName.getBoundingClientRect();
+    simulate(roName, 'mousedown', fakeMouseEvent(roRect.right, roRect.y + 8, {button: 0, shiftKey: true}));
+    expect(document.body.style.cursor).toBe('');
+    simulate(document, 'mousemove', fakeMouseEvent(roRect.right + 30, roRect.y + 8));
+    expect(roBlock.classList.contains('ticl-e-block-fixed-label')).toBe(false);
+    simulate(document, 'mouseup');
+  });
 });

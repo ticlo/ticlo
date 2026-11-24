@@ -582,6 +582,9 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
     return (
       <DragDropDiv
         className={inlineDesc ? `${fieldClass} ticl-e-field-inline` : fieldClass}
+        style={
+          item.indents.length ? ({'--ticl-indent': `${item.indents.length * 18}px`} as React.CSSProperties) : undefined
+        }
         onDragStartT={this.onDragStart}
         onDragMoveT={this.onDragMove}
         onDragEndT={this.onDragEnd}

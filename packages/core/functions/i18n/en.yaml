@@ -85,6 +85,8 @@
     '@name': 'Property List'
   '@b-xyw':
     '@name': 'XYW'
+  '@b-label-w':
+    '@name': 'Label Width'
   '@b-widget':
     '@name': 'Widget'
     '@options':
