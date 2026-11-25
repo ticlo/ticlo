@@ -11,7 +11,6 @@ import * as ticloI18n from '@ticlo/core/editor.ts';
 // register special view
 
 import './block/view/NoteView.tsx';
-import './block/view/ValueView.ts';
 import './block/view/SliderWidget.tsx';
 import './block/view/NoteWidget.tsx';
 import './block/view/ButtonWidget.tsx';

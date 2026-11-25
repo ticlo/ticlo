@@ -168,7 +168,7 @@ export interface FunctionDesc {
   tags?: string[];
   // tags of functions allowed as children in this component's #order
   childrenTags?: string[];
-  // a React class or built-in view mode (e.g. 'value') to customize block UI in the editor
+  // a React class to display special component in block UI in the editor
   // not used on server side
   view?: unknown;
 
@@ -260,7 +260,8 @@ export const attributeDescs: {[key: string]: PropDesc} = {
   '#label': {name: '#label', type: 'string'},
   '@b-p': {name: '@b-p', type: 'array'},
   '@b-xyw': {name: '@b-xyw', type: 'array'},
-  '@b-label-w': {name: '@b-label-w', type: 'number', min: 8, step: 1},
+  '@b-label-w': {name: '@b-label-w', type: 'number', min: 0, step: 1},
+  '@b-view': {name: '@b-view', type: 'select', options: ['default', 'source'], default: 'default'},
   '@d-lock': {name: '@d-lock', type: 'toggle', default: false},
   '@d-seal': {name: '@d-seal', type: 'toggle', default: false},
 };
@@ -270,6 +271,7 @@ export const attributeList: PropDesc[] = [
   attributeDescs['@b-p'],
   attributeDescs['@b-xyw'],
   attributeDescs['@b-label-w'],
+  attributeDescs['@b-view'],
 ];
 
 export function mapAttributeDesc(attributes: (string | PropDesc)[]): PropDesc[] {

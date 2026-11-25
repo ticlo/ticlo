@@ -643,13 +643,13 @@ describe('editor Block Field', function () {
         '@b-label-w': 60,
       },
       val: {
-        '#is': 'value',
-        '#hideLabels': true,
+        '#is': '',
+        '@b-view': 'source',
+        '@b-label-w': 0,
         '#custom': [{name: 'value', type: 'number'}],
         'value': 9,
         '@b-xyw': [40, 200, 160],
         '@b-p': ['value'],
-        '@b-label-w': 60,
       },
     });
     const [, conn] = makeLocalConnection(Root.instance);
@@ -684,22 +684,41 @@ describe('editor Block Field', function () {
       .find((el) => el.textContent?.includes('Misc'))
       ?.querySelector<HTMLElement>('.ticl-e-tree-arr');
     await userEvent.click(page.elementLocator(miscExpand));
-    const labelWInput = await shouldHappen(() => {
-      const row = [...div.querySelectorAll('.ticl-e-property')].find((el) => {
+    const labelWRow: HTMLElement = await shouldHappen(() =>
+      [...div.querySelectorAll('.ticl-e-property')].find((el) => {
         const text = el.querySelector('.ticl-e-property-name')?.textContent;
         return text === 'Label Width' || text === '@b-label-w';
-      });
-      return row?.querySelector<HTMLInputElement>('input');
-    });
+      })
+    );
+    const labelWInput = labelWRow.querySelector<HTMLInputElement>('input');
     await userEvent.fill(page.elementLocator(labelWInput), '80');
     simulate(labelWInput, 'keydown', {key: 'Enter'});
     await shouldHappen(() => flow.queryValue('block.@b-label-w') === 80);
     await shouldHappen(() => Math.round(names[0].getBoundingClientRect().width) === 80);
 
-    // #hideLabels on value block still stretches value to full width even with @b-label-w set.
-    const valBlock = div.querySelector('.ticl-e-block-value.ticl-e-block-hide-labels') as HTMLElement;
-    expect(valBlock.querySelector('.ticl-e-field-name')).toBeNull();
-    expect(valBlock.querySelector<HTMLElement>('.ticl-e-field-value').getBoundingClientRect().width).toBeGreaterThan(
+    // Setting 0 in Misc hides labels on the block, and clearing via menu restores proportional layout.
+    await userEvent.fill(page.elementLocator(labelWInput), '0');
+    simulate(labelWInput, 'keydown', {key: 'Enter'});
+    await shouldHappen(() => flow.queryValue('block.@b-label-w') === 0);
+    await shouldHappen(() => blockEl.classList.contains('ticl-e-block-hide-labels'));
+    expect(getComputedStyle(names[0]).display).toBe('none');
+
+    simulate(labelWRow.querySelector('.ticl-e-property-name'), 'contextmenu', {button: 2});
+    const clearBtn = await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden) button')].find((el) =>
+        el.textContent?.includes('Clear')
+      )
+    );
+    clearBtn.click();
+    await shouldHappen(() => flow.queryValue('block.@b-label-w') === undefined);
+    await shouldHappen(() => !blockEl.classList.contains('ticl-e-block-hide-labels'));
+    expect(getComputedStyle(names[0]).display).not.toBe('none');
+
+    // @b-label-w: 0 on @b-view: 'source' block hides labels and stretches value to full width.
+    const sourceBlock = div.querySelector('.ticl-e-block-source.ticl-e-block-hide-labels') as HTMLElement;
+    const sourceName = sourceBlock.querySelector('.ticl-e-field-name') as HTMLElement;
+    expect(getComputedStyle(sourceName).display).toBe('none');
+    expect(sourceBlock.querySelector<HTMLElement>('.ticl-e-field-value').getBoundingClientRect().width).toBeGreaterThan(
       100
     );
     await conn.getValue(`${blockPath}.@b-label-w`);

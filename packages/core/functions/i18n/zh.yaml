@@ -79,14 +79,17 @@
 
   '#label':
     '@name': 名称
-  '#hideLabels':
-    '@name': 隐藏标签 # translated from: Hide Labels
   '@b-p':
     '@name': 属性列表
   '@b-xyw':
     '@name': XYW
   '@b-label-w':
     '@name': 标签宽度 # translated from: Label Width
+  '@b-view':
+    '@name': 视图 # translated from: View
+    '@options':
+      default: 默认 # translated from: Default
+      source: 源块 # translated from: Source
   '@b-widget':
     '@name': 组件
     '@options':

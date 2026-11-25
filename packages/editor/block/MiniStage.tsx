@@ -64,8 +64,8 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
       );
     } else if (item.w) {
       classNames.push('ticl-e-block');
-      if (item.isValueBlock) {
-        classNames.push('ticl-e-block-value');
+      if (item.isSourceBlock) {
+        classNames.push('ticl-e-block-source');
       }
 
       const [colorStyle, icon] = getFuncStyleFromDesc(item.desc, item.conn);
@@ -77,7 +77,7 @@ export class MiniBlockView extends PureDataRenderer<MiniBlockViewProps, any> imp
         >
           <div className="ticl-e-block-head">
             <TIcon icon={icon} />
-            {item.isValueBlock ? null : item.name}
+            {item.isSourceBlock ? null : item.name}
           </div>
         </div>
       );

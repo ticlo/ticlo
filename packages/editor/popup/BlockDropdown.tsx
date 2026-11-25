@@ -184,7 +184,7 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
       );
     }
 
-    const showCallMenu = !functionId.startsWith('flow:') && this.can('callFunction');
+    const showCallMenu = Boolean(functionId) && !functionId.startsWith('flow:') && this.can('callFunction');
     const commandMenus: React.ReactElement[] = [];
 
     if (funcDesc?.tags?.includes('live-client') && this.context.manageLiveSource) {

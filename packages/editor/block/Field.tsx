@@ -450,7 +450,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         e.accept('tico-svg-right-left');
         return;
       }
-    } else if (!item.block.isValueBlock) {
+    } else if (!item.block.isSourceBlock) {
       // add binding
       const fields: string[] = this.getDraggingFields();
       if (Array.isArray(fields)) {
@@ -481,7 +481,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       if (block === item.block) {
         item.getConn().moveShownProp(block.path, moveShownField, item.name);
       }
-    } else if (!item.block.isValueBlock) {
+    } else if (!item.block.isSourceBlock) {
       const fields: string[] = this.getDraggingFields();
       if (Array.isArray(fields) && fields.length === 1 && fields[0] !== item.path) {
         item.getConn().setBinding(item.path, fields[0], true);
@@ -539,7 +539,7 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         inBoundClass += ' ticl-e-inbound-path';
         inBoundText = item.cache.bindingPath;
       }
-    } else if (item.desc?.readonly || !this.context.canBindField(item.path) || item.block.isValueBlock) {
+    } else if (item.desc?.readonly || !this.context.canBindField(item.path) || item.block.isSourceBlock) {
       inBoundClass = null;
     }
     const indentChildren = [];
@@ -547,37 +547,24 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
       indentChildren.push(<div key={i} className={`ticl-e-field-indent${item.indents[i]}`} />);
     }
 
-    let fieldNameNode: React.ReactNode;
-    if (!item.block.hideLabels) {
-      const propName = (
-        <PropertyDropdown
-          funcDesc={item.block.desc}
-          propDesc={item.desc}
-          bindingPath={item._bindingPath}
-          conn={item.getConn()}
-          display={true}
-          paths={item.pathArrayCache}
-          name={item.name}
-          onAddSubBlock={voidFunction} // TODO
-          // group={group}
-          // valueDefined={valueDefined}
-          // isCustom={isCustom}
-          // baseName={baseName}
-        >
-          <LocalizedPropertyName desc={desc} name={item.name} />
-        </PropertyDropdown>
-      );
-      fieldNameNode = (
-        <div className="ticl-e-field-name" onDoubleClick={this.onNameDoubleClick}>
-          {item.subBlock ? (
-            <div className="ticl-e-field-subicon" style={{left: item.indents.length * 18}}>
-              <TIcon icon={item.subBlock.desc.icon} />
-            </div>
-          ) : null}
-          {propName}
-        </div>
-      );
-    }
+    const propName = (
+      <PropertyDropdown
+        funcDesc={item.block.desc}
+        propDesc={item.desc}
+        bindingPath={item._bindingPath}
+        conn={item.getConn()}
+        display={true}
+        paths={item.pathArrayCache}
+        name={item.name}
+        onAddSubBlock={voidFunction} // TODO
+        // group={group}
+        // valueDefined={valueDefined}
+        // isCustom={isCustom}
+        // baseName={baseName}
+      >
+        <LocalizedPropertyName desc={desc} name={item.name} />
+      </PropertyDropdown>
+    );
 
     return (
       <DragDropDiv
@@ -599,7 +586,14 @@ export class FieldView extends PureDataRenderer<FieldViewProps, any> {
         ) : null}
         {showOutBound || this.dragWire ? <div className="ticl-e-outbound" /> : null}
         {indentChildren}
-        {fieldNameNode}
+        <div className="ticl-e-field-name" onDoubleClick={this.onNameDoubleClick}>
+          {item.subBlock ? (
+            <div className="ticl-e-field-subicon" style={{left: item.indents.length * 18}}>
+              <TIcon icon={item.subBlock.desc.icon} />
+            </div>
+          ) : null}
+          {propName}
+        </div>
         {inlineDesc ? (
           <InlineFieldValue
             key={item.path}
@@ -651,11 +645,7 @@ export abstract class BaseBlockItem extends DataRendererItem<XYWRenderer> {
     return this.fields;
   }
 
-  get isValueBlock() {
-    return this.desc.view === 'value';
-  }
-
-  get hideLabels() {
+  get isSourceBlock() {
     return false;
   }
 
@@ -976,17 +966,25 @@ export class BlockItem extends BaseBlockItem {
   headerCallField = false;
   selfField: BlockSelfFieldItem;
   private _subscribed = false;
-  private _hideLabels = false;
+  private _isSource = false;
 
-  override get hideLabels() {
-    return this._hideLabels;
+  override get isSourceBlock() {
+    return this._isSource;
   }
 
-  hideLabelsListener = new ValueSubscriber({
+  viewListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      const hideLabels = Boolean(response.cache.value);
-      if (hideLabels !== this._hideLabels) {
-        this._hideLabels = hideLabels;
+      const next = response.cache.value === 'source';
+      if (next !== this._isSource) {
+        this._isSource = next;
+        if (next) {
+          this.selfField?.destroy();
+          this.selfField = null;
+        } else if (!this.selfField && this._subscribed) {
+          this.selfField = new BlockSelfFieldItem(this);
+        }
+        this.setP(this.actualFields);
+        this.onFieldsChanged();
         this.forceRendererChildren();
       }
     },
@@ -997,13 +995,15 @@ export class BlockItem extends BaseBlockItem {
     const forceRefresh = fields.length !== this.actualFields.length;
 
     this.actualFields = fields;
+    const FullView = this.desc.view;
     this.headerCallField = false;
     if (
       !(
         this._syncParent || // sync child block doesn't need extra #call item
         fields.includes('#call') ||
-        this.desc.view
-      ) // custom view blocks don't need extra #call item
+        FullView ||
+        this.isSourceBlock
+      ) // fullView and source blocks don't need extra #call item
     ) {
       fields = fields.concat(['#call']);
       this.headerCallField = true;
@@ -1031,9 +1031,10 @@ export class BlockItem extends BaseBlockItem {
   startSubscribe() {
     this._subscribed = true;
     super.startSubscribe();
-    if (!this.isValueBlock) {
+    if (!this._isSource) {
       this.selfField = new BlockSelfFieldItem(this);
     }
+    this.viewListener.subscribe(this.conn, `${this.path}.@b-view`, true);
     this.syncListener.subscribe(this.conn, `${this.path}.#sync`, true);
     this.priorityListener.subscribe(this.conn, `${this.path}.#priority`);
     this.xywListener.subscribe(this.conn, `${this.path}.@b-xyw`, true);
@@ -1041,27 +1042,11 @@ export class BlockItem extends BaseBlockItem {
 
   setDesc(desc: FunctionDesc) {
     if (desc !== this.desc) {
-      const wasValue = this.isValueBlock;
       super.setDesc(desc);
       if (desc.dynamicStyle) {
         this.styleListener.subscribe(this.conn, `${this.path}.@b-style`, true);
       } else {
         this.styleListener.unsubscribe();
-      }
-      if (this.isValueBlock) {
-        this.hideLabelsListener.subscribe(this.conn, `${this.path}.#hideLabels`, true);
-        this.selfField?.destroy();
-        this.selfField = null;
-      } else {
-        this.hideLabelsListener.unsubscribe();
-        this._hideLabels = false;
-        if (!this.selfField && this._subscribed) {
-          this.selfField = new BlockSelfFieldItem(this);
-        }
-      }
-      if (wasValue !== this.isValueBlock) {
-        this.setP(this.actualFields);
-        this.onFieldsChanged();
       }
     }
   }
@@ -1193,7 +1178,7 @@ export class BlockItem extends BaseBlockItem {
   updateFieldPosition = () => {
     let {x, y, w} = this;
 
-    const FullView = typeof this.desc.view === 'function' ? this.desc.view : null;
+    const FullView = this.desc.view;
 
     if (FullView) {
       this.selfField?.updateFieldPos(x, y + this.viewH, w, 0);
@@ -1208,7 +1193,7 @@ export class BlockItem extends BaseBlockItem {
       }
       this.selfField?.updateFieldPos(x, y1, w, 0);
       this.setH(fieldHeight);
-    } else if (this.isValueBlock) {
+    } else if (this.isSourceBlock) {
       let y1 = y + 1 + fieldYOffset + this.viewH;
       for (const field of this.getRenderFields()) {
         y1 = this.fieldItems.get(field).updateFieldPos(x, y1, w, fieldHeight);
@@ -1253,7 +1238,7 @@ export class BlockItem extends BaseBlockItem {
   }
 
   canSync() {
-    if (this.isValueBlock) return false;
+    if (this.isSourceBlock) return false;
     const policy = this.conn.getEditPolicyView();
     return (
       this.descLoaded &&
@@ -1334,7 +1319,7 @@ export class BlockItem extends BaseBlockItem {
 
   destroy() {
     this._subscribed = false;
-    this.hideLabelsListener.unsubscribe();
+    this.viewListener.unsubscribe();
     if (this._syncChild) {
       this._syncChild.syncParent = null;
       this._syncChild = null;

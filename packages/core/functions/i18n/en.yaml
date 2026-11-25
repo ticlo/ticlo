@@ -79,14 +79,17 @@
 
   '#label':
     '@name': 'Name'
-  '#hideLabels':
-    '@name': 'Hide Labels'
   '@b-p':
     '@name': 'Property List'
   '@b-xyw':
     '@name': 'XYW'
   '@b-label-w':
     '@name': 'Label Width'
+  '@b-view':
+    '@name': 'View'
+    '@options':
+      default: 'Default'
+      source: 'Source'
   '@b-widget':
     '@name': 'Widget'
     '@options':

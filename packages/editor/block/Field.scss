@@ -49,6 +49,27 @@
   }
 }
 
+.ticl-e-block-hide-labels {
+  .ticl-e-field-name {
+    display: none;
+  }
+
+  .ticl-e-field-value {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .ticl-e-field-inline {
+    padding-left: 8px;
+    padding-right: 10px;
+    padding-inline-end: 10px;
+  }
+
+  &.ticl-e-block-source .ticl-e-field-inline {
+    padding-left: 0;
+  }
+}
+
 .ticl-e-field-inline {
   padding-block: 0;
   padding-inline-end: 0;

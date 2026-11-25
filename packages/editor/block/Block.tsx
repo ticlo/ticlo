@@ -34,7 +34,7 @@ function snapW(val: number): number {
 }
 
 function normalizeLabelW(val: unknown): number | undefined {
-  return typeof val === 'number' && Number.isFinite(val) && val >= 8 ? val : undefined;
+  return typeof val === 'number' && Number.isFinite(val) && (val === 0 || val >= 8) ? val : undefined;
 }
 
 export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> implements XYWRenderer {
@@ -72,7 +72,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         item.stage.focus();
         return;
       }
-      if (draggingBlocks.length === 1 && item.w && !item.isValueBlock) {
+      if (draggingBlocks.length === 1 && item.w && !item.isSourceBlock) {
         // when dragging 1 block that's not minimized, check if it can be dropped into block footer
         e.setData(
           {moveBlock: item.path, syncBlock: item.canSync() ? item.path : null, stage: item.stage},
@@ -207,11 +207,16 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   private applyLabelWDom(w: number | undefined) {
     if (!this._rootNode) return;
-    if (w != null) {
+    if (w === 0) {
+      this._rootNode.classList.remove('ticl-e-block-fixed-label');
+      this._rootNode.classList.add('ticl-e-block-hide-labels');
+      this._rootNode.style.removeProperty('--ticl-label-w');
+    } else if (w != null) {
+      this._rootNode.classList.remove('ticl-e-block-hide-labels');
       this._rootNode.classList.add('ticl-e-block-fixed-label');
       this._rootNode.style.setProperty('--ticl-label-w', `${w}px`);
     } else {
-      this._rootNode.classList.remove('ticl-e-block-fixed-label');
+      this._rootNode.classList.remove('ticl-e-block-fixed-label', 'ticl-e-block-hide-labels');
       this._rootNode.style.removeProperty('--ticl-label-w');
     }
   }
@@ -222,7 +227,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (!this._rootNode || !this.context.canWriteField(`${item.path}.@b-label-w`)) return;
     const fieldEl = (e.target as HTMLElement)?.closest?.('.ticl-e-field') as HTMLElement | null;
     const nameEl = fieldEl?.querySelector('.ticl-e-field-name') as HTMLElement | null;
-    if (!nameEl) return;
+    if (!nameEl || nameEl.offsetWidth === 0) return;
     const nameRect = nameEl.getBoundingClientRect();
     if (Math.abs(e.clientX - nameRect.right) > 10) return;
 
@@ -236,7 +241,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     const initialSaved = normalizeLabelW(this.labelW.value);
     const indentPx = parseFloat(fieldEl.style.getPropertyValue('--ticl-indent')) || 0;
     const baseW = initialSaved ?? Math.round(nameEl.offsetWidth + indentPx);
-    const maxW = Math.max(8, Math.round(item.w - (item.isValueBlock ? 48 : 32)));
+    const maxW = Math.max(8, Math.round(item.w - (item.isSourceBlock ? 48 : 32)));
     const startX = e.clientX;
     let currentW = initialSaved;
     let moved = false;
@@ -332,8 +337,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
   renderImpl() {
     const {item} = this.props;
     const {moving, footDropping, resizing} = this.state;
-    const FullView =
-      typeof item.desc.view === 'function' ? (item.desc.view as new () => React.Component<BlockWidgetProps>) : null;
+    const FullView = item.desc.view as new () => React.Component<BlockWidgetProps>;
 
     const classNames: string[] = [];
     if (item.selected) {
@@ -411,24 +415,24 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           left: item.x,
           width: item.w,
         };
-        if (labelW != null) {
+        if (labelW === 0) {
+          classNames.push('ticl-e-block-hide-labels');
+        } else if (labelW != null) {
           classNames.push('ticl-e-block-fixed-label');
           blockStyle['--ticl-label-w'] = `${labelW}px`;
         }
-        if (item.isValueBlock) {
-          classNames.push('ticl-e-block-value');
-          if (item.hideLabels) {
-            classNames.push('ticl-e-block-hide-labels');
-          }
+        if (item.isSourceBlock) {
+          classNames.push('ticl-e-block-source');
           return (
             <div ref={this.getRef} className={classNames.join(' ')} style={blockStyle}>
               {this.renderIconHead(icon, headClasses)}
-              <div className="ticl-e-block-value-body">
+              <div className="ticl-e-block-source-body">
                 {widget}
                 <div className="ticl-e-block-body" onMouseDownCapture={this.onBodyMouseDownCapture}>
                   {item.renderFields()}
                 </div>
               </div>
+              <BlockStatus conn={item.conn} path={item.path} />
               {this.renderWidthDrag()}
             </div>
           );

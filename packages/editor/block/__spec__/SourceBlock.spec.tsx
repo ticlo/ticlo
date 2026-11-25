@@ -4,15 +4,14 @@ import {simulate} from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage.tsx';
 import {EditPolicyProvider} from '../../component/EditPolicyContext.tsx';
-import {FunctionView} from '../../function-selector/FunctionView.tsx';
-import {type Flow, getDefaultFuncData, Root} from '@ticlo/core';
+import {type Flow, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {fakeMouseEvent, loadTemplate, querySingle, removeLastTemplate} from '../../util/test-util.ts';
 import {initEditor} from '../../index.ts';
 import {arrayEqual} from '@ticlo/core/editor.ts';
 
-describe('editor ValueBlock', function () {
+describe("editor SourceBlock (@b-view = 'source')", function () {
   let flow: Flow;
 
   beforeEach(async function () {
@@ -29,48 +28,54 @@ describe('editor ValueBlock', function () {
     }
   });
 
-  it('registers value descriptor with default custom property in other category and creates on drop', async function () {
-    flow = Root.instance.addFlow('ValueBlockCreate');
-    const [, client] = makeLocalConnection(Root.instance);
-    const desc = client.watchDesc('value');
-    expect(desc).toBeDefined();
-    expect(desc.view).toBe('value');
-    expect(desc.category).toBeUndefined();
-    expect(getDefaultFuncData(desc)).toEqual({
-      '#is': 'value',
-      '#custom': [{name: 'value', type: 'any'}],
-      '@b-p': ['value'],
+  it("does not register standalone value editor descriptor and supports @b-view = 'source' on any function type", async function () {
+    flow = Root.instance.addFlow('SourceBlockDynamic', {
+      add: {
+        '#is': 'add',
+        '0': 3,
+        '1': 4,
+        '@b-xyw': [60, 80, 160],
+        '@b-p': ['0', '#output'],
+      },
+      ref: {
+        '#is': '',
+        '#custom': [{name: 'blk', type: 'block'}],
+        '~blk': '##.add',
+        '@b-xyw': [240, 80, 143],
+        '@b-p': ['blk'],
+      },
     });
+    const [, client] = makeLocalConnection(Root.instance);
+    expect(client.watchDesc('value')).toBeUndefined();
 
     const [, div] = loadTemplate(
-      <>
-        <div style={{height: '32px'}}>
-          <FunctionView conn={client} desc={desc} />
-        </div>
-        <BlockStage conn={client} basePath="ValueBlockCreate" style={{width: '800px', height: '800px'}} />
-      </>,
+      <BlockStage conn={client} basePath="SourceBlockDynamic" style={{width: '800px', height: '800px'}} />,
       'editor'
     );
 
-    await shouldHappen(() => div.querySelector('.ticl-e-func-view') && div.querySelector('.ticl-e-stage-scroll'));
-    const funcView = div.querySelector('.ticl-e-func-view') as HTMLDivElement;
-    simulate(funcView, 'mousedown', fakeMouseEvent(16, 16, {button: 0}));
-    simulate(document.body, 'mousemove', fakeMouseEvent(80, 80));
-    simulate(document.body, 'mousemove', fakeMouseEvent(180, 180));
-    simulate(document.body, 'mouseup', fakeMouseEvent(180, 180));
+    await shouldHappen(() => div.querySelector('.ticl-e-block-foot > .ticl-e-outbound'));
+    await shouldHappen(() => div.querySelector('.ticl-e-block-wire'));
 
-    await shouldHappen(() => flow.queryValue('value.@b-p'));
-    expect(flow.queryValue('value.#is')).toBe('value');
-    expect(flow.queryValue('value.#custom')).toEqual([{name: 'value', type: 'any'}]);
-    expect(flow.queryValue('value.@b-p')).toEqual(['value']);
-    expect(flow.queryValue('value.@b-inline')).toBeUndefined();
-    await shouldHappen(() => div.querySelector('.ticl-e-block-value'));
+    // Set @b-view to 'source' at runtime -> switches to source layout, removes footer/slots/selfField.
+    await client.setValue('SourceBlockDynamic.add.@b-view', 'source');
+    const sourceBlock = await shouldHappen(() => div.querySelector('.ticl-e-block-source') as HTMLElement);
+    expect(sourceBlock.querySelector('.ticl-e-block-head-label')).toBeNull();
+    expect(sourceBlock.querySelector('.ticl-e-block-foot')).toBeNull();
+    expect(sourceBlock.querySelector('.ticl-e-slot')).toBeNull();
+    await shouldHappen(() => !div.querySelector('.ticl-e-block-wire'));
+
+    // Reset @b-view -> restores normal header, footer, slots, and selfField wire.
+    await client.setValue('SourceBlockDynamic.add.@b-view', undefined);
+    await shouldHappen(() => !div.querySelector('.ticl-e-block-source'));
+    await shouldHappen(() => div.querySelector('.ticl-e-block-foot > .ticl-e-outbound'));
+    await shouldHappen(() => div.querySelector('.ticl-e-block-wire'));
   });
 
-  it('renders left icon head without label or footer and supports drag, context menu, and minimize', async function () {
-    flow = Root.instance.addFlow('ValueBlockLayout', {
+  it('renders left icon head without label or footer and supports drag, minimize, and context menu', async function () {
+    flow = Root.instance.addFlow('SourceBlockLayout', {
       val: {
-        '#is': 'value',
+        '#is': '',
+        '@b-view': 'source',
         '#custom': [
           {name: 'a', type: 'number'},
           {name: 'b', type: 'string'},
@@ -83,11 +88,11 @@ describe('editor ValueBlock', function () {
     });
     const [, client] = makeLocalConnection(Root.instance);
     const [, div] = loadTemplate(
-      <BlockStage conn={client} basePath="ValueBlockLayout" style={{width: '800px', height: '800px'}} />,
+      <BlockStage conn={client} basePath="SourceBlockLayout" style={{width: '800px', height: '800px'}} />,
       'editor'
     );
 
-    const block = await shouldHappen(() => div.querySelector('.ticl-e-block-value') as HTMLDivElement);
+    const block = await shouldHappen(() => div.querySelector('.ticl-e-block-source') as HTMLDivElement);
     await shouldHappen(() => block.querySelectorAll('.ticl-e-field').length === 2);
 
     expect(block.querySelector('.ticl-e-block-head-label')).toBeNull();
@@ -110,16 +115,18 @@ describe('editor ValueBlock', function () {
     simulate(document.body, 'mousemove', fakeMouseEvent(headRect.x + 108, headRect.y + 60));
     simulate(document.body, 'mouseup');
     await shouldHappen(() => arrayEqual(flow.queryValue('val.@b-xyw') as unknown[], [196, 168, 160]));
-    await client.getValue('ValueBlockLayout.val.@b-xyw');
+    await client.getValue('SourceBlockLayout.val.@b-xyw');
 
     // Double-click head to minimize and expand
     simulate(head, 'dblclick');
     await shouldHappen(() => block.classList.contains('ticl-e-block-min'));
     simulate(block.querySelector('.ticl-e-block-head'), 'dblclick');
-    await shouldHappen(() => div.querySelector('.ticl-e-block-value') && !block.classList.contains('ticl-e-block-min'));
+    await shouldHappen(
+      () => div.querySelector('.ticl-e-block-source') && !block.classList.contains('ticl-e-block-min')
+    );
 
     // Right-click head opens BlockDropdown and allows Delete
-    simulate(div.querySelector('.ticl-e-block-value .ticl-e-block-head'), 'contextmenu', {button: 2});
+    simulate(div.querySelector('.ticl-e-block-source .ticl-e-block-head'), 'contextmenu', {button: 2});
     const deleteItem = await shouldHappen(() =>
       [
         ...document.querySelectorAll<HTMLElement>(
@@ -131,11 +138,12 @@ describe('editor ValueBlock', function () {
     await shouldHappen(() => flow.getValue('val') === undefined);
   });
 
-  it('hides field labels with #hideLabels and keeps wire dragging working including inline', async function () {
-    flow = Root.instance.addFlow('ValueBlockHideLabels', {
+  it('hides field labels with @b-label-w: 0, keeps inline wire dragging working, and ignores Shift+drag', async function () {
+    flow = Root.instance.addFlow('SourceBlockHideLabels', {
       val: {
-        '#is': 'value',
-        '#hideLabels': true,
+        '#is': '',
+        '@b-view': 'source',
+        '@b-label-w': 0,
         '#custom': [{name: 'value', type: 'number'}],
         'value': 42,
         '@b-xyw': [60, 100, 140],
@@ -149,20 +157,27 @@ describe('editor ValueBlock', function () {
     });
     const [, client] = makeLocalConnection(Root.instance);
     const [, div] = loadTemplate(
-      <BlockStage conn={client} basePath="ValueBlockHideLabels" style={{width: '800px', height: '800px'}} />,
+      <BlockStage conn={client} basePath="SourceBlockHideLabels" style={{width: '800px', height: '800px'}} />,
       'editor'
     );
 
     const block = await shouldHappen(
-      () => div.querySelector('.ticl-e-block-value.ticl-e-block-hide-labels') as HTMLElement
+      () => div.querySelector('.ticl-e-block-source.ticl-e-block-hide-labels') as HTMLElement
     );
     const field = await shouldHappen(() => block.querySelector('.ticl-e-field') as HTMLElement);
-    expect(block.querySelector('.ticl-e-field-name')).toBeNull();
+    const fieldName = field.querySelector('.ticl-e-field-name') as HTMLElement;
+    expect(getComputedStyle(fieldName).display).toBe('none');
     const fieldValue = field.querySelector('.ticl-e-field-value') as HTMLElement;
     await shouldHappen(() => fieldValue.getBoundingClientRect().width > 80);
 
+    // Shift+drag on hidden-label row does not start label width drag.
+    const fieldRect = field.getBoundingClientRect();
+    simulate(field, 'mousedown', fakeMouseEvent(fieldRect.x + 2, fieldRect.y + 8, {button: 0, shiftKey: true}));
+    expect(document.body.style.cursor).toBe('');
+    simulate(document.body, 'mouseup');
+
     // Drag wire out from inline hidden-label field using its right-side drag strip
-    await client.setValue('ValueBlockHideLabels.val.@b-inline', {value: true});
+    await client.setValue('SourceBlockHideLabels.val.@b-inline', {value: true});
     const inlineField = await shouldHappen(
       () => block.querySelector('.ticl-e-field.ticl-e-field-inline') as HTMLElement
     );
@@ -181,10 +196,11 @@ describe('editor ValueBlock', function () {
     await shouldHappen(() => div.querySelector('.ticl-e-block-wire'));
   });
 
-  it('allows dragging bindings out of value block, rejects dropping bindings in, and keeps right-drag reorder', async function () {
-    flow = Root.instance.addFlow('ValueBlockDragRules', {
+  it("allows dragging bindings out of @b-view = 'source' block, rejects dropping bindings in, and keeps right-drag reorder", async function () {
+    flow = Root.instance.addFlow('SourceBlockDragRules', {
       val: {
-        '#is': 'value',
+        '#is': '',
+        '@b-view': 'source',
         '#custom': [
           {name: 'num', type: 'number'},
           {name: 'blk', type: 'block'},
@@ -202,17 +218,17 @@ describe('editor ValueBlock', function () {
     });
     const [, client] = makeLocalConnection(Root.instance);
     const [, div] = loadTemplate(
-      <BlockStage conn={client} basePath="ValueBlockDragRules" style={{width: '800px', height: '800px'}} />,
+      <BlockStage conn={client} basePath="SourceBlockDragRules" style={{width: '800px', height: '800px'}} />,
       'editor'
     );
 
-    const valBlock = await shouldHappen(() => div.querySelector('.ticl-e-block-value') as HTMLElement);
+    const valBlock = await shouldHappen(() => div.querySelector('.ticl-e-block-source') as HTMLElement);
     const valNum = await shouldHappen(() => querySingle("//div.ticl-e-field-name/span[text()='num']/../..", valBlock));
     const valBlk = querySingle("//div.ticl-e-field-name/span[text()='blk']/../..", valBlock);
     const addZero = await shouldHappen(() => querySingle("//div.ticl-e-field-name/span[text()='0']/../..", div));
     const addHead = addZero.closest('.ticl-e-block').querySelector('.ticl-e-block-head');
 
-    // 1. Drag from value block property -> add.1 succeeds
+    // 1. Drag from @b-view = 'source' property -> add.1 succeeds
     const addOne = querySingle("//div.ticl-e-field-name/span[text()='1']/../..", div);
     const fromVal = valNum.getBoundingClientRect();
     const toAdd = addOne.getBoundingClientRect();
@@ -234,7 +250,7 @@ describe('editor ValueBlock', function () {
     simulate(valNum, 'mouseup', valNumMove);
     expect(flow.queryProperty('val.num')._bindingPath).toBeUndefined();
 
-    // 3. Right-button drag reorders @b-p on value block
+    // 3. Right-button drag reorders @b-p on @b-view = 'source' block
     const source = valNum.querySelector('.ticl-e-field-name > span');
     const target = valBlk.querySelector('.ticl-e-field-name > span');
     const sRect = source.getBoundingClientRect();
@@ -245,7 +261,7 @@ describe('editor ValueBlock', function () {
     simulate(target, 'mousemove', reorderMove);
     simulate(target, 'mouseup', {...reorderMove, buttons: 0});
     await shouldHappen(() => arrayEqual(flow.queryValue('val.@b-p') as unknown[], ['blk', 'num']));
-    await client.getValue('ValueBlockDragRules.val.@b-p');
+    await client.getValue('SourceBlockDragRules.val.@b-p');
 
     // 4. Drag add block head -> val.blk is rejected
     const fromHead = addHead.getBoundingClientRect();
@@ -260,14 +276,15 @@ describe('editor ValueBlock', function () {
 
   it.each([
     {
-      name: 'value',
+      name: 'source',
       blockData: {
-        '#is': 'value',
+        '#is': '',
+        '@b-view': 'source',
         '#custom': [{name: 'value', type: 'any'}],
         '@b-xyw': [100, 100, 160],
         '@b-p': ['value'],
       },
-      selector: '.ticl-e-block-value',
+      selector: '.ticl-e-block-source',
       selectTarget: '.ticl-e-block-head',
     },
     {
@@ -279,10 +296,10 @@ describe('editor ValueBlock', function () {
   ])(
     'shows floating bottom-right resize handle only when selected and hovered for $name block',
     async function ({blockData, selector, selectTarget}) {
-      flow = Root.instance.addFlow('ValueBlockResize', {target: blockData});
+      flow = Root.instance.addFlow('SourceBlockResize', {target: blockData});
       const [, client] = makeLocalConnection(Root.instance);
       const [, div] = loadTemplate(
-        <BlockStage conn={client} basePath="ValueBlockResize" style={{width: '800px', height: '800px'}} />,
+        <BlockStage conn={client} basePath="SourceBlockResize" style={{width: '800px', height: '800px'}} />,
         'editor'
       );
 
@@ -324,23 +341,29 @@ describe('editor ValueBlock', function () {
       await shouldHappen(() => block.offsetWidth === 260);
       await shouldHappen(() => arrayEqual(flow.queryValue('target.@b-xyw') as unknown[], [100, 100, 260]));
       simulate(document.body, 'mouseup');
-      await client.getValue('ValueBlockResize.target.@b-xyw');
+      await client.getValue('SourceBlockResize.target.@b-xyw');
     }
   );
 
   it('hides resize handle when policy blocks writing @b-xyw', async function () {
-    flow = Root.instance.addFlow('ValueBlockReadonly', {
-      val: {'#is': 'value', '#custom': [{name: 'value', type: 'any'}], '@b-xyw': [100, 100, 160], '@b-p': ['value']},
+    flow = Root.instance.addFlow('SourceBlockReadonly', {
+      val: {
+        '#is': '',
+        '@b-view': 'source',
+        '#custom': [{name: 'value', type: 'any'}],
+        '@b-xyw': [100, 100, 160],
+        '@b-p': ['value'],
+      },
     });
     const [, base] = makeLocalConnection(Root.instance);
     const client = base.withPolicy({readonly: true});
     const [, div] = loadTemplate(
       <EditPolicyProvider conn={client}>
-        <BlockStage conn={client} basePath="ValueBlockReadonly" style={{width: '800px', height: '800px'}} />
+        <BlockStage conn={client} basePath="SourceBlockReadonly" style={{width: '800px', height: '800px'}} />
       </EditPolicyProvider>,
       'editor'
     );
-    const block = await shouldHappen(() => div.querySelector('.ticl-e-block-value') as HTMLElement);
+    const block = await shouldHappen(() => div.querySelector('.ticl-e-block-source') as HTMLElement);
     expect(block.querySelector('.ticl-e-width-drag')).toBeNull();
   });
 });
