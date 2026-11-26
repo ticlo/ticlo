@@ -12,6 +12,7 @@ export interface ValueEditorProps {
   desc: PropDesc;
   inline?: boolean;
   locked?: boolean;
+  timezone?: string;
   onChange?: (value: any, field: string) => void;
   onEditValue?: (desc: PropDesc, mime?: string) => void;
   addSubBlock?: (id: string, desc?: FunctionDesc, data?: any) => void;

@@ -1,7 +1,21 @@
 import {DateTime} from 'luxon';
 import * as DateTimeUtil from '../DateTime.ts';
+import {
+  addGlobalSettingsListener,
+  getDefaultZone,
+  getFirstDayOfWeek,
+  getGlobalSettingsData,
+  isWeekDay,
+  removeGlobalSettingsListener,
+  systemZone,
+  updateGlobalSettings,
+} from '../Settings.ts';
+import {DataWrapper} from '../../block/FunctonData.ts';
 
 describe('DateTime', () => {
+  afterEach(() => {
+    updateGlobalSettings();
+  });
   describe('formatDate', () => {
     it('should format dates correctly', () => {
       const dt = DateTime.fromISO('2025-05-28T12:34:56');
@@ -93,6 +107,74 @@ describe('DateTime', () => {
 
       const dtWithSystemZone = DateTimeUtil.toDateTime('2025-05-28T12:34:56');
       expect(dtWithSystemZone.zoneName).toBeDefined();
+    });
+
+    it('resolves empty and special zones to default zone', () => {
+      updateGlobalSettings(new DataWrapper({'#timezone': 'America/New_York'}));
+      expect(getDefaultZone()).toBe('America/New_York');
+      expect(DateTimeUtil.resolveZone('')).toBe('America/New_York');
+      expect(DateTimeUtil.resolveZone(undefined)).toBe('America/New_York');
+      expect(DateTimeUtil.resolveZone('Factory')).toBe('America/New_York');
+      expect(DateTimeUtil.resolveZone('auto')).toBe('America/New_York');
+      expect(DateTimeUtil.resolveZone('Invalid/Timezone')).toBe('America/New_York');
+      expect(DateTimeUtil.resolveZone('UTC')).toBe('UTC');
+      expect(DateTimeUtil.getZoneObject('')).toEqual({zone: 'America/New_York'});
+    });
+
+    it('round-trips encodeDateTime/decodeDateTime with server default zone', () => {
+      updateGlobalSettings(new DataWrapper({'#timezone': 'America/New_York'}));
+      const dtEast = DateTime.fromISO('2025-05-28T12:34:56', {zone: 'America/New_York'});
+      const encoded = DateTimeUtil.encodeDateTime(dtEast);
+      expect(encoded).not.toContain('@');
+      const decoded = DateTimeUtil.decodeDateTime(encoded);
+      expect(decoded.zoneName).toBe('America/New_York');
+      expect(DateTimeUtil.isDateSame(dtEast, decoded)).toBe(true);
+    });
+  });
+
+  describe('global settings sync', () => {
+    it('round-trips getGlobalSettingsData into updateGlobalSettings and notifies listeners', () => {
+      let notifications = 0;
+      const listener = () => {
+        notifications++;
+      };
+      addGlobalSettingsListener(listener);
+      try {
+        updateGlobalSettings(
+          new DataWrapper({
+            '#timezone': 'America/New_York',
+            '#firstDayOfWeek': 1,
+            '#weekDays': [1, 2, 3, 4],
+          })
+        );
+        expect(notifications).toBe(1);
+        const exported = getGlobalSettingsData();
+        expect(exported).toEqual({
+          '#timezone': 'America/New_York',
+          '#firstDayOfWeek': 1,
+          '#weekDays': [1, 2, 3, 4],
+        });
+
+        updateGlobalSettings();
+        expect(getDefaultZone()).toBe(systemZone);
+        expect(getFirstDayOfWeek()).toBe(7);
+        expect(isWeekDay(5)).toBe(true);
+
+        updateGlobalSettings(new DataWrapper(exported));
+        expect(getDefaultZone()).toBe('America/New_York');
+        expect(getFirstDayOfWeek()).toBe(1);
+        expect(isWeekDay(5)).toBe(false);
+        expect(isWeekDay(4)).toBe(true);
+      } finally {
+        removeGlobalSettingsListener(listener);
+      }
+    });
+
+    it('ignores empty or invalid timezone in updateGlobalSettings', () => {
+      updateGlobalSettings(new DataWrapper({'#timezone': ''}));
+      expect(getDefaultZone()).toBe(systemZone);
+      updateGlobalSettings(new DataWrapper({'#timezone': 'Invalid/Zone'}));
+      expect(getDefaultZone()).toBe(systemZone);
     });
   });
 });

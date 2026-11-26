@@ -3,11 +3,28 @@ import {getDefaultZone, systemZone} from './Settings.ts';
 
 export const invalidDate = DateTime.invalid('invalid input');
 
-export function getZoneObject(zoneName: unknown): {zone: string} {
-  let z = zoneName as string;
-  if (!zoneName || typeof zoneName !== 'string') {
-    z = getDefaultZone();
+const validZoneCache = new Map<string, boolean>();
+const MAX_ZONE_CACHE_SIZE = 256;
+
+export function resolveZone(zoneName: unknown): string {
+  if (typeof zoneName === 'string' && zoneName && zoneName !== 'Factory' && zoneName !== 'auto') {
+    let valid = validZoneCache.get(zoneName);
+    if (valid === undefined) {
+      valid = DateTime.now().setZone(zoneName).isValid;
+      if (validZoneCache.size >= MAX_ZONE_CACHE_SIZE) {
+        validZoneCache.clear();
+      }
+      validZoneCache.set(zoneName, valid);
+    }
+    if (valid) {
+      return zoneName;
+    }
   }
+  return getDefaultZone();
+}
+
+export function getZoneObject(zoneName: unknown): {zone: string} {
+  const z = resolveZone(zoneName);
   if (z === systemZone) {
     return {zone: undefined};
   }

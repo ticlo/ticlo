@@ -11,8 +11,8 @@ const funcDesc: FunctionDesc = {name: 'create-schedule'};
 
 const {Option} = Select;
 
-// Use Factory as an auto timezone, which will be converted to the current timezone when needed.
-const defaultTime = DateTime.fromFormat('00:00:00.000', 'HH:mm:ss.SSS', {zone: 'Factory'});
+// Use UTC as a fixed zone for time-of-day display without date/DST shifts.
+const defaultTime = DateTime.fromFormat('00:00:00.000', 'HH:mm:ss.SSS', {zone: 'UTC'});
 
 interface Props {
   current: any;
@@ -31,7 +31,7 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
     const {setDuration} = state;
     if (setDuration !== duration) {
       // value changed remotely, need to update unit
-      const newState: State = {...state};
+      const newState: State = {...state, setDuration: duration};
       if (duration != null) {
         if (duration >= 60 && duration % 60 === 0) {
           newState.unit = 60;
@@ -60,6 +60,9 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
   }
 
   onDurationChange = (value: number) => {
+    if (value == null || !Number.isFinite(value)) {
+      return;
+    }
     const {unit} = this.state;
     this.setDuration(value * unit);
   };
@@ -69,15 +72,16 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
     const {duration} = current;
     this.setState({unit});
     if (unit === -1) {
+      this.setState({setDuration: 0});
       onChange({start: '0:0', duration: 0});
     } else if (unit === 60) {
-      if (duration <= 30) {
+      if (duration == null || duration <= 30) {
         this.setDuration(60);
       } else if (duration % 60 !== 0) {
         this.setDuration(Math.round(duration / 60) * 60);
       }
     } else if (unit === 1) {
-      if (duration === 0) {
+      if (duration == null || duration === 0) {
         this.setDuration(15);
       }
     }
@@ -89,8 +93,10 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
 
     let d = defaultTime;
     if (typeof current.start === 'string') {
-      // Use Factory as an auto timezone, which will be converted to the current timezone when needed.
-      d = DateTime.fromFormat(current.start, 'H:m', {zone: 'Factory'});
+      const parsed = DateTime.fromFormat(current.start, 'H:m', {zone: 'UTC'});
+      if (parsed.isValid) {
+        d = parsed;
+      }
     }
 
     const unitSelector = (
@@ -128,7 +134,7 @@ export class TimeRangeEditor extends React.PureComponent<Props, State> {
               <InputNumber
                 size="small"
                 min={1}
-                value={current.duration / unit}
+                value={current.duration != null ? current.duration / unit : undefined}
                 addonAfter={unitSelector}
                 onChange={this.onDurationChange}
               />

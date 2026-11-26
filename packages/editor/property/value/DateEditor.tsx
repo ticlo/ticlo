@@ -1,38 +1,45 @@
 import React from 'react';
 import {Tooltip} from 'antd';
 import {DateTime} from 'luxon';
-import {formatDate} from '@ticlo/core';
+import {formatDate, resolveZone} from '@ticlo/core';
 import {ValueEditorProps} from './ValueEditorBase.ts';
-import {DatePicker} from '../../component/DateTimePicker.tsx';
-
-const defaultTime = {defaultValue: DateTime.fromFormat('00:00:00.000', 'HH:mm:ss.SSS')};
+import {
+  DatePicker,
+  getDefaultPickerValue,
+  getShowTimeOption,
+  normalizePickerDate,
+} from '../../component/DateTimePicker.tsx';
 
 export class DateEditor extends React.PureComponent<ValueEditorProps, any> {
+  private parseValue(value: unknown, targetZone: string): DateTime | null {
+    if (typeof value === 'string') {
+      value = DateTime.fromISO(value, {zone: targetZone, setZone: true});
+    }
+    return DateTime.isDateTime(value) && value.isValid ? value : null;
+  }
+
   onValueChange = (day: DateTime) => {
-    const {name, onChange} = this.props;
-    onChange(day, name);
+    const {name, onChange, timezone, value} = this.props;
+    const targetZone = resolveZone(timezone);
+    const hadValidValue = this.parseValue(value, targetZone) != null;
+    onChange(normalizePickerDate(day, targetZone, hadValidValue), name);
   };
 
   render() {
-    let {desc, value, locked, onChange} = this.props;
+    const {desc, value, locked, onChange, timezone} = this.props;
     const showTime = desc.showTime !== false;
-    const showTimeOption = showTime ? defaultTime : null;
-    let title: string;
-    if (typeof value === 'string') {
-      value = DateTime.fromISO(value, {setZone: true});
-    }
-    if (!value?.isValid) {
-      value = null;
-    } else {
-      title = formatDate(value, showTime);
-    }
+    const targetZone = resolveZone(timezone);
+    const showTimeOption = showTime ? getShowTimeOption(targetZone) : null;
+    const parsed = this.parseValue(value, targetZone);
+    const title = parsed ? formatDate(parsed, showTime) : undefined;
 
     return (
       <Tooltip title={title} overlayClassName="ticl-e-tooltip">
         <DatePicker
           className="ticl-e-date-editor"
           size="small"
-          value={value}
+          value={parsed}
+          defaultPickerValue={getDefaultPickerValue(targetZone)}
           disabled={locked || onChange == null}
           showTime={showTimeOption}
           onChange={this.onValueChange}

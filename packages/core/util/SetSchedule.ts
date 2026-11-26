@@ -3,6 +3,7 @@ const CHECK_INTERVAL = 60_000;
 
 export class ScheduleEvent {
   private _expire: number;
+  _group: ScheduleGroup = null;
   constructor(
     public readonly callback: ScheduleCallback,
     public readonly start: number,
@@ -13,7 +14,8 @@ export class ScheduleEvent {
   cancel() {
     if (this._expire !== -Infinity) {
       this._expire = -Infinity;
-      scheduleGroups.get(this.start)?.events.delete(this);
+      this._group?.removeEvent(this);
+      this._group = null;
     }
   }
   run(current: number) {
@@ -54,6 +56,22 @@ export class ScheduleGroup {
     return newGroup;
   }
 
+  addEvent(event: ScheduleEvent) {
+    this.events.add(event);
+    event._group = this;
+  }
+
+  removeEvent(event: ScheduleEvent) {
+    this.events.delete(event);
+    if (this.events.size === 0 && this !== ScheduleGroup.head && this.next && this.prev) {
+      this.next.prev = this.prev;
+      this.prev.next = this.next;
+      this.next = null;
+      this.prev = null;
+      ScheduleGroup.groups.delete(this.time);
+    }
+  }
+
   insertAfter(g: ScheduleGroup) {
     this.next.prev = g;
     g.next = this.next;
@@ -63,14 +81,18 @@ export class ScheduleGroup {
 
   run(current: number) {
     if (current >= this.time) {
-      for (const event of this.events) {
-        event.run(current);
-      }
-      // remove the current group
+      const next = this.next;
+      // Unlink and delete before running callbacks so re-entrant setSchedule on the same second works safely.
       this.next.prev = this.prev;
       this.prev.next = this.next;
+      this.next = null;
+      this.prev = null;
       ScheduleGroup.groups.delete(this.time);
-      return this.next;
+      for (const event of this.events) {
+        event._group = null;
+        event.run(current);
+      }
+      return next;
     }
     return null;
   }
@@ -91,6 +113,10 @@ export class ScheduleGroup {
   }
   static readonly head = ScheduleGroup._initHead();
   static reset() {
+    if (timeout) {
+      clearTimeout(timeout[0]);
+      timeout = null;
+    }
     const head = ScheduleGroup.head;
     head.prev = head;
     head.next = head;
@@ -98,11 +124,9 @@ export class ScheduleGroup {
   }
 }
 
-const scheduleGroups = new Map<number, ScheduleGroup>();
-
 let timeout: [any, number] = null;
 function checkSchedule(expectedTime: number) {
-  const current = new Date().getTime();
+  const current = Date.now();
   timeout = null;
   ScheduleGroup.run(current);
   nextTimeout();
@@ -117,7 +141,7 @@ function nextTimeout() {
       timeout = null;
     }
     if (!timeout) {
-      const current = new Date().getTime();
+      const current = Date.now();
       let delay = nextTime - current;
       if (delay > CHECK_INTERVAL) {
         // do not wait to long, in case of computer sleep/hibernate
@@ -132,17 +156,17 @@ export function setSchedule(callback: ScheduleCallback, time: number, expire = I
   if (!Number.isFinite(time)) {
     return null;
   }
-  const current = new Date().getTime();
+  const current = Date.now();
   if (time <= current) {
     callback(current);
     return null;
   }
   const event = new ScheduleEvent(callback, time, expire);
-  ScheduleGroup.find(time).events.add(event);
+  ScheduleGroup.find(time).addEvent(event);
   nextTimeout();
   return event;
 }
 
 export function setScheduledTimeout(callback: ScheduleCallback, delay: number) {
-  return setSchedule(callback, new Date().getTime() + delay);
+  return setSchedule(callback, Date.now() + delay);
 }

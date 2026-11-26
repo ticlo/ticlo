@@ -1,5 +1,7 @@
 import {DateTime, Info, StringUnitLength} from 'luxon';
 import type {GenerateConfig} from '@rc-component/picker/generate';
+import {getDefaultZone} from '@ticlo/core/util/Settings.ts';
+import {getZoneObject} from '@ticlo/core/util/DateTime.ts';
 
 const weekDayFormatMap: {[key: string]: StringUnitLength} = {
   zh_CN: 'narrow',
@@ -55,8 +57,8 @@ const normalizeLocale = (locale: string): string => locale.replace(/_/g, '-');
 
 const generateConfig: GenerateConfig<DateTime> = {
   // get
-  getNow: () => DateTime.local(),
-  getFixedDate: (fixed: string) => DateTime.fromFormat(fixed, 'yyyy-MM-dd'),
+  getNow: () => DateTime.now().setZone(getDefaultZone()),
+  getFixedDate: (fixed: string) => DateTime.fromFormat(fixed, 'yyyy-MM-dd', getZoneObject(undefined)),
   getEndDate: (date: DateTime) => date.endOf('month'),
   getWeekDay: (date: DateTime) => date.weekday,
   getYear: (date: DateTime) => date.year,
@@ -114,6 +116,7 @@ const generateConfig: GenerateConfig<DateTime> = {
 
         const date = DateTime.fromFormat(text, normalizedFormat, {
           locale: normalizeLocale(locale),
+          ...getZoneObject(undefined),
         });
 
         if (date.isValid) {

@@ -8,7 +8,7 @@ import {TicloLayoutContext, TicloLayoutContextType} from '../../component/Layout
 
 import {stopPropagation} from '@ticlo/core';
 import {LocalizedPropertyName, t} from '../../component/LocalizedLabel.tsx';
-import {FUNC, funcDesc} from './descs.ts';
+import {FUNC, funcDesc, sortDateItem} from './descs.ts';
 
 const CURRENT_YEAR = new Date().getFullYear();
 // create 20 years for the dropdown
@@ -59,7 +59,7 @@ function DayTag({value, onClose}: {value: number | string; onClose: (e: React.Mo
 
 interface Props {
   current: Partial<SchedulerConfig>;
-  onValueChange: (value: unknown, field: string) => void;
+  onValuesChange: (values: Partial<SchedulerConfig>, fullValue?: boolean) => void;
 }
 
 interface States {
@@ -78,20 +78,39 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
 
   state: States = {dayCount: 1, dayType: 1};
 
-  onYearsChange = (years: number[]) => {
-    this.props.onValueChange(years.map((y) => Number(y)).filter(Number.isInteger), 'years');
-  };
-  onMonthsChange = (months: number[]) => {
-    this.props.onValueChange(months, 'months');
-  };
-  onDaysChange = (days: (number | string)[]) => {
-    this.props.onValueChange(days, 'days');
-    if (!isRangeAllowed(days) && this.props.current.range) {
-      this.props.onValueChange(false, 'range');
+  updateDays = (nextDays: (number | string)[]) => {
+    const {current, onValuesChange} = this.props;
+    const sorted = [...nextDays].sort(sortDateItem);
+    if (!isRangeAllowed(sorted) && current.range) {
+      const copy: Partial<SchedulerConfig> = {...current, days: sorted};
+      delete copy.range;
+      onValuesChange(copy, true);
+    } else {
+      onValuesChange({days: sorted});
     }
   };
+
+  onYearsChange = (years: number[]) => {
+    const sorted = years
+      .map((y) => Number(y))
+      .filter(Number.isInteger)
+      .sort(sortDateItem);
+    this.props.onValuesChange({years: sorted});
+  };
+  onMonthsChange = (months: number[]) => {
+    this.props.onValuesChange({months: [...months].sort(sortDateItem)});
+  };
+  onDaysChange = (days: (number | string)[]) => {
+    this.updateDays(days);
+  };
   onRangeChange = (e: {target: {checked: boolean}}) => {
-    this.props.onValueChange(e.target.checked, 'range');
+    if (e.target.checked) {
+      this.props.onValuesChange({range: true});
+    } else {
+      const copy: Partial<SchedulerConfig> = {...this.props.current};
+      delete copy.range;
+      this.props.onValuesChange(copy, true);
+    }
   };
   onDayCountChange = (dayCount: number) => {
     this.setState({dayCount});
@@ -103,13 +122,13 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
     const {dayCount, dayType} = this.state;
     if (dayCount === 0 && dayType === 0) {
       // every day, remove all the days
-      this.props.onValueChange([], 'days');
+      this.updateDays([]);
       return;
     }
-    const {days} = this.props.current;
+    const days = Array.isArray(this.props.current.days) ? this.props.current.days : [];
     const str = `${dayCount}>${dayType}`;
-    if (!days?.includes(str)) {
-      this.props.onValueChange([...days, str], 'days');
+    if (!days.includes(str)) {
+      this.updateDays([...days, str]);
     }
   };
   getLocalizedOptions = cacheCall((context: unknown) => {
@@ -165,7 +184,6 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
     const rows: React.ReactElement[] = [];
     let row: React.ReactElement[];
 
-    const {onValueChange} = this.props;
     const actualDays = Array.isArray(days) ? days : [];
 
     for (let i = 1; i <= 31; ++i) {
@@ -176,10 +194,10 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
       const onClick =
         pos >= 0
           ? () => {
-              onValueChange(actualDays.toSpliced(pos, 1), 'days');
+              this.updateDays(actualDays.toSpliced(pos, 1));
             }
           : () => {
-              onValueChange([...actualDays, i], 'days');
+              this.updateDays([...actualDays, i]);
             };
       row.push(
         <td
@@ -279,7 +297,7 @@ export class AdvancedSelector extends React.PureComponent<Props, States> {
           <div className="ticl-e-property">
             <div className="ticl-e-property-name" />
             <div className="ticl-e-property-value">
-              <Checkbox onChange={this.onRangeChange}>
+              <Checkbox checked={Boolean(range)} onChange={this.onRangeChange}>
                 <LocalizedPropertyName desc={funcDesc} name="range" />
               </Checkbox>
             </div>

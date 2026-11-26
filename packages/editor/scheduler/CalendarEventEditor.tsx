@@ -4,7 +4,7 @@ import {ScheduleEvent} from '@ticlo/core/util/SetSchedule.ts';
 import {RepeatMode, RepeatModeList, SchedulerConfig} from '@ticlo/core/functions/date/Schedule/SchedulerEvent.ts';
 import {LocalizedPropertyName, t} from '../component/LocalizedLabel.tsx';
 import {SelectEditor} from '../property/value/SelectEditor.tsx';
-import {type FunctionDesc, type PropDesc, PropGroupDesc, smartStrCompare} from '@ticlo/core';
+import {type FunctionDesc, type PropDesc, PropGroupDesc} from '@ticlo/core';
 import {deepEqual} from '@ticlo/core/util/Compare.ts';
 import {StringEditor} from '../property/value/StringEditor.tsx';
 import {ColorEditor} from '../property/value/ColorEditor.tsx';
@@ -15,15 +15,19 @@ import {PropertyEditor} from '../property/PropertyEditor.tsx';
 import {ClientConn} from '@ticlo/core/connect/ClientConn.ts';
 import {DatesSelector} from './editors/DatesSelector.tsx';
 import {AdvancedSelector} from './editors/AdvancedSelector.tsx';
-import {descs, funcDesc} from './editors/descs.ts';
+import {descs, funcDesc, sortDateItem} from './editors/descs.ts';
+
+export {sortDateItem};
 
 function P({
   field,
   current,
+  timezone,
   onChange,
 }: {
   field: string;
   current: any;
+  timezone?: string;
   onChange: (value: unknown, field: string) => void;
 }) {
   const propDesc = descs[field];
@@ -39,6 +43,7 @@ function P({
           value={current?.[field]}
           desc={propDesc}
           funcDesc={funcDesc}
+          timezone={timezone}
           onChange={onChange}
         />
       </div>
@@ -46,26 +51,11 @@ function P({
   );
 }
 
-export function sortDateItem(a: unknown, b: unknown) {
-  if (typeof a === 'number' && typeof b === 'number') {
-    return a - b;
-  }
-  if (typeof a === 'string' && typeof b === 'string') {
-    return smartStrCompare(a, b, false);
-  }
-  if (typeof a === 'number') {
-    return -1;
-  }
-  if (typeof b === 'number') {
-    return 1;
-  }
-  return 0;
-}
-
 interface Props {
   conn: ClientConn;
   path: string;
   index: number;
+  zone?: string;
   config: SchedulerConfig;
   onChange: (config: SchedulerConfig) => void;
 }
@@ -113,28 +103,26 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
 
   onValueChange = (value: unknown, field: string) => {
     const {current} = this.state;
-    let deleteField = value === '' || value === false;
-    if (value === 0 && field === 'priority') {
-      // also make priority undefined to be the default
-      // but other value like duration should keep the 0 verlue
-      deleteField = true;
-    }
+    // Keep onlyWeekday as a 2-state toggle (undefined = all days, true = weekdays only).
+    // Preserve numeric 0 for priority (0 is the highest priority; undefined/Infinity is lowest).
+    const deleteField =
+      value == null || value === '' || (value === false && (field === 'onlyWeekday' || field === 'range'));
     if (deleteField) {
       const copy: any = {...current};
       delete copy[field];
       this.onValuesChange(copy, true);
     } else {
-      const v = value;
-      if (Array.isArray(v)) {
-        v.sort(sortDateItem);
-      }
+      const v = Array.isArray(value) ? [...value].sort(sortDateItem) : value;
       this.onValuesChange({[field]: v});
     }
   };
 
   onRepeatChange = (repeat: RepeatMode) => {
     const {current} = this.state;
-    const newConfig = {...current, repeat};
+    const newConfig: Partial<SchedulerConfig> = {...current, repeat};
+    if (newConfig.duration == null) {
+      newConfig.duration = 0;
+    }
     if (repeat !== 'weekly') {
       delete newConfig.wDays;
     }
@@ -145,6 +133,7 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
       delete newConfig.years;
       delete newConfig.months;
       delete newConfig.days;
+      delete newConfig.range;
     }
     this.onValuesChange(newConfig, true);
   };
@@ -155,32 +144,36 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const {conn, path, index} = this.props;
-    const {error, config, current, showOptional, paths} = this.state;
+    const {conn, index, zone} = this.props;
+    const {error, current, showOptional, paths} = this.state;
     const schedulerDesc = conn.watchDesc('scheduler');
-    const valueDesc = (schedulerDesc.properties[0] as PropGroupDesc).properties.find((d) => d.name === 'value');
+    const valueDesc = (schedulerDesc?.properties?.[0] as PropGroupDesc)?.properties?.find((d) => d.name === 'value');
 
     const {repeat} = current;
     return (
       <DockDialogPane error={error}>
         <div className="ticl-e-property-list">
-          <PropertyEditor
-            key={
-              // PropertyEditor can handle paths change internally, but not name change.
-              // So we have to refresh it on name(index) change.
-              index
-            }
-            conn={conn}
-            paths={paths}
-            name={`value${index}`}
-            funcDesc={schedulerDesc}
-            propDesc={valueDesc}
-          />
+          {schedulerDesc && valueDesc ? (
+            <PropertyEditor
+              key={
+                // PropertyEditor can handle paths change internally, but not name change.
+                // So we have to refresh it on name(index) change.
+                index
+              }
+              conn={conn}
+              paths={paths}
+              name={`value${index}`}
+              funcDesc={schedulerDesc}
+              propDesc={valueDesc}
+            />
+          ) : null}
           <TimeRangeEditor current={current} onChange={this.onValuesChange} />
           <P field="repeat" current={current} onChange={this.onRepeatChange} />
           {repeat === 'weekly' ? <P field="wDays" current={current} onChange={this.onValueChange} /> : null}
-          {repeat === 'dates' ? <DatesSelector dates={current.dates} onValueChange={this.onValueChange} /> : null}
-          {repeat === 'advanced' ? <AdvancedSelector onValueChange={this.onValueChange} current={current} /> : null}
+          {repeat === 'dates' ? (
+            <DatesSelector dates={current.dates} zone={zone} onValueChange={this.onValueChange} />
+          ) : null}
+          {repeat === 'advanced' ? <AdvancedSelector onValuesChange={this.onValuesChange} current={current} /> : null}
           <div className="ticl-e-property-divider">
             <div className="ticl-e-h-line" style={{maxWidth: '16px'}} />
             <ExpandIcon opened={showOptional ? 'opened' : 'closed'} onClick={this.onshowOptionalClicked} />
@@ -191,8 +184,8 @@ export class CalendarEventEditor extends React.PureComponent<Props, State> {
             <>
               <P field="name" current={current} onChange={this.onValueChange} />
               <P field="priority" current={current} onChange={this.onValueChange} />
-              <P field="after" current={current} onChange={this.onValueChange} />
-              <P field="before" current={current} onChange={this.onValueChange} />
+              <P field="after" current={current} timezone={zone} onChange={this.onValueChange} />
+              <P field="before" current={current} timezone={zone} onChange={this.onValueChange} />
               <P field="onlyWeekday" current={current} onChange={this.onValueChange} />
               <P field="color" current={current} onChange={this.onValueChange} />
             </>

@@ -1,6 +1,6 @@
 import {globalFunctions} from '../../block/FunctionModule.ts';
 import {DateTime} from 'luxon';
-import {invalidDate} from '../../util/DateTime.ts';
+import {getZoneObject, invalidDate} from '../../util/DateTime.ts';
 import {AutoUpdateFunction} from '../base/AutoUpdateFunction.ts';
 
 const UNIT_OPTIONS = ['year', 'month', 'day', 'hour', 'minute', 'week'] as const;
@@ -16,10 +16,8 @@ export class GenerateDateFunction extends AutoUpdateFunction {
 
       const timezone = this._data.getValue('timezone');
       try {
-        let now: DateTime = DateTime.now();
-        if (typeof timezone === 'string') {
-          now = now.setZone(timezone); // convert empty string to undefined
-        }
+        const zoneObj = getZoneObject(timezone);
+        const now: DateTime = zoneObj.zone ? DateTime.now().setZone(zoneObj.zone) : DateTime.now();
         const start = now.startOf(unit);
         const end = now.endOf(unit);
         const nextCheck = end.valueOf() + 1;

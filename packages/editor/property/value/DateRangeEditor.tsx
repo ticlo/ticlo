@@ -1,48 +1,62 @@
 import React from 'react';
 import {Tooltip} from 'antd';
 import {DateTime} from 'luxon';
-import {formatDate} from '@ticlo/core';
+import {formatDate, resolveZone} from '@ticlo/core';
 import {ValueEditorProps} from './ValueEditorBase.ts';
-import {RangePicker} from '../../component/DateTimePicker.tsx';
-
-const defaultTimes = {
-  defaultValue: [
-    DateTime.fromFormat('00:00:00.000', 'HH:mm:ss.SSS'),
-    DateTime.fromFormat('23:59:59.999', 'HH:mm:ss.SSS'),
-  ],
-};
+import {
+  getDefaultPickerRangeValue,
+  getShowTimeRangeOption,
+  normalizePickerDate,
+  RangePicker,
+} from '../../component/DateTimePicker.tsx';
 
 export class DateRangeEditor extends React.PureComponent<ValueEditorProps, any> {
+  private parseRange(value: unknown, targetZone: string): [DateTime, DateTime] | null {
+    if (Array.isArray(value) && value.length === 2) {
+      let [start, end] = value;
+      if (typeof start === 'string' && typeof end === 'string') {
+        start = DateTime.fromISO(start, {zone: targetZone, setZone: true});
+        end = DateTime.fromISO(end, {zone: targetZone, setZone: true});
+      }
+      if (DateTime.isDateTime(start) && start.isValid && DateTime.isDateTime(end) && end.isValid) {
+        return [start, end];
+      }
+    }
+    return null;
+  }
+
   onValueChange = (range: [DateTime, DateTime]) => {
-    const {name, onChange} = this.props;
+    const {name, onChange, timezone, value} = this.props;
+    if (Array.isArray(range) && range.length === 2) {
+      const targetZone = resolveZone(timezone);
+      const hadValidValue = this.parseRange(value, targetZone) != null;
+      onChange(
+        [
+          normalizePickerDate(range[0], targetZone, hadValidValue),
+          normalizePickerDate(range[1], targetZone, hadValidValue),
+        ],
+        name
+      );
+      return;
+    }
     onChange(range, name);
   };
 
   render() {
-    let {desc, value, locked, onChange} = this.props;
+    const {desc, value, locked, onChange, timezone} = this.props;
     const showTime = desc.showTime !== false;
-    const showTimeOption = showTime ? defaultTimes : null;
-
-    let title: string;
-    if (Array.isArray(value) && value.length === 2) {
-      if (typeof value[0] === 'string' && typeof value[1] === 'string') {
-        value = [DateTime.fromISO(value[0], {setZone: true}), DateTime.fromISO(value[1], {setZone: true})];
-      }
-      if (!value[0]?.isValid || !value[1]?.isValid) {
-        value = null;
-      } else {
-        title = `${formatDate(value[0], showTime)}\n${formatDate(value[1], showTime)}`;
-      }
-    } else {
-      value = null;
-    }
+    const targetZone = resolveZone(timezone);
+    const showTimeOption = showTime ? getShowTimeRangeOption(targetZone) : null;
+    const parsed = this.parseRange(value, targetZone);
+    const title = parsed ? `${formatDate(parsed[0], showTime)}\n${formatDate(parsed[1], showTime)}` : undefined;
 
     return (
       <Tooltip title={title} overlayClassName="ticl-e-tooltip">
         <RangePicker
           className="ticl-e-date-range-editor"
           size="small"
-          value={value}
+          value={parsed}
+          defaultPickerValue={getDefaultPickerRangeValue(targetZone)}
           disabled={locked || onChange == null}
           showTime={showTimeOption}
           onChange={this.onValueChange}

@@ -1,17 +1,18 @@
 import React from 'react';
-import {LocalizedPropertyName, t} from '../../component/LocalizedLabel.tsx';
-import {Checkbox, Select} from 'antd';
-import {Calendar} from '../../component/DateTimePicker.tsx';
+import {t} from '../../component/LocalizedLabel.tsx';
+import {Select} from 'antd';
+import {Calendar, getDefaultPickerValue} from '../../component/DateTimePicker.tsx';
+import {resolveZone} from '@ticlo/core';
 import {DateTime} from 'luxon';
-import {funcDesc} from './descs.ts';
 
 interface Props {
   dates: string[];
+  zone?: string;
   onValueChange: (value: unknown, field: string) => void;
 }
 interface State {}
 export class DatesSelector extends React.PureComponent<Props, State> {
-  static defaultProps: Partial<State> = {
+  static defaultProps: Partial<Props> = {
     dates: [],
   };
 
@@ -21,15 +22,16 @@ export class DatesSelector extends React.PureComponent<Props, State> {
 
   getCell = (date: DateTime) => {
     const {dates, onValueChange} = this.props;
+    const safeDates = Array.isArray(dates) ? dates : [];
     const s = date.toFormat('yyyy-MM-dd');
-    const pos = dates.indexOf(s);
+    const pos = safeDates.indexOf(s);
     const onClick =
       pos >= 0
         ? () => {
-            onValueChange(dates.toSpliced(pos, 1), 'dates');
+            onValueChange(safeDates.toSpliced(pos, 1), 'dates');
           }
         : () => {
-            onValueChange([...dates, s], 'dates');
+            onValueChange([...safeDates, s], 'dates');
           };
     return (
       <div className={pos >= 0 ? 'ant-picker-cell-in-view ant-picker-cell-selected' : null} onClick={onClick}>
@@ -39,7 +41,9 @@ export class DatesSelector extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const {dates} = this.props;
+    const {dates, zone} = this.props;
+    const safeDates = Array.isArray(dates) ? dates : [];
+    const defaultValue = getDefaultPickerValue(resolveZone(zone));
     return (
       <>
         <div className="ticl-e-property">
@@ -48,11 +52,13 @@ export class DatesSelector extends React.PureComponent<Props, State> {
             <Select
               size="small"
               mode="multiple"
-              value={dates}
+              value={safeDates}
               onChange={this.onDatesChange}
               dropdownMatchSelectWidth={false}
               placement="bottomRight"
-              dropdownRender={() => <Calendar fullscreen={false} dateFullCellRender={this.getCell} />}
+              dropdownRender={() => (
+                <Calendar fullscreen={false} defaultValue={defaultValue} dateFullCellRender={this.getCell} />
+              )}
             />
           </div>
         </div>
