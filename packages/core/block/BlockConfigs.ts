@@ -187,4 +187,5 @@ export const ConfigGenerators: {[key: string]: typeof BlockProperty} = {
   '#cancel': BlockCancelConfig,
   '#secret': BlockSecretConfig,
   '#priority': BlockPriorityConfig,
+  '#addon': BlockProperty,
 };

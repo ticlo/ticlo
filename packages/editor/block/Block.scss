@@ -216,7 +216,43 @@ body:not(.dock-dragging) {
 .ticl-e-block-foot {
   position: relative;
   height: 22px;
-  padding: 2px 12px;
+  padding: 2px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ticl-e-block-foot-addon-dropping {
+  background: color-mix(in srgb, var(--ticl-block-color) 16%, transparent);
+}
+
+.ticl-e-block-addons {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ticl-e-block-addon {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: var(--ticl-block-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: box-shadow 0.2s;
+
+  & > .tico {
+    transform: scale(0.75);
+  }
+
+  &.ticl-e-block-addon-selected {
+    box-shadow: 0 0 3px 2px color-mix(in srgb, var(--ticl-block-color) 70%, transparent);
+  }
 }
 
 .ticl-e-block-status {

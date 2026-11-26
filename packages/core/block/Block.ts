@@ -1,4 +1,11 @@
-import {BlockProperty, BlockIO, EmbeddedBlockSlot, BlockBindingSource, BlockConfig} from './BlockProperty.ts';
+import {
+  BlockAddon,
+  BlockProperty,
+  BlockIO,
+  EmbeddedBlockSlot,
+  BlockBindingSource,
+  BlockConfig,
+} from './BlockProperty.ts';
 import {ListenPromise} from './ListenPromise.ts';
 import {BlockBinding} from './BlockBinding.ts';
 import {FunctionFactory, BaseFunction} from './BlockFunction.ts';
@@ -279,6 +286,11 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
           }
           if (!create) {
             return null;
+          }
+          if (field.charCodeAt(1) === 45) {
+            // #- addon block
+            prop = new BlockAddon(this, field);
+            break;
           }
           // shouldn't have value before they are created
           prop = this._createConfig(field);

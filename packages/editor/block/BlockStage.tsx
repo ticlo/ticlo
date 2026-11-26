@@ -15,7 +15,7 @@ import debounce from 'lodash/debounce.js';
 import clamp from 'lodash/clamp.js';
 import {TooltipIconButton} from '../component/TooltipIconButton.tsx';
 import {DataMap, decode, encode} from '@ticlo/core';
-import {arrayEqual} from '@ticlo/core/editor.ts';
+import {arrayEqual, splitPathName} from '@ticlo/core/editor.ts';
 import {t} from '../component/LocalizedLabel.tsx';
 import {TicloCurrentFlowContext, TicloStage, TicloStageCommands} from '../component/LayoutContext.ts';
 
@@ -77,9 +77,20 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   }
 
   select = (paths: string[]) => {
+    this.clearSelectedAddon();
     for (const block of this._blocks.values()) block.setSelected(paths.includes(block.path));
-    if (paths.length === 1 && paths[0] === this.props.basePath) this.onSelectBase();
-    else this.onSelect();
+    if (paths.length === 1 && paths[0] === this.props.basePath) {
+      this.onSelectBase();
+    } else if (paths.length === 1 && !this._blocks.has(paths[0])) {
+      const [parentPath, name] = splitPathName(paths[0]);
+      if (name.startsWith('#-') && this._blocks.has(parentPath)) {
+        this._selectedAddon = paths[0];
+        this._blocks.get(parentPath).setSelectedAddon(paths[0]);
+      }
+      this.onSelect();
+    } else {
+      this.onSelect();
+    }
   };
 
   protected onSelectionChange(paths: string[]) {
@@ -223,6 +234,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
     if (e && e.event) {
       // when single click blank area closed some popups, skip the de-selecting
       if (!(e.dx === 0 && e.dy === 0 && this._hasPopup && !BlockStage.findOpenPopups())) {
+        this.clearSelectedAddon();
         const [x1, y1] = this._dragingSelect;
         const x2 = e.dx + x1;
         const y2 = e.dy + y1;
@@ -752,6 +764,9 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
   };
 
   deleteSelection = () => {
+    if (this._selectedAddon) {
+      return this.deleteSelectedAddon();
+    }
     if (!this.hasSelectedBlocks()) {
       return false;
     }
@@ -847,6 +862,7 @@ export class BlockStage extends BlockStageBase<BlockStageProps, StageState> impl
         setTimeout(() => {
           // make sure this is not unmounted
           if (this._mounted) {
+            this.clearSelectedAddon();
             const paths = new Set(response.pasted.map((s: string) => `${basePath}.${s}`));
             for (const [blockKey, blockItem] of this._blocks) {
               if (paths.has(blockKey)) {

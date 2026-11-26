@@ -105,4 +105,12 @@ export function renameProperty(block: Block, oldName: string, newName: string, m
       order.map((name) => (name === oldName ? newName : name))
     );
   }
+  const addonProp = block.getProperty('#addon', false);
+  const addons = addonProp?.getValue();
+  if (!addonProp?._bindingSource && isStringArray(addons) && addons.includes(oldName)) {
+    block.setValue(
+      '#addon',
+      addons.map((name) => (name === oldName ? newName : name))
+    );
+  }
 }

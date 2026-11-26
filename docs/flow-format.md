@@ -14,12 +14,12 @@ it loading as a child block. Inline worker definitions need this wrapper too.
 
 ### Function IDs
 
-| Saved `#is` | Meaning |
-| --- | --- |
-| `""` | No function; also used for saved flows and IO blocks |
-| `"add"` | Global function |
-| `":double"` | Current flow's `#functions` module |
-| `"+main:tools:double"` | Library module function |
+| Saved `#is`            | Meaning                                              |
+| ---------------------- | ---------------------------------------------------- |
+| `""`                   | No function; also used for saved flows and IO blocks |
+| `"add"`                | Global function                                      |
+| `":double"`            | Current flow's `#functions` module                   |
+| `"+main:tools:double"` | Library module function                              |
 
 `~#is` can bind the function ID. Types such as `flow:main`, `flow:folder`,
 `flow:inputs`, and `flow:outputs` come from runtime classes; assigning their
@@ -27,14 +27,14 @@ strings to ordinary blocks does not construct those classes. Use flow/folder API
 
 ## Property prefixes
 
-| Prefix | Purpose |
-| --- | --- |
-| none | Normal inputs/outputs |
-| `#` | Engine and function configuration |
-| `~` | Binding slot for a path or an embedded Block |
-| `^` | Context inherited through parent flows, library `#context`, and root `#global` |
-| `@` | Editor attributes, not function inputs |
-| `+` | Library entries under the runtime root, such as `+main` |
+| Prefix | Purpose                                                                        |
+| ------ | ------------------------------------------------------------------------------ |
+| none   | Normal inputs/outputs                                                          |
+| `#`    | Engine and function configuration                                              |
+| `~`    | Binding slot for a path or an embedded Block                                   |
+| `^`    | Context inherited through parent flows, library `#context`, and root `#global` |
+| `@`    | Editor attributes, not function inputs                                         |
+| `+`    | Library entries under the runtime root, such as `+main`                        |
 
 ### Configuration (`#`)
 
@@ -49,6 +49,8 @@ strings to ordinary blocks does not construct those classes. Use flow/folder API
   [static ownership](worker-functions.md#flow-classes-and-static-content).
 - `#priority`: `0` (highest) through `3` (lowest).
 - `#cancel`: cancellation trigger; `#secret`: secret configuration.
+- `#-` child prefix & `#addon`: addon child blocks attached to a Block (such as
+  `#-log`), with their names recorded in `#addon`.
 
 See [block configuration](block-configs.md) for `#mode`, `#disabled`,
 `#call`, `#sync`, `#wait`, custom/optional properties, and read-only references.

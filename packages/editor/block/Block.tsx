@@ -6,11 +6,13 @@ import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from './F
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent.tsx';
 import {BlockWidget, BlockWidgetProps} from './view/BlockWidget.ts';
 import {getFuncStyleFromDesc} from '../util/BlockColors.ts';
-import {getDisplayName} from '@ticlo/core';
+import {DataMap, FunctionDesc, getDisplayName} from '@ticlo/core/editor.ts';
 import {Tooltip} from 'antd';
 import {BlockDropdown} from '../popup/BlockDropdown.tsx';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 import {BlockStatus} from './BlockStatus.tsx';
+import {BlockAddons} from './BlockAddons.tsx';
+import {getDescModule} from '../util/FunctionModule.ts';
 
 interface BlockViewProps {
   item: BlockItem;
@@ -19,6 +21,7 @@ interface BlockViewProps {
 interface BlockViewState {
   moving: boolean;
   footDropping: boolean;
+  addonDropping: boolean;
   resizing: boolean;
 }
 
@@ -90,6 +93,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       item.stage.selectBlock(item.path, true);
     } else {
       item.stage.selectBlock(item.path);
+    }
+    if (item.stage.selectionChanged) {
+      item.stage.onSelect();
     }
     if (item.selected) {
       item.stage.focus();
@@ -163,9 +169,50 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     this.safeSetState({resizing: false});
   };
 
+  private getAddonDrop(e: DragState) {
+    const {item} = this.props;
+    if (item.desc.view || item.isSourceBlock || !item.w) return null;
+    const scope = item.conn.getBaseConn();
+    const blockData = DragState.getData('blockData', scope);
+    if (!blockData || !Object.hasOwn(blockData, '#is')) return null;
+    const funcId = blockData['#is'];
+    const desc: FunctionDesc =
+      DragState.getData('functionDesc', scope) ??
+      (typeof funcId === 'string'
+        ? item.conn.watchDesc(funcId, getDescModule(funcId, item.stage.getFuncModule()))
+        : undefined);
+    if (!desc?.tags?.includes('addon')) return null;
+    let rawName: string = DragState.getData('blockName', scope) || (typeof funcId === 'string' ? funcId : '') || '';
+    if (rawName.includes('.')) {
+      rawName = rawName.split('.').pop();
+    }
+    const addonName = rawName.startsWith('#-') ? rawName : `#-${rawName}`;
+    const addonData: DataMap = {...blockData, '#mode': 'onCall', '~#call': '##.#emit'};
+    delete addonData['#call'];
+    return {addonName, addonData};
+  }
+
   static _footerDropMap: WeakMap<DragState, BlockItem> = new WeakMap<DragState, BlockItem>();
   onDragOverFoot = (e: DragState) => {
     const {item} = this.props;
+    const addonDrop = this.getAddonDrop(e);
+    if (addonDrop) {
+      if (
+        item.conn.getEditPolicyView().can({
+          cmd: 'addBlock',
+          path: `${item.path}.${addonDrop.addonName}`,
+          data: addonDrop.addonData,
+          findName: true,
+        })
+      ) {
+        e.accept('tico-txt-plus');
+        this.safeSetState({addonDropping: true});
+      } else {
+        e.accept('');
+        e.reject();
+      }
+      return;
+    }
     if (item._syncChild) {
       return;
     }
@@ -177,8 +224,30 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       this.safeSetState({footDropping: true});
     }
   };
-  onDropFoot = (e: DragState) => {
+  onDropFoot = async (e: DragState) => {
     const {item} = this.props;
+    this.safeSetState({footDropping: false, addonDropping: false});
+    const addonDrop = this.getAddonDrop(e);
+    if (addonDrop) {
+      const targetPath = `${item.path}.${addonDrop.addonName}`;
+      if (
+        !item.conn
+          .getEditPolicyView()
+          .can({cmd: 'addBlock', path: targetPath, data: addonDrop.addonData, findName: true})
+      ) {
+        return;
+      }
+      try {
+        const result = (await item.conn.addBlock(targetPath, addonDrop.addonData, true)) as {name?: string};
+        if (this._rendering !== undefined && item.stage.getBlock(item.path) === item && result?.name) {
+          item.stage.selectAddon(`${item.path}.${result.name}`);
+          item.stage.focus();
+        }
+      } catch {
+        // ignore rejected drop
+      }
+      return;
+    }
     const movingBlockKey: string = DragState.getData('syncBlock', item.conn.getBaseConn());
     const movingBlockStage = DragState.getData('stage', item.conn.getBaseConn());
     if (movingBlockKey && movingBlockKey !== item.path && movingBlockStage === item.stage) {
@@ -189,7 +258,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   };
   onDragLeaveFoot = (e: DragState) => {
-    this.safeSetState({footDropping: false});
+    this.safeSetState({footDropping: false, addonDropping: false});
   };
 
   displayName = new LazyUpdateSubscriber(this);
@@ -284,7 +353,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   constructor(props: BlockViewProps) {
     super(props);
-    this.state = {moving: false, footDropping: false, resizing: false};
+    this.state = {moving: false, footDropping: false, addonDropping: false, resizing: false};
     this.displayName.subscribe(props.item.conn, `${props.item.path}.#label`);
     this.labelW.subscribe(props.item.conn, `${props.item.path}.@b-label-w`, true);
     this.widget.subscribe(props.item.conn, `${props.item.path}.@b-widget`);
@@ -336,7 +405,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   renderImpl() {
     const {item} = this.props;
-    const {moving, footDropping, resizing} = this.state;
+    const {moving, footDropping, addonDropping, resizing} = this.state;
     const FullView = item.desc.view as new () => React.Component<BlockWidgetProps>;
 
     const classNames: string[] = [];
@@ -455,7 +524,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               {item.renderFields()}
             </div>
             <DragDropDiv
-              className="ticl-e-block-foot"
+              className={addonDropping ? 'ticl-e-block-foot ticl-e-block-foot-addon-dropping' : 'ticl-e-block-foot'}
               directDragT={true}
               onDragStartT={this.selectAndNotDrag}
               onDragOverT={this.onDragOverFoot}
@@ -463,6 +532,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               onDragLeaveT={this.onDragLeaveFoot}
             >
               <BlockStatus conn={item.conn} path={item.path} />
+              <BlockAddons item={item} selectedAddon={item.selectedAddon} />
               {item.selfField?.outWires.size ? <div className="ticl-e-outbound" /> : null}
               <DragDropDiv
                 className="ticl-e-width-drag"

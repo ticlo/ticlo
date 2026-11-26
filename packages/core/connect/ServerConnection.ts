@@ -1182,6 +1182,18 @@ export class ServerConnection extends ServerConnectionCore {
         : undefined;
       if (!childrenTags?.some((tag) => desc?.tags?.includes(tag))) return 'incompatible children tags';
     }
+    const isAddon = blockName.startsWith('#-');
+    let addons: string[];
+    if (isAddon) {
+      const addonProp = parentBlock.getProperty('#addon', false);
+      const value = addonProp?.getValue() ?? [];
+      if (addonProp?._bindingSource || !isStringArray(value)) return 'invalid addon';
+      addons = value;
+      const funcId = data?.['#is'];
+      const desc =
+        typeof funcId === 'string' ? Library.getFunctions(funcId, parentBlock._flow)?.getDesc(funcId) : undefined;
+      if (!desc?.tags?.includes('addon')) return 'invalid addon function';
+    }
     let property: BlockProperty;
 
     if (findName) {
@@ -1275,6 +1287,10 @@ export class ServerConnection extends ServerConnectionCore {
         const newOrder = order.filter((name) => name !== property._name);
         newOrder.splice(insertion, 0, property._name);
         parentBlock.setValue('#order', newOrder);
+      }
+      if (addons) {
+        const nextAddons = addons.includes(property._name) ? addons : [...addons, property._name];
+        parentBlock.setValue('#addon', nextAddons);
       }
       trackChange(property, path, this.root);
       return {name: property._name};

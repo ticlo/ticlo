@@ -385,6 +385,14 @@ export class BlockConfig extends BlockProperty {
   }
 }
 
+export class BlockAddon extends BlockProperty {
+  _valueChanged(saved?: boolean) {
+    if (this._block._watchers) {
+      this._block._onChildChanged(this, saved);
+    }
+  }
+}
+
 export class ContextProperty extends BlockIO {
   constructor(block: Block, name: string) {
     super(block, name);

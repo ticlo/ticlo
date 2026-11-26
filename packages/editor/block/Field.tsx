@@ -51,7 +51,15 @@ export interface Stage {
 
   forceUpdate(): void;
 
+  selectionChanged: boolean;
+
+  onSelect(): void;
+
   selectBlock(path: string, ctrl?: boolean): void;
+
+  selectAddon(path: string): void;
+
+  clearAddonSelection(path: string): void;
 
   startDragBlock(e: DragState, item: BlockItem): [BlockItem, number, number, number][];
 
@@ -961,6 +969,7 @@ export class BlockItem extends BaseBlockItem {
   }
 
   selected: boolean = false;
+  selectedAddon: string | null = null;
 
   actualFields: string[] = [];
   headerCallField = false;
@@ -1140,6 +1149,13 @@ export class BlockItem extends BaseBlockItem {
       for (const field of this.fields) {
         this.fieldItems.get(field).redrawWire(true);
       }
+    }
+  }
+
+  setSelectedAddon(path: string | null) {
+    if (path !== this.selectedAddon) {
+      this.selectedAddon = path;
+      this.forceUpdate();
     }
   }
 

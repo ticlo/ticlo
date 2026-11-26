@@ -682,7 +682,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
 
     let nameLabel: string | React.ReactNode = getDisplayName(item.name, displayName);
-    if (item.name.startsWith('#') || (nameLabel as string).endsWith('-#')) {
+    if ((item.name.startsWith('#') && !item.name.startsWith('#-')) || (nameLabel as string).endsWith('-#')) {
       nameLabel = <LocalizedNodeName name={nameLabel as string} options={dynamicStyle} />;
     }
     let nameNode: React.ReactElement;

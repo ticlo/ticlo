@@ -108,6 +108,7 @@ globalFunctions.addFactory(LogFunction, {
   icon: '11:LOG',
   mode: 'onCall',
   priority: 3,
+  tags: ['addon'],
   properties: [
     {name: 'message', type: 'any', pinned: true},
     {name: 'data', type: 'any'},

@@ -224,6 +224,7 @@ export const configDescs: {[key: string]: PropDesc} = {
     types: ['string', 'number', 'toggle', 'color', 'date', 'date-range', 'object', 'array', 'block'],
   },
   '#order': {name: '#order', type: 'array'},
+  '#addon': {name: '#addon', type: 'array'},
   '#inputs': {name: '#inputs', type: 'any'},
   '#outputs': {name: '#outputs', type: 'any'},
   '#optional': {name: '#optional', type: 'array'},

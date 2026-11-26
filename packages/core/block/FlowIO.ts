@@ -206,6 +206,7 @@ export class OutputsBlock extends Block {
     super.configChanged(input, val);
     switch (input._name) {
       case '#custom':
+      case '#addon':
         break;
       default:
         this._flow.outputChanged(input, val);
@@ -440,7 +441,7 @@ export class FlowOutputsBlock extends OutputsBlock {
 
   configChanged(input: BlockConfig, val: unknown) {
     super.configChanged(input, val);
-    if (input._name !== '#custom') {
+    if (input._name !== '#custom' && input._name !== '#addon') {
       this._broadcastOutput(input, val);
     }
   }

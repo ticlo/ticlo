@@ -180,8 +180,12 @@ export function checkEditPolicy(
 
   switch (cmd) {
     case 'deleteBlock': {
-      const parent = splitPathName(path)[0];
-      return checkDelete(path) || checkProp(parent ? `${parent}.#order` : '#order');
+      const [parent, name] = splitPathName(path);
+      return (
+        checkDelete(path) ||
+        checkProp(parent ? `${parent}.#order` : '#order') ||
+        (name.startsWith('#-') ? checkProp(parent ? `${parent}.#addon` : '#addon') : null)
+      );
     }
     case 'set':
     case 'update':
@@ -192,13 +196,18 @@ export function checkEditPolicy(
       // The saved type is not present in the request, so it cannot be checked against a type list.
       if (splitPathName(path)[1] === '#is' && hasTypeLimits) return 'restricted block type';
       return checkValue(path, undefined, false) || (lookup?.(path) ? checkWhole(path) : null);
-    case 'addBlock':
+    case 'addBlock': {
+      const [parent, name] = splitPathName(path);
       if (request.orderIndex !== undefined) {
-        const parent = splitPathName(path)[0];
         const error = checkProp(parent ? `${parent}.#order` : '#order');
         if (error) return error;
       }
-      if (autoName) return checkPath(splitPathName(path)[0]) || checkCreate(path, request.data as DataMap);
+      if (name.startsWith('#-')) {
+        const error = checkProp(parent ? `${parent}.#addon` : '#addon');
+        if (error) return error;
+      }
+      if (autoName) return checkPath(parent) || checkCreate(path, request.data as DataMap);
+    }
     // Explicit names only require permission for the target.
     case 'addFlow':
     case 'addFlowFolder':
