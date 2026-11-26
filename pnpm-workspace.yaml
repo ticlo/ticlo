@@ -17,3 +17,4 @@ minimumReleaseAgeExclude:
   - jsonesc@0.5.0
   - marked@18.0.12
   - rc-dock@5.0.0-alpha.4
+  - ticlo-big-calendar@2.2.0
