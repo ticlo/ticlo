@@ -1,0 +1,22 @@
+client:
+  '@name': TSDB 客户端 # translated from: TSDB Client
+  filePath:
+    '@name': 文件夹路径 # translated from: Folder Path
+  timezone:
+    '@name': 时区 # translated from: Timezone
+  raw:
+    '@name': 保存原始数据 # translated from: Store Raw
+  rollup15s:
+    '@name': 15秒聚合 # translated from: 15s Rollup
+  rollup5m:
+    '@name': 5分钟聚合 # translated from: 5m Rollup
+  rollup1h:
+    '@name': 1小时聚合 # translated from: 1h Rollup
+  rollup1d:
+    '@name': 1天聚合 # translated from: 1d Rollup
+  rawNumericMaxMB:
+    '@name': 数值原始上限 # translated from: Raw Numeric Limit
+  rawValueMaxMB:
+    '@name': 任意值原始上限 # translated from: Raw Value Limit
+  rollupMaxMB:
+    '@name': 聚合数据上限 # translated from: Rollup Limit

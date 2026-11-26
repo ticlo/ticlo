@@ -75,6 +75,21 @@ export type {
   SqlEntityColumn,
 } from './functions/sql/SqlClient.ts';
 export {sqlClientCommands, sqlClientApi} from './functions/sql/SqlClientCommands.ts';
+export {
+  HISTORY_INTERVALS,
+  HISTORY_ROLLUPS,
+  toHistoryEpochMs,
+  type HistoryClient,
+  type HistoryIntervalOption,
+  type HistoryQueryOptions,
+  type HistoryQueryResult,
+  type HistoryRecordOptions,
+  type HistoryRollupType,
+  type HistorySeriesInfo,
+  type HistorySeriesKind,
+  type HistoryTable,
+} from './functions/history/HistoryClient.ts';
+export {historyClientCommands, historyClientApi} from './functions/history/HistoryClientCommands.ts';
 export {resolvePasswordAuth, type AuthProfile} from './functions/auth/AuthProfile.ts';
 export {
   AuthorizationRequiredError,
@@ -119,6 +134,7 @@ import './functions/http/HttpClient.ts';
 import './functions/http/Fetch.ts';
 import './functions/sql/Query.ts';
 import './functions/sql/LogProvider.ts';
+import './functions/history/History.ts';
 import './functions/script/Js.ts';
 import './functions/data/State.ts';
 import './functions/date/index.ts';

@@ -112,3 +112,18 @@ log:
       info: Info
       warn: Warning
       error: Error
+history:
+  '@name': History
+  service:
+    '@name': History Service
+  id:
+    '@name': Series ID
+  time:
+    '@name': Time
+  kind:
+    '@name': Kind
+    '@options':
+      auto: Auto
+      number: Number
+      boolean: Boolean
+      value: Value

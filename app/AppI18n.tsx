@@ -12,6 +12,8 @@ import enChart from '../i18n/chart/en.json' with {type: 'json'};
 import zhChart from '../i18n/chart/zh.json' with {type: 'json'};
 import enSqlite from '../i18n/sqlite/en.json' with {type: 'json'};
 import zhSqlite from '../i18n/sqlite/zh.json' with {type: 'json'};
+import enTsdb from '../i18n/tsdb/en.json' with {type: 'json'};
+import zhTsdb from '../i18n/tsdb/zh.json' with {type: 'json'};
 import enPostgres from '../i18n/postgres/en.json' with {type: 'json'};
 import zhPostgres from '../i18n/postgres/zh.json' with {type: 'json'};
 import enMysql from '../i18n/mysql/en.json' with {type: 'json'};
@@ -36,6 +38,7 @@ export function initAppI18n() {
         'ticlo-react': enReact,
         'ticlo-chart': enChart,
         'ticlo-sqlite': enSqlite,
+        'ticlo-tsdb': enTsdb,
         'ticlo-postgres': enPostgres,
         'ticlo-mysql': enMysql,
         'ticlo-test': enTest,
@@ -47,6 +50,7 @@ export function initAppI18n() {
         'ticlo-react': zhReact,
         'ticlo-chart': zhChart,
         'ticlo-sqlite': zhSqlite,
+        'ticlo-tsdb': zhTsdb,
         'ticlo-postgres': zhPostgres,
         'ticlo-mysql': zhMysql,
         'ticlo-test': zhTest,

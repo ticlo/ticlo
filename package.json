@@ -37,6 +37,7 @@
     "@ticlo/remote-storage": "workspace:*",
     "@ticlo/sqlite": "workspace:*",
     "@ticlo/test": "workspace:*",
+    "@ticlo/tsdb": "workspace:*",
     "@ticlo/web-server": "workspace:*",
     "@types/adm-zip": "^0.5.7",
     "@types/babel__preset-env": "^7.10.0",

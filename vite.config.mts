@@ -30,6 +30,7 @@ async function checkFiles() {
     !fs.existsSync('i18n/core/en.json') ||
     !fs.existsSync('i18n/node/en.json') ||
     !fs.existsSync('i18n/sqlite/en.json') ||
+    !fs.existsSync('i18n/tsdb/en.json') ||
     !fs.existsSync('i18n/postgres/en.json') ||
     !fs.existsSync('i18n/mysql/en.json')
   ) {

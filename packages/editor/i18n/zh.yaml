@@ -248,4 +248,15 @@
 'Select File': '选择文件' # translated from: Select File
 'File Name': '文件名'
 'frontend': '前端' # translated from: frontend
+'Manage history': '管理历史' # translated from: Manage history
+'Histories': '历史列表' # translated from: Histories
+'No histories': '暂无历史记录' # translated from: No histories
+'History client is not ready': '历史客户端尚未就绪' # translated from: History client is not ready
+'Interval': '间隔' # translated from: Interval
+'Rollup': '聚合' # translated from: Rollup
+'Limit': '数量上限' # translated from: Limit
+'Fallback': '回退间隔' # translated from: Fallback
+'Truncated': '已截断' # translated from: Truncated
+'Time': '时间' # translated from: Time
+'Value': '值' # translated from: Value
 Runtime console: 当前运行环境的控制台 # translated from: Runtime console

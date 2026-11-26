@@ -112,3 +112,18 @@ log:
       info: 信息 # translated from: Info
       warn: 警告 # translated from: Warning
       error: 错误 # translated from: Error
+history:
+  '@name': 历史记录 # translated from: History
+  service:
+    '@name': 历史服务 # translated from: History Service
+  id:
+    '@name': 序列 ID # translated from: Series ID
+  time:
+    '@name': 时间 # translated from: Time
+  kind:
+    '@name': 类型 # translated from: Kind
+    '@options':
+      auto: 自动 # translated from: Auto
+      number: 数值 # translated from: Number
+      boolean: 布尔值 # translated from: Boolean
+      value: 任意值 # translated from: Value

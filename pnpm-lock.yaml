@@ -238,6 +238,9 @@ importers:
       '@ticlo/test':
         specifier: workspace:*
         version: link:packages/test
+      '@ticlo/tsdb':
+        specifier: workspace:*
+        version: link:connectors/tsdb
       '@ticlo/web-server':
         specifier: workspace:*
         version: link:packages/web-server
@@ -436,6 +439,9 @@ importers:
       '@ticlo/test':
         specifier: workspace:*
         version: link:../packages/test
+      '@ticlo/tsdb':
+        specifier: workspace:*
+        version: link:../connectors/tsdb
       '@ticlo/web-server':
         specifier: workspace:*
         version: link:../packages/web-server
@@ -530,6 +536,18 @@ importers:
       '@ticlo/node':
         specifier: workspace:^
         version: link:../../packages/node
+
+  connectors/tsdb:
+    dependencies:
+      '@ticlo/core':
+        specifier: workspace:^
+        version: link:../../packages/core
+      '@ticlo/node':
+        specifier: workspace:^
+        version: link:../../packages/node
+      ticlo-tsdb:
+        specifier: ^0.3.0
+        version: 0.3.0
 
   packages/chart:
     dependencies:
@@ -4601,6 +4619,10 @@ packages:
     peerDependencies:
       react: ^16.14.0 || ^17 || ^18 || ^19
       react-dom: ^16.14.0 || ^17 || ^18 || ^19
+
+  ticlo-tsdb@0.3.0:
+    resolution: {integrity: sha512-lTx+6f5AWtUYG7KvMC1vr5SPGwrvMLCx8Za8QAfa3pfdpxJbeuAUCe8qBxxfYKutwBdTOdP7ZjuOc7LRpEmWJQ==}
+    engines: {node: '>=24.0.0'}
 
   timers-browserify@2.0.12:
     resolution: {integrity: sha512-9phl76Cqm6FhSX9Xe1ZUAMLtm1BLkKj2Qd5ApyWkXzsMRaA7dgr81kf4wJmQf/hAvg8EEyJxDo3du/0KlhPiKQ==}
@@ -9032,6 +9054,8 @@ snapshots:
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
       react-overlays: 5.2.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+
+  ticlo-tsdb@0.3.0: {}
 
   timers-browserify@2.0.12:
     dependencies:

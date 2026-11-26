@@ -36,6 +36,7 @@
     "@ticlo/remote-storage": "workspace:*",
     "@ticlo/sqlite": "workspace:*",
     "@ticlo/test": "workspace:*",
+    "@ticlo/tsdb": "workspace:*",
     "@ticlo/web-server": "workspace:*",
     "antd": "^6.6.3",
     "hono": "^4.13.18",

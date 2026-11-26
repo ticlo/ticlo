@@ -18,3 +18,4 @@ minimumReleaseAgeExclude:
   - marked@18.0.12
   - rc-dock@5.0.0-alpha.4
   - ticlo-big-calendar@2.2.0
+  - ticlo-tsdb@0.3.0

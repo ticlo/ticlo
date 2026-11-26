@@ -1,6 +1,8 @@
 import {DateTime} from 'luxon';
 import {getDefaultZone, systemZone} from './Settings.ts';
 
+export {DateTime};
+
 export const invalidDate = DateTime.invalid('invalid input');
 
 const validZoneCache = new Map<string, boolean>();

@@ -127,6 +127,11 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     const {conn, path} = this.props;
     this.context.manageDatabase?.(conn, path);
   };
+
+  onManageHistory = () => {
+    const {conn, path} = this.props;
+    this.context.manageHistory?.(conn, path);
+  };
   onExeCommand = (command: string) => {
     if (!this.can('executeCommand', {command})) return;
     const {conn, functionId, path, funcModule} = this.props;
@@ -201,6 +206,15 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
         <MenuItem key="database" onClick={this.onManageDatabase}>
           <DatabaseOutlined />
           {t('Manage database')}
+        </MenuItem>
+      );
+    }
+
+    if (funcDesc?.tags?.includes('history-client') && this.context.manageHistory) {
+      menuitems.push(
+        <MenuItem key="history" onClick={this.onManageHistory}>
+          <DatabaseOutlined />
+          {t('Manage history')}
         </MenuItem>
       );
     }

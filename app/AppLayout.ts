@@ -7,6 +7,7 @@ import {SchedulePane} from '@ticlo/editor/dock/schedule/SchedulePane.tsx';
 import {TextEditorPane} from '@ticlo/editor/dock/text-editor/TextEditorPane.tsx';
 import {TableEditor} from '@ticlo/editor/property/value/TableEditor.tsx';
 import {openLiveExplorerDialog} from '@ticlo/editor/popup/LiveExplorerDialog.tsx';
+import {openHistoryClientDialog} from '@ticlo/editor/popup/HistoryClientDialog.tsx';
 import {openSqlClientDialog} from '@ticlo/editor/popup/SqlClientDialog.tsx';
 import type {DockLayout, SideColumns, TabGroup} from 'rc-dock';
 
@@ -41,7 +42,7 @@ export function createLayoutActions(
   getConn: () => ClientConn
 ): Pick<
   TicloLayoutContext,
-  'editProperty' | 'editValue' | 'editSchedule' | 'editTable' | 'manageDatabase' | 'manageLiveSource'
+  'editProperty' | 'editValue' | 'editSchedule' | 'editTable' | 'manageDatabase' | 'manageHistory' | 'manageLiveSource'
 > {
   return {
     editProperty: (paths, propDesc, defaultValue, mime, readonly) => {
@@ -68,6 +69,9 @@ export function createLayoutActions(
     },
     manageDatabase: (conn, path) => {
       openSqlClientDialog(getLayout(), conn, path);
+    },
+    manageHistory: (conn, path) => {
+      openHistoryClientDialog(getLayout(), conn, path);
     },
   };
 }

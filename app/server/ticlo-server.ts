@@ -5,6 +5,7 @@ import '@ticlo/sqlite';
 import '@ticlo/postgres';
 import '@ticlo/mysql';
 import '@ticlo/mqtt';
+import '@ticlo/tsdb';
 import {Hono, type MiddlewareHandler} from 'hono';
 import {cors} from 'hono/cors';
 import {getSignedCookie, setSignedCookie} from 'hono/cookie';
