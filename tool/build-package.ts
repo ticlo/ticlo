@@ -43,6 +43,17 @@ function resolvePublishedEntryPoints(manifest: Record<string, any>) {
   if (typeof manifest.types === 'string') {
     manifest.types = manifest.types.replace(/\.tsx?$/, '.d.ts');
   }
+  function rewriteExports(exports: unknown, types = false): unknown {
+    if (typeof exports === 'string') return exports.replace(/\.tsx?$/, types ? '.d.ts' : '.js');
+    if (Array.isArray(exports)) return exports.map((value) => rewriteExports(value, types));
+    if (exports && typeof exports === 'object') {
+      return Object.fromEntries(
+        Object.entries(exports).map(([key, value]) => [key, rewriteExports(value, key === 'types')])
+      );
+    }
+    return exports;
+  }
+  if (manifest.exports) manifest.exports = rewriteExports(manifest.exports);
 }
 
 function makeDir(path: string) {

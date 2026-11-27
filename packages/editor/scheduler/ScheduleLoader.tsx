@@ -11,7 +11,8 @@ import {
 } from '@ticlo/core/functions/date/Schedule/SchedulerEvent.ts';
 import {cacheCall} from '../util/CachedCallback.ts';
 import {deepEqual} from '@ticlo/core/util/Compare.ts';
-import {encodeDisplay} from '@ticlo/core';
+import {resolveZone} from '@ticlo/core/util/DateTime.ts';
+import {addGlobalSettingsListener, getFirstDayOfWeek, removeGlobalSettingsListener} from '@ticlo/core/util/Settings.ts';
 import {stringify as stringifyYaml} from 'yaml';
 import {arrowReplacer} from '@ticlo/core/util/Serialize.ts';
 import {DateTime} from 'luxon';
@@ -43,9 +44,10 @@ export class CalendarEvent implements BaseEvent {
     public readonly title: string,
     public readonly parent: ConfigValuePair
   ) {
-    this.start = DateTime.fromMillis(start);
-    this.end = DateTime.fromMillis(end);
-    this.id = `${parent.idx}-${this.start.month}-${this.start.day}`;
+    const zone = parent?.parent?.zone;
+    this.start = DateTime.fromMillis(start, zone ? {zone} : undefined);
+    this.end = DateTime.fromMillis(end, zone ? {zone} : undefined);
+    this.id = `${parent.idx}-${this.start.year}-${this.start.month}-${this.start.day}`;
     if (this.start.hour === 0 && this.start.minute === 0 && this.end.hour === 23 && this.end.minute === 59) {
       this.allDay = true;
     }
@@ -121,7 +123,7 @@ class ConfigValuePair {
     if (this.config?.color) {
       style.borderLeftColor = this.config.color;
     }
-    if (!this.value) {
+    if (this.value === undefined) {
       style.borderLeftStyle = 'dotted';
     }
     this.style = style;
@@ -138,7 +140,7 @@ class ConfigValuePair {
         let next = start;
         while (next <= end) {
           const o = event.getOccur(next);
-          if (o.isValid()) {
+          if (o.isValid() && o.start <= end) {
             // event will change everytime config changes, so the cache is valid.
             result.push(new CalendarEvent(o.start, o.end, getTitle(this.config, value), this));
             next = o.end + 1;
@@ -174,12 +176,6 @@ class ConfigValuePair {
   }
 }
 
-const defaultLocalizer = luxonLocalizer(DateTime);
-
-/**
- * Main loader class that manages a list of scheduled events.
- * It subscribes to the array length and individual event items from the data source.
- */
 export class ScheduleLoader {
   timezoneSub = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
@@ -191,27 +187,51 @@ export class ScheduleLoader {
       this.updateEventLength(response.cache.value);
     },
   });
-  localizer = defaultLocalizer;
+  zone: string = resolveZone(undefined);
+  firstDayOfWeek: number = getFirstDayOfWeek();
+  localizer = luxonLocalizer(DateTime, {timezone: this.zone, firstDayOfWeek: this.firstDayOfWeek});
   constructor(
     public readonly parent: {forceUpdate: Function},
     public readonly conn: ClientConn,
     public readonly schedulePath: string
   ) {
+    addGlobalSettingsListener(this.onGlobalSettingsChange);
     this.timezoneSub.subscribe(conn, `${schedulePath}.timezone`, true);
     this.eventsLenSub.subscribe(conn, `${schedulePath}.[]`, true);
   }
   subs: ConfigValuePair[] = [];
 
-  zone: string = 'notReady';
-  updateZone(z: string) {
-    if (this.zone !== z) {
-      this.zone = z;
-      // todo: adjust first day of week based on server settings
-      this.localizer = luxonLocalizer(DateTime, {timezone: z});
+  rawZone: unknown;
+  zoneReady = false;
+  onGlobalSettingsChange = () => {
+    if (this.zoneReady) {
+      this.applyZoneSettings(false);
+    }
+  };
+  updateZone(z: unknown) {
+    this.rawZone = z;
+    const wasReady = this.zoneReady;
+    this.zoneReady = true;
+    this.applyZoneSettings(!wasReady);
+  }
+  applyZoneSettings(forceCreatePairs: boolean) {
+    const resolved = resolveZone(this.rawZone);
+    const firstDay = getFirstDayOfWeek();
+    const zoneChanged = this.zone !== resolved;
+    if (zoneChanged || this.firstDayOfWeek !== firstDay) {
+      this.zone = resolved;
+      this.firstDayOfWeek = firstDay;
+      this.localizer = luxonLocalizer(DateTime, {timezone: resolved, firstDayOfWeek: firstDay});
+    }
+    if (zoneChanged) {
       for (const sub of this.subs) {
-        sub.updateZone(z);
+        sub.updateZone(resolved);
       }
     }
+    if (forceCreatePairs) {
+      this.createPairs();
+    }
+    this.parent.forceUpdate();
   }
   length: number;
   updateEventLength(v: unknown) {
@@ -225,7 +245,7 @@ export class ScheduleLoader {
     }
   }
   createPairs() {
-    if (this.length == null || this.zone === 'notReady') {
+    if (this.length == null || !this.zoneReady) {
       return;
     }
     const len = this.length;
@@ -259,6 +279,7 @@ export class ScheduleLoader {
   }
 
   destroy(): void {
+    removeGlobalSettingsListener(this.onGlobalSettingsChange);
     this.timezoneSub.unsubscribe();
     this.eventsLenSub.unsubscribe();
     for (const sub of this.subs) {

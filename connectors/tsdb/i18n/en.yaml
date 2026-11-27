@@ -1,0 +1,22 @@
+client:
+  '@name': TSDB Client
+  filePath:
+    '@name': Folder Path
+  timezone:
+    '@name': Timezone
+  raw:
+    '@name': Store Raw
+  rollup15s:
+    '@name': 15s Rollup
+  rollup5m:
+    '@name': 5m Rollup
+  rollup1h:
+    '@name': 1h Rollup
+  rollup1d:
+    '@name': 1d Rollup
+  rawNumericMaxMB:
+    '@name': Raw Numeric Limit
+  rawValueMaxMB:
+    '@name': Raw Value Limit
+  rollupMaxMB:
+    '@name': Rollup Limit

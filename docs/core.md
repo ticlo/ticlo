@@ -46,7 +46,8 @@ Blocks publish completion through `#emit` and pending work through `#wait`.
 Thrown exceptions become `ErrorEvent` values with type `SyncError`; rejected
 promises use `AsyncError`. Existing `ErrorEvent` values pass through unchanged,
 including when thrown or rejected. Their constructor defaults to `error` when
-no type is supplied.
+no type is supplied. On first emission an error records the emitting block’s full
+path in `originPath`. Forwarding the event preserves that path.
 Failures are retained even without a subscriber; later emissions replace them.
 `emitOnly()` changes the event without ending the current wait state.
 
@@ -56,11 +57,54 @@ Resolver round, `OutOfSync` identifies blocks with a dropped execution request
 and no subsequent run in that round, including synchronous runs.
 
 Arrow encodes `ErrorEvent` with the `E` tag and native JavaScript errors with
-`e`. Compact array payloads preserve event types and details, including native
+`e`. Compact array payloads preserve event types, origin paths and details, including native
 error names, messages, and driver codes. Stack traces and event loop IDs are
 omitted. Decoding restores an `ErrorEvent` and its error semantics. Connection
 previews preserve recognizable errors while truncating large details to the
 value budget; `isDataTruncated()` recognizes these error previews.
+
+### Logging
+
+The global `log` function is in the System category. Connect an upstream
+`#emit` to `log.#call`. Its default priority is 3. On a normal trigger it writes
+`message`, optional `data`, and a `level` of `debug`, `info` (default), `warn`,
+or `error`. Strings are used directly. Other values, including `null`, use
+`encodeDisplay`. An unset or empty message with undefined data completes silently.
+
+`maxLength` limits ordinary and error messages to 4096 UTF-16 code units by
+default (minimum 3). A shortened message ends in three ASCII dots (`...`),
+which count toward the limit. The provider receives the full structured `data`.
+
+An `ErrorEvent` on `#call` writes at error level. The message uses its type and
+any string or native error message in its detail. The record carries the original
+detail as data. After writing, the block emits the same upstream error. If the
+write fails, the host Logger reports the provider failure and the block still
+emits the upstream error. The default mode is `onCall`. Input-driven executions
+use the configured message. Queued calls follow the resolver’s normal coalescing
+rules, and `#sync` starts each accepted call immediately.
+
+With an unbound `provider`, `log` writes to the executing runtime’s console.
+To choose a destination, bind a service such as `^appLog.#output`. An unavailable
+bound service or failed message write produces a block error. Async writes use
+the usual `#wait` and `#emit` completion semantics.
+
+A provider exposes a readonly object output with the `log-provider` and
+`context-service` function tags. Publish the service as
+`escapedObject('my-logger', {write})`. Its `write(record)` method returns `void` or
+`Promise<void>`. `FlowLogRecord` carries the creation time in Unix milliseconds,
+level, message, log block’s `blockPath` when available, optional data, and the
+upstream `originPath` when `#call` is bound to another block’s `#emit` or when
+an error carries a known source.
+`LogProvider`, `FlowLogRecord` and `consoleLogProvider` are exported by
+`@ticlo/core`.
+
+The built-in [SQL log provider](sql.md#sql-log-provider) writes records to a configurable table.
+
+Hosts configure Ticlo's own diagnostics with `addConsoleLogger('info')`, or
+supply a synchronous sink and level mask to `Logger.add()`. Installing the
+console sink again updates its threshold. The returned function removes the
+console sink. The bundled browser hosts accept `?trace` and the Node runtime
+accepts `--trace` to include protocol batch summaries.
 
 ## Flows and persistence
 
@@ -78,13 +122,13 @@ unload checks, asynchronous saves, and lifecycle state are defined in
 
 `makeLocalConnection()` serializes by default to match remote transport; its
 `serialize` option can pass values by reference. Local and Frame server
-connections accept `ConnectionOptions` with independent `maxMessageSize`
+connections accept `ServerConnectionOptions` with independent `maxMessageSize`
 (default 524288) and `maxValueSize` (default 1024). Both must be positive safe
 integers with `maxValueSize < maxMessageSize`:
 
 ```ts
 const options = {maxMessageSize: 1024 * 1024, maxValueSize: 64 * 1024};
-makeLocalConnection(root, true, undefined, true, options);
+makeLocalConnection(root, true, options);
 new FrameServerConnection(editorWindow, root, options);
 ```
 
@@ -114,7 +158,7 @@ replace newer subscription values.
 slice and returns `{items, offset, total, keys?}`. `select` traverses own keys of
 plain objects and arrays inside the property's value; it also works with
 `getValue`, for example `getValue(path, {select: ['columns']})`. Both use the
-existing `get` command and its access policy. Pages bypass preview truncation.
+existing `get` command. Pages bypass preview truncation.
 
 Start at offset zero. To continue, send the preceding page's last row as `anchor`
 and the number of loaded rows as `offset`. The server compares it with the row
@@ -125,8 +169,18 @@ passes mutable references. A partial first page of object rows includes `keys`,
 the union of the whole array's first and last row keys.
 
 `ServerConnection` dispatches requests to its one-argument command methods and
-awaits asynchronous results. Server policies enforce access independently of
-client restrictions; storage-backed commands must propagate promises.
+awaits asynchronous results. Storage-backed commands must propagate promises.
+Set `ServerConnectionOptions.readonly` when creating a Local, Frame, WebSocket
+or REST connection to reject writes such as cut, undo, redo and lifecycle
+changes. Reads and subscriptions remain available. Function commands receive
+the connection's readonly flag and enforce it in their handler. The default
+is writable, subject to storage restrictions.
+
+Use `client.withPolicy(policy)` to limit editing for demos and tutorials. It
+creates a client view with its own `EditPolicy` and shares the original
+connection's transport and caches. The application configures this view in
+the frontend. Use `client.withPolicy({readonly: true})` to disable editing in
+the UI.
 
 Function commands return named values in an object, synchronously or as a Promise. `executeCommand` waits before
 returning `{result}`; a null or undefined result retains the existing Flow change
@@ -147,8 +201,11 @@ callbacks as the fourth argument. The connection chooses the transport:
 mixed browser connections use HTTP for commands marked `largeData`, otherwise
 WebSocket; local and frame connections ignore the hint. A failed HTTP command
 is not retried over WebSocket. `hidden` omits a command from generic menus for dedicated UIs.
-`readonly` identifies commands that need no writable Flow storage; implementations
-must still honor the server's readonly flag for any writes.
+`FunctionCommandDesc.readonly: true` marks a command that supports readonly
+execution. When the server connection or target Flow storage is readonly, only
+commands with this flag may run. The handler receives the effective readonly
+mode and uses it to guard its behavior. The same command receives `false` on a
+writable connection with writable storage.
 
 `ServerSubscribe` watches values, bindings, listener dots, and errors;
 `ServerWatch` watches children and history; `ServerDescWatcher` watches function

@@ -55,6 +55,7 @@ export const sqlClientCommands: Record<string, FunctionCommandDesc> = {
       {name: 'insertId', type: 'any', types: ['number', 'string']},
     ],
     largeData: true,
+    readonly: true,
   },
 };
 
@@ -78,13 +79,16 @@ export const sqlClientApi: FunctionApi = {
       return {columns: await client.getColumns({catalog, schema, name})};
     },
     query(block, {sql, params} = {}, readonly) {
-      if (readonly) throw new Error('SQL execution is unavailable on a readonly connection');
       if (typeof sql !== 'string' || !sql.trim()) throw new Error('SQL is required');
       if (params !== undefined && !Array.isArray(params) && !isDataMap(params)) {
         throw new Error('SQL parameters must be an array or object');
       }
       const client = block.getValue('#output') as SqlClient;
       if (!client?.query) throw new Error('SQL client is not ready');
+      if (readonly) {
+        if (!client.queryReadonly) throw new Error('SQL client does not support readonly queries');
+        return client.queryReadonly(sql, params as SqlParams);
+      }
       return client.query(sql, params as SqlParams);
     },
   },

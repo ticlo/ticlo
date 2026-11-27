@@ -1,6 +1,6 @@
 import {type FunctionFactory} from './BlockFunction.ts';
 import {isDataMap, type DataMap} from '../util/DataTypes.ts';
-import {FunctionDispatcher, FunctionModule} from './FunctionModule.ts';
+import {FunctionDispatcher, type FunctionListenMode, FunctionModule} from './FunctionModule.ts';
 import {FlowStorage} from './Storage.ts';
 import {type Flow} from './Flow.ts';
 import type {PropListener} from './Dispatcher.ts';
@@ -108,7 +108,7 @@ export class LibraryFunctionModule extends FlowFunctionModule {
 
   hasRuntimeListeners() {
     for (const dispatcher of this.runtimeFunctions.values()) {
-      if (dispatcher._listeners.size) return true;
+      if (dispatcher.hasListeners()) return true;
     }
     return false;
   }
@@ -121,7 +121,11 @@ export class LibraryFunctionModule extends FlowFunctionModule {
     }
   }
 
-  listen(id: string, listener: PropListener<FunctionFactory | null>): FunctionDispatcher {
+  listen(
+    id: string,
+    listener: PropListener<FunctionFactory | null>,
+    mode: FunctionListenMode = 'single'
+  ): FunctionDispatcher {
     id = this.getFullId(id.startsWith('+:') ? id.slice(id.indexOf(':', 2) + 1) : id);
     let dispatcher = this.runtimeFunctions.get(id);
     if (!dispatcher) {
@@ -129,7 +133,7 @@ export class LibraryFunctionModule extends FlowFunctionModule {
       dispatcher.updateValue(this.available ? (this._functions[id]?.getValue() ?? null) : null);
       this.runtimeFunctions.set(id, dispatcher);
     }
-    if (listener) dispatcher.listen(listener);
+    if (listener) dispatcher.listen(listener, mode);
     return dispatcher;
   }
 

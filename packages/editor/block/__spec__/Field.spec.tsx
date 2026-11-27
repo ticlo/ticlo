@@ -1,16 +1,34 @@
 import {expect, vi} from 'vitest';
 import {page, userEvent} from 'vitest/browser';
 import {ConfigProvider} from 'antd';
+import {DockLayout} from 'rc-dock';
+import {flushSync} from 'react-dom';
 import {simulate} from 'simulate-event';
 import React from 'react';
 import {BlockStage} from '../BlockStage.tsx';
-import {type Flow, Root} from '@ticlo/core';
+import {EditPolicyProvider} from '../../component/EditPolicyContext.tsx';
+import {type Flow, PureFunction, Root} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen, shouldReject} from '@ticlo/core/util/test-util.ts';
-import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.ts';
+import {fakeMouseEvent, removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.ts';
 import {initEditor, PropertyList} from '../../index.ts';
 import {theme} from '../../style/theme.ts';
 import {TicloLayoutContextType} from '../../component/LayoutContext.ts';
+import {SchedulePane} from '../../dock/schedule/SchedulePane.tsx';
+import {TableEditor} from '../../property/value/TableEditor.tsx';
+import {defaultWorkerData} from '@ticlo/core/defaults/DefaultFlows.ts';
+import '@ticlo/html/functions/CreateStyle.ts';
+
+async function selectOption(label: string) {
+  const option = await shouldHappen(() =>
+    [
+      ...document.querySelectorAll(
+        '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content'
+      ),
+    ].find((element) => element.textContent === label)
+  );
+  await userEvent.click(page.elementLocator(option));
+}
 
 describe('editor Block Field', function () {
   let flow: Flow;
@@ -133,7 +151,103 @@ describe('editor Block Field', function () {
     expect(div.querySelector('.ticl-e-field-value').textContent).toContain('bound');
   });
 
-  it('fits inline controls and their expand buttons inside a single stage row', async () => {
+  it('creates embedded Blocks inline and displays their bound values without inline editors', async () => {
+    const basePath = 'BlockFieldInlineHelper';
+    const items = [{label: 'x'.repeat(3000)}, {label: 'second'}];
+    flow = Root.instance.addFlow(basePath, {
+      block: {
+        '#is': '',
+        '#custom': [
+          {name: 'auth', type: 'object', create: ['auth:password']},
+          {name: 'style', type: 'object', create: 'html:create-style'},
+          {name: 'items', type: 'array', create: ':array-helper'},
+          {name: 'dynamic', type: 'any', types: ['array'], create: [':array-helper']},
+        ],
+        items,
+        '@b-xyw': [100, 100, 250],
+        '@b-p': ['auth', 'style', 'items', 'dynamic'],
+        '@b-inline': {auth: true, style: true, items: true, dynamic: true},
+      },
+    });
+    class ArrayHelper extends PureFunction {
+      run() {
+        this._data.output(this._data.getValue('input'));
+      }
+    }
+    flow.getFuncModule().addFactory(ArrayHelper, {
+      id: ':array-helper',
+      name: 'array-helper',
+      recipient: 'input',
+      properties: [
+        {name: 'input', type: 'array'},
+        {name: '#output', type: 'array', readonly: true},
+      ],
+    });
+    const [, conn] = makeLocalConnection(Root.instance);
+    const [, div] = loadTemplate(<BlockStage conn={conn} basePath={basePath} funcModule={basePath} />, 'editor');
+    const field = (name: string) =>
+      [...div.querySelectorAll('.ticl-e-field-inline')].find(
+        (row) => row.querySelector('.ticl-e-field-name')?.textContent === name
+      );
+    const click = async (name: string, selector: string) => {
+      const control = await shouldHappen(() => field(name)?.querySelector<HTMLElement>(selector));
+      await userEvent.click(page.elementLocator(control));
+    };
+    await click('auth', '.ant-select:not(.ant-select-disabled)');
+    await selectOption('password');
+    await shouldHappen(() => flow.queryProperty('block.auth')._bindingPath === '~auth.#output');
+    expect(flow.queryValue('block.auth')).toEqual({authMode: 'password', showSecret: true});
+
+    await click('style', 'button:not(:disabled)');
+    await shouldHappen(() => flow.queryProperty('block.style')._bindingPath === '~style.#output');
+
+    await click('dynamic', '.ant-select:not(.ant-select-disabled)');
+    await selectOption('array-helper');
+    await shouldHappen(() => flow.queryValue('block.~dynamic.#is') === ':array-helper');
+
+    await click('items', '.ticl-e-object-convert-button');
+    await page.getByText('Convert to :array-helper', {exact: true}).click();
+    await shouldHappen(() => flow.queryProperty('block.items')._bindingPath === '~items.#output');
+    expect(flow.queryValue('block.~items.input')).toEqual(items);
+    expect(flow.queryValue('block.items')).toEqual(items);
+    await shouldHappen(() => div.querySelectorAll('.ticl-e-field-inline').length === 0);
+  });
+
+  it('uses an inline service picker only while the service is unbound', async () => {
+    const basePath = 'BlockFieldInlineService';
+    flow = Root.instance.addFlow(basePath, {
+      block: {
+        '#is': '',
+        '#custom': [{name: 'client', type: 'service', options: ['http-client']}],
+        '@b-xyw': [100, 100, 250],
+        '@b-p': ['client'],
+        '@b-inline': {client: true},
+      },
+    });
+    const [, conn] = makeLocalConnection(Root.instance);
+    const globalSource = '^inline-http';
+    const flowSource = '^flow-http';
+    try {
+      await conn.addBlock(`#global.${globalSource}`, {'#is': 'http:client'});
+      const [, div] = loadTemplate(<BlockStage conn={conn} basePath={basePath} />, 'editor');
+      const picker = () => div.querySelector<HTMLElement>('.ticl-e-inline-value .ant-select');
+      const service = await shouldHappen(picker);
+      await userEvent.click(page.elementLocator(service));
+      await selectOption(globalSource);
+      await shouldHappen(() => flow.queryProperty('block.client')?._bindingPath === `${globalSource}.#output`);
+      await shouldHappen(() => div.querySelector('.ticl-e-field-value:not(.ticl-e-inline-value)'));
+      await conn.setBinding(`${basePath}.block.client`, null, true, true);
+      await conn.addBlock(`${basePath}.${flowSource}`, {'#is': 'http:client'});
+      const restoredPicker = await shouldHappen(picker);
+      await userEvent.click(page.elementLocator(restoredPicker));
+      await selectOption(flowSource);
+      await shouldHappen(() => flow.queryProperty('block.client')?._bindingPath === `${flowSource}.#output`);
+    } finally {
+      await conn.deleteBlock(`#global.${globalSource}`);
+    }
+  });
+
+  it('fits inline controls in a single stage row and shows action buttons outside on hover', async () => {
     const basePath = 'BlockFieldInlineHeight';
     const options = ['Apple', 'Banana', 'Cherry', 'Durian'];
     flow = Root.instance.addFlow(basePath, {
@@ -176,30 +290,164 @@ describe('editor Block Field', function () {
     expect(input.readOnly).toBe(true);
     expect(input.value).toBe('first line…');
     expect(div.querySelector('.ticl-e-inline-value .ant-select-selection-item').textContent).toBe('+4');
+    const block = div.querySelector('.ticl-e-block');
+    const blockBounds = block.getBoundingClientRect();
     const rows = div.querySelectorAll('.ticl-e-inline-value');
     expect(rows.length).toBe(4);
-    const buttons = div.querySelectorAll('.ticl-e-inline-value .ticl-e-expand-button');
-    expect(buttons.length).toBe(2);
-    for (const button of buttons) {
-      const value = button.closest('.ticl-e-inline-value').getBoundingClientRect();
-      const field = button.closest('.ticl-e-field').getBoundingClientRect();
+    const expandButtons = div.querySelectorAll<HTMLElement>('.ticl-e-inline-value .ticl-e-expand-button');
+    const typeButton = div.querySelector<HTMLElement>('.ticl-e-inline-value .ticl-e-dynamic-type-icon');
+    expect(expandButtons.length).toBe(2);
+    expect(typeButton).not.toBeNull();
+
+    // No reserved width inside the block, including inside the dynamic editor.
+    expect(input.getBoundingClientRect().right).toBe(rows[0].getBoundingClientRect().right);
+    const dynamicInput = rows[1].querySelector<HTMLInputElement>('input');
+    expect(dynamicInput.getBoundingClientRect().right).toBe(rows[1].getBoundingClientRect().right);
+    for (const row of rows) {
+      const field = row.parentElement;
+      expect(row.getBoundingClientRect().right).toBe(field.getBoundingClientRect().right);
+      expect(field.getBoundingClientRect().height).toBe(24);
+      expect(row.firstElementChild.getBoundingClientRect().height).toBeLessThanOrEqual(22);
+    }
+
+    // Small action buttons are hidden by default.
+    for (const button of [...expandButtons, typeButton]) {
+      expect(getComputedStyle(button).visibility).toBe('hidden');
       const bounds = button.getBoundingClientRect();
-      expect(bounds.left).toBeGreaterThanOrEqual(value.right);
-      expect(bounds.right).toBeLessThanOrEqual(field.right);
       expect(
         document
           .elementFromPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
-          ?.closest('.ticl-e-expand-button')
-      ).toBe(button);
+          ?.closest('.ticl-e-expand-button, .ticl-e-dynamic-type-icon')
+      ).toBeNull();
     }
-    expect(input.getBoundingClientRect().right).toBe(rows[0].getBoundingClientRect().right);
-    for (const row of rows) {
-      expect(row.parentElement.getBoundingClientRect().height).toBe(24);
-      expect(row.firstElementChild.getBoundingClientRect().height).toBeLessThanOrEqual(22);
-    }
-    await userEvent.click(buttons[0]);
+
+    // Hovering the text row reveals only its expand button outside the block boundary.
+    await userEvent.hover(page.elementLocator(rows[0].parentElement));
+    await shouldHappen(() => getComputedStyle(expandButtons[0]).visibility === 'visible');
+    expect(getComputedStyle(expandButtons[1]).visibility).toBe('hidden');
+    expect(getComputedStyle(typeButton).visibility).toBe('hidden');
+    const firstBounds = expandButtons[0].getBoundingClientRect();
+    expect(firstBounds.left).toBeGreaterThanOrEqual(blockBounds.right);
+    expect(
+      document
+        .elementFromPoint(firstBounds.x + firstBounds.width / 2, firstBounds.y + firstBounds.height / 2)
+        ?.closest('.ticl-e-expand-button')
+    ).toBe(expandButtons[0]);
+
+    await userEvent.click(expandButtons[0]);
     await shouldHappen(() => editValue.mock.calls.length === 1);
     expect(editValue.mock.calls[0][0]).toBe('first line\nsecond line');
+
+    // Hovering the dynamic row shows the type button aligned directly above the expand button outside the block.
+    await userEvent.hover(page.elementLocator(rows[1].parentElement));
+    await shouldHappen(
+      () =>
+        getComputedStyle(typeButton).visibility === 'visible' &&
+        getComputedStyle(expandButtons[1]).visibility === 'visible'
+    );
+    expect(getComputedStyle(expandButtons[0]).visibility).toBe('hidden');
+    const typeBounds = typeButton.getBoundingClientRect();
+    const dynamicExpandBounds = expandButtons[1].getBoundingClientRect();
+    expect(typeBounds.left).toBeGreaterThanOrEqual(blockBounds.right);
+    expect(typeBounds.left).toBe(dynamicExpandBounds.left);
+    expect(typeBounds.right).toBe(dynamicExpandBounds.right);
+    expect(typeBounds.bottom).toBeLessThanOrEqual(dynamicExpandBounds.top);
+    expect(
+      document
+        .elementFromPoint(typeBounds.x + typeBounds.width / 2, typeBounds.y + typeBounds.height / 2)
+        ?.closest('.ticl-e-dynamic-type-icon')
+    ).toBe(typeButton);
+
+    // Clicking the dynamic type button opens the menu and switches the inline editor type.
+    await userEvent.click(typeButton);
+    const numberItem = await shouldHappen(() =>
+      [...document.querySelectorAll('.ant-dropdown-menu-item')].find((el) => el.textContent?.includes('number'))
+    );
+    await userEvent.click(numberItem);
+    await shouldHappen(() => rows[1].querySelector('.ticl-e-number-input'));
+
+    await userEvent.unhover(page.elementLocator(rows[1].parentElement));
+    await shouldHappen(() => getComputedStyle(typeButton).visibility === 'hidden');
+  });
+
+  it('opens and saves worker, table and schedule edits from inline fields', async () => {
+    const basePath = 'BlockFieldInlinePanels';
+    flow = Root.instance.addFlow(basePath, {
+      block: {
+        '#is': '',
+        '#custom': [
+          {name: 'run', type: 'worker'},
+          {name: 'rows', type: 'table', columns: [{key: 'label', type: 'string'}]},
+        ],
+        'run': {'#is': defaultWorkerData},
+        'rows': [{label: 'Before'}],
+        '@b-xyw': [100, 100, 260],
+        '@b-p': ['run', 'rows'],
+        '@b-inline': {run: true, rows: true},
+      },
+      schedule: {
+        '#is': 'scheduler',
+        'config0': {start: '09:00', duration: 60, repeat: 'daily'},
+        '@b-xyw': [400, 100, 260],
+        '@b-p': ['config0'],
+        '@b-inline': {config0: true},
+      },
+    });
+    const [, conn] = makeLocalConnection(Root.instance);
+    let layout: DockLayout;
+    const editFlow = vi.fn();
+    const [, div] = loadTemplate(
+      <TicloLayoutContextType.Provider
+        value={{
+          editFlow,
+          editTable: (props) => TableEditor.openFloatPanel(layout, props),
+          editSchedule: (path, name, index, unbound) =>
+            SchedulePane.openFloatPanel(layout, conn, path, name, index, unbound),
+        }}
+      >
+        <DockLayout
+          ref={(value) => {
+            layout = value;
+          }}
+          defaultLayout={{
+            dockbox: {
+              mode: 'horizontal',
+              children: [
+                {tabs: [{id: 'stage', title: 'Stage', content: <BlockStage conn={conn} basePath={basePath} />}]},
+              ],
+            },
+          }}
+          style={{width: 950, height: 700}}
+        />
+      </TicloLayoutContextType.Provider>,
+      'editor'
+    );
+    const worker = await shouldHappen(() => div.querySelector('.ticl-e-inline-value button:has(.anticon-edit)'));
+    await userEvent.click(page.elementLocator(worker));
+    await shouldHappen(() => editFlow.mock.calls.length === 1);
+    const [workerPath, saveWorker] = editFlow.mock.calls[0];
+    await conn.setValue(`${workerPath}.marker`, 'saved', true);
+    saveWorker();
+    await shouldHappen(() => (flow.queryValue('block.run') as {marker?: string})?.marker === 'saved');
+
+    await page.getByText('Edit table', {exact: true}).click();
+    const cell = await shouldHappen(() => div.querySelector('.ticl-e-table-editor .ticl-e-table-cell-display'));
+    await userEvent.click(page.elementLocator(cell));
+    const input = await shouldHappen(() => div.querySelector('.ticl-e-table-editor textarea'));
+    await userEvent.fill(page.elementLocator(input), 'After');
+    await page.getByRole('button', {name: 'OK', exact: true}).click();
+    await shouldHappen(() => (flow.queryValue('block.rows') as {label: string}[])[0].label === 'After');
+
+    const calendar = await shouldHappen(() => div.querySelector('.ticl-e-inline-value button:has(.anticon-calendar)'));
+    await userEvent.click(page.elementLocator(calendar));
+    const repeat = await shouldHappen(() =>
+      [...div.querySelectorAll('.ticl-e-schedule-side .ticl-e-property')]
+        .find((row) => row.querySelector('.ticl-e-property-name')?.textContent.toLowerCase() === 'repeat')
+        ?.querySelector('.ant-select')
+    );
+    await userEvent.click(page.elementLocator(repeat));
+    await selectOption('weekly');
+    await shouldHappen(() => (flow.queryValue('schedule.config0') as {repeat: string}).repeat === 'weekly');
   });
 
   it('sub block', async function () {
@@ -375,4 +623,208 @@ describe('editor Block Field', function () {
       expect(div.querySelector('.ticl-e-block-foot > .ticl-e-outbound')).toBeNull();
     }
   );
+
+  it('applies @b-label-w as fixed pixel width across rows and edits it in Misc', async () => {
+    const basePath = 'BlockFieldLabelW';
+    const blockPath = `${basePath}.block`;
+    flow = Root.instance.addFlow(basePath, {
+      block: {
+        '#is': '',
+        '#custom': [
+          {name: 'alpha', type: 'string'},
+          {name: 'beta', type: 'number'},
+        ],
+        'alpha': 'hello',
+        'beta': 1,
+        '~beta': {'#is': 'add', '0': 2, '@b-p': ['0']},
+        '@b-xyw': [40, 40, 220],
+        '@b-p': ['alpha', 'beta'],
+        '@b-inline': {alpha: true},
+        '@b-label-w': 60,
+      },
+      val: {
+        '#is': '',
+        '@b-view': 'source',
+        '@b-label-w': 0,
+        '#custom': [{name: 'value', type: 'number'}],
+        'value': 9,
+        '@b-xyw': [40, 200, 160],
+        '@b-p': ['value'],
+      },
+    });
+    const [, conn] = makeLocalConnection(Root.instance);
+    const [, div] = loadTemplate(
+      <div style={{display: 'flex'}}>
+        <BlockStage conn={conn} basePath={basePath} style={{width: 240, height: 320, position: 'relative'}} />
+        <PropertyList conn={conn} paths={[blockPath]} style={{width: 150}} />
+      </div>,
+      'editor'
+    );
+
+    const blockEl: HTMLElement = await shouldHappen(() => div.querySelector('.ticl-e-block.ticl-e-block-fixed-label'));
+    await shouldHappen(() => blockEl.querySelectorAll('.ticl-e-field-name').length === 3);
+    const names = [...blockEl.querySelectorAll<HTMLElement>('.ticl-e-field-name')];
+    await shouldHappen(() => Math.round(names[0].getBoundingClientRect().width) === 60);
+    // All rows (inline and sub-block) align their divider right edge at the same x.
+    const dividerX = names[0].getBoundingClientRect().right;
+    expect(names[1].getBoundingClientRect().right).toBeCloseTo(dividerX, 0);
+    expect(names[2].getBoundingClientRect().right).toBeCloseTo(dividerX, 0);
+
+    // Expanding block width keeps label column fixed at 60px.
+    await conn.setValue(`${blockPath}.@b-xyw`, [40, 40, 320]);
+    await shouldHappen(() => blockEl.offsetWidth === 320);
+    expect(Math.round(names[0].getBoundingClientRect().width)).toBe(60);
+
+    // Value < 8 restores proportional layout.
+    await conn.setValue(`${blockPath}.@b-label-w`, 5);
+    await shouldHappen(() => !blockEl.classList.contains('ticl-e-block-fixed-label'));
+
+    // Misc section exposes @b-label-w and updates the block.
+    const miscExpand = [...div.querySelectorAll('.ticl-e-property-divider')]
+      .find((el) => el.textContent?.includes('Misc'))
+      ?.querySelector<HTMLElement>('.ticl-e-tree-arr');
+    await userEvent.click(page.elementLocator(miscExpand));
+    const labelWRow: HTMLElement = await shouldHappen(() =>
+      [...div.querySelectorAll('.ticl-e-property')].find((el) => {
+        const text = el.querySelector('.ticl-e-property-name')?.textContent;
+        return text === 'Label Width' || text === '@b-label-w';
+      })
+    );
+    const labelWInput = labelWRow.querySelector<HTMLInputElement>('input');
+    await userEvent.fill(page.elementLocator(labelWInput), '80');
+    simulate(labelWInput, 'keydown', {key: 'Enter'});
+    await shouldHappen(() => flow.queryValue('block.@b-label-w') === 80);
+    await shouldHappen(() => Math.round(names[0].getBoundingClientRect().width) === 80);
+
+    // Setting 0 in Misc hides labels on the block, and clearing via menu restores proportional layout.
+    await userEvent.fill(page.elementLocator(labelWInput), '0');
+    simulate(labelWInput, 'keydown', {key: 'Enter'});
+    await shouldHappen(() => flow.queryValue('block.@b-label-w') === 0);
+    await shouldHappen(() => blockEl.classList.contains('ticl-e-block-hide-labels'));
+    expect(getComputedStyle(names[0]).display).toBe('none');
+
+    simulate(labelWRow.querySelector('.ticl-e-property-name'), 'contextmenu', {button: 2});
+    const clearBtn = await shouldHappen(() =>
+      [...document.querySelectorAll<HTMLElement>('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden) button')].find((el) =>
+        el.textContent?.includes('Clear')
+      )
+    );
+    clearBtn.click();
+    await shouldHappen(() => flow.queryValue('block.@b-label-w') === undefined);
+    await shouldHappen(() => !blockEl.classList.contains('ticl-e-block-hide-labels'));
+    expect(getComputedStyle(names[0]).display).not.toBe('none');
+
+    // @b-label-w: 0 on @b-view: 'source' block hides labels and stretches value to full width.
+    const sourceBlock = div.querySelector('.ticl-e-block-source.ticl-e-block-hide-labels') as HTMLElement;
+    const sourceName = sourceBlock.querySelector('.ticl-e-field-name') as HTMLElement;
+    expect(getComputedStyle(sourceName).display).toBe('none');
+    expect(sourceBlock.querySelector<HTMLElement>('.ticl-e-field-value').getBoundingClientRect().width).toBeGreaterThan(
+      100
+    );
+    await conn.getValue(`${blockPath}.@b-label-w`);
+  });
+
+  it('resizes label width via Shift+drag on divider, resets below 8px, cancels on Escape, and respects policy', async () => {
+    const basePath = 'BlockFieldShiftDrag';
+    flow = Root.instance.addFlow(basePath, {
+      block: {
+        '#is': '',
+        '#custom': [{name: 'input', type: 'string'}],
+        'input': 'abc',
+        'out': '',
+        '@b-xyw': [40, 40, 220],
+        '@b-p': ['input', 'out'],
+        '@b-inline': {input: true},
+      },
+      target: {
+        '#is': '',
+        '#custom': [{name: 'a', type: 'string'}],
+        '@b-xyw': [40, 160, 143],
+        '@b-p': ['a'],
+      },
+    });
+    const [, baseConn] = makeLocalConnection(Root.instance);
+    let stage: BlockStage;
+    const [, div] = loadTemplate(
+      <BlockStage
+        ref={(inst) => {
+          stage = inst;
+        }}
+        conn={baseConn}
+        basePath={basePath}
+        style={{width: 400, height: 350}}
+      />,
+      'editor'
+    );
+
+    const blockEl: HTMLElement = await shouldHappen(() => div.querySelector('.ticl-e-block'));
+    const inputField = await shouldHappen(
+      () => blockEl.querySelector('.ticl-e-field.ticl-e-field-inline') as HTMLElement
+    );
+    const nameEl = inputField.querySelector('.ticl-e-field-name') as HTMLElement;
+    await shouldHappen(() => nameEl.offsetWidth > 20);
+
+    // Shift+drag near divider on inline row updates live and saves on mouseup (under zoom=2).
+    flushSync(() => stage.setState({zoom: 2}));
+    const startW = Math.round(nameEl.offsetWidth);
+    const rect1 = nameEl.getBoundingClientRect();
+    simulate(nameEl, 'mousedown', fakeMouseEvent(rect1.right - 2, rect1.y + 8, {button: 0, shiftKey: true}));
+    expect(document.body.style.cursor).toBe('ew-resize');
+    simulate(document, 'mousemove', fakeMouseEvent(rect1.right - 2 + 40, rect1.y + 8));
+    expect(blockEl.classList.contains('ticl-e-block-fixed-label')).toBe(true);
+    expect(blockEl.style.getPropertyValue('--ticl-label-w')).toBe(`${startW + 20}px`);
+    // Value wasn't written until mouseup.
+    expect(flow.queryValue('block.@b-label-w')).toBeUndefined();
+    simulate(document, 'mouseup');
+    expect(document.body.style.cursor).toBe('');
+    await shouldHappen(() => flow.queryValue('block.@b-label-w') === startW + 20);
+    await baseConn.getValue(`${basePath}.block.@b-label-w`);
+
+    flushSync(() => stage.setState({zoom: 1}));
+
+    // Escape cancels and restores previous @b-label-w.
+    const rect2 = nameEl.getBoundingClientRect();
+    simulate(nameEl, 'mousedown', fakeMouseEvent(rect2.right, rect2.y + 8, {button: 0, shiftKey: true}));
+    simulate(document, 'mousemove', fakeMouseEvent(rect2.right + 30, rect2.y + 8));
+    expect(blockEl.style.getPropertyValue('--ticl-label-w')).toBe(`${startW + 50}px`);
+    simulate(document, 'keydown', {key: 'Escape'});
+    expect(blockEl.style.getPropertyValue('--ticl-label-w')).toBe(`${startW + 20}px`);
+    expect(flow.queryValue('block.@b-label-w')).toBe(startW + 20);
+
+    // Dragging below 8px resets @b-label-w to undefined.
+    const rect3 = nameEl.getBoundingClientRect();
+    simulate(nameEl, 'mousedown', fakeMouseEvent(rect3.right, rect3.y + 8, {button: 0, shiftKey: true}));
+    simulate(document, 'mousemove', fakeMouseEvent(rect3.right - 200, rect3.y + 8));
+    expect(blockEl.classList.contains('ticl-e-block-fixed-label')).toBe(false);
+    simulate(document, 'mouseup');
+    await shouldHappen(() => flow.queryValue('block.@b-label-w') === undefined);
+    await baseConn.getValue(`${basePath}.block.@b-label-w`);
+
+    // Normal non-Shift drag on field still starts drag wire.
+    const outField = [...blockEl.querySelectorAll<HTMLElement>('.ticl-e-field')][1];
+    const outRect = outField.getBoundingClientRect();
+    simulate(outField, 'mousedown', fakeMouseEvent(outRect.x + 20, outRect.y + 10));
+    simulate(document.body, 'mousemove', fakeMouseEvent(outRect.x + 50, outRect.y + 30));
+    expect(document.querySelector('.ticl-e-drag-wire')).not.toBeNull();
+    simulate(document.body, 'mouseup');
+    expect(document.querySelector('.ticl-e-drag-wire')).toBeNull();
+
+    // Readonly policy blocks Shift+drag divider resize.
+    removeLastTemplate();
+    const readonlyConn = baseConn.withPolicy({readonly: true});
+    const [, roDiv] = loadTemplate(
+      <EditPolicyProvider conn={readonlyConn}>
+        <BlockStage conn={readonlyConn} basePath={basePath} style={{width: 400, height: 350}} />
+      </EditPolicyProvider>,
+      'editor'
+    );
+    const roBlock = await shouldHappen(() => roDiv.querySelector('.ticl-e-block') as HTMLElement);
+    const roName = await shouldHappen(() => roBlock.querySelector('.ticl-e-field-name') as HTMLElement);
+    const roRect = roName.getBoundingClientRect();
+    simulate(roName, 'mousedown', fakeMouseEvent(roRect.right, roRect.y + 8, {button: 0, shiftKey: true}));
+    expect(document.body.style.cursor).toBe('');
+    simulate(document, 'mousemove', fakeMouseEvent(roRect.right + 30, roRect.y + 8));
+    expect(roBlock.classList.contains('ticl-e-block-fixed-label')).toBe(false);
+    simulate(document, 'mouseup');
+  });
 });

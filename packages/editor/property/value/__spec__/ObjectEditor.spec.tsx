@@ -4,7 +4,7 @@ import {Block, Root, blankFuncDesc, type PropDesc} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.ts';
 import {initEditor} from '../../../index.ts';
-import {loadTemplate, removeLastTemplate} from '../../../util/test-util.ts';
+import {loadPolicyTemplate, loadTemplate, removeLastTemplate} from '../../../util/test-util.ts';
 import {PropertyEditor} from '../../PropertyEditor.tsx';
 import {EditPolicyProvider} from '../../../component/EditPolicyContext.tsx';
 import {requestCallbacks} from '../../../util/RequestCallbacks.ts';
@@ -29,6 +29,36 @@ describe('ObjectEditor conversion', () => {
     destroyLastLocalConnection();
     Root.instance.deleteValue('ObjectEditorTest');
     vi.restoreAllMocks();
+  });
+
+  it('creates an auth Block when allowed and hides the conversion menu', async () => {
+    const flow = Root.instance.addFlow('ObjectEditorTest', {block: {'#is': ''}});
+    const [, base] = makeLocalConnection(Root.instance, true);
+    const [replacePolicy] = loadPolicyTemplate(
+      base.withPolicy({denyBlockTypes: ['auth:password']}),
+      (conn) => (
+        <EditPolicyProvider conn={conn}>
+          <PropertyEditor
+            conn={conn}
+            paths={['ObjectEditorTest.block']}
+            name="auth"
+            funcDesc={blankFuncDesc}
+            propDesc={{name: 'auth', type: 'object', create: ['auth:password'], disableObjectTools: true}}
+          />
+        </EditPolicyProvider>
+      ),
+      'editor'
+    );
+    await shouldHappen(() => document.querySelector('.ant-select-disabled'));
+    replacePolicy({});
+    const select = await shouldHappen(() => document.querySelector('.ant-select:not(.ant-select-disabled)'));
+    await userEvent.click(select);
+    await page.getByText('password', {exact: true}).click();
+    await shouldHappen(() => flow.queryProperty('block.auth')?._bindingPath === '~auth.#output');
+    expect(flow.queryValue('block.~auth.#is')).toBe('auth:password');
+    expect(await shouldHappen(() => flow.queryValue('block.auth'))).toEqual({authMode: 'password', showSecret: true});
+    await shouldHappen(() => document.querySelector('.ticl-e-object-editor .ticl-e-object-value'));
+    expect(tool()).toBeNull();
   });
 
   it('round-trips each selected block with one full read and one write per block', async () => {
@@ -70,15 +100,15 @@ describe('ObjectEditor conversion', () => {
       ['first', first],
       ['second', second],
     ] as const) {
-      const helper = flow.queryValue(`${name}.~style`) as Block;
-      expect(helper.getValue('#is')).toBe('html:create-style');
-      expect(helper.getValue('#optional')).toEqual(Object.keys(value).filter((name) => name !== 'extra'));
-      expect(helper.getValue('#extend')).toEqual({extra: value.extra});
+      const embeddedBlock = flow.queryValue(`${name}.~style`) as Block;
+      expect(embeddedBlock.getValue('#is')).toBe('html:create-style');
+      expect(embeddedBlock.getValue('#optional')).toEqual(Object.keys(value).filter((name) => name !== 'extra'));
+      expect(embeddedBlock.getValue('#extend')).toEqual({extra: value.extra});
       expect(flow.queryValue(`${name}.style`)).toEqual(value);
       expect(flow.queryProperty(`${name}.style`)._bindingPath).toBe('~style.#output');
     }
-    const helper = flow.queryValue('first.~style') as Block;
-    helper.setValue('color', 'green');
+    const embeddedBlock = flow.queryValue('first.~style') as Block;
+    embeddedBlock.setValue('color', 'green');
     await shouldHappen(() => (flow.queryValue('first.style') as typeof first).color === 'green');
     await waitTick(30);
     get.mockClear();
@@ -91,7 +121,7 @@ describe('ObjectEditor conversion', () => {
       ['ObjectEditorTest.second.style', second, true],
     ]);
     expect(add).not.toHaveBeenCalled();
-    expect(helper._destroyed).toBe(true);
+    expect(embeddedBlock._destroyed).toBe(true);
     expect(flow.queryValue('first.~style')).toBeUndefined();
     expect(flow.queryValue('second.~style')).toBeUndefined();
     expect(flow.queryProperty('first.style')._bindingPath).toBeNull();
@@ -121,45 +151,48 @@ describe('ObjectEditor conversion', () => {
     await convert('Convert to create-object');
     await shouldHappen(() => tool() && flow.queryProperty('block.style')._bindingPath === '~style.#output');
     await shouldHappen(() => document.querySelector('.ticl-e-property-list .ticl-e-type-editor'));
-    const helper = flow.queryValue('block.~style') as Block;
-    expect(helper.getValue('#custom')).toEqual([
+    const embeddedBlock = flow.queryValue('block.~style') as Block;
+    expect(embeddedBlock.getValue('#custom')).toEqual([
       {name: 'label', type: 'any'},
       {name: 'nested', type: 'any'},
     ]);
-    expect(helper.getValue('nested')).toEqual(value.nested);
+    expect(embeddedBlock.getValue('nested')).toEqual(value.nested);
     expect(flow.queryValue('block.style')).toEqual(value);
     await convert('Convert to object value');
     await shouldHappen(() => tool() && flow.queryProperty('block.style')._bindingPath == null);
     expect(flow.save()).toEqual({'#is': '', 'block': {'#is': '', 'style': {'#is': value}}});
   });
 
-  it('updates the tool when the helper function changes and honors edit policies', async () => {
+  it('updates the tool when the embedded Block function changes and honors edit policies', async () => {
     const flow = Root.instance.addFlow('ObjectEditorTest', {
       block: {'#is': '', '~style': {'#is': 'create-object', '#extend': {color: 'red'}}},
     });
-    const [server, conn] = makeLocalConnection(Root.instance, true);
-    loadTemplate(
-      <EditPolicyProvider conn={conn}>
-        <PropertyEditor
-          conn={conn}
-          paths={['ObjectEditorTest.block']}
-          name="style"
-          funcDesc={blankFuncDesc}
-          propDesc={propDesc}
-        />
-      </EditPolicyProvider>,
+    const [, base] = makeLocalConnection(Root.instance, true);
+    const [replacePolicy] = loadPolicyTemplate(
+      base,
+      (conn) => (
+        <EditPolicyProvider conn={conn}>
+          <PropertyEditor
+            conn={conn}
+            paths={['ObjectEditorTest.block']}
+            name="style"
+            funcDesc={blankFuncDesc}
+            propDesc={propDesc}
+          />
+        </EditPolicyProvider>
+      ),
       'editor'
     );
     await shouldHappen(() => document.querySelector('.ticl-e-object-editor'));
     expect(tool()).toBeNull();
     (flow.queryValue('block.~style') as Block).setValue('#is', 'html:create-style');
     await shouldHappen(() => tool());
-    server.setEditPolicy({allowDeleteBlock: false});
+    replacePolicy({allowDeleteBlock: false});
     await shouldHappen(() => !tool());
-    server.setEditPolicy({readonly: true});
+    replacePolicy({readonly: true});
     await shouldHappen(() => document.querySelector('.ticl-e-property-readonly'));
     expect(tool()).toBeNull();
-    server.setEditPolicy({});
+    replacePolicy({});
     await shouldHappen(() => tool());
   });
 

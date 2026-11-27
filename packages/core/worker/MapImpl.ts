@@ -17,7 +17,7 @@ export abstract class MapImpl extends StatefulFunction implements WorkerHost {
 
   constructor(data: Block) {
     super(data);
-    this.control = new WorkerControl(this, data);
+    this.control = new WorkerControl(this, data, true);
   }
 
   _onReuseWorkerChange(val: any): boolean {
@@ -134,6 +134,11 @@ export abstract class MapImpl extends StatefulFunction implements WorkerHost {
       this._timeoutChanged = false;
       this._pool.clear();
     }
+  }
+
+  destroy(): void {
+    this.control.destroy();
+    super.destroy();
   }
 }
 

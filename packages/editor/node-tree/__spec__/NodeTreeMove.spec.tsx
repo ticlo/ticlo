@@ -3,7 +3,7 @@ import {simulate} from 'simulate-event';
 import React, {useState} from 'react';
 import {NodeTree, initEditor} from '../../index.ts';
 import {FunctionTree} from '../../function-selector/FunctionTree.tsx';
-import {Block, Root, globalFunctions} from '@ticlo/core';
+import {Block, Root, globalFunctions, type ClientConn} from '@ticlo/core';
 import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {removeLastTemplate, loadTemplate, querySingle} from '../../util/test-util.ts';
@@ -14,8 +14,7 @@ const wrongId = 'test-tree-wrong';
 const flowPath = 'NodeTreeMove';
 
 describe('node tree ordered drag/drop', () => {
-  let client: ReturnType<typeof makeLocalConnection>[1];
-  let server: ReturnType<typeof makeLocalConnection>[0];
+  let client: ClientConn;
   let tree: NodeTree;
   let div: HTMLElement;
   let selected: string[];
@@ -42,7 +41,7 @@ describe('node tree ordered drag/drop', () => {
       },
       target: {'#is': parentId, '#order': ['x', 'y'], 'x': {'#is': childId}, 'y': {'#is': childId}},
     });
-    [server, client] = makeLocalConnection(Root.instance);
+    [, client] = makeLocalConnection(Root.instance);
   });
 
   afterEach(async () => {
@@ -227,15 +226,12 @@ describe('node tree ordered drag/drop', () => {
     expect(move).not.toHaveBeenCalled();
     simulate(row('a'), 'click');
     await shouldHappen(() => selected.length === 1);
-    server.setEditPolicy({denyCmds: ['moveOrdered']});
-    await shouldHappen(
-      () =>
-        !client
-          .getEditPolicyView()
-          .can({cmd: 'moveOrdered', path: `${flowPath}.source`, props: ['a'], to: `${flowPath}.target`})
-    );
+    removeLastTemplate();
+    client = client.withPolicy({denyCmds: ['moveOrdered']});
+    await render([`${flowPath}.source.a`]);
+    const restrictedMove = vi.spyOn(client, 'moveOrdered');
     tree.onDropOrdered(tree.getOrderedDrag(item('a')), item('target'));
-    expect(move).not.toHaveBeenCalled();
+    expect(restrictedMove).not.toHaveBeenCalled();
     expect(Root.instance.queryValue(`${flowPath}.source.a`)).toBeInstanceOf(Block);
   });
 
@@ -281,10 +277,13 @@ describe('node tree ordered drag/drop', () => {
     const create = vi.spyOn(client, 'addBlock');
     await dragFunction(wrongId, 'target', 0.5, false);
     await dragFunction(childId, 'x', 0.5, false);
-    server.setEditPolicy({denyProps: ['#order']});
-    await shouldHappen(() => client.getEditPolicyView().policy?.denyProps?.includes('#order'));
-    await dragFunction(childId, 'target', 0.5, false);
     expect(create).not.toHaveBeenCalled();
+    removeLastTemplate();
+    client = client.withPolicy({denyProps: ['#order']});
+    await render([], flowPath, false, true);
+    const restrictedCreate = vi.spyOn(client, 'addBlock');
+    await dragFunction(childId, 'target', 0.5, false);
+    expect(restrictedCreate).not.toHaveBeenCalled();
     expect(Root.instance.queryValue(`${flowPath}.target.#order`)).toEqual(['x', 'y']);
     expect(Root.instance.queryValue(`${flowPath}.target.${childId}`)).toBeUndefined();
   });

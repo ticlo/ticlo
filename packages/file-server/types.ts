@@ -23,6 +23,7 @@ interface FileStorageOptions {
   rootDir?: string;
   authProvider?: AuthProvider;
   allowProjectSymlink?: (directory: string) => Promise<boolean>;
+  scopes?: readonly StorageScope[];
 }
 
 type StorageScope = 'proj' | 'serv' | 'usr';

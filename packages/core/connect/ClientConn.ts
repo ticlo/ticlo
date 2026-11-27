@@ -12,11 +12,28 @@ import type {LibraryMetadata} from '../block/Storage.ts';
 import {libraryPath} from '../util/LibraryMetadata.ts';
 import type {ValueReadOptions, ValuePageOptions, ValuePage} from './ValuePage.ts';
 
+import type {
+  LiveCapabilities,
+  LivePage,
+  LivePageRequest,
+  LiveUpdate,
+  LiveWatchOptions,
+} from '../functions/live/LiveSource.ts';
+
 export type {ValueReadOptions, ValuePageOptions, ValuePage} from './ValuePage.ts';
 
 export interface LibraryRuntimeInfo extends LibraryGraph {
   canLoad: boolean;
   hasMetadata: boolean;
+}
+
+export interface ContextBlockScope {
+  /** Scope path (e.g. current flow path, '+lib.#context', or '#global'). */
+  path: string;
+  /** Scope kind: flow root/ancestor flow, library #context, or #global. */
+  scope: 'flow' | 'context' | 'global';
+  /** Matching context block names (e.g. ['^sqlite-client']). */
+  blocks: string[];
 }
 
 /** Shared command API for physical connections and policy views. */
@@ -30,7 +47,6 @@ export abstract class ClientConn {
   abstract sendValueRequest(data: DataMap, important?: boolean | ClientCallbacks): Promise<any> | string;
 
   abstract getEditPolicyView(): EditPolicyView;
-  abstract editPolicyChanges(): StreamDispatcher<EditPolicyView>;
 
   abstract getBaseConn(): ClientConnection;
 
@@ -145,8 +161,8 @@ export abstract class ClientConn {
     return this.sendValueRequest({cmd: 'bind', path, from, absolute}, important);
   }
 
-  setUnboundBinding(path: string, from: string): Promise<any> {
-    return this.simpleRequest({cmd: 'bind', path, from, absolute: true, unbound: true});
+  setUnboundBinding(path: string, from: string, absolute = true): Promise<any> {
+    return this.simpleRequest({cmd: 'bind', path, from, absolute, unbound: true});
   }
 
   /**
@@ -230,6 +246,37 @@ export abstract class ClientConn {
    */
   query(path: string, query: Query, callbacks?: ClientCallbacks): Promise<any> | string {
     return this.simpleRequest({cmd: 'query', path, query}, callbacks);
+  }
+
+  getLiveCapabilities(path: string): Promise<{capabilities: LiveCapabilities}> {
+    return this.simpleRequest({cmd: 'getLiveCapabilities', path});
+  }
+
+  listLiveChildren(path: string, parent: string | undefined, page: LivePageRequest): Promise<LivePage> {
+    return this.simpleRequest({cmd: 'listLiveChildren', path, parent, ...page});
+  }
+
+  searchLive(path: string, query: DataMap, page: LivePageRequest): Promise<LivePage> {
+    return this.simpleRequest({cmd: 'searchLive', path, query, ...page});
+  }
+
+  watchLive(
+    path: string,
+    options: LiveWatchOptions,
+    update: (updates: LiveUpdate[]) => void,
+    error: (message: string) => void
+  ): string {
+    return this.simpleRequest(
+      {cmd: 'watchLive', path, ...options},
+      {
+        onUpdate: ({updates}) => update(updates as LiveUpdate[]),
+        onError: error,
+      }
+    ) as string;
+  }
+
+  setLiveTargets(path: string, watchId: string, targets: string[]): Promise<void> {
+    return this.simpleRequest({cmd: 'setLiveTargets', path, watchId, targets});
   }
 
   /**
@@ -625,7 +672,9 @@ export abstract class ClientConn {
 
   abstract getOptionalProps(desc: FunctionDesc, funcModule?: string): {[key: string]: PropDesc};
 
-  abstract findGlobalBlocks(tags: string[]): string[];
+  findContextBlocks(path: string, tags: string[]): Promise<{scopes: ContextBlockScope[]}> {
+    return this.simpleRequest({cmd: 'findContextBlocks', path, tags});
+  }
 
   abstract cancel(id: string): void;
 }

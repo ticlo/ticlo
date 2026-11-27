@@ -23,6 +23,11 @@ function decodeError(encoded: string): Error {
   return error;
 }
 
+// SQL drivers can subclass Error without registering the subclass with Arrow.
+function errorValue(error: Error): string {
+  return `\be:${encodeError(error)}`;
+}
+
 for (const type of [Error, EvalError, RangeError, ReferenceError, SyntaxError, TypeError, URIError, AggregateError]) {
   arrow.register('e', type, encodeError, decodeError);
 }
@@ -33,8 +38,9 @@ arrow.register(
   (event: ErrorEvent) => {
     const detail =
       event.detail instanceof Error
-        ? `\be:${encodeError(event.detail)}`
+        ? errorValue(event.detail)
         : (arrow.encode(event.detail) ?? `\b${arrow.stringify(event.detail)}`);
+    if (event.originPath !== undefined) return JSON.stringify([event.type, detail, event.originPath]);
     return JSON.stringify(
       event.type === ErrorEvent.defaultType ? (event.detail === undefined ? [] : [detail]) : [event.type, detail]
     );
@@ -43,7 +49,7 @@ arrow.register(
     const data = JSON.parse(encoded);
     return data.length < 2
       ? new ErrorEvent(undefined, data.length ? arrow.decode(data[0]) : undefined)
-      : new ErrorEvent(data[0], arrow.decode(data[1]));
+      : new ErrorEvent(data[0], arrow.decode(data[1]), typeof data[2] === 'string' ? data[2] : undefined);
   }
 );
 arrow.register(
@@ -69,11 +75,22 @@ export function encodeRaw(obj: object) {
   return arrow.replacer('', obj, null);
 }
 
+// Local inspectors receive live instances. Use an object-valued Arrow representation when one is provided.
+export function objectPreview(value: any): any {
+  if (value && typeof value === 'object' && value.constructor !== Object && typeof value.toArrow === 'function') {
+    const encoded = encodeRaw(value);
+    if (encoded?.constructor === Object || Array.isArray(encoded)) return encoded;
+  }
+  return value;
+}
+
 export function encode(value: any, space = 0): string {
+  if (value instanceof Error) return JSON.stringify(errorValue(value));
   return arrow.stringify(value, space);
 }
 
 export function encodeSorted(value: any, space = 1): string {
+  if (value instanceof Error) return JSON.stringify(errorValue(value));
   return arrow.stringifySorted(value, space);
 }
 

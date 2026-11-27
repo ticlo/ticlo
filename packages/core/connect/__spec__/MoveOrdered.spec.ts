@@ -12,7 +12,6 @@ const childId = 'test-ordered-child';
 describe('Move ordered command', () => {
   let root: Root;
   let client: ReturnType<typeof makeLocalConnection>[1];
-  let server: ReturnType<typeof makeLocalConnection>[0];
 
   beforeEach(() => {
     globalFunctions.addFactory(null, {
@@ -45,7 +44,7 @@ describe('Move ordered command', () => {
       },
     });
     root.addFlow('Other', {target: {'#is': parentId}});
-    [server, client] = makeLocalConnection(root, false);
+    [, client] = makeLocalConnection(root, false);
   });
 
   afterEach(() => {
@@ -180,16 +179,9 @@ describe('Move ordered command', () => {
       );
       expect(root.queryValue('Main.source.a')).toBe(original);
     }
-    server.setEditPolicy({
-      allowCmds: ['moveOrdered'],
-      allowProps: ['#order'],
-      allowCreateBlock: false,
-      allowDeleteBlock: false,
-    });
     await client.moveOrdered('Main.source', ['a'], 'Main.source', 0);
     expect(root.queryValue('Main.source.#order')).toEqual(['a', 'b', 'a1']);
     (original as Block).setValue('reference', root.queryValue('Other'));
-    server.setEditPolicy({allowCmds: ['moveOrdered'], allowPaths: ['Main', 'Main.**']});
     expect((await client.moveOrdered('Main.source', ['a'], 'Main.target')).moved).toEqual(['a']);
     expect(root.queryValue('Main.source.a')).toBeUndefined();
     expect(root.queryValue('Main.target.a')).toBeInstanceOf(Block);

@@ -1,12 +1,48 @@
-import React, {ReactElement} from 'react';
-import {Button, Input, Select} from 'antd';
+import React from 'react';
+import {Button, Select} from 'antd';
 import {EllipsisOutlined, PlusOutlined} from '@ant-design/icons';
-import {ClientConn, FunctionDesc, getDefaultFuncData, getSubBlockFuncData, PropDesc} from '@ticlo/core/editor.ts';
+import {
+  arrayEqual,
+  ClientConn,
+  type ContextBlockScope,
+  FunctionDesc,
+  getDefaultFuncData,
+  getFuncDefaultName,
+  getSubBlockFuncData,
+  PropDesc,
+  splitPathName,
+} from '@ticlo/core/editor.ts';
 import {Popup} from '../../component/ClickPopup.tsx';
 import {PropertyList} from '../PropertyList.tsx';
 import {EditPolicyContext} from '../../component/EditPolicyContext.tsx';
+import {t} from '../../component/LocalizedLabel.tsx';
+import {requestCallbacks} from '../../util/RequestCallbacks.ts';
 
-const {Option} = Select;
+function sameTags(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  return Array.isArray(a) && Array.isArray(b) && arrayEqual(a, b);
+}
+
+function sameContextScopes(a: ContextBlockScope[], b: ContextBlockScope[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; ++i) {
+    if (a[i].path !== b[i].path || a[i].scope !== b[i].scope || !arrayEqual(a[i].blocks, b[i].blocks)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function getScopeLabel(scope: ContextBlockScope): React.ReactNode {
+  switch (scope.scope) {
+    case 'global':
+      return t('#global');
+    case 'context':
+      return '#context';
+    case 'flow':
+      return splitPathName(scope.path)[1] || scope.path;
+  }
+}
 
 export interface Props {
   conn?: ClientConn;
@@ -22,26 +58,86 @@ export interface Props {
 
 interface State {
   opened?: boolean;
+  scopes: ContextBlockScope[];
 }
 
 export class ServiceEditor extends React.PureComponent<Props, State> {
   static contextType = EditPolicyContext;
   declare context: React.ContextType<typeof EditPolicyContext>;
-  state: State = {};
+  state: State = {scopes: []};
+  private _mounted = false;
+  private _dropdownOpen = false;
+  private _requestSeq = 0;
 
-  onGlobalBlockSelect = (value: string) => {
-    if (!this.props.locked) this.props.onPathChange?.(`${value}.#output`);
+  componentDidMount() {
+    this._mounted = true;
+  }
+
+  componentWillUnmount() {
+    this._mounted = false;
+    ++this._requestSeq;
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (
+      prevProps.conn !== this.props.conn ||
+      prevProps.keys?.[0] !== this.props.keys?.[0] ||
+      !sameTags(prevProps.desc?.options, this.props.desc?.options)
+    ) {
+      ++this._requestSeq;
+      if (this._dropdownOpen) {
+        this.loadContextBlocks();
+      } else if (this.state.scopes.length) {
+        this.setState({scopes: []});
+      }
+    }
+  }
+
+  loadContextBlocks = () => {
+    const {conn, desc, keys} = this.props;
+    const tags = desc?.options;
+    if (!conn || !Array.isArray(tags) || tags.length === 0) {
+      if (this.state.scopes.length) this.setState({scopes: []});
+      return;
+    }
+    const path = keys?.[0] ?? '';
+    const requestSeq = ++this._requestSeq;
+    void conn.findContextBlocks(path, tags as string[]).then(
+      (response) => {
+        if (!this._mounted || requestSeq !== this._requestSeq) return;
+        const scopes = response?.scopes ?? [];
+        if (!sameContextScopes(this.state.scopes, scopes)) {
+          this.setState({scopes});
+        }
+      },
+      () => {
+        if (this._mounted && requestSeq === this._requestSeq && this.state.scopes.length) {
+          this.setState({scopes: []});
+        }
+      }
+    );
+  };
+
+  onOpenChange = (open: boolean) => {
+    this._dropdownOpen = open;
+    if (open) {
+      this.loadContextBlocks();
+    }
+  };
+
+  onBlockSelect = (value: string) => {
+    if (!this.props.locked) this.props.onPathChange?.(value == null ? undefined : `${value}.#output`);
   };
 
   canCreate() {
     const {conn, desc, onPathChange, locked} = this.props;
-    if (!onPathChange || locked || !desc.create) return false;
+    if (!onPathChange || locked || typeof desc.create !== 'string' || !desc.create) return false;
     const funcDesc = conn.watchDesc(desc.create);
     return (
       funcDesc &&
       this.context.can({
         cmd: 'addBlock',
-        path: `#global.^${funcDesc.name}`,
+        path: `#global.^${getFuncDefaultName(funcDesc)}`,
         data: getSubBlockFuncData(getDefaultFuncData(funcDesc)),
       })
     );
@@ -49,24 +145,29 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
 
   onCreate = async () => {
     if (!this.canCreate()) return;
-    const {conn, desc} = this.props;
+    const {conn, desc, keys, onPathChange} = this.props;
     const {create} = desc;
+    if (typeof create !== 'string') return;
     const funcDesc = conn.watchDesc(create);
     if (funcDesc) {
-      const createdBlock = await conn.addBlock(
-        `#global.^${funcDesc.name}`,
-        getSubBlockFuncData(getDefaultFuncData(funcDesc))
-      );
-      if (createdBlock && Object.hasOwn(createdBlock, 'name') && this.props.onPathChange && !this.props.locked) {
-        this.props.onPathChange(`${createdBlock.name}.#output`);
-        this.openPopup();
+      try {
+        const createdBlock = await conn.addBlock(
+          `#global.^${getFuncDefaultName(funcDesc)}`,
+          getSubBlockFuncData(getDefaultFuncData(funcDesc))
+        );
+        if (createdBlock?.name && keys === this.props.keys && !this.props.locked) {
+          onPathChange?.(`${createdBlock.name}.#output`);
+          this.openPopup();
+        }
+      } catch (error) {
+        requestCallbacks.onError(String(error));
       }
     }
   };
 
   getPopup = () => {
-    const {bindingPath, conn, keys, desc, locked, onPathChange, funcModule} = this.props;
-    if (!this.state.opened) {
+    const {bindingPath, conn, keys, funcModule} = this.props;
+    if (!this.state.opened || !bindingPath) {
       // work around of the pop caching issue
       return <div />;
     }
@@ -93,20 +194,17 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const {bindingPath, value, conn, desc, locked, onPathChange} = this.props;
-    const {opened} = this.state;
+    const {bindingPath, desc, locked, onPathChange} = this.props;
+    const {opened, scopes} = this.state;
     const {create} = desc;
 
-    const globalNames = conn.findGlobalBlocks(desc.options as string[]);
-
-    const optionNodes: React.ReactNode[] = [];
-    for (const name of globalNames) {
-      optionNodes.push(
-        <Option key={name} value={name}>
-          {name}
-        </Option>
-      );
-    }
+    const options = scopes.map((scope, index) => ({
+      key: scope.path,
+      label: getScopeLabel(scope),
+      title: scope.path,
+      className: index > 0 ? 'ticl-e-service-scope-divider' : undefined,
+      options: scope.blocks.map((name) => ({label: name, value: name})),
+    }));
 
     let selectValue = bindingPath;
     if (typeof selectValue === 'string' && selectValue.endsWith('.#output')) {
@@ -124,7 +222,7 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
           />
         </Popup>
       );
-    } else if (!locked && create) {
+    } else if (!locked && typeof create === 'string' && create) {
       button = (
         <Button
           className="ticl-e-square-icon-btn"
@@ -140,12 +238,14 @@ export class ServiceEditor extends React.PureComponent<Props, State> {
       <div className="ticl-e-hbox ticl-e-service-editor">
         <Select
           size="small"
-          value={selectValue}
+          value={selectValue ?? undefined}
+          placeholder={desc.placeholder ? t(desc.placeholder) : undefined}
+          allowClear={Boolean(bindingPath && onPathChange && !locked)}
           disabled={locked || onPathChange == null}
-          onChange={this.onGlobalBlockSelect}
-        >
-          {optionNodes}
-        </Select>
+          options={options}
+          onOpenChange={this.onOpenChange}
+          onChange={this.onBlockSelect}
+        />
         {button}
       </div>
     );

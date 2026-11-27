@@ -1,0 +1,83 @@
+'file:toUrl':
+  '@name': To URL
+  '@keywords': 'url,file,css'
+  path:
+    '@name': Path
+  host:
+    '@name': Host
+  css:
+    '@name': CSS
+'file:read':
+  '@name': Read File
+  '@keywords': 'file,read,load,get'
+  path:
+    '@name': Path
+  format:
+    '@name': Format
+    '@options':
+      text: Text
+      json: JSON
+      binary: Binary
+  revision:
+    '@name': Revision
+  contentType:
+    '@name': Content Type
+'file:list':
+  '@name': List Files
+  '@keywords': 'file,list,dir,folder'
+  path:
+    '@name': Path
+'file:info':
+  '@name': File Info
+  '@keywords': 'file,info,stat,exists'
+  path:
+    '@name': Path
+  exists:
+    '@name': Exists
+'file:write':
+  '@name': Write File
+  '@keywords': 'file,write,save,upload'
+  path:
+    '@name': Path
+  data:
+    '@name': Data
+  existsBehavior:
+    '@name': Exists Behavior
+    '@options':
+      overwrite: Overwrite
+      fail: Fail
+  revision:
+    '@name': Revision
+'file:mkdir':
+  '@name': Create Folder
+  '@keywords': 'file,mkdir,folder,directory'
+  path:
+    '@name': Path
+'file:delete':
+  '@name': Delete File
+  '@keywords': 'file,delete,remove'
+  path:
+    '@name': Path
+  revision:
+    '@name': Revision
+'file:copy':
+  '@name': Copy File
+  '@keywords': 'file,copy'
+  source:
+    '@name': Source
+  destination:
+    '@name': Destination
+'file:move':
+  '@name': Move File
+  '@keywords': 'file,move'
+  source:
+    '@name': Source
+  destination:
+    '@name': Destination
+'file:rename':
+  '@name': Rename File
+  '@keywords': 'file,rename'
+  path:
+    '@name': Path
+  name:
+    '@name': Name

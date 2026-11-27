@@ -40,27 +40,21 @@ describe('FrameConnection', function () {
     }
   );
 
-  it('receives the edit policy when the editor starts after the server', async () => {
-    const server = new FrameServerConnection(window, Root.instance);
+  it('serves readonly requests when the editor starts after the server', async () => {
+    const root = new Root();
+    const flow = root.addFlow('Main', {value: 1});
+    const server = new FrameServerConnection(window, root, {readonly: true});
     let client: FrameClientConnection;
     try {
-      // Opening an editor window loads its scripts after the server is created.
       await waitTick(20);
-      client = new FrameClientConnection(window);
-      await client.getValue('#global');
-      expect(client.getEditPolicyView().ready).toBe(true);
-      expect(client.getEditPolicyView().canDeleteBlock('Main.block')).toBe(true);
-
-      client.destroy();
-      server.setEditPolicy({readonly: true});
-      await waitTick(20);
-      client = new FrameClientConnection(window);
-      await client.getValue('#global');
-      expect(client.getEditPolicyView().ready).toBe(true);
-      expect(client.getEditPolicyView().canDeleteBlock('Main.block')).toBe(false);
+      client = new FrameClientConnection(window, false);
+      expect((await client.getValue('Main.value')).value).toBe(1);
+      await expect(client.setValue('Main.value', 2, true)).rejects.toBe('readonly');
+      expect(flow.getValue('value')).toBe(1);
     } finally {
       client?.destroy();
       server.destroy();
+      root.destroy();
     }
   });
 

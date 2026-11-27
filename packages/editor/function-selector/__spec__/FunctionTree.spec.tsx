@@ -1,4 +1,4 @@
-import {expect} from 'vitest';
+import {expect, vi} from 'vitest';
 import React, {StrictMode} from 'react';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -10,6 +10,7 @@ import {FunctionTreeRoot} from '../FunctionTreeItem.ts';
 import {FunctionTreeRenderer} from '../FunctionTreeRenderer.tsx';
 import {FunctionTree} from '../FunctionTree.tsx';
 import {FunctionView} from '../FunctionView.tsx';
+import {initEditor} from '../../index.ts';
 import {loadTemplate, querySingle, removeLastTemplate} from '../../util/test-util.ts';
 
 describe('FunctionTree', function () {
@@ -220,6 +221,68 @@ describe('FunctionTree', function () {
       client.destroy();
       await runtime.stop({discardChanges: true});
       runtime.destroy();
+    }
+  });
+
+  it('groups cross-library useFullName functions under their category, hides library badge, and drags full name', async () => {
+    await initEditor();
+    const databaseCategory = {id: 'database:', name: 'database', color: '4af', icon: '13:DB'} as FunctionDesc;
+    const conn = {
+      watchDesc(): void {},
+      unwatchDesc(): void {},
+      lockImmediate(): void {},
+      unlockImmediate(): void {},
+      getCategory: (cat: string): FunctionDesc => (cat === 'database' ? databaseCategory : null),
+      getBaseConn: (): ClientConn => null,
+    } as unknown as ClientConn;
+    const root = new FunctionTreeRoot(conn, () => {});
+    const sqliteDesc: FunctionDesc = {
+      id: 'sqlite:client',
+      name: 'client',
+      libraryId: 'sqlite',
+      category: 'database',
+      useFullName: true,
+      properties: [],
+    };
+    const postgresDesc: FunctionDesc = {
+      id: 'postgres:client',
+      name: 'client',
+      libraryId: 'postgres',
+      category: 'database',
+      useFullName: true,
+      properties: [],
+    };
+
+    try {
+      root.onDesc(databaseCategory, databaseCategory.id);
+      root.onDesc(sqliteDesc, sqliteDesc.id);
+      root.onDesc(postgresDesc, postgresDesc.id);
+
+      expect(root.typeMap.has('sqlite:')).toBe(false);
+      expect(root.typeMap.has('postgres:')).toBe(false);
+      const dbItems = root.typeMap.get('database:')?.children;
+      expect(dbItems?.map((item) => [item.key, item.name])).toEqual([
+        ['postgres:client', 'postgres-client'],
+        ['sqlite:client', 'sqlite-client'],
+      ]);
+
+      const sqliteItem = root.typeMap.get('sqlite:client');
+      expect(sqliteItem.matchSearch('sqlite-client')).toBe(true);
+      expect(sqliteItem.matchSearch('sqlite')).toBe(true);
+
+      const [, div] = loadTemplate(<FunctionTreeRenderer item={sqliteItem} />, 'editor');
+      const funcViewEl = await shouldHappen(() => div.querySelector<HTMLElement>('.ticl-e-func-view'));
+      expect(funcViewEl.style.getPropertyValue('--ticl-block-color')).toBe('#4af');
+      expect(div.querySelector('.ticl-e-func-library')).toBeNull();
+      expect(div.querySelector('.ticl-e-func-name')?.textContent).toBe('sqlite-client');
+
+      const setData = vi.fn();
+      const view = new FunctionView({conn, desc: sqliteDesc});
+      view.onDrag({event: {}, setData, startDrag: vi.fn()} as any);
+      expect(setData).toHaveBeenCalledWith(expect.objectContaining({blockName: 'sqlite-client'}), null);
+    } finally {
+      removeLastTemplate();
+      root.destroy();
     }
   });
 });

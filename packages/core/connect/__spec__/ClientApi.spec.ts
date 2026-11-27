@@ -1,4 +1,4 @@
-import {expect} from 'vitest';
+import {expect, vi} from 'vitest';
 import {Block} from '../../block/Block.ts';
 import {Flow, Root} from '../../block/Flow.ts';
 import {makeLocalConnection} from '../LocalConnection.ts';
@@ -85,15 +85,18 @@ describe('Connection Client API', function () {
     }
   });
 
-  it('loads and toggles stored flows through lifecycle commands with server policy checks', async () => {
+  it('loads and toggles stored flows through lifecycle commands', async () => {
     const root = new Root();
     const storage = new MemoryFlowStorage();
     storage.saveFlow(null, {value: 1}, 'entry');
     await root.setStorage(storage);
     await root.start({'#root': {}});
-    const [server, client] = makeLocalConnection(root, false);
+    const [, client] = makeLocalConnection(root, false);
+    const [, reader] = makeLocalConnection(root, false, {readonly: true});
     const completed: CompletedRequest[] = [];
     client.completedRequests().listen((request) => completed.push(request));
+    const onReadCompleted = vi.fn();
+    reader.completedRequests().listen(onReadCompleted);
     try {
       expect(await client.getFlowState('entry')).toMatchObject({state: 'unloaded'});
       await client.loadFlow('entry');
@@ -107,26 +110,22 @@ describe('Connection Client API', function () {
       await client.unloadFlow('entry');
       await client.loadFlow('entry');
       expect(await client.getFlowState('entry')).toMatchObject({state: 'disabled'});
-      server.setEditPolicy({readonly: true});
-      const completedBeforeError = completed.length;
-      await expect(client.enableFlow('entry')).rejects.toBe('readonly');
-      expect(completed).toHaveLength(completedBeforeError);
-      expect(await client.getFlowState('entry')).toMatchObject({state: 'disabled'});
-      server.setEditPolicy({});
+      await expect(reader.enableFlow('entry')).rejects.toBe('readonly');
+      expect(onReadCompleted).not.toHaveBeenCalled();
+      expect(await reader.getFlowState('entry')).toMatchObject({state: 'disabled'});
+      expect((await reader.listLoadedFlows('#root')).flows).toEqual((await client.listLoadedFlows('#root')).flows);
+      expect((await reader.listMainFlows()).flows).toEqual((await client.listMainFlows()).flows);
       await client.enableFlow('entry');
-      expect(await client.getFlowState('entry')).toMatchObject({state: 'enabled'});
-      server.setEditPolicy({denyPaths: ['entry', 'entry.**']});
+      expect(await reader.getFlowState('entry')).toMatchObject({state: 'enabled'});
       await expect(client.disableFlow('+#root.entry')).rejects.toContain('unqualified');
-      server.setEditPolicy({readonly: true, denyPaths: ['entry', 'entry.**']});
-      expect(await client.listLoadedFlows('#root')).toMatchObject({flows: []});
-      await expect(client.getFlowState('entry')).rejects.toBe('restricted path');
-      expect(root.getFlowState({library: '#root', kind: 'flow', name: 'entry'})).toBe('enabled');
     } finally {
+      reader.destroy();
       client.destroy();
       await root.stop({discardChanges: true});
       root.destroy();
     }
   });
+
   beforeAll(function () {
     globalFunctions.addFactory(
       null,

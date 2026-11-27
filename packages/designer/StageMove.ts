@@ -4,8 +4,8 @@ import {getPlaneInverse, getStageElementGeometry, projectPoint} from './StageGeo
 
 interface MoveTarget {
   block: Block;
-  helper: Block | null;
-  createHelper: boolean;
+  embeddedBlock: Block | null;
+  createEmbeddedBlock: boolean;
   style: Record<string, unknown>;
   x: 'left' | 'right';
   y: 'top' | 'bottom';
@@ -65,30 +65,36 @@ function getMoveTarget(block: Block, element: Element): MoveTarget | null {
   const computed = element.ownerDocument.defaultView.getComputedStyle(element);
   if (computed.position !== 'absolute') return null;
   const property = block.getProperty('style', false);
-  const helper = property?._helperProperty?.getValue();
-  const ownHelper =
-    helper instanceof Block && helper.getParent() === block && helper.getValue('#is') === 'html:create-style';
-  if (!ownHelper && (property?._bindingPath != null || property?._bindingSource)) return null;
+  const embeddedBlock = property?._embeddedBlockSlot?.getValue();
+  const ownEmbeddedBlock =
+    embeddedBlock instanceof Block &&
+    embeddedBlock.getParent() === block &&
+    embeddedBlock.getValue('#is') === 'html:create-style';
+  if (!ownEmbeddedBlock && (property?._bindingPath != null || property?._bindingSource)) return null;
   const saved = property?._saved;
-  if (!ownHelper && saved != null && (typeof saved !== 'object' || Array.isArray(saved) || saved instanceof Block))
+  if (
+    !ownEmbeddedBlock &&
+    saved != null &&
+    (typeof saved !== 'object' || Array.isArray(saved) || saved instanceof Block)
+  )
     return null;
   const value = block.getValue('style');
   const style: Record<string, unknown> = value && typeof value === 'object' ? {...value} : {};
   const defined = (name: string) => {
-    const prop = ownHelper && helper.getProperty(name, false);
+    const prop = ownEmbeddedBlock && embeddedBlock.getProperty(name, false);
     return style[name] != null || (prop && (prop._saved !== undefined || prop._bindingPath != null));
   };
   const x = !defined('left') && defined('right') ? 'right' : 'left';
   const y = !defined('top') && defined('bottom') ? 'bottom' : 'top';
-  const optionalValue = ownHelper && helper.getValue('#optional');
+  const optionalValue = ownEmbeddedBlock && embeddedBlock.getValue('#optional');
   const optional: string[] = Array.isArray(optionalValue) ? optionalValue.slice() : [];
   const addOptional = !optional.includes(x) || !optional.includes(y);
   if (!optional.includes(x)) optional.push(x);
   if (!optional.includes(y)) optional.push(y);
   return {
     block,
-    helper: ownHelper ? helper : null,
-    createHelper: !ownHelper && saved == null,
+    embeddedBlock: ownEmbeddedBlock ? embeddedBlock : null,
+    createEmbeddedBlock: !ownEmbeddedBlock && saved == null,
     style,
     x,
     y,
@@ -277,12 +283,12 @@ export function createStageMove(
     [target.y]: target.top + (target.y === 'bottom' ? -dy : dy),
   });
   const cancel = () => {
-    for (const {block, helper, x, y, addOptional} of targets) {
-      if (block._destroyed || helper?._destroyed) continue;
-      if (helper) {
-        if (addOptional) restore(helper.getProperty('#optional', false));
-        restore(helper.getProperty(x, false));
-        restore(helper.getProperty(y, false));
+    for (const {block, embeddedBlock, x, y, addOptional} of targets) {
+      if (block._destroyed || embeddedBlock?._destroyed) continue;
+      if (embeddedBlock) {
+        if (addOptional) restore(embeddedBlock.getProperty('#optional', false));
+        restore(embeddedBlock.getProperty(x, false));
+        restore(embeddedBlock.getProperty(y, false));
       } else {
         restore(block.getProperty('style', false));
       }
@@ -295,12 +301,12 @@ export function createStageMove(
       dx = Math.abs(delta.x) < 1e-9 ? 0 : delta.x;
       dy = Math.abs(delta.y) < 1e-9 ? 0 : delta.y;
       for (const target of targets) {
-        const {block, helper, optional, addOptional} = target;
-        if (block._destroyed || helper?._destroyed) continue;
+        const {block, embeddedBlock, optional, addOptional} = target;
+        if (block._destroyed || embeddedBlock?._destroyed) continue;
         const values = positions(target);
-        if (helper) {
-          if (addOptional) helper.updateValue('#optional', optional);
-          for (const [name, value] of Object.entries(values)) helper.updateValue(name, value);
+        if (embeddedBlock) {
+          if (addOptional) embeddedBlock.updateValue('#optional', optional);
+          for (const [name, value] of Object.entries(values)) embeddedBlock.updateValue(name, value);
         } else {
           block.updateValue('style', {...target.style, ...values});
         }
@@ -314,16 +320,16 @@ export function createStageMove(
       let changed = false;
       for (const target of targets) {
         const {block, style, optional, addOptional} = target;
-        let {helper} = target;
-        if (block._destroyed || helper?._destroyed) continue;
+        let {embeddedBlock} = target;
+        if (block._destroyed || embeddedBlock?._destroyed) continue;
         const values = positions(target);
-        if (target.createHelper) {
-          helper = block.createHelperBlock('style');
-          helper.setValue('#is', 'html:create-style');
+        if (target.createEmbeddedBlock) {
+          embeddedBlock = block.createEmbeddedBlock('style');
+          embeddedBlock.setValue('#is', 'html:create-style');
         }
-        if (helper) {
-          if (addOptional) helper.setValue('#optional', optional);
-          for (const [name, value] of Object.entries(values)) helper.setValue(name, value);
+        if (embeddedBlock) {
+          if (addOptional) embeddedBlock.setValue('#optional', optional);
+          for (const [name, value] of Object.entries(values)) embeddedBlock.setValue(name, value);
         } else {
           block.setValue('style', {...style, ...values});
         }

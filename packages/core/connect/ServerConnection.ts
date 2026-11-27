@@ -1,3 +1,4 @@
+import {objectPreview} from '../util/Serialize.ts';
 import {Connection, ConnectionSendingData, ConnectionSend, type ConnectionOptions} from './Connection.ts';
 import {
   BlockBindingSource,
@@ -5,18 +6,26 @@ import {
   BlockProperty,
   BlockPropertyEvent,
   BlockPropertySubscriber,
-  HelperProperty,
+  EmbeddedBlockSlot,
 } from '../block/BlockProperty.ts';
-import {DataMap, isPrimitiveType, isStringArray} from '../util/DataTypes.ts';
+import {DataMap, isPrimitiveType, isStringArray, measureObjSize} from '../util/DataTypes.ts';
 import {truncateData} from '../util/DataTruncate.ts';
 import {Block, BlockChildWatch} from '../block/Block.ts';
 import {InputsBlock} from '../block/FlowIO.ts';
-import {Flow, Root} from '../block/Flow.ts';
+import {Flow, FlowLibrary, LibraryContextFlow, Root} from '../block/Flow.ts';
 import {flowRefFromPath} from '../block/FlowRuntime.ts';
 import {FlowWithStatic, StaticConfig} from '../block/StaticBlock.ts';
 import {PropDispatcher, PropListener} from '../block/Dispatcher.ts';
 import {DescListener, FunctionModule, globalFunctions} from '../block/FunctionModule.ts';
-import {FunctionDesc, getInlineProp, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
+import {FlowFunctionModule, LibraryFunctionModule} from '../block/LibraryFunctionModule.ts';
+import {
+  buildPropDescCache,
+  findPropDesc,
+  FunctionDesc,
+  getInlineProp,
+  PropDesc,
+  PropGroupDesc,
+} from '../block/Descriptor.ts';
 import {propRelative} from '../util/PropPath.ts';
 import {
   insertGroupProperty,
@@ -35,8 +44,9 @@ import {
 import {FlowEditor} from '../worker/FlowEditor.ts';
 import {addOptionalProperty, moveOptionalProperty, removeOptionalProperty} from '../property-api/OptionalProperty.ts';
 import {WorkerFunctionGen} from '../worker/WorkerFunctionGen.ts';
-import {isBindable, splitPathName, validateNodePath} from '../util/Path.ts';
+import {isBindable, validateNodePath} from '../util/Path.ts';
 import {ClientCallbacks} from './ClientRequests.ts';
+import type {ContextBlockScope} from './ClientConn.ts';
 import {
   copyProperties,
   createStaticBlock,
@@ -51,18 +61,207 @@ import {Query, queryBlock} from './Query.ts';
 import {getGlobalSettingsData} from '../util/Settings.ts';
 import {DoneEvent} from '../block/Event.ts';
 import {Library} from '../block/Library.ts';
-import {checkEditPolicy, type EditPolicy} from '../policy/EditPolicy.ts';
-import {libraryFromPath, libraryPath, validateLibrary} from '../util/LibraryMetadata.ts';
+import {libraryFromPath, validateLibrary} from '../util/LibraryMetadata.ts';
 import {readValuePage, type ValuePageOptions, type ValueReadOptions} from './ValuePage.ts';
+
+import {
+  MAX_LIVE_TARGETS,
+  type LiveEvent,
+  type LiveExplorer,
+  type LiveExplorerSource,
+  type LivePageRequest,
+  type LiveQueryEvent,
+  type LiveSubscription,
+  type LiveUpdate,
+} from '../functions/live/LiveSource.ts';
 
 export class ServerRequest extends ConnectionSendingData {
   id: string;
   connection: ServerConnection;
-  request: DataMap;
 
   close(): void {
     // to be overridden
   }
+}
+
+class ServerLiveWatch extends ServerRequest implements PropListener {
+  private rows = new Map<string, {subscription?: LiveSubscription}>();
+  private pendingRows = new Map<string, {value?: LiveEvent; status?: LiveEvent}>();
+  private pendingFeed: LiveUpdate[] = [];
+  private terminalFeed?: LiveEvent;
+  private pendingQuery?: LiveQueryEvent;
+  private feed?: LiveSubscription;
+  private dropped = 0;
+  private closed = false;
+
+  constructor(
+    connection: ServerConnection,
+    id: string,
+    readonly path: string,
+    private property: BlockProperty,
+    private explorer: LiveExplorer
+  ) {
+    super();
+    this.connection = connection;
+    this.id = id;
+    property.listen(this);
+  }
+
+  onSourceChange(source: PropDispatcher) {
+    if (source !== this.property) this.onChange(undefined);
+  }
+
+  onChange(value: unknown) {
+    if (this.closed || (value as LiveExplorerSource)?.liveExplorer === this.explorer) return;
+    this.connection.close(this.id);
+    this.connection.sendError(this.id, 'Live source changed');
+  }
+
+  capture(query: DataMap, follow: boolean) {
+    this.feed = this.explorer.capture(query, (event) => this.push(event), follow);
+  }
+
+  watchQuery(query: DataMap, limit: number) {
+    this.feed = this.explorer.watchQuery(query, limit, (event) => {
+      if (this.closed) return;
+      if (event.type === 'results') {
+        this.pendingQuery = {...event, rows: event.rows.slice(0, limit)};
+        this.connection.addSend(this);
+      } else {
+        this.push(event);
+      }
+    });
+  }
+
+  canSetTargets() {
+    return !this.feed && Boolean(this.explorer.watchRow);
+  }
+
+  setTargets(targets: string[]) {
+    const desired = new Set(targets);
+    for (const [target, row] of this.rows) {
+      if (!desired.has(target)) {
+        this.rows.delete(target);
+        this.pendingRows.delete(target);
+        row.subscription?.close();
+      }
+    }
+    for (const target of desired) {
+      if (this.rows.has(target)) continue;
+      const row: {subscription?: LiveSubscription} = {};
+      this.rows.set(target, row);
+      try {
+        row.subscription = this.explorer.watchRow(target, (event) => {
+          if (this.rows.get(target) === row) this.push(event, target);
+        });
+      } catch (error) {
+        this.push({type: 'status', status: 'error', message: String(error)}, target);
+      }
+    }
+  }
+
+  private push(event: LiveEvent, target?: string) {
+    if (this.closed) return;
+    if ('value' in event) {
+      const [value] = truncateData(event.value, this.connection.maxValueSize);
+      if (value !== event.value) event = {...event, value};
+    }
+    if (target === undefined) {
+      if (event.type === 'status' && event.status === 'closed') this.terminalFeed = event;
+      else if (this.pendingFeed.length < 64) this.pendingFeed.push({event});
+      else ++this.dropped;
+    } else {
+      let pending = this.pendingRows.get(target);
+      if (!pending) {
+        pending = {};
+        this.pendingRows.set(target, pending);
+      }
+      if (event.type === 'status' || event.type === 'gap') pending.status = event;
+      else pending.value = event;
+    }
+    this.connection.addSend(this);
+  }
+
+  getSendingData() {
+    const updates: LiveUpdate[] = [];
+    let size = 0;
+    const limit = this.connection.maxMessageSize;
+    if (this.dropped) {
+      updates.push({event: {type: 'gap', dropped: this.dropped}});
+      this.dropped = 0;
+      size += 32;
+    }
+    for (const [target, {value, status}] of this.pendingRows) {
+      this.pendingRows.delete(target);
+      for (const event of [status, value]) {
+        if (event) {
+          const update = {target, event};
+          updates.push(update);
+          size += measureObjSize(update);
+        }
+      }
+      if (size >= limit) break;
+    }
+    let sent = 0;
+    if (size < limit) {
+      for (const update of this.pendingFeed) {
+        updates.push(update);
+        ++sent;
+        size += measureObjSize(update);
+        if (size >= limit) break;
+      }
+    }
+    if (sent) this.pendingFeed.splice(0, sent);
+    if (this.pendingQuery && size < limit) {
+      updates.push({event: this.pendingQuery});
+      size += measureObjSize(this.pendingQuery);
+      this.pendingQuery = undefined;
+    }
+    if (this.terminalFeed && !this.pendingFeed.length && size < limit) {
+      updates.push({event: this.terminalFeed});
+      size += measureObjSize(this.terminalFeed);
+      this.terminalFeed = undefined;
+    }
+    if (this.pendingRows.size || this.pendingFeed.length || this.pendingQuery || this.terminalFeed)
+      this.connection.addSend(this);
+    return {data: updates.length ? {cmd: 'update', id: this.id, updates} : null, size};
+  }
+
+  close() {
+    this.closed = true;
+    this.property.unlisten(this);
+    for (const row of this.rows.values()) row.subscription?.close();
+    this.rows.clear();
+    this.pendingRows.clear();
+    this.pendingFeed.length = 0;
+    this.pendingQuery = undefined;
+    this.terminalFeed = undefined;
+    this.feed?.close();
+  }
+}
+
+function validLiveTargets(targets: unknown): targets is string[] {
+  return (
+    Array.isArray(targets) &&
+    targets.length <= MAX_LIVE_TARGETS &&
+    targets.every((target) => typeof target === 'string' && target.length <= 4096)
+  );
+}
+
+function validLivePage({limit, cursor}: LivePageRequest) {
+  return (
+    Number.isSafeInteger(limit) &&
+    limit > 0 &&
+    limit <= 256 &&
+    (cursor === undefined || (typeof cursor === 'string' && cursor.length <= 4096))
+  );
+}
+
+function getLiveExplorer(root: Root, path: string) {
+  const block = root.queryValue(path);
+  const property = block instanceof Block ? block.getProperty('#output', false) : undefined;
+  const explorer = (property?.getValue() as LiveExplorerSource)?.liveExplorer;
+  return {property, explorer};
 }
 
 class ServerSubscribe extends ServerRequest implements BlockPropertySubscriber, PropListener<any> {
@@ -378,47 +577,137 @@ function trackChange(property: BlockProperty, path: string, root: Root) {
   getTrackedFlow(property._block, path, root).trackChange();
 }
 
+function getBlockFuncDesc(flow: Flow, funcId: string, root: Root): FunctionDesc {
+  if (!funcId) return null;
+  if (funcId.startsWith(':')) {
+    return flow._funcModule?.getDesc(funcId) ?? null;
+  }
+  if (funcId.startsWith('+')) {
+    const resolvedId = funcId.startsWith('+:') && flow._library ? `${flow._library}${funcId.substring(1)}` : funcId;
+    return Library.getFunctionModule(resolvedId, root, false)?.getDesc(resolvedId) ?? null;
+  }
+  return globalFunctions.getDesc(funcId) ?? null;
+}
+
+function collectContextScopes(block: Block, root: Root): {flow: Flow; scope: ContextBlockScope['scope']}[] {
+  const visited = new Set<Flow>();
+  const scopes: {flow: Flow; scope: ContextBlockScope['scope']}[] = [];
+  const addScope = (flow: Flow, scope: ContextBlockScope['scope']) => {
+    if (flow && !visited.has(flow)) {
+      visited.add(flow);
+      scopes.push({flow, scope});
+    }
+  };
+  let current: Flow = block._flow;
+  while (current) {
+    if (current === root._globalRoot) {
+      addScope(root._globalRoot, 'global');
+      break;
+    }
+    if (current instanceof LibraryContextFlow) {
+      addScope(current, 'context');
+      addScope(root._globalRoot, 'global');
+      break;
+    }
+    if (current instanceof FlowLibrary) {
+      addScope(current._contextRoot, 'context');
+      addScope(root._globalRoot, 'global');
+      break;
+    }
+    if (current instanceof Root || current === root._tempRoot) {
+      addScope(root._globalRoot, 'global');
+      break;
+    }
+    if (visited.has(current)) {
+      break;
+    }
+    addScope(current, 'flow');
+    if (!current._parent || current._parent === current) {
+      addScope(root._globalRoot, 'global');
+      break;
+    }
+    const parentFlow = current._parent._flow;
+    if (parentFlow === root._tempRoot) {
+      if (
+        current._funcModule instanceof FlowFunctionModule &&
+        !(current._funcModule instanceof LibraryFunctionModule) &&
+        current._funcModule.flow
+      ) {
+        current = current._funcModule.flow;
+      } else {
+        if (current._library && current._library !== '+#root') {
+          const lib = root.getValue(current._library);
+          if (lib instanceof FlowLibrary) addScope(lib._contextRoot, 'context');
+        }
+        addScope(root._globalRoot, 'global');
+        break;
+      }
+    } else {
+      current = parentFlow;
+    }
+  }
+  return scopes;
+}
+
+export interface ServerConnectionOptions extends ConnectionOptions {
+  readonly?: boolean;
+}
+
+const readCommands = new Set([
+  'get',
+  'list',
+  'query',
+  'subscribe',
+  'watch',
+  'watchDesc',
+  'findContextBlocks',
+  'getLiveCapabilities',
+  'listLiveChildren',
+  'searchLive',
+  'watchLive',
+  'setLiveTargets',
+  'getSettings',
+  'getFlowState',
+  'getAutoLoadFlow',
+  'listMainFlows',
+  'listLoadedFlows',
+  'getLibraryGraph',
+  'getLibraryMetadata',
+  'close',
+]);
+
+const runtimeCommands = new Set([
+  'loadFlow',
+  'unloadFlow',
+  'enableFlow',
+  'disableFlow',
+  'enableLibrary',
+  'unloadLibrary',
+  'retainLibraries',
+  'callFunction',
+]);
+
 class ServerConnectionCore extends Connection {
   requests: {[key: string]: ServerRequest} = {};
+  readonly readonly: boolean;
 
   constructor(
     public root: Root,
-    private _editPolicy?: EditPolicy,
-    options?: ConnectionOptions
+    options?: ServerConnectionOptions
   ) {
     super(options);
-  }
-
-  getEditPolicy() {
-    return this._editPolicy;
+    this.readonly = options?.readonly === true;
   }
 
   protected canWriteLibraryMetadata(path: string) {
     const storage = this.root._storage;
     return Boolean(
-      !this._editPolicy?.readonly &&
+      !this.readonly &&
       storage?.getLibraryMetadata &&
       storage.saveLibraryMetadata &&
       (storage.isPersistent ? storage.isPersistent(libraryFromPath(path)) : storage.persistent !== false) &&
       storage.canWriteFlow?.(path) !== false
     );
-  }
-
-  setEditPolicy(policy?: EditPolicy) {
-    this._editPolicy = policy;
-    this.sendEditPolicy();
-    for (const request of Object.values(this.requests)) {
-      this.checkPolicyBeforeSend(request);
-    }
-  }
-
-  private sendEditPolicy() {
-    this.addSend(new ConnectionSend({cmd: 'editPolicy', policy: this._editPolicy ?? null}));
-  }
-
-  onConnect() {
-    super.onConnect();
-    this.sendEditPolicy();
   }
 
   /** Shared by framed transports and REST. Kept off the wire-command prototype. */
@@ -428,36 +717,12 @@ class ServerConnectionCore extends Connection {
     if (!Object.hasOwn(ServerConnection.prototype, cmd)) return 'invalid command';
     const func: Function = (this as any)[cmd];
     if (typeof func !== 'function' || func.length !== 1 || cmd.startsWith('on')) return 'invalid command';
+    // Function commands resolve their readonly mode when they resolve the target block.
+    if (cmd === 'executeCommand') return func.call(this, request);
     const canWrite = this.root._storage?.canWriteFlow?.bind(this.root._storage);
-    if (
-      canWrite &&
-      ![
-        'get',
-        'list',
-        'query',
-        'subscribe',
-        'watch',
-        'watchDesc',
-        'getSettings',
-        'getFlowState',
-        'getAutoLoadFlow',
-        'listMainFlows',
-        'listLoadedFlows',
-        'getLibraryGraph',
-        'getLibraryMetadata',
-        'close',
-        'loadFlow',
-        'unloadFlow',
-        'enableFlow',
-        'disableFlow',
-        'enableLibrary',
-        'unloadLibrary',
-        'retainLibraries',
-        'callFunction',
-      ].includes(cmd) &&
-      !(cmd === 'copy' && !request.cut) &&
-      !(cmd === 'executeCommand' && this.isReadonlyCommand(request))
-    ) {
+    const read = (this.readonly || canWrite) && (readCommands.has(cmd) || (cmd === 'copy' && !request.cut));
+    if (this.readonly && !read) return 'readonly';
+    if (canWrite && !read && !runtimeCommands.has(cmd)) {
       const path = cmd === 'deleteFunction' ? (request.funcModule ?? request.funcId) : request.path;
       if (typeof path !== 'string') return 'invalid path';
       if (!canWrite(path) || (typeof request.to === 'string' && !canWrite(request.to))) return 'Storage is read-only';
@@ -468,65 +733,7 @@ class ServerConnectionCore extends Connection {
       const [owner, name] = this.root.queryBlockField(path);
       if (owner && owner !== this.root && !canWrite(`${owner.getFullPath()}.${name}`)) return 'Storage is read-only';
     }
-    if (this._editPolicy?.readonly && !['listMainFlows', 'listLoadedFlows', 'getLibraryGraph'].includes(cmd)) {
-      const error = this.checkRequestPolicy(request);
-      if (error) return error;
-    }
-    const result = func.call(this, request);
-    if (result instanceof ServerRequest) result.request = request;
-    return result;
-  }
-
-  private isReadonlyCommand(request: DataMap): boolean {
-    const block = this.root.queryProperty(request.path as string, false)?._value;
-    return (
-      block instanceof Block &&
-      globalFunctions.getDesc(block._funcId)?.commands?.[request.command as string]?.readonly === true
-    );
-  }
-
-  protected checkRequestPolicy(request: DataMap): string | null {
-    if (this._editPolicy?.readonly) {
-      const lookup = (path: string) => {
-        const prop = this.root.queryProperty(path, false);
-        return (
-          prop?._value instanceof Block ||
-          prop?._saved instanceof Block ||
-          prop?._helperProperty?._saved instanceof Block
-        );
-      };
-      const checkAt = (path: string) => checkEditPolicy(this._editPolicy, {...request, path}, lookup, 'server');
-      const error = checkAt(request.path as string);
-      if (error) return error;
-      if (request.cmd === 'getSettings') return null;
-      // A path through a block-valued reference must also be allowed at its owner.
-      const [parent, name] = this.root.queryBlockField(request.path as string);
-      if (parent && parent !== this.root) {
-        const ownerPath = `${parent.getFullPath()}.${name}`;
-        if (ownerPath !== request.path) {
-          const ownerError = checkAt(ownerPath);
-          if (ownerError) return ownerError;
-        }
-      }
-      const block = this.root.queryProperty(request.path as string, false)?._value;
-      if (block instanceof Block) {
-        const ownerError = checkAt(block.getFullPath());
-        if (ownerError) return ownerError;
-      }
-    }
-    return null;
-  }
-
-  protected checkPolicyBeforeSend(data: ConnectionSendingData): boolean {
-    if (this._editPolicy?.readonly && data instanceof ServerRequest) {
-      const error = this.checkRequestPolicy(data.request);
-      if (error) {
-        this.close(data.id);
-        this.sendError(data.id, error);
-        return false;
-      }
-    }
-    return true;
+    return func.call(this, request);
   }
 
   addRequest(id: string, req: ServerRequest) {
@@ -677,6 +884,7 @@ export class ServerConnection extends ServerConnectionCore {
       if (!Array.isArray(select) || select.some((key) => typeof key !== 'string' && !Number.isSafeInteger(key)))
         return 'invalid value selection';
       for (const key of select) {
+        value = objectPreview(value);
         if (
           !value ||
           typeof value !== 'object' ||
@@ -833,24 +1041,9 @@ export class ServerConnection extends ServerConnectionCore {
 
   getLibraryGraph({path}: {path: string}) {
     if (path !== '') return 'invalid path';
-    const graph = this.root.getLibraryGraph();
-    const policy = this.getEditPolicy();
-    if (policy?.readonly) {
-      const visible = new Set(
-        Object.keys(graph.dependencies).filter(
-          (name) => !checkEditPolicy(policy, {cmd: 'getLibraryMetadata', path: libraryPath(name)}, undefined, 'server')
-        )
-      );
-      graph.roots = graph.roots.filter((name) => visible.has(name));
-      graph.dependencies = Object.fromEntries(
-        Object.entries(graph.dependencies)
-          .filter(([name]) => visible.has(name))
-          .map(([name, dependencies]) => [name, dependencies.filter((name) => visible.has(name))])
-      );
-    }
     return {
-      ...graph,
-      canLoad: !policy?.readonly && Boolean(this.root._storage),
+      ...this.root.getLibraryGraph(),
+      canLoad: !this.readonly && Boolean(this.root._storage),
       hasMetadata: Boolean(this.root._storage?.getLibraryMetadata),
     };
   }
@@ -906,27 +1099,11 @@ export class ServerConnection extends ServerConnectionCore {
 
   async listMainFlows({path}: {path: string}) {
     if (path !== '') return 'invalid path';
-    const flows = await this.root.listMainFlows();
-    const policy = this.getEditPolicy();
-    if (!policy?.readonly) return {flows};
-    return {
-      flows: flows.filter(({library, name}) => {
-        const flowPath = library === '#root' ? name : `+${library}.${name}`;
-        return !checkEditPolicy(policy, {cmd: 'getFlowState', path: flowPath}, undefined, 'server');
-      }),
-    };
+    return {flows: await this.root.listMainFlows()};
   }
 
   listLoadedFlows({path}: {path: string}) {
-    const flows = this.root.getLoadedFlowRefs(path);
-    const policy = this.getEditPolicy();
-    if (!policy?.readonly) return {flows};
-    return {
-      flows: flows.filter((ref) => {
-        const flowPath = `${ref.library === '#root' ? '' : `+${ref.library}.`}${ref.kind === 'module' ? ':' : ''}${ref.name}`;
-        return !checkEditPolicy(policy, {cmd: 'getFlowState', path: flowPath}, undefined, 'server');
-      }),
-    };
+    return {flows: this.root.getLoadedFlowRefs(path)};
   }
 
   async setAutoLoadFlow({path, enabled}: {path: string; enabled: boolean}) {
@@ -1012,6 +1189,18 @@ export class ServerConnection extends ServerConnectionCore {
         : undefined;
       if (!childrenTags?.some((tag) => desc?.tags?.includes(tag))) return 'incompatible children tags';
     }
+    const isAddon = blockName.startsWith('#-');
+    let addons: string[];
+    if (isAddon) {
+      const addonProp = parentBlock.getProperty('#addon', false);
+      const value = addonProp?.getValue() ?? [];
+      if (addonProp?._bindingSource || !isStringArray(value)) return 'invalid addon';
+      addons = value;
+      const funcId = data?.['#is'];
+      const desc =
+        typeof funcId === 'string' ? Library.getFunctions(funcId, parentBlock._flow)?.getDesc(funcId) : undefined;
+      if (!desc?.tags?.includes('addon')) return 'invalid addon function';
+    }
     let property: BlockProperty;
 
     if (findName) {
@@ -1065,8 +1254,8 @@ export class ServerConnection extends ServerConnectionCore {
         // We can skip the next setion if we already adjusted the name
         parentBlock.createBlock(property._name);
       } else {
-        if (property instanceof HelperProperty) {
-          // create a sub block and move the current property into the sub block if possible
+        if (property instanceof EmbeddedBlockSlot) {
+          // Create an embedded Block and transfer the current property when supported.
           const baseProperty = property._block.getProperty(property._name.substring(1));
           // check the current value and binding
           if (baseProperty._saved !== undefined) {
@@ -1081,10 +1270,10 @@ export class ServerConnection extends ServerConnectionCore {
             }
           }
           property.setValue(undefined);
-          property._block.createHelperBlock(baseProperty._name);
+          property._block.createEmbeddedBlock(baseProperty._name);
         } else {
           property.setValue(undefined);
-          property._block.createBlock(property._name);
+          property = property._block.createBlock(property._name)?._prop ?? property;
         }
       }
 
@@ -1105,6 +1294,10 @@ export class ServerConnection extends ServerConnectionCore {
         const newOrder = order.filter((name) => name !== property._name);
         newOrder.splice(insertion, 0, property._name);
         parentBlock.setValue('#order', newOrder);
+      }
+      if (addons) {
+        const nextAddons = addons.includes(property._name) ? addons : [...addons, property._name];
+        parentBlock.setValue('#addon', nextAddons);
       }
       trackChange(property, path, this.root);
       return {name: property._name};
@@ -1156,6 +1349,40 @@ export class ServerConnection extends ServerConnectionCore {
   }
 
   /**
+   * Lists matching `^` context blocks along the active context inheritance chain of `path`.
+   */
+  findContextBlocks({path, tags}: {path: string; tags: string[]}): string | {scopes: ContextBlockScope[]} {
+    if (!isStringArray(tags)) return 'invalid tags';
+    const property = path === '' ? this.root.getProperty('', false) : this.root.queryProperty(path, false);
+    if (!property) return 'invalid path';
+    const block = property._value instanceof Block ? property._value : property._block;
+    if (!block) return 'invalid path';
+    if (tags.length === 0) return {scopes: []};
+
+    const result: ContextBlockScope[] = [];
+    const seen = new Set<string>();
+    for (const {flow, scope} of collectContextScopes(block, this.root)) {
+      const blocks: string[] = [];
+      for (const [name, prop] of flow._props) {
+        if (!name.startsWith('^') || prop.isCleared()) continue;
+        if (seen.has(name)) continue;
+        seen.add(name);
+        const child = prop._saved;
+        if (child instanceof Block && child._prop === prop && child !== block) {
+          const desc = getBlockFuncDesc(flow, child._funcId, this.root);
+          if (desc?.tags && tags.some((tag) => desc.tags.includes(tag))) {
+            blocks.push(name);
+          }
+        }
+      }
+      if (blocks.length > 0) {
+        result.push({path: flow.getFullPath(), scope, blocks});
+      }
+    }
+    return {scopes: result};
+  }
+
+  /**
    * Subscribes to value changes for a property, creating a continuous tracker.
    */
   subscribe({path, id}: {path: string; id: string}): string | ServerSubscribe {
@@ -1183,6 +1410,94 @@ export class ServerConnection extends ServerConnectionCore {
     }
   }
 
+  getLiveCapabilities({path}: {path: string}) {
+    const {explorer} = getLiveExplorer(this.root, path);
+    if (!explorer) return 'Live source is not ready';
+    const capabilities = explorer.describe();
+    const readonly = this.readonly || this.root._storage?.canWriteFlow?.(path) === false;
+    return {capabilities: readonly ? {...capabilities, publish: undefined} : capabilities};
+  }
+
+  listLiveChildren({path, parent, limit, cursor}: {path: string; parent?: string} & LivePageRequest) {
+    const {explorer} = getLiveExplorer(this.root, path);
+    if (!explorer?.listChildren) return 'Tree browsing is unavailable';
+    if (!validLivePage({limit, cursor}) || (parent !== undefined && typeof parent !== 'string')) return 'Invalid page';
+    return explorer.listChildren(parent, {limit, cursor});
+  }
+
+  searchLive({path, query, limit, cursor}: {path: string; query: DataMap} & LivePageRequest) {
+    const {explorer} = getLiveExplorer(this.root, path);
+    if (!explorer?.search) return 'Search is unavailable';
+    if (!validLivePage({limit, cursor}) || !query || typeof query !== 'object' || Array.isArray(query))
+      return 'Invalid search';
+    return explorer.search(query, {limit, cursor});
+  }
+
+  watchLive({
+    path,
+    id,
+    targets,
+    capture,
+    follow,
+    query,
+    limit,
+  }: {
+    path: string;
+    id: string;
+    targets?: string[];
+    capture?: DataMap;
+    follow?: boolean;
+    query?: DataMap;
+    limit?: number;
+  }) {
+    if (!this._connected || typeof id !== 'string') return 'Live updates require a streaming connection';
+    const {property, explorer} = getLiveExplorer(this.root, path);
+    if (!explorer) return 'Live source is not ready';
+    if (capture !== undefined) {
+      if (
+        !explorer.capture ||
+        !capture ||
+        typeof capture !== 'object' ||
+        Array.isArray(capture) ||
+        (follow !== undefined && typeof follow !== 'boolean') ||
+        (follow && !explorer.describe().follow)
+      )
+        return 'Capture is unavailable';
+    } else if (query !== undefined) {
+      if (
+        !explorer.watchQuery ||
+        !query ||
+        typeof query !== 'object' ||
+        Array.isArray(query) ||
+        !Number.isSafeInteger(limit) ||
+        limit < 1 ||
+        limit > 100
+      )
+        return 'Invalid live query';
+    } else if (!explorer.watchRow || !validLiveTargets(targets)) {
+      return 'Invalid live targets';
+    }
+    const request = new ServerLiveWatch(this, id, path, property, explorer);
+    try {
+      if (capture !== undefined) request.capture(capture, follow === true);
+      else if (query !== undefined) request.watchQuery(query, limit);
+      else request.setTargets(targets);
+      return request;
+    } catch (error) {
+      request.close();
+      throw error;
+    }
+  }
+
+  setLiveTargets({path, watchId, targets}: {path: string; watchId: string; targets: string[]}) {
+    const watch = this.requests[watchId];
+    if (!(watch instanceof ServerLiveWatch) || watch.path !== path || !validLiveTargets(targets))
+      return 'Invalid live watch';
+    if (!watch.canSetTargets()) return 'Cannot change a capture';
+    watch.setTargets(targets);
+    return null;
+  }
+
   /**
    * Tells the Server-side Desc Watcher to proactively start relaying function signature modifications taking place under `id`.
    */
@@ -1199,19 +1514,31 @@ export class ServerConnection extends ServerConnectionCore {
       return 'invalid command';
     }
     const property = this.root.queryProperty(path);
+    const block = property?._value;
+    if (!(block instanceof Block)) return 'invalid path';
 
-    if (property && property._value instanceof Block) {
-      const readonly = this.getEditPolicy()?.readonly === true;
-      const result = property._value.executeCommand(command, params, readonly);
-      const finish = (result: unknown) => {
-        if (result != null) return {result};
-        if (!readonly) trackChange(property, path, this.root);
-        return null;
-      };
-      return result instanceof Promise ? result.then(finish) : finish(result);
-    } else {
-      return 'invalid path';
+    const storage = this.root._storage;
+    let readonly = this.readonly;
+    if (!readonly && storage?.canWriteFlow) {
+      const ownerPath = block.getFullPath();
+      readonly = !storage.canWriteFlow(path) || (ownerPath !== path && !storage.canWriteFlow(ownerPath));
     }
+    if (readonly) {
+      const desc = globalFunctions.getDesc(block._funcId);
+      const commandDesc =
+        (typeof params?.property === 'string'
+          ? findPropDesc(params.property, buildPropDescCache(desc, null))?.commands?.[command]
+          : undefined) ?? desc?.commands?.[command];
+      if (commandDesc?.readonly !== true) return this.readonly ? 'readonly' : 'Storage is read-only';
+    }
+
+    const result = block.executeCommand(command, params, readonly);
+    const finish = (value: unknown) => {
+      if (value != null) return {result: value};
+      if (!readonly) trackChange(property, path, this.root);
+      return null;
+    };
+    return result instanceof Promise ? result.then(finish) : finish(result);
   }
 
   /**
@@ -1629,26 +1956,6 @@ export class ServerConnection extends ServerConnectionCore {
   copy({path, props, cut}: {path: string; props: string[]; cut: boolean}) {
     const property = this.root.queryProperty(path);
     if (property && property._value instanceof Block) {
-      if (this.getEditPolicy()?.readonly) {
-        const blocks = new Set<Block>();
-        const collectBlock = (prop: BlockProperty) => {
-          const saved = prop?._bindingPath ? prop._helperProperty?._saved : prop?._saved;
-          if (saved instanceof Block) blocks.add(saved);
-        };
-        for (const name of props) {
-          const target = path ? `${path}.${name}` : name;
-          const error = this.checkRequestPolicy({cmd: 'get', path: target});
-          if (error) return error;
-          collectBlock(this.root.queryProperty(target));
-        }
-        // Saved references and binding helpers can serialize blocks outside the requested subtree.
-        for (const block of blocks) {
-          const [parent, name] = splitPathName(block.getFullPath());
-          const error = this.checkRequestPolicy({cmd: 'copy', path: parent, props: [name]});
-          if (error) return error;
-          for (const prop of block._props.values()) collectBlock(prop);
-        }
-      }
       const value = copyProperties(property._value, props);
       if (typeof value === 'string') {
         return value;

@@ -354,18 +354,17 @@ describe('TableEditor', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
-  it('blocks saving if write permission changes while the dock window is open', async () => {
+  it('keeps the draft open when the server rejects a write', async () => {
     const flow = Root.instance.addFlow('TableEditorTest', {data: {'#is': '', 'items': [{label: 'Keep'}]}});
-    const [server, conn] = makeLocalConnection(Root.instance, true);
-    mount({conn, keys: ['TableEditorTest.data'], value: [{label: 'Keep'}], onChange: vi.fn()});
+    const [, conn] = makeLocalConnection(Root.instance, true, {readonly: true});
+    const onChange = vi.fn();
+    mount({conn, keys: ['TableEditorTest.data'], value: [{label: 'Keep'}], onChange});
     await open();
     await fillCell(0, 'Draft');
-    server.setEditPolicy({readonly: true});
-    await shouldHappen(() => !confirm());
-    expect(rows()[0].querySelector('textarea')).toBeNull();
+    await button('OK').click();
+    await shouldHappen(() => document.querySelector('.ticl-e-table-editor')?.textContent.includes('readonly'));
     expect(flow.queryValue('data.items')).toEqual([{label: 'Keep'}]);
-    server.setEditPolicy(undefined);
-    await shouldHappen(() => Boolean(confirm()));
+    expect(onChange).not.toHaveBeenCalled();
     await button('Cancel').click();
   });
 

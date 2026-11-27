@@ -1,7 +1,8 @@
+import './browser-logging.ts';
 import './styles.ts';
 import * as React from 'react';
 import {App as AntdApp} from 'antd';
-import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, Root, addConsoleLogger} from '@ticlo/core';
+import {Block, DataMap, decode, encodeSorted, FunctionDesc, Flow, Root} from '@ticlo/core';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {data} from './sample-data/data.ts';
 import reactData from './sample-data/react.ts';
@@ -19,7 +20,11 @@ import {Logger} from '@ticlo/core/util/Logger.ts';
 import {WorkerFunctionGen} from '@ticlo/core/worker/WorkerFunctionGen.ts';
 import {BlockStagePane} from '@ticlo/editor/dock/block/BlockStagePane.tsx';
 import {TicloApp} from '@ticlo/editor/component/TicloApp.tsx';
-import {TicloCurrentFlowConsumer, TicloLayoutContext} from '@ticlo/editor/component/LayoutContext.ts';
+import {
+  TicloCurrentFlowConsumer,
+  TicloLayoutContext,
+  type TicloFilesAccess,
+} from '@ticlo/editor/component/LayoutContext.ts';
 import {PropDispatcher} from '@ticlo/core/block/Dispatcher.ts';
 import {PropertyListPane} from '@ticlo/editor/dock/property/PropertyListPane.tsx';
 import {WsBrowserConnection} from '@ticlo/html/connect/WsBrowserConnection.ts';
@@ -268,6 +273,7 @@ class App extends React.PureComponent<Props, State> {
       () => this.props.conn
     ),
     getSelectedPaths: () => this.selectedPaths,
+    getFiles: () => this.props.files,
     showModal: (modal: React.ReactElement) => this.setState({modal}),
   };
 
@@ -397,26 +403,42 @@ function EditorWorkspace({
     ? new FrameClientConnection(window.opener) // used by server-window.html
     : new MixedBrowserConnection(host.runtimeUrl);
   const fileHost = params.get('fileHost');
-  let files = fileHost
+  let files: TicloFilesAccess | undefined = fileHost
     ? {storage: new RemoteStorage({baseURL: fileHost}), project}
     : params.get('storage') === 'static'
       ? {storage: new StaticStorage(new URL('./storage', location.href).href), project}
       : host?.fileUrl
-        ? {storage: new ScopedFileServerFiles(host.fileUrl, 'serv'), project}
+        ? {
+            storage: new ScopedFileServerFiles(host.fileUrl, 'serv'),
+            frontendStorage: new ScopedFileServerFiles(host.fileUrl, 'proj'),
+            project,
+          }
         : undefined;
   if (files) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 3000);
-    try {
-      const projects = await Promise.race([
-        files.storage.listProjects({signal: controller.signal}),
+    const probe = <T,>(promise: Promise<T>) =>
+      Promise.race([
+        promise,
         new Promise<never>((_, reject) =>
           controller.signal.addEventListener('abort', () => reject(controller.signal.reason), {once: true})
         ),
       ]);
+    try {
+      const projects = await probe(files.storage.listProjects!({signal: controller.signal}));
       if (!Array.isArray(projects)) throw new Error('Invalid file catalog');
+      if (files.frontendStorage) {
+        try {
+          const frontendProjects = await probe(files.frontendStorage.listProjects!({signal: controller.signal}));
+          if (!Array.isArray(frontendProjects)) throw new Error('Invalid frontend file catalog');
+        } catch {
+          void (files.frontendStorage as ScopedFileServerFiles).close().catch(() => {});
+          files = {storage: files.storage, project: files.project};
+        }
+      }
     } catch {
-      void files.storage.close().catch(() => {});
+      void (files.storage as {close?: () => Promise<void>}).close?.().catch(() => {});
+      void (files.frontendStorage as {close?: () => Promise<void>} | undefined)?.close?.().catch(() => {});
       files = undefined;
     } finally {
       clearTimeout(timeout);
@@ -428,4 +450,3 @@ function EditorWorkspace({
 })();
 
 (window as any).Logger = Logger;
-// addConsoleLogger(Logger.TRACE_AND_ABOVE);

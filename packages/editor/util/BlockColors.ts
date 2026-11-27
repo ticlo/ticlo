@@ -10,16 +10,12 @@ export function getFuncStyleFromDesc(
   if (desc) {
     ({color, icon} = desc);
     if ((!color || !icon) && conn) {
-      let category = desc.libraryId;
-      if (category == null) {
-        category = desc.category || 'other'; // TODO remove other
-      }
-      if (category != null) {
-        const catDesc = conn.getCategory(category);
-        if (catDesc) {
-          color = color || catDesc.color;
-          icon = icon || catDesc.icon;
-        }
+      const catDesc =
+        (desc.category && conn.getCategory(desc.category)) ||
+        (desc.libraryId != null ? conn.getCategory(desc.libraryId) : conn.getCategory('other'));
+      if (catDesc) {
+        color = color || catDesc.color;
+        icon = icon || catDesc.icon;
       }
     }
   }

@@ -1,3 +1,4 @@
+import './browser-logging.ts';
 import './styles.ts';
 import {Root} from '@ticlo/core';
 import {FrameServerConnection} from '@ticlo/html';

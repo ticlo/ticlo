@@ -1,9 +1,11 @@
+import './browser-logging.ts';
+import {registerOAuth} from '@ticlo/oauth/browser';
 import './styles.ts';
 import '@ticlo/designer/style/index.css';
 import React, {StrictMode, useContext} from 'react';
 import {App as AntdApp, Switch} from 'antd';
 import {ContainerFilled, EditOutlined} from '@ant-design/icons';
-import {Root, Flow, Logger, PropDispatcher, addConsoleLogger} from '@ticlo/core';
+import {Root, Flow, Logger, PropDispatcher} from '@ticlo/core';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {
@@ -347,6 +349,7 @@ class App extends React.PureComponent<Props, State> {
       () => this.conn
     ),
     getSelectedPaths: () => this.selectedPaths,
+    getFiles: () => this.props.files,
     showModal: (modal: React.ReactElement) => this.setState({modal}),
   };
 
@@ -497,7 +500,7 @@ function DesignerWorkspace({
 }
 
 (async () => {
-  addConsoleLogger();
+  registerOAuth();
   await initEditor();
 
   await initAppI18n();
@@ -551,10 +554,15 @@ function DesignerWorkspace({
     }
   }
 
-  const [server, client] = makeLocalConnection(root, true, undefined, false, {
-    maxMessageSize: Infinity,
-    maxValueSize: Infinity,
-  });
+  const [server, client] = makeLocalConnection(
+    root,
+    true,
+    {
+      maxMessageSize: Infinity,
+      maxValueSize: Infinity,
+    },
+    false
+  );
   createRoot(document.getElementById('app')).render(
     <DesignerWorkspace root={root} conn={client} initialFlow={initialFlow} files={files} />
   );
@@ -564,4 +572,3 @@ function DesignerWorkspace({
 });
 
 (window as any).Logger = Logger;
-addConsoleLogger(Logger.TRACE_AND_ABOVE);

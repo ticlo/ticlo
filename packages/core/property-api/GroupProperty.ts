@@ -1,5 +1,5 @@
 import {Block} from '../block/Block.ts';
-import {HelperProperty} from '../block/BlockProperty.ts';
+import {EmbeddedBlockSlot} from '../block/BlockProperty.ts';
 import {PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
 import {globalFunctions} from '../block/FunctionModule.ts';
 import {hideProperties, showProperties} from './PropertyShowHide.ts';
@@ -61,7 +61,7 @@ function updateGroupPropertyLength(block: Block, group: string, groupDesc: PropG
   if (newLength > oldLength) {
     // show properties in block
     const propsToShow: string[] = [];
-    const isSubBlock = block._prop instanceof HelperProperty;
+    const isSubBlock = block._prop instanceof EmbeddedBlockSlot;
     for (let i = oldLength; i < newLength; ++i) {
       for (const prop of groupDesc.properties) {
         if (prop.pinned && !(isSubBlock && prop.name === '#output')) {

@@ -54,7 +54,6 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
   }
   loadOptions = cacheCall((parentPath: string) => {
     const {conn} = this.props;
-    const {scheduleOptions} = this.state;
     conn.query(
       parentPath,
       {'/.*/': {'?filter': {field: '#is', type: '=', value: 'scheduler'}}},
@@ -64,7 +63,7 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
             const options = Object.keys(response.value)
               .sort()
               .map((value) => ({value}));
-            if (!deepEqual(options, scheduleOptions)) {
+            if (!deepEqual(options, this.state.scheduleOptions)) {
               this.safeSetState({scheduleOptions: options});
             }
           }
@@ -86,8 +85,15 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     const config = dummyEvents[selectedIdx]?.parent.config ?? ({} as SchedulerConfig);
     const startDate = slot.start;
     const start = startDate.toFormat('HH:mm');
-    let duration = slot.end.diff(startDate, 'minutes').minutes;
-    if (slot.end.hour === 23 && slot.end.minute === 59) {
+    let duration = Math.round(slot.end.diff(startDate, 'minutes').minutes);
+    if (
+      (slot.end.hour === 23 && slot.end.minute === 59) ||
+      (startDate.hour === 0 &&
+        startDate.minute === 0 &&
+        slot.end.hour === 0 &&
+        slot.end.minute === 0 &&
+        duration === 1440)
+    ) {
       duration = 0;
     }
     const newConfig = {...config, start, duration};
@@ -95,7 +101,7 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
       case 'weekly': {
         const weekDay = startDate.weekday;
         if (!config.wDays?.includes(weekDay)) {
-          newConfig.wDays = [...(config.wDays ?? []), weekDay].sort();
+          newConfig.wDays = [...(config.wDays ?? []), weekDay].sort((a, b) => a - b);
         }
         break;
       }
@@ -110,6 +116,9 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
         const day = startDate.day;
         if (!config.days?.includes(day)) {
           newConfig.days = [...(config.days ?? []), day].sort(sortDateItem);
+          if (newConfig.range && newConfig.days.length !== 2) {
+            delete newConfig.range;
+          }
         }
         break;
       }
@@ -126,8 +135,7 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     this.updateConfig(newConfig);
   };
   onSelectEvent = (event: CalendarEvent) => {
-    this.safeSetState({selectedId: event.id});
-    this.safeSetState({selectedIdx: parseInt(event.id.split('-')[0])});
+    this.safeSetState({selectedId: event.id, selectedIdx: event.parent.idx});
   };
   onRangeChange = (range: {start: DateTime; end: DateTime}, view?: View) => {
     this.setState({timeRange: [range.start.toMillis(), range.end.toMillis()]});
@@ -146,11 +154,6 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
   };
 
   getEventList(dummyEvents: CalendarEvent[]) {
-    const calendarContext = this._calendar?.state?.context;
-    if (!calendarContext) {
-      return null;
-    }
-    const {viewNames, ...otherContext} = calendarContext;
     const {selectedIdx} = this.state;
 
     return dummyEvents.map((event) => (
@@ -180,9 +183,6 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     else conn.setValue(path, config);
   };
 
-  _calendar: {state: {context: any}};
-  getCalendarRef = (c: any) => (this._calendar = c);
-
   renderImpl() {
     const {parentPath, conn} = this.props;
     const {scheduleOptions, selectedSchedule, timeRange, selectedId, selectedIdx, view, date} = this.state;
@@ -198,8 +198,8 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
     return (
       <div className="ticl-e-calendar-box">
         <CalendarT
+          key={this.scheduleLoader.zone}
           allDayMaxRows={2}
-          ref={this.getCalendarRef}
           components={{toolbar: CalendarToolbar}}
           localizer={this.scheduleLoader.localizer}
           views={{day: true, week: true, month: true}}
@@ -224,7 +224,7 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
             <Select
               options={scheduleOptions}
               value={selectedSchedule}
-              onChange={(value) => this.setState({selectedSchedule: value})}
+              onChange={(value) => this.setState({selectedSchedule: value, selectedIdx: 0, selectedId: null})}
             />
           </div>
           <div className="ticl-e-schedule-list">{this.getEventList(dummyEvents)}</div>
@@ -232,6 +232,7 @@ export class ScheduleCalendar extends LazyUpdateComponent<Props, State> {
             conn={conn}
             path={schedulePath}
             index={selectedIdx}
+            zone={this.scheduleLoader.zone}
             config={dummyEvents[selectedIdx]?.parent.config}
             onChange={this.updateConfig}
           />

@@ -41,20 +41,40 @@ starts with its SQL keyword. The client commits on success and rolls back on
 failure. The outputs describe the final statement after a successful commit.
 Cancellation follows the same rules as `sql:query`.
 
+## SQL log provider
+
+Bind a SQLite, PostgreSQL or MySQL service to `sql:log-provider.client` and enter
+a `tableName` (default `ticlo_log`). The name identifies one table in the
+connection’s default schema. Bind the provider’s `#output` to [`log.provider`](core.md#logging).
+
+The first write runs `CREATE TABLE IF NOT EXISTS`. Providers using the same
+client and table share that initialization, including concurrent writes. Once
+the table is ready, each log record requires one parameterized `INSERT`.
+A failed initialization can be retried by the next write.
+If the database reports that the target table was dropped, the provider recreates
+it and retries the affected insert once.
+
+The columns are `time` (Unix milliseconds from the original record, stored as
+`BIGINT`), `level`, `message`, `block_path`, `origin_path`, and `data`.
+The optional paths and absent data use SQL `NULL`. Present data uses Ticlo’s
+JSON encoding, preserving values such as native errors and big integers.
+An existing table must accept these columns.
+
 ## Database connectors
 
-SQLite, PostgreSQL, and MySQL appear under Database in the function selector.
+SQLite (`sqlite-client`), PostgreSQL (`postgres-client`), and MySQL
+(`mysql-client`) appear under Database in the function selector.
 For existing flows, update the saved function IDs to the corresponding IDs below.
 
 | Previous ID | Current ID |
 | --- | --- |
-| `sqlite:client` | `database:sqlite` |
-| `postgres:client` | `database:postgres` |
-| `mysql:client` | `database:mysql` |
+| `database:sqlite` | `sqlite:client` |
+| `database:postgres` | `postgres:client` |
+| `database:mysql` | `mysql:client` |
 
 ### SQLite
 
-Import `@ticlo/sqlite` in Node.js to register `database:sqlite`. It is not a browser
+Import `@ticlo/sqlite` in Node.js to register `sqlite:client`. It is not a browser
 module. Applications must explicitly import connectors; the development server
 already imports this one.
 
@@ -86,17 +106,12 @@ zero affected rows rather than reusing a preceding write's metadata.
 
 ### PostgreSQL
 
-Import `@ticlo/postgres` in Node.js to register `database:postgres`. The development
+Import `@ticlo/postgres` in Node.js to register `postgres:client`. The development
 server imports it. Enter a URL such as `postgresql://app@db.example:5432/mydb` in
-`connectionString` and set the database password through the Block's
-[`#secret` configuration](runtime-lifecycle.md#block-secrets). Move passwords
-from existing URLs to `#secret` before saving the Flow. The Block opens a pool
-on load and replaces it when its configuration changes. `maxConnections` defaults
+`connectionString`. See [SQL authentication](#sql-authentication) for password
+setup. The Block opens a pool on load and replaces it when its configuration changes. `maxConnections` defaults
 to 10, `connectionTimeout` to 5000 ms, and `statementTimeout` to 30000 ms.
 Set a timeout to 0 to disable it.
-
-To supply the password from the host environment, bind a
-[`node:env` helper](runtime-lifecycle.md#environment-variables) to `#secret`.
 
 Use positional placeholders such as `$1` with an array. A statement with
 `RETURNING` includes a table, and write statements report the driver's affected
@@ -106,20 +121,22 @@ and calendar and timestamp values are returned as text to preserve precision.
 of statements that must share a transaction.
 
 Run `pnpm test connectors/postgres` to exercise the connector. Locally, the
-suite uses a `postgres:18` Podman container on an available loopback port. The
-Git-ignored `connectors/postgres/__spec__/postgres.podman.local.cid` records its ID.
+suite uses a `postgres:18` Podman container with SCRAM authentication on an
+available loopback port. The Git-ignored
+`connectors/postgres/__spec__/postgres.podman.local.cid` records its ID.
 Later runs reuse the container and start it if stopped. The local test database
 and username are both `postgres`, and the password is `ticlo_test`. Each run
 drops its own test schema. Set `TICLO_TEST_POSTGRES_URL` to use a disposable
-database that allows the test account to create and drop schemas. GitHub
-Actions supplies that URL from a PostgreSQL service managed by the runner.
+database with SCRAM authentication that allows the test account to create and
+drop schemas. GitHub Actions supplies that URL from a PostgreSQL service managed
+by the runner.
 
 ### MySQL and MariaDB
 
-Import `@ticlo/mysql` in a Node.js host to register `database:mysql`. The
+Import `@ticlo/mysql` in a Node.js host to register `mysql:client`. The
 development server imports it. Set `connectionString` to a URL such as
-`mysql://app@127.0.0.1:3306/mydb` and put the password in
-[`#secret`](runtime-lifecycle.md#block-secrets). Add `?ssl=true` to use TLS
+`mysql://app@127.0.0.1:3306/mydb`. For password authentication, use the
+[SQL authentication setup](#sql-authentication). Add `?ssl=true` to use TLS
 with certificate verification. `maxConnections` defaults to 10 and
 `connectionTimeout` defaults to 5000 ms.
 
@@ -128,17 +145,33 @@ Use `?` placeholders with an array of values. Results preserve `BIGINT`,
 `Uint8Array`. Use transactional tables such as InnoDB with `sql:transaction`.
 The connector validates the batch and rolls back on statement errors.
 
-Run `pnpm test connectors/mysql` to test against MariaDB. Locally, the suite
-reuses a MariaDB 11.8 Podman container with database `ticlo_test`, user `root`,
-and password `ticlo_test`. The Git-ignored
-`connectors/mysql/__spec__/mariadb.podman.local.cid` records its ID. Use
+Run `pnpm test connectors/mysql` to test MariaDB 11.8 compatibility and MySQL
+8.4 authentication with `caching_sha2_password`. Locally, both use Podman with
+database `ticlo_test`, user `root`, and password `ticlo_test`. Use
 `TICLO_TEST_MYSQL_URL` to supply a test database with permission to create and
-drop databases. GitHub Actions supplies the URL for its MariaDB service.
+drop databases. Use `TICLO_TEST_MYSQL84_URL` to supply a MySQL 8.4 test database
+with a `caching_sha2_password` account that can read its row in `mysql.user`.
+GitHub Actions supplies both URLs through service containers.
+
+### SQL authentication
+
+Choose `auth:password` in the Block's `auth` field or bind it to an existing
+password Auth Block. The database Block keeps its password in
+[`#secret`](runtime-lifecycle.md#block-secrets). An existing
+embedded [`system:env` Block](runtime-lifecycle.md#system-functions) can supply it.
+Leave `auth` empty for connections without a password.
+
+To upgrade a saved Flow that already sets `#secret` directly or through a
+binding, select `auth:password` in the editor and save. In saved Block data,
+the equivalent edit adds `"~auth": {"#is": "auth:password"}` next to the
+existing secret configuration. Move any URL password into `#secret` and
+remove it from the URL.
 
 ## Client management
 
-`SqlClient` provides `query(sql, params?)`, `listEntities()`,
-`getColumns(entity)`, and optionally `transaction(statements)`. Entities are
+`SqlClient` provides `query(sql, params?)`, `listEntities()` and
+`getColumns(entity)`. It can also provide `transaction(statements)` and
+`queryReadonly(sql, params?)`. Entities are
 tables or views, identified by a structured `{catalog?, schema?, name}`
 reference. Identifier parts remain separate even when names contain dots or
 quotes. Column metadata includes a name and, when known, database type,
@@ -152,9 +185,17 @@ function API. These expose `listEntities`, `getColumns` (`{catalog?, schema?, na
 (`{sql, params?}`) commands against the current `#output` service, including
 code-defined globals. Named results are `{entities}` for `listEntities`, `{columns}`
 for `getColumns`, and `{table?, affectedRows?, insertId?}` for `query`, inside the
-connection's `{result}` response wrapper. Commands do not paginate or truncate results. Metadata commands
-are readonly. Query commands reject execution on a readonly server connection;
-the database driver's own read-only setting independently controls SQL writes.
+connection's `{result}` response wrapper. Commands do not paginate or truncate
+results. The `query` command calls `queryReadonly` when
+[executing in readonly mode](core.md#connection-layer). An adapter must provide
+that method to run queries in this mode.
+
+SQLite enables `PRAGMA query_only` for the statement, rejects connection and
+transaction control statements, and restores the previous setting afterward.
+PostgreSQL and MySQL run the query inside a read-only transaction and roll it
+back before returning the pooled connection. These two adapters require a
+leading query keyword, such as `SELECT` or `WITH`. MySQL also blocks file
+exports from readonly queries.
 
 The editor opens an rc-dock window from the header menu of any Block tagged
 `sql-client`. Hosts provide the `manageDatabase(conn, path)` layout action;

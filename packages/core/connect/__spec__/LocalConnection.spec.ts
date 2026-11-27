@@ -13,11 +13,16 @@ describe('LocalConnection', () => {
       const root = new Root();
       const value = 'x'.repeat(1200);
       root.addFlow('Main', {value});
-      const [, small] = makeLocalConnection(root, false, undefined, serialize, {maxMessageSize: 256, maxValueSize: 64});
-      const [, large] = makeLocalConnection(root, false, undefined, serialize, {
-        maxMessageSize: 8192,
-        maxValueSize: 4096,
-      });
+      const [, small] = makeLocalConnection(root, false, {maxMessageSize: 256, maxValueSize: 64}, serialize);
+      const [, large] = makeLocalConnection(
+        root,
+        false,
+        {
+          maxMessageSize: 8192,
+          maxValueSize: 4096,
+        },
+        serialize
+      );
       const smallValues = new AsyncClientPromise();
       const largeValues = new AsyncClientPromise();
       try {
@@ -62,6 +67,26 @@ describe('LocalConnection', () => {
     }
   });
 
+  it('traces protocol metadata without logging the payload, path or connection object', async () => {
+    const root = new Root();
+    root.addFlow('Main');
+    const [, client] = makeLocalConnection(root, false);
+    const sink = vi.fn();
+    Logger.add(sink, Logger.TRACE);
+    try {
+      await client.setValue('Main.privateField', 'privateValue', true);
+      expect(sink.mock.calls.some(([message]) => message.includes('messages'))).toBe(true);
+      for (const [message, , source] of sink.mock.calls) {
+        expect(message).not.toMatch(/privateField|privateValue/);
+        expect(typeof source).toBe('string');
+      }
+    } finally {
+      Logger.remove(sink);
+      client.destroy();
+      root.destroy();
+    }
+  });
+
   it('passes runtime values by reference without serializing trace logs', async () => {
     const root = new Root();
     const flow = root.addFlow('Main');
@@ -97,10 +122,11 @@ describe('LocalConnection', () => {
       const flow = root.addFlow('Main');
       const child = flow.createBlock('child');
       flow.setBinding('value', 'child');
-      const [, client] = makeLocalConnection(root, false, {denyCmds: ['deleteBlock']}, serialize);
+      const [, client] = makeLocalConnection(root, false, undefined, serialize);
+      const view = client.withPolicy({denyCmds: ['deleteBlock']});
       const callbacks = new AsyncClientPromise();
       try {
-        client.subscribe('Main.value', callbacks);
+        view.subscribe('Main.value', callbacks);
         let result = await callbacks.promise;
         expect(result.cache.value).toBeInstanceOf(NoSerialize);
         expect(result.cache.value.type).toBe('Block');
@@ -120,7 +146,7 @@ describe('LocalConnection', () => {
         result = await reconnected;
         expect(result.cache.value).toBe(2);
         expect(result.cache.bindingPath).toBe('source');
-        expect(client.getEditPolicyView().policy).toEqual({denyCmds: ['deleteBlock']});
+        await expect(view.deleteBlock('Main.child')).rejects.toBe('restricted command');
         const value = {count: 3};
         await client.setValue('Main.source', value, true);
         expect(Object.is(flow.getValue('source'), value)).toBe(!serialize);

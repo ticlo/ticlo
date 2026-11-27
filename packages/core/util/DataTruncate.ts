@@ -65,10 +65,13 @@ function truncateObj(val: any, maxSize: number): [any, number, boolean] {
     if (val instanceof ErrorEvent) {
       if (maxSize <= 16) return [new ErrorEvent(undefined, TRUNCATED), 16, true];
       const [type, typeSize, typeTruncated] = truncateObj(val.type, Math.max(0, maxSize / 4));
-      const [detail, size, detailTruncated] = truncateObj(val.detail, Math.max(0, maxSize - typeSize - 16) * 0.75);
+      const remaining = Math.max(0, maxSize - typeSize - 16);
+      const [origin, originSize, originTruncated] =
+        val.originPath === undefined ? [undefined, 0, false] : truncateObj(val.originPath, remaining / 2);
+      const [detail, size, detailTruncated] = truncateObj(val.detail, Math.max(0, remaining - originSize) * 0.75);
       if (detailTruncated && detail?.constructor === Object) detail[TRUNCATED] = 1;
-      const truncated = typeTruncated || detailTruncated;
-      return [truncated ? new ErrorEvent(type, detail) : val, typeSize + size + 16, truncated];
+      const truncated = typeTruncated || detailTruncated || originTruncated;
+      return [truncated ? new ErrorEvent(type, detail, origin) : val, typeSize + size + originSize + 16, truncated];
     }
     if (val instanceof Error) {
       const code = (val as Error & {code?: string | number}).code;
@@ -80,6 +83,8 @@ function truncateObj(val: any, maxSize: number): [any, number, boolean] {
       return [preview, messageSize + nameSize + codeSize + 12, truncated];
     }
     const encoded = encodeRaw(val);
+    if (encoded?.constructor === Object) return truncateMap(encoded as DataMap, maxSize);
+    if (Array.isArray(encoded)) return truncateArray(encoded, maxSize);
     if (typeof encoded === 'string' && encoded.length <= maxSize) {
       // Keep preview values usable without decoding the whole transport frame.
       return [decodeReviver('', encoded), encoded.length, false];

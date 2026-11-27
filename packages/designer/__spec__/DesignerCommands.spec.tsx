@@ -3,7 +3,7 @@ import {vi} from 'vitest';
 import {Block, Root, decode, encode, type Flow} from '@ticlo/core';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
-import {loadTemplate, removeLastTemplate} from '@ticlo/editor/util/test-util.ts';
+import {loadPolicyTemplate, loadTemplate, removeLastTemplate} from '@ticlo/editor/util/test-util.ts';
 import {BlockStage} from '@ticlo/editor/block/BlockStage.tsx';
 import {TicloCurrentFlowContext, type TicloCurrentFlow} from '@ticlo/editor/component/LayoutContext.ts';
 import {DesignerApp} from '../DesignerApp.tsx';
@@ -57,22 +57,22 @@ describe('designer keyboard commands', () => {
     const container = main.getValue('container') as Block;
     const a = container.getValue('a') as Block;
     const b = container.getValue('b') as Block;
-    const [server, conn] = makeLocalConnection(Root.instance, true, undefined, false);
+    const [, conn] = makeLocalConnection(Root.instance, true, undefined, false);
     let stage: DesignerStageContextValue;
     function Panel(): null {
       stage = useActiveDesignerStage();
       return null;
     }
-    const [, div] = loadTemplate(
+    const [replacePolicy, div] = loadPolicyTemplate(conn, (activeConn) => (
       <DesignerApp value={{}}>
-        <DesignerStage root={Root.instance} conn={conn} basePath={path} onSave={onSave} />
+        <DesignerStage root={Root.instance} conn={activeConn} basePath={path} onSave={onSave} />
         <input className="property-input" />
         <Panel />
       </DesignerApp>
-    );
+    ));
     await shouldHappen(() => stage?.flow === flow && div.querySelector('.ticl-d-page span'));
     const host = div.querySelector<HTMLElement>('.ticl-d-stage');
-    return {flow, main, container, a, b, server, conn, persist, div, host, getStage: () => stage};
+    return {flow, main, container, a, b, replacePolicy, conn, persist, div, host, getStage: () => stage};
   }
 
   it.each([true, false])(
@@ -165,11 +165,11 @@ describe('designer keyboard commands', () => {
 
   it('respects live save, deletion, and creation policy changes', async () => {
     const onSave = vi.fn();
-    const {container, a, server, conn, host, getStage} = await mount(onSave);
+    const {container, a, replacePolicy, conn, host, getStage} = await mount(onSave);
     const remove = vi.spyOn(conn, 'deleteBlock');
     const insert = vi.spyOn(conn, 'paste');
-    server.setEditPolicy({allowDeleteBlock: false, allowCreateBlock: false, denyCmds: ['applyFlowChange']});
-    await shouldHappen(() => conn.getEditPolicyView().policy?.allowDeleteBlock === false);
+    replacePolicy({allowDeleteBlock: false, allowCreateBlock: false, denyCmds: ['applyFlowChange']});
+    await shouldHappen(() => getStage().conn.getEditPolicyView().policy?.allowDeleteBlock === false);
     getStage().select([a]);
     await shouldHappen(() => getStage().selection.blocks[0] === a);
     key(host, 's', {ctrlKey: true});
@@ -297,5 +297,41 @@ describe('designer keyboard commands', () => {
     key(input, 's', {ctrlKey: true});
     expect(saveDesigner).toHaveBeenCalledTimes(2);
     expect(saveDataflow).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores the flow root in delete/copy and pastes into #main when the flow root is selected', async () => {
+    const {flow, main, container, a, conn, host, getStage} = await mount();
+    const remove = vi.spyOn(conn, 'deleteBlock');
+    const copy = vi.spyOn(conn, 'copy');
+    const write = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+
+    getStage().select([flow]);
+    await shouldHappen(() => getStage().selection.blocks[0] === flow);
+    expect(key(host, 'Delete').defaultPrevented).toBe(false);
+    expect(key(host, 'c', {ctrlKey: true}).defaultPrevented).toBe(false);
+    expect(remove).not.toHaveBeenCalled();
+    expect(copy).not.toHaveBeenCalled();
+    expect(flow.isDestroyed()).toBe(false);
+
+    expect(paste(host, encode({pasted: {'#is': 'react:span', 'content': 'Pasted'}})).defaultPrevented).toBe(true);
+    await shouldHappen(
+      () => main.getValue('pasted') instanceof Block && getStage().selection.blocks[0] === main.getValue('pasted')
+    );
+    expect(main.getValue('#order')).toEqual(['container', 'outside', 'pasted']);
+    expect(flow.getValue('pasted')).toBeUndefined();
+
+    getStage().select([flow, a]);
+    await shouldHappen(() => getStage().selection.blocks.length === 2);
+    expect(key(host, 'c', {ctrlKey: true}).defaultPrevented).toBe(true);
+    await shouldHappen(() => write.mock.calls.length === 1);
+    expect(copy).toHaveBeenCalledTimes(1);
+    expect(copy).toHaveBeenLastCalledWith(`${path}.#main.container`, ['a']);
+
+    expect(key(host, 'Delete').defaultPrevented).toBe(true);
+    await shouldHappen(() => !container.getValue('a'));
+    expect(remove).toHaveBeenCalledTimes(1);
+    expect(remove).toHaveBeenLastCalledWith(`${path}.#main.container.a`, expect.anything());
+    expect(flow.isDestroyed()).toBe(false);
+    expect(getStage().selection.blocks).toEqual([flow]);
   });
 });

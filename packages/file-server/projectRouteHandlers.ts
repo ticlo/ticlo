@@ -39,7 +39,11 @@ async function handleListProjectsOp(
     reply,
     async (): Promise<ProjectMetadata[]> => {
       const auth = await resolveAuth(context.authProvider, request);
-      return listProjectsForAuth(projectScopeDir(context.rootDir, query.scope), auth, context.allowProjectSymlink);
+      return listProjectsForAuth(
+        projectScopeDir(context.rootDir, query.scope, context.scopes),
+        auth,
+        context.allowProjectSymlink
+      );
     },
     context.logger
   );
@@ -54,7 +58,7 @@ async function handleReadProjectOp(
   await handleErrors(
     reply,
     async (): Promise<ProjectMetadata> => {
-      const baseDir = projectScopeDir(context.rootDir, query.scope);
+      const baseDir = projectScopeDir(context.rootDir, query.scope, context.scopes);
       const projectId = sanitizeProjectId(query.id);
       const auth = await resolveAuth(context.authProvider, request);
       await ensureRead(auth, projectId);
@@ -78,7 +82,7 @@ async function handleCreateProjectOp(
   await handleErrors(
     reply,
     async (): Promise<ProjectMetadata> => {
-      const baseDir = projectScopeDir(context.rootDir, query.scope);
+      const baseDir = projectScopeDir(context.rootDir, query.scope, context.scopes);
       const nameParam = query.name;
       if (!nameParam) {
         throw new StorageError('Project name is required', 400);
@@ -135,7 +139,7 @@ async function handleUpdateProjectOp(
   await handleErrors(
     reply,
     async (): Promise<ProjectMetadata> => {
-      const baseDir = projectScopeDir(context.rootDir, query.scope);
+      const baseDir = projectScopeDir(context.rootDir, query.scope, context.scopes);
       const projectId = sanitizeProjectId(query.id);
       const auth = await resolveAuth(context.authProvider, request);
       await ensureWrite(auth, projectId);
@@ -176,7 +180,7 @@ async function handleDeleteProjectOp(
   await handleErrors(
     reply,
     async (): Promise<void> => {
-      const baseDir = projectScopeDir(context.rootDir, query.scope);
+      const baseDir = projectScopeDir(context.rootDir, query.scope, context.scopes);
       const projectId = sanitizeProjectId(query.id);
       const auth = await resolveAuth(context.authProvider, request);
       await ensureWrite(auth, projectId);
@@ -204,7 +208,7 @@ async function handleExportProjectOp(
   await handleErrors(
     reply,
     async (): Promise<void> => {
-      const baseDir = projectScopeDir(context.rootDir, query.scope);
+      const baseDir = projectScopeDir(context.rootDir, query.scope, context.scopes);
       const projectId = sanitizeProjectId(query.id);
       const auth = await resolveAuth(context.authProvider, request);
       await ensureRead(auth, projectId);
@@ -229,7 +233,7 @@ async function handleImportProjectOp(
   await handleErrors(
     reply,
     async (): Promise<ProjectMetadata[]> => {
-      const baseDir = projectScopeDir(context.rootDir, query.scope);
+      const baseDir = projectScopeDir(context.rootDir, query.scope, context.scopes);
       const auth = await resolveAuth(context.authProvider, request);
       const payload = await streamToBuffer(request);
       const imported = await importProjectsFromArchive(baseDir, auth, payload);

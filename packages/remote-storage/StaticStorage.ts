@@ -7,6 +7,7 @@ import {
   type FileRequest,
   type FileWriteOptions,
 } from '@ticlo/core/storage/FileAccess.ts';
+import {buildProjectFileUrl} from '@ticlo/core/storage/FilePath.ts';
 import {BrowserStorage} from './BrowserStorage.ts';
 
 class StaticFiles extends FileAccessBase {
@@ -69,10 +70,13 @@ class StaticFiles extends FileAccessBase {
 
 /** Static projects and the guest user are read-only. BrowserLocal is persisted in IndexedDB. */
 export class StaticStorage extends BrowserStorage {
+  private readonly baseURL: string;
   constructor(baseURL: string) {
-    super(
-      new StaticFiles(`${baseURL.replace(/\/$/, '')}/proj`),
-      new StaticFiles(`${baseURL.replace(/\/$/, '')}/usr/guest`)
-    );
+    const normalized = baseURL.replace(/\/$/, '');
+    super(new StaticFiles(`${normalized}/proj`), new StaticFiles(`${normalized}/usr/guest`));
+    this.baseURL = normalized;
+  }
+  protected override resolveProjectFileUrl(storagePath: string) {
+    return buildProjectFileUrl(this.baseURL, storagePath);
   }
 }

@@ -7,6 +7,8 @@ import {DateEditor} from '../DateEditor.tsx';
 import {shouldHappen, waitTick} from '@ticlo/core/util/test-util.ts';
 import type {PropDesc} from '@ticlo/core';
 import {blankFuncDesc, blankPropDesc} from '@ticlo/core';
+import {updateGlobalSettings} from '@ticlo/core/util/Settings.ts';
+import {DataWrapper} from '@ticlo/core/block/FunctonData.ts';
 import {DateTime} from 'luxon';
 
 describe('DateEditor', function () {
@@ -16,6 +18,7 @@ describe('DateEditor', function () {
 
   afterEach(function () {
     removeLastTemplate();
+    updateGlobalSettings();
   });
 
   it('basic', async function () {
@@ -45,5 +48,30 @@ describe('DateEditor', function () {
 
     expect(value).toBe(testDate);
     expect(value.toISODate()).toBe('2020-05-15');
+  });
+
+  it('uses server default timezone or explicit timezone prop for string parsing and new dates', async function () {
+    updateGlobalSettings(new DataWrapper({'#timezone': 'America/New_York'}));
+    let changed: DateTime = null;
+    const desc: PropDesc = {name: '', type: 'date'};
+    const [, div] = loadTemplate(
+      <DateEditor value="2025-05-28T12:00:00" funcDesc={blankFuncDesc} desc={desc} onChange={(v) => (changed = v)} />,
+      'editor'
+    );
+    await shouldHappen(() => div.querySelector('input'));
+    expect(div.querySelector('input').value).toContain('2025-05-28');
+
+    // Selecting a new date when timezone prop is explicitly UTC should normalize to UTC
+    removeLastTemplate();
+    const [, divUtc] = loadTemplate(
+      <DateEditor value={null} timezone="UTC" funcDesc={blankFuncDesc} desc={desc} onChange={(v) => (changed = v)} />,
+      'editor'
+    );
+    await shouldHappen(() => divUtc.querySelector('input'));
+    simulate(divUtc.querySelector('input'), 'click');
+    await shouldHappen(() => document.querySelector('.ant-picker-now-btn'), 3000);
+    simulate(document.querySelector('.ant-picker-now-btn'), 'click');
+    await shouldHappen(() => changed != null, 1000);
+    expect(changed.zoneName).toBe('UTC');
   });
 });

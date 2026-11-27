@@ -1,25 +1,20 @@
 import {type DataMap, isSavedBlock} from '../util/DataTypes.ts';
 import {splitPathName} from '../util/Path.ts';
+import {matchPathPattern} from '../util/PathPattern.ts';
+
+export {matchPathPattern as matchEditPath};
 
 /**
- * Serializable editing limits. Omitted allow lists permit all; empty ones permit none.
+ * Client editing limits for demos and tutorials. Omitted allow lists permit all; empty ones permit none.
  * Client path grants include the complete subtree; denied descendants cannot revoke an ancestor grant.
  * Command, property, binding and block restrictions still apply independently.
  * For bindings, allowBinding replaces allowProps/denyProps when supplied.
  * Paths, field names and block types support `*`, `**` and numeric `?`; commands use exact names.
- * Fine-grained limits apply on the client. Writable policies bypass server policy checks.
- * Readonly policies reject server edits and check read paths; commands receive the readonly flag.
  */
 export interface EditPolicy {
-  /** The server's only write restriction. Defaults to false. */
+  /** Disables editing through this client policy view. */
   readonly readonly?: boolean;
-  /** Client writable paths grant every descendant. Readonly server reads do not inherit grants. */
   readonly allowPaths?: readonly string[];
-  /** Additional read paths for readonly servers. Does not narrow allowPaths; denyPaths takes priority.
-   * For example, allowPaths: ['Main.**'], readonlyPaths: ['Main'] also permits watching Main itself.
-   */
-  readonly readonlyPaths?: readonly string[];
-  /** Cancels matching client grants, but cannot revoke an ancestor grant. Readonly server denies take priority. */
   readonly denyPaths?: readonly string[];
   readonly allowCmds?: readonly string[];
   readonly denyCmds?: readonly string[];
@@ -42,6 +37,12 @@ const unrestrictedCommands = new Set([
   'subscribe',
   'watch',
   'watchDesc',
+  'findContextBlocks',
+  'getLiveCapabilities',
+  'listLiveChildren',
+  'searchLive',
+  'watchLive',
+  'setLiveTargets',
   'getSettings',
   'getFlowState',
   'getAutoLoadFlow',
@@ -53,97 +54,11 @@ const unrestrictedCommands = new Set([
   'redo',
 ]);
 
-/** `*` stays within a segment; `**` spans segments; `?` matches one or more digits (0-9).
- * A trailing `.**` requires a descendant, so `Main.**` does not match `Main` itself.
- */
-export function matchEditPath(pattern: string, path: string): boolean {
-  const patterns = pattern.split('.');
-  const parts = path.split('.');
-  const memo = new Map<string, boolean>();
-  function match(i: number, j: number): boolean {
-    const key = `${i}:${j}`;
-    if (memo.has(key)) return memo.get(key);
-    let result: boolean;
-    if (i === patterns.length) {
-      result = j === parts.length;
-    } else if (patterns[i] === '**') {
-      result = i === patterns.length - 1 ? j < parts.length : match(i + 1, j) || (j < parts.length && match(i, j + 1));
-    } else {
-      const expression = patterns[i].replace(/[.*+?^${}()|[\]\\]/g, (char) =>
-        char === '*' ? '.*' : char === '?' ? '[0-9]+' : `\\${char}`
-      );
-      result = j < parts.length && new RegExp(`^${expression}$`).test(parts[j]) && match(i + 1, j + 1);
-    }
-    memo.set(key, result);
-    return result;
-  }
-  return match(0, 0);
-}
-
 function allowed(allow: readonly string[], deny: readonly string[], value: string): boolean {
-  return !deny?.some((p) => matchEditPath(p, value)) && (!allow || allow.some((p) => matchEditPath(p, value)));
+  return !deny?.some((p) => matchPathPattern(p, value)) && (!allow || allow.some((p) => matchPathPattern(p, value)));
 }
 
-function checkDescendants(paths: readonly string[], denyPaths: readonly string[], target: string): string | null {
-  if (
-    paths &&
-    !paths.some(
-      (p) => p === '**' || (p.endsWith('.**') && (matchEditPath(p, target) || matchEditPath(p.slice(0, -3), target)))
-    )
-  )
-    return 'restricted path';
-  if (
-    denyPaths?.some((p) => {
-      const wildcard = p.search(/[*?]/);
-      const prefix = wildcard < 0 ? p : p.slice(0, wildcard);
-      return (
-        !target ||
-        !prefix ||
-        prefix === target ||
-        prefix.startsWith(`${target}.`) ||
-        (wildcard < 0 ? target.startsWith(`${prefix}.`) : target.startsWith(prefix))
-      );
-    })
-  )
-    return 'restricted path';
-  return null;
-}
-
-/** Readonly server checks never inspect edit payloads or field/type limits. */
-function checkReadonlyPolicy(policy: EditPolicy, request: DataMap, lookup?: EditPolicyLookup): string | null {
-  if (!policy?.readonly || !request) return null;
-  const {cmd, path} = request as {cmd: string; path: string};
-  if (cmd === 'close') return null;
-  if (
-    cmd === 'undo' ||
-    cmd === 'redo' ||
-    (cmd === 'copy' && request.cut) ||
-    (!unrestrictedCommands.has(cmd) && cmd !== 'copy' && cmd !== 'executeCommand')
-  )
-    return 'readonly';
-  if (
-    (cmd === 'query' || cmd === 'executeCommand') &&
-    (policy.denyCmds?.includes(cmd) || (policy.allowCmds && !policy.allowCmds.includes(cmd)))
-  )
-    return 'restricted command';
-  if (typeof path !== 'string') return 'invalid path';
-  const paths =
-    policy.allowPaths && policy.readonlyPaths ? [...policy.allowPaths, ...policy.readonlyPaths] : policy.allowPaths;
-  const checkPath = (target: string) => (allowed(paths, policy.denyPaths, target) ? null : 'restricted path');
-  const checkWhole = (target: string) => checkDescendants(paths, policy.denyPaths, target) || checkPath(target);
-  const error = cmd === 'query' ? checkWhole(path) : checkPath(cmd === 'getSettings' ? '' : path);
-  if (error) return error;
-  if (cmd === 'copy') {
-    for (const name of (request.props as string[]) ?? []) {
-      const target = path ? `${path}.${name}` : name;
-      const error = lookup?.(target) ? checkWhole(target) : checkPath(target);
-      if (error) return error;
-    }
-  }
-  return null;
-}
-
-/** A read-only lookup. The client may use its caches; readonly server copies use authoritative state. */
+/** Checks whether a path identifies a block in the client cache. */
 export type EditPolicyLookup = (path: string) => boolean;
 
 // REFACTOR(design.md): MUST check wire creation, removal, and route/order edits against graph permissions.
@@ -151,9 +66,8 @@ export function checkEditPolicy(
   policy: EditPolicy,
   request: DataMap,
   lookup?: EditPolicyLookup,
-  mode: 'client' | 'server' | 'preview' = 'client'
+  mode: 'client' | 'preview' = 'client'
 ): string | null {
-  if (mode === 'server') return checkReadonlyPolicy(policy, request, lookup);
   if (!policy || !request) return null;
   const {cmd, path} = request as {cmd: string; path: string};
   const unrestricted = unrestrictedCommands.has(cmd) || (cmd === 'copy' && !request.cut);
@@ -223,7 +137,7 @@ export function checkEditPolicy(
     if (policy.allowBlockTypes?.length === 0) return 'restricted block type';
     const error = checkPath(target) || checkType(data?.['#is'] ?? (preview ? undefined : ''));
     if (error) return error;
-    // A helper block also replaces the parent field's binding.
+    // An embedded Block also replaces the parent field's binding.
     const [parent, name] = splitPathName(target);
     if (name.startsWith('~')) {
       if (autoName && target === path) {
@@ -268,8 +182,12 @@ export function checkEditPolicy(
 
   switch (cmd) {
     case 'deleteBlock': {
-      const parent = splitPathName(path)[0];
-      return checkDelete(path) || checkProp(parent ? `${parent}.#order` : '#order');
+      const [parent, name] = splitPathName(path);
+      return (
+        checkDelete(path) ||
+        checkProp(parent ? `${parent}.#order` : '#order') ||
+        (name.startsWith('#-') ? checkProp(parent ? `${parent}.#addon` : '#addon') : null)
+      );
     }
     case 'set':
     case 'update':
@@ -280,13 +198,18 @@ export function checkEditPolicy(
       // The saved type is not present in the request, so it cannot be checked against a type list.
       if (splitPathName(path)[1] === '#is' && hasTypeLimits) return 'restricted block type';
       return checkValue(path, undefined, false) || (lookup?.(path) ? checkWhole(path) : null);
-    case 'addBlock':
+    case 'addBlock': {
+      const [parent, name] = splitPathName(path);
       if (request.orderIndex !== undefined) {
-        const parent = splitPathName(path)[0];
         const error = checkProp(parent ? `${parent}.#order` : '#order');
         if (error) return error;
       }
-      if (autoName) return checkPath(splitPathName(path)[0]) || checkCreate(path, request.data as DataMap);
+      if (name.startsWith('#-')) {
+        const error = checkProp(parent ? `${parent}.#addon` : '#addon');
+        if (error) return error;
+      }
+      if (autoName) return checkPath(parent) || checkCreate(path, request.data as DataMap);
+    }
     // Explicit names only require permission for the target.
     case 'addFlow':
     case 'addFlowFolder':
@@ -362,12 +285,9 @@ export function checkEditPolicy(
   }
 }
 
-/** Editor capabilities for one policy. Server limits here are presentation-only. */
+/** Editor capabilities for one client policy. */
 export class EditPolicyView {
-  constructor(
-    public readonly policy?: EditPolicy,
-    public readonly ready = true
-  ) {
+  constructor(public readonly policy?: EditPolicy) {
     if (policy) {
       this.policy = Object.freeze(
         Object.fromEntries(
@@ -379,7 +299,6 @@ export class EditPolicyView {
   }
 
   check(request: DataMap, lookup?: EditPolicyLookup): string | null {
-    if (!this.ready) return 'policy not ready';
     return checkEditPolicy(this.policy, request, lookup, 'preview');
   }
 

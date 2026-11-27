@@ -2,6 +2,7 @@ import React from 'react';
 import {
   FunctionDesc,
   getDefaultFuncData,
+  getFuncDefaultName,
   ClientConn,
   encodeTicloName,
   translateFunction,
@@ -40,9 +41,9 @@ export class FunctionView extends React.PureComponent<Props, any> {
       data = getDefaultFuncData(desc);
     }
 
-    let name = desc.name;
+    let name = getFuncDefaultName(desc);
     if (TicloI18nSettings.useLocalizedBlockName) {
-      name = translateFunction(desc.id, desc.name, desc.libraryId);
+      name = translateFunction(desc.id, desc.name, desc.libraryId, undefined, name);
     }
     e.setData(
       {
@@ -60,7 +61,7 @@ export class FunctionView extends React.PureComponent<Props, any> {
     let {onClick, desc, name, data} = this.props;
     if (onClick) {
       if (!name) {
-        name = desc.name;
+        name = getFuncDefaultName(desc);
       }
       onClick(name, desc, data);
     }
@@ -118,12 +119,14 @@ export class FunctionView extends React.PureComponent<Props, any> {
   render() {
     const {desc, conn} = this.props;
     const {libraryId, id} = desc;
-    const idParts = id.split(':');
     let prefix: string | null = null;
-    if (idParts.length > 1) {
-      prefix = idParts.at(-2);
-      if (!prefix && idParts.length > 2) {
-        prefix = idParts.at(-3);
+    if (!desc.useFullName) {
+      const idParts = id.split(':');
+      if (idParts.length > 1) {
+        prefix = idParts.at(-2);
+        if (!prefix && idParts.length > 2) {
+          prefix = idParts.at(-3);
+        }
       }
     }
     const [colorStyle, iconName] = getFuncStyleFromDesc(desc, conn);

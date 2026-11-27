@@ -91,7 +91,17 @@ describe('EditPolicy', () => {
     expect(checkEditPolicy(policy, {cmd: 'set', path: 'Main.secret.value'})).toBeNull();
     expect(checkEditPolicy(policy, {cmd: 'set', path: 'Main.a.other'})).toBe('restricted property');
     expect(checkEditPolicy(policy, {cmd: 'bind', path: 'Main.a.value'})).toBe('restricted command');
-    for (const cmd of ['get', 'watch', 'subscribe', 'watchDesc', 'getSettings', 'copy', 'undo', 'redo']) {
+    for (const cmd of [
+      'get',
+      'watch',
+      'subscribe',
+      'watchDesc',
+      'findContextBlocks',
+      'getSettings',
+      'copy',
+      'undo',
+      'redo',
+    ]) {
       expect(checkEditPolicy({allowCmds: [], allowPaths: []}, {cmd, path: 'Other'})).toBeNull();
     }
     expect(checkEditPolicy({allowProps: []}, {cmd: 'set', path: 'Main.a'})).toBe('restricted property');
@@ -209,9 +219,6 @@ describe('EditPolicy', () => {
       );
       expect(checkEditPolicy({allowPaths: ['Main']}, request, undefined, mode)).toBeNull();
       expect(checkEditPolicy({allowPaths: ['Main.**']}, request, undefined, mode)).toBe('restricted path');
-      expect(checkEditPolicy({allowPaths: [], readonlyPaths: ['Main', 'Main.**']}, request, undefined, mode)).toBe(
-        'restricted path'
-      );
       expect(checkEditPolicy({denyPaths: ['Main.other.**']}, request, undefined, mode)).toBeNull();
       expect(checkEditPolicy({allowBlockTypes: ['subtract']}, request, undefined, mode)).toBe('restricted block type');
       expect(checkEditPolicy({allowCreateBlock: false}, request, undefined, mode)).toBe('restricted block creation');
@@ -221,29 +228,19 @@ describe('EditPolicy', () => {
     expect(limited.canCreateBlock('Main.add', 'add')).toBe(true);
   });
 
-  it('uses readonly as the server write switch while retaining client limits', () => {
-    const policy: EditPolicy = {allowPaths: [], allowCmds: [], allowCreateBlock: false};
-    const lookup = () => {
-      throw new Error('writable server policies must not resolve edit paths');
-    };
-    for (const cmd of ['set', 'paste', 'addBlock', 'query', 'copy', 'undo', 'redo', 'executeCommand']) {
-      const request = {cmd, path: 'Main', props: ['child']};
-      expect(checkEditPolicy(policy, request, lookup, 'server')).toBeNull();
-      expect(checkEditPolicy({...policy, readonly: false}, request, lookup, 'server')).toBeNull();
-    }
+  it('allows reads in a readonly client view', () => {
     for (const mode of ['client', 'preview'] as const) {
       for (const cmd of ['set', 'bind', 'paste', 'addBlock', 'undo', 'redo', 'executeCommand']) {
-        expect(checkEditPolicy({readonly: true}, {cmd, path: 'Main'}, lookup, mode)).toBe('readonly');
+        expect(checkEditPolicy({readonly: true}, {cmd, path: 'Main'}, undefined, mode)).toBe('readonly');
       }
       for (const cmd of ['get', 'query', 'subscribe', 'watch', 'copy']) {
-        expect(checkEditPolicy({readonly: true, allowPaths: []}, {cmd, path: 'Main'}, lookup, mode)).toBeNull();
+        expect(checkEditPolicy({readonly: true, allowPaths: []}, {cmd, path: 'Main'}, undefined, mode)).toBeNull();
       }
     }
     expect(new EditPolicyView({readonly: true}).canWriteField('Main.value')).toBe(false);
-    expect(checkEditPolicy(policy, {cmd: 'set', path: 'Main'})).toBe('restricted command');
   });
 
-  it('requires all binding names when automatically naming a helper block', () => {
+  it('requires all binding names when automatically naming an embedded Block', () => {
     const request = {cmd: 'addBlock', path: 'Main.~value1', data: {'#is': 'add'}, findName: true};
     expect(checkEditPolicy({allowBinding: ['value1']}, request)).toBe('restricted binding');
     expect(checkEditPolicy({denyProps: ['value']}, request)).toBe('restricted binding');
@@ -285,7 +282,7 @@ describe('EditPolicy', () => {
     }
   });
 
-  it('checks bindings in pasted data and helper blocks', () => {
+  it('checks bindings in pasted data and embedded Blocks', () => {
     const policy = {allowBinding: ['value']};
     expect(checkEditPolicy(policy, {cmd: 'paste', path: 'Main.a', data: {'~value': 'source'}})).toBeNull();
     expect(checkEditPolicy(policy, {cmd: 'paste', path: 'Main.a', data: {'~other': 'source'}})).toBe(

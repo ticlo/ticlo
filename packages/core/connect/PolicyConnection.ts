@@ -2,7 +2,6 @@ import {ClientConn} from './ClientConn.ts';
 import type {ClientConnection} from './ClientConnection.ts';
 import type {ClientCallbacks} from './ClientRequests.ts';
 import type {DataMap} from '../util/DataTypes.ts';
-import {StreamDispatcher} from '../block/Dispatcher.ts';
 import {type EditPolicy, EditPolicyView} from '../policy/EditPolicy.ts';
 
 /** An immutable client policy view. Transport, subscriptions and caches belong to the base connection. */
@@ -11,7 +10,6 @@ export class PolicyConnection extends ClientConn {
     return this.view.policy;
   }
   private readonly view: EditPolicyView;
-  private readonly changes = new StreamDispatcher<EditPolicyView>();
 
   constructor(
     private readonly base: ClientConnection,
@@ -29,9 +27,6 @@ export class PolicyConnection extends ClientConn {
   }
   getEditPolicyView() {
     return this.view;
-  }
-  editPolicyChanges() {
-    return this.changes;
   }
 
   simpleRequest(data: DataMap): Promise<any>;
@@ -57,6 +52,5 @@ export class PolicyConnection extends ClientConn {
   getCategory: ClientConn['getCategory'] = (...args) => this.base.getCategory(...args);
   getCommonBaseFunc: ClientConn['getCommonBaseFunc'] = (...args) => this.base.getCommonBaseFunc(...args);
   getOptionalProps: ClientConn['getOptionalProps'] = (...args) => this.base.getOptionalProps(...args);
-  findGlobalBlocks: ClientConn['findGlobalBlocks'] = (...args) => this.base.findGlobalBlocks(...args);
   cancel: ClientConn['cancel'] = (id) => this.base.cancel(id);
 }

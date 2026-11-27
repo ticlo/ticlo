@@ -4,6 +4,7 @@ import {
   escapedObject,
   globalFunctions,
   Logger,
+  resolvePasswordAuth,
   sqlClientApi,
   sqlClientCommands,
   type Block,
@@ -28,7 +29,7 @@ class PostgresClientFunction extends BaseFunction<Block> {
     this._data.output(undefined);
     const client = await PostgresClient.open({
       connectionString: this._data.getValue('connectionString') as string,
-      password: this.#getSecret() ?? '',
+      password: resolvePasswordAuth(this._data.getValue('auth'), this.#getSecret) ?? null,
       maxConnections: this._data.getValue('maxConnections') as number | undefined,
       connectionTimeout: this._data.getValue('connectionTimeout') as number | undefined,
       statementTimeout: this._data.getValue('statementTimeout') as number | undefined,
@@ -39,8 +40,10 @@ class PostgresClientFunction extends BaseFunction<Block> {
     }
     this.client = client;
     this._data.output(
-      escapedObject<SqlClient>('database:postgres', {
+      escapedObject<SqlClient>('postgres:client', {
+        dialect: client.dialect,
         query: client.query.bind(client),
+        queryReadonly: client.queryReadonly.bind(client),
         transaction: client.transaction.bind(client),
         listEntities: client.listEntities.bind(client),
         getColumns: client.getColumns.bind(client),
@@ -80,7 +83,9 @@ class PostgresClientFunction extends BaseFunction<Block> {
 globalFunctions.addFactory(
   PostgresClientFunction,
   {
-    name: 'postgres',
+    name: 'client',
+    category: 'database',
+    useFullName: true,
     icon: '15:PG',
     mode: 'onLoad',
     priority: 2,
@@ -88,6 +93,7 @@ globalFunctions.addFactory(
     commands: sqlClientCommands,
     properties: [
       {name: 'connectionString', type: 'string', pinned: true},
+      {name: 'auth', type: 'object', create: ['auth:password'], disableObjectTools: true},
       configDescs['#secret'],
       {name: 'maxConnections', type: 'number', default: 10, min: 1},
       {name: 'connectionTimeout', type: 'number', default: 5000, min: 0, unit: 'ms'},
@@ -95,6 +101,6 @@ globalFunctions.addFactory(
       {name: '#output', type: 'object', readonly: true, pinned: true},
     ],
   },
-  'database',
+  'postgres',
   sqlClientApi
 );

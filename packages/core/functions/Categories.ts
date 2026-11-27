@@ -93,3 +93,17 @@ globalFunctions.addCategory({
   icon: 'svg:stopwatch',
   color: '4af',
 });
+
+globalFunctions.addCategory({
+  id: 'file',
+  name: 'file',
+  icon: ':/+',
+  color: '4af',
+});
+
+globalFunctions.addCategory({
+  id: 'system',
+  name: 'system',
+  icon: '11:SYS',
+  color: '4af',
+});

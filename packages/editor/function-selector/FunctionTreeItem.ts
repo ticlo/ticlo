@@ -1,5 +1,5 @@
 import {TreeItem} from '../component/Tree.tsx';
-import {ClientConn, FunctionDesc, getKeywords, translateFunction} from '@ticlo/core/editor.ts';
+import {ClientConn, FunctionDesc, getFuncDefaultName, getKeywords, translateFunction} from '@ticlo/core/editor.ts';
 import {OnFunctionClick} from './FunctionView.tsx';
 import i18next from 'i18next';
 
@@ -65,6 +65,11 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
     if (desc !== this.desc) {
       this.desc = desc;
       this.data = data;
+      this.names = {};
+      this.keywords = {};
+      if (desc?.properties) {
+        this.name = getFuncDefaultName(desc);
+      }
       changed = true;
       if (desc) {
         // todo add additional children functions
@@ -87,7 +92,7 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
         return item;
       }
     }
-    const child = new FunctionTreeItem(this, this.root, key, desc.name, desc, data);
+    const child = new FunctionTreeItem(this, this.root, key, desc ? getFuncDefaultName(desc) : undefined, desc, data);
     this.children.push(child);
     this.children.sort(FunctionTreeItem.sort);
     if (this.opened === 'opened') {
@@ -121,7 +126,13 @@ export class FunctionTreeItem extends TreeItem<FunctionTreeItem> {
   }
   matchKeywords(lng: string, search: string) {
     if (!Object.hasOwn(this.names, lng)) {
-      this.names[lng] = translateFunction(this.desc.id, this.name, this.desc.libraryId, lng)?.toLowerCase();
+      this.names[lng] = translateFunction(
+        this.desc.id,
+        this.desc.name,
+        this.desc.libraryId,
+        lng,
+        getFuncDefaultName(this.desc)
+      )?.toLowerCase();
       this.keywords[lng] = getKeywords(this.desc.name, this.desc.libraryId, lng)?.toLowerCase();
     }
     const name = this.names[lng];

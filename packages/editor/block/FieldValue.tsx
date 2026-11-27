@@ -1,4 +1,5 @@
-import React, {useContext, useEffect, useRef} from 'react';
+import React, {useContext, useEffect, useMemo, useReducer, useRef, useState} from 'react';
+import {objectPreview} from '@ticlo/core/util/Serialize.ts';
 import {useConnectionValue} from '../component/useConnectionValue.ts';
 import {
   type ClientConn,
@@ -14,7 +15,16 @@ import {TicloLayoutContextType} from '../component/LayoutContext.ts';
 import {renderValue} from '../component/renderValue.tsx';
 import {typeEditorMap} from '../property/value/index.ts';
 import {ServiceEditor} from '../property/value/ServiceEditor.tsx';
+import type {ValueEditorProps} from '../property/value/ValueEditorBase.ts';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
+import {useEditPolicy} from '../component/EditPolicyContext.tsx';
+import {
+  addSubBlock,
+  canConvertEmbeddedBlock,
+  convertEmbeddedBlock,
+  hasEmbeddedBlockTypes,
+} from '../property/EmbeddedBlock.ts';
+import {getDescModule} from '../util/FunctionModule.ts';
 
 export function getInlineEditorDesc(base: PropDesc, inline: ReturnType<typeof getInlineProp>) {
   if (!inline || base.readonly || base.type === 'none' || base.name.endsWith('[]')) return;
@@ -70,7 +80,7 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
   const onKeyDown = (event: React.KeyboardEvent) => {
     if (!(event.key.toLowerCase() === 's' && (event.ctrlKey || event.metaKey))) event.stopPropagation();
   };
-  const Editor = typeEditorMap[desc.type];
+  const Editor = hasEmbeddedBlockTypes(desc) ? InlineObjectFieldEditor : typeEditorMap[desc.type];
   return (
     <div
       className="ticl-e-field-value ticl-e-inline-value"
@@ -89,7 +99,7 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
           bindingPath={null}
           funcModule={funcModule}
           onPathChange={(from): void => {
-            void conn.setUnboundBinding(path, from).catch(requestCallbacks.onError);
+            if (from) void conn.setUnboundBinding(path, from, false).catch(requestCallbacks.onError);
           }}
         />
       ) : (
@@ -110,8 +120,65 @@ export const InlineFieldValue = React.memo(function InlineFieldValue({
   );
 });
 
+function InlineObjectFieldEditor(props: ValueEditorProps) {
+  const {conn, keys, name, desc, funcModule, value} = props;
+  const policy = useEditPolicy();
+  const creatorId =
+    !desc.disableObjectTools && value !== undefined && typeof desc.create === 'string' ? desc.create : undefined;
+  const scope = getDescModule(creatorId, funcModule);
+  const [, redraw] = useReducer((version: number) => version + 1, 0);
+  useEffect(() => {
+    if (!creatorId) return;
+    const listener = () => redraw();
+    conn.watchDesc(creatorId, scope, listener);
+    return () => conn.unwatchDesc(listener);
+  }, [conn, creatorId, scope]);
+  const creator = creatorId ? conn.watchDesc(creatorId, scope) : undefined;
+  const [converting, setConverting] = useState(false);
+  const pending = useRef<AbortController>(null);
+  useEffect(() => () => pending.current?.abort(), [conn, keys, name, desc, policy, funcModule]);
+  const convert = async () => {
+    if (pending.current) return;
+    const operation = new AbortController();
+    pending.current = operation;
+    setConverting(true);
+    try {
+      await convertEmbeddedBlock(
+        conn,
+        policy,
+        keys[0],
+        name,
+        desc,
+        funcModule,
+        () => !operation.signal.aborted,
+        creator
+      );
+    } catch (error) {
+      requestCallbacks.onError(String(error));
+    } finally {
+      pending.current = null;
+      setConverting(false);
+    }
+  };
+  const Editor = typeEditorMap[desc.type];
+  return (
+    <Editor
+      {...props}
+      addSubBlock={(id: string) => {
+        void addSubBlock({conn, paths: keys, name, funcModule}, policy, id).catch(requestCallbacks.onError);
+      }}
+      onConvertToEmbeddedBlock={
+        creator && !converting && canConvertEmbeddedBlock(policy, keys[0], name, desc, value, null, creator)
+          ? convert
+          : undefined
+      }
+    />
+  );
+}
+
 export const FieldValue = React.memo(function FieldValue({conn, path}: Props) {
-  const value = useConnectionValue(conn, path);
+  const raw = useConnectionValue(conn, path);
+  const value = useMemo(() => objectPreview(raw), [raw]);
   const context = useContext(TicloLayoutContextType);
   const objectTree = useRef<{close?: () => void}>({});
 

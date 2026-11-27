@@ -1,5 +1,4 @@
 import React from 'react';
-import {flushSync} from 'react-dom';
 import {simulate} from 'simulate-event';
 import {Block, Root, blankFuncDesc, type ClientConn, type EditPolicy, type PropGroupDesc} from '@ticlo/core';
 import {makeLocalConnection, destroyLastLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
@@ -14,7 +13,12 @@ import {FieldView} from '../../block/Field.tsx';
 import {CustomGroupPropertyReorder} from '../PropertyReorder.ts';
 import {WorkerEditor} from '../value/WorkerEditor.tsx';
 import {DragState} from 'rc-dock';
-import {loadTemplate, removeLastTemplate, fakeMouseEvent} from '../../util/test-util.ts';
+import {
+  loadPolicyTemplate as loadConnectionTemplate,
+  loadTemplate,
+  removeLastTemplate,
+  fakeMouseEvent,
+} from '../../util/test-util.ts';
 
 function loadPolicyTemplate(
   initial: ClientConn,
@@ -22,20 +26,14 @@ function loadPolicyTemplate(
   render: () => React.ReactNode,
   style: string
 ): [(policy?: EditPolicy) => void, HTMLDivElement] {
-  let redraw: () => void;
-  function Template() {
-    [, redraw] = React.useReducer((value: number) => value + 1, 0);
-    return render();
-  }
-  const [, div] = loadTemplate(<Template />, style);
-  return [
-    (policy) =>
-      flushSync(() => {
-        setConnection(initial.getBaseConn().withPolicy(policy));
-        redraw();
-      }),
-    div,
-  ];
+  return loadConnectionTemplate(
+    initial,
+    (conn) => {
+      setConnection(conn);
+      return render();
+    },
+    style
+  );
 }
 
 describe('editor EditPolicy', () => {
@@ -53,55 +51,52 @@ describe('editor EditPolicy', () => {
     Root.instance.deleteValue('PolicyUI');
   });
 
-  for (const mode of ['client', 'server'] as const) {
-    it(`updates multi-selected property inputs from ${mode} limits`, async () => {
-      const [server, base] = makeLocalConnection(Root.instance);
-      let client: ClientConn = base;
-      const [desc] = globalFunctions.getDescToSend('add');
-      const prop = (desc.properties[0] as PropGroupDesc).properties[0];
-      let editor: PropertyEditor;
-      const [replacePolicy, div] = loadPolicyTemplate(
-        client,
-        (next) => {
-          client = next;
-        },
-        () => (
-          <EditPolicyProvider conn={client}>
-            <PropertyEditor
-              ref={(value) => {
-                editor = value;
-              }}
-              conn={client}
-              paths={['PolicyUI.add', 'PolicyUI.other']}
-              name="0"
-              funcDesc={desc}
-              propDesc={prop}
-            />
-          </EditPolicyProvider>
-        ),
-        'editor'
-      );
-      const input = () => div.querySelector('input') as HTMLInputElement;
-      await shouldHappen(() => input() && !input().disabled);
-      const setPolicy = mode === 'client' ? replacePolicy : server.setEditPolicy.bind(server);
-      setPolicy({allowPaths: ['PolicyUI.add.**'], readonlyPaths: ['**']});
-      await shouldHappen(() => input().disabled);
-      expect(div.querySelector('.ticl-e-property-readonly')).not.toBeNull();
-      setPolicy({allowProps: ['0']});
-      await shouldHappen(() => !input().disabled);
-      setPolicy({allowProps: [], denyProps: ['0'], allowBinding: ['0']});
-      await shouldHappen(() => input().disabled);
-      expect(editor.canBind()).toBe(true);
-      setPolicy({denyCmds: ['set']});
-      await shouldHappen(() => input().disabled);
-      setPolicy(undefined);
-      await shouldHappen(() => !input().disabled);
-    });
-  }
+  it('updates multi-selected property inputs from client policy', async () => {
+    const [, base] = makeLocalConnection(Root.instance);
+    let client: ClientConn = base;
+    const [desc] = globalFunctions.getDescToSend('add');
+    const prop = (desc.properties[0] as PropGroupDesc).properties[0];
+    let editor: PropertyEditor;
+    const [replacePolicy, div] = loadPolicyTemplate(
+      client,
+      (next) => {
+        client = next;
+      },
+      () => (
+        <EditPolicyProvider conn={client}>
+          <PropertyEditor
+            ref={(value) => {
+              editor = value;
+            }}
+            conn={client}
+            paths={['PolicyUI.add', 'PolicyUI.other']}
+            name="0"
+            funcDesc={desc}
+            propDesc={prop}
+          />
+        </EditPolicyProvider>
+      ),
+      'editor'
+    );
+    const input = () => div.querySelector('input') as HTMLInputElement;
+    await shouldHappen(() => input() && !input().disabled);
+    replacePolicy({allowPaths: ['PolicyUI.add.**']});
+    await shouldHappen(() => input().disabled);
+    expect(div.querySelector('.ticl-e-property-readonly')).not.toBeNull();
+    replacePolicy({allowProps: ['0']});
+    await shouldHappen(() => !input().disabled);
+    replacePolicy({allowProps: [], denyProps: ['0'], allowBinding: ['0']});
+    await shouldHappen(() => input().disabled);
+    expect(editor.canBind()).toBe(true);
+    replacePolicy({denyCmds: ['set']});
+    await shouldHappen(() => input().disabled);
+    replacePolicy(undefined);
+    await shouldHappen(() => !input().disabled);
+  });
 
-  it('shows only the client policy and switches to the server policy when it is cleared', async () => {
-    const [server, base] = makeLocalConnection(Root.instance, true, {allowCmds: []});
-    let client: ClientConn = base.withPolicy({allowProps: ['0']});
+  it('restores editing when the client policy is cleared', async () => {
+    const [, base] = makeLocalConnection(Root.instance);
+    let client = base.withPolicy({allowProps: []});
     const [desc] = globalFunctions.getDescToSend('add');
     const prop = (desc.properties[0] as PropGroupDesc).properties[0];
     const [replacePolicy, div] = loadPolicyTemplate(
@@ -117,14 +112,8 @@ describe('editor EditPolicy', () => {
       'editor'
     );
     const input = () => div.querySelector('input') as HTMLInputElement;
-    await shouldHappen(() => input() && !input().disabled);
+    await shouldHappen(() => input()?.disabled);
     replacePolicy(undefined);
-    await shouldHappen(() => input().disabled);
-    server.setEditPolicy({allowProps: ['0']});
-    await shouldHappen(() => !input().disabled);
-    replacePolicy({allowProps: []});
-    await shouldHappen(() => input().disabled);
-    replacePolicy({});
     await shouldHappen(() => !input().disabled);
   });
 
@@ -204,7 +193,15 @@ describe('editor EditPolicy', () => {
     {policy: {}, allowed: true},
     {policy: {denyProps: ['#sync']}, allowed: false},
     {policy: {allowBinding: []}, allowed: false},
-  ])('checks sync permissions when starting a block drag: $policy', async ({policy, allowed}) => {
+    {policy: {}, allowed: true, func: 'log'},
+    {policy: {denyProps: ['#sync']}, allowed: true, priority: 3, sync: true},
+    {policy: {denyProps: ['#sync']}, allowed: false, func: 'log', priority: 0},
+  ])('applies the dragged block priority and permissions to a footer link: %j', async (options) => {
+    const {policy, allowed, func, priority, sync} = options;
+    const dragged = Root.instance.queryValue('PolicyUI.add') as Block;
+    if (func) dragged.setValue('#is', func);
+    if (priority !== undefined) dragged.setValue('#priority', priority);
+    if (sync !== undefined) dragged.setValue('#sync', sync);
     const [, base] = makeLocalConnection(Root.instance);
     const client = base.withPolicy(policy);
     let stage: BlockStage;
@@ -229,6 +226,7 @@ describe('editor EditPolicy', () => {
     const targetView = [...target._renderers][0] as BlockView;
     const event = new DragState({type: 'mousedown', ctrlKey: false} as MouseEvent, {dragType: 'left'} as any, true);
     const start = vi.spyOn(event, 'startDrag').mockImplementation(() => {});
+    const write = vi.spyOn(client, 'setValue');
     try {
       sourceView.selectAndDrag(event);
       expect(start).toHaveBeenCalledOnce();
@@ -244,6 +242,13 @@ describe('editor EditPolicy', () => {
         Root.instance.queryProperty('PolicyUI.add.@b-xyw').setValue('other');
       }
       await shouldHappen(() => source._syncParent === target);
+      if (allowed) {
+        const emit = Root.instance.queryProperty('PolicyUI.other.#emit', true);
+        await shouldHappen(() => dragged.getProperty('#call')._bindingSource?.getProperty() === emit);
+        expect(dragged.getValue('#sync')).toBe(dragged.getPriority() === 3 ? sync : true);
+        target.setXYW(target.x + 20, target.y + 20, target.w, true);
+        expect([source.x, source.y]).toEqual([target.x, target.y + target.h]);
+      }
       start.mockClear();
       sourceView.selectAndDrag(event);
       expect(start).toHaveBeenCalledTimes(allowed ? 1 : 0);
@@ -252,21 +257,27 @@ describe('editor EditPolicy', () => {
         sourceView.onDragMove(event);
         expect(source._syncParent).toBeFalsy();
         sourceView.onDragEnd(event);
+        await shouldHappen(() => !dragged.getProperty('#call')._bindingSource);
+        if (dragged.getPriority() === 3) {
+          expect(write.mock.calls.some(([path]) => path === 'PolicyUI.add.#sync')).toBe(false);
+          expect(dragged.getValue('#sync')).toBe(sync);
+        }
       } else {
         expect(stage.isDraggingBlock()).toBe(false);
         expect(source._syncParent).toBe(target);
       }
     } finally {
       event.setData({}, client.getBaseConn());
+      write.mockRestore();
       start.mockRestore();
     }
   });
 
-  it.each(['client', 'server'] as const)('checks the sync parent before resizing with %s policy', async (mode) => {
+  it('checks the sync parent against policy before resizing', async () => {
     Root.instance.queryProperty('PolicyUI.other.@b-xyw', true).setValue('add');
-    const policy: EditPolicy = {allowPaths: ['PolicyUI.other.**'], readonlyPaths: ['**']};
-    const [server, base] = makeLocalConnection(Root.instance, true, mode === 'server' ? policy : undefined);
-    let client: ClientConn = mode === 'client' ? base.withPolicy(policy) : base;
+    const policy: EditPolicy = {allowPaths: ['PolicyUI.other.**']};
+    const [, base] = makeLocalConnection(Root.instance);
+    let client = base.withPolicy(policy);
     let stage: BlockStage;
     const [replacePolicy] = loadPolicyTemplate(
       client,
@@ -294,7 +305,7 @@ describe('editor EditPolicy', () => {
     try {
       view.startDragW(event);
       expect(start).not.toHaveBeenCalled();
-      (mode === 'client' ? replacePolicy : server.setEditPolicy.bind(server))({});
+      replacePolicy({});
       await shouldHappen(() => view.context.canWriteField('PolicyUI.add.@b-xyw'));
       view.startDragW(event);
       expect(start).toHaveBeenCalledOnce();
@@ -309,14 +320,14 @@ describe('editor EditPolicy', () => {
     }
   });
 
-  it.each(['client', 'server'] as const)('updates binding drops and existing slots from %s policy', async (mode) => {
+  it('updates binding drops and existing slots from client policy', async () => {
     const policy: EditPolicy = {
       allowProps: [],
       denyProps: ['0'],
       allowBinding: ['0'],
     };
-    const [server, base] = makeLocalConnection(Root.instance, true, mode === 'server' ? policy : undefined);
-    let client: ClientConn = mode === 'client' ? base.withPolicy(policy) : base;
+    const [, base] = makeLocalConnection(Root.instance);
+    let client = base.withPolicy(policy);
     let stage: BlockStage;
     const [replacePolicy, div] = loadPolicyTemplate(
       client,
@@ -336,7 +347,6 @@ describe('editor EditPolicy', () => {
       ),
       'editor'
     );
-    const setPolicy = mode === 'client' ? replacePolicy : server.setEditPolicy.bind(server);
     await shouldHappen(() => stage?.getBlock('PolicyUI.add')?.fieldItems.get('1')?._renderers.size);
     const block = div.querySelector('.ticl-e-stage-scroll .ticl-e-block');
     const rows = block.querySelectorAll('.ticl-e-field');
@@ -357,7 +367,7 @@ describe('editor EditPolicy', () => {
       expect(bind).toHaveBeenCalledWith('PolicyUI.add.0', 'PolicyUI.other.0', true);
       await shouldHappen(() => Root.instance.queryProperty('PolicyUI.add.0')._bindingPath);
 
-      setPolicy({allowBinding: ['1']});
+      replacePolicy({allowBinding: ['1']});
       await shouldHappen(() => slot(0) && slot(1));
       expect(Root.instance.queryProperty('PolicyUI.add.0')._bindingPath).toBeTruthy();
       bind.mockRestore();
@@ -365,15 +375,15 @@ describe('editor EditPolicy', () => {
       renderer('0').onDragOver(event);
       expect(event.rejected).toBe(true);
       expect(bind).not.toHaveBeenCalled();
-      setPolicy({allowBinding: []});
+      replacePolicy({allowBinding: []});
       await shouldHappen(() => slot(0) && !slot(1));
       Root.instance.queryProperty('PolicyUI.add.0').setBinding(null);
       await shouldHappen(() => !slot(0) && !slot(1));
-      setPolicy({allowBinding: ['?']});
+      replacePolicy({allowBinding: ['?']});
       await shouldHappen(() => slot(0) && slot(1));
       renderer('0').onDragOver(event);
       expect(event.rejected).toBe(false);
-      setPolicy(undefined);
+      replacePolicy(undefined);
       await shouldHappen(() => slot(0) && slot(1));
     } finally {
       event.setData({}, client.getBaseConn());

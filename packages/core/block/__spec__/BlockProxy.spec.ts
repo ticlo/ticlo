@@ -13,7 +13,7 @@ describe('BlockProxy', function () {
     bBlock.setValue('v3', 3);
     bBlock.deleteValue('v3');
     bBlock.setValue('@v', '0'); // block attribute should not be iterated
-    bBlock.createHelperBlock('v4').output(4); // property helper should not be iterated
+    bBlock.createEmbeddedBlock('v4').output(4); // skip the embedded Block during iteration
     const b: any = new Proxy(bBlock, BlockDeepProxy);
 
     expect(b['#flow'].v1).toBe(1);
@@ -57,7 +57,7 @@ describe('BlockProxy', function () {
     bBlock.setValue('v3', 3);
     bBlock.deleteValue('v3');
     bBlock.setValue('@v', '0'); // block attribute should not be iterated
-    bBlock.createHelperBlock('v4').output(4); // property helper should not be iterated
+    bBlock.createEmbeddedBlock('v4').output(4); // skip the embedded Block during iteration
     const b: any = new Proxy(bBlock, BlockProxy);
 
     expect(b['#flow']).toBe(flow);

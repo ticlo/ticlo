@@ -2,19 +2,21 @@
 
 Use the Node.js and pnpm versions in [package.json](../package.json). From the
 repository root, run `pnpm install`, then `pnpm dev` for the combined server and
-Vite apps. `pnpm server` runs the server alone. Project Git operations require
-Git on the server host.
+Vite apps. Vite serves the frontend at `http://localhost:5476`. `pnpm server` runs
+the Ticlo runtime alone. Project Git operations require Git on the server host.
 
 The server runtime stores projects under `app/server/files/serv` and serves
 runtime commands at `/ticlo`, files at `/file`, and flow-defined routes at `/api`.
-Open `editor.html?host=http://127.0.0.1:8010/` to edit its runtime. Browser projects
-use the separate `proj` scope; see [storage routing](remote-storage.md#paths-and-scopes).
+Open the [local editor](http://localhost:5476/editor.html?host=http://127.0.0.1:8010/)
+to edit its runtime. Browser projects use the separate `proj` scope described in
+[storage routing](remote-storage.md#paths-and-scopes).
 For static-only hosting, see [static storage](static-storage.md).
 
 The browser project at `app/server/files/proj/examples` links to the bundled
 examples. Edits to that project on port 8010 update the bundled files. The Node.js
 runtime keeps its own `app/server/files/serv/examples` project, which includes
-the 100,000-row `+examples.large-table` Flow.
+the 100,000-row `+examples.large-table` Flow and the
+[Google Drive OAuth example](oauth.md#nodejs-google-drive-example).
 
 When embedding the HTTP host, create its app before attaching storage so
 `^web-server` exists when global data and flows load:
@@ -26,11 +28,15 @@ await root.setStorage(storage);
 await root.start();
 ```
 
-`root` defaults to `Root.instance`. See
+`root` defaults to `Root.instance`. Pass `connectionOptions: {readonly: true}`
+to make both editor transports [readonly](core.md#connection-layer). See
 [code-defined globals](runtime-lifecycle.md#code-defined-globals) for the service
 and constant lifetime contract.
 
 ## Validation
+
+See [OAuth for HTTP clients](oauth.md) for OAuth host configuration and local
+provider tests.
 
 | Change | Focused check |
 | --- | --- |

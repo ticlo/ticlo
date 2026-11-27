@@ -1,0 +1,77 @@
+{
+  "#is": "",
+  "setup": {
+    "#is": "",
+    "@b-widget": "note",
+    "@b-xyw": [
+      48,
+      330,
+      530
+    ],
+    "@b-note": "**Node.js OAuth**\n\nRegister `http://127.0.0.1:8010/oauth/callback/google-drive` on the Google client. Select `googleDriveAuth` and enter the Google Client Secret in `#secret` in the Properties panel. Press Enter and save the Flow.\n\nClick **Connect Google Drive** and complete authorization in the Google popup. `getDriveUser` shows the Drive account after authorization."
+  },
+  "googleDriveAuth": {
+    "#is": "auth:oauth",
+    "source": "server",
+    "connection": "google-drive",
+    "scope": "https://www.googleapis.com/auth/drive.file",
+    "@b-widget": "web-authorization",
+    "@b-w-label": "Connect Google Drive",
+    "@b-xyw": [
+      48,
+      104,
+      258
+    ],
+    "@b-p": [
+      "source",
+      "connection",
+      "clientId",
+      "scope",
+      "status",
+      "authorized",
+      "#output"
+    ],
+    "clientId": "218591242507-jg4hjrjdp9mi1vkmgeu3hvrfkvam9dii.apps.googleusercontent.com",
+    "requireClientSecret": true,
+    "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent",
+    "tokenUrl": "https://oauth2.googleapis.com/token",
+    "resourceOrigin": "https://www.googleapis.com"
+  },
+  "driveClient": {
+    "#is": "http:client",
+    "~auth": "##.googleDriveAuth.#output",
+    "url": "https://www.googleapis.com",
+    "@b-xyw": [
+      328,
+      104,
+      246
+    ],
+    "@b-p": [
+      "auth",
+      "url",
+      "#output"
+    ]
+  },
+  "getDriveUser": {
+    "#is": "http:fetch",
+    "#mode": "onCall",
+    "~client": "##.driveClient.#output",
+    "url": "/drive/v3/about",
+    "method": "GET",
+    "params": {
+      "fields": "user(displayName,emailAddress)"
+    },
+    "@b-xyw": [
+      610,
+      104,
+      246
+    ],
+    "@b-p": [
+      "client",
+      "url",
+      "status",
+      "#output"
+    ],
+    "~#call": "##.googleDriveAuth.authorized"
+  }
+}

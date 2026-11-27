@@ -10,11 +10,11 @@ import {
   type SqlResult,
   type SqlStatement,
 } from '@ticlo/core';
-import {sqlColumns, validateSqlTransaction} from '@ticlo/core/functions/sql/SqlClient.ts';
+import {sqlColumns, validateReadonlyQuery, validateSqlTransaction} from '@ticlo/core/functions/sql/SqlClient.ts';
 
 export interface PostgresOptions {
   connectionString: string;
-  password?: string;
+  password?: string | null;
   maxConnections?: number;
   connectionTimeout?: number;
   statementTimeout?: number;
@@ -22,7 +22,7 @@ export interface PostgresOptions {
 
 const {Pool, types} = pg;
 
-function connectionOptions(connectionString: string, password?: string): pg.ClientConfig {
+function connectionOptions(connectionString: string, password?: string | null): pg.ClientConfig {
   if (password === undefined) return {connectionString};
   const {
     host,
@@ -49,7 +49,8 @@ function connectionOptions(connectionString: string, password?: string): pg.Clie
     fallback_application_name,
     options,
     client_encoding,
-    password,
+    // A provider opts out of both PGPASSWORD and pgpass, even without a password.
+    password: () => password ?? undefined,
   };
 }
 const {BYTEA, DATE, INT8, NUMERIC, TIMESTAMP, TIMESTAMPTZ, INTERVAL} = types.builtins;
@@ -117,6 +118,7 @@ async function query(connection: pg.PoolClient, sql: string, params?: SqlParams)
 }
 
 export class PostgresClient implements SqlClient {
+  readonly dialect = 'postgres';
   private closing?: Promise<void>;
 
   private constructor(private readonly pool: pg.Pool) {}
@@ -168,6 +170,22 @@ export class PostgresClient implements SqlClient {
         throw new Error('Use sql:transaction to run a PostgreSQL transaction');
       return result;
     } finally {
+      connection.release(connection.getTransactionStatus() !== 'I');
+    }
+  }
+
+  async queryReadonly(sql: string, params?: SqlParams): Promise<SqlResult> {
+    validateReadonlyQuery(sql);
+    const connection = await this.pool.connect();
+    try {
+      await connection.query('BEGIN READ ONLY');
+      return await query(connection, sql, params);
+    } finally {
+      if (connection.getTransactionStatus() !== 'I') {
+        await connection
+          .query('ROLLBACK')
+          .catch((error) => Logger.warn('PostgreSQL readonly query rollback failed', error));
+      }
       connection.release(connection.getTransactionStatus() !== 'I');
     }
   }

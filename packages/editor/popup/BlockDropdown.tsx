@@ -118,9 +118,19 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
     showModal(<AddNewFlowDialog conn={conn} basePath={`${path}.`} />, this.context.showModal);
   };
 
+  onManageLiveSource = () => {
+    const {conn, path} = this.props;
+    this.context.manageLiveSource?.(conn, path);
+  };
+
   onManageDatabase = () => {
     const {conn, path} = this.props;
     this.context.manageDatabase?.(conn, path);
+  };
+
+  onManageHistory = () => {
+    const {conn, path} = this.props;
+    this.context.manageHistory?.(conn, path);
   };
   onExeCommand = (command: string) => {
     if (!this.can('executeCommand', {command})) return;
@@ -179,14 +189,32 @@ export class BlockDropdown extends React.PureComponent<Props, State> {
       );
     }
 
-    const showCallMenu = !functionId.startsWith('flow:') && this.can('callFunction');
+    const showCallMenu = Boolean(functionId) && !functionId.startsWith('flow:') && this.can('callFunction');
     const commandMenus: React.ReactElement[] = [];
+
+    if (funcDesc?.tags?.includes('live-client') && this.context.manageLiveSource) {
+      menuitems.push(
+        <MenuItem key="live-source" onClick={this.onManageLiveSource}>
+          <DatabaseOutlined />
+          {t('Manage live data')}
+        </MenuItem>
+      );
+    }
 
     if (funcDesc?.tags?.includes('sql-client') && this.context.manageDatabase) {
       menuitems.push(
         <MenuItem key="database" onClick={this.onManageDatabase}>
           <DatabaseOutlined />
           {t('Manage database')}
+        </MenuItem>
+      );
+    }
+
+    if (funcDesc?.tags?.includes('history-client') && this.context.manageHistory) {
+      menuitems.push(
+        <MenuItem key="history" onClick={this.onManageHistory}>
+          <DatabaseOutlined />
+          {t('Manage history')}
         </MenuItem>
       );
     }

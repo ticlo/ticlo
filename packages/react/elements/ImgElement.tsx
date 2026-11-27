@@ -5,6 +5,7 @@ import {metaKey} from '../comp/Component.tsx';
 import React from 'react';
 import {elementAttributes, elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.ts';
 import {useBlockConfigs} from '../hooks/useBlockConfigs.ts';
+import {useResolvedFilePath} from '../hooks/useResolvedFilePath.ts';
 import {Values} from '../comp/Values.ts';
 
 const optional: {[key: string]: PropDesc} = {
@@ -29,7 +30,8 @@ const imagePropMap = {
 function ImageElement({block}: {block: Block}) {
   const {style, className, optionalHandlers} = useTicloComp(block, imageOptions);
   const {src} = useBlockConfigs(block, imagePropMap);
-  return <img src={src} style={style} className={className} {...optionalHandlers} />;
+  const resolvedSrc = useResolvedFilePath(block, src);
+  return <img src={resolvedSrc} style={style} className={className} {...optionalHandlers} />;
 }
 const imgElementDesc: FunctionDesc = {
   name: 'img',
@@ -40,7 +42,7 @@ const imgElementDesc: FunctionDesc = {
   properties: [
     {
       name: 'src',
-      type: 'string',
+      type: 'file-path',
     },
     elementStyleProperty,
     elementClassProperty,

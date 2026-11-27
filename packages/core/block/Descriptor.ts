@@ -9,6 +9,10 @@ export const BlockModeList = [
 ];
 export type BlockMode = (typeof BlockModeList)[number];
 
+export function parsePriorityOverride(value: unknown): number | undefined {
+  if ((value as number) >= 0 && (value as number) <= 3) return Math.round(value as number);
+}
+
 export type ValueType =
   | 'number'
   | 'string'
@@ -21,6 +25,7 @@ export type ValueType =
   | 'event'
   | 'date'
   | 'date-range'
+  | 'file-path'
   | 'password'
   | 'js'
   | 'object'
@@ -41,7 +46,7 @@ export interface FunctionCommandDesc {
   results?: PropDesc[];
   /** Arguments or returned values may be large; the connection chooses a suitable transport. */
   largeData?: boolean;
-  /** Does not write to the Block or an external service. */
+  /** Supports execution in readonly mode; the handler receives the actual mode. */
   readonly?: boolean;
   /** Used by a dedicated UI instead of the generic command menu. */
   hidden?: boolean;
@@ -83,8 +88,10 @@ export interface PropDesc {
   // date, date-range, default is true
   showTime?: boolean;
 
-  // service, object
-  create?: string;
+  // service: one creator; object: one embedded Block type or a list of choices
+  create?: string | readonly string[];
+  // hide the Object Tools menu for embedded Block conversion
+  disableObjectTools?: boolean;
 
   // allowed types in editor for dynamic types
   types?: ValueType[];
@@ -170,10 +177,14 @@ export interface FunctionDesc {
   color?: string;
   // block color and icon can change with @b-style={color,icon}
   dynamicStyle?: boolean;
+  // block properties can change with #props
+  dynamicProps?: boolean;
 
   // to orginize functions in groups
   // category is not used for +library functions, their id always match their positions in function tree
   category?: string;
+  /** Display in function tree and name dropped blocks as `<library>-<name>`. */
+  useFullName?: boolean;
 }
 
 export const blankFuncDesc: FunctionDesc = {
@@ -215,11 +226,13 @@ export const configDescs: {[key: string]: PropDesc} = {
     types: ['string', 'number', 'toggle', 'color', 'date', 'date-range', 'object', 'array', 'block'],
   },
   '#order': {name: '#order', type: 'array'},
+  '#addon': {name: '#addon', type: 'array'},
   '#inputs': {name: '#inputs', type: 'any'},
   '#outputs': {name: '#outputs', type: 'any'},
   '#optional': {name: '#optional', type: 'array'},
   // used by worker function to collect user defined descriptor
   '#desc': {name: '#desc', type: 'object'},
+  '#maxInstance': {name: '#maxInstance', type: 'number', min: 1, step: 1},
   '#cacheMode': {name: '#cacheMode', type: 'radio-button', options: ['auto', 'persist'], default: 'auto'},
 };
 
@@ -250,11 +263,19 @@ export const attributeDescs: {[key: string]: PropDesc} = {
   '#label': {name: '#label', type: 'string'},
   '@b-p': {name: '@b-p', type: 'array'},
   '@b-xyw': {name: '@b-xyw', type: 'array'},
+  '@b-label-w': {name: '@b-label-w', type: 'number', min: 0, step: 1},
+  '@b-view': {name: '@b-view', type: 'select', options: ['default', 'source'], default: 'default'},
   '@d-lock': {name: '@d-lock', type: 'toggle', default: false},
   '@d-seal': {name: '@d-seal', type: 'toggle', default: false},
 };
 
-export const attributeList: PropDesc[] = [attributeDescs['#label'], attributeDescs['@b-p'], attributeDescs['@b-xyw']];
+export const attributeList: PropDesc[] = [
+  attributeDescs['#label'],
+  attributeDescs['@b-p'],
+  attributeDescs['@b-xyw'],
+  attributeDescs['@b-label-w'],
+  attributeDescs['@b-view'],
+];
 
 export function mapAttributeDesc(attributes: (string | PropDesc)[]): PropDesc[] {
   if (attributes == null) return undefined;
@@ -274,7 +295,7 @@ export function mapAttributeDesc(attributes: (string | PropDesc)[]): PropDesc[] 
 export function buildPropDescCache(
   funcDesc: FunctionDesc,
   custom: (PropDesc | PropGroupDesc)[],
-  andCustom?: (PropDesc | PropGroupDesc)[]
+  dynamicProps?: (PropDesc | PropGroupDesc)[]
 ): {[key: string]: PropDesc} {
   if (!funcDesc) return null;
 
@@ -297,10 +318,80 @@ export function buildPropDescCache(
 
   addProps(mapConfigDesc(funcDesc.configs));
   addProps(custom);
+  addProps(dynamicProps);
   addProps(funcDesc.properties);
   addProps(mapAttributeDesc(funcDesc.attributes));
 
   return result;
+}
+
+export function collectFlowIOProperties(
+  inputs: unknown,
+  outputs: unknown,
+  exclude?: ReadonlySet<string>
+): (PropDesc | PropGroupDesc)[] {
+  const properties: (PropDesc | PropGroupDesc)[] = [];
+  const groups = new Map<string, PropGroupDesc>();
+
+  if (Array.isArray(inputs)) {
+    for (const input of inputs) {
+      if (!input || typeof input !== 'object' || typeof input.name !== 'string' || exclude?.has(input.name)) {
+        continue;
+      }
+      const copyInput = {...input} as PropDesc | PropGroupDesc;
+      delete (copyInput as PropDesc).readonly;
+      if (copyInput.type === 'group') {
+        if (exclude && Array.isArray(copyInput.properties)) {
+          copyInput.properties = copyInput.properties.filter((prop) => !exclude.has(prop.name));
+        }
+        groups.set(copyInput.name, copyInput);
+      }
+      properties.push(copyInput);
+    }
+  }
+
+  let mainOutput: PropDesc | undefined;
+  if (Array.isArray(outputs)) {
+    for (const output of outputs) {
+      if (!output || typeof output !== 'object' || typeof output.name !== 'string' || exclude?.has(output.name)) {
+        continue;
+      }
+      const group = output.type === 'group' && groups.get(output.name);
+      if (group) {
+        if (Array.isArray(output.properties) && output.properties.length > 0) {
+          const groupProperties = Array.isArray(group.properties)
+            ? group.properties.map((prop: PropDesc) => ({...prop}))
+            : [];
+          group.properties = groupProperties;
+          for (const prop of output.properties) {
+            if (!exclude?.has(prop.name)) {
+              groupProperties.push({...prop, readonly: true});
+            }
+          }
+        }
+      } else if (output.name === '#output') {
+        mainOutput = {...output, readonly: true};
+      } else {
+        const copyOutput = {...output} as PropDesc | PropGroupDesc;
+        if (copyOutput.type === 'group') {
+          if (Array.isArray(copyOutput.properties)) {
+            copyOutput.properties = copyOutput.properties
+              .filter((prop) => !exclude?.has(prop.name))
+              .map((prop) => ({...prop, readonly: true}));
+          }
+        } else {
+          copyOutput.readonly = true;
+        }
+        properties.push(copyOutput);
+      }
+    }
+  }
+
+  if (mainOutput) {
+    // #output must be the last property
+    properties.push(mainOutput);
+  }
+  return properties;
 }
 
 const numberReg = /[0-9]/;
@@ -348,6 +439,13 @@ function initBlockProperties(data: DataMap, properties: (PropDesc | PropGroupDes
     }
   }
   data['@b-p'] = props;
+}
+
+export function getFuncDefaultName(desc: FunctionDesc): string {
+  if (desc.useFullName && desc.id) {
+    return desc.id.split(':').filter(Boolean).join('-') || desc.name;
+  }
+  return desc.name;
 }
 
 export function getDefaultFuncData(desc: FunctionDesc) {

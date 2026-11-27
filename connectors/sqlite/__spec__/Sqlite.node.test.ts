@@ -1,11 +1,22 @@
-import {mkdtemp, rm, stat} from 'node:fs/promises';
+import {mkdir, mkdtemp, rm, stat} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join, relative} from 'node:path';
-import {ErrorEvent, Flow, Root, MemoryFlowStorage, encode, globalFunctions, shouldHappen} from '@ticlo/core';
+import {
+  ErrorEvent,
+  Flow,
+  Root,
+  MemoryFlowStorage,
+  encode,
+  globalFunctions,
+  makeLocalConnection,
+  shouldHappen,
+} from '@ticlo/core';
 import type {Block, SqlClient, SqlResult} from '@ticlo/core';
+import {NodeStorage} from '@ticlo/node/storage/NodeStorage.ts';
 import {SqliteClient} from '../index.ts';
 import {SqliteClientFunction} from '../ClientFunction.ts';
 import {DataWrapper} from '@ticlo/core/block/FunctonData.ts';
+import {verifySqlLogging} from '@ticlo/core/functions/sql/__spec__/verifySqlLogging.ts';
 
 const clients: SqliteClient[] = [];
 const directories: string[] = [];
@@ -22,6 +33,8 @@ afterEach(async () => {
 });
 
 describe('SQLite connector', () => {
+  it('persists flow logs in the selected table', async () => verifySqlLogging(await open()));
+
   it('lists tables and views across attached schemas and returns columns without interpolating entity names', async () => {
     const client = await open();
     await client.query(
@@ -150,16 +163,53 @@ describe('SQLite connector', () => {
     await expect(SqliteClient.open({filePath, busyTimeout: -1})).rejects.toThrow('busy timeout');
   });
 
+  it('enforces readonly commands on the worker and restores its prior mode after errors', async () => {
+    const root = new Root();
+    const flow = root.addFlow('Main', {database: {'#is': 'sqlite:client', 'filePath': ':memory:'}});
+    const path = 'Main.database';
+    const [, reader] = makeLocalConnection(root, false, {readonly: true});
+    const [, writer] = makeLocalConnection(root, false);
+    try {
+      root.runAll();
+      const service = (await shouldHappen(() => flow.queryValue('database.#output'), 3000)) as SqlClient;
+      await writer.executeCommand(path, 'query', {sql: 'CREATE TABLE items (value INTEGER)'});
+      for (const sql of ['PRAGMA query_only = OFF', "ATTACH DATABASE ':memory:' AS extra", 'BEGIN']) {
+        await expect(reader.executeCommand(path, 'query', {sql})).rejects.toThrow('not authorized');
+      }
+      const deniedWrite = reader.executeCommand(path, 'query', {sql: 'INSERT INTO items VALUES (1)'});
+      await expect(deniedWrite).rejects.toThrow(/readonly/i);
+      await writer.executeCommand(path, 'query', {sql: 'INSERT INTO items VALUES (?)', params: [2]});
+      const response = await reader.executeCommand(path, 'query', {
+        sql: 'SELECT * FROM items WHERE value = ?',
+        params: [2],
+      });
+      expect(response.result.table.rows).toEqual([[2]]);
+      expect((await service.query('PRAGMA query_only')).table.rows).toEqual([[0]]);
+      await service.query('PRAGMA query_only = ON');
+      await reader.executeCommand(path, 'query', {sql: 'SELECT 1'});
+      expect((await service.query('PRAGMA query_only')).table.rows).toEqual([[1]]);
+    } finally {
+      reader.destroy();
+      writer.destroy();
+      root.destroy();
+    }
+  });
+
   it('runs a real sql:query block with a tagged, nonserializable client service', async () => {
     const flow = new Flow();
     let service: SqlClient;
     try {
       const block = flow.createBlock('database');
-      block._load({'#is': 'database:sqlite', 'filePath': ':memory:'});
+      block._load({'#is': 'sqlite:client', 'filePath': ':memory:'});
       Root.run();
       service = await shouldHappen(() => block.getValue('#output'), 3000);
-      expect(globalFunctions.getDesc('database:sqlite').tags).toEqual(['sql-client', 'context-service']);
-      expect(encode(service)).toContain('database:sqlite');
+      expect(globalFunctions.getDesc('sqlite:client')).toMatchObject({
+        category: 'database',
+        libraryId: 'sqlite',
+        useFullName: true,
+        tags: ['sql-client', 'context-service'],
+      });
+      expect(encode(service)).toContain('sqlite:client');
       await service.query('CREATE TABLE items (name TEXT)');
       const query = flow.createBlock('query');
       query._load({
@@ -200,7 +250,7 @@ describe('SQLite connector', () => {
     const storage = new MemoryFlowStorage();
     storage.saveFlow(
       null,
-      {'^sqlite': {'#is': 'database:sqlite', 'filePath': relative(process.cwd(), filePath)}},
+      {'^sqlite': {'#is': 'sqlite:client', 'filePath': relative(process.cwd(), filePath)}},
       '#global'
     );
     let service: SqlClient;
@@ -232,5 +282,49 @@ describe('SQLite connector', () => {
     fn.destroy();
     await opening;
     expect(data.outputs['undefined']).toBeUndefined();
+  });
+
+  it('resolves project file-path inputs through FlowStorage and blocks disallowed paths', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'ticlo-sqlite-storage-'));
+    directories.push(directory);
+    await mkdir(join(directory, 'proj1'), {recursive: true});
+
+    const desc = globalFunctions.getDesc('sqlite:client');
+    expect(desc.category).toBe('database');
+    expect(desc.libraryId).toBe('sqlite');
+    expect(desc.useFullName).toBe(true);
+    expect(desc.properties?.find((prop) => prop.name === 'filePath')?.type).toBe('file-path');
+
+    const root = new Root();
+    const storage = new NodeStorage(directory);
+
+    try {
+      await root.setStorage(storage);
+      await root.start();
+      const flow = root.addFlow(
+        '+proj1.main',
+        {db: {'#is': 'sqlite:client', 'filePath': '+/app.sqlite'}},
+        undefined,
+        true
+      );
+      const block = flow.getValue('db') as Block;
+      const service = (await shouldHappen(() => block.getValue('#output'), 3000)) as SqlClient;
+      expect((await stat(join(directory, 'proj1', 'app.sqlite'))).isFile()).toBe(true);
+      await service.query('CREATE TABLE t (v INTEGER)');
+      await service.query('INSERT INTO t VALUES (7)');
+      expect((await service.query('SELECT v FROM t')).table.rows).toEqual([[7]]);
+
+      block.getProperty('#emit', true);
+      block.setValue('filePath', 'https://example.com/remote.sqlite');
+      await shouldHappen(() => block.getValue('#emit') instanceof ErrorEvent, 3000);
+      expect(block.getValue('#output')).toBeUndefined();
+
+      block.setValue('filePath', ':memory:');
+      const memoryService = (await shouldHappen(() => block.getValue('#output'), 3000)) as SqlClient;
+      expect((await memoryService.query('SELECT 1 AS ok')).table.rows).toEqual([[1]]);
+    } finally {
+      await root.stop({discardChanges: true});
+      root.destroy();
+    }
   });
 });

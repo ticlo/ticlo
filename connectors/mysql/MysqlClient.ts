@@ -9,16 +9,16 @@ import {
   type SqlResult,
   type SqlStatement,
 } from '@ticlo/core';
-import {sqlColumns, validateSqlTransaction} from '@ticlo/core/functions/sql/SqlClient.ts';
+import {sqlColumns, validateReadonlyQuery, validateSqlTransaction} from '@ticlo/core/functions/sql/SqlClient.ts';
 
 export interface MysqlOptions {
   connectionString: string;
-  password?: string;
+  password?: string | null;
   maxConnections?: number;
   connectionTimeout?: number;
 }
 
-function connectionOptions(connectionString: string, password?: string) {
+function connectionOptions(connectionString: string, password?: string | null) {
   let url: URL;
   try {
     url = new URL(connectionString);
@@ -36,7 +36,7 @@ function connectionOptions(connectionString: string, password?: string) {
     port: url.port ? Number(url.port) : 3306,
     user: decodeURIComponent(url.username),
     database: decodeURIComponent(url.pathname.slice(1)) || undefined,
-    password: password ?? decodeURIComponent(url.password),
+    password: password === undefined ? decodeURIComponent(url.password) : (password ?? undefined),
     ssl: ssl ? {rejectUnauthorized: true, verifyIdentity: true} : undefined,
   };
 }
@@ -79,6 +79,7 @@ async function query(target: QueryTarget, sql: string, values: ReturnType<typeof
 }
 
 export class MysqlClient implements SqlClient {
+  readonly dialect = 'mysql';
   private closing?: Promise<void>;
 
   private constructor(private readonly pool: Pool) {}
@@ -117,6 +118,24 @@ export class MysqlClient implements SqlClient {
 
   async query(sql: string, params?: SqlParams): Promise<SqlResult> {
     return query(this.pool, sql, bindParams(params));
+  }
+
+  async queryReadonly(sql: string, params?: SqlParams): Promise<SqlResult> {
+    validateReadonlyQuery(sql);
+    // SELECT can also export files when the database user has the FILE privilege.
+    if (/\b(?:OUTFILE|DUMPFILE)\b/i.test(sql)) throw new Error('File export is unavailable in readonly queries');
+    const values = bindParams(params);
+    const connection = await this.pool.getConnection();
+    try {
+      await connection.query('START TRANSACTION READ ONLY');
+      return await query(connection, sql, values);
+    } finally {
+      await connection.query('ROLLBACK AND NO CHAIN').catch((error) => {
+        connection.destroy();
+        Logger.warn('MySQL readonly query rollback failed', error);
+      });
+      connection.release();
+    }
   }
 
   async transaction(statements: readonly SqlStatement[]): Promise<SqlResult> {

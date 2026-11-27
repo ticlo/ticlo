@@ -4,7 +4,7 @@ import {destroyLastLocalConnection, makeLocalConnection} from '@ticlo/core/conne
 import {shouldHappen} from '@ticlo/core/util/test-util.ts';
 import {EditPolicyProvider} from '../../component/EditPolicyContext.tsx';
 import {initEditor} from '../../index.ts';
-import {loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
+import {loadPolicyTemplate, loadTemplate, removeLastTemplate} from '../../util/test-util.ts';
 import {BlockStage} from '../BlockStage.tsx';
 
 describe('button block widget', () => {
@@ -117,12 +117,15 @@ describe('button block widget', () => {
     ['update', 'trigger'],
   ])('respects the %s edit policy', async (command, field) => {
     block.setValue('@b-w-field', field);
-    const [server, conn] = makeLocalConnection(Root.instance, true, {denyCmds: [command]});
-    client = conn;
-    const [, div] = loadTemplate(
-      <EditPolicyProvider conn={client}>
-        <BlockStage conn={client} basePath="ButtonWidget" />
-      </EditPolicyProvider>,
+    const [, base] = makeLocalConnection(Root.instance);
+    client = base;
+    const [replacePolicy, div] = loadPolicyTemplate(
+      base.withPolicy({denyCmds: [command]}),
+      (conn) => (
+        <EditPolicyProvider conn={conn}>
+          <BlockStage conn={conn} basePath="ButtonWidget" />
+        </EditPolicyProvider>
+      ),
       'editor'
     );
     const button = () => div.querySelector('.ticl-e-block-view button') as HTMLButtonElement;
@@ -131,7 +134,7 @@ describe('button block widget', () => {
     expect(block.getValue('#output')).toBeUndefined();
     expect(block.getValue('trigger')).toBeUndefined();
 
-    server.setEditPolicy(undefined);
+    replacePolicy();
     await shouldHappen(() => !button().disabled);
     button().click();
     await shouldHappen(() => (field ? block.getValue(field) != null : block.getValue('#output') === 3));

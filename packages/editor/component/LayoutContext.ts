@@ -1,6 +1,12 @@
 import React, {createContext} from 'react';
-import {PropDesc, PropDispatcher, voidFunction, type ClientConn} from '@ticlo/core';
+import {PropDesc, PropDispatcher, voidFunction, type ClientConn, type FileAccess, type ProjectFiles} from '@ticlo/core';
 import type {ValueEditorProps} from '../property/value/ValueEditorBase.ts';
+
+export interface TicloFilesAccess {
+  storage: FileAccess & Partial<Pick<ProjectFiles, 'listProjects'>>;
+  frontendStorage?: FileAccess & Partial<Pick<ProjectFiles, 'listProjects'>>;
+  project: string;
+}
 
 export interface TicloStageCommands {
   save(): boolean;
@@ -50,6 +56,8 @@ export interface TicloLayoutContext<Stage extends TicloStage = TicloStage> exten
   editSchedule?(path: string, scheduleName?: string, index?: number, unbound?: boolean): void;
   editTable?(props: ValueEditorProps): void;
   manageDatabase?(conn: ClientConn, path: string): void;
+  manageHistory?(conn: ClientConn, path: string): void;
+  manageLiveSource?(conn: ClientConn, path: string): void;
 
   showObjectTree?(path: string, value: any, element: HTMLElement, source: any): void;
   closeObjectTree?(path: string, source: any): void;
@@ -57,6 +65,7 @@ export interface TicloLayoutContext<Stage extends TicloStage = TicloStage> exten
   showModal?(model: React.ReactElement): void;
 
   getSelectedPaths?(): PropDispatcher<string[]>;
+  getFiles?(): TicloFilesAccess | undefined;
 
   language?: string;
 }

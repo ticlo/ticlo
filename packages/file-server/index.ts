@@ -36,7 +36,14 @@ import {
 } from './gitRouteHandlers.ts';
 import {migrateProjectMetadata} from './projectOperations.ts';
 import {HonoReply, handleErrors, withStorageLock} from './utils.ts';
-import {AuthProvider, FileQuerystring, FileStorageOptions, StorageContext, StorageError} from './types.ts';
+import {
+  AuthProvider,
+  FileQuerystring,
+  FileStorageOptions,
+  StorageContext,
+  StorageError,
+  StorageScope,
+} from './types.ts';
 
 const {mkdir, readdir} = fs;
 
@@ -58,8 +65,9 @@ export function routeRemoteStorage(app: Hono, options: FileStorageOptions = {}):
     authProvider,
     logger: console,
     allowProjectSymlink: options.allowProjectSymlink,
+    scopes: options.scopes,
   };
-  const ready = initStorageRoot(rootDir);
+  const ready = initStorageRoot(rootDir, options.scopes);
 
   app.get(prefix, async (request) => {
     await ready;
@@ -225,14 +233,19 @@ export function routeRemoteStorage(app: Hono, options: FileStorageOptions = {}):
   }
 }
 
-async function initStorageRoot(rootDir: string): Promise<void> {
+const ALL_SCOPES: readonly StorageScope[] = ['proj', 'serv', 'usr'];
+
+async function initStorageRoot(rootDir: string, scopes: readonly StorageScope[] = ALL_SCOPES): Promise<void> {
   await mkdir(rootDir, {recursive: true});
-  const projectsDir = path.join(rootDir, 'proj');
-  const serverProjectsDir = path.join(rootDir, 'serv');
-  await mkdir(projectsDir, {recursive: true});
-  await mkdir(serverProjectsDir, {recursive: true});
-  await mkdir(path.join(rootDir, 'usr'), {recursive: true});
-  for (const directory of [projectsDir, serverProjectsDir]) {
+  const projectDirs: string[] = [];
+  for (const scope of scopes) {
+    const dir = path.join(rootDir, scope);
+    await mkdir(dir, {recursive: true});
+    if (scope === 'proj' || scope === 'serv') {
+      projectDirs.push(dir);
+    }
+  }
+  for (const directory of projectDirs) {
     for (const entry of await readdir(directory, {withFileTypes: true})) {
       if (entry.isDirectory()) await migrateProjectMetadata(directory, entry.name);
     }
@@ -251,4 +264,4 @@ function getDownloadPath(request: StorageContext, prefix: string): string {
 
 export {devUserAuth} from './auth.ts';
 export type {UserAuth} from './auth.ts';
-export type {FileStorageOptions, AuthProvider};
+export type {FileStorageOptions, AuthProvider, StorageScope};

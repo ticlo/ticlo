@@ -1,0 +1,120 @@
+{
+  "#is": "",
+  "googleDriveAuth": {
+    "#is": "auth:oauth",
+    "source": "browser",
+    "provider": "google",
+    "clientId": "218591242507-ri5lbt729mok7n0tkbst69lhcb3kpele.apps.googleusercontent.com",
+    "scope": "https://www.googleapis.com/auth/drive.file",
+    "appOrigin": "http://localhost:5476",
+    "resourceOrigin": "https://www.googleapis.com",
+    "@b-xyw": [
+      48,
+      104,
+      258
+    ],
+    "@b-p": [
+      "#call",
+      "source",
+      "provider",
+      "scope",
+      "status",
+      "authorized",
+      "#output"
+    ],
+    "~#call": "##.#main.connectGoogleDrive.onClick"
+  },
+  "driveClient": {
+    "#is": "http:client",
+    "~auth": "##.googleDriveAuth.#output",
+    "url": "https://www.googleapis.com",
+    "@b-xyw": [
+      328,
+      104,
+      246
+    ],
+    "@b-p": [
+      "auth",
+      "url",
+      "#output"
+    ]
+  },
+  "getDriveUser": {
+    "#is": "http:fetch",
+    "#mode": "onCall",
+    "~#call": "##.googleDriveAuth.authorized",
+    "~client": "##.driveClient.#output",
+    "url": "/drive/v3/about",
+    "method": "GET",
+    "params": {
+      "fields": "user(displayName,emailAddress)"
+    },
+    "@b-xyw": [
+      610,
+      104,
+      246
+    ],
+    "@b-p": [
+      "client",
+      "url",
+      "status",
+      "#output"
+    ]
+  },
+  "#main": {
+    "#is": "react:vertical",
+    "#order": [
+      "heading",
+      "connectGoogleDrive",
+      "authorizationStatus",
+      "accountName",
+      "accountEmail"
+    ],
+    "style": {
+      "width": 480,
+      "maxWidth": "100%",
+      "padding": 20,
+      "gap": 12,
+      "border": "1px solid #cbd5e1",
+      "borderRadius": 8
+    },
+    "heading": {
+      "#is": "react:div",
+      "content": "Google Drive OAuth",
+      "style": {
+        "fontSize": 22,
+        "fontWeight": 600
+      }
+    },
+    "connectGoogleDrive": {
+      "#is": "react:button",
+      "#optional": [
+        "onClick"
+      ],
+      "content": "Connect Google Drive",
+      "style": {
+        "alignSelf": "start"
+      }
+    },
+    "authorizationStatus": {
+      "#is": "react:div",
+      "~content": "#flow.googleDriveAuth.status"
+    },
+    "accountName": {
+      "#is": "react:div",
+      "~content": "#flow.getDriveUser.#output.user.displayName",
+      "style": {
+        "fontWeight": 600
+      }
+    },
+    "accountEmail": {
+      "#is": "react:div",
+      "~content": "#flow.getDriveUser.#output.user.emailAddress"
+    },
+    "@b-xyw": [
+      910,
+      104,
+      238
+    ]
+  }
+}

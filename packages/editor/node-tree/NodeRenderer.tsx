@@ -28,6 +28,7 @@ import {
   ValueSubscriber,
   getOutputDesc,
   getDisplayName,
+  getFuncDefaultName,
   deepEqual,
   ClientConn,
   isStringArray,
@@ -102,7 +103,7 @@ export class NodeTreeItem extends TreeItem<NodeTreeItem> {
 
   addToList(list: NodeTreeItem[], tags?: readonly string[]) {
     if (this.level >= 0) {
-      if (tags && !this.desc.tags?.some((tag) => tags.includes(tag))) return;
+      if (tags && this.parent && !this.desc.tags?.some((tag) => tags.includes(tag))) return;
       list.push(this);
     }
     if (this.opened === 'opened' && this.children) {
@@ -443,7 +444,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
         if (request === this.autoLoadRequest) this.safeSetState({autoLoad});
       }
     } catch (error) {
-      requestCallbacks.onError(String(error));
+      if (request === this.autoLoadRequest) requestCallbacks.onError(String(error));
     }
   };
 
@@ -568,7 +569,9 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
     if (items?.length && canDropOrdered?.(items, target, index)) return {items, target, index, position};
     if (data && desc) {
-      const name = (DragState.getData('blockName', item.getBaseConn()) || desc.name || desc.id).split('.').pop();
+      const name = (DragState.getData('blockName', item.getBaseConn()) || getFuncDefaultName(desc) || desc.id)
+        .split('.')
+        .pop();
       const functionDrag = {data, desc, name};
       if (canDropFunction?.(functionDrag, target, index)) return {functionDrag, target, index, position};
     }
@@ -679,7 +682,7 @@ export class NodeTreeRenderer extends PureDataRenderer<Props, any> {
     }
 
     let nameLabel: string | React.ReactNode = getDisplayName(item.name, displayName);
-    if (item.name.startsWith('#') || (nameLabel as string).endsWith('-#')) {
+    if ((item.name.startsWith('#') && !item.name.startsWith('#-')) || (nameLabel as string).endsWith('-#')) {
       nameLabel = <LocalizedNodeName name={nameLabel as string} options={dynamicStyle} />;
     }
     let nameNode: React.ReactElement;

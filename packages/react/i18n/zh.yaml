@@ -32,3 +32,14 @@ view-deck:
 jsx:
   script:
     '@name': 脚本 # translated from: Script
+
+page-include:
+  '@name': 页面引入 # translated from: Page Include
+  src:
+    '@name': 页面路径 # translated from: Page Source
+  '#closeMode':
+    '@name': 关闭模式 # translated from: Close Mode
+    '@options':
+      'on': 保持运行 # translated from: Keep On
+      'off': 卸载 # translated from: Unload
+      disable: 停用 # translated from: Disable

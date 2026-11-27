@@ -2,10 +2,9 @@ import {globalFunctions} from '../../../block/FunctionModule.ts';
 import {AutoUpdateFunction} from '../../base/AutoUpdateFunction.ts';
 import {type EventOccur, SchedulerEvent} from './SchedulerEvent.ts';
 import {BlockIO} from '../../../block/BlockProperty.ts';
-import {toDateTime} from '../../../util/DateTime.ts';
+import {resolveZone, toDateTime} from '../../../util/DateTime.ts';
 import {DateTime} from 'luxon';
 import {getInputsArray} from '../../../block/FunctonData.ts';
-import {getDefaultZone} from '../../../util/Settings.ts';
 
 // Defines how multiple events are resolved when they overlap
 export class ScheduleValue {
@@ -33,7 +32,7 @@ export class ScheduleValue {
 
   /**
    * Determines if this event should replace the `current` active event.
-   * Based on priority (higher wins), start time (later wins if priority equal), and index (lower index wins if all else equal).
+   * Based on priority (lower number wins; undefined = Infinity is lowest), start time (later wins if priority equal), and index (lower index wins if all else equal).
    */
   shouldReplace(current: ScheduleValue) {
     if (!current) {
@@ -108,16 +107,21 @@ export class ScheduleFunction extends AutoUpdateFunction {
   private _cache = new WeakMap<object, ScheduleValue>();
   // REFACTOR(design.md): MUST retain schedule values only as explicit state while their rules are active.
   private _events: ScheduleValue[];
+  private _eventsByIndex: (ScheduleValue | undefined)[] = [];
 
   // REFACTOR(design.md): MUST transfer input deliveries into declared schedule state when needed.
   inputChanged(input: BlockIO, val: unknown): boolean {
-    if (input._name.startsWith('config') || input._name === '[]' || input._name === 'timezone') {
+    if (input._name === 'timezone') {
+      // Clear cached SchedulerEvent instances because they embed the resolved timezone.
+      this._cache = new WeakMap();
+      this._events = null;
+    } else if (input._name.startsWith('config') || input._name === '[]') {
       // re-generate events when config changes.
       this._events = null;
     } else if (this._events && input._name.startsWith('value')) {
       const index = parseInt(input._name.substring(5 /* 'value'.length */));
-      if (this._events[index]) {
-        this._events[index].value = val;
+      if (this._eventsByIndex[index]) {
+        this._eventsByIndex[index].value = val;
       }
     }
     return true;
@@ -130,24 +134,23 @@ export class ScheduleFunction extends AutoUpdateFunction {
     const resolveMode = this._data.getValue('resolveMode');
     const mergeMode = resolveMode === 'merge';
     if (override !== undefined && !mergeMode) {
+      this.cancelSchedule();
       this._data.output(override);
       return;
     }
 
-    let timezone = this._data.getValue('timezone') as string;
+    const timezone = resolveZone(this._data.getValue('timezone'));
 
     if (!this._events) {
       const eventsData = getInputsArray(this._data, '', 1, ['config', 'value']) as {config: unknown; value: unknown}[];
-      if (typeof timezone !== 'string' || timezone === 'Factory' || timezone === 'auto') {
-        timezone = getDefaultZone();
-      }
       // generate events
       this._events = [];
+      this._eventsByIndex = [];
       const newCache = new WeakMap<object, ScheduleValue>();
       for (let i = 0; i < eventsData.length; i++) {
         const {config, value} = eventsData[i];
         let sv = this._cache.get(config as object);
-        if (!sv) {
+        if (!sv || sv.event.timezone !== timezone) {
           const event = SchedulerEvent.fromProperty(config, timezone);
           if (!event) {
             continue;
@@ -158,13 +161,14 @@ export class ScheduleFunction extends AutoUpdateFunction {
           sv.index = i;
         }
         newCache.set(config as object, sv);
+        this._eventsByIndex[i] = sv;
         this._events.push(sv);
       }
       this._cache = newCache;
     }
 
     // 2. Determine the current reference time (default: now, or locked time)
-    let ts = new Date().getTime();
+    let ts = Date.now();
     const lockTime = this._data.getValue('lockTime');
     let lockDt: DateTime;
     if (lockTime != null) {
@@ -220,7 +224,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
           let currentNum = Infinity;
           for (const candidate of candidates) {
             const n = Number(candidate.value);
-            if (n <= currentNum) {
+            if (!Number.isNaN(n) && n <= currentNum) {
               current = candidate;
               currentNum = n;
             }
@@ -233,7 +237,7 @@ export class ScheduleFunction extends AutoUpdateFunction {
           let currentNum = -Infinity;
           for (const candidate of candidates) {
             const n = Number(candidate.value);
-            if (n >= currentNum) {
+            if (!Number.isNaN(n) && n >= currentNum) {
               current = candidate;
               currentNum = n;
             }
@@ -277,30 +281,38 @@ export class ScheduleFunction extends AutoUpdateFunction {
           break;
         }
         case 'min': {
-          // In min mode, we only care about events that could produce a *smaller* value than current.
-          const currentNum = current?.value ?? Infinity;
+          // In min mode, we only care about events that could produce a smaller or equal numeric value than current.
+          const currentNum = current ? Number(current.value) : Infinity;
+          const currentIsNaN = Number.isNaN(currentNum);
           if (current) {
             // If the current winner ends, the value changes (likely goes up).
             nextTs = current.occur.end + 1;
           }
           for (const sv of this._events) {
             // Look for future events that start before our known next-change-time AND
-            // have a value smaller than current. Only those can interrupt the current state logic.
-            if (sv.occur.isValid() && sv.occur.start > ts && sv.occur.start < nextTs && sv.value < currentNum) {
-              nextTs = sv.occur.start;
+            // can beat or tie the current numeric value.
+            if (sv.occur.isValid() && sv.occur.start > ts && sv.occur.start < nextTs) {
+              const svNum = Number(sv.value);
+              if (currentIsNaN ? !Number.isNaN(svNum) : !Number.isNaN(svNum) && svNum <= currentNum) {
+                nextTs = sv.occur.start;
+              }
             }
           }
           break;
         }
         case 'max': {
-          // Symmetrical to min mode; only care about larger values interrupting.
-          const currentNum = current?.value ?? -Infinity;
+          // Symmetrical to min mode; only care about larger or equal numeric values interrupting.
+          const currentNum = current ? Number(current.value) : -Infinity;
+          const currentIsNaN = Number.isNaN(currentNum);
           if (current) {
             nextTs = current.occur.end + 1;
           }
           for (const sv of this._events) {
-            if (sv.occur.isValid() && sv.occur.start > ts && sv.occur.start < nextTs && sv.value > currentNum) {
-              nextTs = sv.occur.start;
+            if (sv.occur.isValid() && sv.occur.start > ts && sv.occur.start < nextTs) {
+              const svNum = Number(sv.value);
+              if (currentIsNaN ? !Number.isNaN(svNum) : !Number.isNaN(svNum) && svNum >= currentNum) {
+                nextTs = sv.occur.start;
+              }
             }
           }
           break;
@@ -332,7 +344,11 @@ export class ScheduleFunction extends AutoUpdateFunction {
       }
       if (nextTs !== Infinity) {
         this.addSchedule(nextTs);
+      } else {
+        this.cancelSchedule();
       }
+    } else {
+      this.cancelSchedule();
     }
     if (result !== undefined) {
       this._data.output(result);

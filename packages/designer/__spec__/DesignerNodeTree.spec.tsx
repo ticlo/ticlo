@@ -101,3 +101,79 @@ describe('designer tree selection', () => {
     expect(row('calculation')).not.toBeNull();
   });
 });
+
+describe('designer default outline', () => {
+  const path = 'DesignerTreeDefault';
+  let stage: DesignerStageContextValue;
+  let div: HTMLElement;
+
+  afterEach(() => {
+    removeLastTemplate();
+    destroyLastLocalConnection();
+    Root.instance.deleteValue(path);
+    stage = null;
+  });
+
+  function row(name: string) {
+    return (
+      Array.from(div.querySelectorAll('.outline .ticl-e-tree-node-text')).find((node) => node.textContent === name)
+        ?.parentElement ?? null
+    );
+  }
+
+  function arrow(name: string) {
+    return row(name)?.closest('.ticl-e-tree-node')?.querySelector<HTMLElement>('.ticl-e-tree-arr') ?? null;
+  }
+
+  it('roots at the flow, expands root and #main by default, allows selecting root, and stays collapsed when toggled', async () => {
+    await initEditor();
+    Root.instance.addFlow(path, {
+      'calculation': {'#is': 'add', '0': 1, '1': 2},
+      'extraComp': {'#is': 'react:p', 'content': 'Sibling'},
+      '#main': {
+        '#is': 'react:div',
+        '#order': ['button'],
+        'button': {'#is': 'react:button', 'content': 'Click'},
+      },
+    });
+    const [, conn] = makeLocalConnection(Root.instance);
+    function Panel(): null {
+      stage = useActiveDesignerStage();
+      return null;
+    }
+    [, div] = loadTemplate(
+      <DesignerApp value={{}}>
+        <DesignerStage root={Root.instance} conn={conn} basePath={path} />
+        <div className="outline" style={{width: 300, height: 300}}>
+          <DesignerNodeTree />
+        </div>
+        <Panel />
+      </DesignerApp>,
+      'editor'
+    );
+
+    await shouldHappen(() => stage && row(path) && row('#main') && row('button') && row('extraComp'));
+    const names = Array.from(div.querySelectorAll('.outline .ticl-e-tree-node-text')).map((node) => node.textContent);
+    expect(names).toEqual([path, '#main', 'button', 'extraComp']);
+    expect(row('calculation')).toBeNull();
+    expect(stage.selection.paths).toEqual([]);
+
+    row(path).click();
+    await shouldHappen(
+      () =>
+        stage.selection.paths.length === 1 &&
+        div.querySelector('.outline .ticl-e-tree-node-selected .ticl-e-tree-node-text')?.textContent === path
+    );
+    expect(stage.selection.paths).toEqual([path]);
+
+    arrow('#main').click();
+    await shouldHappen(() => !row('button'));
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(row('button')).toBeNull();
+
+    arrow(path).click();
+    await shouldHappen(() => !row('#main') && !row('extraComp'));
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(row('#main')).toBeNull();
+  });
+});

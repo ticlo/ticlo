@@ -8,7 +8,7 @@ export const clientDescriptors: FunctionDesc[] = [
     icon: 'svg:circle-down',
     color: '9bd',
     properties: [],
-    configs: ['#value'],
+    configs: ['#value', '#maxInstance'],
   },
   {
     priority: 0,

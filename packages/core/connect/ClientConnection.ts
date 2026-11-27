@@ -1,4 +1,4 @@
-import {Connection, ConnectionSendingData} from './Connection.ts';
+import {Connection, ConnectionSend, ConnectionSendingData} from './Connection.ts';
 import {Uid} from '../util/Uid.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {FunctionDesc, PropDesc} from '../block/Descriptor.ts';
@@ -7,7 +7,6 @@ import {
   ClientRequest,
   ClientDescListener,
   DescRequest,
-  GlobalWatch,
   SetRequest,
   SubscribeCallbacks,
   SubscribeRequest,
@@ -32,8 +31,11 @@ export interface CompletedRequest {
   persist?: boolean;
 }
 
+const unrestrictedEditPolicy = new EditPolicyView();
+
 export abstract class ClientConnection extends ClientConn {
   private readonly transport = new ClientTransport(this);
+  readonly connectionChanges = new StreamDispatcher<boolean>();
 
   get _connected() {
     return this.transport._connected;
@@ -77,22 +79,16 @@ export abstract class ClientConnection extends ClientConn {
   readonly descRequests: Map<string, DescRequest> = new Map();
   /** Maps each listener to the function scope of its DescRequest. */
   readonly descListenerPaths: Map<ClientDescListener, string> = new Map();
-  readonly globalWatch: GlobalWatch;
   private _editorListeners: boolean;
 
   protected constructor(editorListeners: boolean) {
     super();
-    this.updateServerPolicy(undefined, false);
     this._editorListeners = editorListeners;
     if (editorListeners) {
       this._sendSettingsRequest();
 
       // watchDesc - create global DescRequest
       this._getOrCreateDescRequest('');
-
-      // watch #global
-      this.globalWatch = new GlobalWatch(this);
-      this.watch('#global', this.globalWatch);
     }
   }
 
@@ -100,22 +96,12 @@ export abstract class ClientConnection extends ClientConn {
     return this;
   }
 
-  private readonly _policyChanges = new StreamDispatcher<EditPolicyView>();
-
   withPolicy(policy?: EditPolicy): ClientConn {
     return policy == null ? this : new PolicyConnection(this, policy);
   }
 
   getEditPolicyView() {
-    return this._policyChanges.value;
-  }
-
-  editPolicyChanges() {
-    return this._policyChanges;
-  }
-
-  private updateServerPolicy(policy?: EditPolicy, ready = true) {
-    this._policyChanges.dispatch(new EditPolicyView(policy, ready));
+    return unrestrictedEditPolicy;
   }
 
   checkEditRequest(data: DataMap, policy?: EditPolicy): string | null {
@@ -198,8 +184,6 @@ export abstract class ClientConnection extends ClientConn {
           req.onDone();
           this.reportCompletedRequest(req);
       }
-    } else if (response.cmd === 'editPolicy') {
-      this.updateServerPolicy((response.policy as EditPolicy) ?? undefined);
     }
   }
   _initSimpleRequest(c: ClientCallbacks): {promise: Promise<any>; callbacks: ClientCallbacks} {
@@ -348,6 +332,7 @@ export abstract class ClientConnection extends ClientConn {
   cancel(id: string) {
     const req = this.requests.get(id);
     if (req instanceof ClientRequest) {
+      if (req._data?.cmd === 'watchLive') this.addSend(new ConnectionSend({cmd: 'close', id}));
       req.cancel();
       this.requests.delete(id);
     }
@@ -484,24 +469,6 @@ export abstract class ClientConnection extends ClientConn {
     return result;
   }
 
-  findGlobalBlocks(tags: string[]): string[] {
-    const result: string[] = [];
-    if (this.globalWatch && Array.isArray(tags)) {
-      for (const [key, listener] of this.globalWatch.isListeners) {
-        const funcDesc = this.watchDesc(listener.value);
-        if (funcDesc && funcDesc.tags) {
-          for (const tag of tags) {
-            if (funcDesc.tags.includes(tag)) {
-              result.push(key);
-              break;
-            }
-          }
-        }
-      }
-    }
-    return result;
-  }
-
   abstract reconnect(): void;
 
   _reconnectInterval = 1;
@@ -510,6 +477,7 @@ export abstract class ClientConnection extends ClientConn {
   onConnect() {
     this.copiedData = undefined;
     this.transport.onConnect();
+    this.connectionChanges.dispatch(true);
     // TODO: add some delay to make sure the connection is correct
     this._reconnectInterval = 1;
   }
@@ -517,7 +485,7 @@ export abstract class ClientConnection extends ClientConn {
   onDisconnect() {
     this.copiedData = undefined;
     this.transport.onDisconnect();
-    this.updateServerPolicy(undefined, false);
+    this.connectionChanges.dispatch(false);
     // remove requests from the map
     // or notify the disconnection
     for (const [key, req] of this.requests) {
@@ -552,6 +520,7 @@ export abstract class ClientConnection extends ClientConn {
       clearTimeout(this._reconnectTimeout);
     }
     this.transport.destroy();
+    this.connectionChanges.dispatch(false);
   }
 }
 

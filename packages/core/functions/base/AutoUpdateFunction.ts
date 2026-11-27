@@ -48,10 +48,18 @@ export abstract class AutoUpdateFunction<T extends FunctionData = FunctionData> 
   private _setAutoUpdate(v: boolean) {
     if (v !== this._autoUpdate && this._data instanceof Block) {
       this._autoUpdate = v;
-      if (!v && this._schedule) {
-        this._schedule.cancel();
-        this._schedule = null;
+      if (!v) {
+        this.cancelSchedule();
       }
+      return true;
+    }
+    return false;
+  }
+
+  cancelSchedule(): boolean {
+    if (this._schedule) {
+      this._schedule.cancel();
+      this._schedule = null;
       return true;
     }
     return false;
@@ -93,20 +101,15 @@ export abstract class AutoUpdateFunction<T extends FunctionData = FunctionData> 
 
   // REFACTOR(design.md): MUST cancel scheduled deliveries and release any retained event payload.
   cancel(reason: EventType, mode: BlockMode): boolean {
-    if (this._schedule) {
-      this._schedule.cancel();
-      this._schedule = null;
-      return true;
-    }
-    return false;
+    return this.cancelSchedule();
   }
 
   cleanup() {
-    this._schedule?.cancel();
+    this.cancelSchedule();
     super.cleanup();
   }
   destroy() {
-    this._schedule?.cancel();
+    this.cancelSchedule();
     super.destroy();
   }
 }

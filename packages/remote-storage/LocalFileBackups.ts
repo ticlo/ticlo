@@ -82,16 +82,20 @@ export class LocalFileBackups {
   }
 
   put(backup: LocalFileBackup) {
-    if (typeof indexedDB === 'undefined') return Promise.resolve();
+    if (typeof indexedDB === 'undefined') return Promise.resolve(false);
     return this.operation('readwrite', async (store) => {
       await request(store.put(backup));
+      return true;
     });
   }
 
-  delete(scope: string, path: string) {
-    if (typeof indexedDB === 'undefined') return Promise.resolve();
+  delete(scope: string, path: string, reportRecovery = false) {
+    if (typeof indexedDB === 'undefined') return Promise.resolve(false);
     return this.operation('readwrite', async (store) => {
-      await request(store.delete([scope, path]));
+      const key = [scope, path];
+      const existed = reportRecovery && (await request(store.count(key))) > 0;
+      await request(store.delete(key));
+      return existed;
     });
   }
 }

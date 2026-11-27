@@ -244,3 +244,37 @@
   overflow-wrap: anywhere;
   color: var(--ant-color-error, #ff4d4f);
 }
+
+.ticl-e-file-picker-project {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+
+  & > .ant-select {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.ticl-e-file-picker-input {
+  margin-top: 8px;
+
+  & .ticl-e-file-picker-prefix {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 7px;
+    border: 1px solid var(--ant-color-border, #d9d9d9);
+    border-inline-end: 0;
+    border-radius: 4px 0 0 4px;
+    background: var(--ant-color-fill-alter, rgba(0, 0, 0, 0.02));
+    color: var(--ant-color-text-secondary, #666);
+    font-family: monospace;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  & .ant-input {
+    min-width: 0;
+  }
+}

@@ -6,11 +6,13 @@ import {BaseBlockItem, BlockHeaderView, BlockItem, Stage, XYWRenderer} from './F
 import {LazyUpdateSubscriber} from '../component/LazyUpdateComponent.tsx';
 import {BlockWidget, BlockWidgetProps} from './view/BlockWidget.ts';
 import {getFuncStyleFromDesc} from '../util/BlockColors.ts';
-import {getDisplayName} from '@ticlo/core';
+import {DataMap, FunctionDesc, getDisplayName} from '@ticlo/core/editor.ts';
 import {Tooltip} from 'antd';
 import {BlockDropdown} from '../popup/BlockDropdown.tsx';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
 import {BlockStatus} from './BlockStatus.tsx';
+import {BlockAddons} from './BlockAddons.tsx';
+import {getDescModule} from '../util/FunctionModule.ts';
 
 interface BlockViewProps {
   item: BlockItem;
@@ -19,6 +21,8 @@ interface BlockViewProps {
 interface BlockViewState {
   moving: boolean;
   footDropping: boolean;
+  addonDropping: boolean;
+  resizing: boolean;
 }
 
 function snapW(val: number): number {
@@ -30,6 +34,10 @@ function snapW(val: number): number {
     return val - m;
   }
   return val;
+}
+
+function normalizeLabelW(val: unknown): number | undefined {
+  return typeof val === 'number' && Number.isFinite(val) && (val === 0 || val >= 8) ? val : undefined;
 }
 
 export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> implements XYWRenderer {
@@ -67,7 +75,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         item.stage.focus();
         return;
       }
-      if (draggingBlocks.length === 1 && item.w) {
+      if (draggingBlocks.length === 1 && item.w && !item.isSourceBlock) {
         // when dragging 1 block that's not minimized, check if it can be dropped into block footer
         e.setData(
           {moveBlock: item.path, syncBlock: item.canSync() ? item.path : null, stage: item.stage},
@@ -85,6 +93,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       item.stage.selectBlock(item.path, true);
     } else {
       item.stage.selectBlock(item.path);
+    }
+    if (item.stage.selectionChanged) {
+      item.stage.onSelect();
     }
     if (item.selected) {
       item.stage.focus();
@@ -134,6 +145,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
     if (!this.context.canWriteField(`${item.path}.@b-xyw`)) return;
     this._baseW = item.w;
+    this.safeSetState({resizing: true});
     e.startDrag(null, null, {opacity: 0.9});
   };
 
@@ -154,11 +166,53 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
 
   onDragWEnd = (e: DragState) => {
     this._baseW = -1;
+    this.safeSetState({resizing: false});
   };
+
+  private getAddonDrop(e: DragState) {
+    const {item} = this.props;
+    if (item.desc.view || item.isSourceBlock || !item.w) return null;
+    const scope = item.conn.getBaseConn();
+    const blockData = DragState.getData('blockData', scope);
+    if (!blockData || !Object.hasOwn(blockData, '#is')) return null;
+    const funcId = blockData['#is'];
+    const desc: FunctionDesc =
+      DragState.getData('functionDesc', scope) ??
+      (typeof funcId === 'string'
+        ? item.conn.watchDesc(funcId, getDescModule(funcId, item.stage.getFuncModule()))
+        : undefined);
+    if (!desc?.tags?.includes('addon')) return null;
+    let rawName: string = DragState.getData('blockName', scope) || (typeof funcId === 'string' ? funcId : '') || '';
+    if (rawName.includes('.')) {
+      rawName = rawName.split('.').pop();
+    }
+    const addonName = rawName.startsWith('#-') ? rawName : `#-${rawName}`;
+    const addonData: DataMap = {...blockData, '#mode': 'onCall', '~#call': '##.#emit'};
+    delete addonData['#call'];
+    return {addonName, addonData};
+  }
 
   static _footerDropMap: WeakMap<DragState, BlockItem> = new WeakMap<DragState, BlockItem>();
   onDragOverFoot = (e: DragState) => {
     const {item} = this.props;
+    const addonDrop = this.getAddonDrop(e);
+    if (addonDrop) {
+      if (
+        item.conn.getEditPolicyView().can({
+          cmd: 'addBlock',
+          path: `${item.path}.${addonDrop.addonName}`,
+          data: addonDrop.addonData,
+          findName: true,
+        })
+      ) {
+        e.accept('tico-txt-plus');
+        this.safeSetState({addonDropping: true});
+      } else {
+        e.accept('');
+        e.reject();
+      }
+      return;
+    }
     if (item._syncChild) {
       return;
     }
@@ -170,8 +224,30 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       this.safeSetState({footDropping: true});
     }
   };
-  onDropFoot = (e: DragState) => {
+  onDropFoot = async (e: DragState) => {
     const {item} = this.props;
+    this.safeSetState({footDropping: false, addonDropping: false});
+    const addonDrop = this.getAddonDrop(e);
+    if (addonDrop) {
+      const targetPath = `${item.path}.${addonDrop.addonName}`;
+      if (
+        !item.conn
+          .getEditPolicyView()
+          .can({cmd: 'addBlock', path: targetPath, data: addonDrop.addonData, findName: true})
+      ) {
+        return;
+      }
+      try {
+        const result = (await item.conn.addBlock(targetPath, addonDrop.addonData, true)) as {name?: string};
+        if (this._rendering !== undefined && item.stage.getBlock(item.path) === item && result?.name) {
+          item.stage.selectAddon(`${item.path}.${result.name}`);
+          item.stage.focus();
+        }
+      } catch {
+        // ignore rejected drop
+      }
+      return;
+    }
     const movingBlockKey: string = DragState.getData('syncBlock', item.conn.getBaseConn());
     const movingBlockStage = DragState.getData('stage', item.conn.getBaseConn());
     if (movingBlockKey && movingBlockKey !== item.path && movingBlockStage === item.stage) {
@@ -182,10 +258,11 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   };
   onDragLeaveFoot = (e: DragState) => {
-    this.safeSetState({footDropping: false});
+    this.safeSetState({footDropping: false, addonDropping: false});
   };
 
   displayName = new LazyUpdateSubscriber(this);
+  labelW = new LazyUpdateSubscriber(this);
 
   widget = new LazyUpdateSubscriber((widgetName: string) => {
     if (!widgetName) {
@@ -195,16 +272,140 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     this.forceUpdate();
   });
 
+  private _labelWDragCleanup?: () => void;
+
+  private applyLabelWDom(w: number | undefined) {
+    if (!this._rootNode) return;
+    if (w === 0) {
+      this._rootNode.classList.remove('ticl-e-block-fixed-label');
+      this._rootNode.classList.add('ticl-e-block-hide-labels');
+      this._rootNode.style.removeProperty('--ticl-label-w');
+    } else if (w != null) {
+      this._rootNode.classList.remove('ticl-e-block-hide-labels');
+      this._rootNode.classList.add('ticl-e-block-fixed-label');
+      this._rootNode.style.setProperty('--ticl-label-w', `${w}px`);
+    } else {
+      this._rootNode.classList.remove('ticl-e-block-fixed-label', 'ticl-e-block-hide-labels');
+      this._rootNode.style.removeProperty('--ticl-label-w');
+    }
+  }
+
+  onBodyMouseDownCapture = (e: React.MouseEvent) => {
+    if (!e.shiftKey || e.button !== 0) return;
+    const {item} = this.props;
+    if (!this._rootNode || !this.context.canWriteField(`${item.path}.@b-label-w`)) return;
+    const fieldEl = (e.target as HTMLElement)?.closest?.('.ticl-e-field') as HTMLElement | null;
+    const nameEl = fieldEl?.querySelector('.ticl-e-field-name') as HTMLElement | null;
+    if (!nameEl || nameEl.offsetWidth === 0) return;
+    const nameRect = nameEl.getBoundingClientRect();
+    if (Math.abs(e.clientX - nameRect.right) > 10) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    this._labelWDragCleanup?.();
+
+    const rootRect = this._rootNode.getBoundingClientRect();
+    const scale =
+      rootRect.width > 0 && this._rootNode.offsetWidth > 0 ? rootRect.width / this._rootNode.offsetWidth : 1;
+    const initialSaved = normalizeLabelW(this.labelW.value);
+    const indentPx = parseFloat(fieldEl.style.getPropertyValue('--ticl-indent')) || 0;
+    const baseW = initialSaved ?? Math.round(nameEl.offsetWidth + indentPx);
+    const maxW = Math.max(8, Math.round(item.w - (item.isSourceBlock ? 48 : 32)));
+    const startX = e.clientX;
+    let currentW = initialSaved;
+    let moved = false;
+
+    const doc = this._rootNode.ownerDocument;
+    const prevCursor = doc.body.style.cursor;
+    doc.body.style.cursor = 'ew-resize';
+
+    const onMove = (ev: MouseEvent) => {
+      const rawW = Math.round(baseW + (ev.clientX - startX) / scale);
+      const nextW = rawW < 8 ? undefined : Math.min(rawW, maxW);
+      currentW = nextW;
+      moved = true;
+      this.applyLabelWDom(nextW);
+      ev.preventDefault();
+    };
+    const finish = (commit: boolean) => {
+      doc.removeEventListener('mousemove', onMove, true);
+      doc.removeEventListener('mouseup', onUp, true);
+      doc.removeEventListener('keydown', onKeyDown, true);
+      doc.body.style.cursor = prevCursor;
+      this._labelWDragCleanup = undefined;
+      if (!commit) {
+        this.applyLabelWDom(initialSaved);
+      } else if (moved && currentW !== initialSaved) {
+        item.conn.setValue(`${item.path}.@b-label-w`, currentW);
+      }
+    };
+    const onUp = () => finish(true);
+    const onKeyDown = (ev: KeyboardEvent) => {
+      if (ev.key === 'Escape') {
+        finish(false);
+      }
+    };
+    doc.addEventListener('mousemove', onMove, true);
+    doc.addEventListener('mouseup', onUp, true);
+    doc.addEventListener('keydown', onKeyDown, true);
+    this._labelWDragCleanup = () => finish(false);
+  };
+
   constructor(props: BlockViewProps) {
     super(props);
-    this.state = {moving: false, footDropping: false};
+    this.state = {moving: false, footDropping: false, addonDropping: false, resizing: false};
     this.displayName.subscribe(props.item.conn, `${props.item.path}.#label`);
+    this.labelW.subscribe(props.item.conn, `${props.item.path}.@b-label-w`, true);
     this.widget.subscribe(props.item.conn, `${props.item.path}.@b-widget`);
+  }
+
+  renderWidthDrag() {
+    const {item} = this.props;
+    if (item._syncParent || !this.context.canWriteField(`${item.path}.@b-xyw`)) {
+      return null;
+    }
+    return (
+      <DragDropDiv
+        className="ticl-e-width-drag"
+        directDragT={true}
+        onDragStartT={this.startDragW}
+        onDragMoveT={this.onDragWMove}
+        onDragEndT={this.onDragWEnd}
+      />
+    );
+  }
+
+  renderIconHead(icon: string, headClasses: string) {
+    const {item} = this.props;
+    return (
+      <BlockDropdown
+        checkPolicy
+        functionId={item.desc.id}
+        conn={item.conn}
+        path={item.path}
+        displayName={this.displayName.value}
+        canApply={false}
+        funcModule={item.stage.getFuncModule()}
+      >
+        <Tooltip title={getDisplayName(item.name, this.displayName.value)} mouseEnterDelay={0}>
+          <DragDrop
+            className={headClasses}
+            directDragT={true}
+            onDoubleClick={this.expandBlock}
+            onDragStartT={this.selectAndDrag}
+            onDragMoveT={this.onDragMove}
+            onDragEndT={this.onDragEnd}
+          >
+            <TIcon icon={icon} />
+          </DragDrop>
+        </Tooltip>
+      </BlockDropdown>
+    );
   }
 
   renderImpl() {
     const {item} = this.props;
-    const {moving, footDropping} = this.state;
+    const {moving, footDropping, addonDropping, resizing} = this.state;
     const FullView = item.desc.view as new () => React.Component<BlockWidgetProps>;
 
     const classNames: string[] = [];
@@ -220,20 +421,13 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     if (moving) {
       classNames.push('ticl-e-block-moving');
     }
+    if (resizing) {
+      classNames.push('ticl-e-block-resizing');
+    }
 
     if (FullView) {
       classNames.push('ticl-e-block-full-view');
       let width = item.w;
-      const widthDrag =
-        item._syncParent || !this.context.canWriteField(`${item.path}.@b-xyw`) ? null : (
-          <DragDropDiv
-            className="ticl-e-width-drag"
-            directDragT={true}
-            onDragStartT={this.startDragW}
-            onDragMoveT={this.onDragWMove}
-            onDragEndT={this.onDragWEnd}
-          />
-        );
       if (!(width > 80)) {
         width = 143;
       }
@@ -252,7 +446,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
         >
           <FullView conn={item.conn} path={item.path} updateViewHeight={item.setViewH} />
           <BlockStatus conn={item.conn} path={item.path} />
-          {widthDrag}
+          {this.renderWidthDrag()}
         </DragDropDiv>
       );
     } else if (!item.descLoaded) {
@@ -268,6 +462,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
           icon = dynamicIcon;
         }
       }
+      let headClasses = 'ticl-e-block-head';
+      if (item.isStatic) {
+        headClasses = `${headClasses} ticl-e-block-head-static`;
+      }
       if (item.w) {
         // not minimized
         let widget: React.ReactNode;
@@ -279,12 +477,37 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
             </div>
           );
         }
+        const labelW = normalizeLabelW(this.labelW.value);
+        const blockStyle: React.CSSProperties & {'--ticl-label-w'?: string} = {
+          ...colorStyle,
+          top: item.y,
+          left: item.x,
+          width: item.w,
+        };
+        if (labelW === 0) {
+          classNames.push('ticl-e-block-hide-labels');
+        } else if (labelW != null) {
+          classNames.push('ticl-e-block-fixed-label');
+          blockStyle['--ticl-label-w'] = `${labelW}px`;
+        }
+        if (item.isSourceBlock) {
+          classNames.push('ticl-e-block-source');
+          return (
+            <div ref={this.getRef} className={classNames.join(' ')} style={blockStyle}>
+              {this.renderIconHead(icon, headClasses)}
+              <div className="ticl-e-block-source-body">
+                {widget}
+                <div className="ticl-e-block-body" onMouseDownCapture={this.onBodyMouseDownCapture}>
+                  {item.renderFields()}
+                </div>
+              </div>
+              <BlockStatus conn={item.conn} path={item.path} />
+              {this.renderWidthDrag()}
+            </div>
+          );
+        }
         return (
-          <div
-            ref={this.getRef}
-            className={classNames.join(' ')}
-            style={{...colorStyle, top: item.y, left: item.x, width: item.w}}
-          >
+          <div ref={this.getRef} className={classNames.join(' ')} style={blockStyle}>
             <BlockHeaderView
               item={item.getHeaderCallField()}
               isStatic={item.isStatic}
@@ -297,9 +520,11 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               displayName={this.displayName.value}
             />
             {widget}
-            <div className="ticl-e-block-body">{item.renderFields()}</div>
+            <div className="ticl-e-block-body" onMouseDownCapture={this.onBodyMouseDownCapture}>
+              {item.renderFields()}
+            </div>
             <DragDropDiv
-              className="ticl-e-block-foot"
+              className={addonDropping ? 'ticl-e-block-foot ticl-e-block-foot-addon-dropping' : 'ticl-e-block-foot'}
               directDragT={true}
               onDragStartT={this.selectAndNotDrag}
               onDragOverT={this.onDragOverFoot}
@@ -307,6 +532,7 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
               onDragLeaveT={this.onDragLeaveFoot}
             >
               <BlockStatus conn={item.conn} path={item.path} />
+              <BlockAddons item={item} selectedAddon={item.selectedAddon} />
               {item.selfField?.outWires.size ? <div className="ticl-e-outbound" /> : null}
               <DragDropDiv
                 className="ticl-e-width-drag"
@@ -321,35 +547,10 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
       } else {
         // minimized block
         classNames.push('ticl-e-block-min');
-        let headClasses = 'ticl-e-block-head';
-        if (item.isStatic) {
-          headClasses = `${headClasses} ticl-e-block-head-static`;
-        }
         return (
           <div ref={this.getRef} className={classNames.join(' ')} style={{...colorStyle, top: item.y, left: item.x}}>
             <div className="ticl-e-block-min-bound" />
-            <BlockDropdown
-              checkPolicy
-              functionId={item.desc.id}
-              conn={item.conn}
-              path={item.path}
-              displayName=""
-              canApply={false}
-              funcModule={item.stage.getFuncModule()}
-            >
-              <Tooltip title={getDisplayName(item.name, this.displayName.value)} mouseEnterDelay={0}>
-                <DragDrop
-                  className={headClasses}
-                  directDragT={true}
-                  onDoubleClick={this.expandBlock}
-                  onDragStartT={this.selectAndDrag}
-                  onDragMoveT={this.onDragMove}
-                  onDragEndT={this.onDragEnd}
-                >
-                  <TIcon icon={icon} />
-                </DragDrop>
-              </Tooltip>
-            </BlockDropdown>
+            {this.renderIconHead(icon, headClasses)}
             <BlockStatus conn={item.conn} path={item.path} />
           </div>
         );
@@ -357,7 +558,9 @@ export class BlockView extends PureDataRenderer<BlockViewProps, BlockViewState> 
     }
   }
   componentWillUnmount() {
+    this._labelWDragCleanup?.();
     this.displayName.unsubscribe();
+    this.labelW.unsubscribe();
     this.widget.unsubscribe();
     super.componentWillUnmount();
   }

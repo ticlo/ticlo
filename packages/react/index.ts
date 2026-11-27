@@ -11,6 +11,15 @@ export {Values} from './comp/Values.ts';
 export {metaKey, renderChildren, TicloComp, useComponentUpdate} from './comp/Component.tsx';
 export {TicloPage} from './comp/TicloPage.tsx';
 export type {TicloPageProps} from './comp/TicloPage.tsx';
+export {PageInclude, resolvePageIncludeTarget} from './comp/PageInclude.tsx';
+export {
+  DEFAULT_MAX_PAGE_INSTANCES,
+  enterPageFlow,
+  getManagedPageFlowRef,
+  getMaxPageInstances,
+  leavePageFlow,
+  type PageCloseMode,
+} from './comp/PageFlow.ts';
 export * from './markdown/index.ts';
 export {Horizontal, Vertical, Absolute} from './layout/Layout.tsx';
 export {ViewDeck} from './layout/ViewDeck.tsx';
@@ -26,6 +35,7 @@ import './elements/ImgElement.tsx';
 import './elements/InputElement.tsx';
 import './elements/SvgElements.tsx';
 import './jsx/JsxComponent.tsx';
+import './comp/PageInclude.tsx';
 
 globalFunctions.addCategory({
   id: 'react:',

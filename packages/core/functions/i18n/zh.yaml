@@ -1,4 +1,6 @@
 '@library':
+  system:
+    '@name': 系统 # translated from: System
   sql:
     '@name': SQL # no translate
   database:
@@ -15,6 +17,8 @@
     '@name': 重复
   data:
     '@name': 数据
+  file:
+    '@name': 文件 # translated from: File
 
 '@shared':
   '':
@@ -66,6 +70,8 @@
     '@name': 输入 # translated from: Inputs
   '#outputs':
     '@name': 输出 # translated from: Outputs
+  '#maxInstance':
+    '@name': 最大实例数 # translated from: Max Instance
   '#input':
     '@name': 输入
   '#use':
@@ -77,5 +83,47 @@
     '@name': 属性列表
   '@b-xyw':
     '@name': XYW
+  '@b-label-w':
+    '@name': 标签宽度 # translated from: Label Width
+  '@b-view':
+    '@name': 视图 # translated from: View
+    '@options':
+      default: 默认 # translated from: Default
+      source: 源块 # translated from: Source
   '@b-widget':
     '@name': 组件
+    '@options':
+      'web-authorization': 网页授权 # translated from: Web Authorization
+
+log:
+  '@name': 日志 # translated from: Log
+  message:
+    '@name': 消息 # translated from: Message
+  maxLength:
+    '@name': 消息最大长度 # translated from: Maximum Message Length
+  data:
+    '@name': 数据 # translated from: Data
+  provider:
+    '@name': 日志服务 # translated from: Log Provider
+  level:
+    '@name': 级别 # translated from: Level
+    '@options':
+      debug: 调试 # translated from: Debug
+      info: 信息 # translated from: Info
+      warn: 警告 # translated from: Warning
+      error: 错误 # translated from: Error
+history:
+  '@name': 历史记录 # translated from: History
+  service:
+    '@name': 历史服务 # translated from: History Service
+  id:
+    '@name': 序列 ID # translated from: Series ID
+  time:
+    '@name': 时间 # translated from: Time
+  kind:
+    '@name': 类型 # translated from: Kind
+    '@options':
+      auto: 自动 # translated from: Auto
+      number: 数值 # translated from: Number
+      boolean: 布尔值 # translated from: Boolean
+      value: 任意值 # translated from: Value

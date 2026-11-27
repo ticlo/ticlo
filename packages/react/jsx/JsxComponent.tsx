@@ -34,7 +34,7 @@ function parseJsx(script: string): ComponentType<{block: Block; React: any}> {
 
     if (Babel) {
       const toTransform = `"use strict";const props={};${PRECODE}function _F_(){${script}}`;
-      const code = Babel.transform(toTransform, {presets: ['es2017', 'react']}).code;
+      const code = Babel.transform(toTransform, {presets: ['es2017', ['react', {runtime: 'classic'}]]}).code;
       script = code.substring(33).replace('function _F_() ', '');
     }
     return new Function('props', script) as ComponentType<{block: Block; React: any}>;
@@ -60,6 +60,10 @@ const jsxComponentDesc: FunctionDesc = {
   attributes: elementAttributes,
   tags: ['react-comp'],
   childrenTags: ['react-comp'],
+  init: {
+    script: `const {style, optionalHandlers} = useTicloComp(block, {noChildren: true});
+return <div style={style} {...optionalHandlers}>jsx</div>;`,
+  },
   properties: [
     {
       name: 'script',

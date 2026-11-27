@@ -1,0 +1,16 @@
+{
+  "name": "@ticlo/mqtt",
+  "version": "0.0.14",
+  "description": "Node.js MQTT connector for Ticlo",
+  "license": "MPL-2.0",
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "dependencies": {
+    "@ticlo/core": "workspace:^",
+    "mqtt": "^5.14.1"
+  },
+  "devDependencies": {
+    "aedes": "^0.51.3"
+  }
+}

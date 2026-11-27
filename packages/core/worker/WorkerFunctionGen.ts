@@ -1,7 +1,12 @@
-import {FunctionModule, globalFunctions} from '../block/FunctionModule.ts';
+import {
+  DEFAULT_MAX_MULTI_WORKER_INSTANCES,
+  DEFAULT_MAX_WORKER_INSTANCES,
+  FunctionModule,
+  globalFunctions,
+} from '../block/FunctionModule.ts';
 import {BaseFunction, createFunctionFactory, FunctionFactory, StatefulFunction} from '../block/BlockFunction.ts';
 import {deepEqual} from '../util/Compare.ts';
-import {defaultConfigs, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
+import {collectFlowIOProperties, defaultConfigs, FunctionDesc, PropDesc, PropGroupDesc} from '../block/Descriptor.ts';
 import {BlockIO} from '../block/BlockProperty.ts';
 import {Flow} from '../block/Flow.ts';
 import {DataMap} from '../util/DataTypes.ts';
@@ -9,6 +14,8 @@ import {WorkerFlow} from './WorkerFlow.ts';
 import {Block} from '../block/Block.ts';
 import {Library} from '../block/Library.ts';
 import {FlowFunctionModule, LibraryFunctionModule} from '../block/LibraryFunctionModule.ts';
+
+export {DEFAULT_MAX_MULTI_WORKER_INSTANCES, DEFAULT_MAX_WORKER_INSTANCES};
 
 const inheritedReturnTags = ['react-comp', 'react-svg'];
 
@@ -42,8 +49,11 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
       desc.priority = 1;
     }
     desc.src = 'worker';
+    const rawMax = (data['#inputs'] as DataMap)?.['#maxInstance'];
+    const maxInstances = typeof rawMax === 'number' && Number.isInteger(rawMax) && rawMax >= 1 ? rawMax : undefined;
     return createFunctionFactory(CustomWorkerFunction, desc, {
       ticlWorkerData: data,
+      maxInstances,
       save() {
         return {
           type: 'worker',
@@ -166,52 +176,10 @@ export class WorkerFunctionGen extends BaseFunction<Block> {
    * collect function parameters for creating worker function
    */
   static collectProperties(data: DataMap) {
-    const properties: (PropDesc | PropGroupDesc)[] = [];
-    const groups: Map<string, PropGroupDesc> = new Map();
-    // add inputs
-    const inputs = (data['#inputs'] as DataMap)?.['#custom'];
-    if (Array.isArray(inputs)) {
-      for (const input of inputs) {
-        const copyInput = {...input};
-        // input should not be readonly
-        delete copyInput.readonly;
-        if (input.type === 'group') {
-          groups.set(input.name, copyInput as PropGroupDesc);
-        }
-        properties.push(copyInput);
-      }
-    }
-    // add outputs
-    const outputs = (data['#outputs'] as DataMap)?.['#custom'];
-    let mainOutput: PropDesc;
-    if (Array.isArray(outputs)) {
-      for (const output of outputs) {
-        const group = output.type === 'group' && groups.get(output.name);
-        if (group) {
-          if (Array.isArray(output.properties) && output.properties.length > 0) {
-            const groupProperties = Array.isArray(group.properties)
-              ? group.properties.map((prop: PropDesc) => ({...prop}))
-              : [];
-            group.properties = groupProperties;
-            // merge output group with input group
-            for (const prop of output.properties) {
-              groupProperties.push({...prop, readonly: true});
-            }
-          }
-        } else {
-          if (output.name === '#output') {
-            mainOutput = {...output, readonly: true};
-          } else {
-            properties.push({...output, readonly: true});
-          }
-        }
-      }
-    }
-    if (mainOutput) {
-      // #output must be the last property
-      properties.push(mainOutput);
-    }
-    return properties;
+    return collectFlowIOProperties(
+      (data['#inputs'] as DataMap)?.['#custom'],
+      (data['#outputs'] as DataMap)?.['#custom']
+    );
   }
 }
 

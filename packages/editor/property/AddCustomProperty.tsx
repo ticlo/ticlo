@@ -107,7 +107,8 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
           }
           break;
         }
-        case 'string': {
+        case 'string':
+        case 'file-path': {
           if (placeholder.value) {
             result.placeholder = placeholder.value;
           }
@@ -178,6 +179,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
             <Option value="color">{t('color')}</Option>
             <Option value="date">{t('date')}</Option>
             <Option value="date-range">{t('date-range')}</Option>
+            <Option value="file-path">{t('file-path')}</Option>
             <Option value="password">{t('password')}</Option>
             <Option value="any">{t('dynamic')}</Option>
             <Option value="table">{t('table')}</Option>
@@ -218,7 +220,7 @@ export class AddCustomPropertyMenu extends LazyUpdateComponent<Props, any> {
         {typeValue === 'date' || typeValue === 'date-range'
           ? showTime.render(<Switch size="small" checked={showTime.value} onChange={showTime.onChange} />)
           : null}
-        {typeValue === 'string' || typeValue === 'number'
+        {typeValue === 'string' || typeValue === 'file-path' || typeValue === 'number'
           ? placeholder.render(<Input value={placeholder.value} size="small" onChange={placeholder.onInputChange} />)
           : null}
         {typeValue !== 'group'

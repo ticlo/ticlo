@@ -1,3 +1,9 @@
+log-provider:
+  '@name': SQL Log Provider
+  client:
+    '@name': SQL Client
+  tableName:
+    '@name': Table Name
 query:
   '@name': Query
   client:

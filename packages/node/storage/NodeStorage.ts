@@ -15,6 +15,8 @@ import {
   withCommitWorktree,
 } from '@ticlo/node-git/gitOperations.ts';
 import {GitError} from '@ticlo/node-git/GitError.ts';
+import {Block, type FunctionData} from '@ticlo/core';
+import {Library} from '@ticlo/core/block/Library.ts';
 import {ProjectStorage} from '@ticlo/core/storage/ProjectStorage.ts';
 import {
   ScopedFiles,
@@ -24,22 +26,144 @@ import {
   fileBytes,
   filePath,
   projectId,
+  type FileAccess,
   type FilePayload,
+  type FileReadResult,
   type FileRequest,
   type FileWriteOptions,
   type ProjectGit,
 } from '@ticlo/core/storage/FileAccess.ts';
+import {
+  buildProjectFileUrl,
+  classifyFilePath,
+  fetchFileResult,
+  normalizeLibraryId,
+  tryParseFilePath,
+} from '@ticlo/core/storage/FilePath.ts';
+
+export type NodeFilePathResolver = (path: string, library?: string) => string | undefined;
+export type NodeFileBaseUrl = string | (() => string | undefined);
+
+export interface NodeStorageOptions {
+  resolveExternalPath?: NodeFilePathResolver;
+  fileBaseUrl?: NodeFileBaseUrl;
+  fileUrlScope?: string;
+  frontendDir?: string;
+  frontendFileBaseUrl?: NodeFileBaseUrl;
+  frontendUrlScope?: string;
+}
+
+/** Resolve a block function's `file-path` input to a local path via its Root storage. */
+export function resolveFilePath(data: FunctionData, path: string): string | undefined | Promise<string | undefined> {
+  if (!path || typeof path !== 'string') return undefined;
+  const flow = data instanceof Block ? data._flow : undefined;
+  const storage = flow ? Library.rootOf(flow)._storage : undefined;
+  if (storage?.resolveFilePath) {
+    return storage.resolveFilePath(path, flow._library);
+  }
+  const kind = classifyFilePath(path);
+  return kind === 'url' || kind === 'project' || kind === 'relative' || kind === 'frontend' ? undefined : path;
+}
 
 /** Projects are direct children of dir; #root is also the current user's directory. */
 export class NodeStorage extends ProjectStorage implements ProjectGit {
   readonly dir: string;
+  readonly frontendDir?: string;
   readonly user: ScopedFiles;
+  private readonly resolveExternalPath?: NodeFilePathResolver;
+  private fileBaseUrl?: NodeFileBaseUrl;
+  private readonly fileUrlScope: string;
+  private frontendFileBaseUrl?: NodeFileBaseUrl;
+  private readonly frontendUrlScope: string;
+  private frontendStorage?: NodeStorage;
   private readonly mutations = new Map<string, Promise<unknown>>();
   private readonly gitUser = {getUserId: () => 'node'};
-  constructor(dir: string) {
+  constructor(dir: string, optionsOrResolver?: NodeFilePathResolver | NodeStorageOptions) {
     super();
     this.dir = Path.resolve(dir);
     this.user = new ScopedFiles(this, '#root');
+    if (typeof optionsOrResolver === 'function') {
+      this.resolveExternalPath = optionsOrResolver;
+      this.fileUrlScope = 'proj';
+      this.frontendUrlScope = 'proj';
+    } else {
+      this.resolveExternalPath = optionsOrResolver?.resolveExternalPath;
+      this.fileBaseUrl = optionsOrResolver?.fileBaseUrl;
+      this.fileUrlScope = optionsOrResolver?.fileUrlScope ?? 'proj';
+      this.frontendDir = optionsOrResolver?.frontendDir ? Path.resolve(optionsOrResolver.frontendDir) : undefined;
+      this.frontendFileBaseUrl = optionsOrResolver?.frontendFileBaseUrl;
+      this.frontendUrlScope = optionsOrResolver?.frontendUrlScope ?? 'proj';
+    }
+  }
+  setFileBaseUrl(fileBaseUrl?: NodeFileBaseUrl) {
+    this.fileBaseUrl = fileBaseUrl;
+  }
+  setFrontendFileBaseUrl(fileBaseUrl?: NodeFileBaseUrl) {
+    this.frontendFileBaseUrl = fileBaseUrl;
+  }
+  override resolveFilePath(path: string, library?: string): string | undefined {
+    const parsed = tryParseFilePath(path, library);
+    if (!parsed) return undefined;
+    switch (parsed.kind) {
+      case 'url':
+        return undefined;
+      case 'external':
+        return this.resolveExternalPath?.(parsed.path, normalizeLibraryId(library));
+      case 'frontend':
+        return this.frontendDir ? Path.resolve(this.frontendDir, parsed.storagePath) : undefined;
+      case 'project':
+        return Path.resolve(this.dir, parsed.storagePath);
+    }
+  }
+  override resolveFileUrl(path: string, library?: string): string | undefined {
+    const parsed = tryParseFilePath(path, library);
+    if (!parsed) return undefined;
+    switch (parsed.kind) {
+      case 'url':
+      case 'external':
+        return parsed.path;
+      case 'frontend': {
+        const baseRaw = this.frontendFileBaseUrl ?? (this.frontendDir ? this.fileBaseUrl : undefined);
+        const base = typeof baseRaw === 'function' ? baseRaw() : baseRaw;
+        return base ? buildProjectFileUrl(base, parsed.storagePath, this.frontendUrlScope) : undefined;
+      }
+      case 'project': {
+        const base = typeof this.fileBaseUrl === 'function' ? this.fileBaseUrl() : this.fileBaseUrl;
+        return base ? buildProjectFileUrl(base, parsed.storagePath, this.fileUrlScope) : undefined;
+      }
+    }
+  }
+  protected override getFrontendFileAccess(): FileAccess | undefined {
+    if (!this.frontendDir) return undefined;
+    return (this.frontendStorage ??= new NodeStorage(this.frontendDir));
+  }
+  protected override readUrlFile(url: string, options?: FileRequest): Promise<FileReadResult> {
+    return fetchFileResult(url.startsWith('//') ? `https:${url}` : url, options);
+  }
+  protected override async readFrontendFile(storagePath: string, options: FileRequest = {}): Promise<FileReadResult> {
+    if (!this.frontendDir) {
+      throw new StorageError('Frontend file storage is not available', 'not-found');
+    }
+    filePath(storagePath, true);
+    options.signal?.throwIfAborted();
+    return this.io(async () => {
+      const target = Path.resolve(this.frontendDir!, storagePath);
+      const data = await fs.readFile(target, {signal: options.signal});
+      return {data: Uint8Array.from(data).buffer, revision: this.revision(data)};
+    });
+  }
+  protected override async readExternalFile(
+    path: string,
+    library?: string,
+    options: FileRequest = {}
+  ): Promise<FileReadResult> {
+    const target = this.resolveExternalPath?.(path, normalizeLibraryId(library));
+    if (!target) throw new StorageError('External file path is not allowed', 'permission-denied');
+    return this.io(async () => {
+      options.signal?.throwIfAborted();
+      const data = await fs.readFile(target, {signal: options.signal});
+      return {data: Uint8Array.from(data).buffer, revision: this.revision(data)};
+    });
   }
   getCapabilities(_path: string) {
     return {write: true, persistent: true};

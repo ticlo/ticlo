@@ -1,7 +1,6 @@
 import {DateTime} from 'luxon';
-import {toDateTime} from '@ticlo/core/util/DateTime.ts';
+import {resolveZone, toDateTime} from '@ticlo/core/util/DateTime.ts';
 import {Block, PropDesc} from '@ticlo/core';
-import {getDefaultZone} from '@ticlo/core/util/Settings.ts';
 
 type DescOmit = Omit<PropDesc, 'name'>;
 
@@ -94,11 +93,7 @@ export const Values = {
   },
   luxon: {
     convert: (value: unknown, block?: Block): DateTime => {
-      let timezone = block?.getValue('timezone') as string;
-      if (typeof timezone !== 'string' || timezone === 'Factory' || timezone === 'auto') {
-        timezone = getDefaultZone();
-      }
-      return toDateTime(value, timezone);
+      return toDateTime(value, resolveZone(block?.getValue('timezone')));
     },
     desc: {type: 'date'} as DescOmit,
   },

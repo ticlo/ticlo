@@ -2,6 +2,7 @@ import {Block, DataMap, FunctionDesc, globalFunctions, PropDesc} from '@ticlo/co
 import {useTicloComp} from '../hooks/useTicloComp.ts';
 import {Values} from '../comp/Values.ts';
 import {useBlockConfigs} from '../hooks/useBlockConfigs.ts';
+import {useResolvedFilePath} from '../hooks/useResolvedFilePath.ts';
 import React from 'react';
 import {metaKey, renderChildren} from '../comp/Component.tsx';
 import {elementAttributes, elementClassProperty, elementConfigs, elementStyleProperty} from '../comp/CommontProps.ts';
@@ -35,7 +36,7 @@ const optional: {[key: string]: PropDesc} = {
   readOnly: {name: 'readOnly', type: 'toggle'},
   required: {name: 'required', type: 'toggle'},
   size: {name: 'size', type: 'number'},
-  src: {name: 'src', type: 'string'},
+  src: {name: 'src', type: 'file-path'},
   step: {name: 'step', type: 'any', types: ['number', 'string']},
   width: {name: 'width', type: 'any', types: ['number', 'string']},
 };
@@ -122,6 +123,11 @@ const inputPropMap = {
 function InputElement({block}: {block: Block}) {
   const {style, className, optionalHandlers} = useTicloComp(block, inputOptions);
   const {value, checked, defaultValue, defaultChecked, type} = useBlockConfigs(block, inputPropMap);
+  const hasOptionalSrc = 'src' in optionalHandlers;
+  const resolvedSrc = useResolvedFilePath(
+    block,
+    hasOptionalSrc && typeof optionalHandlers.src === 'string' ? optionalHandlers.src : undefined
+  );
   return (
     <input
       value={value}
@@ -132,6 +138,7 @@ function InputElement({block}: {block: Block}) {
       style={style}
       className={className}
       {...optionalHandlers}
+      {...(hasOptionalSrc ? {src: resolvedSrc} : undefined)}
     />
   );
 }

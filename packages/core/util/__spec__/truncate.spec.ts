@@ -10,10 +10,15 @@ describe('truncateData', function () {
     const small = new ErrorEvent(undefined, Object.assign(new Error('bad SQL'), {code: 'SQLITE_ERROR'}));
     expect(truncateData(small)[0]).toBe(small);
     expect(isDataTruncated(small)).toBe(false);
-    const large = new ErrorEvent('database', new Error('x'.repeat(100_000)));
+    const large = new ErrorEvent('database', new Error('x'.repeat(100_000)), 'Main.db');
     const preview = truncateData(large, 256)[0];
     expect(preview).toBeInstanceOf(ErrorEvent);
     expect(preview.type).toBe('database');
+    expect(preview.originPath).toBe('Main.db');
+    const longOrigin = new ErrorEvent('timeout', undefined, 'long'.repeat(1000));
+    const originPreview = decode(encode(truncateData(longOrigin, 256)[0]));
+    expect(originPreview.originPath.length).toBeLessThan(256);
+    expect(isDataTruncated(originPreview)).toBe(true);
     expect(preview.detail.message).toContain(TRUNCATED);
     expect(isDataTruncated(preview)).toBe(true);
     expect(encode(preview).length).toBeLessThan(512);

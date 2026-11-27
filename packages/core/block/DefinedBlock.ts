@@ -20,9 +20,9 @@ function definedProperty(Base: PropertyClass) {
     }
 
     setBinding() {}
-    setBindProperty() {}
+    setEmbeddedBlockSlot() {}
     _listenRaw() {}
-    _loadHelper() {}
+    _loadEmbeddedBlock() {}
 
     isCleared() {
       return false;

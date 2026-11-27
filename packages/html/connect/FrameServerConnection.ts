@@ -1,18 +1,17 @@
 import {DataMap} from '@ticlo/core/util/DataTypes.ts';
 import {decode, encode} from '@ticlo/core/util/Serialize.ts';
 import {Logger} from '@ticlo/core/util/Logger.ts';
-import {ServerConnection} from '@ticlo/core/connect/ServerConnection.ts';
+import {ServerConnection, type ServerConnectionOptions} from '@ticlo/core/connect/ServerConnection.ts';
 import {Root} from '@ticlo/core/block/Flow.ts';
-import type {ConnectionOptions} from '@ticlo/core/connect/Connection.ts';
 
 export class FrameServerConnection extends ServerConnection {
   checkClosedTimer: any;
   constructor(
     public remote: Window,
     root: Root,
-    options?: ConnectionOptions
+    options?: ServerConnectionOptions
   ) {
-    super(root, undefined, options);
+    super(root, options);
     this.checkClosedTimer = setInterval(this.checkClosed, 1000);
     window.addEventListener('message', this.onMessage);
   }
@@ -25,16 +24,13 @@ export class FrameServerConnection extends ServerConnection {
 
   doSend(datas: DataMap[]): void {
     const json = encode({ticloResponses: datas});
-    Logger.trace(() => 'server send ' + json, this);
     this.remote.postMessage(json, '*');
   }
 
   onMessage = (e: MessageEvent) => {
     if (typeof e.data === 'string' && e.source === this.remote) {
-      Logger.trace(() => 'server receive ' + e.data, this);
       const decoded = decode(e.data);
       if (decoded?.ticloReady) {
-        // The editor must be listening before we send its initial edit policy.
         this.onConnect();
         this.onReceive([]);
       } else if (decoded && Array.isArray(decoded.ticloRequests)) {

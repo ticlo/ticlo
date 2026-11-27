@@ -28,17 +28,82 @@
   transition-property: border-color, box-shadow;
   transition-duration: 0.2s;
   z-index: 0;
+}
 
+.ticl-e-block-full-view,
+.ticl-e-block-source {
   & > .ticl-e-width-drag {
     opacity: 0;
+    pointer-events: none;
     transition-property: opacity;
     transition-duration: 0.2s;
-    top: 0;
+    top: 100%;
+    bottom: auto;
+    right: 0;
+    width: 20px;
+    height: 18px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: var(--ant-color-bg-elevated, #fff);
+    border: 1px solid var(--ant-color-border, #ddd);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 
-  &.ticl-e-block-selected > .ticl-e-width-drag,
-  &:hover > .ticl-e-width-drag {
+  &.ticl-e-block-selected:hover > .ticl-e-width-drag,
+  &.ticl-e-block-resizing > .ticl-e-width-drag {
     opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.ticl-e-block-source {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-height: 26px;
+  border-radius: 0 8px;
+
+  & > .ticl-e-width-drag {
+    right: -1px;
+  }
+
+  & > .ticl-e-block-head {
+    flex: 0 0 24px;
+    width: 24px;
+    height: auto;
+    padding: 0;
+    border-radius: 0 0 0 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    & > .tico {
+      position: relative;
+      right: auto;
+      top: auto;
+    }
+  }
+
+  & > .ticl-e-block-source-body {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .ticl-e-field {
+    padding-left: 6px;
+  }
+
+  .ticl-e-block-body {
+    & > .ticl-e-field:last-child,
+    & > .ticl-e-field-subblock:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  .ticl-e-slot.ticl-e-inbound:not(.ticl-e-inbound-right) {
+    right: calc(100% + 19px);
   }
 }
 
@@ -151,7 +216,43 @@ body:not(.dock-dragging) {
 .ticl-e-block-foot {
   position: relative;
   height: 22px;
-  padding: 2px 12px;
+  padding: 2px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ticl-e-block-foot-addon-dropping {
+  background: color-mix(in srgb, var(--ticl-block-color) 16%, transparent);
+}
+
+.ticl-e-block-addons {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ticl-e-block-addon {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: var(--ticl-block-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: box-shadow 0.2s;
+
+  & > .tico {
+    transform: scale(0.75);
+  }
+
+  &.ticl-e-block-addon-selected {
+    box-shadow: 0 0 3px 2px color-mix(in srgb, var(--ticl-block-color) 70%, transparent);
+  }
 }
 
 .ticl-e-block-status {
@@ -187,9 +288,13 @@ body:not(.dock-dragging) {
   cursor: pointer;
 }
 
-.ticl-e-block-min > .ticl-e-block-status {
-  left: -3px;
-  bottom: -3px;
+.ticl-e-block-min > .ticl-e-block-status,
+.ticl-e-block-source > .ticl-e-block-status {
+  left: 3px;
+  bottom: -12px;
+  border-radius: 8px;
+  border: 1px solid var(--ticl-block-color);
+  background: var(--ant-color-bg-container, #fff);
 }
 
 .ticl-e-block-error-message {

@@ -1,6 +1,7 @@
 import {Flow, FlowLoader, Root} from './Flow.ts';
 import {DataMap} from '../util/DataTypes.ts';
 import {BlockProperty} from './BlockProperty.ts';
+import type {FileAccess, FileReadResult, FileRequest} from '../storage/FileAccess.ts';
 
 export interface Storage {
   delete(key: string): void | Promise<void>;
@@ -48,6 +49,22 @@ export interface FlowStorage {
 
   // return [applyChange,onStateChange] of a flow
   getFlowLoader(key: string, prop: BlockProperty): FlowLoader;
+
+  /** Resolve a file-path string to a local path (Node) or URL (browser). */
+  resolveFilePath?(path: string, library?: string): string | undefined | Promise<string | undefined>;
+
+  /** Resolve a file-path string to a URL (browser or HTTP-exposed Node storage). */
+  resolveFileUrl?(path: string, library?: string): string | undefined | Promise<string | undefined>;
+
+  /** Asynchronously read a file-path into a unified FileReadResult across browser and Node. */
+  readFile?(path: string, library?: string, options?: FileRequest): Promise<FileReadResult>;
+
+  /** Resolve a project or frontend file-path into a scoped FileAccess + storagePath pair. */
+  resolveFileAccess?(
+    path: string,
+    library?: string,
+    options?: {allowEmptyRelative?: boolean}
+  ): {access: FileAccess; path: string} | undefined;
 }
 
 export interface LibraryMetadata {

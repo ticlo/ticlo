@@ -11,10 +11,12 @@ import {
   StorageError,
   projectId,
   type FileAccess,
+  type FileReadResult,
   type FileRequest,
   type ProjectFiles,
   type ProjectMetadata,
 } from './FileAccess.ts';
+import {fetchFileResult, parseFilePath} from './FilePath.ts';
 
 /** Shared file-to-flow mapping. Backends implement only file operations. */
 export abstract class ProjectStorage extends FileAccessBase implements FlowStorage, ProjectFiles {
@@ -221,6 +223,63 @@ export abstract class ProjectStorage extends FileAccessBase implements FlowStora
   }
   async deleteProject(id: string) {
     return this.deleteFile(projectId(id));
+  }
+
+  resolveFilePath(_path: string, _library?: string): string | undefined | Promise<string | undefined> {
+    return undefined;
+  }
+
+  resolveFileUrl(_path: string, _library?: string): string | undefined | Promise<string | undefined> {
+    return undefined;
+  }
+
+  protected readUrlFile(url: string, options?: FileRequest): Promise<FileReadResult> {
+    return fetchFileResult(url, options);
+  }
+
+  protected async readExternalFile(_path: string, _library?: string, _options?: FileRequest): Promise<FileReadResult> {
+    throw new StorageError('External file path is not allowed', 'permission-denied');
+  }
+
+  protected async readFrontendFile(_storagePath: string, _options?: FileRequest): Promise<FileReadResult> {
+    throw new StorageError('Frontend file storage is not available', 'not-found');
+  }
+
+  protected getFrontendFileAccess(): FileAccess | undefined {
+    return undefined;
+  }
+
+  resolveFileAccess(
+    path: string,
+    library?: string,
+    options?: {allowEmptyRelative?: boolean}
+  ): {access: FileAccess; path: string} | undefined {
+    const parsed = parseFilePath(path, library, options);
+    if (parsed.kind === 'project') {
+      return {access: this, path: parsed.storagePath};
+    }
+    if (parsed.kind === 'frontend') {
+      const frontend = this.getFrontendFileAccess();
+      if (!frontend) {
+        throw new StorageError('Frontend file storage is not available', 'not-found');
+      }
+      return {access: frontend, path: parsed.storagePath};
+    }
+    return undefined;
+  }
+
+  async readFile(path: string, library?: string, options?: FileRequest): Promise<FileReadResult> {
+    const parsed = parseFilePath(path, library);
+    switch (parsed.kind) {
+      case 'url':
+        return this.readUrlFile(parsed.path, options);
+      case 'external':
+        return this.readExternalFile(parsed.path, library, options);
+      case 'frontend':
+        return this.readFrontendFile(parsed.storagePath, options);
+      case 'project':
+        return this.getFile(parsed.storagePath, options);
+    }
   }
 
   /** String storage functions share the same files and project routing. */

@@ -1,6 +1,7 @@
-import {DateTime, Duration} from 'luxon';
+import {DateTime} from 'luxon';
 import vl from '../../../util/Validator.ts';
 import {isWeekDay} from '../../../util/Settings.ts';
+import {resolveZone} from '../../../util/DateTime.ts';
 
 const ONE_MINUTE = 60_000;
 
@@ -51,12 +52,20 @@ function convertDay(v: number | string): number | [number, number] {
   return 0;
 }
 
+function validateStartTime(v: unknown): boolean {
+  if (typeof v !== 'string' || !/^\d{1,2}:\d{1,2}$/.test(v)) {
+    return false;
+  }
+  const [h, m] = v.split(':').map(Number);
+  return h >= 0 && h <= 23 && m >= 0 && m <= 59;
+}
+
 const ConfigValidator = {
   name: vl.nullable('string'),
-  start: vl.nullable(/^\d{1,2}:\d{1,2}$/),
-  duration: vl.notNegative,
-  after: vl.nullable(vl.datetime),
-  before: vl.nullable(vl.datetime),
+  start: vl.nullable(validateStartTime),
+  duration: (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >= 0,
+  after: vl.nullable((v) => DateTime.isDateTime(v) && v.isValid),
+  before: vl.nullable((v) => DateTime.isDateTime(v) && v.isValid),
   priority: vl.nullable(Number.isFinite),
   onlyWeekday: vl.nullable('boolean'),
   repeat: vl.switch({
@@ -104,7 +113,7 @@ export class SchedulerEvent {
   readonly durationMs?: number; // duration in ms, -1 for full day
   readonly after?: number;
   readonly before?: number;
-  // default 0
+  // lower number = higher priority; default Infinity (lowest)
   readonly priority?: number;
   // true for weekday, false for weekend, null for both
   readonly onlyWeekday?: boolean;
@@ -122,27 +131,30 @@ export class SchedulerEvent {
   readonly dates?: DateTime[];
   readonly color?: string;
 
-  readonly timezone?: string;
+  readonly timezone: string;
 
   constructor(config: SchedulerConfig, timezone?: string) {
+    const resolvedZone = resolveZone(timezone);
     this.repeat = config.repeat;
-    this.start = (config.start?.split(':').map(Number.parseFloat) as [number, number]) ?? [0, 0];
+    this.start = config.start ? (config.start.split(':').map(Number) as [number, number]) : [0, 0];
     this.name = config.name;
     this.durationMs = config.duration * ONE_MINUTE - 1;
-    this.after = config.after?.valueOf() ?? -Infinity;
-    this.before = config.before?.valueOf() ?? Infinity;
+    this.after = config.after?.isValid ? config.after.valueOf() : -Infinity;
+    this.before = config.before?.isValid ? config.before.valueOf() : Infinity;
     this.priority = config.priority ?? Infinity;
     this.onlyWeekday = config.onlyWeekday;
-    this.wDays = config.wDays;
-    this.years = config.years;
-    this.months = config.months;
+    this.wDays = config.wDays ? [...new Set(config.wDays)].sort((a, b) => a - b) : undefined;
+    this.years = config.years ? [...new Set(config.years)].sort((a, b) => a - b) : undefined;
+    this.months = config.months ? [...new Set(config.months)].sort((a, b) => a - b) : undefined;
     this.days = config.days?.map(convertDay);
     this.range = Boolean(config.range);
-    this.dates = config.dates?.map((s) =>
-      DateTime.fromISO(s, {zone: timezone}).set({hour: this.start[0], minute: this.start[1]})
-    );
+    this.dates = config.dates
+      ? [...new Set(config.dates)]
+          .sort()
+          .map((s) => DateTime.fromISO(s, {zone: resolvedZone}).set({hour: this.start[0], minute: this.start[1]}))
+      : undefined;
     this.color = config.color;
-    this.timezone = timezone;
+    this.timezone = resolvedZone;
   }
 
   static fromProperty(config: unknown, timezone?: string): SchedulerEvent {
@@ -228,16 +240,23 @@ export class SchedulerEvent {
       }
       case 'advanced': {
         // Advanced mode: explicit control over years, months, and days.
-        // It iterates naturally by year:
-        for (let year = refDay.year; true; ++year) {
-          if (checkDeadLoop()) {
+        const yearsIter = this.years?.length ? this.years : null;
+        let yearIdx = 0;
+        for (let year = refDay.year; true;) {
+          if (yearsIter) {
+            while (yearIdx < yearsIter.length && yearsIter[yearIdx] < refDay.year) {
+              yearIdx++;
+            }
+            if (yearIdx >= yearsIter.length) {
+              return;
+            }
+            year = yearsIter[yearIdx++];
+          } else if (checkDeadLoop()) {
             return;
           }
-          if (this.years?.length && !this.years.includes(year)) {
-            continue;
-          }
+          const startMonth = year === refDay.year ? refDay.month : 1;
           // Then by month:
-          for (let month = 1; month <= 12; ++month) {
+          for (let month = startMonth; month <= 12; ++month) {
             if (this.months?.length && !this.months.includes(month)) {
               continue;
             }
@@ -245,10 +264,11 @@ export class SchedulerEvent {
             const startOfMonth = DateTime.fromObject({year, month, day: 1}, {zone: this.timezone});
             const endOfMonth = startOfMonth.endOf('month');
             const lastDay = endOfMonth.day;
+            const startWeekday = startOfMonth.weekday;
             const days: number[] = [];
 
             // Resolve the specific days within this month based on configuration.
-            // Configurations can be simple numbers (1-31), or complex rules like "last day" (-1)
+            // Configurations can be simple numbers (1-31), or complex rules like "last day" (-1>0)
             // or "nth weekday" (e.g. 2nd Friday).
             const daysConfig = this.days?.length ? this.days : [[0, 0]];
             loop: for (const v of daysConfig) {
@@ -256,9 +276,6 @@ export class SchedulerEvent {
                 if (v >= 1 && v <= 31) {
                   // check for 31 instead of lastDay, because overflow is allowed in range mode
                   days.push(v);
-                } else if (v === -1) {
-                  // last day
-                  days.push(endOfMonth.day);
                 }
               } else if (Array.isArray(v) && (v as unknown[]).length === 2) {
                 // check nth weekday
@@ -282,19 +299,20 @@ export class SchedulerEvent {
                     break;
                   case 9: // non-week day
                     isDayTypeWeekend = true;
-                  case 8: // week day
+                  case 8: {
+                    // week day
                     if (dayCount === 0) {
                       for (let i = 1; i <= lastDay; ++i) {
-                        const targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
-                        if (isWeekDay(targetDay.weekday) !== isDayTypeWeekend) {
+                        const wd = ((startWeekday - 1 + (i - 1)) % 7) + 1;
+                        if (isWeekDay(wd) !== isDayTypeWeekend) {
                           days.push(i);
                         }
                       }
                     } else if (dayCount > 0) {
                       let counter = 0;
                       for (let i = 1; i <= lastDay; ++i) {
-                        const targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
-                        if (isWeekDay(targetDay.weekday) !== isDayTypeWeekend) {
+                        const wd = ((startWeekday - 1 + (i - 1)) % 7) + 1;
+                        if (isWeekDay(wd) !== isDayTypeWeekend) {
                           counter++;
                           if (counter === dayCount) {
                             days.push(i);
@@ -305,8 +323,8 @@ export class SchedulerEvent {
                     } else if (dayCount < 0) {
                       let counter = 0;
                       for (let i = lastDay; i >= 1; --i) {
-                        const targetDay = startOfMonth.set({day: i, hour: this.start[0], minute: this.start[1]});
-                        if (isWeekDay(targetDay.weekday) !== isDayTypeWeekend) {
+                        const wd = ((startWeekday - 1 + (i - 1)) % 7) + 1;
+                        if (isWeekDay(wd) !== isDayTypeWeekend) {
                           counter--;
                           if (counter === dayCount) {
                             days.push(i);
@@ -316,15 +334,16 @@ export class SchedulerEvent {
                       }
                     }
                     break;
+                  }
                   default: // 1~7
                     if (dayCount === 0) {
                       // 0 for every week
-                      let day = 1 + ((dayType + 7 - startOfMonth.weekday) % 7);
+                      let day = 1 + ((dayType + 7 - startWeekday) % 7);
                       for (; day <= lastDay; day += 7) {
                         days.push(day);
                       }
                     } else if (dayCount > 0) {
-                      targetDay = 1 + (dayCount - 1) * 7 + ((dayType + 7 - startOfMonth.weekday) % 7);
+                      targetDay = 1 + (dayCount - 1) * 7 + ((dayType + 7 - startWeekday) % 7);
                     } else if (dayCount < 0) {
                       targetDay = lastDay + (dayCount + 1) * 7 - ((endOfMonth.weekday + 7 - dayType) % 7);
                     }
@@ -334,14 +353,17 @@ export class SchedulerEvent {
                 }
               }
             }
-            if (this.range && this.days.length === 2) {
+            if (this.range && this.days?.length === 2) {
               if (days.length === 2) {
                 let [min, max] = days.sort((a, b) => a - b);
+                if (min > lastDay || max < 1) {
+                  // invalid range
+                  continue;
+                }
+                if (min < 1) {
+                  min = 1;
+                }
                 if (max > lastDay) {
-                  if (min > lastDay) {
-                    // invalid range
-                    continue;
-                  }
                   max = lastDay;
                 }
                 for (let day = min; day <= max; day++) {
@@ -352,11 +374,14 @@ export class SchedulerEvent {
               // remove duplicated days
               const uniqueDays = [...new Set(days)].sort((a, b) => a - b);
               for (const day of uniqueDays) {
-                if (day <= lastDay) {
+                if (day >= 1 && day <= lastDay) {
                   yield* checkAndYield(startOfMonth.set({day, hour: this.start[0], minute: this.start[1]}));
                 }
               }
             }
+          }
+          if (!yearsIter) {
+            ++year;
           }
         }
       }
@@ -394,10 +419,12 @@ export class SchedulerEvent {
     // Why? Because an event might have started before `ts` and is still ongoing (overlapping `ts`).
     // Example: Event is 10:00 -> 11:00. Request `getOccur(10:30)`.
     // If we generate starting from 10:30, we might get 10:30 (next, incorrect) or miss the start.
-    // By backing up `this.durationMs`, we ensure we catch any event starting at [ts - duration, ts].
-    for (const [startTs, endTs] of this._generateEvent(fromTs - this.durationMs)) {
-      if (this.after - startTs > this.durationMs) {
-        // The event effectively ends before it is allowed to start (invalid state due to 'after' constraint), skip.
+    // By backing up `lookbackMs`, we ensure we catch any event starting at [ts - duration, ts].
+    // For full-day events (durationMs === -1), lookbackMs is 0 so we still start on the same day even at 23:59:59.999.
+    const lookbackMs = this.durationMs > 0 ? this.durationMs : 0;
+    for (const [startTs, endTs] of this._generateEvent(fromTs - lookbackMs)) {
+      if (endTs < this.after) {
+        // The event ends before it is allowed to start ('after' constraint), skip.
         continue;
       }
       if (endTs >= ts) {

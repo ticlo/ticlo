@@ -1,4 +1,6 @@
 '@library':
+  system:
+    '@name': System
   math:
     '@name': Math
   string:
@@ -15,6 +17,8 @@
     '@name': SQL
   database:
     '@name': Database
+  file:
+    '@name': File
 
 '@shared':
   '':
@@ -66,6 +70,8 @@
     '@name': 'Inputs'
   '#outputs':
     '@name': 'Outputs'
+  '#maxInstance':
+    '@name': 'Max Instance'
   '#input':
     '@name': Input
   '#use':
@@ -77,5 +83,47 @@
     '@name': 'Property List'
   '@b-xyw':
     '@name': 'XYW'
+  '@b-label-w':
+    '@name': 'Label Width'
+  '@b-view':
+    '@name': 'View'
+    '@options':
+      default: 'Default'
+      source: 'Source'
   '@b-widget':
     '@name': 'Widget'
+    '@options':
+      'web-authorization': 'Web Authorization'
+
+log:
+  '@name': Log
+  message:
+    '@name': Message
+  maxLength:
+    '@name': Maximum Message Length
+  data:
+    '@name': Data
+  provider:
+    '@name': Log Provider
+  level:
+    '@name': Level
+    '@options':
+      debug: Debug
+      info: Info
+      warn: Warning
+      error: Error
+history:
+  '@name': History
+  service:
+    '@name': History Service
+  id:
+    '@name': Series ID
+  time:
+    '@name': Time
+  kind:
+    '@name': Kind
+    '@options':
+      auto: Auto
+      number: Number
+      boolean: Boolean
+      value: Value

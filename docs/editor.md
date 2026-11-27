@@ -31,6 +31,11 @@ Block Stage status subscribes to each Block's `#emit` and `#wait` to show its
 [runtime status](core.md#errors-and-runtime-status). Status updates are scoped to
 the indicator.
 
+Dropping a Block onto another Block’s footer docks it beneath the parent and
+binds its `#call` to the parent’s `#emit`. A child with priority 3 keeps its
+`#sync` setting when docked or detached. Other priorities enable `#sync` on
+docking and clear it on detaching.
+
 ## Property editors
 
 Descriptor `type` selects an editor from the
@@ -52,9 +57,13 @@ Descriptors, bindings, and connection policies determine editability. Flow-local
 descriptors require the owning `funcModule` path; see
 [connection scope](core.md#connection-layer).
 
-A property with `create` can convert an object to a helper or convert its output
-back to a value. Each selected Block retains its own full value. Helper creation
-establishes the output binding; setting the object removes the binding and helper.
+An empty object property uses a button with a string `create` and a Select with
+an array of embedded Block types. A string `create` also supports converting a
+value to an embedded Block. The editor can convert an embedded Block's output
+back to a value. Each selected Block retains its own full value during conversion.
+Set `disableObjectTools: true` to hide the conversion menu and keep the `create` picker available.
+Creating an embedded Block binds the property to its output. Setting the property
+back to a value removes the binding and the embedded Block.
 Optional/custom fields and `#extend` preserve unlisted data; functions with
 `recipient` receive the full object in that property.
 
@@ -72,8 +81,14 @@ selected value directly. Page boundary mismatches stop loading until reloaded.
 
 The property menu's **Inline** checkbox enables editing in Block Stage.
 **Pinned** controls whether the property row appears. Unpinning retains its
-inline setting. Bound or read-only values are displayed in the row, and a
-binding added while editing prevents the draft from being saved to that field.
+inline setting. Bound and read-only fields display their current values. Removing
+a binding restores the configured inline editor. A binding added while editing
+prevents a draft from being saved to that field.
+
+Inline `object`, `array`, and the corresponding `any` editors can create an
+embedded Block or convert a value into one. Use the property panel to convert an
+embedded Block's output back to a value. Converting an array into an embedded
+Block requires a `recipient` for the complete array.
 
 In saved data, `"@b-inline": {"input": true}` uses the original property
 descriptor. An object such as `{"type": "select", "options": [1, 5, 10]}`

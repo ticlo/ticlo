@@ -1,6 +1,6 @@
 import Websocket from 'ws';
 import {ClientConnection} from '@ticlo/core/connect/ClientConnection.ts';
-import {DataMap, Logger, decode, encode} from '@ticlo/core';
+import {DataMap, decode, encode} from '@ticlo/core';
 
 export class WsClientConnection extends ClientConnection {
   _ws: Websocket;
@@ -36,14 +36,12 @@ export class WsClientConnection extends ClientConnection {
 
   doSend(datas: DataMap[]): void {
     const json = encode(datas);
-    Logger.trace(() => 'client send ' + json, this);
     this._ws.send(json);
   }
 
   onMessage = (data: string, isBinary: boolean) => {
     if (!isBinary) {
       const str = data.toString();
-      Logger.trace(() => 'client receive ' + str, this);
       const decoded = decode(str);
       if (Array.isArray(decoded)) {
         this.onReceive(decoded);

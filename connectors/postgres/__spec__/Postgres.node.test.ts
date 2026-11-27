@@ -5,6 +5,7 @@ import {
   encodeSorted,
   ErrorEvent,
   Flow,
+  globalFunctions,
   Root,
   setSecretCipher,
   shouldHappen,
@@ -15,6 +16,7 @@ import {SecretCipher} from '@ticlo/node';
 import {parseIntoClientConfig} from 'pg-connection-string';
 import {PostgresClient} from '../index.ts';
 import {localPostgresUrl} from './localPostgres.ts';
+import {verifySqlLogging} from '@ticlo/core/functions/sql/__spec__/verifySqlLogging.ts';
 
 const configuredUrl = process.env.TICLO_TEST_POSTGRES_URL;
 const useLocalPodman = !configuredUrl && process.env.GITHUB_ACTIONS !== 'true';
@@ -22,12 +24,21 @@ const schema = `ticlo.${randomUUID()}`;
 const tableName = 'quote"table';
 const table = `"${schema}"."quote""table"`;
 
-it('rejects passwords in the public URL for a split connection', async () => {
+it('registers postgres:client under the database category with full-name display', () => {
+  expect(globalFunctions.getDesc('postgres:client')).toMatchObject({
+    category: 'database',
+    libraryId: 'postgres',
+    useFullName: true,
+    tags: ['sql-client', 'context-service'],
+  });
+});
+
+it.each([null, ''])('rejects passwords in the public URL for Block authentication (%j)', async (password) => {
   for (const connectionString of [
     'postgresql://user:example@localhost/test',
     'postgresql://user@localhost/test?password=example',
   ]) {
-    await expect(PostgresClient.open({connectionString, password: ''})).rejects.toThrow('password in #secret');
+    await expect(PostgresClient.open({connectionString, password})).rejects.toThrow('password in #secret');
   }
 });
 
@@ -53,6 +64,22 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () =>
     } finally {
       await client.close();
     }
+  });
+
+  it('persists flow logs in the selected table', () => verifySqlLogging(client));
+
+  it('protects readonly queries and returns the pooled connection to writable use', async () => {
+    expect((await client.queryReadonly('SELECT $1::integer AS value', [42])).table.rows).toEqual([[42]]);
+    await expect(
+      client.queryReadonly(`WITH v AS (SELECT 105 AS id) INSERT INTO ${table} (id) SELECT id FROM v`)
+    ).rejects.toThrow(/read-only transaction/i);
+    await expect(client.queryReadonly('SET TRANSACTION READ WRITE')).rejects.toThrow(/read.?only/i);
+    await expect(
+      client.queryReadonly(`WITH v AS (SELECT 1) SELECT * FROM v; INSERT INTO ${table} (id) VALUES (105)`)
+    ).rejects.toThrow();
+    expect((await client.query(`SELECT id FROM ${table} WHERE id = 105`)).table.rows).toEqual([]);
+    await client.query(`INSERT INTO ${table} (id) VALUES (105)`);
+    expect((await client.queryReadonly(`SELECT id FROM ${table} WHERE id = 105`)).table.rows).toEqual([[105]]);
   });
 
   it('binds values and preserves exact numbers, timestamps, binary data and duplicate column names', async () => {
@@ -110,14 +137,16 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () =>
     url.password = '';
     url.searchParams.delete('password');
     vi.stubEnv(passwordEnv, password);
+    vi.stubEnv('PGPASSWORD', password);
     setSecretCipher(new SecretCipher(randomBytes(32)));
     const flow = new Flow();
     try {
       const block = flow.createBlock('database');
       block._load({
-        '#is': 'database:postgres',
+        '#is': 'postgres:client',
         'connectionString': url.toString(),
-        '~#secret': {'#is': 'node:env', 'name': passwordEnv},
+        '~auth': {'#is': 'auth:password'},
+        '~#secret': {'#is': 'system:env', 'name': passwordEnv},
       });
       Root.run();
       const service: SqlClient = await shouldHappen(
@@ -125,11 +154,22 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('PostgreSQL connector', () =>
         5000,
         'Database block did not connect'
       );
-      expect(encode(service)).toContain('database:postgres');
+      expect(encode(service)).toContain('postgres:client');
       expect(block.getValue('#secret')).toBeUndefined();
       expect(flow.save().database).not.toHaveProperty('#secret');
 
       if (password) {
+        const unauthenticated = flow.createBlock('unauthenticated');
+        unauthenticated._load({'#is': 'postgres:client', 'connectionString': url.toString()});
+        unauthenticated.setValue('#secret', password);
+        Root.run();
+        const {detail} = await shouldHappen(() => {
+          const event = unauthenticated.getValue('#emit');
+          return event instanceof ErrorEvent && event;
+        }, 5000);
+        expect(detail.message).toMatch(/SCRAM.*password/);
+        expect(unauthenticated.getValue('#output')).toBeUndefined();
+
         block.setValue('#secret', password);
         const saved = decode(encodeSorted(block._save())) as Record<string, unknown>;
         expect(saved['#secret']).toBeInstanceOf(Uint8Array);

@@ -14,6 +14,7 @@ const defaultRouteWorker = {
     {name: 'body', type: 'any'},
     {name: 'query', type: 'object'},
     {name: 'headers', type: 'object'},
+    {name: 'authContext', type: 'object'},
   ]),
   '#outputs': getDefaultDataFromCustom([
     {name: 'data', type: 'any'},

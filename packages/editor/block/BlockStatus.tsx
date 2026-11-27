@@ -20,14 +20,8 @@ export const BlockStatus = React.memo(function BlockStatus({conn, path}: {conn: 
   if (error && title === ErrorEvent.defaultType) title = t('Error');
   if (!error && title === WarningEvent.OutOfSync) title = 'Out of sync';
   const detail = error ? status.detail : undefined;
-  const message =
-    detail == null
-      ? ''
-      : detail instanceof Error
-        ? detail.message
-        : typeof detail === 'string'
-          ? detail
-          : encodeDisplay(detail);
+  const message = error ? (status.detailMessage ?? (detail == null ? '' : encodeDisplay(detail))) : '';
+  const origin = error && status.originPath !== path ? status.originPath : undefined;
   return (
     <span
       className="ticl-e-block-status"
@@ -38,7 +32,14 @@ export const BlockStatus = React.memo(function BlockStatus({conn, path}: {conn: 
       {status ? (
         <Popover
           title={title}
-          content={message ? <div className="ticl-e-block-error-message">{message}</div> : undefined}
+          content={
+            message || origin ? (
+              <>
+                {origin && <div>{origin}</div>}
+                {message && <div className="ticl-e-block-error-message">{message}</div>}
+              </>
+            ) : undefined
+          }
           trigger="click"
           placement="bottomLeft"
         >

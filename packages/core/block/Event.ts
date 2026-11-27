@@ -1,3 +1,4 @@
+import type {Block} from './Block.ts';
 import {Uid} from '../util/Uid.ts';
 
 export enum EventType {
@@ -45,12 +46,28 @@ export class ErrorEvent extends Event {
   static readonly SyncError = 'SyncError';
   static readonly AsyncError = 'AsyncError';
 
+  #originPath?: string;
+
   constructor(
     type = ErrorEvent.defaultType,
-    public readonly detail?: unknown
+    public readonly detail?: unknown,
+    originPath?: string
   ) {
     super(type || ErrorEvent.defaultType);
-    this.detail = detail;
+    this.#originPath = originPath;
+  }
+
+  get originPath() {
+    return this.#originPath;
+  }
+
+  recordOrigin(block: Block) {
+    this.#originPath ??= block.getFullPath();
+  }
+
+  get detailMessage(): string | undefined {
+    if (this.detail instanceof Error) return this.detail.message;
+    if (typeof this.detail === 'string') return this.detail;
   }
 
   check(): EventType {

@@ -2,9 +2,11 @@ export {Block} from './block/Block.ts';
 export {DefinedBlock} from './block/DefinedBlock.ts';
 export {BlockOrder, getBlockOrder} from './block/BlockOrder.ts';
 export {Root, Flow, FlowFolder} from './block/Flow.ts';
-export type {StartOptions, FlowRef, UnloadOptions} from './block/FlowRuntime.ts';
+export {InputsBlock, OutputsBlock, FlowInputsBlock, FlowOutputsBlock, FlowPropsSync} from './block/FlowIO.ts';
+export {flowRefFromPath, type StartOptions, type FlowRef, type UnloadOptions} from './block/FlowRuntime.ts';
 export {type FlowStorage, type Storage, type LibraryMetadata} from './block/Storage.ts';
 export * from './storage/FileAccess.ts';
+export * from './storage/FilePath.ts';
 export {ProjectStorage} from './storage/ProjectStorage.ts';
 export {BlockProperty, BlockIO} from './block/BlockProperty.ts';
 export {BaseFunction, StatefulFunction, PureFunction} from './block/BlockFunction.ts';
@@ -12,7 +14,7 @@ export {FunctionModule as Functions, globalFunctions as globalFunctions} from '.
 export * from './block/FunctonData.ts';
 export * from './block/Event.ts';
 export * from './block/Descriptor.ts';
-export {ServerConnection} from './connect/ServerConnection.ts';
+export {ServerConnection, type ServerConnectionOptions} from './connect/ServerConnection.ts';
 export type {ConnectionOptions} from './connect/Connection.ts';
 export {type DataMap, TRUNCATED, isDataTruncated, getTruncatedArrayLength, isStringArray} from './util/DataTypes.ts';
 export {convertToObject} from './util/DataTruncate.ts';
@@ -21,7 +23,7 @@ export {encodeDisplay, decode, encode, encodeSorted, decodeReviver} from './util
 export * from './util/Name.ts';
 export {endsWithNumberReg, getTailingNumber, smartStrCompare, isColorStr} from './util/String.ts';
 export * from './util/DateTime.ts';
-export {Logger, addConsoleLogger} from './util/Logger.ts';
+export {Logger, addConsoleLogger, type FlowLogLevel} from './util/Logger.ts';
 export {stopPropagation, voidFunction} from './util/Functions.ts';
 export {PropDispatcher} from './block/Dispatcher.ts';
 export {resolvePath, getRelativePath, isBindable} from './util/Path.ts';
@@ -57,6 +59,8 @@ export * from './util/DescriptorHelper.ts';
 export * from './functions/web-server/HttpRequest.ts';
 export * from './functions/web-server/RouteFunction.ts';
 
+export {consoleLogProvider, type FlowLogRecord, type LogProvider} from './functions/system/Log.ts';
+
 // Export common data functions
 export * from './functions/data/CreateObject.ts';
 export type {
@@ -71,6 +75,40 @@ export type {
   SqlEntityColumn,
 } from './functions/sql/SqlClient.ts';
 export {sqlClientCommands, sqlClientApi} from './functions/sql/SqlClientCommands.ts';
+export {
+  HISTORY_INTERVALS,
+  HISTORY_ROLLUPS,
+  toHistoryEpochMs,
+  type HistoryClient,
+  type HistoryIntervalOption,
+  type HistoryQueryOptions,
+  type HistoryQueryResult,
+  type HistoryRecordOptions,
+  type HistoryRollupType,
+  type HistorySeriesInfo,
+  type HistorySeriesKind,
+  type HistoryTable,
+} from './functions/history/HistoryClient.ts';
+export {historyClientCommands, historyClientApi} from './functions/history/HistoryClientCommands.ts';
+export {resolvePasswordAuth, type AuthProfile} from './functions/auth/AuthProfile.ts';
+export {
+  AuthorizationRequiredError,
+  authUrl,
+  clientAuthApi,
+  clientAuthCommands,
+  createUnreadyOAuthProfile,
+  forwardEmbeddedAuthCommand,
+  isBearerToken,
+  normalizeResourceOrigin,
+  oauthProfiles,
+  resourceOriginOf,
+  type OAuthProfileState,
+  type OAuthToken,
+  type OAuthTokenOptions,
+} from './functions/auth/OAuthProfile.ts';
+export {createTlsClientIdentity, type TlsClientIdentity} from './functions/auth/TlsClientIdentity.ts';
+export * from './functions/live/LiveSource.ts';
+export {SubscribeFunction} from './functions/live/SubscribeFunction.ts';
 export * from './property-api/ObjectValue.ts';
 export {moveBlocks} from './property-api/CopyPaste.ts';
 export {deleteBlock} from './property-api/DeleteBlock.ts';
@@ -86,6 +124,7 @@ import './functions/string/Join.ts';
 import './functions/string/Replace.ts';
 import './functions/string/Slice.ts';
 import './functions/string/Split.ts';
+import './functions/file/index.ts';
 import './functions/data/CreateObject.ts';
 import './functions/web-server/HttpRequest.ts';
 import './functions/web-server/RouteFunction.ts';
@@ -94,6 +133,8 @@ import './functions/http/CreateHeaders.ts';
 import './functions/http/HttpClient.ts';
 import './functions/http/Fetch.ts';
 import './functions/sql/Query.ts';
+import './functions/sql/LogProvider.ts';
+import './functions/history/History.ts';
 import './functions/script/Js.ts';
 import './functions/data/State.ts';
 import './functions/date/index.ts';

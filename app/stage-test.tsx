@@ -1,9 +1,10 @@
+import './browser-logging.ts';
 import './styles.ts';
 import React, {useEffect, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {App as AntdApp, Button, ConfigProvider, message} from 'antd';
 import i18next from 'i18next';
-import {Root, addConsoleLogger} from '@ticlo/core';
+import {Root} from '@ticlo/core';
 import {initBrowserSecretCipher} from '@ticlo/remote-storage';
 import {makeLocalConnection} from '@ticlo/core/connect/LocalConnection.ts';
 import {initEditor} from '@ticlo/editor';
@@ -49,7 +50,6 @@ function FullscreenButton() {
 }
 
 (async () => {
-  addConsoleLogger();
   await initEditor();
   i18next.addResourceBundle('en', 'ticlo-editor', enEditor);
   i18next.addResourceBundle('en', 'ticlo-core', enCore);

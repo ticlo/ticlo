@@ -1,0 +1,17 @@
+{
+  "name": "@ticlo/tsdb",
+  "version": "0.0.1",
+  "description": "Node.js TSDB history connector for Ticlo",
+  "license": "MPL-2.0",
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "dependencies": {
+    "@ticlo/core": "workspace:^",
+    "@ticlo/node": "workspace:^",
+    "ticlo-tsdb": "^0.3.0"
+  }
+}

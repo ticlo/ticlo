@@ -25,7 +25,10 @@ skip repeated synchronous calls when no input change is pending.
 
 `null`, `undefined`, `false`, and `WAIT` do not trigger calls. Ordinary `Event`
 instances trigger only in their creation resolver loop; specialized events may
-override this.
+override this. By default, an accepted error on `#call` invokes cancellation
+and propagates through `#emit` if cancellation succeeds. A function can implement
+`runOnError(event)` to handle that call with ordinary execution, scheduling and
+promise completion semantics. Its return value determines the emitted event.
 
 ## `#custom` and `#optional`
 

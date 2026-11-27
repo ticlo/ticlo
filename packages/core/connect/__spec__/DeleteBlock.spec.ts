@@ -11,7 +11,6 @@ describe('Delete block command', () => {
   let flow: Flow;
   let parent: Block;
   let client: ReturnType<typeof makeLocalConnection>[1];
-  let server: ReturnType<typeof makeLocalConnection>[0];
 
   beforeEach(() => {
     root = new Root();
@@ -30,7 +29,7 @@ describe('Delete block command', () => {
       {applyChange: (flow) => flow.save()}
     );
     parent = flow.getValue('parent') as Block;
-    [server, client] = makeLocalConnection(root, false);
+    [, client] = makeLocalConnection(root, false);
   });
 
   afterEach(() => {
@@ -162,7 +161,6 @@ describe('Delete block command', () => {
     expect(parent.getValue('a')).toBe(original);
     expect(new EditPolicyView({denyCmds: ['deleteBlock']}).canDeleteBlock('Main.parent.a')).toBe(false);
     expect(new EditPolicyView({allowCmds: ['deleteBlock']}).canDeleteBlock('Main.parent.a')).toBe(true);
-    server.setEditPolicy({allowCmds: ['deleteBlock'], allowPaths: ['Main.**']});
     await client
       .withPolicy({allowPaths: ['Main.parent'], denyPaths: ['Main.parent.a.nested', 'Main.parent.#order']})
       .deleteBlock('Main.parent.a');

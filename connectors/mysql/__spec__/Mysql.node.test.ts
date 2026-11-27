@@ -1,18 +1,38 @@
 import {randomBytes, randomUUID} from 'node:crypto';
-import {decode, encodeSorted, Flow, Root, setSecretCipher, shouldHappen, type SqlClient} from '@ticlo/core';
+import {
+  decode,
+  encodeSorted,
+  ErrorEvent,
+  Flow,
+  globalFunctions,
+  Root,
+  setSecretCipher,
+  shouldHappen,
+  type SqlClient,
+} from '@ticlo/core';
 import {SecretCipher} from '@ticlo/node';
 import {MysqlClient} from '../index.ts';
-import {localMysqlUrl} from './localMysql.ts';
+import {localMysql84Url, localMysqlUrl} from './localMysql.ts';
+import {verifySqlLogging} from '@ticlo/core/functions/sql/__spec__/verifySqlLogging.ts';
 
 const configuredUrl = process.env.TICLO_TEST_MYSQL_URL;
 const useLocalPodman = !configuredUrl && process.env.GITHUB_ACTIONS !== 'true';
 const schema = `ticlo_test_${randomUUID().replaceAll('-', '')}`;
 const table = `\`${schema}\`.\`items\``;
 
-it('requires #secret for the password in a split connection', async () => {
-  await expect(
-    MysqlClient.open({connectionString: 'mysql://root:example@localhost/test', password: ''})
-  ).rejects.toThrow('password in #secret');
+it('registers mysql:client under the database category with full-name display', () => {
+  expect(globalFunctions.getDesc('mysql:client')).toMatchObject({
+    category: 'database',
+    libraryId: 'mysql',
+    useFullName: true,
+    tags: ['sql-client', 'context-service'],
+  });
+});
+
+it.each([null, ''])('rejects a URL password for Block authentication (%j)', async (password) => {
+  await expect(MysqlClient.open({connectionString: 'mysql://root:example@localhost/test', password})).rejects.toThrow(
+    'password in #secret'
+  );
 });
 
 describe.skipIf(!configuredUrl && !useLocalPodman)('MySQL connector', () => {
@@ -39,6 +59,21 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('MySQL connector', () => {
     } finally {
       await client.close();
     }
+  });
+
+  it('persists flow logs in the selected table', () => verifySqlLogging(client));
+
+  it('protects readonly queries and returns the pooled connection to writable use', async () => {
+    expect((await client.queryReadonly('SELECT ? AS value', [42])).table.rows).toEqual([[42]]);
+    await expect(client.queryReadonly(`INSERT INTO ${table} (id) VALUES (105)`)).rejects.toThrow(/read.?only/i);
+    await expect(client.queryReadonly("SELECT 1 INTO OUTFILE '/tmp/ticlo.sql'")).rejects.toThrow(/readonly/i);
+    await expect(client.queryReadonly('SET TRANSACTION READ WRITE')).rejects.toThrow(/read.?only/i);
+    await expect(
+      client.queryReadonly(`WITH v AS (SELECT 1) SELECT * FROM v; INSERT INTO ${table} (id) VALUES (105)`)
+    ).rejects.toThrow();
+    expect((await client.query(`SELECT id FROM ${table} WHERE id = 105`)).table.rows).toEqual([]);
+    await client.query(`INSERT INTO ${table} (id) VALUES (105)`);
+    expect((await client.queryReadonly(`SELECT id FROM ${table} WHERE id = 105`)).table.rows).toEqual([['105']]);
   });
 
   it('preserves precision, binary parameters, duplicate columns, and empty results', async () => {
@@ -107,7 +142,7 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('MySQL connector', () => {
     const flow = new Flow();
     try {
       const block = flow.createBlock('database');
-      block._load({'#is': 'database:mysql', 'connectionString': url.toString()});
+      block._load({'#is': 'mysql:client', 'connectionString': url.toString(), '~auth': {'#is': 'auth:password'}});
       block.setValue('#secret', password);
       Root.run();
       const service: SqlClient = await shouldHappen(
@@ -129,3 +164,36 @@ describe.skipIf(!configuredUrl && !useLocalPodman)('MySQL connector', () => {
     }
   }, 15_000);
 });
+
+const mysql84Url = process.env.TICLO_TEST_MYSQL84_URL;
+
+it('authenticates with MySQL 8.4 caching_sha2_password only when auth is configured', async () => {
+  const url = new URL(mysql84Url ?? (await localMysql84Url()));
+  const password = decodeURIComponent(url.password);
+  url.password = '';
+  const flow = new Flow();
+  try {
+    const authenticated = flow.createBlock('authenticated');
+    authenticated._load({
+      '#is': 'mysql:client',
+      'connectionString': url.toString(),
+      '~auth': {'#is': 'auth:password'},
+    });
+    authenticated.setValue('#secret', password);
+    const unauthenticated = flow.createBlock('unauthenticated');
+    unauthenticated._load({'#is': 'mysql:client', 'connectionString': url.toString(), 'auth': null});
+    unauthenticated.setValue('#secret', password);
+    Root.run();
+    const service: SqlClient = await shouldHappen(() => authenticated.getValue('#output'), 5000);
+    const {table} = await service.query("SELECT plugin FROM mysql.user WHERE CONCAT(User, '@', Host) = CURRENT_USER()");
+    expect(table.rows).toEqual([['caching_sha2_password']]);
+    const {detail} = await shouldHappen(() => {
+      const event = unauthenticated.getValue('#emit');
+      return event instanceof ErrorEvent && event;
+    }, 5000);
+    expect(detail).toMatchObject({code: 'ER_ACCESS_DENIED_ERROR'});
+    expect(unauthenticated.getValue('#output')).toBeUndefined();
+  } finally {
+    flow.destroy();
+  }
+}, 130_000);

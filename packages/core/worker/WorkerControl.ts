@@ -4,7 +4,7 @@ import {Flow, Root} from '../block/Flow.ts';
 import {StreamDispatcher} from '../block/Dispatcher.ts';
 import {BaseFunction, FunctionFactory, StatefulFunction} from '../block/BlockFunction.ts';
 import {WorkerFunctionGen} from './WorkerFunctionGen.ts';
-import {FunctionDispatcher} from '../block/FunctionModule.ts';
+import {FunctionDispatcher, type FunctionListenMode} from '../block/FunctionModule.ts';
 import {Library} from '../block/Library.ts';
 import {EventType} from '../block/Event.ts';
 
@@ -22,7 +22,8 @@ export class WorkerControl {
   }
   constructor(
     public readonly func: WorkerHostFunction,
-    public readonly block: Block
+    public readonly block: Block,
+    private readonly _multiInstance = false
   ) {}
 
   _src: DataMap | string;
@@ -49,12 +50,14 @@ export class WorkerControl {
       this._funcSrc.unlisten(this);
       this._funcSrc = null;
     }
+    this.available = false;
     if (typeof this._src === 'string' && this._src !== '') {
       // String worker sources are live function references. Keep listening to
       // their FunctionDispatcher so workers are rebuilt when the definition changes.
       const functionModule = Library.getFunctions(this._src, this.block._flow);
       if (functionModule) {
-        this._funcSrc = functionModule.listen(this._src, this);
+        const mode: FunctionListenMode = this._multiInstance ? 'multi' : 'single';
+        this._funcSrc = functionModule.listen(this._src, this, mode);
       }
     }
     return true;
@@ -79,7 +82,20 @@ export class WorkerControl {
     this.block._queueFunction();
   };
   isReady() {
+    if (typeof this._src === 'string') {
+      return this._src === '' || this.available;
+    }
     return this._src != null;
+  }
+
+  getWorkerData(): DataMap | null {
+    if (isDataMap(this._src)) {
+      return this._src;
+    }
+    if (typeof this._src === 'string') {
+      return this._funcSrc?.getValue()?.ticlWorkerData ?? null;
+    }
+    return null;
   }
 
   saveInline = (flow: Flow) => {

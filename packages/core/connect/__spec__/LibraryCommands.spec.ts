@@ -6,7 +6,6 @@ import {makeLocalConnection} from '../LocalConnection.ts';
 describe('Library commands', () => {
   let root: Root;
   let storage: MemoryFlowStorage;
-  let server: ReturnType<typeof makeLocalConnection>[0];
   let client: ReturnType<typeof makeLocalConnection>[1];
   beforeEach(async () => {
     root = new Root();
@@ -17,7 +16,7 @@ describe('Library commands', () => {
     storage.saveFlow(null, {value: 1}, '+main.entry');
     await root.setStorage(storage);
     await root.start({main: {}});
-    [server, client] = makeLocalConnection(root, false);
+    [, client] = makeLocalConnection(root, false);
   });
   afterEach(async () => {
     client.destroy();
@@ -50,21 +49,26 @@ describe('Library commands', () => {
     expect(root.getLibraryGraph().roots).toEqual([]);
   });
 
-  it('filters readonly graphs and rejects runtime or metadata writes at the server', async () => {
+  it('returns the full library graph and rejects runtime or metadata writes in readonly mode', async () => {
     await root.enableLibrary('other');
-    server.setEditPolicy({readonly: true, allowPaths: ['+main', '+main.**']});
-    expect(await client.getLibraryGraph()).toMatchObject({
-      roots: ['main'],
-      dependencies: {main: []},
-      canLoad: false,
-      hasMetadata: true,
-    });
-    expect((await client.getLibraryMetadata('main')).canWrite).toBe(false);
-    await expect(client.getLibraryMetadata('other')).rejects.toBe('restricted path');
-    for (const cmd of ['enableLibrary', 'unloadLibrary', 'retainLibraries', 'setLibraryDependencies']) {
-      expect(server.executeRequest({cmd, path: '+main'})).toBe('readonly');
+    const [readonlyServer, reader] = makeLocalConnection(root, false, {readonly: true});
+    try {
+      expect(await reader.getLibraryGraph()).toMatchObject({
+        ...root.getLibraryGraph(),
+        canLoad: false,
+        hasMetadata: true,
+      });
+      expect(await reader.getLibraryMetadata('other')).toMatchObject({
+        metadata: await storage.getLibraryMetadata('other'),
+        canWrite: false,
+      });
+      for (const cmd of ['enableLibrary', 'unloadLibrary', 'retainLibraries', 'setLibraryDependencies']) {
+        expect(readonlyServer.executeRequest({cmd, path: '+main'})).toBe('readonly');
+      }
+      expect(root.getLibraryGraph().roots).toEqual(['main', 'other']);
+    } finally {
+      reader.destroy();
     }
-    expect(root.getLibraryGraph().roots).toEqual(['main', 'other']);
   });
 
   it('validates library targets and reports persistence capabilities', async () => {

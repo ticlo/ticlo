@@ -10,12 +10,13 @@ import {
   findPropDesc,
   getDefaultDataFromCustom,
   getDefaultFuncData,
+  getFuncDefaultName,
   getOutputDesc,
   getSubBlockFuncData,
   mapConfigDesc,
   mapAttributeDesc,
 } from '../Descriptor.ts';
-import {globalFunctions} from '../FunctionModule.ts';
+import {FunctionModule, globalFunctions} from '../FunctionModule.ts';
 
 describe('Descriptor', function () {
   it('mapConfigDesc', function () {
@@ -124,6 +125,23 @@ describe('Descriptor', function () {
       'a': 'hello',
       '0': 'world',
       '@b-p': ['a', '0'],
+    });
+  });
+
+  it('getFuncDefaultName and cross-library category preservation', function () {
+    expect(getFuncDefaultName({name: 'add', id: 'add'})).toBe('add');
+    expect(getFuncDefaultName({name: 'client', id: 'http:client'})).toBe('client');
+    expect(getFuncDefaultName({name: 'client', id: 'http:client', useFullName: true})).toBe('http-client');
+    expect(getFuncDefaultName({name: 'client', id: 'sqlite:client', useFullName: true})).toBe('sqlite-client');
+
+    const module = new FunctionModule();
+    module.addFactory(null, {name: 'client', category: 'database', useFullName: true}, 'sqlite');
+    expect(module.getDesc('sqlite:client')).toMatchObject({
+      id: 'sqlite:client',
+      name: 'client',
+      libraryId: 'sqlite',
+      category: 'database',
+      useFullName: true,
     });
   });
 });

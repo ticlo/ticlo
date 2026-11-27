@@ -25,13 +25,21 @@ root component's own sizing. Custom components attach `useTicloComp`'s
 `optionalHandlers` to their root Element. Portals used by page components should
 remain inside the stage.
 
+Closing a `DesignerStage` unloads clean ordinary storage-backed Flows (`flow:main`),
+excluding modules and dirty Flows (`@has-change`). Switching an empty Flow via
+"Open with Dataflow Editor" keeps the Flow loaded; when shared with
+`react:page-include`, the last closing holder decides whether a clean Flow unloads.
+
 `functionTreeTags` and `nodeTreeTags` independently filter descriptors by any
 matching tag. Both default to `react-comp`, `react-svg`, and `chart-series`.
-Unmatched node branches are hidden. Dataflow stages leave filters undefined.
+The Designer outline roots at the Flow with both the root and `#main` expanded
+by default, keeping the root visible while filtering its children by
+`nodeTreeTags`. Unmatched node branches are hidden. Dataflow stages leave
+filters undefined.
 
 ## Selection and commands
 
-Outline selection may span parents. Stage additions and group movement retain
+Outline selection may include the Flow root and span parents. Stage additions and group movement retain
 siblings under one parent. `addSelection` uses the last valid added component's
 parent and reports whether any new component was selected. Selecting a hidden
 View Deck descendant reveals its page without saving a selection edit; see
@@ -50,10 +58,11 @@ input and forwards events to stage and ancestor listeners, preserving pointer,
 keyboard, drag, and touch data. Forwarded events are untrusted. Native wheel
 scrolling remains available unless a stage or ancestor prevents it.
 
-Copy requires siblings. Paste inserts into the selected parent, or `#main` when
-there is no child selection. It renames collisions, updates `#order`, and selects
-the inserted Blocks. `onSave` may supply the host's save action; otherwise the
-stage calls `conn.applyFlowChange(basePath)`.
+Copy and delete ignore the Flow root; copy requires siblings. Paste inserts into
+the selected parent, or `#main` when no descendant of `#main` is selected. It
+renames collisions, updates `#order`, and selects the inserted Blocks. `onSave`
+may supply the host's save action; otherwise the stage calls
+`conn.applyFlowChange(basePath)`.
 
 ## Drops and geometry
 
@@ -70,13 +79,13 @@ Selection outlines use stage-local coordinates. The HTML package owns the
 SVG position editing is described in [React SVG](react-svg.md).
 
 Movement requires absolute positioning and a writable style object, unset style,
-or the component's own `html:create-style` helper. Other style bindings are
-preserved. Eligible siblings receive the same local delta. Resizing adjusts
+or the component's own embedded `html:create-style` Block. Other style bindings
+are preserved. Eligible siblings receive the same local delta. Resizing adjusts
 dimensions and, for positioned elements, the insets needed to retain the opposite
 edge. When both insets define an axis, those insets are adjusted instead of size.
 
 Gestures preview runtime values. Release commits final values through existing
-history tracking. Helper edits retain the owning style binding and enable newly
-used fields. Escape, cancellation, blur, preview mode, or unmount restores saved
+history tracking. Edits to the embedded Block retain the owning style binding
+and enable newly used fields. Escape, cancellation, blur, preview mode, or unmount restores saved
 values and current binding sources without an edit. No-op gestures must not
 create a history entry.

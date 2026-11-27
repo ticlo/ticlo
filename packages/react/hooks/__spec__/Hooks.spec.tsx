@@ -1,6 +1,7 @@
 import React from 'react';
 import {vi} from 'vitest';
-import {Flow, Root} from '@ticlo/core';
+import {truncateData} from '@ticlo/core/util/DataTruncate.ts';
+import {encode, encodeDisplay, Event as TicloEvent, Flow, Root} from '@ticlo/core';
 import type {Block} from '@ticlo/core';
 import {creatReactRoot, type ReactRoot} from '../../functions/__spec__/render.ts';
 import {FlowRoot, useFlow} from '../useFlow.tsx';
@@ -200,7 +201,7 @@ describe('react hooks', function () {
     }
     function fireEvents(button: HTMLButtonElement) {
       for (const name of ['mousedown', 'mousemove', 'dragstart', 'wheel']) {
-        button.dispatchEvent(new MouseEvent(name, {bubbles: true}));
+        button.dispatchEvent(new MouseEvent(name, {bubbles: true, view: window, clientX: 42, ctrlKey: true}));
       }
       button.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
       button.dispatchEvent(new KeyboardEvent('keydown', {bubbles: true, key: 'a'}));
@@ -215,10 +216,19 @@ describe('react hooks', function () {
     }
     try {
       // Warm the handler cache before switching modes.
-      const preview = await render(false);
-      fireEvents(preview);
+      fireEvents(await render(false));
       expect(onClick).toHaveBeenCalledTimes(1);
       expect(select).not.toHaveBeenCalled();
+      const mouseDown = block.getValue('onMouseDown') as TicloEvent<React.MouseEvent>;
+      expect(mouseDown).toBeInstanceOf(TicloEvent);
+      expect(mouseDown.data.nativeEvent.view).toBe(window);
+      const preview = JSON.parse(encodeDisplay(mouseDown));
+      expect(preview).toMatchObject({type: 'mousedown', data: {clientX: 42, ctrlKey: true, button: 0}});
+      expect(preview.data).not.toHaveProperty('target');
+      expect(preview.data).not.toHaveProperty('view');
+      expect(JSON.parse(encode({event: mouseDown})).event).toEqual(preview);
+      expect(truncateData(mouseDown)[0]).toEqual(preview);
+      expect(JSON.parse(encode(block.getValue('onKeyDown'))).data.key).toBe('a');
       for (const name of eventHandlers) {
         expect(block.getValue(name), name).toBeDefined();
         block.updateValue(name, undefined);

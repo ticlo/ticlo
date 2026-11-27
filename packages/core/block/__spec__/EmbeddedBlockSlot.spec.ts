@@ -1,11 +1,11 @@
 import {expect} from 'vitest';
 import {Flow, Root} from '../Flow.ts';
 
-describe('HelperProperty', function () {
+describe('EmbeddedBlockSlot', function () {
   it('save load', function () {
     const flow = new Flow();
-    const helper = flow.createHelperBlock('v1');
-    helper.setValue('#output', 'hello'); // use setValue so it's serialized
+    const embeddedBlock = flow.createEmbeddedBlock('v1');
+    embeddedBlock.setValue('#output', 'hello'); // use setValue so it's serialized
 
     expect(flow.queryValue('~v1.#output')).toBe('hello');
     expect(flow.getProperty('v1')._bindingPath).toBe('~v1.#output');
@@ -15,7 +15,7 @@ describe('HelperProperty', function () {
 
     expect(typeof saved['~v1']).toBe('object');
 
-    helper.output('world');
+    embeddedBlock.output('world');
     expect(flow.getValue('v1')).toBe('world');
 
     flow.liveUpdate(saved);
@@ -23,7 +23,7 @@ describe('HelperProperty', function () {
 
     flow.setValue('v1', 0);
 
-    expect(helper._destroyed).toBe(true);
+    expect(embeddedBlock._destroyed).toBe(true);
     expect(flow.queryValue('~v1')).toBe(undefined);
 
     flow.liveUpdate(saved);

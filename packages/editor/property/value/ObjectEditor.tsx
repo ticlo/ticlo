@@ -1,18 +1,74 @@
-import React from 'react';
-import {Button, Dropdown} from 'antd';
+import React, {useEffect, useReducer} from 'react';
+import {Button, Dropdown, Select} from 'antd';
 import {CodeOutlined, PlusSquareOutlined, MenuOutlined} from '@ant-design/icons';
 import {ValueEditorProps} from './ValueEditorBase.ts';
 import {renderValue} from '../../component/renderValue.tsx';
 import {TicloLayoutContext, TicloLayoutContextType} from '../../component/LayoutContext.ts';
 
+import {useEditPolicy} from '../../component/EditPolicyContext.tsx';
+import {LocalizedFunctionName, t} from '../../component/LocalizedLabel.tsx';
+import {getDescModule} from '../../util/FunctionModule.ts';
+
+function EmbeddedBlockCreator({
+  conn,
+  create,
+  addSubBlock,
+  keys,
+  name,
+  funcModule,
+}: Pick<ValueEditorProps, 'conn' | 'addSubBlock' | 'keys' | 'name' | 'funcModule'> & {
+  create: string | readonly string[];
+}) {
+  const policy = useEditPolicy();
+  const [, redraw] = useReducer((version: number) => version + 1, 0);
+
+  useEffect(() => {
+    if (!conn) return;
+    const listeners = (typeof create === 'string' ? [create] : create).map((id) => {
+      const listener = () => redraw();
+      conn.watchDesc(id, getDescModule(id, funcModule), listener);
+      return listener;
+    });
+    return () => listeners.forEach((listener) => conn.unwatchDesc(listener));
+  }, [conn, create, funcModule]);
+
+  const options = (typeof create === 'string' ? [create] : create).map((id) => {
+    const embeddedBlockDesc = conn?.watchDesc(id, getDescModule(id, funcModule));
+    return {
+      value: id,
+      label: embeddedBlockDesc ? <LocalizedFunctionName desc={embeddedBlockDesc} /> : id,
+      disabled: !embeddedBlockDesc || !keys?.every((path) => policy.canCreateBlock(`${path}.~${name}`, id)),
+    };
+  });
+  if (typeof create === 'string') {
+    return (
+      <Button
+        size="small"
+        icon={<PlusSquareOutlined />}
+        disabled={options[0].disabled}
+        onClick={() => addSubBlock(create)}
+      >
+        {create.substring(create.indexOf(':') + 1)}
+      </Button>
+    );
+  }
+  return (
+    <Select
+      size="small"
+      prefix={<PlusSquareOutlined />}
+      placeholder={t('Create')}
+      options={options}
+      disabled={!options.some((option) => !option.disabled)}
+      onChange={(id: string) => {
+        if (options.some((option) => option.value === id && !option.disabled)) addSubBlock(id);
+      }}
+    />
+  );
+}
+
 export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
   static contextType = TicloLayoutContextType;
   declare context: TicloLayoutContext;
-
-  createObject = () => {
-    const {desc, addSubBlock} = this.props;
-    addSubBlock(desc.create, null, null);
-  };
 
   popup = () => {
     const {keys, name, desc, value, inline, onEditValue} = this.props;
@@ -30,41 +86,46 @@ export class ObjectEditor extends React.PureComponent<ValueEditorProps, any> {
   };
 
   render() {
-    const {value, desc, inline, addSubBlock, onEditValue, onChange, onConvertToHelper, onConvertToObject} = this.props;
-    let editor: React.ReactNode;
-    if (value === undefined && onChange && desc.create && addSubBlock) {
-      let create = desc.create;
-      const colonIndex = create.indexOf(':');
-      if (colonIndex > -1) {
-        create = create.substring(colonIndex + 1);
-      }
-      editor = (
-        <Button size="small" icon={<PlusSquareOutlined />} onClick={this.createObject}>
-          {create}
-        </Button>
+    const {
+      value,
+      desc,
+      inline,
+      addSubBlock,
+      onEditValue,
+      onChange,
+      onConvertToEmbeddedBlock,
+      onConvertToObject,
+      locked,
+    } = this.props;
+    const editor =
+      value === undefined && onChange && addSubBlock && desc.create?.length && !locked ? (
+        <EmbeddedBlockCreator {...this.props} create={desc.create} />
+      ) : (
+        <div className="ticl-e-object-editor">{renderValue(value)}</div>
       );
-    } else {
-      editor = <div className="ticl-e-object-editor">{renderValue(this.props.value)}</div>;
-    }
     return (
       <>
         {editor}
-        {onConvertToHelper || onConvertToObject ? (
+        {onConvertToEmbeddedBlock || onConvertToObject ? (
           <Dropdown
             trigger={['click']}
             menu={{
               items: [
                 {
                   key: 'convert',
-                  icon: onConvertToHelper ? <PlusSquareOutlined /> : <CodeOutlined />,
-                  label: onConvertToHelper ? `Convert to ${desc.create}` : 'Convert to object value',
+                  icon: onConvertToEmbeddedBlock ? <PlusSquareOutlined /> : <CodeOutlined />,
+                  label: onConvertToEmbeddedBlock
+                    ? `Convert to ${desc.create}`
+                    : Array.isArray(value)
+                      ? 'Convert to array value'
+                      : 'Convert to object value',
                 },
               ],
-              onClick: onConvertToHelper || onConvertToObject,
+              onClick: onConvertToEmbeddedBlock || onConvertToObject,
             }}
           >
             <Button
-              className="ticl-e-dynamic-type-icon ticl-e-object-convert-button"
+              className={`ticl-e-object-convert-button ${inline ? 'ticl-e-square-icon-btn' : 'ticl-e-dynamic-type-icon'}`}
               type="text"
               size="small"
               icon={<MenuOutlined />}

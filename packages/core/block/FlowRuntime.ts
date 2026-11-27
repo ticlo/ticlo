@@ -3,7 +3,8 @@ import {Library} from './Library.ts';
 import type {LibraryMetadata} from './Storage.ts';
 import {libraryPrefix, readLibraryMetadata, validateLibrary} from '../util/LibraryMetadata.ts';
 import {validFlowEntry} from '../util/FlowStoragePath.ts';
-import {matchEditPath} from '../policy/EditPolicy.ts';
+import {matchPathPattern} from '../util/PathPattern.ts';
+import {Logger} from '../util/Logger.ts';
 import type {DataMap} from '../util/DataTypes.ts';
 
 export type StartOptions = Record<string, {flows?: string[]}>;
@@ -81,6 +82,8 @@ export class FlowRuntime {
   async start(options: StartOptions = {}) {
     if (this.started) throw new Error('The runtime has already started; call stop() first');
     this.started = true;
+    const startTime = Date.now();
+    let stage = 'activating libraries';
     const generation = this.generation;
     try {
       const defaultRoot = !Object.keys(options).length;
@@ -92,6 +95,7 @@ export class FlowRuntime {
       for (const selection of selections) void selection?.catch(() => {});
       // Discover every dependency before running anything, including cyclic graphs.
       await this.activate(Object.keys(selected), generation, true);
+      stage = 'loading selected flows';
       for (const [index, [name, config]] of Object.entries(selected).entries()) {
         const patterns =
           config.flows ??
@@ -104,8 +108,18 @@ export class FlowRuntime {
       }
       this.checkGeneration(generation);
       for (const name of Object.keys(selected)) this.roots.add(name);
+      Logger.info(
+        () =>
+          `Runtime started in ${Date.now() - startTime} ms (${this.metadata.size} libraries, ${this.loaded.size} loaded flows and modules)`
+      );
     } catch (error) {
-      if (generation === this.generation) await this.stop({discardChanges: true});
+      if (generation === this.generation) {
+        await this.stop({discardChanges: true});
+        // The host reports the original startup error. Log the outcome of cleanup here.
+        Logger.warn(() => `Runtime startup rolled back while ${stage}`);
+      } else {
+        Logger.debug('Runtime startup cancelled');
+      }
       throw error;
     }
   }
@@ -209,7 +223,7 @@ export class FlowRuntime {
       if (!/[?*]/.test(pattern) && !names.includes(pattern)) throw new Error(`Missing flow: ${library}/${pattern}`);
     }
     const flows = names
-      .filter((name) => patterns.some((pattern) => matchEditPath(pattern, name)))
+      .filter((name) => patterns.some((pattern) => matchPathPattern(pattern, name)))
       .map((name) => {
         const ref: FlowRef = {library, kind: 'flow', name};
         return {ref, data: this.prefetch(ref)};
@@ -327,6 +341,7 @@ export class FlowRuntime {
     }
     this.roots.clear();
     this.roots.add(name);
+    Logger.debug(() => `Switched to library ${name}`);
   }
 
   async setLibraryDependencies(name: string, dependencies: string[]) {
@@ -376,10 +391,11 @@ export class FlowRuntime {
         !this.library(library)._enabled
       )
         return;
-      if (this.getFlowState(ref) !== 'unloaded') return;
+      if (this.suppressed.has(key) || this.getFlowState(ref) !== 'unloaded') return;
       // Keep a failed lazy load from retrying on every resolver pass.
       this.suppressed.add(key);
       this.root.updateValue('@load-error', String(error));
+      Logger.error(() => `Lazy load of ${key} failed; automatic retries suspended: ${error}`);
     });
   }
 
@@ -443,6 +459,7 @@ export class FlowRuntime {
         }
         if (storage?.hasLocalBackup?.(key)) flow.updateValue('@has-change', true);
         this.loaded.set(key, {ref: {...ref}, flow});
+        if (Logger.isEnabled(Logger.DEBUG)) Logger.debug(`Loaded ${ref.kind} ${key}`);
         return flow;
       })
       .finally(() => {
@@ -679,6 +696,7 @@ export class FlowRuntime {
     this.roots.clear();
     this.suppressed.clear();
     this.rootFlows.clear();
+    if (this.started) Logger.info('Runtime stopped');
     this.started = false;
   }
 }

@@ -6,6 +6,7 @@ export default defineConfig({
     globals: true,
     setupFiles: 'packages/node/vitest.setup.ts',
     include: [
+      ...(process.env.TICLO_OAUTH_BROWSER ? ['packages/web-server/__spec__/OAuth.browser.e2e.ts'] : []),
       'app/**/*.spec.ts',
       'packages/core/**/*.spec.ts',
       'packages/node/**/*.spec.ts',

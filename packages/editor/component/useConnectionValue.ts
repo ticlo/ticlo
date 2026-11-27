@@ -20,7 +20,8 @@ export class ConnectionValueStore<T = any> {
   constructor(
     private conn: ClientConn,
     private path: string,
-    private select?: (value: any) => T
+    private select?: (value: any) => T,
+    private fullValue = false
   ) {
     this.value = select?.(undefined);
   }
@@ -37,7 +38,7 @@ export class ConnectionValueStore<T = any> {
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
     if (this.listeners.size === 1) {
-      this.subscriber.subscribe(this.conn, this.path);
+      this.subscriber.subscribe(this.conn, this.path, this.fullValue);
     }
     return () => {
       this.listeners.delete(listener);
@@ -48,7 +49,12 @@ export class ConnectionValueStore<T = any> {
   };
 }
 
-export function useConnectionValue<T = any>(conn: ClientConn, path: string, select?: (value: any) => T) {
-  const store = useMemo(() => new ConnectionValueStore(conn, path, select), [conn, path, select]);
+export function useConnectionValue<T = any>(
+  conn: ClientConn,
+  path: string,
+  select?: (value: any) => T,
+  fullValue = false
+) {
+  const store = useMemo(() => new ConnectionValueStore(conn, path, select, fullValue), [conn, path, select, fullValue]);
   return useSyncExternalStore(store.subscribe, store.getSnapshot);
 }

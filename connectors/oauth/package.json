@@ -1,0 +1,25 @@
+{
+  "name": "@ticlo/oauth",
+  "version": "0.0.14",
+  "description": "Opt-in browser and Node.js OAuth connectors for Ticlo",
+  "license": "MPL-2.0",
+  "type": "module",
+  "exports": {
+    "./browser": {
+      "types": "./browser.ts",
+      "default": "./browser.ts"
+    },
+    "./browser-callback": {
+      "types": "./OAuthBrowserCallback.ts",
+      "default": "./OAuthBrowserCallback.ts"
+    },
+    "./node": {
+      "types": "./node.ts",
+      "default": "./node.ts"
+    }
+  },
+  "dependencies": {
+    "@ticlo/core": "workspace:^",
+    "hono": "^4.13.18"
+  }
+}

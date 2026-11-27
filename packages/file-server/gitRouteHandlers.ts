@@ -26,7 +26,7 @@ async function projectContext(
   write = false
 ) {
   const id = sanitizeProjectId(query.id);
-  const baseDir = projectScopeDir(context.rootDir, query.scope);
+  const baseDir = projectScopeDir(context.rootDir, query.scope, context.scopes);
   const auth = await resolveAuth(context.authProvider, request);
   if (write) await ensureWrite(auth, id);
   else await ensureRead(auth, id);

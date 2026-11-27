@@ -13,6 +13,10 @@
 'Block': 数据块
 'Misc': 其他 # translated from: Misc
 'Open': 打开 # translated from: Open
+'Authorize': 授权 # translated from: Authorize
+'Authorization popup blocked': 授权弹窗已被拦截 # translated from: Authorization popup -8EnVjZ0B
+'Authorization URL missing': 缺少授权地址 # translated from: Authorization URL missing
+'Invalid authorization URL': 授权地址无效 # translated from: Invalid authorization URL
 'File': 文件 # translated from: File
 'Library': 库 # translated from: Library
 'Libraries': 库 # translated from: Libraries
@@ -133,6 +137,7 @@
 'Must have 0 or 2 options': 只支持0个或2个选项
 'number': 数值
 'string': 字符串
+'file-path': 文件路径 # translated from: file-path
 'toggle': 布尔
 'select': 下拉菜单
 'radio-button': 单选按钮
@@ -240,3 +245,18 @@
 'SQL client is not ready': 'SQL 客户端尚未就绪' # translated from: SQL client is not ready
 'Results': '返回结果' # translated from: Results
 'Done': '已完成' # translated from: Done
+'Select File': '选择文件' # translated from: Select File
+'File Name': '文件名'
+'frontend': '前端' # translated from: frontend
+'Manage history': '管理历史' # translated from: Manage history
+'Histories': '历史列表' # translated from: Histories
+'No histories': '暂无历史记录' # translated from: No histories
+'History client is not ready': '历史客户端尚未就绪' # translated from: History client is not ready
+'Interval': '间隔' # translated from: Interval
+'Rollup': '聚合' # translated from: Rollup
+'Limit': '数量上限' # translated from: Limit
+'Fallback': '回退间隔' # translated from: Fallback
+'Truncated': '已截断' # translated from: Truncated
+'Time': '时间' # translated from: Time
+'Value': '值' # translated from: Value
+Runtime console: 当前运行环境的控制台 # translated from: Runtime console

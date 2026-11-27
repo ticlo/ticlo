@@ -31,16 +31,23 @@ export function DesignerNavigationTree(props: React.ComponentProps<typeof NodeTr
 export function DesignerNodeTree() {
   const {activeStage: stage} = useContext(TicloCurrentFlowContext);
   const designerStage = useActiveDesignerStage();
-  const basePath = designerStage ? designerStage.main?.getFullPath() : stage?.basePath;
+  const basePath = designerStage ? designerStage.flow?.getFullPath() : stage?.basePath;
+  const mainPath = designerStage?.main?.getFullPath();
+  const isDesigner = Boolean(designerStage);
   const basePaths = useMemo(() => (basePath == null ? [] : [basePath]), [basePath]);
+  const expandPaths = useMemo(
+    () => (isDesigner && basePath != null ? (mainPath != null ? [basePath, mainPath] : [basePath]) : undefined),
+    [isDesigner, basePath, mainPath]
+  );
   const openActions = useOpenActions();
   return (
     <div className="ticl-d-node-tree" style={treeStyle}>
       {stage?.conn && basePath != null ? (
         <NodeTree
-          key={`${stage.id}:${designerStage?.main?._blockId ?? ''}`}
+          key={`${stage.id}:${designerStage?.flow?._blockId ?? ''}`}
           conn={stage.conn}
           basePaths={basePaths}
+          expandPaths={expandPaths}
           tags={stage.nodeTreeTags}
           selectedKeys={stage.selection.paths}
           autoExpandSelected

@@ -1,7 +1,7 @@
 import {createNodeWebSocket} from '@hono/node-ws';
 import {Hono} from 'hono';
 import {cors} from 'hono/cors';
-import {DefinedBlock, Root} from '@ticlo/core';
+import {DefinedBlock, Root, type ServerConnectionOptions} from '@ticlo/core';
 import {WsServerConnection, RestServerConnection} from '@ticlo/node';
 import {decodeReviver} from '@ticlo/core/util/Serialize.ts';
 import {requestHandlerSymbol, ServerFunction} from './ServerFunction.ts';
@@ -16,6 +16,7 @@ export interface TicloAppOptions {
   editorPath?: string;
   serverBlockName?: string;
   enableEditor?: boolean;
+  connectionOptions?: ServerConnectionOptions;
   cors?: boolean;
   rootRoute?: boolean;
 }
@@ -115,7 +116,10 @@ export async function routeTiclo(
     const requestHandler = service?.[requestHandlerSymbol];
     if (!requestHandler) return c.body(null, 404);
     const res = new HonoResponse();
-    Promise.resolve(requestHandler(basePath, getRequestData(c), res)).catch(() => res.code(400).send());
+    const request = getRequestData(c);
+    const authContext = c.get('ticloAuthContext');
+    if (authContext) request.authContext = authContext;
+    Promise.resolve(requestHandler(basePath, request, res)).catch(() => res.code(400).send());
     return res.response;
   });
 }
@@ -125,15 +129,20 @@ export async function routeTiclo(
  * @param app
  * @param routeTicloPath
  */
-export async function connectTiclo(app: HonoApp, routeTicloPath: string, root = Root.instance) {
-  const restServer = new RestServerConnection(root);
+export async function connectTiclo(
+  app: HonoApp,
+  routeTicloPath: string,
+  root = Root.instance,
+  options?: ServerConnectionOptions
+) {
+  const restServer = new RestServerConnection(root, options);
   const {injectWebSocket, upgradeWebSocket} = createNodeWebSocket({app});
 
   app.get(
     routeTicloPath,
     upgradeWebSocket(() => ({
       onOpen(_event, ws) {
-        new WsServerConnection(ws.raw as any, root);
+        new WsServerConnection(ws.raw as any, root, options);
       },
     }))
   );
@@ -164,8 +173,11 @@ export async function createTicloApp(options: TicloAppOptions = {}): Promise<Tic
     app.use('*', (c, next) => (c.req.header('upgrade') === 'websocket' ? next() : corsMiddleware(c, next)));
   }
 
-  await routeTiclo(app, options.apiPath ?? '/api', options.serverBlockName, root);
-  const ticloWs = options.enableEditor ? await connectTiclo(app, options.editorPath ?? '/ticlo', root) : undefined;
+  const apiPath = options.apiPath ?? '/api';
+  await routeTiclo(app, apiPath, options.serverBlockName, root);
+  const ticloWs = options.enableEditor
+    ? await connectTiclo(app, options.editorPath ?? '/ticlo', root, options.connectionOptions)
+    : undefined;
 
   if (options.rootRoute !== false) {
     app.get('/', (c) => c.text(''));

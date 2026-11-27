@@ -1,5 +1,22 @@
 import type {FunctionDesc, PropDesc} from '@ticlo/core';
+import {smartStrCompare} from '@ticlo/core';
 import {RepeatModeList} from '@ticlo/core/functions/date/Schedule/SchedulerEvent.ts';
+
+export function sortDateItem(a: unknown, b: unknown) {
+  if (typeof a === 'number' && typeof b === 'number') {
+    return a - b;
+  }
+  if (typeof a === 'string' && typeof b === 'string') {
+    return smartStrCompare(a, b, false);
+  }
+  if (typeof a === 'number') {
+    return -1;
+  }
+  if (typeof b === 'number') {
+    return 1;
+  }
+  return 0;
+}
 
 // a fake function name that only exist for localization purpose
 export const FUNC = 'create-schedule';

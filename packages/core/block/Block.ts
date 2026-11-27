@@ -1,4 +1,11 @@
-import {BlockProperty, BlockIO, HelperProperty, BlockBindingSource, BlockConfig} from './BlockProperty.ts';
+import {
+  BlockAddon,
+  BlockProperty,
+  BlockIO,
+  EmbeddedBlockSlot,
+  BlockBindingSource,
+  BlockConfig,
+} from './BlockProperty.ts';
 import {ListenPromise} from './ListenPromise.ts';
 import {BlockBinding} from './BlockBinding.ts';
 import {FunctionFactory, BaseFunction} from './BlockFunction.ts';
@@ -11,7 +18,7 @@ import {voidProperty} from './Void.ts';
 import {ConfigGenerators, BlockConstConfig, ConstBinding} from './BlockConfigs.ts';
 import {_strictMode} from './BlockSettings.ts';
 import type {Flow, FlowLoader, Root} from './Flow.ts';
-import {BlockMode} from './Descriptor.ts';
+import {BlockMode, parsePriorityOverride} from './Descriptor.ts';
 import {FunctionData, FunctionOutput} from './FunctonData.ts';
 import {getMaxFlowDepth} from '../util/Settings.ts';
 import {Logger} from '../util/Logger.ts';
@@ -257,7 +264,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     const firstChar = field.charCodeAt(0);
 
     // Property prefixes are part of the file format contract:
-    // # is engine or function config, ^ is inherited context, ~ is a helper block,
+    // # is engine or function config, ^ is inherited context, ~ is a binding slot,
     // @ is editor metadata, everything else is IO.
     if (firstChar === 35) {
       // # config
@@ -291,6 +298,11 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
           if (!create) {
             return null;
           }
+          if (field.charCodeAt(1) === 45) {
+            // #- addon block
+            prop = new BlockAddon(this, field);
+            break;
+          }
           // shouldn't have value before they are created
           prop = this._createConfig(field);
         }
@@ -303,8 +315,8 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     } else {
       switch (firstChar) {
         case 126:
-          // ~ binding property
-          prop = new HelperProperty(this, field);
+          // Runtime slot for an embedded Block
+          prop = new EmbeddedBlockSlot(this, field);
           break;
         case 64: {
           // @ attribute
@@ -312,11 +324,15 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
           break;
         }
         default:
-          prop = new BlockIO(this, field);
+          prop = this._createIO(field);
       }
     }
     this._props.set(field, prop);
     return prop;
+  }
+
+  _createIO(field: string): BlockProperty {
+    return new BlockIO(this, field);
   }
 
   _createConfig(field: string): BlockProperty {
@@ -412,9 +428,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
           const name = key.substring(1);
           this.setBinding(name, val);
         } else if (Object.isExtensible(val)) {
-          // binding helper
+          // embedded Block binding
           const name = key.substring(1);
-          this.getProperty(name)._loadHelper(val as DataMap);
+          this.getProperty(name)._loadEmbeddedBlock(val as DataMap);
         }
       } else {
         this.getProperty(key)._load(map[key]);
@@ -441,9 +457,9 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
           this.setBinding(name, val);
           loadedFields[name] = true;
         } else if (Object.isExtensible(val)) {
-          // binding helper
+          // embedded Block binding
           const name = key.substring(1);
-          this.getProperty(name)._loadHelper(val as DataMap, true);
+          this.getProperty(name)._loadEmbeddedBlock(val as DataMap, true);
           loadedFields[name] = true;
           loadedFields[key] = true;
         }
@@ -525,18 +541,18 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     return this.getProperty(field).createBlock(false);
   }
 
-  // REFACTOR(design.md): MUST give helper blocks fixed identities and connect them through explicit wires.
-  createHelperBlock(field: string): Block {
+  // REFACTOR(design.md): MUST give embedded blocks fixed identities and connect them through explicit wires.
+  createEmbeddedBlock(field: string): Block {
     const prop = this.getProperty(field);
-    const helperProp = this.getProperty(`~${field}`) as HelperProperty;
+    const embeddedBlockSlot = this.getProperty(`~${field}`) as EmbeddedBlockSlot;
     let block: Block;
-    if (!(helperProp._saved instanceof Block) || helperProp._saved._prop !== prop) {
-      block = helperProp.createBlock(true);
+    if (!(embeddedBlockSlot._saved instanceof Block) || embeddedBlockSlot._saved._prop !== prop) {
+      block = embeddedBlockSlot.createBlock(true);
     } else {
-      block = helperProp._saved;
+      block = embeddedBlockSlot._saved;
     }
     prop.setBinding(`~${field}.#output`);
-    prop.setBindProperty(helperProp);
+    prop.setEmbeddedBlockSlot(embeddedBlockSlot);
     return block;
   }
 
@@ -601,20 +617,21 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     }
 
     if (this._function) {
-      if (this._called && this._waiting) {
-        // previous call is still running, cancel it first
+      const call = this._called;
+      this._called = false;
+      if (this._waiting && (call || this._function.runOnError)) {
+        // An explicit call or a rerun of an error handler supersedes pending work.
         this._cancelFunction(EventType.VOID);
       }
       this._running = true;
       if (this._outOfSync) this._outOfSync = undefined;
       let result: unknown;
       try {
-        result = this._function.run();
+        result = typeof call === 'object' ? this._function.runOnError(call) : this._function.run();
       } catch (err) {
         result = err instanceof ErrorEvent ? err : new ErrorEvent(ErrorEvent.SyncError, err);
       }
       this._running = false;
-      this._called = false;
       if (result?.constructor === Promise) {
         // Only the latest promise is allowed to emit. PromiseWrapper checks the
         // current token so stale async results cannot overwrite a newer run.
@@ -645,8 +662,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
         return;
       }
     }
-    // Retain failures even when the stage has not subscribed yet.
-    const prop = this._props.get('#emit') ?? (val instanceof ErrorEvent ? this.getProperty('#emit') : undefined);
+    const prop = this.emitProperty(val);
     if (prop) {
       if (val === undefined) {
         val = new DoneEvent();
@@ -663,10 +679,20 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
       if (!(prop.getValue() instanceof ErrorEvent)) prop.setOutput(val);
       return;
     }
-    const prop = this._props.get('#emit') ?? (val instanceof ErrorEvent ? this.getProperty('#emit') : undefined);
+    const prop = this.emitProperty(val);
     if (prop) {
       prop.updateValue(val);
     }
+  }
+
+  private emitProperty(value: unknown) {
+    const prop = this._props.get('#emit');
+    if (value instanceof ErrorEvent) {
+      // Retain failures and their first source even without subscribers.
+      value.recordOrigin(this);
+      return prop ?? this.getProperty('#emit');
+    }
+    return prop;
   }
 
   _emitOutOfSync(candidates: Set<Block>) {
@@ -717,60 +743,44 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
     }
   }
 
-  _called = false;
+  _called: boolean | ErrorEvent = false;
 
   // REFACTOR(design.md): MUST admit calls into the same serial queue as input and wire deliveries.
   _onCall(val: unknown): void {
-    if (!this._disabled) {
-      if (val === WAIT || val instanceof WarningEvent) {
-        // ignore diagnostic and wait states before invoking the function's onCall
-      } else {
-        if (this._function && !this._function.onCall(val)) {
-          // rejected by onCall
-          // TODO: if #emit and #call is same, need to clear #emit value when #call become undefined
-          return;
-        }
-        switch (Event.check(val)) {
-          case EventType.TRIGGER: {
-            if (this._function) {
-              if (this._sync) {
-                if (this._function.isPure && this._runOnChange && !this._queueToRun) {
-                  // if function is pure, it can't be called synchronously without a change
-                  const prop = this._props.get('#emit');
-                  if (prop && Object.isExtensible(prop._value) && prop._value.constructor === DoneEvent) {
-                    // re-emit complete event
-                    prop.updateValue(new DoneEvent());
-                  }
-                } else {
-                  this._called = true;
-                  if (this._queued) {
-                    this.run();
-                  } else {
-                    // Make sure block is not put into queue again while running itself
-                    this._queued = true;
-                    this.run();
-                    this._queued = false;
-                  }
-                }
-              } else {
-                if (Event.check(val) === EventType.TRIGGER) {
-                  this._called = true;
-                  this._queueFunction();
-                }
-              }
-            } else {
-              // this._queueToRun = false; // No need to reset since it won't be set if function is null.
-            }
-            break;
-          }
-          case EventType.ERROR: {
-            if (this._cancelFunction(EventType.ERROR)) {
-              this.emit(val);
-            }
-            break;
-          }
-        }
+    if (this._disabled || val === WAIT || val instanceof WarningEvent) return;
+    if (this._function && !this._function.onCall(val)) return;
+
+    const func = this._function;
+    const type = Event.check(val);
+    let call: true | ErrorEvent = true;
+    if (type === EventType.ERROR) {
+      if (!(val instanceof ErrorEvent && func?.runOnError)) {
+        if (this._cancelFunction(EventType.ERROR)) this.emit(val);
+        return;
       }
+      call = val;
+    } else if (type !== EventType.TRIGGER) {
+      return;
+    }
+    if (!func) return;
+
+    if (this._sync && call === true && func.isPure && this._runOnChange && !this._queueToRun) {
+      const prop = this._props.get('#emit');
+      if (prop && Object.isExtensible(prop._value) && prop._value.constructor === DoneEvent) {
+        prop.updateValue(new DoneEvent());
+      }
+      return;
+    }
+    this._called = call;
+    if (!this._sync) {
+      this._queueFunction();
+    } else if (this._queued) {
+      this.run();
+    } else {
+      // Prevent the block from requeueing itself during synchronous execution.
+      this._queued = true;
+      this.run();
+      this._queued = false;
     }
   }
 
@@ -873,9 +883,7 @@ export class Block implements Runnable, FunctionData, PropListener<FunctionFacto
   _controlPriority: number = -1;
 
   _priorityChanged(priority: unknown) {
-    if ((priority as number) >= 0 && (priority as number) <= 3) {
-      this._controlPriority = Math.round(priority as number);
-    }
+    this._controlPriority = parsePriorityOverride(priority) ?? -1;
   }
 
   // REFACTOR(design.md): MUST reconcile block priority with saved visible wire order.

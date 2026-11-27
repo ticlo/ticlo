@@ -1,3 +1,5 @@
+import './browser-logging.ts';
+import {registerOAuth} from '@ticlo/oauth/browser';
 import '@ticlo/react/style/index.css';
 import '@ticlo/chart';
 import '@ticlo/chart/style/index.css';
@@ -27,6 +29,7 @@ function Viewer({root, path}: {root: Root; path: string}) {
 }
 
 (async () => {
+  registerOAuth();
   const params = initialUrlParams();
   const selected = pageFlowPath(params);
   if (!selected) throw new Error('Missing path. Use ?path=library/flow.');

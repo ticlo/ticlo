@@ -16,7 +16,9 @@ export function useStageCommands(
 ) {
   return useMemo<TicloStageCommands>(() => {
     const selectedRoots = () => {
-      const blocks = selectionRef.current.blocks.filter((block) => !block.isDestroyed() && block._flow === flow);
+      const blocks = selectionRef.current.blocks.filter(
+        (block) => !block.isDestroyed() && block !== flow && block._flow === flow
+      );
       return blocks.filter(
         (block) => !blocks.some((other) => other !== block && block.getFullPath().startsWith(`${other.getFullPath()}.`))
       );
@@ -75,7 +77,8 @@ export function useStageCommands(
       paste(event) {
         if (!designMode || !main) return false;
         const selected = selectionRef.current.blocks.at(-1);
-        const parent = selected && selected !== main ? selected.getParent() : main;
+        const mainPath = main.getFullPath();
+        const parent = selected && selected.getFullPath().startsWith(`${mainPath}.`) ? selected.getParent() : main;
         if (!parent || parent._flow !== flow || parent.getValue('@d-seal')) return false;
         const order = parent.getValue('#order') ?? [];
         if (!isStringArray(order) || parent.getProperty('#order', false)?._bindingSource) return false;

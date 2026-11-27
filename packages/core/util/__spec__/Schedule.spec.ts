@@ -54,4 +54,34 @@ describe('Schedule', function () {
     const currentTime = new Date().getTime();
     await shouldHappen(() => logger.logs.length && (logger.logs[0] as number) - currentTime < 2000, 1500);
   });
+
+  it('removes cancelled events and empty groups', () => {
+    ScheduleGroup.reset();
+    const logger = new CallbackLogger();
+    const targetTime = Date.now() + 10_000;
+    const event = setSchedule(logger.log, targetTime);
+    expect(ScheduleGroup.groups.size).toBe(1);
+    event.cancel();
+    expect(ScheduleGroup.groups.size).toBe(0);
+    expect(ScheduleGroup.nextTime()).toBeNaN();
+    expect(ScheduleGroup.head.next).toBe(ScheduleGroup.head);
+  });
+
+  it('handles re-entrant setSchedule on the same second', () => {
+    ScheduleGroup.reset();
+    const base = Math.ceil((Date.now() + 5000) / 1000) * 1000;
+    const calls: number[] = [];
+    setSchedule(() => {
+      calls.push(1);
+      setSchedule(() => {
+        calls.push(2);
+      }, base + 200);
+    }, base - 100);
+    ScheduleGroup.run(base);
+    expect(calls).toEqual([1]);
+    expect(ScheduleGroup.groups.size).toBe(1);
+    ScheduleGroup.run(base + 1000);
+    expect(calls).toEqual([1, 2]);
+    expect(ScheduleGroup.groups.size).toBe(0);
+  });
 });

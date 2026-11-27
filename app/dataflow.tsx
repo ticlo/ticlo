@@ -1,3 +1,5 @@
+import './browser-logging.ts';
+import {registerOAuth} from '@ticlo/oauth/browser';
 import './styles.ts';
 import * as React from 'react';
 import {StrictMode} from 'react';
@@ -9,7 +11,6 @@ import {
   encodeSorted,
   FunctionDesc,
   Logger,
-  addConsoleLogger,
   PropDispatcher,
   Flow,
   Root,
@@ -309,6 +310,7 @@ class App extends React.PureComponent<Props, State> {
       () => this.conn
     ),
     getSelectedPaths: () => this.selectedPaths,
+    getFiles: () => this.props.files,
     showModal: (modal: React.ReactElement) => this.setState({modal}),
   };
 
@@ -397,7 +399,7 @@ function DataflowWorkspace({
 }
 
 (async () => {
-  addConsoleLogger();
+  registerOAuth();
   await initEditor();
 
   await initAppI18n();
@@ -451,4 +453,3 @@ function DataflowWorkspace({
 });
 
 (window as any).Logger = Logger;
-addConsoleLogger(Logger.TRACE_AND_ABOVE);

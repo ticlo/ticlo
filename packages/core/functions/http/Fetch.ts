@@ -1,10 +1,9 @@
-import axios, {AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse, CanceledError, ResponseType} from 'axios';
-import {PureFunction, StatefulFunction, BaseFunction} from '../../block/BlockFunction.ts';
+import {AxiosRequestConfig, AxiosRequestHeaders, CanceledError, ResponseType} from 'axios';
+import {BaseFunction} from '../../block/BlockFunction.ts';
 import {ErrorEvent, EventType, WAIT} from '../../block/Event.ts';
 import {globalFunctions} from '../../block/FunctionModule.ts';
 import {defaultConfigs, BlockMode} from '../../block/Descriptor.ts';
 import {httpRequest, type HttpClient} from './HttpClient.ts';
-import {DataMap} from '../../util/DataTypes.ts';
 
 export type RouteMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 const methodList: RouteMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];
@@ -34,8 +33,13 @@ export class FetchFunction extends BaseFunction {
       this._abortController?.abort();
       this._abortController = new AbortController();
       if (typeof client?.request !== 'function') {
+        if (client != null || this._data.getProperty('client', false)?._bindingSource) {
+          this.cleanup();
+          return new ErrorEvent('HTTP client unavailable');
+        }
         client = httpClient;
       }
+      const authContext = this._data.getValue('authContext');
       return client
         .request({
           url,
@@ -45,9 +49,10 @@ export class FetchFunction extends BaseFunction {
           data: this._data.getValue('requestBody'),
           responseType: this._data.getValue('responseType') as ResponseType,
           withCredentials: Boolean(this._data.getValue('withCredentials')),
+          ...(authContext !== undefined && {authContext}),
           signal: this._abortController.signal,
         })
-        .then((response: AxiosResponse) => {
+        .then((response) => {
           this._data.output(response.status, 'status');
           this._data.output({...response.headers}, 'responseHeaders');
           this._data.output(response.data);
@@ -100,6 +105,7 @@ globalFunctions.addFactory(
     configs: defaultConfigs.concat('#cancel'),
     properties: [
       {name: 'client', type: 'service', options: ['http-client']},
+      {name: 'authContext', type: 'object', disableObjectTools: true},
       {name: 'url', type: 'string', pinned: true},
       {name: 'method', type: 'select', options: methodList, default: 'GET', pinned: true},
       {name: 'params', type: 'object', create: 'create-object'},

@@ -21,6 +21,13 @@ sets the label. Calling and updating follow their respective connection policy.
 }
 ```
 
+## Web authorization
+
+`@b-widget: 'web-authorization'` calls the Block's `startAuthorization` command
+and opens its returned `{url}` in a popup. Use `@b-w-label` to set the button
+label. Starting authorization follows the connection's command policy. The
+function and its host manage confirmation and publish the result to the Flow.
+
 ## Slider
 
 `@b-widget: 'slider'` reads and edits `@b-w-field`. It uses `setValue`, so edits

@@ -12,7 +12,6 @@ const wrongId = 'test-add-wrong';
 describe('Add block with orderIndex', () => {
   let root: Root;
   let client: ReturnType<typeof makeLocalConnection>[1];
-  let server: ReturnType<typeof makeLocalConnection>[0];
 
   beforeEach(() => {
     globalFunctions.addFactory(null, {id: parentId, name: parentId, childrenTags: ['component'], properties: []});
@@ -24,7 +23,7 @@ describe('Add block with orderIndex', () => {
       empty: {'#is': parentId},
       leaf: {'#is': childId},
     });
-    [server, client] = makeLocalConnection(root, false);
+    [, client] = makeLocalConnection(root, false);
   });
 
   afterEach(() => {
@@ -102,7 +101,6 @@ describe('Add block with orderIndex', () => {
       client.withPolicy({denyProps: ['#order']}).addBlock('Main.reference.new', {'#is': childId}, false, 1)
     ).rejects.toBe('restricted property');
     expect(root.queryValue('Main.parent.new')).toBeUndefined();
-    server.setEditPolicy({allowCmds: ['addBlock'], allowProps: ['#is', '#order']});
     await client.addBlock('Main.parent.new', {'#is': childId}, true, 1);
     expect(root.queryValue('Main.parent.#order')).toEqual(['a', 'new', 'b']);
   });

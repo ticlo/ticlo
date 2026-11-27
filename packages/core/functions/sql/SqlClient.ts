@@ -47,11 +47,22 @@ export interface SqlEntityColumn {
 
 /** A runtime service. SQL syntax and parameter placeholders belong to the adapter. */
 export interface SqlClient {
+  /** Used by SQL-generating services to quote identifiers and bind parameters. */
+  readonly dialect?: 'sqlite' | 'postgres' | 'mysql';
   query(sql: string, params?: SqlParams): Promise<SqlResult>;
+  /** Execute one query with the adapter's database-level readonly protection. */
+  queryReadonly?(sql: string, params?: SqlParams): Promise<SqlResult>;
   /** Atomically execute the statements and return the final statement's result. */
   transaction?(statements: readonly SqlStatement[]): Promise<SqlResult>;
   listEntities(): Promise<SqlEntity[]>;
   getColumns(entity: SqlEntityRef): Promise<SqlEntityColumn[]>;
+}
+
+export function validateReadonlyQuery(sql: string) {
+  // Transaction control and administrative statements must stay outside the guarded query.
+  if (typeof sql !== 'string' || !/^\s*(?:SELECT|WITH|VALUES|TABLE|SHOW|DESCRIBE|EXPLAIN)\b/i.test(sql)) {
+    throw new Error('Expected a readonly SQL query');
+  }
 }
 
 export function validateSqlTransaction(statements: readonly SqlStatement[]) {

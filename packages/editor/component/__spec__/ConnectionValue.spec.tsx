@@ -250,7 +250,12 @@ describe('connection value subscriptions', () => {
     const closeObjectTree = vi.fn();
     const context = {showObjectTree, closeObjectTree};
     const value = {number: 1};
-    update('field', {value});
+    class RuntimeValue {
+      toArrow() {
+        return value;
+      }
+    }
+    update('field', {value: new RuntimeValue()});
     update('other', {value});
     const render = (path: string, language = 'en') => {
       flushSync(() =>

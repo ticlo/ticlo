@@ -3,6 +3,7 @@ import '../../index.ts';
 import {Flow, Root} from '../Flow.ts';
 import {MemoryFlowStorage} from '../MemoryFlowStorage.ts';
 import type {FlowRef} from '../FlowRuntime.ts';
+import {Logger} from '../../util/Logger.ts';
 import {Library} from '../Library.ts';
 import {shouldHappen} from '../../util/test-util.ts';
 import {makeLocalConnection} from '../../connect/LocalConnection.ts';
@@ -506,6 +507,21 @@ describe('runtime lifecycle', () => {
     expect(Library.getFunctionModule('+main:tools:value', other).getWorkerData('+main:tools:value')).toBeNull();
     await other.stop();
     other.destroy();
+  });
+
+  it('reports a failed lazy module once across simultaneous consumers and suppressed retries', async () => {
+    await root.start({main: {}});
+    const sink = vi.fn();
+    Logger.add(sink, Logger.ERROR);
+    try {
+      root._lifecycle.loadModuleOnDemand('main', 'absent');
+      root._lifecycle.loadModuleOnDemand('main', 'absent');
+      await shouldHappen(() => Boolean(root.getValue('@load-error')));
+      root._lifecycle.loadModuleOnDemand('main', 'absent');
+      expect(sink).toHaveBeenCalledExactlyOnceWith(expect.stringContaining('+main.:absent'), Logger.ERROR, undefined);
+    } finally {
+      Logger.remove(sink);
+    }
   });
 
   it('fails missing dependencies before loading flows and can start again', async () => {

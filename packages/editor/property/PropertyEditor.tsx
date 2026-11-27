@@ -28,9 +28,8 @@ import {typeEditorMap} from './value/index.ts';
 import {propAcceptsBlock} from '@ticlo/core';
 import {getDescModule} from '../util/FunctionModule.ts';
 import {EditPolicyContext} from '../component/EditPolicyContext.tsx';
-import {getObjectHelperData} from './ObjectHelper.ts';
+import {addSubBlock, canConvertEmbeddedBlock, convertEmbeddedBlock, hasEmbeddedBlockTypes} from './EmbeddedBlock.ts';
 import {requestCallbacks} from '../util/RequestCallbacks.ts';
-import {isBaseObject} from '@ticlo/core/util/DataTypes.ts';
 
 class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   name: string;
@@ -45,22 +44,22 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
     this.valueListener.subscribe(this.conn, `${this.path}.${this.name}`);
     this.displayListener.subscribe(this.conn, `${this.path}.@b-p`);
     const {propDesc, funcModule} = this.parent.props;
-    if (propDesc.type === 'object' && propDesc.create) {
+    if (hasEmbeddedBlockTypes(propDesc) && typeof propDesc.create === 'string') {
       this.conn.watchDesc(propDesc.create, getDescModule(propDesc.create, funcModule), this.onCreateDesc);
     }
   }
 
   cache: ValueState;
   subBlock = false;
-  helperFuncId: string;
+  embeddedBlockFuncId: string;
   createDesc: FunctionDesc;
   onCreateDesc = (desc: FunctionDesc) => {
     this.createDesc = desc;
     this.parent.forceUpdate();
   };
-  helperListener = new ValueSubscriber({
+  embeddedBlockListener = new ValueSubscriber({
     onUpdate: (response: ValueUpdate) => {
-      this.helperFuncId = response.cache.value;
+      this.embeddedBlockFuncId = response.cache.value;
       this.parent.forceUpdate();
     },
   });
@@ -71,11 +70,12 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
       if (Object.hasOwn(response.change, 'hasListener')) changed = true;
       if (Object.hasOwn(response.change, 'value') || Object.hasOwn(response.change, 'bindingPath')) {
         this.subBlock = response.cache.bindingPath === `~${this.name}.#output`;
-        if (this.parent.props.propDesc.type === 'object' && this.parent.props.propDesc.create && this.subBlock) {
-          this.helperListener.subscribe(this.conn, `${this.path}.~${this.name}.#is`);
+        const {propDesc} = this.parent.props;
+        if (this.subBlock && hasEmbeddedBlockTypes(propDesc)) {
+          this.embeddedBlockListener.subscribe(this.conn, `${this.path}.~${this.name}.#is`);
         } else {
-          this.helperListener.unsubscribe();
-          this.helperFuncId = undefined;
+          this.embeddedBlockListener.unsubscribe();
+          this.embeddedBlockFuncId = undefined;
         }
         changed = true;
       }
@@ -104,7 +104,7 @@ class PropertyLoader extends MultiSelectLoader<PropertyEditor> {
   destroy() {
     this.valueListener.unsubscribe();
     this.displayListener.unsubscribe();
-    this.helperListener.unsubscribe();
+    this.embeddedBlockListener.unsubscribe();
     this.conn.unwatchDesc(this.onCreateDesc);
   }
 }
@@ -415,62 +415,63 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     }
   };
 
-  onAddSubBlock = (id: string, desc?: FunctionDesc, data?: any) => {
-    if (!this.props.paths.every((path) => this.context.canCreateBlock(`${path}.~${this.props.name}`, id))) return;
-    PropertyDropdown.addSubBlock(this.props, id, desc, data);
-    this.safeSetState({showSubBlock: true});
+  onAddSubBlock = async (id: string, desc?: FunctionDesc, data?: DataMap) => {
+    const props = this.props;
+    try {
+      if ((await addSubBlock(props, this.context, id, desc, data)) && this.props === props) {
+        this.safeSetState({showSubBlock: true});
+      }
+    } catch (error) {
+      requestCallbacks.onError(String(error));
+    }
   };
 
-  canConvertObject(loader: PropertyLoader, toHelper: boolean) {
+  canConvertObject(loader: PropertyLoader, toEmbeddedBlock: boolean) {
     const {name, propDesc} = this.props;
-    if (propDesc.type !== 'object' || !propDesc.create || propDesc.readonly || !loader.cache) return false;
+    if (!loader?.cache || (toEmbeddedBlock && !loader.createDesc)) return false;
     const {value, bindingPath} = loader.cache;
-    if (!value || typeof value !== 'object' || !isBaseObject(value)) return false;
-    if (!this.context.can({cmd: 'get', path: `${loader.path}.${name}`})) return false;
-    if (toHelper) {
-      return (
-        !bindingPath &&
-        loader.createDesc != null &&
-        this.context.canCreateBlock(`${loader.path}.~${name}`, propDesc.create)
-      );
-    }
-    return (
-      loader.subBlock &&
-      loader.helperFuncId === propDesc.create &&
-      this.context.can({cmd: 'set', path: `${loader.path}.${name}`}) &&
-      this.context.canDeleteBlock(`${loader.path}.~${name}`)
+    return canConvertEmbeddedBlock(
+      this.context,
+      loader.path,
+      name,
+      propDesc,
+      value,
+      bindingPath,
+      toEmbeddedBlock ? loader.createDesc : undefined,
+      loader.embeddedBlockFuncId
     );
   }
 
-  convertObject = async (toHelper: boolean) => {
-    if (this.state.converting || ![...this.loaders.values()].every((loader) => this.canConvertObject(loader, toHelper)))
+  convertObject = async (toEmbeddedBlock: boolean) => {
+    if (
+      this.state.converting ||
+      ![...this.loaders.values()].every((loader) => this.canConvertObject(loader, toEmbeddedBlock))
+    )
       return;
     const {conn, paths, name, propDesc, funcModule} = this.props;
     this.safeSetState({converting: true, showSubBlock: false});
     try {
       for (const path of paths) {
-        const {value} = await conn.getValue(`${path}.${name}`);
-        if (
-          !this._mounted ||
-          this.props.conn !== conn ||
-          this.props.name !== name ||
-          this.props.propDesc !== propDesc ||
-          !arrayEqual(this.props.paths, paths) ||
-          !this.canConvertObject(this.loaders.get(path), toHelper)
-        )
-          return;
-        if (!value || typeof value !== 'object' || !isBaseObject(value)) throw new Error('Expected an object value');
-        if (toHelper) {
-          const desc = this.loaders.get(path).createDesc;
-          const data = getObjectHelperData(desc, value, conn.getOptionalProps(desc, funcModule) || {});
-          if (!this.context.can({cmd: 'addBlock', path: `${path}.~${name}`, data})) return;
-          await conn.addBlock(`${path}.~${name}`, data);
-        } else {
-          if (!this.context.can({cmd: 'set', path: `${path}.${name}`, value})) return;
-          await conn.setValue(`${path}.${name}`, value, true);
-        }
+        const loader = this.loaders.get(path);
+        const converted = await convertEmbeddedBlock(
+          conn,
+          this.context,
+          path,
+          name,
+          propDesc,
+          funcModule,
+          () =>
+            this._mounted &&
+            this.props.conn === conn &&
+            this.props.name === name &&
+            this.props.propDesc === propDesc &&
+            arrayEqual(this.props.paths, paths) &&
+            this.canConvertObject(this.loaders.get(path), toEmbeddedBlock),
+          toEmbeddedBlock ? loader.createDesc : undefined
+        );
+        if (!converted) return;
       }
-      if (toHelper) this.safeSetState({showSubBlock: true});
+      if (toEmbeddedBlock) this.safeSetState({showSubBlock: true});
     } catch (error) {
       requestCallbacks.onError(String(error));
     } finally {
@@ -478,7 +479,7 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
     }
   };
 
-  onConvertToHelper = () => this.convertObject(true);
+  onConvertToEmbeddedBlock = () => this.convertObject(true);
   onConvertToObject = () => this.convertObject(false);
 
   cachedPaths: string[] = [];
@@ -593,9 +594,9 @@ export class PropertyEditor extends MultiSelectComponent<PropertyEditorProps, St
           locked={locked && !unlocked}
           onChange={onChange}
           addSubBlock={this.onAddSubBlock}
-          onConvertToHelper={
+          onConvertToEmbeddedBlock={
             !this.state.converting && [...this.loaders.values()].every((loader) => this.canConvertObject(loader, true))
-              ? this.onConvertToHelper
+              ? this.onConvertToEmbeddedBlock
               : undefined
           }
           onConvertToObject={

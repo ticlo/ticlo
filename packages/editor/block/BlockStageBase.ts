@@ -1,5 +1,13 @@
 import React from 'react';
-import {ClientConn, DataMap, deepEqual, forAllPathsBetween, ValueSubscriber, ValueUpdate} from '@ticlo/core/editor.ts';
+import {
+  ClientConn,
+  DataMap,
+  deepEqual,
+  forAllPathsBetween,
+  splitPathName,
+  ValueSubscriber,
+  ValueUpdate,
+} from '@ticlo/core/editor.ts';
 import {DragState} from 'rc-dock';
 import {BlockItem, FieldItem, Stage} from './Field.tsx';
 import {LazyUpdateComponent} from '../component/LazyUpdateComponent.tsx';
@@ -105,6 +113,10 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   }
 
   onSelect() {
+    if (this._selectedAddon) {
+      this.onSelectionChange([this._selectedAddon]);
+      return;
+    }
     const selectedPaths: string[] = [];
     for (const [, blockItem] of this._blocks) {
       if (blockItem.selected) {
@@ -114,6 +126,7 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     this.onSelectionChange(selectedPaths);
   }
   onSelectBase() {
+    this.clearSelectedAddon();
     this.onSelectionChange([this.props.basePath]);
   }
 
@@ -123,15 +136,53 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
   }
 
   selectionChanged = false;
+  _selectedAddon: string | null = null;
+
+  clearSelectedAddon() {
+    if (this._selectedAddon) {
+      const [parentPath] = splitPathName(this._selectedAddon);
+      this._blocks.get(parentPath)?.setSelectedAddon(null);
+      this._selectedAddon = null;
+      this.selectionChanged = true;
+    }
+  }
+
+  clearAddonSelection(addonPath: string) {
+    if (this._selectedAddon === addonPath) {
+      this.clearSelectedAddon();
+      this.onSelect();
+    }
+  }
+
+  selectAddon(addonPath: string) {
+    const [parentPath] = splitPathName(addonPath);
+    const parentBlock = this._blocks.get(parentPath);
+    if (!parentBlock) return;
+    for (const [blockPath, blockItem] of this._blocks) {
+      if (blockItem.selected) {
+        blockItem.setSelected(false);
+      }
+      if (blockPath !== parentPath && blockItem.selectedAddon) {
+        blockItem.setSelectedAddon(null);
+      }
+    }
+    this._selectedAddon = addonPath;
+    parentBlock.setSelectedAddon(addonPath);
+    this.onSelect();
+  }
 
   selectBlock(path: string, ctrl: boolean = false) {
     if (this._blocks.has(path)) {
+      this.clearSelectedAddon();
       const block = this._blocks.get(path);
       if (ctrl) {
         block.setSelected(!block.selected);
         this.selectionChanged = true;
       } else {
         if (block.selected) {
+          if (this.selectionChanged) {
+            this.onSelect();
+          }
           return;
         }
         for (const [blockPath, blockItem] of this._blocks) {
@@ -318,7 +369,10 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
       if (change === null) {
         const block = this._blocks.get(path);
         if (block) {
-          if (block.selected) {
+          if (block.selected || this._selectedAddon?.startsWith(`${path}.`)) {
+            if (this._selectedAddon?.startsWith(`${path}.`)) {
+              this._selectedAddon = null;
+            }
             this.selectionChanged = true;
           }
           // block.destroy(); // no need for destroy, already handled in block.onDetached();
@@ -359,7 +413,10 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
     for (const [key, block] of this._blocks) {
       if (block.isStatic) {
         changed = true;
-        if (block.selected) {
+        if (block.selected || this._selectedAddon?.startsWith(`${block.path}.`)) {
+          if (this._selectedAddon?.startsWith(`${block.path}.`)) {
+            this._selectedAddon = null;
+          }
           this.selectionChanged = true;
         }
         // block.destroy(); // no need for destroy, already handled in block.onDetached();
@@ -447,6 +504,21 @@ export abstract class BlockStageBase<Props extends StagePropsBase, State>
       // TODO show warning?
     }
   };
+
+  deleteSelectedAddon() {
+    if (!this._selectedAddon) return false;
+    const addonPath = this._selectedAddon;
+    if (!this.policy.canDeleteBlock(addonPath)) return false;
+    const {conn} = this.props;
+    const [parentPath] = splitPathName(addonPath);
+    this.clearSelectedAddon();
+    conn.deleteBlock(addonPath, {
+      ...requestCallbacks,
+      onDone: () => conn.childrenChangeStream().dispatch({path: parentPath}),
+    });
+    this.onSelect();
+    return true;
+  }
 
   deleteSelectedBlocks() {
     const {conn, basePath} = this.props;

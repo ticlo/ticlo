@@ -26,7 +26,7 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
   _bindingPath: string;
   // REFACTOR(design.md): Wire ownership MUST control subscription and pending-delivery cancellation.
   _bindingSource: BlockBindingSource;
-  _helperProperty: HelperProperty;
+  _embeddedBlockSlot: EmbeddedBlockSlot;
 
   _saved: unknown;
 
@@ -106,12 +106,11 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
   // REFACTOR(design.md): MUST distinguish a persistent state edit from cancelling an attached wire.
   setValue(val: unknown) {
     if (this._bindingSource) {
-      // A direct user value breaks both normal bindings and helper-block bindings.
-      // Helper content is cleared too because it is serialized through the binding.
+      // A direct user value clears the binding and its embedded Block, if present.
       this._bindingSource.unlisten(this);
-      if (this._helperProperty) {
-        this._helperProperty.setValue(undefined);
-        this._helperProperty = null;
+      if (this._embeddedBlockSlot) {
+        this._embeddedBlockSlot.setValue(undefined);
+        this._embeddedBlockSlot = null;
       }
       this._bindingPath = null;
       this._bindingSource = null;
@@ -138,9 +137,9 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     if (this._bindingSource) {
       this._bindingSource.unlisten(this);
     }
-    if (this._helperProperty) {
-      this._helperProperty.setValue(undefined);
-      this._helperProperty = null;
+    if (this._embeddedBlockSlot) {
+      this._embeddedBlockSlot.setValue(undefined);
+      this._embeddedBlockSlot = null;
     }
     this._bindingPath = path;
 
@@ -169,8 +168,8 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     source.listen(this);
   }
 
-  setBindProperty(prop: HelperProperty) {
-    this._helperProperty = prop;
+  setEmbeddedBlockSlot(prop: EmbeddedBlockSlot) {
+    this._embeddedBlockSlot = prop;
   }
 
   _saveValue(): unknown {
@@ -189,8 +188,8 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
 
   // REFACTOR(design.md): MUST persist explicit wire identity and metadata instead of a binding path.
   _saveBinding(): unknown {
-    if (this._helperProperty) {
-      return this._helperProperty.__save();
+    if (this._embeddedBlockSlot) {
+      return this._embeddedBlockSlot.__save();
     }
     return this._bindingPath;
   }
@@ -223,10 +222,10 @@ export class BlockProperty extends PropDispatcher<any> implements PropListener<a
     }
   }
 
-  _loadHelper(data: DataMap, live = false) {
-    const helper = this._block.createHelperBlock(this._name);
-    if (live) helper._liveUpdate(data);
-    else helper._load(data);
+  _loadEmbeddedBlock(data: DataMap, live = false) {
+    const embeddedBlock = this._block.createEmbeddedBlock(this._name);
+    if (live) embeddedBlock._liveUpdate(data);
+    else embeddedBlock._load(data);
   }
 
   // REFACTOR(design.md): MUST apply graph edits and wire subscriptions together; MUST NOT replay transient values.
@@ -403,6 +402,14 @@ export class BlockConfig extends BlockProperty {
   }
 }
 
+export class BlockAddon extends BlockProperty {
+  _valueChanged(saved?: boolean) {
+    if (this._block._watchers) {
+      this._block._onChildChanged(this, saved);
+    }
+  }
+}
+
 export class ContextProperty extends BlockIO {
   constructor(block: Block, name: string) {
     super(block, name);
@@ -446,9 +453,9 @@ export class ContextProperty extends BlockIO {
   }
 }
 
-// start with ~, used for binding helper block
-export class HelperProperty extends BlockProperty {
-  // a helper block should only be saved from original property
+// Runtime storage for an embedded Block in a ~ binding slot.
+export class EmbeddedBlockSlot extends BlockProperty {
+  // Save the embedded Block through the property it supplies.
   _saveValue(): unknown {
     return undefined;
   }
