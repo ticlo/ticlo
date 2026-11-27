@@ -136,6 +136,7 @@ describe("editor SourceBlock (@b-view = 'source')", function () {
     );
     deleteItem.click();
     await shouldHappen(() => flow.getValue('val') === undefined);
+    await client.getValue('SourceBlockLayout.val');
   });
 
   it('hides field labels with @b-label-w: 0, keeps inline wire dragging working, and ignores Shift+drag', async function () {

@@ -88,12 +88,22 @@ describe('SQL client management dialog', () => {
       );
     }
     const [, div] = loadTemplate(<Template />, 'editor');
-    await shouldHappen(() => div.querySelector('.database-header'));
-    div.querySelector('.database-header').dispatchEvent(new MouseEvent('contextmenu', {bubbles: true}));
+    const header = await shouldHappen(() => div.querySelector('.database-header'));
+    await userEvent.click(header, {position: {x: 8, y: 8}});
+    const rect = header.getBoundingClientRect();
+    header.dispatchEvent(
+      new MouseEvent('contextmenu', {
+        bubbles: true,
+        view: window,
+        button: 2,
+        clientX: rect.left + 8,
+        clientY: rect.top + 8,
+      })
+    );
     const menu = await shouldHappen(() =>
-      Array.from(document.querySelectorAll('.ticl-e-dropdown-menu-item')).find((item) =>
-        item.textContent.includes('Manage database')
-      )
+      Array.from(
+        document.querySelectorAll('.ticl-e-dropdown:not(.ticl-e-dropdown-hidden) .ticl-e-dropdown-menu-item')
+      ).find((item) => item.textContent.includes('Manage database'))
     );
     await userEvent.click(menu);
     await shouldHappen(entityTitle);

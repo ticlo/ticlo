@@ -94,7 +94,8 @@ export default defineConfig({
     hookTimeout: 60000,
     maxWorkers: 2,
     retry: 2,
-    isolate: false,
+    // Give each browser test file its own DOM and module state.
+    isolate: true,
     globals: true,
     include: [
       'packages/core/**/*.spec.ts',

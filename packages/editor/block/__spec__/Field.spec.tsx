@@ -22,12 +22,12 @@ import '@ticlo/html/functions/CreateStyle.ts';
 async function selectOption(label: string) {
   const option = await shouldHappen(() =>
     [
-      ...document.querySelectorAll(
+      ...document.querySelectorAll<HTMLElement>(
         '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content'
       ),
     ].find((element) => element.textContent === label)
   );
-  await userEvent.click(page.elementLocator(option));
+  option.click();
 }
 
 describe('editor Block Field', function () {
@@ -196,7 +196,7 @@ describe('editor Block Field', function () {
     await click('auth', '.ant-select:not(.ant-select-disabled)');
     await selectOption('password');
     await shouldHappen(() => flow.queryProperty('block.auth')._bindingPath === '~auth.#output');
-    expect(flow.queryValue('block.auth')).toEqual({authMode: 'password', showSecret: true});
+    await expect.poll(() => flow.queryValue('block.auth')).toEqual({authMode: 'password', showSecret: true});
 
     await click('style', 'button:not(:disabled)');
     await shouldHappen(() => flow.queryProperty('block.style')._bindingPath === '~style.#output');
@@ -209,7 +209,7 @@ describe('editor Block Field', function () {
     await page.getByText('Convert to :array-helper', {exact: true}).click();
     await shouldHappen(() => flow.queryProperty('block.items')._bindingPath === '~items.#output');
     expect(flow.queryValue('block.~items.input')).toEqual(items);
-    expect(flow.queryValue('block.items')).toEqual(items);
+    await expect.poll(() => flow.queryValue('block.items')).toEqual(items);
     await shouldHappen(() => div.querySelectorAll('.ticl-e-field-inline').length === 0);
   });
 
@@ -311,6 +311,7 @@ describe('editor Block Field', function () {
     }
 
     // Small action buttons are hidden by default.
+    await userEvent.unhover(page.elementLocator(block));
     for (const button of [...expandButtons, typeButton]) {
       expect(getComputedStyle(button).visibility).toBe('hidden');
       const bounds = button.getBoundingClientRect();
@@ -448,6 +449,7 @@ describe('editor Block Field', function () {
     await userEvent.click(page.elementLocator(repeat));
     await selectOption('weekly');
     await shouldHappen(() => (flow.queryValue('schedule.config0') as {repeat: string}).repeat === 'weekly');
+    await conn.getValue(`${basePath}.schedule.config0`);
   });
 
   it('sub block', async function () {

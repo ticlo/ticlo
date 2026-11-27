@@ -82,17 +82,18 @@ describe('binding drag wire', function () {
     flushSync(() => scroll.dispatchEvent(new Event('scroll')));
     checkEndpoints();
 
-    const target = querySingle("//div.ticl-e-field-name/span[text()='b']/../..", div);
+    const target = querySingle(".//div.ticl-e-field-name/span[text()='b']/../..", div);
     const to = target.getBoundingClientRect();
     const drop = fakeMouseEvent(to.left + to.width / 2, to.top + to.height / 2);
+    expect(document.elementFromPoint(drop.clientX, drop.clientY)?.closest('.ticl-e-field')).toBe(target);
     simulate(target, 'mousemove', drop);
     simulate(target, 'mouseup', drop);
     expect(document.querySelector('.ticl-e-drag-wire')).toBeNull();
-    await shouldHappen(() => Root.instance.queryValue('dragWire.source.b') === 7);
+    await expect.poll(() => Root.instance.queryValue('dragWire.source.b')).toBe(7);
   });
 
   it('shows the outbound marker while dragging an unbound property', async function () {
-    source = querySingle("//div.ticl-e-field-name/span[text()='b']/../..", div);
+    source = querySingle(".//div.ticl-e-field-name/span[text()='b']/../..", div);
     expect(source.querySelector('.ticl-e-outbound')).toBeNull();
     expect(startDrag()).not.toBeNull();
     await shouldHappen(() => source.querySelector('.ticl-e-outbound'));
