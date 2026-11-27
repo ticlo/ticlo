@@ -80,7 +80,7 @@ class HistoryFunction extends BaseFunction<Block> {
 globalFunctions.addFactory(HistoryFunction, {
   name: 'history',
   category: 'system',
-  icon: '11:HIS',
+  icon: 'svg:chart-simple',
   mode: 'onChange',
   priority: 3,
   tags: ['addon'],

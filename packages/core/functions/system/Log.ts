@@ -105,7 +105,7 @@ class LogFunction extends BaseFunction<Block> {
 globalFunctions.addFactory(LogFunction, {
   name: 'log',
   category: 'system',
-  icon: '11:LOG',
+  icon: 'svg:pen-clip',
   mode: 'onCall',
   priority: 3,
   tags: ['addon'],

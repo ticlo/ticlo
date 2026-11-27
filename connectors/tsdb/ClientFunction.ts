@@ -89,7 +89,7 @@ globalFunctions.addFactory(
     name: 'client',
     category: 'database',
     useFullName: true,
-    icon: '11:TSDB',
+    icon: '13:TS',
     mode: 'onLoad',
     priority: 2,
     tags: ['history-client', 'context-service'],

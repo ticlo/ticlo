@@ -17,7 +17,7 @@ globalFunctions.addFactory(
   EnvFunction,
   {
     name: 'env',
-    icon: '11:ENV',
+    icon: '10:ENV',
     mode: 'onLoad',
     priority: 0,
     properties: [
