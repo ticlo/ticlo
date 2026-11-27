@@ -44,9 +44,20 @@ const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node']
         describe: 'Port of the server',
         type: 'number',
       },
+      test: {
+        alias: 't',
+        describe: 'Filter tests by name, path, group prefix, or .ticlo file path (repeatable)',
+        type: 'string',
+        array: true,
+      },
     })
     .help();
-  const {onDemandLoad, serve, port, run, quitOnSuccess, quitOnFinish} = parser.parse() as any;
+  const argv = parser.parse() as any;
+  const {onDemandLoad, serve, port, run, quitOnSuccess, quitOnFinish} = argv;
+  const filters: string[] = [
+    ...(Array.isArray(argv.test) ? argv.test : []),
+    ...argv._.map((arg: unknown) => String(arg)),
+  ].filter(Boolean);
 
   const {app, ticloWs} = await createTicloApp({enableEditor: serve});
 
@@ -76,6 +87,8 @@ const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node']
           if (quitOnFinish || (quitOnSuccess && testRunner.failed === 0)) {
             if (testRunner.failed > 0) {
               process.exit(3);
+            } else if (filters.length > 0 && testRunner.passed === 0) {
+              process.exit(1);
             } else {
               process.exit(0);
             }
@@ -83,7 +96,8 @@ const packagesToTest = ['packages/core', 'packages/web-server', 'packages/node']
             console.log('tests are finished, waiting for updates, press Ctrl+C to exit');
           }
         },
-        serve // allow editing when editing server is enabled
+        serve, // allow editing when editing server is enabled
+        filters
       );
       testRunner.run();
     } else if (!serve) {

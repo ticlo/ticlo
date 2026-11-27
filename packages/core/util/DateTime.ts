@@ -1,7 +1,39 @@
-import {DateTime} from 'luxon';
+import {DateTime, Zone} from 'luxon';
 import {getDefaultZone, systemZone} from './Settings.ts';
 
 export {DateTime};
+
+class FactoryZone extends Zone<true> {
+  get type(): string {
+    return 'factory';
+  }
+  get name(): string {
+    return 'Factory';
+  }
+  get ianaName(): string {
+    return 'Factory';
+  }
+  get isUniversal(): boolean {
+    return true;
+  }
+  get isValid(): true {
+    return true;
+  }
+  offsetName(): string {
+    return 'Factory';
+  }
+  formatOffset(): string {
+    return '';
+  }
+  offset(): number {
+    return 0;
+  }
+  equals(other: Zone): boolean {
+    return other.name === 'Factory';
+  }
+}
+
+export const factoryZone = new FactoryZone();
 
 export const invalidDate = DateTime.invalid('invalid input');
 
@@ -25,8 +57,14 @@ export function resolveZone(zoneName: unknown): string {
   return getDefaultZone();
 }
 
-export function getZoneObject(zoneName: unknown): {zone: string} {
-  const z = resolveZone(zoneName);
+export function getZoneObject(zoneName: unknown): {zone: string | Zone} {
+  let z = zoneName as string;
+  if (!zoneName || typeof zoneName !== 'string' || zoneName === 'auto') {
+    z = getDefaultZone();
+  }
+  if (z === 'Factory') {
+    return {zone: factoryZone};
+  }
   if (z === systemZone) {
     return {zone: undefined};
   }
@@ -98,6 +136,9 @@ export function decodeDateTime(str: string): any {
 
 export function toDateTime(input: unknown, zone?: string): DateTime {
   if (DateTime.isDateTime(input)) {
+    if (input.isValid && input.zoneName === 'Factory' && zone && zone !== 'Factory') {
+      return input.setZone(resolveZone(zone), {keepLocalTime: true});
+    }
     return input;
   }
   switch (typeof input) {

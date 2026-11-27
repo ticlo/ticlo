@@ -3,7 +3,7 @@ import {globalFunctions} from '../../block/FunctionModule.ts';
 import {Event, EventType, NO_EMIT, ValueUpdateEvent, WAIT} from '../../block/Event.ts';
 import type {Block} from '../../block/Block.ts';
 import {DateTime} from 'luxon';
-import {getZoneObject} from '../../util/DateTime.ts';
+import {getZoneObject, resolveZone} from '../../util/DateTime.ts';
 import {BlockIO} from '../../block/BlockProperty.ts';
 
 // interval value in seconds
@@ -34,7 +34,7 @@ export function getNextAlignedMinute(currentTs: number, interval: number, timezo
   // align to minutes related to current timezone
   let delta = 0;
   try {
-    const date = DateTime.fromMillis(currentTs + 1, getZoneObject(timezone));
+    const date = DateTime.fromMillis(currentTs + 1, getZoneObject(resolveZone(timezone)));
     delta = date.set({minute: 0, second: 0, millisecond: 0}).valueOf() % alignedTo;
   } catch (err) {}
   return Math.ceil((currentTs - delta + interval + 1 - alignedTo) / alignedTo) * alignedTo + delta;

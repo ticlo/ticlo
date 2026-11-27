@@ -1,7 +1,7 @@
 import {DateTime} from 'luxon';
 import vl from '../../../util/Validator.ts';
 import {isWeekDay} from '../../../util/Settings.ts';
-import {resolveZone} from '../../../util/DateTime.ts';
+import {resolveZone, toDateTime} from '../../../util/DateTime.ts';
 
 const ONE_MINUTE = 60_000;
 
@@ -139,8 +139,8 @@ export class SchedulerEvent {
     this.start = config.start ? (config.start.split(':').map(Number) as [number, number]) : [0, 0];
     this.name = config.name;
     this.durationMs = config.duration * ONE_MINUTE - 1;
-    this.after = config.after?.isValid ? config.after.valueOf() : -Infinity;
-    this.before = config.before?.isValid ? config.before.valueOf() : Infinity;
+    this.after = config.after?.isValid ? toDateTime(config.after, resolvedZone).valueOf() : -Infinity;
+    this.before = config.before?.isValid ? toDateTime(config.before, resolvedZone).valueOf() : Infinity;
     this.priority = config.priority ?? Infinity;
     this.onlyWeekday = config.onlyWeekday;
     this.wDays = config.wDays ? [...new Set(config.wDays)].sort((a, b) => a - b) : undefined;

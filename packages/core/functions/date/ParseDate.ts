@@ -1,6 +1,7 @@
 import {PureFunction} from '../../block/BlockFunction.ts';
 import {globalFunctions} from '../../block/FunctionModule.ts';
 import {toDateTime} from '../../util/DateTime.ts';
+import {getDefaultZone} from '../../util/Settings.ts';
 
 export class ParseDateFunction extends PureFunction {
   run() {
@@ -16,7 +17,7 @@ export class ParseDateFunction extends PureFunction {
       this._data.output(d.second, 'second');
       this._data.output(d.millisecond, 'millisecond');
       this._data.output(d.weekday, 'weekday');
-      this._data.output(d.valueOf(), 'timestamp');
+      this._data.output(toDateTime(d, getDefaultZone()).valueOf(), 'timestamp');
       this._data.output(d.zoneName, 'timezone');
       return;
     }

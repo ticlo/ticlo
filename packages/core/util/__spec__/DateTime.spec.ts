@@ -119,6 +119,39 @@ describe('DateTime', () => {
       expect(DateTimeUtil.resolveZone('Invalid/Timezone')).toBe('America/New_York');
       expect(DateTimeUtil.resolveZone('UTC')).toBe('UTC');
       expect(DateTimeUtil.getZoneObject('')).toEqual({zone: 'America/New_York'});
+      expect(DateTimeUtil.getZoneObject('auto')).toEqual({zone: 'America/New_York'});
+      expect(DateTimeUtil.getZoneObject('Factory')).toEqual({zone: DateTimeUtil.factoryZone});
+      expect(DateTimeUtil.getZoneObject('Invalid/Timezone')).toEqual({zone: 'Invalid/Timezone'});
+    });
+
+    it('preserves Factory zone as floating wall-clock time until resolved', () => {
+      updateGlobalSettings(new DataWrapper({'#timezone': 'America/New_York'}));
+      const dtFactory = DateTime.fromISO('2025-05-28T09:30:00', DateTimeUtil.getZoneObject('Factory'));
+      expect(dtFactory.isValid).toBe(true);
+      expect(dtFactory.zoneName).toBe('Factory');
+
+      // Encode/decode preserves Factory timezone
+      const encoded = DateTimeUtil.encodeDateTime(dtFactory);
+      expect(encoded).toContain('@Factory');
+      const decoded = DateTimeUtil.decodeDateTime(encoded);
+      expect(decoded.zoneName).toBe('Factory');
+      expect(DateTimeUtil.isDateSame(dtFactory, decoded)).toBe(true);
+
+      // Passing Factory DateTime into a target zone preserves wall-clock hour/minute/second
+      const convertedFactory = DateTimeUtil.toDateTime(dtFactory, 'America/New_York');
+      expect(convertedFactory.zoneName).toBe('America/New_York');
+      expect(convertedFactory.hour).toBe(9);
+      expect(convertedFactory.minute).toBe(30);
+
+      // Without a target zone, Factory DateTime stays Factory
+      expect(DateTimeUtil.toDateTime(dtFactory).zoneName).toBe('Factory');
+
+      // Non-Factory DateTime strictly preserves its own timezone and exact instant
+      const dtUtc = DateTime.fromISO('2025-05-28T09:30:00', {zone: 'UTC'});
+      const keptUtc = DateTimeUtil.toDateTime(dtUtc, 'America/New_York');
+      expect(keptUtc.zoneName).toBe('UTC');
+      expect(keptUtc.valueOf()).toBe(dtUtc.valueOf());
+      expect(keptUtc.setZone('America/New_York').hour).toBe(5);
     });
 
     it('round-trips encodeDateTime/decodeDateTime with server default zone', () => {
@@ -170,8 +203,10 @@ describe('DateTime', () => {
       }
     });
 
-    it('ignores empty or invalid timezone in updateGlobalSettings', () => {
+    it('ignores empty, Factory, or invalid timezone in updateGlobalSettings', () => {
       updateGlobalSettings(new DataWrapper({'#timezone': ''}));
+      expect(getDefaultZone()).toBe(systemZone);
+      updateGlobalSettings(new DataWrapper({'#timezone': 'Factory'}));
       expect(getDefaultZone()).toBe(systemZone);
       updateGlobalSettings(new DataWrapper({'#timezone': 'Invalid/Zone'}));
       expect(getDefaultZone()).toBe(systemZone);

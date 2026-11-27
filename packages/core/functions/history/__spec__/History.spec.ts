@@ -9,8 +9,12 @@ import {
   historyClientCommands,
   makeLocalConnection,
   destroyLastLocalConnection,
+  toDateTime,
+  toHistoryEpochMs,
+  updateGlobalSettings,
   type HistoryClient,
 } from '../../../index.ts';
+import {DataWrapper} from '../../../block/FunctonData.ts';
 import {DateTime} from 'luxon';
 
 describe('history function and historyClientApi', () => {
@@ -222,6 +226,20 @@ describe('history function and historyClientApi', () => {
       destroyLastLocalConnection();
       root.destroy();
       globalFunctions.delete(fnId);
+    }
+  });
+
+  it('resolves Factory DateTimes in default zone while keeping UTC DateTimes unchanged', () => {
+    try {
+      updateGlobalSettings(new DataWrapper({'#timezone': 'America/New_York'}));
+      const dtFactory = toDateTime('2025-05-28T09:30:00', 'Factory');
+      const dtNy = DateTime.fromISO('2025-05-28T09:30:00', {zone: 'America/New_York'});
+      const dtUtc = DateTime.fromISO('2025-05-28T09:30:00', {zone: 'UTC'});
+
+      expect(toHistoryEpochMs(dtFactory)).toBe(Math.trunc(dtNy.toMillis()));
+      expect(toHistoryEpochMs(dtUtc)).toBe(Math.trunc(dtUtc.toMillis()));
+    } finally {
+      updateGlobalSettings();
     }
   });
 });

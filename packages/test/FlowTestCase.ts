@@ -1,10 +1,57 @@
-import {Block, BlockIO, BlockProperty, DataMap, Flow, globalFunctions} from '@ticlo/core';
+import {
+  Block,
+  BlockIO,
+  BlockProperty,
+  DataMap,
+  DateTime,
+  deepEqual,
+  encodeDisplay,
+  ErrorEvent,
+  Flow,
+  getInputsArray,
+} from '@ticlo/core';
 import {ConstTypeConfig} from '@ticlo/core/block/BlockConfigs.ts';
 import {FlowConfigGenerators} from '@ticlo/core/block/FlowConfigs.ts';
 import {BlockConfig} from '@ticlo/core/block/BlockProperty.ts';
 import {updateObjectValue} from '@ticlo/core/property-api/ObjectValue.ts';
 import {FlowState} from '@ticlo/core/block/Flow.ts';
 import {TestsRunner, TestState} from './Interface.ts';
+
+const MAX_FORMAT_LEN = 300;
+
+function truncateFormatted(str: string): string {
+  return str.length > MAX_FORMAT_LEN ? `${str.slice(0, MAX_FORMAT_LEN - 3)}...` : str;
+}
+
+export function formatTestValue(val: unknown, depth = 0): string {
+  if (val === undefined) {
+    return 'undefined';
+  }
+  if (DateTime.isDateTime(val)) {
+    if (val.isValid) {
+      return `DateTime(${val.toISO()} [${val.zoneName}])`;
+    }
+    return `DateTime.invalid(${JSON.stringify(val.invalidReason)})`;
+  }
+  if (val instanceof ErrorEvent) {
+    const detail = val.detail !== undefined ? `: ${formatTestValue(val.detail, depth + 1)}` : '';
+    return `ErrorEvent(${val.type}${detail})`;
+  }
+  if (val instanceof Error) {
+    return truncateFormatted(`${val.name}: ${val.message}`);
+  }
+  if (typeof val === 'string') {
+    return truncateFormatted(JSON.stringify(val));
+  }
+  if (Array.isArray(val) && depth < 3) {
+    return truncateFormatted(`[${val.map((v) => formatTestValue(v, depth + 1)).join(', ')}]`);
+  }
+  try {
+    return truncateFormatted(encodeDisplay(val));
+  } catch {
+    return truncateFormatted(String(val));
+  }
+}
 
 export const FlowTestConfigGenerators: {[key: string]: typeof BlockProperty} = {
   ...FlowConfigGenerators,
@@ -171,6 +218,80 @@ export class FlowTestCase extends Flow implements TestsRunner {
 
   updateLabel(stat: string) {
     this.updateValue('#label', `${this._prop._name}-${stat}-#`);
+  }
+
+  getFailureDetails(): string[] {
+    const details: string[] = [];
+    if (this._timeouted) {
+      details.push(`timed out after ${this.timeoutMs}ms`);
+    }
+    const testPath = this.getFullPath();
+    for (const [block, state] of this.results) {
+      const blockPath = block.getFullPath();
+      const assertName = blockPath.startsWith(`${testPath}.`)
+        ? blockPath.slice(testPath.length + 1)
+        : block._prop._name;
+      if (state === TestState.FAILED) {
+        const compares = getInputsArray(block, '', 1, ['expect', 'actual']) as {
+          expect: unknown;
+          actual: unknown;
+        }[];
+        if (compares.length === 0) {
+          details.push(`${assertName}: no assertions configured`);
+          continue;
+        }
+        let recorded = 0;
+        for (let i = 0; i < compares.length; ++i) {
+          const {expect, actual} = compares[i];
+          if (actual !== undefined && !deepEqual(actual, expect)) {
+            details.push(`${assertName}[${i}]: expected ${formatTestValue(expect)}, actual ${formatTestValue(actual)}`);
+            ++recorded;
+          }
+        }
+        if (recorded === 0) {
+          for (let i = 0; i < compares.length; ++i) {
+            const faultVal = block.getValue(`fault${i}`);
+            if (faultVal !== undefined) {
+              details.push(
+                `${assertName}[${i}]: expected ${formatTestValue(compares[i].expect)}, actual ${formatTestValue(faultVal)}`
+              );
+              ++recorded;
+            }
+          }
+        }
+        if (recorded === 0) {
+          details.push(`${assertName}: assertion failed`);
+        }
+      } else if (this._timeouted && (state === TestState.NEW || state === TestState.RUNNING)) {
+        const compares = getInputsArray(block, '', 1, ['expect', 'actual']) as {
+          expect: unknown;
+          actual: unknown;
+        }[];
+        const missing: number[] = [];
+        for (let i = 0; i < compares.length; ++i) {
+          if (compares[i].actual === undefined) {
+            missing.push(i);
+          }
+        }
+        if (missing.length > 0) {
+          details.push(`${assertName}: incomplete (${missing.map((i) => `actual${i}`).join(', ')} undefined)`);
+        } else {
+          details.push(`${assertName}: still ${state === TestState.NEW ? 'not run' : 'running'}`);
+        }
+      }
+    }
+    if (this._timeouted) {
+      const waitingNames: string[] = [];
+      this.forEach((field: string, value: unknown) => {
+        if (value instanceof Block && value._waiting) {
+          waitingNames.push(field);
+        }
+      });
+      if (waitingNames.length > 0) {
+        details.push(`waiting blocks: ${waitingNames.join(', ')}`);
+      }
+    }
+    return details;
   }
 
   executeCommand(command: string, params: DataMap, readonly = false): DataMap {

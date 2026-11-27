@@ -42,6 +42,7 @@ provider tests.
 | --- | --- |
 | Core, Node, file server, remote storage, app helpers | `pnpm test <file-or-directory>` |
 | React, designer, editor, HTML, charts | `pnpm test-browser <file-or-directory>` |
+| Ticlo flow tests (`.ticlo`) | `pnpm ticlo-test` or `pnpm ticlo-test <filter>` |
 | Connector | Its `*.node.test.ts` or `*.browser.test.tsx` tests |
 | TypeScript | `pnpm exec tsgo --noEmit` |
 | Formatting | `pnpm exec oxfmt --check <changed-files>` |
@@ -52,6 +53,30 @@ including core tests in Chromium. Use the browser suite for DOM behavior and
 changes with browser-specific runtime effects. Test routing and exclusions are
 maintained in [Node config](../vitest.config.mts) and
 [browser config](../vitest.web.config.mts).
+
+### Ticlo flow tests
+
+Run all `.ticlo` flow tests with:
+
+```sh
+pnpm ticlo-test
+```
+
+To run a single flow test or a subset, pass one or more filters as positional
+arguments or with `--test` / `-t`:
+
+```sh
+pnpm ticlo-test create-date
+pnpm ticlo-test core.functions.date.create-date
+pnpm ticlo-test core.functions.date
+pnpm ticlo-test packages/core/functions/date/tests/create-date.ticlo
+pnpm ticlo-test -t create-date -t parse-date
+pnpm ticlo-test "*date*"
+```
+
+Use `pnpm ticlo-test-server <filter>` to keep the server running and inspect the
+filtered test(s) in the editor UI. Pass `--port <port>` if port `8010` is already
+in use.
 
 For performance changes, compare the same workload before and after the change.
 Check work counts or scaling as well as timings; timings alone vary by machine.

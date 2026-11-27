@@ -1,5 +1,6 @@
 import {DateTime} from 'luxon';
 import {resolveZone, toDateTime} from '@ticlo/core/util/DateTime.ts';
+import {getDefaultZone} from '@ticlo/core/util/Settings.ts';
 import {Block, PropDesc} from '@ticlo/core';
 
 type DescOmit = Omit<PropDesc, 'name'>;
@@ -85,7 +86,7 @@ export const Values = {
         return new Date(value);
       }
       if (DateTime.isDateTime(value)) {
-        return value.toJSDate();
+        return toDateTime(value, getDefaultZone()).toJSDate();
       }
       return null;
     },

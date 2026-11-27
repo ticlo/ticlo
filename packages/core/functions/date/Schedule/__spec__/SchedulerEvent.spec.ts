@@ -2,6 +2,7 @@ import {expect} from 'vitest';
 import {SchedulerEvent} from '../SchedulerEvent.ts';
 import {ScheduleFunction} from '../Scheduler.ts';
 import {DateTime} from 'luxon';
+import {toDateTime} from '../../../../util/DateTime.ts';
 import {updateGlobalSettings} from '../../../../util/Settings.ts';
 import {DataWrapper} from '../../../../block/FunctonData.ts';
 import {Root} from '../../../../block/Flow.ts';
@@ -224,5 +225,19 @@ describe('ScheduleFunction', function () {
     } finally {
       Root.instance.deleteValue('testSchedulerFlow');
     }
+  });
+
+  it('keeps wall-clock time for Factory after/before DateTimes while preserving explicit zones', function () {
+    const zone = 'America/New_York';
+    const factoryAfter = toDateTime('2024-01-05T10:00:00', 'Factory');
+    const factoryEvent = SchedulerEvent.fromProperty(
+      {repeat: 'daily', start: '0:0', duration: 0, after: factoryAfter},
+      zone
+    );
+    expect(factoryEvent.after).toBe(DateTime.fromISO('2024-01-05T10:00:00', {zone}).valueOf());
+
+    const utcAfter = DateTime.fromISO('2024-01-05T10:00:00', {zone: 'UTC'});
+    const utcEvent = SchedulerEvent.fromProperty({repeat: 'daily', start: '0:0', duration: 0, after: utcAfter}, zone);
+    expect(utcEvent.after).toBe(utcAfter.valueOf());
   });
 });

@@ -1,5 +1,7 @@
 import {DateTime} from 'luxon';
 import type {PropDesc} from '../../block/Descriptor.ts';
+import {toDateTime} from '../../util/DateTime.ts';
+import {getDefaultZone} from '../../util/Settings.ts';
 
 export type HistorySeriesKind = 'number' | 'boolean' | 'value';
 
@@ -106,7 +108,7 @@ export function toHistoryEpochMs(input: unknown): number | undefined {
     return Number.isFinite(input) ? Math.trunc(input) : undefined;
   }
   if (DateTime.isDateTime(input)) {
-    return input.isValid ? Math.trunc(input.toMillis()) : undefined;
+    return input.isValid ? Math.trunc(toDateTime(input, getDefaultZone()).toMillis()) : undefined;
   }
   if (input instanceof Date) {
     const ms = input.getTime();

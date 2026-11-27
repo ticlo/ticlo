@@ -27,7 +27,9 @@ export function updateGlobalSettings(source?: {getValue(field: string): unknown}
 
   const timezoneV = source?.getValue('#timezone') as string;
   const nextTimezone =
-    typeof timezoneV === 'string' && timezoneV && DateTime.now().setZone(timezoneV).isValid ? timezoneV : systemZone;
+    typeof timezoneV === 'string' && timezoneV && timezoneV !== 'Factory' && DateTime.now().setZone(timezoneV).isValid
+      ? timezoneV
+      : systemZone;
 
   const weekDaysV = source?.getValue('#weekDays') as number[];
   const nextWeekDaysArr = vl.check(weekDaysV, [vl.num1n(7)]) && weekDaysV.length > 0 ? weekDaysV : [1, 2, 3, 4, 5];
